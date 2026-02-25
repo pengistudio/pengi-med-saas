@@ -66,14 +66,12 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 
 	record := &clinical_models.MedicalRecord{
-		Date:                     newRecord.Date,
-		NextAppointmentDate:      newRecord.NextAppointmentDate,
-		NextAppointmentStartTime: newRecord.NextAppointmentStartTime,
-		NextAppointmentEndTime:   newRecord.NextAppointmentEndTime,
-		Motive:                   newRecord.Motive,
-		Observation:              newRecord.Observation,
-		PatientID:                newRecord.PatientID,
-		SOAPRecord:               newRecord.SOAPRecord,
+		Date:          newRecord.Date,
+		Motive:        newRecord.Motive,
+		Observation:   newRecord.Observation,
+		PatientID:     newRecord.PatientID,
+		AppointmentID: newRecord.AppointmentID,
+		SOAPRecord:    newRecord.SOAPRecord,
 	}
 
 	// Create prescription if provided
@@ -120,8 +118,10 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	if updatedRecord.Date != nil {
 		record["date"] = *updatedRecord.Date
 	}
-	if updatedRecord.NextAppointmentDate != nil {
-		record["next_appointment_date"] = *updatedRecord.NextAppointmentDate
+	if updatedRecord.AppointmentID != nil {
+		record["appointment_id"] = *updatedRecord.AppointmentID
+		// Auto-complete the linked appointment
+		h.db.Model(&clinical_models.Appointment{}).Where("id = ?", *updatedRecord.AppointmentID).Update("status", "completed")
 	}
 	if updatedRecord.Motive != nil {
 		record["motive"] = *updatedRecord.Motive

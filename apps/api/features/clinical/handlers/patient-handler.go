@@ -41,24 +41,21 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 	fullName := newPatient.FirstName + " " + newPatient.LastName
 
 	patient := &clinical_models.Patient{
-		Document:                 newPatient.Document,
-		Phone:                    newPatient.Phone,
-		FirstName:                newPatient.FirstName,
-		LastName:                 newPatient.LastName,
-		FullName:                 &fullName,
-		BirthDate:                birthDate,
-		NextAppointmentDate:      newPatient.NextAppointmentDate,
-		NextAppointmentStartTime: newPatient.NextAppointmentStartTime,
-		NextAppointmentEndTime:   newPatient.NextAppointmentEndTime,
-		Institution:              newPatient.Institution,
-		Gender:                   newPatient.Gender,
-		Notes:                    newPatient.Notes,
-		Insurance:                newPatient.Insurance,
-		Medic:                    newPatient.Medic,
-		Diagnosis:                newPatient.Diagnosis,
-		APP:                      newPatient.APP,
-		APF:                      newPatient.APF,
-		APQX:                     newPatient.APQX,
+		Document:    newPatient.Document,
+		Phone:       newPatient.Phone,
+		FirstName:   newPatient.FirstName,
+		LastName:    newPatient.LastName,
+		FullName:    &fullName,
+		BirthDate:   birthDate,
+		Institution: newPatient.Institution,
+		Gender:      newPatient.Gender,
+		Notes:       newPatient.Notes,
+		Insurance:   newPatient.Insurance,
+		Medic:       newPatient.Medic,
+		Diagnosis:   newPatient.Diagnosis,
+		APP:         newPatient.APP,
+		APF:         newPatient.APF,
+		APQX:        newPatient.APQX,
 	}
 
 	tenantID, exists := c.Get("tenant_id")
@@ -124,15 +121,6 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	}
 	if updateData.BirthDate != nil {
 		updates["birth_date"] = *updateData.BirthDate
-	}
-	if updateData.NextAppointmentDate != nil {
-		updates["next_appointment_date"] = *updateData.NextAppointmentDate
-	}
-	if updateData.NextAppointmentStartTime != nil {
-		updates["next_appointment_start_time"] = *updateData.NextAppointmentStartTime
-	}
-	if updateData.NextAppointmentEndTime != nil {
-		updates["next_appointment_end_time"] = *updateData.NextAppointmentEndTime
 	}
 	if updateData.Institution != nil {
 		updates["institution"] = *updateData.Institution

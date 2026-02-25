@@ -191,7 +191,9 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 										{textGet("dashboard.dropdown.profile.title")}
 									</DropdownMenuLabel>
 									<DropdownMenuSeparator />
-									<DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => (window.location.href = "/profile")}
+									>
 										{textGet("dashboard.dropdown.profile")}
 									</DropdownMenuItem>
 									<DropdownMenuItem>

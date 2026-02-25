@@ -1050,5 +1050,229 @@
 	{
 		"key": "clinical.medical_record.create_prescription",
 		"value": "Create Prescription"
+	},
+	{
+		"key": "appointments.title",
+		"value": "Appointment Schedule"
+	},
+	{
+		"key": "appointments.today",
+		"value": "Today"
+	},
+	{
+		"key": "appointments.new",
+		"value": "New Appointment"
+	},
+	{
+		"key": "appointments.edit",
+		"value": "Edit Appointment"
+	},
+	{
+		"key": "appointments.patient",
+		"value": "Patient"
+	},
+	{
+		"key": "appointments.patient.search",
+		"value": "Search by name or ID..."
+	},
+	{
+		"key": "appointments.patient.not_found",
+		"value": "No patients found"
+	},
+	{
+		"key": "appointments.form.title_label",
+		"value": "Title"
+	},
+	{
+		"key": "appointments.form.title_placeholder",
+		"value": "General consultation, follow-up, etc."
+	},
+	{
+		"key": "appointments.form.start_time",
+		"value": "Start time"
+	},
+	{
+		"key": "appointments.form.end_time",
+		"value": "End time"
+	},
+	{
+		"key": "appointments.form.location",
+		"value": "Location"
+	},
+	{
+		"key": "appointments.form.location_placeholder",
+		"value": "Office 1"
+	},
+	{
+		"key": "appointments.form.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "appointments.form.notes_placeholder",
+		"value": "Additional observations..."
+	},
+	{
+		"key": "appointments.form.save",
+		"value": "Save changes"
+	},
+	{
+		"key": "appointments.form.create",
+		"value": "Create appointment"
+	},
+	{
+		"key": "appointments.form.select_patient",
+		"value": "Select a patient"
+	},
+	{
+		"key": "appointments.status.scheduled",
+		"value": "Scheduled"
+	},
+	{
+		"key": "appointments.status.completed",
+		"value": "Completed"
+	},
+	{
+		"key": "appointments.status.cancelled",
+		"value": "Cancelled"
+	},
+	{
+		"key": "appointments.action.edit",
+		"value": "Edit"
+	},
+	{
+		"key": "appointments.action.complete",
+		"value": "Complete"
+	},
+	{
+		"key": "appointments.action.cancel",
+		"value": "Cancel"
+	},
+	{
+		"key": "appointments.action.delete",
+		"value": "Delete"
+	},
+	{
+		"key": "appointments.get.success",
+		"value": "Appointments retrieved successfully"
+	},
+	{
+		"key": "appointments.create.success",
+		"value": "Appointment created successfully"
+	},
+	{
+		"key": "appointments.update.success",
+		"value": "Appointment updated successfully"
+	},
+	{
+		"key": "appointments.status.update.success",
+		"value": "Appointment status updated successfully"
+	},
+	{
+		"key": "appointments.delete.success",
+		"value": "Appointment deleted successfully"
+	},
+	{
+		"key": "dashboard.title",
+		"value": "Dashboard"
+	},
+	{
+		"key": "dashboard.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "dashboard.stat.total_patients",
+		"value": "Total Patients"
+	},
+	{
+		"key": "dashboard.stat.critical_patients",
+		"value": "Critical Patients"
+	},
+	{
+		"key": "dashboard.stat.today_appointments",
+		"value": "Today's Appointments"
+	},
+	{
+		"key": "dashboard.stat.monthly_completed",
+		"value": "Completed this Month"
+	},
+	{
+		"key": "dashboard.chart.weekly_title",
+		"value": "Weekly Appointments"
+	},
+	{
+		"key": "dashboard.chart.weekly_description",
+		"value": "Appointment distribution for the current week"
+	},
+	{
+		"key": "dashboard.upcoming.title",
+		"value": "Upcoming Appointments"
+	},
+	{
+		"key": "dashboard.upcoming.description",
+		"value": "Appointments scheduled for today"
+	},
+	{
+		"key": "dashboard.upcoming.empty",
+		"value": "No appointments scheduled for today"
+	},
+	{
+		"key": "dashboard.stats.success",
+		"value": "Dashboard statistics retrieved successfully"
+	},
+	{
+		"key": "profile.title",
+		"value": "My Profile"
+	},
+	{
+		"key": "profile.user_info",
+		"value": "User Information"
+	},
+	{
+		"key": "profile.user_info.description",
+		"value": "Your account details"
+	},
+	{
+		"key": "profile.username",
+		"value": "Username"
+	},
+	{
+		"key": "profile.role",
+		"value": "Role"
+	},
+	{
+		"key": "profile.environment_info",
+		"value": "Environment Information"
+	},
+	{
+		"key": "profile.environment_info.description",
+		"value": "Selected environment details"
+	},
+	{
+		"key": "profile.email",
+		"value": "Email"
+	},
+	{
+		"key": "profile.environment_name",
+		"value": "Environment name"
+	},
+	{
+		"key": "profile.legal_name",
+		"value": "Legal name"
+	},
+	{
+		"key": "profile.trade_name",
+		"value": "Trade name"
+	},
+	{
+		"key": "profile.save",
+		"value": "Save changes"
+	},
+	{
+		"key": "profile.get.success",
+		"value": "Profile retrieved successfully"
+	},
+	{
+		"key": "profile.update.success",
+		"value": "Profile updated successfully"
 	}
 ]

@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet, type RouteObject } from "react-router";
 import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
 import { PERMISSIONS } from "@/lib/constants";
+import AppointmentsPage from "@/pages/clincal/appointments/appointments";
 import CreateMedicalRecordPage from "@/pages/clincal/patient/create-medical-record";
 import CreatePatientPage from "@/pages/clincal/patient/create-patient";
 import EditPatientPage from "@/pages/clincal/patient/edit-patient";
@@ -12,7 +13,7 @@ import ViewMedicalRecordPage from "@/pages/clincal/patient/view-medical-record";
 import Home from "@/pages/home/home";
 import LoginEnvironments from "@/pages/login/login-environments";
 import Login from "@/pages/login/login-page";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import Profile from "@/pages/profile/profile";
 
 const clinicalRoutes: RouteObject = {
 	path: "/clinical",
@@ -91,6 +92,10 @@ const clinicalRoutes: RouteObject = {
 				</CheckPermission>
 			),
 		},
+		{
+			path: "appointments",
+			element: <AppointmentsPage />,
+		},
 	],
 };
 
@@ -109,9 +114,7 @@ const router = createBrowserRouter([
 	{
 		element: (
 			<CheckAuth>
-				<DashboardLayout>
-					<Outlet />
-				</DashboardLayout>
+				<Outlet />
 			</CheckAuth>
 		),
 		children: [
@@ -119,9 +122,13 @@ const router = createBrowserRouter([
 				path: "/",
 				element: <Home />,
 			},
+			{
+				path: "/profile",
+				element: <Profile />,
+			},
+			...routes,
 		],
 	},
-	...routes,
 ]);
 
 export { router };

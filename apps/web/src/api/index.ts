@@ -15,6 +15,7 @@ export const noAuthApi = axios.create({
 	headers: {
 		"Content-Type": "application/json",
 	},
+	withCredentials: true,
 });
 
 export const apiWithTenant = axios.create({

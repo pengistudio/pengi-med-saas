@@ -43,6 +43,7 @@ func (h *DownloadRecordHandler) DownloadPatientReport(c *gin.Context) {
 		}).
 		Preload("MedicalRecords.SOAPRecord").
 		Preload("MedicalRecords.Prescription").
+		Preload("MedicalRecords.Appointment").
 		First(&patient, id).Error
 
 	if err != nil {
@@ -154,8 +155,8 @@ func generatePatientReportPDF(patient *clinical_models.Patient) ([]byte, error) 
 	if len(patient.MedicalRecords) > 0 {
 		lastRecord := patient.MedicalRecords[0]
 		addField(pdf, "Ultima consulta:", lastRecord.Date.Format("02/01/2006"))
-		if lastRecord.NextAppointmentDate != nil {
-			addField(pdf, "Proxima cita:", lastRecord.NextAppointmentDate.Format("02/01/2006"))
+		if lastRecord.Appointment != nil {
+			addField(pdf, "Proxima cita:", lastRecord.Appointment.Date.Format("02/01/2006"))
 		}
 	}
 	pdf.Ln(5)
@@ -226,11 +227,11 @@ func generatePatientReportPDF(patient *clinical_models.Patient) ([]byte, error) 
 				}
 			}
 
-			// Next appointment
-			if record.NextAppointmentDate != nil {
+			// Linked appointment
+			if record.Appointment != nil {
 				pdf.SetFont("Arial", "B", 10)
 				pdf.SetTextColor(46, 204, 113)
-				pdf.Cell(0, 6, fmt.Sprintf("Proxima cita: %s", record.NextAppointmentDate.Format("02/01/2006")))
+				pdf.Cell(0, 6, fmt.Sprintf("Cita enlazada: %s (%s-%s)", record.Appointment.Date.Format("02/01/2006"), record.Appointment.StartTime, record.Appointment.EndTime))
 				pdf.SetTextColor(0, 0, 0)
 				pdf.Ln(6)
 			}

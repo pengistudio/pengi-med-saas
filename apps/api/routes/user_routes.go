@@ -13,11 +13,14 @@ import (
 func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	userHandler := user_handlers.NewUserHandler(db, logger.Log)
 	environmentHandler := user_handlers.NewEnvironmentHandler(db, logger.Log)
+	profileHandler := user_handlers.NewProfileHandler(db, logger.Log)
 
 	userRoutes := router.Group("/users")
 	{
 		userRoutes.GET("", envelope.Handle(userHandler.GetUsers))
 		userRoutes.GET("/environments", auth_middleware.ExchangeAuthMiddleware(), envelope.Handle(environmentHandler.GetEnvironmentsFromUser))
+		userRoutes.GET("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.GetProfile))
+		userRoutes.PUT("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.UpdateProfile))
 	}
 
 	authRoutes := router.Group("/auth")

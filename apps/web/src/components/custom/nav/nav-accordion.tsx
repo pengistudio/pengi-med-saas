@@ -85,7 +85,7 @@ const NavAccordion = (props: Props) => {
 						</span>
 					</div>
 				</AccordionTrigger>
-				<AccordionContent className="pb-0">
+				<AccordionContent className="pb-0 [&_a]:no-underline">
 					{accordionItems.map((item) => (
 						<div key={item.label} className="ml-5 border-l">
 							<div className="ml-2 py-1">

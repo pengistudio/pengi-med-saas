@@ -14,7 +14,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
@@ -72,10 +71,6 @@ const LoginForm = () => {
 							<Button type="submit" className="w-full" disabled={load}>
 								{load && <Spinner />}
 								<Text uuid="login.login_button" />
-							</Button>
-							<Separator className="w-full" />
-							<Button className="w-full" variant="outline" type="button">
-								<Text uuid="session.register.button" />
 							</Button>
 						</CardFooter>
 					</Card>

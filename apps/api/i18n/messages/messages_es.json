@@ -1050,5 +1050,229 @@
 	{
 		"key": "clinical.medical_record.create_prescription",
 		"value": "Crear Receta"
+	},
+	{
+		"key": "appointments.title",
+		"value": "Agenda de Citas"
+	},
+	{
+		"key": "appointments.today",
+		"value": "Hoy"
+	},
+	{
+		"key": "appointments.new",
+		"value": "Nueva Cita"
+	},
+	{
+		"key": "appointments.edit",
+		"value": "Editar Cita"
+	},
+	{
+		"key": "appointments.patient",
+		"value": "Paciente"
+	},
+	{
+		"key": "appointments.patient.search",
+		"value": "Buscar por nombre o cédula..."
+	},
+	{
+		"key": "appointments.patient.not_found",
+		"value": "No se encontraron pacientes"
+	},
+	{
+		"key": "appointments.form.title_label",
+		"value": "Título"
+	},
+	{
+		"key": "appointments.form.title_placeholder",
+		"value": "Consulta general, control, etc."
+	},
+	{
+		"key": "appointments.form.start_time",
+		"value": "Hora inicio"
+	},
+	{
+		"key": "appointments.form.end_time",
+		"value": "Hora fin"
+	},
+	{
+		"key": "appointments.form.location",
+		"value": "Ubicación"
+	},
+	{
+		"key": "appointments.form.location_placeholder",
+		"value": "Consultorio 1"
+	},
+	{
+		"key": "appointments.form.notes",
+		"value": "Notas"
+	},
+	{
+		"key": "appointments.form.notes_placeholder",
+		"value": "Observaciones adicionales..."
+	},
+	{
+		"key": "appointments.form.save",
+		"value": "Guardar cambios"
+	},
+	{
+		"key": "appointments.form.create",
+		"value": "Crear cita"
+	},
+	{
+		"key": "appointments.form.select_patient",
+		"value": "Seleccione un paciente"
+	},
+	{
+		"key": "appointments.status.scheduled",
+		"value": "Agendada"
+	},
+	{
+		"key": "appointments.status.completed",
+		"value": "Completada"
+	},
+	{
+		"key": "appointments.status.cancelled",
+		"value": "Cancelada"
+	},
+	{
+		"key": "appointments.action.edit",
+		"value": "Editar"
+	},
+	{
+		"key": "appointments.action.complete",
+		"value": "Completar"
+	},
+	{
+		"key": "appointments.action.cancel",
+		"value": "Cancelar"
+	},
+	{
+		"key": "appointments.action.delete",
+		"value": "Eliminar"
+	},
+	{
+		"key": "appointments.get.success",
+		"value": "Citas obtenidas exitosamente"
+	},
+	{
+		"key": "appointments.create.success",
+		"value": "Cita creada exitosamente"
+	},
+	{
+		"key": "appointments.update.success",
+		"value": "Cita actualizada exitosamente"
+	},
+	{
+		"key": "appointments.status.update.success",
+		"value": "Estado de la cita actualizado exitosamente"
+	},
+	{
+		"key": "appointments.delete.success",
+		"value": "Cita eliminada exitosamente"
+	},
+	{
+		"key": "dashboard.title",
+		"value": "Panel de Control"
+	},
+	{
+		"key": "dashboard.loading",
+		"value": "Cargando..."
+	},
+	{
+		"key": "dashboard.stat.total_patients",
+		"value": "Total de Pacientes"
+	},
+	{
+		"key": "dashboard.stat.critical_patients",
+		"value": "Pacientes Críticos"
+	},
+	{
+		"key": "dashboard.stat.today_appointments",
+		"value": "Citas de Hoy"
+	},
+	{
+		"key": "dashboard.stat.monthly_completed",
+		"value": "Completadas este Mes"
+	},
+	{
+		"key": "dashboard.chart.weekly_title",
+		"value": "Citas de la Semana"
+	},
+	{
+		"key": "dashboard.chart.weekly_description",
+		"value": "Distribución de citas de la semana actual"
+	},
+	{
+		"key": "dashboard.upcoming.title",
+		"value": "Próximas Citas"
+	},
+	{
+		"key": "dashboard.upcoming.description",
+		"value": "Citas agendadas para hoy"
+	},
+	{
+		"key": "dashboard.upcoming.empty",
+		"value": "No hay citas programadas para hoy"
+	},
+	{
+		"key": "dashboard.stats.success",
+		"value": "Estadísticas del dashboard obtenidas exitosamente"
+	},
+	{
+		"key": "profile.title",
+		"value": "Mi Perfil"
+	},
+	{
+		"key": "profile.user_info",
+		"value": "Información de Usuario"
+	},
+	{
+		"key": "profile.user_info.description",
+		"value": "Datos de tu cuenta"
+	},
+	{
+		"key": "profile.username",
+		"value": "Nombre de usuario"
+	},
+	{
+		"key": "profile.role",
+		"value": "Rol"
+	},
+	{
+		"key": "profile.environment_info",
+		"value": "Información del Ambiente"
+	},
+	{
+		"key": "profile.environment_info.description",
+		"value": "Datos del ambiente seleccionado"
+	},
+	{
+		"key": "profile.email",
+		"value": "Correo electrónico"
+	},
+	{
+		"key": "profile.environment_name",
+		"value": "Nombre del ambiente"
+	},
+	{
+		"key": "profile.legal_name",
+		"value": "Razón social"
+	},
+	{
+		"key": "profile.trade_name",
+		"value": "Nombre comercial"
+	},
+	{
+		"key": "profile.save",
+		"value": "Guardar cambios"
+	},
+	{
+		"key": "profile.get.success",
+		"value": "Perfil obtenido exitosamente"
+	},
+	{
+		"key": "profile.update.success",
+		"value": "Perfil actualizado exitosamente"
 	}
 ]

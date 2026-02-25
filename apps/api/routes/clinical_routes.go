@@ -13,11 +13,16 @@ import (
 func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	patientHandler := clinical_handlers.NewPatientHandler(db, logger.Log)
 	recordHandler := clinical_handlers.NewMedicalRecordHandler(db, logger.Log)
+	appointmentHandler := clinical_handlers.NewAppointmentHandler(db, logger.Log)
+	dashboardHandler := clinical_handlers.NewDashboardHandler(db, logger.Log)
 
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
 
 	clinicalGroup := router.Group("/clinical", tenant_middleware.TenantMiddleware(db))
 	{
+
+		// Dashboard route
+		clinicalGroup.GET("/dashboard/stats", envelope.Handle(dashboardHandler.GetDashboardStats))
 
 		// Patient routes
 		patientGroup := clinicalGroup.Group("/patients")
@@ -42,6 +47,18 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.GET("/patient/:id", envelope.Handle(recordHandler.GetMedicalRecords))
 			recordGroup.GET("/:id", envelope.Handle(recordHandler.GetMedicalRecord))
 			recordGroup.PUT("/:id/prescription", envelope.Handle(recordHandler.UpdatePrescription))
+		}
+
+		// Appointment routes
+		appointmentGroup := clinicalGroup.Group("/appointments")
+		{
+			appointmentGroup.GET("", envelope.Handle(appointmentHandler.GetAppointments))
+			appointmentGroup.GET("/:id", envelope.Handle(appointmentHandler.GetAppointment))
+			appointmentGroup.GET("/patient/:id", envelope.Handle(appointmentHandler.GetPatientAppointments))
+			appointmentGroup.POST("", envelope.Handle(appointmentHandler.CreateAppointment))
+			appointmentGroup.PUT("/:id", envelope.Handle(appointmentHandler.UpdateAppointment))
+			appointmentGroup.PUT("/:id/status", envelope.Handle(appointmentHandler.UpdateStatus))
+			appointmentGroup.DELETE("/:id", envelope.Handle(appointmentHandler.DeleteAppointment))
 		}
 	}
 }

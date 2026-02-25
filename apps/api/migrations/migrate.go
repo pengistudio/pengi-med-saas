@@ -35,6 +35,7 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.MedicalRecord{},
 		clinical_models.SOAPRecord{},
 		clinical_models.Prescription{},
+		clinical_models.Appointment{},
 	)
 	if err != nil {
 		return err

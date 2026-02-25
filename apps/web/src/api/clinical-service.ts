@@ -25,9 +25,8 @@ export interface Patient extends BaseModel {
 	app: string;
 	apf: string;
 	apqx: string;
-	medical_records?: Array<{
-		next_appointment_date?: string | null;
-	}>;
+	medical_records?: MedicalRecord[];
+	appointments?: Appointment[];
 }
 
 export const getAllPatientsWithLastFollowUp = async (): Promise<
@@ -82,9 +81,6 @@ export type CreatePatientPayload = {
 	first_name: string;
 	last_name: string;
 	birth_date?: Date;
-	next_appointment_date?: Date;
-	next_appointment_start_time?: string;
-	next_appointment_end_time?: string;
 	institution: string;
 	gender?: string;
 	notes?: string;
@@ -135,12 +131,24 @@ export const getAllInstitutions = async (): Promise<
 	});
 };
 
+export interface Appointment extends BaseModel {
+	tenant_id: number;
+	patient_id: number;
+	title: string;
+	date: string;
+	start_time: string;
+	end_time: string;
+	location?: string;
+	notes?: string;
+	status: "scheduled" | "completed" | "cancelled";
+	patient?: Patient;
+}
+
 export interface MedicalRecord extends BaseModel {
 	patient_id: number;
 	date: string;
-	next_appointment_date?: string | null;
-	next_appointment_start_time?: string | null;
-	next_appointment_end_time?: string | null;
+	appointment_id?: number | null;
+	appointment?: Appointment | null;
 	motive: string;
 	observation: string;
 	soap_record?: {
@@ -197,9 +205,7 @@ export type CreateMedicalRecordPayload = {
 	date: string;
 	motive: string;
 	observation: string;
-	next_appointment_date?: string;
-	next_appointment_start_time?: string;
-	next_appointment_end_time?: string;
+	appointment_id?: number;
 	soap_record: {
 		subjective: string;
 		objective: string;
@@ -225,9 +231,7 @@ export type UpdateMedicalRecordPayload = {
 	date?: string;
 	motive?: string;
 	observation?: string;
-	next_appointment_date?: string;
-	next_appointment_start_time?: string;
-	next_appointment_end_time?: string;
+	appointment_id?: number;
 	soap_record?: {
 		subjective: string;
 		objective: string;
@@ -267,4 +271,117 @@ export const updatePrescription = async (
 			notifyError: true,
 		},
 	);
+};
+
+// ─── Appointment API ─────────────────────────────────────────────────────────
+
+export type CreateAppointmentPayload = {
+	patient_id: number;
+	title: string;
+	date: string;
+	start_time: string;
+	end_time: string;
+	location?: string;
+	notes?: string;
+};
+
+export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload>;
+
+export const getAppointments = async (
+	start?: string,
+	end?: string,
+): Promise<ServiceResponse<Appointment[]>> => {
+	const params = new URLSearchParams();
+	if (start) params.set("start", start);
+	if (end) params.set("end", end);
+	const qs = params.toString() ? `?${params.toString()}` : "";
+	return clinicalService.get<Appointment[]>(`/clinical/appointments${qs}`, {
+		notifyError: true,
+	});
+};
+
+export const getPatientAppointments = async (
+	patientId: number,
+	status?: string,
+): Promise<ServiceResponse<Appointment[]>> => {
+	const qs = status ? `?status=${status}` : "";
+	return clinicalService.get<Appointment[]>(
+		`/clinical/appointments/patient/${patientId}${qs}`,
+		{ notifyError: true },
+	);
+};
+
+export const createAppointment = async (
+	payload: CreateAppointmentPayload,
+): Promise<ServiceResponse<Appointment>> => {
+	return clinicalService.post<Appointment>("/clinical/appointments", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const updateAppointment = async (
+	id: number,
+	payload: UpdateAppointmentPayload,
+): Promise<ServiceResponse<Appointment>> => {
+	return clinicalService.put<Appointment>(
+		`/clinical/appointments/${id}`,
+		payload,
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const updateAppointmentStatus = async (
+	id: number,
+	status: string,
+): Promise<ServiceResponse<Appointment>> => {
+	return clinicalService.put<Appointment>(
+		`/clinical/appointments/${id}/status`,
+		{ status },
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const deleteAppointment = async (
+	id: number,
+): Promise<ServiceResponse<null>> => {
+	return clinicalService.delete<null>(`/clinical/appointments/${id}`, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+// ─── Dashboard API ───────────────────────────────────────────────────────────
+
+export interface WeekDayStat {
+	date: string;
+	day: string;
+	count: number;
+}
+
+export interface UpcomingAppointment {
+	id: number;
+	title: string;
+	start_time: string;
+	end_time: string;
+	patient_name: string;
+	patient_id: number;
+	status: string;
+}
+
+export interface DashboardStats {
+	total_patients: number;
+	critical_patients: number;
+	today_appointments: number;
+	monthly_completed: number;
+	weekly_appointments: WeekDayStat[];
+	upcoming_appointments: UpcomingAppointment[];
+}
+
+export const getDashboardStats = async (): Promise<
+	ServiceResponse<DashboardStats>
+> => {
+	return clinicalService.get<DashboardStats>("/clinical/dashboard/stats", {
+		notifyError: true,
+	});
 };

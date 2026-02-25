@@ -192,30 +192,20 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		meta: { title: "table.column.next_appointment" },
 		size: 100,
 		cell: ({ row }) => {
-			const medicalRecords = row.original.medical_records;
-			if (!medicalRecords || medicalRecords.length === 0) {
+			const appointments = row.original.appointments;
+			const nextScheduled = appointments?.find((a) => a.status === "scheduled");
+			if (!nextScheduled) {
 				return (
 					<Badge variant="secondary" className="font-normal">
 						<Text uuid="clinical.patient.appointment.none" />
 					</Badge>
 				);
 			}
-			const nextAppointmentDate = medicalRecords[0]?.next_appointment_date;
-			if (!nextAppointmentDate) {
-				return (
-					<Badge variant="secondary" className="font-normal">
-						<Text uuid="clinical.patient.appointment.none" />
-					</Badge>
-				);
-			}
-			return new Date(nextAppointmentDate as string).toLocaleDateString(
-				"es-EC",
-				{
-					year: "numeric",
-					month: "short",
-					day: "numeric",
-				},
-			);
+			return new Date(nextScheduled.date).toLocaleDateString("es-EC", {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+			});
 		},
 	},
 	{

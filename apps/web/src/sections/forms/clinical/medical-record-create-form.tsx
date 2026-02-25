@@ -27,13 +27,6 @@ import useToast from "@/hooks/use-toast";
 
 const formSchema = z.object({
 	date: z.date({ error: "Campo requerido" }),
-	next_appointment: z
-		.object({
-			date: z.date().optional(),
-			startTime: z.string().optional(),
-			endTime: z.string().optional(),
-		})
-		.optional(),
 	motive: z
 		.string({ error: "Campo requerido" })
 		.min(1, "Campo requerido")
@@ -91,13 +84,6 @@ const CreateMedicalRecordForm = () => {
 									field={field}
 									name="date"
 									label={textGet("form.create_medical_record.date")}
-								/>
-								<FormCalendar
-									field={field}
-									name="next_appointment"
-									label={textGet("form.create_medical_record.next_appointment")}
-									isOptional
-									enableTime
 								/>
 							</div>
 							<FormTextArea
@@ -285,22 +271,17 @@ const CreateMedicalRecordForm = () => {
 		if (!patientId) return;
 		setLoading(true);
 
-		const { next_appointment, ...restValues } = values;
-
 		const payload = {
 			patient_id: Number(patientId),
-			date: restValues.date.toISOString(),
-			motive: restValues.motive,
-			observation: restValues.observation || "",
-			next_appointment_date: next_appointment?.date?.toISOString(),
-			next_appointment_start_time: next_appointment?.startTime,
-			next_appointment_end_time: next_appointment?.endTime,
-			soap_record: restValues.soap_record,
+			date: values.date.toISOString(),
+			motive: values.motive,
+			observation: values.observation || "",
+			soap_record: values.soap_record,
 			prescription:
-				restValues.prescription?.content || restValues.prescription?.indications
+				values.prescription?.content || values.prescription?.indications
 					? {
-							content: restValues.prescription?.content || "",
-							indications: restValues.prescription?.indications || "",
+							content: values.prescription?.content || "",
+							indications: values.prescription?.indications || "",
 						}
 					: undefined,
 		};

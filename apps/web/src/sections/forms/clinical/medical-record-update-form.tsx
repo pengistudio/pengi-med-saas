@@ -30,13 +30,6 @@ import useToast from "@/hooks/use-toast";
 
 const formSchema = z.object({
 	date: z.date({ error: "Campo requerido" }),
-	next_appointment: z
-		.object({
-			date: z.date().optional(),
-			startTime: z.string().optional(),
-			endTime: z.string().optional(),
-		})
-		.optional(),
 	motive: z
 		.string({ error: "Campo requerido" })
 		.min(1, "Campo requerido")
@@ -76,13 +69,6 @@ const UpdateMedicalRecordForm = () => {
 			const record = res.data as MedicalRecord;
 			setInitialData({
 				date: new Date(record.date),
-				next_appointment: record.next_appointment_date
-					? {
-							date: new Date(record.next_appointment_date),
-							startTime: record.next_appointment_start_time || undefined,
-							endTime: record.next_appointment_end_time || undefined,
-						}
-					: undefined,
 				motive: record.motive,
 				observation: record.observation || "",
 				soap_record: {
@@ -125,13 +111,6 @@ const UpdateMedicalRecordForm = () => {
 									field={field}
 									name="date"
 									label={textGet("form.update_medical_record.date")}
-								/>
-								<FormCalendar
-									field={field}
-									name="next_appointment"
-									label={textGet("form.update_medical_record.next_appointment")}
-									enableTime
-									isOptional
 								/>
 							</div>
 							<FormTextArea
@@ -282,16 +261,11 @@ const UpdateMedicalRecordForm = () => {
 		if (!id) return;
 		setLoading(true);
 
-		const { next_appointment, ...restValues } = values;
-
 		const payload = {
-			date: restValues.date.toISOString(),
-			motive: restValues.motive,
-			observation: restValues.observation || "",
-			next_appointment_date: next_appointment?.date?.toISOString(),
-			next_appointment_start_time: next_appointment?.startTime,
-			next_appointment_end_time: next_appointment?.endTime,
-			soap_record: restValues.soap_record,
+			date: values.date.toISOString(),
+			motive: values.motive,
+			observation: values.observation || "",
+			soap_record: values.soap_record,
 		};
 
 		const res = await updateMedicalRecord(Number(id), payload);

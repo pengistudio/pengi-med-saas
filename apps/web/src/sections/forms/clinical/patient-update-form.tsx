@@ -43,13 +43,6 @@ const formSchema = z.object({
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),
-	next_appointment: z
-		.object({
-			date: z.date().optional(),
-			startTime: z.string().optional(),
-			endTime: z.string().optional(),
-		})
-		.optional(),
 	notes: z.string().optional(),
 	insurance: z.string().optional(),
 	medic: z.string().min(1, "No debe estar vacío"),
@@ -168,14 +161,6 @@ const EditPatientForm = () => {
 								isOptional
 							/>
 
-							<FormCalendar
-								field={field}
-								name="next_appointment"
-								label={textGet("form.edit_patient.next_appointment")}
-								enableTime
-								isOptional
-							/>
-
 							<FormRadioGroup
 								name="gender"
 								label={textGet("form.edit_patient.gender")}
@@ -265,13 +250,8 @@ const EditPatientForm = () => {
 		if (!id) return;
 		setLoading(true);
 
-		const { next_appointment, ...restValues } = values;
-
 		const payload = {
-			...restValues,
-			next_appointment_date: next_appointment?.date,
-			next_appointment_start_time: next_appointment?.startTime,
-			next_appointment_end_time: next_appointment?.endTime,
+			...values,
 		};
 
 		const res = await updatePatient(Number(id), payload);
