@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	core_errors "pengi-med-saas/core/errors"
-	"reflect"
 )
 
 type Response struct {
@@ -43,14 +42,15 @@ func ErrorResponse(code int, message string, data core_errors.AppError) Response
 
 func (r Response) Unwrap() error {
 	if r.Code > 399 {
-		if reflect.TypeOf(r.Data) != reflect.TypeFor[core_errors.AppError]() {
-			panic("Unwrap: data must be of type AppError")
+		appErr, ok := r.Data.(core_errors.AppError)
+		if !ok {
+			return fmt.Errorf("description: %s, invalid error data format", r.Message)
 		}
-		return fmt.Errorf("description: %s, metadata: %s", r.Message, r.Data)
+		return fmt.Errorf("description: %s, metadata: %v", r.Message, appErr)
 	}
 	return nil
 }
 
 func (r Response) Error() string {
-	return fmt.Sprintf("description: %s, metadata: %s", r.Message, r.Data)
+	return fmt.Sprintf("description: %s, metadata: %v", r.Message, r.Data)
 }

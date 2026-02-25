@@ -65,6 +65,56 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+func ExchangeAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var token string
+
+		// 1) First, try to get from query string
+		token = c.Query("exchange_token")
+
+		// 2) If not in query, try to get from JSON body
+		if token == "" && c.Request.Method == "POST" || c.Request.Method == "PUT" || c.Request.Method == "PATCH" {
+			var body struct {
+				ExchangeToken string `json:"exchange_token"`
+			}
+			// ShouldBindBodyWith allows reading the body multiple times if needed by other handlers
+			if err := c.ShouldBindJSON(&body); err == nil {
+				token = body.ExchangeToken
+			}
+		}
+
+		if token == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Exchange token missing", core_errors.ErrAuthInvalidRequest))
+			return
+		}
+
+		claims, err := auth.ParseExchangeToken(token)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired exchange token", core_errors.ErrAuthInvalidRequest))
+			return
+		}
+
+		userID, ok := claims["userId"].(float64)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid token payload: userId missing", core_errors.ErrAuthInvalidRequest))
+			return
+		}
+
+		username, ok := claims["username"].(string)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid token payload: username missing", core_errors.ErrAuthInvalidRequest))
+			return
+		}
+
+		c.Set("user_id", int64(userID))
+		c.Set("username", username)
+		c.Set("auth_token", token)
+		c.Set("authenticated", true)
+
+		c.Next()
+	}
+}
+
 // OptionalAuthMiddleware es similar a AuthMiddleware pero no bloquea si no hay token
 // Útil para endpoints que pueden funcionar con o sin autenticación
 func OptionalAuthMiddleware() gin.HandlerFunc {

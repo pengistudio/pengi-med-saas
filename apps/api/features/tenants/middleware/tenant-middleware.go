@@ -32,8 +32,7 @@ func TenantMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 func TenantScope(c *gin.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		// Obtenemos el ID que el middleware guardó en el contexto
-		tenantID := c.Request.Context().Value("tenant_id")
+		tenantID := c.GetUint("tenant_id")
 		return db.Where("tenant_id = ?", tenantID)
 	}
 }

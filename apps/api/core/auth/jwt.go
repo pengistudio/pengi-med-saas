@@ -21,12 +21,25 @@ func GenerateToken(username string, userId int64) (string, error) {
 		return "", err
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"type":     "access_token",
 		"username": username,
 		"userId":   userId,
 		"exp":      time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
 	})
 	return token.SignedString([]byte(secretKey))
 
+}
+
+func GenerateExchangeToken(username string, userId int64) (string, error) {
+	secretKey := config.GetEnv("AUTH_KEY")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"type":     "exchange_token",
+		"username": username,
+		"userId":   userId,
+		// Short expiration, e.g., 5 minutes
+		"exp": time.Now().Add(5 * time.Minute).Unix(),
+	})
+	return token.SignedString([]byte(secretKey))
 }
 
 func SetRefreshTokenCookie(refreshToken string, c *gin.Context) {
@@ -135,6 +148,20 @@ func ParseToken(token string) (jwt.MapClaims, error) {
 	exp, ok := claims["exp"].(float64)
 	if !ok || time.Now().Unix() > int64(exp) {
 		return nil, ErrExpiredToken
+	}
+
+	return claims, nil
+}
+
+func ParseExchangeToken(token string) (jwt.MapClaims, error) {
+	claims, err := ParseToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "exchange_token" {
+		return nil, errors.New("invalid token type, expected exchange_token")
 	}
 
 	return claims, nil

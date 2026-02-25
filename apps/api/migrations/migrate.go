@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"pengi-med-saas/core/database"
+	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	permission_models "pengi-med-saas/features/permissions/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -12,6 +13,8 @@ import (
 	message_models "pengi-med-saas/i18n/models"
 
 	"gorm.io/gorm"
+
+	_ "pengi-med-saas/migrations/code-migrations/2026"
 )
 
 func RunMigrations(db *gorm.DB) error {
@@ -28,6 +31,10 @@ func RunMigrations(db *gorm.DB) error {
 		user_models.User{},
 		user_models.Environment{},
 		user_models.Role{},
+		clinical_models.Patient{},
+		clinical_models.MedicalRecord{},
+		clinical_models.SOAPRecord{},
+		clinical_models.Prescription{},
 	)
 	if err != nil {
 		return err

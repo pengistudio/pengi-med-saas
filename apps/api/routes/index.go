@@ -10,4 +10,6 @@ func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	RegisterI18nRoutes(router, db)
 	RegisterCompanyRoutes(router, db)
 	RegisterUserRoutes(router, db)
+	RegisterClinicalRoutes(router, db)
+	RegisterPermissionRoutes(router, db)
 }

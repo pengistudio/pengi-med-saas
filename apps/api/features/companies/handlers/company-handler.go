@@ -31,5 +31,5 @@ func (h *CompanyHandler) GetCompanies(c *gin.Context) envelope.Response {
 	}
 
 	h.logger.Info("Companies fetched successfully", zap.Int("count", len(companies)))
-	return envelope.SuccessResponse(companies, "Companies obtained successfully")
+	return envelope.SuccessResponse(companies, "company.list.success")
 }

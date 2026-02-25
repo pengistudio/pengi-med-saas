@@ -18,5 +18,1037 @@
 	{
 		"key": "E-TEN-001",
 		"value": "Inquilino (Tenant) no encontrado."
+	},
+	{
+		"key": "E-USR-001",
+		"value": "Usuario no encontrado."
+	},
+	{
+		"key": "E-AUTH-001",
+		"value": "Solicitud de autenticación inválida."
+	},
+	{
+		"key": "E-AUTH-002",
+		"value": "Error al crear el usuario."
+	},
+	{
+		"key": "E-AUTH-003",
+		"value": "Credenciales inválidas."
+	},
+	{
+		"key": "E-AUTH-004",
+		"value": "Error generando el token."
+	},
+	{
+		"key": "E-AUTH-005",
+		"value": "Token de refresco inválido."
+	},
+	{
+		"key": "E-AUTH-006",
+		"value": "ID de usuario inválido."
+	},
+	{
+		"key": "form.validation.invalid_fields",
+		"value": "Campos inválidos"
+	},
+	{
+		"key": "form.validation.check_following_fields",
+		"value": "Por favor, revise los siguientes campos"
+	},
+	{
+		"key": "login.title",
+		"value": "Iniciar sesión"
+	},
+	{
+		"key": "login.subtitle",
+		"value": "Bienvenido de nuevo, por favor inicie sesión en su cuenta."
+	},
+	{
+		"key": "login.username.placeholder",
+		"value": "Ingrese su nombre de usuario"
+	},
+	{
+		"key": "login.username",
+		"value": "Nombre de usuario"
+	},
+	{
+		"key": "login.password.placeholder",
+		"value": "Ingrese su contraseña"
+	},
+	{
+		"key": "login.password",
+		"value": "Contraseña"
+	},
+	{
+		"key": "login.login_button",
+		"value": "Iniciar sesión"
+	},
+	{
+		"key": "session.register.button",
+		"value": "Registrarse"
+	},
+	{
+		"key": "login.successful",
+		"value": "Inicio de sesión exitoso"
+	},
+	{
+		"key": "login.environments.title",
+		"value": "Selecciona tu entorno"
+	},
+	{
+		"key": "login.environments.subtitle",
+		"value": "Elige la sucursal o clínica a la que deseas acceder."
+	},
+	{
+		"key": "login.environments.cancel",
+		"value": "Cancelar e ir al login"
+	},
+	{
+		"key": "dashboard.title",
+		"value": "Inicio"
+	},
+	{
+		"key": "dashboard.customers",
+		"value": "Clientes"
+	},
+	{
+		"key": "dashboard.products",
+		"value": "Productos"
+	},
+	{
+		"key": "dashboard.users",
+		"value": "Usuarios"
+	},
+	{
+		"key": "dashboard.settings",
+		"value": "Configuración"
+	},
+	{
+		"key": "dashboard.help",
+		"value": "Ayuda"
+	},
+	{
+		"key": "dashboard.dropdown.profile.title",
+		"value": "Mi cuenta"
+	},
+	{
+		"key": "dashboard.dropdown.profile",
+		"value": "Perfil"
+	},
+	{
+		"key": "dashboard.dropdown.settings",
+		"value": "Ajustes"
+	},
+	{
+		"key": "dashboard.dropdown.logout",
+		"value": "Cerrar sesión"
+	},
+	{
+		"key": "session.expired.title",
+		"value": "Sesión expirada"
+	},
+	{
+		"key": "session.expired",
+		"value": "Tu sesión ha expirado, por favor inicia sesión de nuevo."
+	},
+	{
+		"key": "dashboard.clinical",
+		"value": "Bitácora"
+	},
+	{
+		"key": "dashboard.clinical.patients",
+		"value": "Pacientes"
+	},
+	{
+		"key": "dashboard.clinical.appointments",
+		"value": "Citas"
+	},
+	{
+		"key": "E-CLIN-001",
+		"value": "Paciente no encontrado."
+	},
+	{
+		"key": "E-CLIN-002",
+		"value": "Error al crear el paciente."
+	},
+	{
+		"key": "E-CLIN-003",
+		"value": "Error al actualizar el paciente."
+	},
+	{
+		"key": "E-CLIN-004",
+		"value": "Error al eliminar el paciente."
+	},
+	{
+		"key": "E-CLIN-005",
+		"value": "Historia clínica no encontrada."
+	},
+	{
+		"key": "E-CLIN-006",
+		"value": "Error al crear la historia clínica."
+	},
+	{
+		"key": "E-CLIN-007",
+		"value": "Error al actualizar la historia clínica."
+	},
+	{
+		"key": "E-CLIN-008",
+		"value": "Error al generar el informe del paciente."
+	},
+	{
+		"key": "table.actions",
+		"value": "Acciones"
+	},
+	{
+		"key": "table.button.open_menu",
+		"value": "Abrir menú"
+	},
+	{
+		"key": "clinical.medical_record.new",
+		"value": "Nueva Consulta"
+	},
+	{
+		"key": "clinical.medical_record.view",
+		"value": "Ver Historia Clínica"
+	},
+	{
+		"key": "clinical.patient.download_records",
+		"value": "Descargar Historias Clínicas"
+	},
+	{
+		"key": "clinical.patient.last_name",
+		"value": "Apellidos"
+	},
+	{
+		"key": "clinical.patient.first_name",
+		"value": "Nombres"
+	},
+	{
+		"key": "clinical.patient.document",
+		"value": "Cédula"
+	},
+	{
+		"key": "clinical.patient.phone",
+		"value": "Teléfono"
+	},
+	{
+		"key": "clinical.patient.phone.unregistered",
+		"value": "Sin registrar"
+	},
+	{
+		"key": "clinical.patient.diagnosis",
+		"value": "Diagnóstico"
+	},
+	{
+		"key": "clinical.patient.diagnosis.none",
+		"value": "Sin diagnóstico"
+	},
+	{
+		"key": "clinical.patient.next_appointment",
+		"value": "Próxima Cita"
+	},
+	{
+		"key": "clinical.patient.appointment.none",
+		"value": "Sin cita"
+	},
+	{
+		"key": "clinical.patient.medic",
+		"value": "Médico"
+	},
+	{
+		"key": "clinical.patient.name",
+		"value": "Nombre"
+	},
+	{
+		"key": "error.unexpected.title",
+		"value": "Error Inesperado"
+	},
+	{
+		"key": "error.unexpected.description",
+		"value": "Ha ocurrido un error no controlado"
+	},
+	{
+		"key": "clinical.patient.search.placeholder",
+		"value": "Buscar por cédula..."
+	},
+	{
+		"key": "error.permission.title",
+		"value": "Acceso denegado"
+	},
+	{
+		"key": "error.permission.description",
+		"value": "No tienes los permisos suficientes para acceder a esta ruta"
+	},
+	{
+		"key": "table.pagination.of",
+		"value": " de "
+	},
+	{
+		"key": "table.pagination.rows_selected",
+		"value": " fila(s) seleccionadas."
+	},
+	{
+		"key": "table.pagination.rows_per_page",
+		"value": "Filas por página"
+	},
+	{
+		"key": "table.pagination.page",
+		"value": "Página "
+	},
+	{
+		"key": "table.pagination.first_page",
+		"value": "Ir a la primera página"
+	},
+	{
+		"key": "table.pagination.previous_page",
+		"value": "Ir a la página anterior"
+	},
+	{
+		"key": "table.pagination.next_page",
+		"value": "Ir a la siguiente página"
+	},
+	{
+		"key": "table.pagination.last_page",
+		"value": "Ir a la última página"
+	},
+	{
+		"key": "table.column_header.asc",
+		"value": "Ascendente"
+	},
+	{
+		"key": "table.column_header.desc",
+		"value": "Descendente"
+	},
+	{
+		"key": "table.column_header.hide",
+		"value": "Ocultar"
+	},
+	{
+		"key": "table.view_options.view",
+		"value": "Vista"
+	},
+	{
+		"key": "table.view_options.toggle_columns",
+		"value": "Alternar columnas"
+	},
+	{
+		"key": "table.search.placeholder",
+		"value": "Buscar..."
+	},
+	{
+		"key": "table.no_results",
+		"value": "Sin resultados."
+	},
+	{
+		"key": "clinical.patient.create",
+		"value": "Crear Paciente"
+	},
+	{
+		"key": "table.button.delete.all.selected",
+		"value": "Eliminar todos los seleccionados"
+	},
+	{
+		"key": "form.calendar.pick_date",
+		"value": "Elige una fecha"
+	},
+	{
+		"key": "form.calendar.time_interval",
+		"value": "Intervalo de tiempo"
+	},
+	{
+		"key": "form.calendar.start",
+		"value": "Inicio"
+	},
+	{
+		"key": "form.calendar.end",
+		"value": "Fin"
+	},
+	{
+		"key": "form.optional",
+		"value": "opcional"
+	},
+	{
+		"key": "table.column.last_name",
+		"value": "Apellidos"
+	},
+	{
+		"key": "table.column.first_name",
+		"value": "Nombres"
+	},
+	{
+		"key": "table.column.document",
+		"value": "Cédula"
+	},
+	{
+		"key": "table.column.phone",
+		"value": "Teléfono"
+	},
+	{
+		"key": "table.column.diagnosis",
+		"value": "Diagnóstico"
+	},
+	{
+		"key": "table.column.next_appointment",
+		"value": "Próxima Cita"
+	},
+	{
+		"key": "table.column.medic",
+		"value": "Médico"
+	},
+	{
+		"key": "clinical.medical_record.update",
+		"value": "Editar Consulta"
+	},
+	{
+		"key": "clinical.medical_record.date",
+		"value": "Fecha de Consulta"
+	},
+	{
+		"key": "clinical.medical_record.motive",
+		"value": "Motivo"
+	},
+	{
+		"key": "clinical.medical_record.observation",
+		"value": "Observaciones"
+	},
+	{
+		"key": "clinical.medical_record.prescription",
+		"value": "Receta"
+	},
+	{
+		"key": "clinical.medical_record.search.placeholder",
+		"value": "Buscar por motivo..."
+	},
+	{
+		"key": "table.column.date",
+		"value": "Fecha de Consulta"
+	},
+	{
+		"key": "table.column.motive",
+		"value": "Motivo"
+	},
+	{
+		"key": "table.column.observation",
+		"value": "Observaciones"
+	},
+	{
+		"key": "table.column.prescription",
+		"value": "Receta"
+	},
+	{
+		"key": "clinical.patient_card.document",
+		"value": "Cédula:"
+	},
+	{
+		"key": "clinical.patient_card.critical",
+		"value": "Crítico"
+	},
+	{
+		"key": "clinical.patient_card.personal_info",
+		"value": "INFORMACIÓN PERSONAL"
+	},
+	{
+		"key": "clinical.patient_card.birth_date",
+		"value": "Fecha de Nac.:"
+	},
+	{
+		"key": "clinical.patient_card.gender",
+		"value": "Género:"
+	},
+	{
+		"key": "clinical.patient_card.phone",
+		"value": "Teléfono:"
+	},
+	{
+		"key": "clinical.patient_card.not_registered",
+		"value": "Sin registrar"
+	},
+	{
+		"key": "clinical.patient_card.family_phone",
+		"value": "Tel. Familiar:"
+	},
+	{
+		"key": "clinical.patient_card.family_phone_2",
+		"value": "Tel. Familiar 2:"
+	},
+	{
+		"key": "clinical.patient_card.medical_info",
+		"value": "INFORMACIÓN MÉDICA"
+	},
+	{
+		"key": "clinical.patient_card.insurance",
+		"value": "Seguro:"
+	},
+	{
+		"key": "clinical.patient_card.medic",
+		"value": "Médico:"
+	},
+	{
+		"key": "clinical.patient_card.diagnosis",
+		"value": "Diagnóstico:"
+	},
+	{
+		"key": "clinical.patient_card.not_available",
+		"value": "No disponible"
+	},
+	{
+		"key": "clinical.patient_card.latest_prescription",
+		"value": "ÚLTIMA RECETA"
+	},
+	{
+		"key": "clinical.patient_card.view_prescription",
+		"value": "Ver Receta Médica"
+	},
+	{
+		"key": "clinical.patient_card.medical_history",
+		"value": "ANTECEDENTES MÉDICOS"
+	},
+	{
+		"key": "clinical.patient_card.app",
+		"value": "APP - Antecedentes Personales Patológicos"
+	},
+	{
+		"key": "clinical.patient_card.apf",
+		"value": "APF - Antecedentes Patológicos Familiares"
+	},
+	{
+		"key": "clinical.patient_card.apqx",
+		"value": "APQX - Antecedentes Patológicos Quirúrgicos"
+	},
+	{
+		"key": "clinical.patient_card.notes",
+		"value": "NOTAS"
+	},
+	{
+		"key": "clinical.patient_card.no_notes",
+		"value": "Sin notas registradas"
+	},
+	{
+		"key": "clinical.patient_card.gender.male",
+		"value": "Masculino"
+	},
+	{
+		"key": "clinical.patient_card.gender.female",
+		"value": "Femenino"
+	},
+	{
+		"key": "clinical.patient_card.gender.other",
+		"value": "Otro"
+	},
+	{
+		"key": "clinical.medical_record.actions",
+		"value": "Acciones"
+	},
+	{
+		"key": "clinical.medical_record.new_consultation",
+		"value": "Nueva Consulta"
+	},
+	{
+		"key": "clinical.medical_record.view_prescriptions",
+		"value": "Ver Recetas"
+	},
+	{
+		"key": "clinical.medical_record.edit_patient",
+		"value": "Editar Paciente"
+	},
+	{
+		"key": "clinical.medical_record.contact_ws",
+		"value": "Contactar a WS"
+	},
+	{
+		"key": "clinical.medical_record.mark_critical",
+		"value": "Marcar como crítico"
+	},
+	{
+		"key": "clinical.medical_record.unmark_critical",
+		"value": "Desmarcar como crítico"
+	},
+	{
+		"key": "clinical.medical_record.history_title",
+		"value": "Historial de Consultas Médicas"
+	},
+	{
+		"key": "clinical.medical_record.contact_error.title",
+		"value": "No se puede contactar al paciente"
+	},
+	{
+		"key": "clinical.medical_record.contact_error.description",
+		"value": "No tiene número registrado"
+	},
+	{
+		"key": "form.create_medical_record.title",
+		"value": "Nueva Consulta Médica"
+	},
+	{
+		"key": "form.create_medical_record.description",
+		"value": "Completa los campos para registrar una nueva consulta."
+	},
+	{
+		"key": "form.create_medical_record.date",
+		"value": "Fecha de Consulta"
+	},
+	{
+		"key": "form.create_medical_record.next_appointment",
+		"value": "Próxima Cita"
+	},
+	{
+		"key": "form.create_medical_record.motive",
+		"value": "Motivo"
+	},
+	{
+		"key": "form.create_medical_record.motive.placeholder",
+		"value": "Motivo de consulta..."
+	},
+	{
+		"key": "form.create_medical_record.motive.description",
+		"value": "Máximo 100 caracteres."
+	},
+	{
+		"key": "form.create_medical_record.observation",
+		"value": "Observaciones"
+	},
+	{
+		"key": "form.create_medical_record.observation.placeholder",
+		"value": "Observaciones generales..."
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective.title",
+		"value": "Subjetivo"
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective.description",
+		"value": "Síntomas y quejas reportados por el paciente."
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective",
+		"value": "Subjetivo"
+	},
+	{
+		"key": "form.create_medical_record.soap.objective.title",
+		"value": "Objetivo"
+	},
+	{
+		"key": "form.create_medical_record.soap.objective.description",
+		"value": "Hallazgos clínicos y resultados de exámenes."
+	},
+	{
+		"key": "form.create_medical_record.soap.objective",
+		"value": "Objetivo"
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment.title",
+		"value": "Evaluación"
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment.description",
+		"value": "Diagnóstico o impresión clínica."
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment",
+		"value": "Evaluación"
+	},
+	{
+		"key": "form.create_medical_record.soap.plan.title",
+		"value": "Plan"
+	},
+	{
+		"key": "form.create_medical_record.soap.plan.description",
+		"value": "Plan de tratamiento y seguimiento."
+	},
+	{
+		"key": "form.create_medical_record.soap.plan",
+		"value": "Plan"
+	},
+	{
+		"key": "form.create_medical_record.prescription.title",
+		"value": "Receta Médica"
+	},
+	{
+		"key": "form.create_medical_record.prescription.description",
+		"value": "Opcional. Agrega una receta médica a la consulta."
+	},
+	{
+		"key": "form.create_medical_record.prescription.content",
+		"value": "Medicamentos"
+	},
+	{
+		"key": "form.create_medical_record.prescription.indications",
+		"value": "Indicaciones"
+	},
+	{
+		"key": "form.create_medical_record.submit",
+		"value": "Crear Consulta"
+	},
+	{
+		"key": "form.edit_patient.loading",
+		"value": "Cargando..."
+	},
+	{
+		"key": "form.edit_patient.title",
+		"value": "Editar Paciente"
+	},
+	{
+		"key": "form.edit_patient.description",
+		"value": "Modifica los datos del paciente"
+	},
+	{
+		"key": "form.edit_patient.document",
+		"value": "Cédula"
+	},
+	{
+		"key": "form.edit_patient.document.placeholder",
+		"value": "Cédula..."
+	},
+	{
+		"key": "form.edit_patient.first_name",
+		"value": "Nombre"
+	},
+	{
+		"key": "form.edit_patient.first_name.placeholder",
+		"value": "Nombre..."
+	},
+	{
+		"key": "form.edit_patient.last_name",
+		"value": "Apellido"
+	},
+	{
+		"key": "form.edit_patient.last_name.placeholder",
+		"value": "Apellido..."
+	},
+	{
+		"key": "form.edit_patient.phone",
+		"value": "Teléfono"
+	},
+	{
+		"key": "form.edit_patient.phone.placeholder",
+		"value": "Teléfono..."
+	},
+	{
+		"key": "form.edit_patient.birth_date",
+		"value": "Fecha de Nacimiento"
+	},
+	{
+		"key": "form.edit_patient.next_appointment",
+		"value": "Próxima Cita"
+	},
+	{
+		"key": "form.edit_patient.gender",
+		"value": "Género"
+	},
+	{
+		"key": "form.edit_patient.institution",
+		"value": "Institución"
+	},
+	{
+		"key": "form.edit_patient.institution.placeholder",
+		"value": "Seleccionar Institución..."
+	},
+	{
+		"key": "form.edit_patient.medic",
+		"value": "Médico Tratante"
+	},
+	{
+		"key": "form.edit_patient.medic.placeholder",
+		"value": "Dr. o Dra..."
+	},
+	{
+		"key": "form.edit_patient.insurance",
+		"value": "Seguro Médico"
+	},
+	{
+		"key": "form.edit_patient.insurance.placeholder",
+		"value": "Seguro Médico..."
+	},
+	{
+		"key": "form.edit_patient.diagnosis",
+		"value": "Diagnóstico"
+	},
+	{
+		"key": "form.edit_patient.diagnosis.placeholder",
+		"value": "Diagnóstico..."
+	},
+	{
+		"key": "form.edit_patient.app",
+		"value": "Antecedentes Personales Patológicos"
+	},
+	{
+		"key": "form.edit_patient.apf",
+		"value": "Antecedentes Patológicos Familiares"
+	},
+	{
+		"key": "form.edit_patient.apqx",
+		"value": "Antecedentes Patológicos Quirúrgicos"
+	},
+	{
+		"key": "form.edit_patient.notes",
+		"value": "Notas"
+	},
+	{
+		"key": "form.edit_patient.notes.placeholder",
+		"value": "Notas..."
+	},
+	{
+		"key": "form.edit_patient.submit",
+		"value": "Guardar Cambios"
+	},
+	{
+		"key": "user.list.success",
+		"value": "Usuarios obtenidos exitosamente"
+	},
+	{
+		"key": "user.create.success",
+		"value": "Usuario creado exitosamente"
+	},
+	{
+		"key": "auth.token.refresh.success",
+		"value": "Token actualizado exitosamente"
+	},
+	{
+		"key": "auth.session.extend.success",
+		"value": "Sesión extendida exitosamente"
+	},
+	{
+		"key": "auth.token.valid",
+		"value": "Token válido"
+	},
+	{
+		"key": "company.list.success",
+		"value": "Empresas obtenidas exitosamente"
+	},
+	{
+		"key": "permission.list.success",
+		"value": "Permisos obtenidos exitosamente"
+	},
+	{
+		"key": "permission.categories.success",
+		"value": "Permisos con categorías obtenidos exitosamente"
+	},
+	{
+		"key": "environment.list.success",
+		"value": "Ambientes obtenidos exitosamente"
+	},
+	{
+		"key": "clinical.patient.create.success",
+		"value": "Paciente creado exitosamente"
+	},
+	{
+		"key": "clinical.patient.update.success",
+		"value": "Paciente actualizado exitosamente"
+	},
+	{
+		"key": "clinical.patient.list.success",
+		"value": "Pacientes obtenidos exitosamente"
+	},
+	{
+		"key": "clinical.patient.followup.success",
+		"value": "Pacientes con seguimientos obtenidos exitosamente"
+	},
+	{
+		"key": "clinical.patient.found",
+		"value": "Paciente encontrado"
+	},
+	{
+		"key": "clinical.patient.critical.success",
+		"value": "Paciente marcado como crítico"
+	},
+	{
+		"key": "clinical.patient.critical_revert.success",
+		"value": "Estado crítico del paciente revertido"
+	},
+	{
+		"key": "clinical.medical_record.list.success",
+		"value": "Registros médicos obtenidos exitosamente"
+	},
+	{
+		"key": "clinical.medical_record.found",
+		"value": "Registro médico encontrado"
+	},
+	{
+		"key": "clinical.medical_record.create.success",
+		"value": "Consulta médica creada exitosamente"
+	},
+	{
+		"key": "clinical.medical_record.update.success",
+		"value": "Consulta médica actualizada exitosamente"
+	},
+	{
+		"key": "clinical.prescription.update.success",
+		"value": "Receta actualizada exitosamente"
+	},
+	{
+		"key": "view.medical_record.loading",
+		"value": "Cargando..."
+	},
+	{
+		"key": "view.medical_record.title",
+		"value": "Registro Médico"
+	},
+	{
+		"key": "view.medical_record.subtitle",
+		"value": "Vista de solo lectura"
+	},
+	{
+		"key": "view.medical_record.back",
+		"value": "Volver"
+	},
+	{
+		"key": "view.medical_record.info.title",
+		"value": "Información General"
+	},
+	{
+		"key": "view.medical_record.info.description",
+		"value": "Detalles de la consulta médica"
+	},
+	{
+		"key": "view.medical_record.date",
+		"value": "Fecha"
+	},
+	{
+		"key": "view.medical_record.motive",
+		"value": "Motivo"
+	},
+	{
+		"key": "view.medical_record.observation",
+		"value": "Observaciones"
+	},
+	{
+		"key": "view.medical_record.not_registered",
+		"value": "No registrado"
+	},
+	{
+		"key": "view.medical_record.soap.subjective.title",
+		"value": "Subjetivo (S)"
+	},
+	{
+		"key": "view.medical_record.soap.subjective.description",
+		"value": "Síntomas reportados por el paciente"
+	},
+	{
+		"key": "view.medical_record.soap.objective.title",
+		"value": "Objetivo (O)"
+	},
+	{
+		"key": "view.medical_record.soap.objective.description",
+		"value": "Hallazgos del examen físico"
+	},
+	{
+		"key": "view.medical_record.soap.assessment.title",
+		"value": "Evaluación (A)"
+	},
+	{
+		"key": "view.medical_record.soap.assessment.description",
+		"value": "Diagnóstico y análisis"
+	},
+	{
+		"key": "view.medical_record.soap.plan.title",
+		"value": "Plan (P)"
+	},
+	{
+		"key": "view.medical_record.soap.plan.description",
+		"value": "Tratamiento y seguimiento"
+	},
+	{
+		"key": "view.medical_record.prescription.title",
+		"value": "Receta Médica"
+	},
+	{
+		"key": "view.medical_record.prescription.description",
+		"value": "Prescripción asociada a esta consulta"
+	},
+	{
+		"key": "view.medical_record.prescription.view",
+		"value": "Ver Receta Completa"
+	},
+	{
+		"key": "clinical.medical_record.view",
+		"value": "Ver Registro"
+	},
+	{
+		"key": "form.update_medical_record.loading",
+		"value": "Cargando..."
+	},
+	{
+		"key": "form.update_medical_record.title",
+		"value": "Actualizar Consulta Médica"
+	},
+	{
+		"key": "form.update_medical_record.description",
+		"value": "Modifica los datos de la consulta médica"
+	},
+	{
+		"key": "form.update_medical_record.date",
+		"value": "Fecha de Consulta"
+	},
+	{
+		"key": "form.update_medical_record.next_appointment",
+		"value": "Próxima Cita"
+	},
+	{
+		"key": "form.update_medical_record.motive",
+		"value": "Motivo"
+	},
+	{
+		"key": "form.update_medical_record.motive.placeholder",
+		"value": "Motivo..."
+	},
+	{
+		"key": "form.update_medical_record.motive.description",
+		"value": "Máximo 100 caracteres"
+	},
+	{
+		"key": "form.update_medical_record.observation",
+		"value": "Observaciones"
+	},
+	{
+		"key": "form.update_medical_record.observation.placeholder",
+		"value": "Observaciones..."
+	},
+	{
+		"key": "form.update_medical_record.submit",
+		"value": "Actualizar Consulta"
+	},
+	{
+		"key": "clinical.medical_record.view_prescription",
+		"value": "Ver Receta"
+	},
+	{
+		"key": "clinical.medical_record.edit_prescription",
+		"value": "Editar Receta"
+	},
+	{
+		"key": "dialog.edit_prescription.title",
+		"value": "Editar Receta Médica"
+	},
+	{
+		"key": "dialog.edit_prescription.description",
+		"value": "Modifica el contenido y las indicaciones de la receta"
+	},
+	{
+		"key": "dialog.edit_prescription.content",
+		"value": "Contenido"
+	},
+	{
+		"key": "dialog.edit_prescription.content.placeholder",
+		"value": "Contenido de la receta..."
+	},
+	{
+		"key": "dialog.edit_prescription.indications",
+		"value": "Indicaciones"
+	},
+	{
+		"key": "dialog.edit_prescription.indications.placeholder",
+		"value": "Indicaciones..."
+	},
+	{
+		"key": "dialog.edit_prescription.submit",
+		"value": "Guardar Receta"
+	},
+	{
+		"key": "clinical.patient.edit",
+		"value": "Editar Paciente"
+	},
+	{
+		"key": "clinical.medical_record.create_prescription",
+		"value": "Crear Receta"
 	}
 ]

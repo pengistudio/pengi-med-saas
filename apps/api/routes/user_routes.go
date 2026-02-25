@@ -4,6 +4,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
 	user_handlers "pengi-med-saas/features/users/handlers"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -11,10 +12,12 @@ import (
 
 func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	userHandler := user_handlers.NewUserHandler(db, logger.Log)
+	environmentHandler := user_handlers.NewEnvironmentHandler(db, logger.Log)
 
 	userRoutes := router.Group("/users")
 	{
 		userRoutes.GET("", envelope.Handle(userHandler.GetUsers))
+		userRoutes.GET("/environments", auth_middleware.ExchangeAuthMiddleware(), envelope.Handle(environmentHandler.GetEnvironmentsFromUser))
 	}
 
 	authRoutes := router.Group("/auth")
@@ -22,7 +25,7 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		authRoutes.POST("/signup", envelope.Handle(userHandler.SignUp))
 		authRoutes.POST("/login", envelope.Handle(userHandler.Login))
 		authRoutes.POST("/refresh", envelope.Handle(userHandler.RefreshAuthToken))
-		authRoutes.POST("/extend", envelope.Handle(userHandler.ExtendSession))
+		authRoutes.POST("/extend", auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.ExtendSession))
 		authRoutes.POST("/validate", envelope.Handle(userHandler.ValidateBearerToken))
 	}
 

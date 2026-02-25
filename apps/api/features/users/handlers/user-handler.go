@@ -6,6 +6,7 @@ import (
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
 	"strings"
 
@@ -34,7 +35,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) envelope.Response {
 	}
 
 	h.logger.Info("Users fetched successfully", zap.Int("count", len(users)))
-	return envelope.SuccessResponse(users, "Users obtained successfully")
+	return envelope.SuccessResponse(users, "user.list.success")
 }
 
 func (h *UserHandler) SignUp(c *gin.Context) envelope.Response {
@@ -47,45 +48,63 @@ func (h *UserHandler) SignUp(c *gin.Context) envelope.Response {
 		h.logger.Error("Failed to create user", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthUserCreateError)
 	}
-	return envelope.SuccessResponse(user, "User created successfully")
+	return envelope.SuccessResponse(user, "user.create.success")
 }
 
 func (h *UserHandler) Login(c *gin.Context) envelope.Response {
-	// 1) Bind
-	var user user_models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	// 0) Bind
+	var user user_dto.LoginDTO
+	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid login request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
 
+	// 1) Buscar usuario
+	var foundUser user_models.User
+	if err := h.db.Omit("password").Where("user_name = ?", user.UserName).First(&foundUser).Error; err != nil {
+		h.logger.Error("Failed to find user", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidCredentials)
+	}
+
+	foundUser.Password = user.Password
+
 	// 2) Validar credenciales
-	if err := user.ValidateCredentials(h.db); err != nil {
+	if err := foundUser.ValidateCredentials(h.db); err != nil {
 		h.logger.Warn("Failed login attempt", zap.String("username", user.UserName), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidCredentials)
 	}
 
 	// 3) Generar tokens
-	token, err := auth.GenerateToken(user.UserName, int64(user.ID))
+	token, err := auth.GenerateToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
 	}
 
-	refreshToken, err := auth.GenerateRefreshToken(user.UserName, int64(user.ID))
+	refreshToken, err := auth.GenerateRefreshToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate refresh token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
 	}
 
 	// 4) Guardar refresh token (chequear error)
-	if err := user.UpdateRefreshToken(h.db, refreshToken); err != nil {
+	if err := foundUser.UpdateRefreshToken(h.db, refreshToken); err != nil {
+		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+	}
+
+	exchangeToken, err := auth.GenerateExchangeToken(foundUser.UserName, int64(foundUser.ID))
+	if err != nil {
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
 	}
 
 	// 5) Setear cookie y responder 200 una sola vez
 	auth.SetRefreshTokenCookie(refreshToken, c)
 
-	h.logger.Info("User logged in successfully", zap.String("username", user.UserName))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "Login successful")
+	h.logger.Info("User logged in successfully", zap.String("username", foundUser.UserName))
+	return envelope.SuccessResponse(gin.H{
+		"token":          token,
+		"exchange_token": exchangeToken,
+		"user_id":        foundUser.ID,
+	}, "login.successful")
 }
 
 func (h *UserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
@@ -103,7 +122,7 @@ func (h *UserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
 	}
 	h.logger.Info("Token refreshed successfully", zap.String("username", username))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": userID}, "Token refreshed successfully")
+	return envelope.SuccessResponse(gin.H{"token": token, "user_id": userID}, "auth.token.refresh.success")
 }
 
 func (h *UserHandler) ExtendSession(c *gin.Context) envelope.Response {
@@ -121,7 +140,7 @@ func (h *UserHandler) ExtendSession(c *gin.Context) envelope.Response {
 	}
 
 	h.logger.Info("Session extended successfully", zap.String("username", user.UserName))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "Session extended successfully")
+	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "auth.session.extend.success")
 }
 
 func (h *UserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {
@@ -151,7 +170,7 @@ func (h *UserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {
 		"username": username,
 		"token":    token,
 		"message":  "Token is valid",
-	}, "Token is valid")
+	}, "auth.token.valid")
 }
 
 // ExtractAndValidateBearerToken es una función helper que extrae y valida un Bearer token

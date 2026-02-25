@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type Tenant struct {
 	gorm.Model
-	Name string `gorm:"not null"`
-	Slug string `gorm:"not null;unique"`
+	Name string `gorm:"not null" json:"name"`
+	Slug string `gorm:"not null;unique" json:"slug"`
 }
 
 func NewTenant(name string) *Tenant {

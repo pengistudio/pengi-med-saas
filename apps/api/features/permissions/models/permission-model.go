@@ -8,8 +8,9 @@ import (
 
 type Permission struct {
 	database.BaseStringID
-	Name     string `json:"name"`
-	Category string `json:"category"`
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
 }
 
 func (p *Permission) Save(db *gorm.DB) error {

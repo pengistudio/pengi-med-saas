@@ -16,6 +16,7 @@ type User struct {
 	Password     string        `json:"password"`
 	Email        string        `json:"email"`
 	Environments []Environment `json:"environments"`
+	RefreshToken string        `json:"refresh_token"`
 }
 
 type Environment struct {
@@ -24,7 +25,7 @@ type Environment struct {
 	Name      string `json:"name"`
 	RoleID    uint
 	Role      Role `json:"role"`
-	CompanyID uint
+	CompanyID uint `json:"company_id"`
 }
 
 type Role struct {

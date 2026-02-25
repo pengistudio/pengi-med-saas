@@ -8,7 +8,6 @@ import (
 )
 
 func I18nMiddleware(db *gorm.DB) gin.HandlerFunc {
-	// Initialize cache once
 	_ = message_cache.Init(db)
 
 	return func(c *gin.Context) {

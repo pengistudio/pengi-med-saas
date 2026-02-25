@@ -18,5 +18,1037 @@
 	{
 		"key": "E-TEN-001",
 		"value": "Tenant not found."
+	},
+	{
+		"key": "E-USR-001",
+		"value": "User not found."
+	},
+	{
+		"key": "E-AUTH-001",
+		"value": "Invalid authentication request."
+	},
+	{
+		"key": "E-AUTH-002",
+		"value": "Error creating user."
+	},
+	{
+		"key": "E-AUTH-003",
+		"value": "Invalid credentials."
+	},
+	{
+		"key": "E-AUTH-004",
+		"value": "Error generating token."
+	},
+	{
+		"key": "E-AUTH-005",
+		"value": "Invalid refresh token."
+	},
+	{
+		"key": "E-AUTH-006",
+		"value": "Invalid user ID."
+	},
+	{
+		"key": "form.validation.invalid_fields",
+		"value": "Invalid fields"
+	},
+	{
+		"key": "form.validation.check_following_fields",
+		"value": "Please check the following fields"
+	},
+	{
+		"key": "login.title",
+		"value": "Sign in"
+	},
+	{
+		"key": "login.subtitle",
+		"value": "Welcome back, please login to your account."
+	},
+	{
+		"key": "login.username.placeholder",
+		"value": "Enter your username"
+	},
+	{
+		"key": "login.username",
+		"value": "Username"
+	},
+	{
+		"key": "login.password.placeholder",
+		"value": "Enter your password"
+	},
+	{
+		"key": "login.password",
+		"value": "Password"
+	},
+	{
+		"key": "login.login_button",
+		"value": "Login"
+	},
+	{
+		"key": "session.register.button",
+		"value": "Register"
+	},
+	{
+		"key": "login.successful",
+		"value": "Login successful"
+	},
+	{
+		"key": "login.environments.title",
+		"value": "Select your environment"
+	},
+	{
+		"key": "login.environments.subtitle",
+		"value": "Choose the branch or clinic you want to access."
+	},
+	{
+		"key": "login.environments.cancel",
+		"value": "Cancel and go to login"
+	},
+	{
+		"key": "dashboard.title",
+		"value": "Dashboard"
+	},
+	{
+		"key": "dashboard.customers",
+		"value": "Customers"
+	},
+	{
+		"key": "dashboard.products",
+		"value": "Products"
+	},
+	{
+		"key": "dashboard.users",
+		"value": "Users"
+	},
+	{
+		"key": "dashboard.settings",
+		"value": "Settings"
+	},
+	{
+		"key": "dashboard.help",
+		"value": "Help"
+	},
+	{
+		"key": "dashboard.dropdown.profile.title",
+		"value": "My Account"
+	},
+	{
+		"key": "dashboard.dropdown.profile",
+		"value": "Profile"
+	},
+	{
+		"key": "dashboard.dropdown.settings",
+		"value": "Settings"
+	},
+	{
+		"key": "dashboard.dropdown.logout",
+		"value": "Logout"
+	},
+	{
+		"key": "session.expired.title",
+		"value": "Session expired"
+	},
+	{
+		"key": "session.expired",
+		"value": "Your session has expired, please log in again."
+	},
+	{
+		"key": "dashboard.clinical",
+		"value": "Journal"
+	},
+	{
+		"key": "dashboard.clinical.patients",
+		"value": "Patients"
+	},
+	{
+		"key": "dashboard.clinical.appointments",
+		"value": "Appointments"
+	},
+	{
+		"key": "E-CLIN-001",
+		"value": "Patient not found."
+	},
+	{
+		"key": "E-CLIN-002",
+		"value": "Error creating patient."
+	},
+	{
+		"key": "E-CLIN-003",
+		"value": "Error updating patient."
+	},
+	{
+		"key": "E-CLIN-004",
+		"value": "Error deleting patient."
+	},
+	{
+		"key": "E-CLIN-005",
+		"value": "Medical record not found."
+	},
+	{
+		"key": "E-CLIN-006",
+		"value": "Error creating medical record."
+	},
+	{
+		"key": "E-CLIN-007",
+		"value": "Error updating medical record."
+	},
+	{
+		"key": "E-CLIN-008",
+		"value": "Error generating patient report."
+	},
+	{
+		"key": "table.actions",
+		"value": "Actions"
+	},
+	{
+		"key": "table.button.open_menu",
+		"value": "Open menu"
+	},
+	{
+		"key": "clinical.medical_record.new",
+		"value": "New Consultation"
+	},
+	{
+		"key": "clinical.medical_record.view",
+		"value": "View Medical Record"
+	},
+	{
+		"key": "clinical.patient.download_records",
+		"value": "Download Medical Records"
+	},
+	{
+		"key": "clinical.patient.last_name",
+		"value": "Last Name"
+	},
+	{
+		"key": "clinical.patient.first_name",
+		"value": "First Name"
+	},
+	{
+		"key": "clinical.patient.document",
+		"value": "Document"
+	},
+	{
+		"key": "clinical.patient.phone",
+		"value": "Phone"
+	},
+	{
+		"key": "clinical.patient.phone.unregistered",
+		"value": "Unregistered"
+	},
+	{
+		"key": "clinical.patient.diagnosis",
+		"value": "Diagnosis"
+	},
+	{
+		"key": "clinical.patient.diagnosis.none",
+		"value": "No diagnosis"
+	},
+	{
+		"key": "clinical.patient.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "clinical.patient.appointment.none",
+		"value": "No appointment"
+	},
+	{
+		"key": "clinical.patient.medic",
+		"value": "Medic"
+	},
+	{
+		"key": "clinical.patient.name",
+		"value": "Name"
+	},
+	{
+		"key": "error.unexpected.title",
+		"value": "Unexpected Error"
+	},
+	{
+		"key": "error.unexpected.description",
+		"value": "An unhandled error occurred"
+	},
+	{
+		"key": "clinical.patient.search.placeholder",
+		"value": "Search by document..."
+	},
+	{
+		"key": "error.permission.title",
+		"value": "Access denied"
+	},
+	{
+		"key": "error.permission.description",
+		"value": "You don't have sufficient permissions to access this route"
+	},
+	{
+		"key": "table.pagination.of",
+		"value": " of "
+	},
+	{
+		"key": "table.pagination.rows_selected",
+		"value": " row(s) selected."
+	},
+	{
+		"key": "table.pagination.rows_per_page",
+		"value": "Rows per page"
+	},
+	{
+		"key": "table.pagination.page",
+		"value": "Page "
+	},
+	{
+		"key": "table.pagination.first_page",
+		"value": "Go to first page"
+	},
+	{
+		"key": "table.pagination.previous_page",
+		"value": "Go to previous page"
+	},
+	{
+		"key": "table.pagination.next_page",
+		"value": "Go to next page"
+	},
+	{
+		"key": "table.pagination.last_page",
+		"value": "Go to last page"
+	},
+	{
+		"key": "table.column_header.asc",
+		"value": "Asc"
+	},
+	{
+		"key": "table.column_header.desc",
+		"value": "Desc"
+	},
+	{
+		"key": "table.column_header.hide",
+		"value": "Hide"
+	},
+	{
+		"key": "table.view_options.view",
+		"value": "View"
+	},
+	{
+		"key": "table.view_options.toggle_columns",
+		"value": "Toggle columns"
+	},
+	{
+		"key": "table.search.placeholder",
+		"value": "Search..."
+	},
+	{
+		"key": "table.no_results",
+		"value": "No results."
+	},
+	{
+		"key": "clinical.patient.create",
+		"value": "Create Patient"
+	},
+	{
+		"key": "table.button.delete.all.selected",
+		"value": "Delete all selected"
+	},
+	{
+		"key": "form.calendar.pick_date",
+		"value": "Pick a date"
+	},
+	{
+		"key": "form.calendar.time_interval",
+		"value": "Time Interval"
+	},
+	{
+		"key": "form.calendar.start",
+		"value": "Start"
+	},
+	{
+		"key": "form.calendar.end",
+		"value": "End"
+	},
+	{
+		"key": "form.optional",
+		"value": "optional"
+	},
+	{
+		"key": "table.column.last_name",
+		"value": "Last Name"
+	},
+	{
+		"key": "table.column.first_name",
+		"value": "First Name"
+	},
+	{
+		"key": "table.column.document",
+		"value": "Document"
+	},
+	{
+		"key": "table.column.phone",
+		"value": "Phone"
+	},
+	{
+		"key": "table.column.diagnosis",
+		"value": "Diagnosis"
+	},
+	{
+		"key": "table.column.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "table.column.medic",
+		"value": "Medic"
+	},
+	{
+		"key": "clinical.medical_record.update",
+		"value": "Edit Consultation"
+	},
+	{
+		"key": "clinical.medical_record.date",
+		"value": "Date"
+	},
+	{
+		"key": "clinical.medical_record.motive",
+		"value": "Reason"
+	},
+	{
+		"key": "clinical.medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "clinical.medical_record.prescription",
+		"value": "Prescription"
+	},
+	{
+		"key": "clinical.medical_record.search.placeholder",
+		"value": "Search by reason..."
+	},
+	{
+		"key": "table.column.date",
+		"value": "Date"
+	},
+	{
+		"key": "table.column.motive",
+		"value": "Reason"
+	},
+	{
+		"key": "table.column.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "table.column.prescription",
+		"value": "Prescription"
+	},
+	{
+		"key": "clinical.patient_card.document",
+		"value": "ID:"
+	},
+	{
+		"key": "clinical.patient_card.critical",
+		"value": "Critical"
+	},
+	{
+		"key": "clinical.patient_card.personal_info",
+		"value": "PERSONAL INFORMATION"
+	},
+	{
+		"key": "clinical.patient_card.birth_date",
+		"value": "Date of Birth:"
+	},
+	{
+		"key": "clinical.patient_card.gender",
+		"value": "Gender:"
+	},
+	{
+		"key": "clinical.patient_card.phone",
+		"value": "Phone:"
+	},
+	{
+		"key": "clinical.patient_card.not_registered",
+		"value": "Not registered"
+	},
+	{
+		"key": "clinical.patient_card.family_phone",
+		"value": "Family Phone:"
+	},
+	{
+		"key": "clinical.patient_card.family_phone_2",
+		"value": "Family Phone 2:"
+	},
+	{
+		"key": "clinical.patient_card.medical_info",
+		"value": "MEDICAL INFORMATION"
+	},
+	{
+		"key": "clinical.patient_card.insurance",
+		"value": "Insurance:"
+	},
+	{
+		"key": "clinical.patient_card.medic",
+		"value": "Doctor:"
+	},
+	{
+		"key": "clinical.patient_card.diagnosis",
+		"value": "Diagnosis:"
+	},
+	{
+		"key": "clinical.patient_card.not_available",
+		"value": "Not available"
+	},
+	{
+		"key": "clinical.patient_card.latest_prescription",
+		"value": "LATEST PRESCRIPTION"
+	},
+	{
+		"key": "clinical.patient_card.view_prescription",
+		"value": "View Medical Prescription"
+	},
+	{
+		"key": "clinical.patient_card.medical_history",
+		"value": "MEDICAL HISTORY"
+	},
+	{
+		"key": "clinical.patient_card.app",
+		"value": "APP - Personal Pathological History"
+	},
+	{
+		"key": "clinical.patient_card.apf",
+		"value": "APF - Family Pathological History"
+	},
+	{
+		"key": "clinical.patient_card.apqx",
+		"value": "APQX - Surgical Pathological History"
+	},
+	{
+		"key": "clinical.patient_card.notes",
+		"value": "NOTES"
+	},
+	{
+		"key": "clinical.patient_card.no_notes",
+		"value": "No notes registered"
+	},
+	{
+		"key": "clinical.patient_card.gender.male",
+		"value": "Male"
+	},
+	{
+		"key": "clinical.patient_card.gender.female",
+		"value": "Female"
+	},
+	{
+		"key": "clinical.patient_card.gender.other",
+		"value": "Other"
+	},
+	{
+		"key": "clinical.medical_record.actions",
+		"value": "Actions"
+	},
+	{
+		"key": "clinical.medical_record.new_consultation",
+		"value": "New Consultation"
+	},
+	{
+		"key": "clinical.medical_record.view_prescriptions",
+		"value": "View Prescriptions"
+	},
+	{
+		"key": "clinical.medical_record.edit_patient",
+		"value": "Edit Patient"
+	},
+	{
+		"key": "clinical.medical_record.contact_ws",
+		"value": "Contact via WS"
+	},
+	{
+		"key": "clinical.medical_record.mark_critical",
+		"value": "Mark as critical"
+	},
+	{
+		"key": "clinical.medical_record.unmark_critical",
+		"value": "Unmark as critical"
+	},
+	{
+		"key": "clinical.medical_record.history_title",
+		"value": "Medical Consultation History"
+	},
+	{
+		"key": "clinical.medical_record.contact_error.title",
+		"value": "Cannot contact the patient"
+	},
+	{
+		"key": "clinical.medical_record.contact_error.description",
+		"value": "No phone number registered"
+	},
+	{
+		"key": "form.create_medical_record.title",
+		"value": "New Medical Consultation"
+	},
+	{
+		"key": "form.create_medical_record.description",
+		"value": "Fill in the fields to register a new consultation."
+	},
+	{
+		"key": "form.create_medical_record.date",
+		"value": "Consultation Date"
+	},
+	{
+		"key": "form.create_medical_record.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "form.create_medical_record.motive",
+		"value": "Motive"
+	},
+	{
+		"key": "form.create_medical_record.motive.placeholder",
+		"value": "Reason for consultation..."
+	},
+	{
+		"key": "form.create_medical_record.motive.description",
+		"value": "Maximum 100 characters."
+	},
+	{
+		"key": "form.create_medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "form.create_medical_record.observation.placeholder",
+		"value": "General observations..."
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective.title",
+		"value": "Subjective"
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective.description",
+		"value": "Symptoms and complaints reported by the patient."
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective",
+		"value": "Subjective"
+	},
+	{
+		"key": "form.create_medical_record.soap.objective.title",
+		"value": "Objective"
+	},
+	{
+		"key": "form.create_medical_record.soap.objective.description",
+		"value": "Clinical findings and exam results."
+	},
+	{
+		"key": "form.create_medical_record.soap.objective",
+		"value": "Objective"
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment.title",
+		"value": "Assessment"
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment.description",
+		"value": "Diagnosis or clinical impression."
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment",
+		"value": "Assessment"
+	},
+	{
+		"key": "form.create_medical_record.soap.plan.title",
+		"value": "Plan"
+	},
+	{
+		"key": "form.create_medical_record.soap.plan.description",
+		"value": "Treatment and follow-up plan."
+	},
+	{
+		"key": "form.create_medical_record.soap.plan",
+		"value": "Plan"
+	},
+	{
+		"key": "form.create_medical_record.prescription.title",
+		"value": "Medical Prescription"
+	},
+	{
+		"key": "form.create_medical_record.prescription.description",
+		"value": "Optional. Add a medical prescription to the consultation."
+	},
+	{
+		"key": "form.create_medical_record.prescription.content",
+		"value": "Medications"
+	},
+	{
+		"key": "form.create_medical_record.prescription.indications",
+		"value": "Indications"
+	},
+	{
+		"key": "form.create_medical_record.submit",
+		"value": "Create Consultation"
+	},
+	{
+		"key": "form.edit_patient.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "form.edit_patient.title",
+		"value": "Edit Patient"
+	},
+	{
+		"key": "form.edit_patient.description",
+		"value": "Modify the patient's data"
+	},
+	{
+		"key": "form.edit_patient.document",
+		"value": "ID Number"
+	},
+	{
+		"key": "form.edit_patient.document.placeholder",
+		"value": "ID Number..."
+	},
+	{
+		"key": "form.edit_patient.first_name",
+		"value": "First Name"
+	},
+	{
+		"key": "form.edit_patient.first_name.placeholder",
+		"value": "First Name..."
+	},
+	{
+		"key": "form.edit_patient.last_name",
+		"value": "Last Name"
+	},
+	{
+		"key": "form.edit_patient.last_name.placeholder",
+		"value": "Last Name..."
+	},
+	{
+		"key": "form.edit_patient.phone",
+		"value": "Phone"
+	},
+	{
+		"key": "form.edit_patient.phone.placeholder",
+		"value": "Phone..."
+	},
+	{
+		"key": "form.edit_patient.birth_date",
+		"value": "Date of Birth"
+	},
+	{
+		"key": "form.edit_patient.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "form.edit_patient.gender",
+		"value": "Gender"
+	},
+	{
+		"key": "form.edit_patient.institution",
+		"value": "Institution"
+	},
+	{
+		"key": "form.edit_patient.institution.placeholder",
+		"value": "Select Institution..."
+	},
+	{
+		"key": "form.edit_patient.medic",
+		"value": "Attending Physician"
+	},
+	{
+		"key": "form.edit_patient.medic.placeholder",
+		"value": "Dr..."
+	},
+	{
+		"key": "form.edit_patient.insurance",
+		"value": "Medical Insurance"
+	},
+	{
+		"key": "form.edit_patient.insurance.placeholder",
+		"value": "Medical Insurance..."
+	},
+	{
+		"key": "form.edit_patient.diagnosis",
+		"value": "Diagnosis"
+	},
+	{
+		"key": "form.edit_patient.diagnosis.placeholder",
+		"value": "Diagnosis..."
+	},
+	{
+		"key": "form.edit_patient.app",
+		"value": "Personal Medical History"
+	},
+	{
+		"key": "form.edit_patient.apf",
+		"value": "Family Medical History"
+	},
+	{
+		"key": "form.edit_patient.apqx",
+		"value": "Surgical History"
+	},
+	{
+		"key": "form.edit_patient.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "form.edit_patient.notes.placeholder",
+		"value": "Notes..."
+	},
+	{
+		"key": "form.edit_patient.submit",
+		"value": "Save Changes"
+	},
+	{
+		"key": "user.list.success",
+		"value": "Users obtained successfully"
+	},
+	{
+		"key": "user.create.success",
+		"value": "User created successfully"
+	},
+	{
+		"key": "auth.token.refresh.success",
+		"value": "Token refreshed successfully"
+	},
+	{
+		"key": "auth.session.extend.success",
+		"value": "Session extended successfully"
+	},
+	{
+		"key": "auth.token.valid",
+		"value": "Token is valid"
+	},
+	{
+		"key": "company.list.success",
+		"value": "Companies obtained successfully"
+	},
+	{
+		"key": "permission.list.success",
+		"value": "Permissions obtained successfully"
+	},
+	{
+		"key": "permission.categories.success",
+		"value": "Permissions with categories obtained successfully"
+	},
+	{
+		"key": "environment.list.success",
+		"value": "Environments obtained successfully"
+	},
+	{
+		"key": "clinical.patient.create.success",
+		"value": "Patient created successfully"
+	},
+	{
+		"key": "clinical.patient.update.success",
+		"value": "Patient updated successfully"
+	},
+	{
+		"key": "clinical.patient.list.success",
+		"value": "Patients obtained successfully"
+	},
+	{
+		"key": "clinical.patient.followup.success",
+		"value": "Patients with follow-ups obtained successfully"
+	},
+	{
+		"key": "clinical.patient.found",
+		"value": "Patient found"
+	},
+	{
+		"key": "clinical.patient.critical.success",
+		"value": "Patient marked as critical"
+	},
+	{
+		"key": "clinical.patient.critical_revert.success",
+		"value": "Patient critical status reverted"
+	},
+	{
+		"key": "clinical.medical_record.list.success",
+		"value": "Medical records obtained successfully"
+	},
+	{
+		"key": "clinical.medical_record.found",
+		"value": "Medical record found"
+	},
+	{
+		"key": "clinical.medical_record.create.success",
+		"value": "Medical consultation created successfully"
+	},
+	{
+		"key": "clinical.medical_record.update.success",
+		"value": "Medical consultation updated successfully"
+	},
+	{
+		"key": "clinical.prescription.update.success",
+		"value": "Prescription updated successfully"
+	},
+	{
+		"key": "view.medical_record.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "view.medical_record.title",
+		"value": "Medical Record"
+	},
+	{
+		"key": "view.medical_record.subtitle",
+		"value": "Read-only view"
+	},
+	{
+		"key": "view.medical_record.back",
+		"value": "Back"
+	},
+	{
+		"key": "view.medical_record.info.title",
+		"value": "General Information"
+	},
+	{
+		"key": "view.medical_record.info.description",
+		"value": "Details of the medical consultation"
+	},
+	{
+		"key": "view.medical_record.date",
+		"value": "Date"
+	},
+	{
+		"key": "view.medical_record.motive",
+		"value": "Motive"
+	},
+	{
+		"key": "view.medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "view.medical_record.not_registered",
+		"value": "Not registered"
+	},
+	{
+		"key": "view.medical_record.soap.subjective.title",
+		"value": "Subjective (S)"
+	},
+	{
+		"key": "view.medical_record.soap.subjective.description",
+		"value": "Symptoms reported by the patient"
+	},
+	{
+		"key": "view.medical_record.soap.objective.title",
+		"value": "Objective (O)"
+	},
+	{
+		"key": "view.medical_record.soap.objective.description",
+		"value": "Physical examination findings"
+	},
+	{
+		"key": "view.medical_record.soap.assessment.title",
+		"value": "Assessment (A)"
+	},
+	{
+		"key": "view.medical_record.soap.assessment.description",
+		"value": "Diagnosis and analysis"
+	},
+	{
+		"key": "view.medical_record.soap.plan.title",
+		"value": "Plan (P)"
+	},
+	{
+		"key": "view.medical_record.soap.plan.description",
+		"value": "Treatment and follow-up"
+	},
+	{
+		"key": "view.medical_record.prescription.title",
+		"value": "Medical Prescription"
+	},
+	{
+		"key": "view.medical_record.prescription.description",
+		"value": "Prescription associated with this consultation"
+	},
+	{
+		"key": "view.medical_record.prescription.view",
+		"value": "View Full Prescription"
+	},
+	{
+		"key": "clinical.medical_record.view",
+		"value": "View Record"
+	},
+	{
+		"key": "form.update_medical_record.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "form.update_medical_record.title",
+		"value": "Update Medical Consultation"
+	},
+	{
+		"key": "form.update_medical_record.description",
+		"value": "Modify the medical consultation data"
+	},
+	{
+		"key": "form.update_medical_record.date",
+		"value": "Consultation Date"
+	},
+	{
+		"key": "form.update_medical_record.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "form.update_medical_record.motive",
+		"value": "Motive"
+	},
+	{
+		"key": "form.update_medical_record.motive.placeholder",
+		"value": "Motive..."
+	},
+	{
+		"key": "form.update_medical_record.motive.description",
+		"value": "Maximum 100 characters"
+	},
+	{
+		"key": "form.update_medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "form.update_medical_record.observation.placeholder",
+		"value": "Observations..."
+	},
+	{
+		"key": "form.update_medical_record.submit",
+		"value": "Update Consultation"
+	},
+	{
+		"key": "clinical.medical_record.view_prescription",
+		"value": "View Prescription"
+	},
+	{
+		"key": "clinical.medical_record.edit_prescription",
+		"value": "Edit Prescription"
+	},
+	{
+		"key": "dialog.edit_prescription.title",
+		"value": "Edit Medical Prescription"
+	},
+	{
+		"key": "dialog.edit_prescription.description",
+		"value": "Modify the content and indications of the prescription"
+	},
+	{
+		"key": "dialog.edit_prescription.content",
+		"value": "Content"
+	},
+	{
+		"key": "dialog.edit_prescription.content.placeholder",
+		"value": "Prescription content..."
+	},
+	{
+		"key": "dialog.edit_prescription.indications",
+		"value": "Indications"
+	},
+	{
+		"key": "dialog.edit_prescription.indications.placeholder",
+		"value": "Indications..."
+	},
+	{
+		"key": "dialog.edit_prescription.submit",
+		"value": "Save Prescription"
+	},
+	{
+		"key": "clinical.patient.edit",
+		"value": "Edit Patient"
+	},
+	{
+		"key": "clinical.medical_record.create_prescription",
+		"value": "Create Prescription"
 	}
 ]

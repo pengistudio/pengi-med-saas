@@ -8,7 +8,9 @@ import (
 	i18n_middleware "pengi-med-saas/i18n/middleware"
 	"pengi-med-saas/migrations"
 	"pengi-med-saas/routes"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -40,11 +42,22 @@ func main() {
 
 	r := gin.Default()
 
+	r.Use(cors.New(cors.Config{
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "X-tenant-Slug"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	r.Use(i18n_middleware.I18nMiddleware(DB_CONNECTION))
 
 	r.GET("/health", health.Health)
 
-	routes.RegisterRoutes(r.Group("/api"), DB_CONNECTION)
+	routes.RegisterRoutes(r.Group("/api/v1"), DB_CONNECTION)
 
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
