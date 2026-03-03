@@ -2,6 +2,7 @@ import {
 	ArrowLeft,
 	Calendar,
 	ClipboardList,
+	Download,
 	FileText,
 	Pill,
 	Stethoscope,
@@ -9,6 +10,7 @@ import {
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import {
+	downloadPrescription,
 	getMedicalRecordById,
 	type MedicalRecord,
 } from "@/api/clinical-service";
@@ -22,6 +24,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 import useToast from "@/hooks/use-toast";
@@ -33,8 +36,28 @@ const ViewMedicalRecord = () => {
 	const [medicalRecord, setMedicalRecord] =
 		React.useState<MedicalRecord | null>(null);
 	const [showPrescription, setShowPrescription] = React.useState(false);
+	const [isDownloading, setIsDownloading] = React.useState(false);
 	const { errorToast } = useToast();
 	const { textGet } = useText();
+
+	const handleDownloadPrescription = async () => {
+		if (!id) return;
+		setIsDownloading(true);
+		const response = await downloadPrescription(Number(id));
+		if (response.success && response.data) {
+			const blobUrl = window.URL.createObjectURL(response.data);
+			const tempLink = document.createElement("a");
+			tempLink.href = blobUrl;
+			// El nombre exacto nos lo da el backend en Content-Disposition si usamos Axios default y leemos headers,
+			// pero desde el frontend es más facil forzar un nombre generico + id
+			tempLink.download = `receta_${id}.pdf`;
+			document.body.appendChild(tempLink);
+			tempLink.click();
+			document.body.removeChild(tempLink);
+			window.URL.revokeObjectURL(blobUrl);
+		}
+		setIsDownloading(false);
+	};
 
 	React.useEffect(() => {
 		if (!id) return;
@@ -253,13 +276,27 @@ const ViewMedicalRecord = () => {
 							</div>
 						</CardHeader>
 						<CardContent>
-							<Button
-								variant="outline"
-								onClick={() => setShowPrescription(true)}
-							>
-								<Pill className="h-4 w-4 mr-2" />
-								<Text uuid="view.medical_record.prescription.view" />
-							</Button>
+							<div className="flex flex-wrap gap-2">
+								<Button
+									variant="outline"
+									onClick={() => setShowPrescription(true)}
+								>
+									<Pill className="h-4 w-4 mr-2" />
+									<Text uuid="view.medical_record.prescription.view" />
+								</Button>
+								<Button
+									variant="default"
+									onClick={handleDownloadPrescription}
+									disabled={isDownloading}
+								>
+									{isDownloading ? (
+										<Spinner className="mr-2 h-4 w-4" />
+									) : (
+										<Download className="mr-2 h-4 w-4" />
+									)}
+									<Text uuid="view.medical_record.prescription.download" />
+								</Button>
+							</div>
 						</CardContent>
 					</Card>
 				</>

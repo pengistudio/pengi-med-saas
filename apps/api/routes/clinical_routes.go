@@ -47,6 +47,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.GET("/patient/:id", envelope.Handle(recordHandler.GetMedicalRecords))
 			recordGroup.GET("/:id", envelope.Handle(recordHandler.GetMedicalRecord))
 			recordGroup.PUT("/:id/prescription", envelope.Handle(recordHandler.UpdatePrescription))
+			recordGroup.GET("/:id/prescription/download", downloadHandler.DownloadPrescription)
 		}
 
 		// Appointment routes

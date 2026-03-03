@@ -1,0 +1,95 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-surface-alt border-t border-border">
+    <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
+            <!-- Brand -->
+            <div class="lg:col-span-2">
+                <a href="/" class="flex items-center gap-2 mb-4">
+                    <img src="/gentoo.png" alt="Gentoo" class="w-8 h-8" />
+                    <span class="text-lg font-bold text-text">Gentoo</span>
+                </a>
+                <p class="text-sm text-text-muted max-w-sm leading-relaxed">
+                    Software médico moderno diseñado para profesionales de la
+                    salud. Gestiona tu consulta de forma simple, segura y
+                    eficiente.
+                </p>
+            </div>
+
+            <!-- Product -->
+            <div>
+                <h4
+                    class="text-sm font-bold text-text uppercase tracking-wider mb-4"
+                >
+                    Producto
+                </h4>
+                <ul class="flex flex-col gap-3">
+                    <li>
+                        <a
+                            href="#features"
+                            class="text-sm text-text-muted hover:text-primary transition-colors"
+                            >Funcionalidades</a>
+                    </li>
+                    <li>
+                        <a
+                            href="#pricing"
+                            class="text-sm text-text-muted hover:text-primary transition-colors"
+                            >Planes</a>
+                    </li>
+                    <li>
+                        <a
+                            href="#"
+                            class="text-sm text-text-muted hover:text-primary transition-colors"
+                            >Seguridad</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Company -->
+            <div>
+                <h4
+                    class="text-sm font-bold text-text uppercase tracking-wider mb-4"
+                >
+                    Empresa
+                </h4>
+                <ul class="flex flex-col gap-3">
+                    <li>
+                        <a
+                            href="#"
+                            class="text-sm text-text-muted hover:text-primary transition-colors"
+                            >Sobre nosotros</a>
+                    </li>
+                    <li>
+                        <a
+                            href="mailto:contacto@gentoo.com"
+                            class="text-sm text-text-muted hover:text-primary transition-colors"
+                            >Contacto</a>
+                    </li>
+                    <li>
+                        <a
+                            href="#"
+                            class="text-sm text-text-muted hover:text-primary transition-colors"
+                            >Términos</a>
+                    </li>
+                    <li>
+                        <a
+                            href="#"
+                            class="text-sm text-text-muted hover:text-primary transition-colors"
+                            >Privacidad</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom bar -->
+        <div
+            class="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+            <p class="text-sm text-text-muted">
+                &copy; {currentYear} Gentoo. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</footer>

@@ -8,7 +8,7 @@ import (
 type CreateMedicalRecordDTO struct {
 	Date          time.Time                     `json:"date" binding:"required"`
 	Motive        string                        `json:"motive" binding:"required"`
-	Observation   string                        `json:"observation" binding:"required"`
+	Observation   *string                       `json:"observation"`
 	PatientID     uint                          `json:"patient_id" binding:"required"`
 	AppointmentID *uint                         `json:"appointment_id,omitempty"`
 	SOAPRecord    clinical_models.SOAPRecord    `json:"soap_record"`

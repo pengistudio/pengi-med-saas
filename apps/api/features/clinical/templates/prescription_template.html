@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receta Médica - {{.TradeName}}</title>
+    <style>
+        :root {
+            /* Using a generic blue/teal to represent Pengi-Med Gentoo, but keeping the layout same */
+            /* The user asked for "colores de gentoo", I'll use a professional medical blue #0ea5e9 */
+            --primary-color: #0ea5e9;
+            --primary-light: #e0f2fe;
+            --text-color: #334155;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A5 landscape;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            line-height: 1.4;
+            color: var(--text-color);
+            background: white;
+        }
+
+        .page {
+            width: 210mm;
+            height: 148mm;
+            display: flex;
+            padding: 0;
+            page-break-after: always;
+        }
+
+        .column {
+            width: 50%;
+            padding-top: 15px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row-padding {
+            padding: 0px 10px;
+        }
+
+        .column-left {
+            border-right: 1px dashed var(--border-color);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-transform: uppercase;
+        }
+
+        .patient-info {
+            background-color: var(--primary-light);
+            padding: 10px;
+            font-size: 7pt;
+            margin-bottom: 8px;
+            border-top: 2px solid var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+        }
+
+        .patient-pill {
+            padding: 4px 8px;
+            border-radius: 4px;
+            background-color: white;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .info-row-flex-left {
+            display: flex;
+            justify-content: start;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .patient-label {
+            min-width: 6ch;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .prescription-section {
+            margin-top: 10px;
+            min-height: 250px;
+        }
+
+        .section-title {
+            font-size: 11pt;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2px;
+        }
+
+        .content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 9pt;
+        }
+
+        .signature-section {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 60%;
+        }
+
+        .signature-line {
+            border-top: 1px solid var(--text-color);
+            margin-bottom: 5px;
+            width: 100%;
+        }
+
+        .signature-text {
+            font-size: 8pt;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: var(--primary-color);
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            font-size: 7pt;
+            color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+        }
+
+        .title {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .footer-left {
+            text-align: left;
+            flex: 1;
+        }
+
+        .footer-right {
+            text-align: right;
+            flex: 1;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- LEFT COLUMN: Prescription Content -->
+        <div class="column column-left">
+            <div class="header row-padding">
+                <div class="header-title">{{.TradeName}}</div>
+                <div style="text-align: right; font-size: 8pt; color: var(--primary-color); font-weight: bold;">
+                    N°: {{.MedicalRecordID}}
+                </div>
+            </div>
+
+            <div style="padding: 5px 10px; font-size: 8pt; text-align: right;">
+                Fecha: {{.Date}}
+            </div>
+
+            <div class="patient-info">
+                <div class="grid">
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">Paciente:</p>
+                        <p class="patient-pill">{{.PatientName}}</p>
+                    </div>
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">Edad:</p>
+                        <p class="patient-pill">{{.PatientAge}} años</p>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">CI:</p>
+                        <p class="patient-pill">{{.PatientDocument}}</p>
+                    </div>
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">Telf:</p>
+                        <p class="patient-pill">{{.Phone}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-padding" style="font-size: 8pt; margin-bottom: 5px;">
+                <span style="font-weight: bold; color: var(--primary-color);">Diagnóstico:</span> {{.Diagnosis}}
+            </div>
+
+            <div class="prescription-section row-padding">
+                <div class="section-title">Rp.</div>
+                <div class="content">{{.PrescriptionContent}}</div>
+            </div>
+
+            <div class="signature-section row-padding">
+                <div class="signature-line"></div>
+                <div class="signature-text">Dr(a). {{.DoctorName}}</div>
+            </div>
+
+            <div class="footer">
+                <div class="footer-left">
+                    <span class="title">Dirección:</span> {{.Address}}
+                </div>
+                <div class="footer-right">
+                    <span class="title">Atención:</span> {{.Phone}}
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Indications -->
+        <div class="column">
+            <div class="header row-padding">
+                <div class="header-title">{{.TradeName}}</div>
+                <div style="text-align: right; font-size: 8pt; color: var(--primary-color); font-weight: bold;">
+                    N°: {{.MedicalRecordID}}
+                </div>
+            </div>
+
+            <div style="padding: 5px 10px; font-size: 8pt; text-align: right;">
+                Fecha: {{.Date}}
+            </div>
+
+            <div class="patient-info">
+                <div class="grid">
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">Paciente:</p>
+                        <p class="patient-pill">{{.PatientName}}</p>
+                    </div>
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">Edad:</p>
+                        <p class="patient-pill">{{.PatientAge}} años</p>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">CI:</p>
+                        <p class="patient-pill">{{.PatientDocument}}</p>
+                    </div>
+                    <div class="info-row-flex-left">
+                        <p class="patient-label">Telf:</p>
+                        <p class="patient-pill">{{.Phone}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-padding" style="font-size: 8pt; margin-bottom: 5px;">
+                <span style="font-weight: bold; color: var(--primary-color);">Diagnóstico:</span> {{.Diagnosis}}
+            </div>
+
+            <div class="prescription-section row-padding">
+                <div class="section-title">Indicaciones.</div>
+                <div class="content">{{.Indications}}</div>
+            </div>
+
+            <div class="signature-section row-padding">
+                <div class="signature-line"></div>
+                <div class="signature-text">Dr(a). {{.DoctorName}}</div>
+            </div>
+
+            <div class="footer">
+                <div class="footer-left">
+                    <span class="title">Dirección:</span> {{.Address}}
+                </div>
+                <div class="footer-right">
+                    <span class="title">Atención:</span> {{.Phone}}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

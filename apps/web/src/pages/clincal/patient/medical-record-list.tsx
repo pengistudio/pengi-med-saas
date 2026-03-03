@@ -8,6 +8,7 @@ import {
 import React from "react";
 import { useNavigate } from "react-router";
 import {
+	downloadPrescription,
 	getMedicalRecords,
 	type MedicalRecord,
 	type Patient,
@@ -156,6 +157,7 @@ const MedicalRecords = () => {
 									handleEdit,
 									handleViewPrescription,
 									handleEditPrescription,
+									handleDownloadPrescription,
 								)}
 								data={medicalRecords}
 							/>
@@ -205,6 +207,20 @@ const MedicalRecords = () => {
 				setMedicalRecords(res.data as MedicalRecord[]);
 			}
 		});
+	}
+
+	async function handleDownloadPrescription(record: MedicalRecord) {
+		const response = await downloadPrescription(record.ID);
+		if (response.success && response.data) {
+			const blobUrl = window.URL.createObjectURL(response.data);
+			const tempLink = document.createElement("a");
+			tempLink.href = blobUrl;
+			tempLink.download = `receta_${record.ID}.pdf`;
+			document.body.appendChild(tempLink);
+			tempLink.click();
+			document.body.removeChild(tempLink);
+			window.URL.revokeObjectURL(blobUrl);
+		}
 	}
 
 	function handleCreateMedicalRecord() {

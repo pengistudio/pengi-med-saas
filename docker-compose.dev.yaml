@@ -15,6 +15,8 @@ services:
         condition: service_healthy
     env_file:
       - ./apps/api/.env
+    networks:
+      - gentoo_network
 
   db:
     image: postgres:15-alpine
@@ -34,6 +36,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - gentoo_network
+
+  gotenberg:
+    container_name: gotenberg-gentoo
+    image: gotenberg/gotenberg:8
+    restart: on-failure
+    ports:
+      - "3000:3000"
+    networks:
+      - gentoo_network
 
 volumes:
   postgres_data:
+
+networks:
+  gentoo_network:
+    driver: bridge

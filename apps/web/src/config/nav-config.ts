@@ -1,11 +1,4 @@
-import {
-	Calendar,
-	Hospital,
-	LayoutDashboard,
-	Settings,
-	Users,
-	UsersRound,
-} from "lucide-react";
+import { Calendar, Hospital, LayoutDashboard, UsersRound } from "lucide-react";
 import type React from "react";
 
 export interface BaseNavItem {
@@ -44,15 +37,5 @@ export const createNavItems = (
 				icon: Calendar,
 			},
 		],
-	},
-	{
-		icon: Users,
-		label: textGet("dashboard.users"),
-		href: "/users",
-	},
-	{
-		icon: Settings,
-		label: textGet("dashboard.settings"),
-		href: "/settings",
 	},
 ];

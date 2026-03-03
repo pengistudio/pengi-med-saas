@@ -1,0 +1,107 @@
+---
+const plans = [
+	{
+		name: 'Básico',
+		price: '$0',
+		period: '/mes',
+		description: 'Ideal para consultorios pequeños que están comenzando.',
+		features: [] as string[],
+		cta: 'Comenzar gratis',
+		highlighted: false,
+	},
+	{
+		name: 'Profesional',
+		price: '$0',
+		period: '/mes',
+		description: 'Para clínicas en crecimiento que necesitan más funcionalidades.',
+		features: [] as string[],
+		cta: 'Comenzar gratis',
+		highlighted: true,
+	},
+	{
+		name: 'Empresarial',
+		price: '$0',
+		period: '/mes',
+		description: 'Para instituciones médicas con múltiples consultorios.',
+		features: [] as string[],
+		cta: 'Comenzar gratis',
+		highlighted: false,
+	},
+];
+---
+
+<section id="pricing" class="py-24 lg:py-32">
+	<div class="max-w-7xl mx-auto px-6">
+		<!-- Section header -->
+		<div class="text-center max-w-2xl mx-auto mb-16">
+			<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
+				Planes
+			</div>
+			<h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-text mb-4">
+				Un plan para cada necesidad
+			</h2>
+			<p class="text-lg text-text-muted">
+				Elige el plan que mejor se adapte a tu práctica médica. Sin compromisos, cambia cuando quieras.
+			</p>
+		</div>
+
+		<!-- Pricing cards -->
+		<div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+				{plans.map((plan) => (
+				<div
+					class:list={[
+						'relative rounded-2xl p-8 border transition-all duration-300 hover:-translate-y-1 flex flex-col',
+						plan.highlighted
+							? 'border-primary/30 shadow-xl shadow-primary/10'
+							: 'bg-surface border-border hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5',
+					]}
+					style={plan.highlighted ? 'background: linear-gradient(to bottom, oklch(59.929% 0.0998 185.282 / 5%), oklch(0.985 0 0));' : undefined}
+				>
+					{plan.highlighted && (
+						<div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider">
+							Más Popular
+						</div>
+					)}
+
+					<div class="mb-6">
+						<h3 class="text-xl font-bold text-text mb-1">{plan.name}</h3>
+						<p class="text-sm text-text-muted">{plan.description}</p>
+					</div>
+
+					<div class="flex items-baseline gap-1 mb-8">
+						<span class="text-5xl font-extrabold text-text">{plan.price}</span>
+						<span class="text-text-muted font-medium">{plan.period}</span>
+					</div>
+
+					<!-- Feature list -->
+					<ul class="flex flex-col gap-3 mb-8 flex-1 min-h-[120px]">
+						{plan.features.length > 0 ? (
+							plan.features.map((feature) => (
+								<li class="flex items-start gap-3 text-sm text-text-muted">
+									<svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+									</svg>
+									{feature}
+								</li>
+							))
+						) : (
+							<li class="text-sm text-text-muted/50 italic">Funcionalidades próximamente...</li>
+						)}
+					</ul>
+
+					<a
+						href="#cta"
+						class:list={[
+							'inline-flex items-center justify-center w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-300',
+							plan.highlighted
+								? 'bg-primary text-primary-foreground hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5'
+								: 'bg-surface border-2 border-border text-text hover:border-primary/30 hover:bg-primary/5',
+						]}
+					>
+						{plan.cta}
+					</a>
+				</div>
+			))}
+		</div>
+	</div>
+</section>

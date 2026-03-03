@@ -68,7 +68,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	record := &clinical_models.MedicalRecord{
 		Date:          newRecord.Date,
 		Motive:        newRecord.Motive,
-		Observation:   newRecord.Observation,
+		Observation:   *newRecord.Observation,
 		PatientID:     newRecord.PatientID,
 		AppointmentID: newRecord.AppointmentID,
 		SOAPRecord:    newRecord.SOAPRecord,

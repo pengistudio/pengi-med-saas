@@ -351,6 +351,18 @@ export const deleteAppointment = async (
 	});
 };
 
+export const downloadPrescription = async (
+	recordId: number,
+): Promise<ServiceResponse<Blob>> => {
+	return clinicalService.get<Blob>(
+		`/clinical/records/${recordId}/prescription/download`,
+		{
+			responseType: "blob",
+			notifyError: true,
+		},
+	);
+};
+
 // ─── Dashboard API ───────────────────────────────────────────────────────────
 
 export interface WeekDayStat {

@@ -960,6 +960,10 @@
 		"value": "Ver Receta Completa"
 	},
 	{
+		"key": "view.medical_record.prescription.download",
+		"value": "Descargar Receta"
+	},
+	{
 		"key": "clinical.medical_record.view",
 		"value": "Ver Registro"
 	},

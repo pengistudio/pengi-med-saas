@@ -1,6 +1,7 @@
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
 	CopyPlus,
+	Download,
 	Edit,
 	Eye,
 	FileSearch,
@@ -31,6 +32,7 @@ interface ActionCellProps {
 	onEdit?: (id: number) => void;
 	onViewPrescription?: (record: MedicalRecord) => void;
 	onEditPrescription?: (record: MedicalRecord) => void;
+	onDownloadPrescription?: (record: MedicalRecord) => void;
 }
 
 function ActionsCell({
@@ -39,6 +41,7 @@ function ActionsCell({
 	onEdit,
 	onViewPrescription,
 	onEditPrescription,
+	onDownloadPrescription,
 }: ActionCellProps) {
 	const { checkPermission } = usePermission();
 	const hasPrescription = !!row.original.prescription;
@@ -96,6 +99,12 @@ function ActionsCell({
 									<Text uuid="clinical.medical_record.edit_prescription" />
 								</DropdownMenuItem>
 							)}
+							<DropdownMenuItem
+								onClick={() => onDownloadPrescription?.(row.original)}
+							>
+								<Download className="w-4 h-4 mr-2" />
+								<Text uuid="view.medical_record.prescription.download" />
+							</DropdownMenuItem>
 						</>
 					) : (
 						checkPermission([
@@ -120,6 +129,7 @@ export const getMedicalRecordColumns = (
 	onEdit?: (id: number) => void,
 	onViewPrescription?: (record: MedicalRecord) => void,
 	onEditPrescription?: (record: MedicalRecord) => void,
+	onDownloadPrescription?: (record: MedicalRecord) => void,
 ): ColumnDef<MedicalRecord>[] => [
 	{
 		cell: ({ row }) => (
@@ -193,6 +203,7 @@ export const getMedicalRecordColumns = (
 				onEdit={onEdit}
 				onViewPrescription={onViewPrescription}
 				onEditPrescription={onEditPrescription}
+				onDownloadPrescription={onDownloadPrescription}
 			/>
 		),
 		size: 50,

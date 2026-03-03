@@ -960,6 +960,10 @@
 		"value": "View Full Prescription"
 	},
 	{
+		"key": "view.medical_record.prescription.download",
+		"value": "Download Prescription"
+	},
+	{
 		"key": "clinical.medical_record.view",
 		"value": "View Record"
 	},
