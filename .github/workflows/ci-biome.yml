@@ -1,0 +1,49 @@
+name: "CI - Biome"
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  format-and-lint:
+    name: "Validar Código Frontend (Biome)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar Código
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: "Ejecutar Biome en Aplicaciones Frontend"
+        # Esto usará el `biome.json` que tienes en tu proyecto pero restringido a las carpetas frontend.
+        run: npx @biomejs/biome ci ./apps/web ./apps/backoffice ./apps/landing
+
+  backend-go:
+    name: "Validar Código Backend (Go)"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/api
+    steps:
+      - name: Descargar Código
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: apps/api/go.sum
+
+      - name: Descargar Dependencias
+        run: go mod download
+
+      - name: Ejecutar Pruebas
+        run: go test ./...
+
+      - name: Verificar Compilación
+        run: go build -v ./...
+
