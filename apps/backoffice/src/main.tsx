@@ -6,7 +6,13 @@ import { Toaster } from "./components/ui/sonner.tsx";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
 import { LanguageProvider } from "./contexts/language-context.tsx";
 
-createRoot(document.getElementById("root")!).render(
+const root = document.getElementById("root");
+
+if (!root) {
+	throw new Error("Root element not found");
+}
+
+createRoot(root).render(
 	<StrictMode>
 		<TooltipProvider>
 			<LanguageProvider>

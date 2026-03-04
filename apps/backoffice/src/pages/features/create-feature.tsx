@@ -163,7 +163,7 @@ const CreateFeature = () => {
 													</div>
 													<div className="grid grid-cols-1 gap-1">
 														{perms.map((p) => (
-															<label
+															<span
 																key={p.ID}
 																className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 rounded px-2 py-1.5 transition-colors"
 															>
@@ -179,7 +179,7 @@ const CreateFeature = () => {
 																		{p.ID}
 																	</span>
 																</div>
-															</label>
+															</span>
 														))}
 													</div>
 												</div>
