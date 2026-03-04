@@ -18,7 +18,7 @@ Este repositorio es un **Monorepo** que contiene múltiples aplicaciones y servi
 - **Backoffice (`apps/backoffice`):** Panel de administración interno (React + Vite + TypeScript).
 - **Landing Page (`apps/landing`):** Sitio web público promocional (Astro).
 - **Estilos:** TailwindCSS
-- **Componentes:** Shadcn UI / Radix UI
+- **Componentes:** Shadcn UI / Base UI
 - **Estado:** Zustand
 - **Validaciones form:** Zod + React Hook Form
 
