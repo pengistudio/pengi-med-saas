@@ -31,4 +31,13 @@ var (
 
 	// Permission Errors
 	ErrPermissionGetError AppError = NewAppError("E-PERM-001", "Error getting permissions.")
+
+	// Backoffice Errors
+	ErrBackofficeInvalidRequest       AppError = NewAppError("E-BO-001", "Invalid backoffice request.")
+	ErrBackofficeCompanyCreateError   AppError = NewAppError("E-BO-002", "Error creating company.")
+	ErrBackofficeCompanyUpdateError   AppError = NewAppError("E-BO-003", "Error updating company.")
+	ErrBackofficeCompanyDeleteError   AppError = NewAppError("E-BO-004", "Error deleting company.")
+	ErrBackofficeFeatureNotFound      AppError = NewAppError("E-BO-005", "Feature not found.")
+	ErrBackofficePlanNotFound         AppError = NewAppError("E-BO-006", "Plan not found.")
+	ErrBackofficeSubscriptionNotFound AppError = NewAppError("E-BO-007", "Subscription not found.")
 )

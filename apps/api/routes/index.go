@@ -12,4 +12,5 @@ func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	RegisterUserRoutes(router, db)
 	RegisterClinicalRoutes(router, db)
 	RegisterPermissionRoutes(router, db)
+	RegisterBackofficeRoutes(router, db)
 }

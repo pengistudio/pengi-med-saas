@@ -1278,5 +1278,541 @@
 	{
 		"key": "profile.update.success",
 		"value": "Perfil actualizado exitosamente"
+	},
+	{
+		"key": "backoffice.nav.dashboard",
+		"value": "Panel de Control"
+	},
+	{
+		"key": "backoffice.nav.companies",
+		"value": "Empresas"
+	},
+	{
+		"key": "backoffice.nav.companies.list",
+		"value": "Listado de Empresas"
+	},
+	{
+		"key": "backoffice.nav.team",
+		"value": "Equipo Interno"
+	},
+	{
+		"key": "backoffice.help",
+		"value": "Ayuda"
+	},
+	{
+		"key": "backoffice.dropdown.account",
+		"value": "Mi Cuenta"
+	},
+	{
+		"key": "backoffice.dropdown.settings",
+		"value": "Ajustes"
+	},
+	{
+		"key": "backoffice.dropdown.logout",
+		"value": "Cerrar Sesión"
+	},
+	{
+		"key": "backoffice.dashboard.title",
+		"value": "Panel de Administración"
+	},
+	{
+		"key": "backoffice.dashboard.stat.total_companies",
+		"value": "Total de Clínicas"
+	},
+	{
+		"key": "backoffice.dashboard.stat.total_users",
+		"value": "Usuarios Registrados"
+	},
+	{
+		"key": "backoffice.dashboard.stat.active_plans",
+		"value": "Planes Activos"
+	},
+	{
+		"key": "backoffice.dashboard.recent.title",
+		"value": "Actividad Reciente"
+	},
+	{
+		"key": "backoffice.dashboard.recent.description",
+		"value": "Últimas acciones realizadas en la plataforma"
+	},
+	{
+		"key": "backoffice.dashboard.recent.empty",
+		"value": "No hay actividad reciente para mostrar."
+	},
+	{
+		"key": "backoffice.login.title",
+		"value": "Acceso Backoffice"
+	},
+	{
+		"key": "backoffice.login.subtitle",
+		"value": "Área de administración exclusiva para operadores de Pengi Med."
+	},
+	{
+		"key": "backoffice.login.username",
+		"value": "Usuario de red"
+	},
+	{
+		"key": "backoffice.login.username.placeholder",
+		"value": "Ingresa tu usuario"
+	},
+	{
+		"key": "backoffice.login.password",
+		"value": "Contraseña"
+	},
+	{
+		"key": "backoffice.login.password.placeholder",
+		"value": "••••••••"
+	},
+	{
+		"key": "backoffice.login.button",
+		"value": "Iniciar Sesión Segura"
+	},
+	{
+		"key": "backoffice_user.list.success",
+		"value": "Usuarios de backoffice obtenidos exitosamente"
+	},
+	{
+		"key": "backoffice_user.create.success",
+		"value": "Usuario de backoffice creado exitosamente"
+	},
+	{
+		"key": "backoffice.companies.title",
+		"value": "Empresas"
+	},
+	{
+		"key": "backoffice.companies.create",
+		"value": "Nueva Empresa"
+	},
+	{
+		"key": "backoffice.companies.list.title",
+		"value": "Listado de Empresas"
+	},
+	{
+		"key": "backoffice.companies.list.description",
+		"value": "Gestiona las empresas registradas en la plataforma"
+	},
+	{
+		"key": "backoffice.companies.loading",
+		"value": "Cargando..."
+	},
+	{
+		"key": "backoffice.companies.empty",
+		"value": "No hay empresas registradas."
+	},
+	{
+		"key": "backoffice.companies.col.trade_name",
+		"value": "Nombre Comercial"
+	},
+	{
+		"key": "backoffice.companies.col.trade_name.placeholder",
+		"value": "Ej: Mi Clínica"
+	},
+	{
+		"key": "backoffice.companies.col.legal_name",
+		"value": "Razón Social"
+	},
+	{
+		"key": "backoffice.companies.col.legal_name.placeholder",
+		"value": "Ej: Mi Clínica S.A."
+	},
+	{
+		"key": "backoffice.companies.col.plan",
+		"value": "Plan"
+	},
+	{
+		"key": "backoffice.companies.col.tenant",
+		"value": "Tenant"
+	},
+	{
+		"key": "backoffice.companies.create.title",
+		"value": "Crear Empresa"
+	},
+	{
+		"key": "backoffice.companies.create.description",
+		"value": "Completa los datos para registrar una nueva empresa en la plataforma."
+	},
+	{
+		"key": "backoffice.companies.edit.title",
+		"value": "Editar Empresa"
+	},
+	{
+		"key": "backoffice.companies.edit.description",
+		"value": "Modifica los datos de la empresa."
+	},
+	{
+		"key": "backoffice.companies.cancel",
+		"value": "Cancelar"
+	},
+	{
+		"key": "backoffice.companies.save",
+		"value": "Guardar Cambios"
+	},
+	{
+		"key": "backoffice.company.list.success",
+		"value": "Empresas obtenidas exitosamente"
+	},
+	{
+		"key": "backoffice.company.found",
+		"value": "Empresa encontrada"
+	},
+	{
+		"key": "backoffice.company.create.success",
+		"value": "Empresa creada exitosamente"
+	},
+	{
+		"key": "backoffice.company.update.success",
+		"value": "Empresa actualizada exitosamente"
+	},
+	{
+		"key": "backoffice.company.delete.success",
+		"value": "Empresa eliminada exitosamente"
+	},
+	{
+		"key": "backoffice.nav.features",
+		"value": "Features"
+	},
+	{
+		"key": "backoffice.nav.plans",
+		"value": "Planes"
+	},
+	{
+		"key": "backoffice.nav.subscriptions",
+		"value": "Suscripciones"
+	},
+	{
+		"key": "backoffice.features.title",
+		"value": "Features"
+	},
+	{
+		"key": "backoffice.features.create",
+		"value": "Nuevo Feature"
+	},
+	{
+		"key": "backoffice.features.list.title",
+		"value": "Listado de Features"
+	},
+	{
+		"key": "backoffice.features.list.description",
+		"value": "Gestiona las funcionalidades disponibles en la plataforma"
+	},
+	{
+		"key": "backoffice.features.empty",
+		"value": "No hay features registrados."
+	},
+	{
+		"key": "backoffice.features.col.code",
+		"value": "Código"
+	},
+	{
+		"key": "backoffice.features.col.name",
+		"value": "Nombre"
+	},
+	{
+		"key": "backoffice.features.col.name.placeholder",
+		"value": "Ej: Bitácora Clínica"
+	},
+	{
+		"key": "backoffice.features.col.permissions",
+		"value": "Permisos"
+	},
+	{
+		"key": "backoffice.features.create.title",
+		"value": "Crear Feature"
+	},
+	{
+		"key": "backoffice.features.create.description",
+		"value": "Registra una nueva funcionalidad con código y nombre."
+	},
+	{
+		"key": "backoffice.features.edit.title",
+		"value": "Editar Feature"
+	},
+	{
+		"key": "backoffice.features.edit.description",
+		"value": "Modifica los datos del feature."
+	},
+	{
+		"key": "backoffice.feature.list.success",
+		"value": "Features obtenidos exitosamente"
+	},
+	{
+		"key": "backoffice.feature.found",
+		"value": "Feature encontrado"
+	},
+	{
+		"key": "backoffice.feature.create.success",
+		"value": "Feature creado exitosamente"
+	},
+	{
+		"key": "backoffice.feature.update.success",
+		"value": "Feature actualizado exitosamente"
+	},
+	{
+		"key": "backoffice.feature.delete.success",
+		"value": "Feature eliminado exitosamente"
+	},
+	{
+		"key": "backoffice.plans.title",
+		"value": "Planes"
+	},
+	{
+		"key": "backoffice.plans.create",
+		"value": "Nuevo Plan"
+	},
+	{
+		"key": "backoffice.plans.list.title",
+		"value": "Listado de Planes"
+	},
+	{
+		"key": "backoffice.plans.list.description",
+		"value": "Gestiona los planes disponibles para las empresas"
+	},
+	{
+		"key": "backoffice.plans.empty",
+		"value": "No hay planes registrados."
+	},
+	{
+		"key": "backoffice.plans.col.name",
+		"value": "Nombre"
+	},
+	{
+		"key": "backoffice.plans.col.name.placeholder",
+		"value": "Ej: Enterprise"
+	},
+	{
+		"key": "backoffice.plans.col.code",
+		"value": "Código"
+	},
+	{
+		"key": "backoffice.plans.col.price",
+		"value": "Precio"
+	},
+	{
+		"key": "backoffice.plans.col.features",
+		"value": "Features"
+	},
+	{
+		"key": "backoffice.plans.create.title",
+		"value": "Crear Plan"
+	},
+	{
+		"key": "backoffice.plans.create.description",
+		"value": "Registra un nuevo plan con precio y código."
+	},
+	{
+		"key": "backoffice.plans.edit.title",
+		"value": "Editar Plan"
+	},
+	{
+		"key": "backoffice.plans.edit.description",
+		"value": "Modifica los datos del plan."
+	},
+	{
+		"key": "backoffice.plan.list.success",
+		"value": "Planes obtenidos exitosamente"
+	},
+	{
+		"key": "backoffice.plan.found",
+		"value": "Plan encontrado"
+	},
+	{
+		"key": "backoffice.plan.create.success",
+		"value": "Plan creado exitosamente"
+	},
+	{
+		"key": "backoffice.plan.update.success",
+		"value": "Plan actualizado exitosamente"
+	},
+	{
+		"key": "backoffice.plan.delete.success",
+		"value": "Plan eliminado exitosamente"
+	},
+	{
+		"key": "backoffice.subscriptions.title",
+		"value": "Suscripciones"
+	},
+	{
+		"key": "backoffice.subscriptions.create",
+		"value": "Nueva Suscripción"
+	},
+	{
+		"key": "backoffice.subscriptions.list.title",
+		"value": "Listado de Suscripciones"
+	},
+	{
+		"key": "backoffice.subscriptions.list.description",
+		"value": "Gestiona las suscripciones de las empresas"
+	},
+	{
+		"key": "backoffice.subscriptions.empty",
+		"value": "No hay suscripciones registradas."
+	},
+	{
+		"key": "backoffice.subscriptions.col.company",
+		"value": "Empresa"
+	},
+	{
+		"key": "backoffice.subscriptions.col.plan",
+		"value": "Plan"
+	},
+	{
+		"key": "backoffice.subscriptions.col.status",
+		"value": "Estado"
+	},
+	{
+		"key": "backoffice.subscriptions.col.expires",
+		"value": "Fecha de Vencimiento"
+	},
+	{
+		"key": "backoffice.subscriptions.select.company",
+		"value": "Selecciona una empresa..."
+	},
+	{
+		"key": "backoffice.subscriptions.select.plan",
+		"value": "Selecciona un plan..."
+	},
+	{
+		"key": "backoffice.subscriptions.create.title",
+		"value": "Crear Suscripción"
+	},
+	{
+		"key": "backoffice.subscriptions.create.description",
+		"value": "Asigna un plan a una empresa."
+	},
+	{
+		"key": "backoffice.subscriptions.edit.title",
+		"value": "Editar Suscripción"
+	},
+	{
+		"key": "backoffice.subscriptions.edit.description",
+		"value": "Modifica los datos de la suscripción."
+	},
+	{
+		"key": "backoffice.subscription.list.success",
+		"value": "Suscripciones obtenidas exitosamente"
+	},
+	{
+		"key": "backoffice.subscription.create.success",
+		"value": "Suscripción creada exitosamente"
+	},
+	{
+		"key": "backoffice.subscription.update.success",
+		"value": "Suscripción actualizada exitosamente"
+	},
+	{
+		"key": "backoffice.subscription.delete.success",
+		"value": "Suscripción eliminada exitosamente"
+	},
+	{
+		"key": "backoffice.linking.selected",
+		"value": "seleccionados"
+	},
+	{
+		"key": "backoffice.linking.select_all",
+		"value": "Seleccionar todos"
+	},
+	{
+		"key": "backoffice.linking.deselect_all",
+		"value": "Deseleccionar todos"
+	},
+	{
+		"key": "backoffice.permission.list.success",
+		"value": "Permisos obtenidos exitosamente"
+	},
+	{
+		"key": "backoffice.nav.users",
+		"value": "Usuarios"
+	},
+	{
+		"key": "backoffice.users.title",
+		"value": "Usuarios"
+	},
+	{
+		"key": "backoffice.users.create",
+		"value": "Nuevo Usuario"
+	},
+	{
+		"key": "backoffice.users.list.title",
+		"value": "Lista de Usuarios"
+	},
+	{
+		"key": "backoffice.users.list.description",
+		"value": "Administrar usuarios del backoffice"
+	},
+	{
+		"key": "backoffice.users.empty",
+		"value": "No hay usuarios registrados."
+	},
+	{
+		"key": "backoffice.users.col.name",
+		"value": "Nombre"
+	},
+	{
+		"key": "backoffice.users.col.name.placeholder",
+		"value": "Ej: Juan Pérez"
+	},
+	{
+		"key": "backoffice.users.col.user_name",
+		"value": "Usuario"
+	},
+	{
+		"key": "backoffice.users.col.user_name.placeholder",
+		"value": "Ej: admin"
+	},
+	{
+		"key": "backoffice.users.col.password",
+		"value": "Contraseña"
+	},
+	{
+		"key": "backoffice.users.col.password_new",
+		"value": "Nueva Contraseña"
+	},
+	{
+		"key": "backoffice.users.col.password_new.placeholder",
+		"value": "Dejar vacío para no cambiar"
+	},
+	{
+		"key": "backoffice.users.create.title",
+		"value": "Crear Usuario"
+	},
+	{
+		"key": "backoffice.users.create.description",
+		"value": "Registrar un nuevo usuario del backoffice."
+	},
+	{
+		"key": "backoffice.users.edit.title",
+		"value": "Editar Usuario"
+	},
+	{
+		"key": "backoffice.users.edit.description",
+		"value": "Modificar los detalles del usuario."
+	},
+	{
+		"key": "backoffice.users.list.success",
+		"value": "Usuarios obtenidos exitosamente"
+	},
+	{
+		"key": "backoffice.users.found",
+		"value": "Usuario encontrado"
+	},
+	{
+		"key": "backoffice.users.update.success",
+		"value": "Usuario actualizado exitosamente"
+	},
+	{
+		"key": "backoffice.users.delete.success",
+		"value": "Usuario eliminado exitosamente"
+	},
+	{
+		"key": "backoffice.dashboard.stat.total_features",
+		"value": "Total Features"
+	},
+	{
+		"key": "backoffice.dashboard.stat.active_subscriptions",
+		"value": "Suscripciones Activas"
+	},
+	{
+		"key": "backoffice.dashboard.stats.success",
+		"value": "Estadísticas obtenidas exitosamente"
 	}
 ]
