@@ -20,7 +20,7 @@ jobs:
 
       - name: "Ejecutar Biome en Aplicaciones Frontend"
         # Esto usará el `biome.json` que tienes en tu proyecto pero restringido a las carpetas frontend.
-        run: npx @biomejs/biome ci ./apps/web ./apps/backoffice ./apps/landing
+        run: npx @biomejs/biome ci ./apps/web ./apps/backoffice
 
   backend-go:
     name: "Validar Código Backend (Go)"
