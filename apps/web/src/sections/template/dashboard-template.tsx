@@ -170,10 +170,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 						<SelectLanguage />
 						<DropdownMenu>
 							<DropdownMenuTrigger>
-								<Button
-									variant="ghost"
-									className="relative h-10 w-10 rounded-full"
-								>
+								<div className="relative h-10 w-10 rounded-full cursor-pointer">
 									<Avatar className="h-10 w-10">
 										<AvatarImage
 											src="/placeholder.svg?height=40&width=40"
@@ -183,7 +180,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 											{handleAvatarFallbackText()}
 										</AvatarFallback>
 									</Avatar>
-								</Button>
+								</div>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" className="w-56">
 								<DropdownMenuGroup>

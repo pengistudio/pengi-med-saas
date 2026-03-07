@@ -93,7 +93,7 @@ export default function AppointmentCalendar() {
 	}
 
 	return (
-		<div className="flex flex-col h-[calc(100vh-8rem)]">
+		<div className="flex flex-col max-h-[calc(100vh-8rem)]">
 			{/* ── Header ─────────────────────────────────── */}
 			<div className="flex items-center justify-between pb-4 gap-4 flex-wrap">
 				<div className="flex items-center gap-4">
@@ -138,35 +138,39 @@ export default function AppointmentCalendar() {
 
 			{/* ── Calendar Grid ──────────────────────────── */}
 			<div className="flex-1 border rounded-xl overflow-hidden bg-card">
-				{/* Day Headers */}
-				<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-muted/30 sticky top-0 z-10">
-					<div className="border-r" />
-					{weekDays.map((day) => (
-						<div
-							key={day.toISOString()}
-							className={cn(
-								"text-center py-3 border-r last:border-r-0",
-								isToday(day) && "bg-primary/5",
-							)}
-						>
-							<p className="text-xs font-medium text-muted-foreground uppercase">
-								{format(day, "EEE", { locale: es })}
-							</p>
-							<p
+				{/* Scrollable area with headers inside */}
+				<div
+					className="overflow-auto flex-1 max-h-[calc(100vh-16rem)]"
+					style={{ scrollbarGutter: "stable" }}
+				>
+					{/* Day Headers (sticky) */}
+					<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-10">
+						<div className="border-r" />
+						{weekDays.map((day) => (
+							<div
+								key={day.toISOString()}
 								className={cn(
-									"text-lg font-semibold mt-0.5 leading-none",
-									isToday(day) &&
-										"bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto",
+									"text-center py-3 border-r last:border-r-0",
+									isToday(day) && "bg-primary/5",
 								)}
 							>
-								{format(day, "d")}
-							</p>
-						</div>
-					))}
-				</div>
+								<p className="text-xs font-medium text-muted-foreground uppercase">
+									{format(day, "EEE", { locale: es })}
+								</p>
+								<p
+									className={cn(
+										"text-lg font-semibold mt-0.5 leading-none",
+										isToday(day) &&
+											"bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto",
+									)}
+								>
+									{format(day, "d")}
+								</p>
+							</div>
+						))}
+					</div>
 
-				{/* Time Grid */}
-				<div className="overflow-auto flex-1 max-h-[calc(100vh-16rem)]">
+					{/* Time Grid */}
 					<div
 						className="grid grid-cols-[60px_repeat(7,1fr)] relative"
 						style={{
@@ -181,9 +185,10 @@ export default function AppointmentCalendar() {
 									className="absolute w-full pr-2 text-right"
 									style={{
 										top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
+										transform: "translateY(-50%)",
 									}}
 								>
-									<span className="text-xs text-muted-foreground -mt-2 block">
+									<span className="text-xs text-muted-foreground block">
 										{`${hour.toString().padStart(2, "0")}:00`}
 									</span>
 								</div>
