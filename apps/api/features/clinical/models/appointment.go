@@ -19,3 +19,5 @@ type Appointment struct {
 	Status    string    `json:"status" gorm:"default:scheduled"`
 	Patient   Patient   `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 }
+
+func (Appointment) IsAuditable() bool { return true }

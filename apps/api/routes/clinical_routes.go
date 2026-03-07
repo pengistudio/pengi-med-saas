@@ -5,6 +5,7 @@ import (
 	"pengi-med-saas/core/logger"
 	clinical_handlers "pengi-med-saas/features/clinical/handlers"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
 
-	clinicalGroup := router.Group("/clinical", tenant_middleware.TenantMiddleware(db))
+	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db))
 	{
 
 		// Dashboard route

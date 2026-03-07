@@ -63,7 +63,7 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 		patient.TenantID = tenantID.(uint)
 	}
 
-	if err := h.db.Create(patient).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(patient).Error; err != nil {
 		h.logger.Error("Failed to create patient", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientCreateError)
 	}

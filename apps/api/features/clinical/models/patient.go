@@ -11,6 +11,7 @@ type Patient struct {
 	TenantID       uint            `json:"tenant_id"`
 	Document       string          `json:"document"`
 	Phone          string          `json:"phone"`
+	Email          string          `json:"email"`
 	FirstName      string          `json:"first_name"`
 	LastName       string          `json:"last_name"`
 	FullName       *string         `json:"full_name"`
@@ -28,3 +29,5 @@ type Patient struct {
 	MedicalRecords []MedicalRecord `json:"medical_records" gorm:"foreignKey:PatientID;constraint:OnDelete:CASCADE;"`
 	Appointments   []Appointment   `json:"appointments,omitempty" gorm:"foreignKey:PatientID"`
 }
+
+func (Patient) IsAuditable() bool { return true }

@@ -33,6 +33,7 @@ const formSchema = z.object({
 		.min(10, "Debe tener 10 caracteres")
 		.max(10, "Debe tener 10 caracteres"),
 	phone: z.string().optional(),
+	email: z.string().email().optional(),
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),
@@ -96,6 +97,14 @@ const CreatePatientForm = () => {
 								name="phone"
 								placeholder="Teléfono..."
 								label="Teléfono"
+								isOptional
+							/>
+							<FormInput
+								field={field}
+								name="email"
+								type="email"
+								placeholder="Correo electrónico..."
+								label="Correo Electrónico"
 								isOptional
 							/>
 

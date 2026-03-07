@@ -28,3 +28,5 @@ type SOAPRecord struct {
 	Assessment string `json:"assessment"`
 	Plan       string `json:"plan"`
 }
+
+func (MedicalRecord) IsAuditable() bool { return true }

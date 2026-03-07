@@ -40,6 +40,7 @@ const formSchema = z.object({
 		.min(10, "Debe tener 10 caracteres")
 		.max(10, "Debe tener 10 caracteres"),
 	phone: z.string().optional(),
+	email: z.string().email().optional(),
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),
@@ -96,6 +97,7 @@ const EditPatientForm = () => {
 	const defaultValues = {
 		document: patient.document,
 		phone: patient.phone || "",
+		email: patient.email || "",
 		first_name: patient.first_name,
 		last_name: patient.last_name,
 		birth_date: patient.birth_date ? new Date(patient.birth_date) : undefined,
@@ -151,6 +153,14 @@ const EditPatientForm = () => {
 								name="phone"
 								placeholder={textGet("form.edit_patient.phone.placeholder")}
 								label={textGet("form.edit_patient.phone")}
+								isOptional
+							/>
+							<FormInput
+								field={field}
+								name="email"
+								type="email"
+								placeholder={textGet("form.edit_patient.email.placeholder")}
+								label={textGet("form.edit_patient.email")}
 								isOptional
 							/>
 

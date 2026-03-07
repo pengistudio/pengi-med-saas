@@ -11,6 +11,7 @@ export interface Patient extends BaseModel {
 	tenant_id: number;
 	document: string;
 	phone: string;
+	email: string;
 	first_name: string;
 	last_name: string;
 	full_name?: string;
@@ -78,6 +79,7 @@ export const downloadPatientReport = async (id: number): Promise<void> => {
 export type CreatePatientPayload = {
 	document: string;
 	phone?: string;
+	email?: string;
 	first_name: string;
 	last_name: string;
 	birth_date?: Date;

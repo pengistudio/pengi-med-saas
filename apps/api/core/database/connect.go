@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/config"
 
 	_ "github.com/lib/pq" // driver PostgreSQL
@@ -38,7 +39,15 @@ func Connect() (*gorm.DB, error) {
 	}
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, password, dbname)
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	// Register Audit Callbacks
+	audit.RegisterCallbacks(db)
+
+	return db, nil
 }
 
 /*

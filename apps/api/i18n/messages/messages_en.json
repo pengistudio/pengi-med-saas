@@ -724,6 +724,14 @@
 		"value": "Phone..."
 	},
 	{
+		"key": "form.edit_patient.email",
+		"value": "Email"
+	},
+	{
+		"key": "form.edit_patient.email.placeholder",
+		"value": "Email address..."
+	},
+	{
 		"key": "form.edit_patient.birth_date",
 		"value": "Date of Birth"
 	},

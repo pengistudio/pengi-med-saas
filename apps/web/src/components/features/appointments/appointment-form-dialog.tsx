@@ -218,9 +218,10 @@ export function AppointmentFormDialog({
 					defaultValues={{
 						title: appointment?.title || "",
 						start_time: appointment?.start_time || defaultTime || "09:00",
-						end_time:
-							appointment?.end_time || defaultTime
-								? `${(Number.parseInt(defaultTime || "09", 10) + 1).toString().padStart(2, "0")}:00`
+						end_time: appointment?.end_time
+							? appointment.end_time
+							: defaultTime
+								? `${(Number.parseInt(defaultTime, 10) + 1).toString().padStart(2, "0")}:00`
 								: "10:00",
 						location: appointment?.location || "",
 						notes: appointment?.notes || "",

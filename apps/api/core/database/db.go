@@ -8,6 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"pengi-med-saas/core/audit"
 )
 
 type DBExecute struct {
@@ -50,6 +52,11 @@ func MigrateDB(db *gorm.DB, dst ...any) error {
 
 	if err := db.AutoMigrate(dst...); err != nil {
 		return fmt.Errorf("failed to auto-migrate Database: %w", err)
+	}
+
+	// Migrate standalone core models like AuditLog
+	if err := db.AutoMigrate(&audit.AuditLog{}); err != nil {
+		return fmt.Errorf("failed to auto-migrate AuditLog: %w", err)
 	}
 
 	if err := ExecuteAll(db); err != nil {

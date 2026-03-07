@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 )
 
 type AppointmentHandler struct {
@@ -104,7 +106,7 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 		appointment.TenantID = tenantID.(uint)
 	}
 
-	if err := h.db.Create(appointment).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(appointment).Error; err != nil {
 		h.logger.Error("Failed to create appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
@@ -158,7 +160,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 		updates["notes"] = *dto.Notes
 	}
 
-	if err := h.db.Model(&appointment).Updates(updates).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&appointment).Updates(updates).Error; err != nil {
 		h.logger.Error("Failed to update appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
@@ -193,7 +195,7 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
 
-	if err := h.db.Model(&appointment).Update("status", dto.Status).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&appointment).Update("status", dto.Status).Error; err != nil {
 		h.logger.Error("Failed to update appointment status", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
@@ -220,7 +222,7 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusBadRequest, "Only scheduled or cancelled appointments can be deleted", core_errors.ErrAuthInvalidRequest)
 	}
 
-	if err := h.db.Delete(&appointment).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Delete(&appointment).Error; err != nil {
 		h.logger.Error("Failed to delete appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
