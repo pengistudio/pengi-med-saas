@@ -4,14 +4,14 @@ import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
 
 export const api = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
+	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
 	headers: {
 		"Content-Type": "application/json",
 	},
 });
 
 export const noAuthApi = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
+	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
 	headers: {
 		"Content-Type": "application/json",
 	},
@@ -19,7 +19,7 @@ export const noAuthApi = axios.create({
 });
 
 export const apiWithTenant = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
+	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
 	headers: {
 		"Content-Type": "application/json",
 	},

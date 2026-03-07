@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: pengi-api
     ports:
-      - "8080:8080"
+      - "8000:8080"
     environment:
       - GIN_MODE=debug
     depends_on:
@@ -46,12 +46,61 @@ services:
     image: gotenberg/gotenberg:8
     restart: on-failure
     ports:
-      - "3000:3000"
+      - "8001:3000"
+    networks:
+      - gentoo_network
+
+  web:
+    image: node:20-alpine
+    container_name: pengi-web-dev
+    working_dir: /app
+    ports:
+      - "3000:5173"
+    environment:
+      - CI=true
+      - PNPM_HOME=/pnpm/store
+    volumes:
+      - ./apps/web:/app
+      - pnpm_store:/pnpm/store
+    command: sh -c "corepack enable && pnpm install && pnpm run dev --host"
+    networks:
+      - gentoo_network
+
+  backoffice:
+    image: node:20-alpine
+    container_name: pengi-backoffice-dev
+    working_dir: /app
+    ports:
+      - "3001:5173"
+    environment:
+      - CI=true
+      - PNPM_HOME=/pnpm/store
+    volumes:
+      - ./apps/backoffice:/app
+      - pnpm_store:/pnpm/store
+    command: sh -c "corepack enable && pnpm install && pnpm run dev --host"
+    networks:
+      - gentoo_network
+
+  landing:
+    image: node:20-alpine
+    container_name: pengi-landing-dev
+    working_dir: /app
+    ports:
+      - "3002:4321"
+    environment:
+      - CI=true
+      - PNPM_HOME=/pnpm/store
+    volumes:
+      - ./apps/landing:/app
+      - pnpm_store:/pnpm/store
+    command: sh -c "corepack enable && pnpm install && pnpm run dev --host"
     networks:
       - gentoo_network
 
 volumes:
   postgres_data:
+  pnpm_store:
 
 networks:
   gentoo_network:

@@ -2,7 +2,7 @@ import axios from "axios";
 import { useTokenStore } from "@/store/token-store";
 
 export const api = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
+	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
 	timeout: 10000,
 	headers: {
 		"Content-Type": "application/json",
@@ -50,7 +50,7 @@ api.interceptors.response.use(
 );
 
 export const noAuthApi = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
+	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
 	timeout: 10000,
 	headers: {
 		"Content-Type": "application/json",
