@@ -205,16 +205,8 @@ func afterUpdateCallback(db *gorm.DB) {
 		oldValues = val
 	}
 
-	// GORM updates might only contain partial changed fields.
-	// To get full Old/New we realistically need a BeforeUpdate hook to load the old object.
-	// For simplicity in this `after` hook, we'll store the object in Dest/Model.
-	// recordAudit automatically looks at db.Statement.Dest and db.Statement.Model to find
-	// the entity and see if it's Auditable.
-
 	valJSON := db.Statement.Dest
 	if reflect.TypeOf(db.Statement.Dest).Kind() == reflect.Map {
-		// When using .Updates(map[string]interface{}), Dest is the map, Model is the struct.
-		// We'll record both the changes (Dest map) and let recordAudit find the Auditable interface on Model.
 		valJSON = map[string]interface{}{
 			"updated_fields": db.Statement.Dest,
 			"entity_id":      getEntityID(db),
