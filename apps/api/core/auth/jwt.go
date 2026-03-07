@@ -166,3 +166,37 @@ func ParseExchangeToken(token string) (jwt.MapClaims, error) {
 
 	return claims, nil
 }
+
+// GenerateCompanySignupToken creates a JWT that encodes a company_id.
+// It expires in 72 hours and is used to let new users self-register
+// under a specific company.
+func GenerateCompanySignupToken(companyID uint) (string, error) {
+	secretKey := config.GetEnv("AUTH_KEY")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"type":       "company_signup",
+		"company_id": companyID,
+		"exp":        time.Now().Add(72 * time.Hour).Unix(),
+	})
+	return token.SignedString([]byte(secretKey))
+}
+
+// ParseCompanySignupToken validates a company signup token and returns the
+// embedded company_id.
+func ParseCompanySignupToken(tokenStr string) (uint, error) {
+	claims, err := ParseToken(tokenStr)
+	if err != nil {
+		return 0, err
+	}
+
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "company_signup" {
+		return 0, errors.New("invalid token type, expected company_signup")
+	}
+
+	companyIDFloat, ok := claims["company_id"].(float64)
+	if !ok {
+		return 0, errors.New("invalid company_id in token")
+	}
+
+	return uint(companyIDFloat), nil
+}

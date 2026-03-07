@@ -3,10 +3,12 @@ package backoffice_handlers
 import (
 	"fmt"
 	"net/http"
+	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
+	user_models "pengi-med-saas/features/users/models"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -177,4 +179,156 @@ func (h *BackofficeCompanyHandler) DeleteCompany(c *gin.Context) envelope.Respon
 
 	h.logger.Info("Company deleted successfully", zap.String("id", id))
 	return envelope.SuccessResponse(nil, "backoffice.company.delete.success")
+}
+
+func (h *BackofficeCompanyHandler) GenerateCompanySignupToken(c *gin.Context) envelope.Response {
+	id := c.Param("id")
+
+	var company company_models.Company
+	if err := h.db.First(&company, id).Error; err != nil {
+		h.logger.Error("Company not found for signup token", zap.String("id", id), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+	}
+
+	token, err := auth.GenerateCompanySignupToken(company.ID)
+	if err != nil {
+		h.logger.Error("Failed to generate company signup token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating signup token", core_errors.ErrAuthTokenGenerateError)
+	}
+
+	h.logger.Info("Company signup token generated", zap.String("company_id", id))
+	return envelope.SuccessResponse(gin.H{
+		"token":      token,
+		"company_id": company.ID,
+		"trade_name": company.TradeName,
+	}, "backoffice.company.signup_token.success")
+}
+
+// GetCompanyUsers returns all users linked to a company via Environment records.
+func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Response {
+	id := c.Param("id")
+
+	var environments []user_models.Environment
+	if err := h.db.
+		Where("company_id = ?", id).
+		Preload("Role").
+		Find(&environments).Error; err != nil {
+		h.logger.Error("Failed to fetch company users", zap.String("company_id", id), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching company users", core_errors.ErrInternal)
+	}
+
+	// Collect user IDs to fetch user details
+	userIDs := make([]uint, len(environments))
+	for i, env := range environments {
+		userIDs[i] = env.UserID
+	}
+
+	var users []user_models.User
+	if len(userIDs) > 0 {
+		if err := h.db.Where("id IN ?", userIDs).Find(&users).Error; err != nil {
+			h.logger.Error("Failed to fetch users for company", zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching users", core_errors.ErrInternal)
+		}
+	}
+
+	// Build a user map for quick lookup
+	userMap := make(map[uint]user_models.User)
+	for _, u := range users {
+		userMap[u.ID] = u
+	}
+
+	// Build the response combining environment + user data
+	type CompanyUserResponse struct {
+		EnvironmentID   uint   `json:"environment_id"`
+		UserID          uint   `json:"user_id"`
+		UserName        string `json:"user_name"`
+		Email           string `json:"email"`
+		RoleID          uint   `json:"role_id"`
+		RoleName        string `json:"role_name"`
+		EnvironmentName string `json:"environment_name"`
+	}
+
+	result := make([]CompanyUserResponse, 0, len(environments))
+	for _, env := range environments {
+		u := userMap[env.UserID]
+		result = append(result, CompanyUserResponse{
+			EnvironmentID:   env.ID,
+			UserID:          env.UserID,
+			UserName:        u.UserName,
+			Email:           u.Email,
+			RoleID:          env.RoleID,
+			RoleName:        env.Role.Role,
+			EnvironmentName: env.Name,
+		})
+	}
+
+	h.logger.Info("Company users fetched", zap.String("company_id", id), zap.Int("count", len(result)))
+	return envelope.SuccessResponse(result, "backoffice.company.users.list.success")
+}
+
+// UpdateCompanyUser updates a user's attributes and/or their role within a company.
+func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Response {
+	companyID := c.Param("id")
+	userID := c.Param("user_id")
+
+	type UpdateCompanyUserRequest struct {
+		UserName string `json:"user_name"`
+		Email    string `json:"email"`
+		RoleID   *uint  `json:"role_id"`
+	}
+
+	var req UpdateCompanyUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrAuthInvalidRequest)
+	}
+
+	// Find the environment linking this user to this company
+	var env user_models.Environment
+	if err := h.db.Where("company_id = ? AND user_id = ?", companyID, userID).First(&env).Error; err != nil {
+		h.logger.Error("Environment not found", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "User not found in this company", core_errors.ErrUserNotFound)
+	}
+
+	txErr := h.db.Transaction(func(tx *gorm.DB) error {
+		// Update user attributes if provided
+		userUpdates := map[string]interface{}{}
+		if req.UserName != "" {
+			userUpdates["user_name"] = req.UserName
+		}
+		if req.Email != "" {
+			userUpdates["email"] = req.Email
+		}
+		if len(userUpdates) > 0 {
+			if err := tx.Model(&user_models.User{}).Where("id = ?", userID).Updates(userUpdates).Error; err != nil {
+				return fmt.Errorf("failed to update user: %w", err)
+			}
+		}
+
+		// Update role if provided
+		if req.RoleID != nil {
+			if err := tx.Model(&env).Update("role_id", *req.RoleID).Error; err != nil {
+				return fmt.Errorf("failed to update role: %w", err)
+			}
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		h.logger.Error("Failed to update company user", zap.Error(txErr))
+		return envelope.ErrorResponse(http.StatusInternalServerError, txErr.Error(), core_errors.ErrInternal)
+	}
+
+	h.logger.Info("Company user updated", zap.String("company_id", companyID), zap.String("user_id", userID))
+	return envelope.SuccessResponse(nil, "backoffice.company.users.update.success")
+}
+
+// GetRoles returns all available roles.
+func (h *BackofficeCompanyHandler) GetRoles(c *gin.Context) envelope.Response {
+	var roles []user_models.Role
+	if err := h.db.Find(&roles).Error; err != nil {
+		h.logger.Error("Failed to fetch roles", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching roles", core_errors.ErrInternal)
+	}
+	return envelope.SuccessResponse(roles, "backoffice.roles.list.success")
 }

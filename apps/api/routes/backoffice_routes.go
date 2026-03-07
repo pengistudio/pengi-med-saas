@@ -50,6 +50,14 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeCompanyRoutes.POST("", envelope.Handle(backofficeCompanyHandler.CreateCompany))
 		backofficeCompanyRoutes.PUT("/:id", envelope.Handle(backofficeCompanyHandler.UpdateCompany))
 		backofficeCompanyRoutes.DELETE("/:id", envelope.Handle(backofficeCompanyHandler.DeleteCompany))
+		backofficeCompanyRoutes.GET("/:id/signup-token", envelope.Handle(backofficeCompanyHandler.GenerateCompanySignupToken))
+		backofficeCompanyRoutes.GET("/:id/users", envelope.Handle(backofficeCompanyHandler.GetCompanyUsers))
+		backofficeCompanyRoutes.PUT("/:id/users/:user_id", envelope.Handle(backofficeCompanyHandler.UpdateCompanyUser))
+	}
+
+	backofficeRoleRoutes := router.Group("/backoffice/roles", auth_middleware.AuthMiddleware())
+	{
+		backofficeRoleRoutes.GET("", envelope.Handle(backofficeCompanyHandler.GetRoles))
 	}
 
 	backofficeFeatureRoutes := router.Group("/backoffice/features", auth_middleware.AuthMiddleware())

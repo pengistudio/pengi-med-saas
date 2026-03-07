@@ -1814,5 +1814,177 @@
 	{
 		"key": "backoffice.dashboard.stats.success",
 		"value": "Dashboard stats retrieved successfully"
+	},
+	{
+		"key": "signup.title",
+		"value": "Create an account"
+	},
+	{
+		"key": "signup.subtitle",
+		"value": "Enter your details to register."
+	},
+	{
+		"key": "signup.invalid_link.title",
+		"value": "Invalid link"
+	},
+	{
+		"key": "signup.invalid_link.description",
+		"value": "The signup link is invalid or has expired. Please request a new link."
+	},
+	{
+		"key": "signup.go_to_login",
+		"value": "Back to login"
+	},
+	{
+		"key": "signup.name",
+		"value": "Full name"
+	},
+	{
+		"key": "signup.name.placeholder",
+		"value": "Enter your full name"
+	},
+	{
+		"key": "signup.username",
+		"value": "Username"
+	},
+	{
+		"key": "signup.username.placeholder",
+		"value": "Choose a username"
+	},
+	{
+		"key": "signup.email",
+		"value": "Email address"
+	},
+	{
+		"key": "signup.email.placeholder",
+		"value": "you@example.com"
+	},
+	{
+		"key": "signup.password",
+		"value": "Password"
+	},
+	{
+		"key": "signup.password.placeholder",
+		"value": "Create a secure password"
+	},
+	{
+		"key": "signup.confirm_password",
+		"value": "Confirm password"
+	},
+	{
+		"key": "signup.confirm_password.placeholder",
+		"value": "Type your password again"
+	},
+	{
+		"key": "signup.submit_button",
+		"value": "Sign up"
+	},
+	{
+		"key": "signup.validation.password_mismatch",
+		"value": "Passwords do not match"
+	},
+	{
+		"key": "signup.success",
+		"value": "Account created successfully"
+	},
+	{
+		"key": "E-AUTH-007",
+		"value": "The signup link is invalid or has expired."
+	},
+	{
+		"key": "backoffice.companies.generate_signup_link",
+		"value": "Generate signup link"
+	},
+	{
+		"key": "backoffice.companies.signup_link.title",
+		"value": "Signup Link"
+	},
+	{
+		"key": "backoffice.companies.signup_link.description",
+		"value": "Share this link for new users to register in the company"
+	},
+	{
+		"key": "backoffice.companies.signup_link.generating",
+		"value": "Generating link..."
+	},
+	{
+		"key": "backoffice.companies.signup_link.error",
+		"value": "Error generating link."
+	},
+	{
+		"key": "user.company_signup.success",
+		"value": "User registered successfully"
+	},
+	{
+		"key": "backoffice.company.signup_token.success",
+		"value": "Signup token generated successfully"
+	},
+	{
+		"key": "backoffice.company_users.title",
+		"value": "Company Users"
+	},
+	{
+		"key": "backoffice.company_users.list.title",
+		"value": "Registered Users"
+	},
+	{
+		"key": "backoffice.company_users.list.description",
+		"value": "List of users registered in this company."
+	},
+	{
+		"key": "backoffice.company_users.loading",
+		"value": "Loading users..."
+	},
+	{
+		"key": "backoffice.company_users.empty",
+		"value": "No users registered in this company."
+	},
+	{
+		"key": "backoffice.company_users.col.username",
+		"value": "Username"
+	},
+	{
+		"key": "backoffice.company_users.col.email",
+		"value": "Email"
+	},
+	{
+		"key": "backoffice.company_users.col.role",
+		"value": "Role"
+	},
+	{
+		"key": "backoffice.company_users.col.environment",
+		"value": "Environment"
+	},
+	{
+		"key": "backoffice.company_users.edit.title",
+		"value": "Edit User"
+	},
+	{
+		"key": "backoffice.company_users.edit.description",
+		"value": "Modify the user's attributes in this company."
+	},
+	{
+		"key": "backoffice.company_users.select_role",
+		"value": "Select role..."
+	},
+	{
+		"key": "backoffice.company_users.cancel",
+		"value": "Cancel"
+	},
+	{
+		"key": "backoffice.company_users.save",
+		"value": "Save"
+	},
+	{
+		"key": "backoffice.company.users.list.success",
+		"value": "Company users retrieved successfully"
+	},
+	{
+		"key": "backoffice.company.users.update.success",
+		"value": "User updated successfully"
+	},
+	{
+		"key": "backoffice.roles.list.success",
+		"value": "Roles retrieved successfully"
 	}
 ]

@@ -14,6 +14,7 @@ import Home from "@/pages/home/home";
 import LoginEnvironments from "@/pages/login/login-environments";
 import Login from "@/pages/login/login-page";
 import Profile from "@/pages/profile/profile";
+import Signup from "@/pages/signup/signup-page";
 
 const clinicalRoutes: RouteObject = {
 	path: "/clinical",
@@ -109,6 +110,10 @@ const router = createBrowserRouter([
 	{
 		path: "/login/environments",
 		element: <LoginEnvironments />,
+	},
+	{
+		path: "/signup",
+		element: <Signup />,
 	},
 
 	{

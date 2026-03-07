@@ -67,3 +67,64 @@ export const deleteCompany = async (
 		notifyError: true,
 	});
 };
+
+export interface CompanySignupTokenResponse {
+	token: string;
+	company_id: number;
+	trade_name: string;
+}
+
+export const getCompanySignupToken = async (
+	id: number | string,
+): Promise<ServiceResponse<CompanySignupTokenResponse>> => {
+	return httpService.get<CompanySignupTokenResponse>(
+		`/backoffice/companies/${id}/signup-token`,
+	);
+};
+
+// ── Company Users ───────────────────────────────────────────────────────────
+
+export interface CompanyUser {
+	environment_id: number;
+	user_id: number;
+	user_name: string;
+	email: string;
+	role_id: number;
+	role_name: string;
+	environment_name: string;
+}
+
+export interface Role {
+	ID: number;
+	role: string;
+}
+
+export interface UpdateCompanyUserRequest extends Record<string, unknown> {
+	user_name?: string;
+	email?: string;
+	role_id?: number;
+}
+
+export const getCompanyUsers = async (
+	companyId: number | string,
+): Promise<ServiceResponse<CompanyUser[]>> => {
+	return httpService.get<CompanyUser[]>(
+		`/backoffice/companies/${companyId}/users`,
+	);
+};
+
+export const updateCompanyUser = async (
+	companyId: number | string,
+	userId: number | string,
+	data: UpdateCompanyUserRequest,
+): Promise<ServiceResponse<null>> => {
+	return httpService.put<null>(
+		`/backoffice/companies/${companyId}/users/${userId}`,
+		data,
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const getRoles = async (): Promise<ServiceResponse<Role[]>> => {
+	return httpService.get<Role[]>("/backoffice/roles");
+};

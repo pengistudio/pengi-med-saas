@@ -1,6 +1,7 @@
 import { createBrowserRouter, Outlet } from "react-router";
 import CheckAuth from "@/contexts/check-auth";
 import CompanyList from "@/pages/companies/company-list";
+import CompanyUsers from "@/pages/companies/company-users";
 import CreateCompany from "@/pages/companies/create-company";
 import EditCompany from "@/pages/companies/edit-company";
 import CreateFeature from "@/pages/features/create-feature";
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
 			{ path: "/companies", element: <CompanyList /> },
 			{ path: "/companies/create", element: <CreateCompany /> },
 			{ path: "/companies/edit/:id", element: <EditCompany /> },
+			{ path: "/companies/:id/users", element: <CompanyUsers /> },
 			{ path: "/features", element: <FeatureList /> },
 			{ path: "/features/create", element: <CreateFeature /> },
 			{ path: "/features/edit/:id", element: <EditFeature /> },

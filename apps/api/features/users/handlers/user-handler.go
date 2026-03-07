@@ -6,6 +6,7 @@ import (
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	company_models "pengi-med-saas/features/companies/models"
 	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
 	"strings"
@@ -200,4 +201,85 @@ func ExtractAndValidateBearerToken(c *gin.Context) (map[string]interface{}, stri
 	}
 
 	return claims, token, nil
+}
+
+// SignUpWithCompanyToken registers a new user using a company signup token.
+// It validates the token, creates the user, and links them to the company
+// via an Environment record.
+func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
+	var req user_dto.CompanySignupDTO
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("Invalid company signup request", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+	}
+
+	// 1) Validate the signup token
+	companyID, err := auth.ParseCompanySignupToken(req.Token)
+	if err != nil {
+		h.logger.Warn("Invalid company signup token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired signup token", core_errors.ErrAuthInvalidSignupToken)
+	}
+
+	// 2) Verify the company exists
+	var company company_models.Company
+	if err := h.db.First(&company, companyID).Error; err != nil {
+		h.logger.Error("Company not found for signup", zap.Uint("company_id", companyID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+	}
+
+	// 3) Check if username already exists
+	var existingUser user_models.User
+	if err := h.db.Where("user_name = ?", req.UserName).First(&existingUser).Error; err == nil {
+		return envelope.ErrorResponse(http.StatusConflict, "Username already exists", core_errors.ErrAuthUserCreateError)
+	}
+
+	// 4) Find the default role (first role available, or "user")
+	var defaultRole user_models.Role
+	if err := h.db.Where("role = ?", "user").First(&defaultRole).Error; err != nil {
+		// If no "user" role, pick the first available role
+		if err := h.db.First(&defaultRole).Error; err != nil {
+			h.logger.Error("No roles available", zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "No roles configured", core_errors.ErrInternal)
+		}
+	}
+
+	// 5) Create user + environment in a transaction
+	var newUser user_models.User
+	txErr := h.db.Transaction(func(tx *gorm.DB) error {
+		newUser = user_models.User{
+			UserName: req.UserName,
+			Email:    req.Email,
+			Password: req.Password,
+		}
+		if err := newUser.Save(tx); err != nil {
+			return err
+		}
+
+		env := user_models.Environment{
+			UserID:    newUser.ID,
+			Name:      req.Name,
+			RoleID:    defaultRole.ID,
+			CompanyID: company.ID,
+		}
+		if err := tx.Create(&env).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		h.logger.Error("Failed to create user with company token", zap.Error(txErr))
+		return envelope.ErrorResponse(http.StatusInternalServerError, txErr.Error(), core_errors.ErrAuthUserCreateError)
+	}
+
+	h.logger.Info("User registered via company signup token",
+		zap.String("username", newUser.UserName),
+		zap.Uint("company_id", companyID),
+	)
+	return envelope.SuccessResponse(gin.H{
+		"user_id":  newUser.ID,
+		"username": newUser.UserName,
+		"email":    newUser.Email,
+	}, "user.company_signup.success")
 }

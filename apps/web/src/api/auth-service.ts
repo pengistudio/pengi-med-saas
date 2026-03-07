@@ -33,3 +33,30 @@ export const refreshToken = async (): Promise<
 		},
 	);
 };
+
+export interface CompanySignupRequest extends Record<string, unknown> {
+	token: string;
+	name: string;
+	user_name: string;
+	email: string;
+	password: string;
+}
+
+export interface CompanySignupResponse {
+	user_id: number;
+	username: string;
+	email: string;
+}
+
+export const companySignup = async (
+	data: CompanySignupRequest,
+): Promise<ServiceResponse<CompanySignupResponse>> => {
+	return loginService.post<CompanySignupResponse>(
+		"/auth/signup/company",
+		data,
+		{
+			notifySuccess: true,
+			notifyError: true,
+		},
+	);
+};

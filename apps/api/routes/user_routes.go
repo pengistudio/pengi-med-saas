@@ -26,6 +26,7 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	authRoutes := router.Group("/auth")
 	{
 		authRoutes.POST("/signup", envelope.Handle(userHandler.SignUp))
+		authRoutes.POST("/signup/company", envelope.Handle(userHandler.SignUpWithCompanyToken))
 		authRoutes.POST("/login", envelope.Handle(userHandler.Login))
 		authRoutes.POST("/refresh", envelope.Handle(userHandler.RefreshAuthToken))
 		authRoutes.POST("/extend", auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.ExtendSession))

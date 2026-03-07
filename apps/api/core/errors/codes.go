@@ -40,4 +40,5 @@ var (
 	ErrBackofficeFeatureNotFound      AppError = NewAppError("E-BO-005", "Feature not found.")
 	ErrBackofficePlanNotFound         AppError = NewAppError("E-BO-006", "Plan not found.")
 	ErrBackofficeSubscriptionNotFound AppError = NewAppError("E-BO-007", "Subscription not found.")
+	ErrAuthInvalidSignupToken         AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 )

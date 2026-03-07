@@ -81,7 +81,12 @@ function FormSelect<
 									"border-destructive focus-visible:ring-destructive",
 							)}
 						>
-							<SelectValue placeholder={placeholder} />
+							<SelectValue placeholder={placeholder}>
+								{(() => {
+									const selected = options.find((o) => o.value === value);
+									return selected ? selected.label : placeholder;
+								})()}
+							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
 							{options.map((option) => (
