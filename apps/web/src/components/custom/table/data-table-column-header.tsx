@@ -12,9 +12,9 @@ import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 
 interface DataTableColumnHeaderProps<TData, TValue>
-	extends React.HTMLAttributes<HTMLDivElement> {
+	extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
 	column: Column<TData, TValue>;
-	title: string;
+	title: React.ReactNode;
 }
 
 export function DataTableColumnHeader<TData, TValue>({

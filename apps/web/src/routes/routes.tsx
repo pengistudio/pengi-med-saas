@@ -2,6 +2,10 @@ import { createBrowserRouter, Outlet, type RouteObject } from "react-router";
 import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
 import { PERMISSIONS } from "@/lib/constants";
+import CreateInvoicePage from "@/pages/billing/create-invoice";
+// Billing Module
+import InvoiceListPage from "@/pages/billing/invoice-list";
+import SriSettingsPage from "@/pages/billing/sri-settings";
 import AppointmentsPage from "@/pages/clincal/appointments/appointments";
 import CreateMedicalRecordPage from "@/pages/clincal/patient/create-medical-record";
 import CreatePatientPage from "@/pages/clincal/patient/create-patient";
@@ -100,7 +104,39 @@ const clinicalRoutes: RouteObject = {
 	],
 };
 
-const routes: RouteObject[] = [clinicalRoutes];
+const billingRoutes: RouteObject = {
+	path: "/clinical/billing",
+	element: (
+		<CheckPermission
+			permissions={[PERMISSIONS.BILLING.PERMISSION_READ_BILLING]}
+		/>
+	),
+	children: [
+		{ index: true, element: <InvoiceListPage /> },
+		{
+			path: "create",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]}
+				>
+					<CreateInvoicePage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "settings",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS]}
+				>
+					<SriSettingsPage />
+				</CheckPermission>
+			),
+		},
+	],
+};
+
+const routes: RouteObject[] = [clinicalRoutes, billingRoutes];
 
 const router = createBrowserRouter([
 	{

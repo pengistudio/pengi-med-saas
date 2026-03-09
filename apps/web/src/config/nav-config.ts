@@ -1,4 +1,11 @@
-import { Calendar, Hospital, LayoutDashboard, UsersRound } from "lucide-react";
+import {
+	Calendar,
+	FileKey,
+	Hospital,
+	LayoutDashboard,
+	Receipt,
+	UsersRound,
+} from "lucide-react";
 import type React from "react";
 
 export interface BaseNavItem {
@@ -35,6 +42,22 @@ export const createNavItems = (
 				label: textGet("dashboard.clinical.appointments"),
 				href: "/clinical/appointments",
 				icon: Calendar,
+			},
+		],
+	},
+	{
+		icon: Receipt,
+		label: textGet("dashboard.billing"),
+		accordionItems: [
+			{
+				label: textGet("dashboard.billing.invoices"),
+				href: "/clinical/billing",
+				icon: Receipt,
+			},
+			{
+				label: textGet("dashboard.billing.settings"),
+				href: "/clinical/billing/settings",
+				icon: FileKey,
 			},
 		],
 	},

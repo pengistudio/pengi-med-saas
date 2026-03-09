@@ -2,8 +2,10 @@ package main
 
 import (
 	"os"
+	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/logger"
+	billing_workers "pengi-med-saas/features/billing/workers"
 	"pengi-med-saas/features/health"
 	i18n_middleware "pengi-med-saas/i18n/middleware"
 	"pengi-med-saas/migrations"
@@ -40,6 +42,16 @@ func main() {
 		panic("Failed to run migrations: " + err.Error())
 	}
 
+	// Initialize RabbitMQ
+	rabbitConn, rabbitChannel, err := rabbitmq.StartRabbitMQWithChannel()
+	if err != nil {
+		logger.Log.Warn("RabbitMQ failed to start. Queues will be unavailable.", zap.Error(err))
+	} else {
+		defer rabbitConn.Close()
+		defer rabbitChannel.Close()
+		billing_workers.InitInvoiceBroker(rabbitChannel, DB_CONNECTION, logger.Log)
+	}
+
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -54,6 +66,14 @@ func main() {
 	}))
 
 	r.Use(i18n_middleware.I18nMiddleware(DB_CONNECTION))
+
+	// Inject RabbitMQ channel into context if available
+	r.Use(func(c *gin.Context) {
+		if rabbitChannel != nil {
+			c.Set("invoice_channel", rabbitChannel)
+		}
+		c.Next()
+	})
 
 	r.GET("/health", health.Health)
 

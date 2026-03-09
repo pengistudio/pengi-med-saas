@@ -1994,5 +1994,301 @@
 	{
 		"key": "backoffice.roles.list.success",
 		"value": "Roles retrieved successfully"
+	},
+	{
+		"key": "billing.invoice.patient",
+		"value": "Patient"
+	},
+	{
+		"key": "billing.invoice.patient.placeholder",
+		"value": "Select patient..."
+	},
+	{
+		"key": "billing.invoice.items",
+		"value": "Invoice Items"
+	},
+	{
+		"key": "billing.invoice.item.add",
+		"value": "Add Item"
+	},
+	{
+		"key": "billing.invoice.item.description",
+		"value": "Description"
+	},
+	{
+		"key": "billing.invoice.item.description.placeholder",
+		"value": "Item description..."
+	},
+	{
+		"key": "billing.invoice.item.qty",
+		"value": "Qty."
+	},
+	{
+		"key": "billing.invoice.item.price",
+		"value": "Unit Price"
+	},
+	{
+		"key": "billing.invoice.item.tax",
+		"value": "Tax"
+	},
+	{
+		"key": "billing.invoice.subtotal",
+		"value": "Subtotal"
+	},
+	{
+		"key": "billing.invoice.tax",
+		"value": "Taxes (VAT)"
+	},
+	{
+		"key": "billing.invoice.total",
+		"value": "Total"
+	},
+	{
+		"key": "billing.invoice.save",
+		"value": "Save Invoice"
+	},
+	{
+		"key": "billing.invoice.create.button",
+		"value": "Create Invoice"
+	},
+	{
+		"key": "billing.invoice.create.description",
+		"value": "Fill in the details to issue a new invoice."
+	},
+	{
+		"key": "billing.invoice.create.title",
+		"value": "New Invoice"
+	},
+	{
+		"key": "billing.invoice.delete.description",
+		"value": "Are you sure you want to delete the selected invoices? This action cannot be undone."
+	},
+	{
+		"key": "billing.invoice.delete.success",
+		"value": "Invoice(s) successfully deleted"
+	},
+	{
+		"key": "billing.invoice.process.selected",
+		"value": "Process Selected to SRI"
+	},
+	{
+		"key": "billing.invoice.search.placeholder",
+		"value": "Search by sequential or patient..."
+	},
+	{
+		"key": "billing.sri.button.save",
+		"value": "Save SRI Configuration"
+	},
+	{
+		"key": "billing.sri.file.description",
+		"value": "Upload your electronic signature .p12 file."
+	},
+	{
+		"key": "billing.sri.file.label",
+		"value": "Signature File (.p12)"
+	},
+	{
+		"key": "billing.sri.info.description",
+		"value": "Configure your credentials for electronic billing"
+	},
+	{
+		"key": "billing.sri.info.p1",
+		"value": "Your signature and password are encrypted and stored safely."
+	},
+	{
+		"key": "billing.sri.info.p2",
+		"value": "Make sure your signature is currently valid."
+	},
+	{
+		"key": "billing.sri.info.title",
+		"value": "Important Information"
+	},
+	{
+		"key": "billing.sri.password.description",
+		"value": "The password for your electronic signature."
+	},
+	{
+		"key": "billing.sri.password.label",
+		"value": "Signature Password"
+	},
+	{
+		"key": "billing.sri.settings.title",
+		"value": "SRI Settings"
+	},
+	{
+		"key": "billing.sri.signature.description",
+		"value": "Configure your electronic signature to issue authorized receipts."
+	},
+	{
+		"key": "billing.sri.signature.title",
+		"value": "Electronic Signature"
+	},
+	{
+		"key": "billing.status.authorized",
+		"value": "Authorized"
+	},
+	{
+		"key": "billing.status.draft",
+		"value": "Draft"
+	},
+	{
+		"key": "billing.status.processing",
+		"value": "Processing"
+	},
+	{
+		"key": "dashboard.billing.invoices",
+		"value": "Invoices"
+	},
+	{
+		"key": "dashboard.billing.settings",
+		"value": "SRI Settings"
+	},
+	{
+		"key": "dashboard.billing",
+		"value": "Billing"
+	},
+	{
+		"key": "form.cancel",
+		"value": "Cancel"
+	},
+	{
+		"key": "tenant.signature.upload.success",
+		"value": "Electronic signature uploaded and configured successfully"
+	},
+	{
+		"key": "E-BILL-001",
+		"value": "Invalid billing request"
+	},
+	{
+		"key": "E-BILL-002",
+		"value": "Invoice not found"
+	},
+	{
+		"key": "E-BILL-003",
+		"value": "Product or service not found"
+	},
+	{
+		"key": "E-BILL-004",
+		"value": "Error creating invoice"
+	},
+	{
+		"key": "E-BILL-005",
+		"value": "Incorrect password or invalid signature file"
+	},
+	{
+		"key": "billing.sri.invalid_file",
+		"value": "Incorrect password or invalid signature file"
+	},
+	{
+		"key": "billing.sri.status.configured",
+		"value": "Electronic signature configured and active"
+	},
+	{
+		"key": "billing.sri.status.valid_until",
+		"value": "Valid until:"
+	},
+	{
+		"key": "billing.sri.status.unconfigured",
+		"value": "No electronic signature configured"
+	},
+	{
+		"key": "billing.sri.status.unconfigured_desc",
+		"value": "Please upload your .p12 file to issue invoices."
+	},
+	{
+		"key": "billing.invoice.column.sequential",
+		"value": "Sequential"
+	},
+	{
+		"key": "billing.invoice.column.document",
+		"value": "Document"
+	},
+	{
+		"key": "billing.invoice.column.name",
+		"value": "Name"
+	},
+	{
+		"key": "billing.invoice.column.total",
+		"value": "Total"
+	},
+	{
+		"key": "billing.invoice.column.status",
+		"value": "Status"
+	},
+	{
+		"key": "billing.invoice.column.date",
+		"value": "Date"
+	},
+	{
+		"key": "billing.invoice.column.summary",
+		"value": "Summary"
+	},
+	{
+		"key": "billing.invoice.establishment.title",
+		"value": "Establishment and Emission Point"
+	},
+	{
+		"key": "billing.invoice.establishment.desc",
+		"value": "Configure the emission data for SRI."
+	},
+	{
+		"key": "billing.invoice.client.title",
+		"value": "Client and Payment"
+	},
+	{
+		"key": "billing.invoice.client.desc",
+		"value": "Select the patient and credit conditions."
+	},
+	{
+		"key": "billing.invoice.final_consumer",
+		"value": "Final Consumer"
+	},
+	{
+		"key": "billing.invoice.final_consumer.desc",
+		"value": "Generate invoice without data (9999999999999)"
+	},
+	{
+		"key": "billing.invoice.new_patient",
+		"value": "New Patient"
+	},
+	{
+		"key": "billing.invoice.payment.method",
+		"value": "Payment Method"
+	},
+	{
+		"key": "billing.invoice.payment.method.placeholder",
+		"value": "Select method..."
+	},
+	{
+		"key": "billing.invoice.time.unit",
+		"value": "Time Unit"
+	},
+	{
+		"key": "billing.invoice.time.unit.placeholder",
+		"value": "Select unit..."
+	},
+	{
+		"key": "billing.invoice.term",
+		"value": "Term"
+	},
+	{
+		"key": "billing.invoice.term.placeholder",
+		"value": "Ex. 15"
+	},
+	{
+		"key": "billing.invoice.items.desc",
+		"value": "Detail of billed goods or services."
+	},
+	{
+		"key": "billing.invoice.summary.title",
+		"value": "Invoice Summary"
+	},
+	{
+		"key": "billing.invoice.summary.desc",
+		"value": "Automatically calculated totals."
+	},
+	{
+		"key": "billing.invoice.discount",
+		"value": "Discount"
 	}
 ]

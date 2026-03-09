@@ -86,6 +86,42 @@ export class HttpService {
 		return this.request<T>(() => this.client.put(url, data, config), config);
 	}
 
+	async postForm<T>(
+		url: string,
+		data: FormData,
+		config?: CustomAxiosRequestConfig,
+	): Promise<ServiceResponse<T>> {
+		return this.request<T>(
+			() =>
+				this.client.post(url, data, {
+					...config,
+					headers: {
+						...config?.headers,
+						"Content-Type": "multipart/form-data",
+					},
+				}),
+			config,
+		);
+	}
+
+	async putForm<T>(
+		url: string,
+		data: FormData,
+		config?: CustomAxiosRequestConfig,
+	): Promise<ServiceResponse<T>> {
+		return this.request<T>(
+			() =>
+				this.client.put(url, data, {
+					...config,
+					headers: {
+						...config?.headers,
+						"Content-Type": "multipart/form-data",
+					},
+				}),
+			config,
+		);
+	}
+
 	async delete<T>(
 		url: string,
 		config?: CustomAxiosRequestConfig,

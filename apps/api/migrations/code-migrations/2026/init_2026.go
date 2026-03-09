@@ -235,4 +235,30 @@ func init() {
 			return nil
 		},
 	}
+
+	database.GlobalDBMap["DB20260308_1"] = database.DBExecute{
+		ID: "DB20260308_1",
+		Execute: func(db *gorm.DB) error {
+			// Retrieve the Admin Role to attach the new permissions
+			var adminRole user_models.Role
+			if err := db.Where(user_models.Role{Role: "admin"}).First(&adminRole).Error; err != nil {
+				return fmt.Errorf("failed to find admin role: %w", err)
+			}
+
+			// 7. Billing Permissions
+			for _, perm := range permission_data.BillingPermissions {
+				if err := db.Where(permission_models.Permission{BaseStringID: perm.BaseStringID}).FirstOrCreate(&perm).Error; err != nil {
+					return fmt.Errorf("failed to create permission '%s': %w", perm.ID, err)
+				}
+				fmt.Printf("✅ Permission '%s' created/found.\n", perm.ID)
+
+				// Assign permission to admin role
+				if err := db.Model(&adminRole).Association("Permissions").Append(&perm); err != nil {
+					return fmt.Errorf("failed to assign permission '%s' to admin role: %w", perm.ID, err)
+				}
+				fmt.Printf("✅ Assigned permission '%s' to admin role.\n", perm.ID)
+			}
+			return nil
+		},
+	}
 }

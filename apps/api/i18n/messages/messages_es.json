@@ -1994,5 +1994,301 @@
 	{
 		"key": "backoffice.roles.list.success",
 		"value": "Roles obtenidos exitosamente"
+	},
+	{
+		"key": "billing.invoice.patient",
+		"value": "Paciente"
+	},
+	{
+		"key": "billing.invoice.patient.placeholder",
+		"value": "Seleccionar paciente..."
+	},
+	{
+		"key": "billing.invoice.items",
+		"value": "Items de Factura"
+	},
+	{
+		"key": "billing.invoice.item.add",
+		"value": "Agregar Item"
+	},
+	{
+		"key": "billing.invoice.item.description",
+		"value": "Descripción"
+	},
+	{
+		"key": "billing.invoice.item.description.placeholder",
+		"value": "Descripción del ítem..."
+	},
+	{
+		"key": "billing.invoice.item.qty",
+		"value": "Cant."
+	},
+	{
+		"key": "billing.invoice.item.price",
+		"value": "Precio U."
+	},
+	{
+		"key": "billing.invoice.item.tax",
+		"value": "Impuesto"
+	},
+	{
+		"key": "billing.invoice.subtotal",
+		"value": "Subtotal"
+	},
+	{
+		"key": "billing.invoice.tax",
+		"value": "Impuestos (IVA)"
+	},
+	{
+		"key": "billing.invoice.total",
+		"value": "Total"
+	},
+	{
+		"key": "billing.invoice.save",
+		"value": "Guardar Factura"
+	},
+	{
+		"key": "billing.invoice.create.button",
+		"value": "Crear Factura"
+	},
+	{
+		"key": "billing.invoice.create.description",
+		"value": "Completa los datos para emitir una nueva factura."
+	},
+	{
+		"key": "billing.invoice.create.title",
+		"value": "Nueva Factura"
+	},
+	{
+		"key": "billing.invoice.delete.description",
+		"value": "¿Estás seguro de que deseas eliminar las facturas seleccionadas? Esta acción no se puede deshacer."
+	},
+	{
+		"key": "billing.invoice.delete.success",
+		"value": "Factura(s) eliminada(s) con éxito"
+	},
+	{
+		"key": "billing.invoice.process.selected",
+		"value": "Procesar Seleccionadas al SRI"
+	},
+	{
+		"key": "billing.invoice.search.placeholder",
+		"value": "Buscar por secuencial o paciente..."
+	},
+	{
+		"key": "billing.sri.button.save",
+		"value": "Guardar Configuración SRI"
+	},
+	{
+		"key": "billing.sri.file.description",
+		"value": "Sube el archivo .p12 de tu firma electrónica."
+	},
+	{
+		"key": "billing.sri.file.label",
+		"value": "Archivo de Firma (.p12)"
+	},
+	{
+		"key": "billing.sri.info.description",
+		"value": "Configura tus credenciales para la facturación electrónica"
+	},
+	{
+		"key": "billing.sri.info.p1",
+		"value": "Tu firma y contraseña se almacenan de forma encriptada."
+	},
+	{
+		"key": "billing.sri.info.p2",
+		"value": "Asegúrate de que tu firma esté vigente."
+	},
+	{
+		"key": "billing.sri.info.title",
+		"value": "Información Importante"
+	},
+	{
+		"key": "billing.sri.password.description",
+		"value": "La contraseña de tu firma electrónica."
+	},
+	{
+		"key": "billing.sri.password.label",
+		"value": "Contraseña de la Firma"
+	},
+	{
+		"key": "billing.sri.settings.title",
+		"value": "Configuración SRI"
+	},
+	{
+		"key": "billing.sri.signature.description",
+		"value": "Configura tu firma electrónica para poder emitir comprobantes autorizados."
+	},
+	{
+		"key": "billing.sri.signature.title",
+		"value": "Firma Electrónica"
+	},
+	{
+		"key": "billing.status.authorized",
+		"value": "Autorizado"
+	},
+	{
+		"key": "billing.status.draft",
+		"value": "Borrador"
+	},
+	{
+		"key": "billing.status.processing",
+		"value": "Procesando"
+	},
+	{
+		"key": "dashboard.billing.invoices",
+		"value": "Facturas"
+	},
+	{
+		"key": "dashboard.billing.settings",
+		"value": "Configuración SRI"
+	},
+	{
+		"key": "dashboard.billing",
+		"value": "Facturas"
+	},
+	{
+		"key": "form.cancel",
+		"value": "Cancelar"
+	},
+	{
+		"key": "tenant.signature.upload.success",
+		"value": "Firma electrónica subida y configurada correctamente"
+	},
+	{
+		"key": "E-BILL-001",
+		"value": "Solicitud de facturación inválida"
+	},
+	{
+		"key": "E-BILL-002",
+		"value": "Factura no encontrada"
+	},
+	{
+		"key": "E-BILL-003",
+		"value": "Producto o servicio no encontrado"
+	},
+	{
+		"key": "E-BILL-004",
+		"value": "Error al crear la factura"
+	},
+	{
+		"key": "E-BILL-005",
+		"value": "Contraseña incorrecta o archivo de firma inválido"
+	},
+	{
+		"key": "billing.sri.invalid_file",
+		"value": "Contraseña incorrecta o archivo de firma inválido"
+	},
+	{
+		"key": "billing.sri.status.configured",
+		"value": "Firma electrónica configurada y activa"
+	},
+	{
+		"key": "billing.sri.status.valid_until",
+		"value": "Válida hasta:"
+	},
+	{
+		"key": "billing.sri.status.unconfigured",
+		"value": "No hay firma electrónica configurada"
+	},
+	{
+		"key": "billing.sri.status.unconfigured_desc",
+		"value": "Por favor, suba su archivo .p12 para poder facturar."
+	},
+	{
+		"key": "billing.invoice.column.sequential",
+		"value": "Secuencial"
+	},
+	{
+		"key": "billing.invoice.column.document",
+		"value": "Documento"
+	},
+	{
+		"key": "billing.invoice.column.name",
+		"value": "Paciente"
+	},
+	{
+		"key": "billing.invoice.column.total",
+		"value": "Total"
+	},
+	{
+		"key": "billing.invoice.column.status",
+		"value": "Estado"
+	},
+	{
+		"key": "billing.invoice.column.date",
+		"value": "Fecha"
+	},
+	{
+		"key": "billing.invoice.column.summary",
+		"value": "Resumen"
+	},
+	{
+		"key": "billing.invoice.establishment.title",
+		"value": "Establecimiento y Punto de Emisión"
+	},
+	{
+		"key": "billing.invoice.establishment.desc",
+		"value": "Configure los datos de emisión para el SRI."
+	},
+	{
+		"key": "billing.invoice.client.title",
+		"value": "Cliente y Pago"
+	},
+	{
+		"key": "billing.invoice.client.desc",
+		"value": "Seleccione el paciente y las condiciones de crédito."
+	},
+	{
+		"key": "billing.invoice.final_consumer",
+		"value": "Consumidor Final"
+	},
+	{
+		"key": "billing.invoice.final_consumer.desc",
+		"value": "Generar factura sin datos (9999999999999)"
+	},
+	{
+		"key": "billing.invoice.new_patient",
+		"value": "Nuevo Paciente"
+	},
+	{
+		"key": "billing.invoice.payment.method",
+		"value": "Método de Pago"
+	},
+	{
+		"key": "billing.invoice.payment.method.placeholder",
+		"value": "Seleccionar método..."
+	},
+	{
+		"key": "billing.invoice.time.unit",
+		"value": "Unidad de Tiempo"
+	},
+	{
+		"key": "billing.invoice.time.unit.placeholder",
+		"value": "Seleccionar unidad..."
+	},
+	{
+		"key": "billing.invoice.term",
+		"value": "Plazo"
+	},
+	{
+		"key": "billing.invoice.term.placeholder",
+		"value": "Ej. 15"
+	},
+	{
+		"key": "billing.invoice.items.desc",
+		"value": "Detalle de los bienes o servicios facturados."
+	},
+	{
+		"key": "billing.invoice.summary.title",
+		"value": "Resumen de Factura"
+	},
+	{
+		"key": "billing.invoice.summary.desc",
+		"value": "Totales calculados automáticamente."
+	},
+	{
+		"key": "billing.invoice.discount",
+		"value": "Descuento"
 	}
 ]

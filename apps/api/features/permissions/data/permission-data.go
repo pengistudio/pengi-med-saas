@@ -61,3 +61,36 @@ var ClinicalPermissions = []permission_models.Permission{
 		Description:  "Download patient reports",
 	},
 }
+
+var BillingPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_BILLING"},
+		Name:         "Read Billing",
+		Category:     "BILLING",
+		Description:  "View invoices and billing data",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "CREATE_BILLING"},
+		Name:         "Create Billing",
+		Category:     "BILLING",
+		Description:  "Create new invoices",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "UPDATE_BILLING"},
+		Name:         "Update Billing",
+		Category:     "BILLING",
+		Description:  "Update existing invoices",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "DELETE_BILLING"},
+		Name:         "Delete Billing",
+		Category:     "BILLING",
+		Description:  "Delete invoices",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_SRI_SETTINGS"},
+		Name:         "Manage SRI Settings",
+		Category:     "BILLING",
+		Description:  "Configure electronic signature and SRI environment",
+	},
+}

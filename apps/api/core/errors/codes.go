@@ -40,5 +40,13 @@ var (
 	ErrBackofficeFeatureNotFound      AppError = NewAppError("E-BO-005", "Feature not found.")
 	ErrBackofficePlanNotFound         AppError = NewAppError("E-BO-006", "Plan not found.")
 	ErrBackofficeSubscriptionNotFound AppError = NewAppError("E-BO-007", "Subscription not found.")
-	ErrAuthInvalidSignupToken         AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
+
+	// Billing Errors
+	ErrBillingInvalidRequest       AppError = NewAppError("E-BILL-001", "Invalid billing request.")
+	ErrBillingInvoiceNotFound      AppError = NewAppError("E-BILL-002", "Invoice not found.")
+	ErrBillingProductNotFound      AppError = NewAppError("E-BILL-003", "Product/Service not found.")
+	ErrBillingInvoiceCreateError   AppError = NewAppError("E-BILL-004", "Error creating invoice.")
+	ErrBillingInvalidSignatureFile AppError = NewAppError("E-BILL-005", "Incorrect password or invalid signature file.")
+
+	ErrAuthInvalidSignupToken AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 )

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"pengi-med-saas/core/database"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
+	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	permission_models "pengi-med-saas/features/permissions/models"
@@ -38,6 +39,9 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.Prescription{},
 		clinical_models.Appointment{},
 		backoffice_models.BackofficeUser{},
+		billing_models.Invoice{},
+		billing_models.InvoiceItem{},
+		billing_models.InvoiceCounter{},
 	)
 	if err != nil {
 		return err
