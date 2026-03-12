@@ -1,12 +1,10 @@
-import type { Row } from "@tanstack/react-table";
-import { Play, Plus, Trash } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Plus, Trash } from "lucide-react";
+import React from "react";
 import { useNavigate } from "react-router";
 import {
-	deleteInvoice,
-	getAllInvoices,
-	type Invoice,
-	processMultipleInvoicesSRI,
+	type CatalogItem,
+	deleteCatalogItem,
+	getAllCatalogItems,
 } from "@/api/billing-service";
 import { DataTable } from "@/components/custom/table/data-table";
 import {
@@ -27,59 +25,72 @@ import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import {
-	invoiceColumns,
-	invoiceColumnsMobile,
-} from "@/sections/columns/billing/invoice-columns";
+	getCatalogItemColumns,
+	getCatalogItemColumnsMobile,
+} from "@/sections/columns/billing/catalog-item-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useBillingStore } from "@/store/billing-store";
 import { useRowStore } from "@/store/row-store";
 
-const InvoiceListPage = () => {
-	const [loading, setLoading] = useState(true);
-	const [processing, setProcessing] = useState(false);
-	const { rows } = useRowStore();
-	const navigate = useNavigate();
-	const { invoiceList, setInvoiceList } = useBillingStore();
-	const { isMobile } = useResponsive();
+const CatalogItemList = () => {
 	const { checkPermission } = usePermission();
+	const navigate = useNavigate();
+	const [loading, setLoading] = React.useState(true);
+	const { rows } = useRowStore();
+	const { isMobile } = useResponsive();
 	const { textGet } = useText();
+	const [itemList, setItemList] = React.useState<CatalogItem[]>([]);
 
-	const fetchInvoices = useCallback(async () => {
+	React.useEffect(() => {
 		setLoading(true);
-		const res = await getAllInvoices();
+		getAllCatalogItems().then((res) => {
+			if (res.success) {
+				setItemList(res.data || []);
+			}
+			setLoading(false);
+		});
+	}, []);
+
+	const loadItems = async () => {
+		setLoading(true);
+		const res = await getAllCatalogItems();
 		if (res.success) {
-			setInvoiceList(res.data);
+			setItemList(res.data || []);
 		}
 		setLoading(false);
-	}, [setInvoiceList]);
+	};
 
-	useEffect(() => {
-		fetchInvoices();
-	}, [fetchInvoices]);
+	const handleEdit = (id: number) => {
+		navigate(`/billing/catalog-items/edit/${id}`);
+	};
+
+	const handleDeleteRow = async (id: number) => {
+		const res = await deleteCatalogItem(id);
+		if (res.success) {
+			loadItems();
+		}
+	};
+
+	const handleDelete = async () => {
+		// As this list didn't have bulk delete implemented in API, we delete rows individually
+		for (const id of rows) {
+			await deleteCatalogItem(Number(id));
+		}
+		loadItems();
+	};
 
 	return (
 		<DashboardLayout>
 			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
 				<div className="flex flex-row items-center gap-2 sm:gap-5 sm:justify-end justify-start flex-wrap">
 					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
-						<Button onClick={() => navigate("/billing/create")}>
-							<Plus className="mr-2 h-4 w-4" />
-							<Text uuid="billing.invoice.create.button" />
-						</Button>
-					)}
-
-					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
 						<Button
-							variant="secondary"
-							disabled={rows.length === ZERO || processing}
-							onClick={handleProcessSelected}
-							className="md:ml-auto"
+							onClick={() => navigate("/billing/catalog-items/create")}
+							className="mr-auto"
 						>
-							<Play className="mr-2 h-4 w-4" />
-							<Text uuid="billing.invoice.process.selected" />
+							<Plus className="mr-2 h-4 w-4" />
+							<Text uuid="billing.catalog-item.create.button" />
 						</Button>
 					)}
-
 					<AlertDialog>
 						{checkPermission([
 							PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
@@ -99,7 +110,7 @@ const InvoiceListPage = () => {
 									<Text uuid="dialog.title.absolutely.sure" />
 								</AlertDialogTitle>
 								<AlertDialogDescription>
-									<Text uuid="billing.invoice.delete.description" />
+									<Text uuid="billing.catalog-item.delete.description" />
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
@@ -118,38 +129,28 @@ const InvoiceListPage = () => {
 						<div className="h-24 w-full animate-pulse bg-muted rounded-md" />
 					) : (
 						<DataTable
-							searchKey="sequential"
-							searchPlaceholder={textGet("billing.invoice.search.placeholder")}
-							columns={isMobile ? invoiceColumnsMobile : invoiceColumns}
-							data={invoiceList || []}
+							searchKey="sku"
+							searchPlaceholder={textGet(
+								"billing.catalog-item.search.placeholder",
+							)}
+							columns={
+								isMobile
+									? getCatalogItemColumnsMobile({
+											onEdit: handleEdit,
+											onDelete: handleDeleteRow,
+										})
+									: getCatalogItemColumns({
+											onEdit: handleEdit,
+											onDelete: handleDeleteRow,
+										})
+							}
+							data={itemList || []}
 						/>
 					)}
 				</div>
 			</main>
 		</DashboardLayout>
 	);
-
-	async function handleDelete() {
-		const parsedRows = rows as Row<Invoice>[];
-		for (const row of parsedRows) {
-			const res = await deleteInvoice(row.original.ID);
-			if (!res.success) break;
-		}
-		fetchInvoices();
-	}
-
-	async function handleProcessSelected() {
-		const parsedRows = rows as Row<Invoice>[];
-		const ids = parsedRows.map((row) => row.original.ID);
-
-		setProcessing(true);
-		const res = await processMultipleInvoicesSRI(ids);
-		setProcessing(false);
-
-		if (res.success) {
-			fetchInvoices();
-		}
-	}
 };
 
-export default InvoiceListPage;
+export default CatalogItemList;

@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import usePermission from "@/hooks/use-permission";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
 import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import {
@@ -37,7 +36,6 @@ import { useRowStore } from "@/store/row-store";
 const Clinical = () => {
 	const [loading, setLoading] = React.useState(true);
 	const { rows } = useRowStore();
-	const { errorToast, infoToast } = useToast();
 	const navigate = useNavigate();
 	const { patientList, setPatientList } = usePatientStore();
 	const { isMobile } = useResponsive();
@@ -45,27 +43,17 @@ const Clinical = () => {
 	const { textGet } = useText();
 
 	React.useEffect(() => {
-		getAllPatientsWithLastFollowUp()
-			.then((res) => {
-				const { success, data, message } = res;
-				if (!success) {
-					errorToast(null, message);
-					navigate("/");
-					return;
-				}
-				if (data) {
-					setPatientList(data);
-				}
-			})
-			.catch(() => {
-				infoToast(textGet("error.unexpected.title"), {
-					description: textGet("error.unexpected.description"),
-				});
-			})
-			.finally(() => {
-				setLoading(false);
-			});
-	}, [errorToast, navigate, infoToast, setPatientList, textGet]);
+		async function fetchPatients() {
+			const res = await getAllPatientsWithLastFollowUp();
+			if (!res.success) {
+				navigate("/");
+			} else if (res.data) {
+				setPatientList(res.data);
+			}
+			setLoading(false);
+		}
+		fetchPatients();
+	}, [navigate, setPatientList]);
 
 	return (
 		<DashboardLayout>
@@ -74,7 +62,7 @@ const Clinical = () => {
 					{checkPermission([
 						PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
 					]) && (
-						<Button onClick={handleCreate}>
+						<Button onClick={handleCreate} className="mr-auto">
 							<Plus className="mr-2 h-4 w-4" />
 							<Text uuid="clinical.patient.create" />
 						</Button>
@@ -83,16 +71,18 @@ const Clinical = () => {
 						{checkPermission([
 							PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT,
 						]) && (
-							<AlertDialogTrigger>
-								<Button
-									variant="outline"
-									disabled={rows.length === ZERO}
-									className="md:ml-auto"
-								>
-									<Trash className="mr-2 h-4 w-4" />
-									<Text uuid="table.button.delete.all.selected" />
-								</Button>
-							</AlertDialogTrigger>
+							<AlertDialogTrigger
+								render={
+									<Button
+										variant="outline"
+										disabled={rows.length === ZERO}
+										className="md:ml-auto"
+									>
+										<Trash className="mr-2 h-4 w-4" />
+										<Text uuid="table.button.delete.all.selected" />
+									</Button>
+								}
+							/>
 						)}
 						<AlertDialogContent>
 							<AlertDialogHeader>
@@ -135,11 +125,7 @@ const Clinical = () => {
 		const res = await deleteMultiplePatients(
 			parsedRows.map((row) => row.original.ID),
 		);
-		if (!res.success) {
-			errorToast(null, res.message);
-			return;
-		}
-		if (res.data) {
+		if (res.success && res.data) {
 			setPatientList(res.data);
 		}
 	}

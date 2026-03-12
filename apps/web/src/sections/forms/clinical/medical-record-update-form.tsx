@@ -26,8 +26,6 @@ import {
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
-
 const formSchema = z.object({
 	date: z.date({ error: "Campo requerido" }),
 	motive: z
@@ -53,7 +51,6 @@ const UpdateMedicalRecordForm = () => {
 	const [initialData, setInitialData] = React.useState<z.infer<
 		typeof formSchema
 	> | null>(null);
-	const { errorToast } = useToast();
 	const { textGet } = useText();
 	const navigate = useNavigate();
 
@@ -62,7 +59,6 @@ const UpdateMedicalRecordForm = () => {
 
 		getMedicalRecordById(Number(id)).then((res) => {
 			if (!res.success) {
-				errorToast(null, res.message);
 				navigate(-1 as unknown as string);
 				return;
 			}
@@ -79,7 +75,7 @@ const UpdateMedicalRecordForm = () => {
 				},
 			});
 		});
-	}, [id, errorToast, navigate]);
+	}, [id, navigate]);
 
 	if (!initialData) {
 		return (
@@ -269,9 +265,7 @@ const UpdateMedicalRecordForm = () => {
 		};
 
 		const res = await updateMedicalRecord(Number(id), payload);
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			navigate(-1 as unknown as string);
 		}
 		setLoading(false);

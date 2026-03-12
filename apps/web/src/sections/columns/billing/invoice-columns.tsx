@@ -163,7 +163,7 @@ export const invoiceColumns: ColumnDef<Invoice>[] = [
 			return (
 				<span className="text-muted-foreground whitespace-nowrap text-sm">
 					{format(
-						new Date(row.original.createdAt as string),
+						new Date(row.original.CreatedAt as string),
 						"dd/MMM/yyyy HH:mm",
 					)}
 				</span>

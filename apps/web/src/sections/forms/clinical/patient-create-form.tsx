@@ -18,8 +18,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import useToast from "@/hooks/use-toast";
-
 const STATIC_INSTITUTIONS = [
 	{ label: "Solca", value: "Solca" },
 	{ label: "Fundacen", value: "Fundacen" },
@@ -50,7 +48,6 @@ const formSchema = z.object({
 
 const CreatePatientForm = () => {
 	const [loading, setLoading] = React.useState(false);
-	const { errorToast } = useToast();
 
 	const navigate = useNavigate();
 
@@ -206,9 +203,7 @@ const CreatePatientForm = () => {
 		};
 
 		const res = await createPatient(payload);
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			navigate("/clinical");
 		}
 		setLoading(false);

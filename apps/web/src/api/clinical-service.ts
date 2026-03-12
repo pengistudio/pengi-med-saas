@@ -33,8 +33,9 @@ export interface Patient extends BaseModel {
 export const getAllPatientsWithLastFollowUp = async (): Promise<
 	ServiceResponse<Patient[]>
 > => {
-	// The token is handled by interceptors in apiWithTenant
-	return clinicalService.get<Patient[]>("/clinical/patients");
+	return clinicalService.get<Patient[]>("/clinical/patients", {
+		notifyError: true,
+	});
 };
 
 export const deleteMultiplePatients = async (

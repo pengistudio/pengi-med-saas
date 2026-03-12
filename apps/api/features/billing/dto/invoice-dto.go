@@ -8,7 +8,7 @@ type CreateInvoiceItem struct {
 type CreateInvoiceDTO struct {
 	PatientID         *uint               `json:"patient_id,omitempty"`
 	PaymentMethod     string              `json:"payment_method" binding:"required"`
-	Term              uint                `json:"term" binding:"required"`
+	Term              uint                `json:"term" binding:"gte=0"`
 	TimeUnit          string              `json:"time_unit" binding:"required"`
 	EstablishmentCode string              `json:"establishment_code" binding:"required"`
 	EmissionPointCode string              `json:"emission_point_code" binding:"required"`

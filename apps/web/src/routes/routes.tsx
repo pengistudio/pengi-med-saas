@@ -2,7 +2,10 @@ import { createBrowserRouter, Outlet, type RouteObject } from "react-router";
 import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
 import { PERMISSIONS } from "@/lib/constants";
+import CatalogItemList from "@/pages/billing/catalog-item-list";
+import CreateCatalogItemPage from "@/pages/billing/create-catalog-item";
 import CreateInvoicePage from "@/pages/billing/create-invoice";
+import EditCatalogItemPage from "@/pages/billing/edit-catalog-item";
 // Billing Module
 import InvoiceListPage from "@/pages/billing/invoice-list";
 import SriSettingsPage from "@/pages/billing/sri-settings";
@@ -105,7 +108,7 @@ const clinicalRoutes: RouteObject = {
 };
 
 const billingRoutes: RouteObject = {
-	path: "/clinical/billing",
+	path: "/billing",
 	element: (
 		<CheckPermission
 			permissions={[PERMISSIONS.BILLING.PERMISSION_READ_BILLING]}
@@ -130,6 +133,36 @@ const billingRoutes: RouteObject = {
 					permissions={[PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS]}
 				>
 					<SriSettingsPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "catalog-items",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_READ_BILLING]}
+				>
+					<CatalogItemList />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "catalog-items/create",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]}
+				>
+					<CreateCatalogItemPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "catalog-items/edit/:id",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_UPDATE_BILLING]}
+				>
+					<EditCatalogItemPage />
 				</CheckPermission>
 			),
 		},

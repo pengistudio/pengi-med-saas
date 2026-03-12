@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { type UseFormReturn, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router";
 import * as z from "zod";
-import { createInvoice } from "@/api/billing-service";
+import { createInvoice, getCatalogItems, type CatalogItem } from "@/api/billing-service";
 import {
 	getAllPatientsWithLastFollowUp,
 	type Patient,
@@ -12,6 +12,15 @@ import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
+import {
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+} from "@/components/ui/combobox";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
 	Card,
 	CardContent,
@@ -22,7 +31,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
 import {
 	IVA_PERCENTAGE_CODES_AS_NUMBER,
 	PAYMENT_LABELS,
@@ -50,14 +58,20 @@ const formSchema = z.object({
 
 export function InvoiceForm() {
 	const [patients, setPatients] = useState<Patient[]>([]);
+	const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
 	const [loading, setLoading] = useState(false);
-	const { successToast, errorToast } = useToast();
 	const navigate = useNavigate();
+	const { textGet } = useText();
 
 	useEffect(() => {
 		getAllPatientsWithLastFollowUp().then((res) => {
 			if (res.success && res.data) {
 				setPatients(res.data);
+			}
+		});
+		getCatalogItems().then((res) => {
+			if (res.success && res.data) {
+				setCatalogItems(res.data);
 			}
 		});
 	}, []);
@@ -99,10 +113,7 @@ export function InvoiceForm() {
 
 		const res = await createInvoice(payload);
 		if (res.success) {
-			successToast(res.message);
-			navigate("/clinical/billing");
-		} else {
-			errorToast(null, res.message as string);
+			navigate("/billing");
 		}
 		setLoading(false);
 	}
@@ -115,7 +126,7 @@ export function InvoiceForm() {
 				patient_id: "",
 				items: [
 					{
-						description: "Consulta Médica",
+						description: textGet("billing.invoice.item.default.description"),
 						quantity: 1,
 						unit_price: 0,
 						discount: 0,
@@ -123,10 +134,17 @@ export function InvoiceForm() {
 						ice_tax: 0,
 					},
 				],
+				establishment_code: "001",
+				emission_point_code: "001",
 			}}
 		>
 			{(form) => (
-				<InvoiceFormInner form={form} patients={patients} loading={loading} />
+				<InvoiceFormInner
+					form={form}
+					patients={patients}
+					catalogItems={catalogItems}
+					loading={loading}
+				/>
 			)}
 		</Form>
 	);
@@ -135,11 +153,13 @@ export function InvoiceForm() {
 function InvoiceFormInner({
 	form,
 	patients,
+	catalogItems,
 	loading,
 }: {
 	// biome-ignore lint/suspicious/noExplicitAny: UseFormReturn<any> is acceptable here
 	form: UseFormReturn<any>;
 	patients: Patient[];
+	catalogItems: CatalogItem[];
 	loading: boolean;
 }) {
 	const { fields, append, remove } = useFieldArray({
@@ -183,9 +203,9 @@ function InvoiceFormInner({
 
 	function renderTimeUnits() {
 		const units = [
-			{ label: textGet("common.days") || "Días", value: "dias" },
-			{ label: textGet("common.months") || "Meses", value: "meses" },
-			{ label: textGet("common.years") || "Años", value: "anios" },
+			{ label: textGet("common.days"), value: "dias" },
+			{ label: textGet("common.months"), value: "meses" },
+			{ label: textGet("common.years"), value: "anios" },
 		];
 		return units;
 	}
@@ -206,14 +226,14 @@ function InvoiceFormInner({
 						<FormInput
 							field={form}
 							name="establishment_code"
-							label="Código de Establecimiento"
-							placeholder="ej. 001"
+							label={textGet("billing.invoice.establishment.code")}
+							placeholder={textGet("billing.invoice.establishment.code.placeholder")}
 						/>
 						<FormInput
 							field={form}
 							name="emission_point_code"
-							label="Punto de Emisión"
-							placeholder="ej. 001"
+							label={textGet("billing.invoice.emission.point")}
+							placeholder={textGet("billing.invoice.emission.point.placeholder")}
 						/>
 					</div>
 				</CardContent>
@@ -247,10 +267,9 @@ function InvoiceFormInner({
 					<div className="flex flex-row gap-2 items-end w-full">
 						<FormSelect
 							name="patient_id"
-							label={textGet("billing.invoice.patient") || "Paciente"}
+							label={textGet("billing.invoice.patient")}
 							placeholder={
-								textGet("billing.invoice.patient.placeholder") ||
-								"Seleccionar paciente..."
+								textGet("billing.invoice.patient.placeholder")
 							}
 							field={form}
 							options={patients.map((p) => ({
@@ -273,27 +292,27 @@ function InvoiceFormInner({
 							name="payment_method"
 							options={renderPaymentMethod()}
 							label={
-								textGet("billing.invoice.payment.method") || "Método de pago"
+								textGet("billing.invoice.payment.method")
 							}
 							placeholder={
-								textGet("billing.invoice.payment.method.placeholder") || ""
+								textGet("billing.invoice.payment.method.placeholder")
 							}
 						/>
 						<FormSelect
 							name="time_unit"
-							label={textGet("billing.invoice.time.unit") || "Unidad"}
+							label={textGet("billing.invoice.time.unit")}
 							field={form}
 							options={renderTimeUnits()}
 							placeholder={
-								textGet("billing.invoice.time.unit.placeholder") || ""
+								textGet("billing.invoice.time.unit.placeholder")
 							}
 						/>
 						<FormInput
 							name="term"
-							label={textGet("billing.invoice.term") || "Plazo"}
+							label={textGet("billing.invoice.term")}
 							field={form}
 							type="number"
-							placeholder={textGet("billing.invoice.term.placeholder") || ""}
+							placeholder={textGet("billing.invoice.term.placeholder")}
 						/>
 					</div>
 				</CardContent>
@@ -341,17 +360,54 @@ function InvoiceFormInner({
 									type="number"
 									field={form}
 									name={`items.${index}.quantity` as const}
-									label={textGet("billing.invoice.item.qty") || "Cant."}
+									label={textGet("billing.invoice.item.qty")}
 								/>
 							</div>
 							<div>
-								<FormInput
-									field={form}
-									name={`items.${index}.description` as const}
-									label={
-										textGet("billing.invoice.item.description") || "Descripción"
-									}
-								/>
+								<Field className="flex flex-col h-full justify-end">
+									<FieldLabel className="mb-2">
+										{textGet("billing.invoice.item.description")}
+									</FieldLabel>
+									<Combobox
+										value={form.watch(`items.${index}.description` as const)}
+										onValueChange={(val) => {
+											if (!val) return;
+											form.setValue(`items.${index}.description` as const, val as string);
+											
+											const selectedItem = catalogItems.find(
+												(item) => item.name === val,
+											);
+											
+											if (selectedItem) {
+												form.setValue(`items.${index}.unit_price` as const, selectedItem.unit_price);
+												form.setValue(`items.${index}.tax_rate` as const, selectedItem.tax_percentage_code);
+												form.setValue(`items.${index}.ice_tax` as const, selectedItem.ice_tax);
+											}
+										}}
+									>
+										<ComboboxInput
+											placeholder={textGet("billing.invoice.item.combobox.placeholder")}
+											onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+												form.setValue(`items.${index}.description` as const, e.target.value);
+											}}
+										/>
+										<ComboboxContent>
+											<ComboboxEmpty>
+												{textGet("common.no_results")}
+											</ComboboxEmpty>
+											<ComboboxList>
+												{catalogItems.map((item) => (
+													<ComboboxItem
+														key={item.ID.toString()}
+														value={item.name}
+													>
+														{item.name}
+													</ComboboxItem>
+												))}
+											</ComboboxList>
+										</ComboboxContent>
+									</Combobox>
+								</Field>
 							</div>
 							<div>
 								<FormInput
@@ -359,14 +415,14 @@ function InvoiceFormInner({
 									step="0.01"
 									field={form}
 									name={`items.${index}.unit_price` as const}
-									label={textGet("billing.invoice.item.price") || "Precio"}
+									label={textGet("billing.invoice.item.price")}
 								/>
 							</div>
 							<div>
 								<FormSelect
 									field={form}
 									name={`items.${index}.tax_rate` as const}
-									label={textGet("billing.invoice.item.tax") || "Impuesto"}
+									label={textGet("billing.invoice.item.tax")}
 									options={[
 										{ label: "0%", value: "0" },
 										{ label: "12%", value: "2" },

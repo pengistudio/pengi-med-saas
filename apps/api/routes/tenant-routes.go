@@ -18,4 +18,5 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 
 	tenantGroup.PUT("/sri/signature", envelope.Handle(tenantHandler.UploadSignature))
 	tenantGroup.GET("/sri/status", envelope.Handle(tenantHandler.GetSriStatus))
+	tenantGroup.PUT("/sri/info", envelope.Handle(tenantHandler.UpdateSriInfo))
 }

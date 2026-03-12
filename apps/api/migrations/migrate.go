@@ -42,6 +42,7 @@ func RunMigrations(db *gorm.DB) error {
 		billing_models.Invoice{},
 		billing_models.InvoiceItem{},
 		billing_models.InvoiceCounter{},
+		billing_models.CatalogItem{},
 	)
 	if err != nil {
 		return err

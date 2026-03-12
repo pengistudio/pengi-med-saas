@@ -108,9 +108,7 @@ export function AppointmentFormDialog({
 				location: values.location || "",
 				notes: values.notes || "",
 			});
-			if (!res.success) {
-				errorToast(null, res.message);
-			} else {
+			if (res.success) {
 				onOpenChange(false);
 				onSuccess();
 			}
@@ -124,9 +122,7 @@ export function AppointmentFormDialog({
 				location: values.location || "",
 				notes: values.notes || "",
 			});
-			if (!res.success) {
-				errorToast(null, res.message);
-			} else {
+			if (res.success) {
 				onOpenChange(false);
 				onSuccess();
 			}

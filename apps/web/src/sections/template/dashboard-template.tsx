@@ -33,11 +33,13 @@ interface DashboardLayoutProps {
 }
 
 import { createNavItems } from "@/config/nav-config";
+import usePermission from "@/hooks/use-permission";
 
 function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const { logout } = useAuth();
 	const { textGet } = useText();
 	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
+	const { checkPermission } = usePermission();
 
 	const { environment } = useSessionStore();
 
@@ -51,7 +53,13 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	}, [environment?.name]);
 
 	// Use useMemo with stable reference
-	const navItems = useMemo(() => createNavItems(textGet), [textGet]);
+	const navItems = useMemo(
+		() =>
+			createNavItems(textGet).filter((item) =>
+				checkPermission([item.permission || ""]),
+			),
+		[textGet, checkPermission],
+	);
 
 	const handleLogout = useCallback(() => {
 		logout();

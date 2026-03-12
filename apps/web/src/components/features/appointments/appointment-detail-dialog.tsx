@@ -18,7 +18,6 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { getStatusColor, STATUS_I18N_KEYS } from "./appointment-utils";
 
@@ -42,7 +41,6 @@ export function AppointmentDetailDialog({
 	onRefresh,
 }: AppointmentDetailDialogProps) {
 	const [loading, setLoading] = React.useState(false);
-	const { errorToast } = useToast();
 	const { textGet } = useText();
 
 	if (!appointment) return null;
@@ -57,9 +55,7 @@ export function AppointmentDetailDialog({
 		if (!appointment) return;
 		setLoading(true);
 		const res = await updateAppointmentStatus(appointment.ID, "cancelled");
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			onOpenChange(false);
 			onRefresh();
 		}
@@ -70,9 +66,7 @@ export function AppointmentDetailDialog({
 		if (!appointment) return;
 		setLoading(true);
 		const res = await updateAppointmentStatus(appointment.ID, "completed");
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			onOpenChange(false);
 			onRefresh();
 		}
@@ -83,9 +77,7 @@ export function AppointmentDetailDialog({
 		if (!appointment) return;
 		setLoading(true);
 		const res = await deleteAppointment(appointment.ID);
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			onOpenChange(false);
 			onRefresh();
 		}

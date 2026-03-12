@@ -6,11 +6,13 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
+	type Row,
 	type SortingState,
 	useReactTable,
 	type VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
+import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import {
 	Table,
@@ -21,6 +23,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { useText } from "@/hooks/use-text";
+import { useRowStore } from "@/store/row-store";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
 
@@ -45,6 +48,7 @@ export function DataTable<TData, TValue>({
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = React.useState({});
+	const { setRows } = useRowStore();
 
 	const table = useReactTable({
 		data,
@@ -65,6 +69,11 @@ export function DataTable<TData, TValue>({
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 	});
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: triggers on selection change
+	useEffect(() => {
+		setRows(table.getFilteredSelectedRowModel().rows as Row<unknown>[]);
+	}, [rowSelection, setRows, table]);
 
 	return (
 		<div className="space-y-4">

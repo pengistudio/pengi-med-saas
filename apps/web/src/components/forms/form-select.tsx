@@ -35,6 +35,7 @@ type FormSelectProps<
 	placeholder?: string;
 	options: { value: string; label: string | React.ReactNode }[];
 	className?: string;
+	disabled?: boolean;
 };
 
 function FormSelect<
@@ -50,6 +51,7 @@ function FormSelect<
 	placeholder,
 	options,
 	className,
+	disabled,
 }: FormSelectProps<T, Output, Input>) {
 	const { textGet } = useText();
 
@@ -57,7 +59,10 @@ function FormSelect<
 		<Controller
 			control={field.control}
 			name={name}
-			render={({ field: { value, onChange, disabled }, fieldState }) => (
+			render={({
+				field: { value, onChange, disabled: fieldDisabled },
+				fieldState,
+			}) => (
 				<Field
 					data-invalid={fieldState.invalid}
 					className={cn("flex flex-col", className)}
@@ -72,7 +77,11 @@ function FormSelect<
 							)}
 						</FieldLabel>
 					)}
-					<Select value={value} onValueChange={onChange} disabled={disabled}>
+					<Select
+						value={value}
+						onValueChange={onChange}
+						disabled={disabled !== undefined ? disabled : fieldDisabled}
+					>
 						<SelectTrigger
 							id={name}
 							aria-invalid={fieldState.invalid}

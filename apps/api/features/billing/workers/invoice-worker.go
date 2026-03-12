@@ -38,13 +38,16 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		logger.Info("Processing Invoice task", zap.Uint64("invoice_id", invoiceDTO.InvoiceID))
 
 		var invoice billing_models.Invoice
-		if err := db.Unscoped().First(&invoice, invoiceDTO.InvoiceID).Error; err != nil {
+		if err := db.Unscoped().Preload("Patient").First(&invoice, invoiceDTO.InvoiceID).Error; err != nil {
 			logger.Error("Failed to find invoice", zap.Error(err))
 			return err
 		}
 
 		invoice.Status = "processing"
-		db.Save(&invoice)
+		if err := db.Save(&invoice).Error; err != nil {
+			logger.Error("Failed to update invoice status to processing", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+			return err
+		}
 
 		// 1. Fetch Tenant
 		var tenant tenant_models.Tenant
@@ -63,16 +66,17 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		if err := db.Unscoped().Where("invoice_id = ?", invoice.ID).Find(&items).Error; err != nil {
 			return err
 		}
+		invoice.Items = items
 
-		// Rebuild CatalogServices specifically for generation
-		var products []billing_models.CatalogService
+		// Rebuild CatalogItems specifically for generation
+		var products []billing_models.CatalogItem
 		for _, item := range items {
-			var product billing_models.CatalogService
+			var product billing_models.CatalogItem
 			if err := db.Unscoped().First(&product, item.ProductID).Error; err != nil {
 				return err
 			}
 			product.UnitPrice = item.UnitPrice
-			// product.Discount = item.Discount (no longer part of CatalogService schema)
+			// product.Discount = item.Discount (no longer part of CatalogItem schema)
 			product.Tax = item.TaxRate
 			product.IceTax = item.IceTax
 			products = append(products, product)
@@ -94,7 +98,10 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		}
 
 		invoice.AccessKey = &accessCode
-		db.Save(&invoice)
+		if err := db.Save(&invoice).Error; err != nil {
+			logger.Error("Failed to persist invoice access key", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+			return err
+		}
 
 		sriXML, err := sri_services.GenerateInvoiceXml(*sriInvoice)
 		if err != nil {
@@ -129,7 +136,10 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		}
 
 		invoice.Status = "signed"
-		db.Save(&invoice)
+		if err := db.Save(&invoice).Error; err != nil {
+			logger.Error("Failed to update invoice status to signed", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+			return err
+		}
 
 		// 6. Validate & Authorize SRI
 		sriEnv := os.Getenv("SRI_ENV") // Usually "1" (Pruebas) or "2" (Producción)
@@ -143,7 +153,10 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		}
 
 		invoice.Status = "validated"
-		db.Save(&invoice)
+		if err := db.Save(&invoice).Error; err != nil {
+			logger.Error("Failed to update invoice status to validated", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+			return err
+		}
 
 		if _, err := sriClient.AuthorizeXMLWithSRI(*invoice.AccessKey, sriEnv); err != nil {
 			logger.Error("Failed to Authorize XML with SRI", zap.Error(err))
@@ -151,7 +164,10 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		}
 
 		invoice.Status = "authorized"
-		db.Save(&invoice)
+		if err := db.Save(&invoice).Error; err != nil {
+			logger.Error("Failed to update invoice status to authorized", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+			return err
+		}
 
 		logger.Info("Invoice successfully processed by SRI", zap.Uint64("id", uint64(invoice.ID)))
 		return nil

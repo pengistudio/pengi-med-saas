@@ -27,7 +27,6 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
 import { dateParser } from "@/lib/utils";
 
 const ViewMedicalRecord = () => {
@@ -37,7 +36,6 @@ const ViewMedicalRecord = () => {
 		React.useState<MedicalRecord | null>(null);
 	const [showPrescription, setShowPrescription] = React.useState(false);
 	const [isDownloading, setIsDownloading] = React.useState(false);
-	const { errorToast } = useToast();
 	const { textGet } = useText();
 
 	const handleDownloadPrescription = async () => {
@@ -64,7 +62,6 @@ const ViewMedicalRecord = () => {
 
 		getMedicalRecordById(Number(id)).then((res) => {
 			if (!res.success) {
-				errorToast(null, res.message);
 				navigate(-1 as unknown as string);
 				return;
 			}
@@ -72,7 +69,7 @@ const ViewMedicalRecord = () => {
 				setMedicalRecord(res.data as MedicalRecord);
 			}
 		});
-	}, [id, errorToast, navigate]);
+	}, [id, navigate]);
 
 	if (!medicalRecord) {
 		return (

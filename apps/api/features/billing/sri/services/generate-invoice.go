@@ -14,7 +14,7 @@ import (
 )
 
 type Invoice = invoice.Invoice
-type CatalogService = invoice.CatalogService
+type CatalogItem = invoice.CatalogItem
 
 // Modulo11 calcula el dígito verificador
 func Modulo11(input string) string {
@@ -109,7 +109,7 @@ func reorderTaxInfo(invoice Invoice, accessKey string, tenantObj tenant.Tenant, 
 	}
 }
 
-func findProduct(id uint, services []CatalogService) *CatalogService {
+func findProduct(id uint, services []CatalogItem) *CatalogItem {
 	for i := range services {
 		if services[i].ID == id {
 			return &services[i]
@@ -118,7 +118,7 @@ func findProduct(id uint, services []CatalogService) *CatalogService {
 	return nil
 }
 
-func reorderDetails(invoice Invoice, services []CatalogService) invoiceSRI.Details {
+func reorderDetails(invoice Invoice, services []CatalogItem) invoiceSRI.Details {
 	var details []invoiceSRI.Detail
 	for _, item := range invoice.Items {
 
@@ -187,38 +187,76 @@ func reorderInvoiceInfo(invoice Invoice, tenantObj tenant.Tenant, establishmentA
 		accountingObliged = "NO"
 	}
 
-	var totalWithTaxes []invoiceSRI.TotalWithTax
+	type taxKey struct {
+		Code           string
+		PercentageCode string
+	}
+
+	groupedTaxes := make(map[taxKey]*invoiceSRI.TotalWithTax)
 	var totalDiscount float64
+
 	for _, item := range invoice.Items {
-		var rate *string
-		if item.TaxRate != 0 {
-			rateValue := fmt.Sprintf("%.2f", item.TaxRate)
-			rate = &rateValue
-		} else {
-			rate = nil
-		}
-		totalWithTaxes = append(totalWithTaxes, invoiceSRI.TotalWithTax{
-			Code:               item.TaxCode,
-			PercentageCode:     item.TaxPercentage,
-			TaxableBase:        fmt.Sprintf("%.2f", item.Subtotal),
-			Value:              fmt.Sprintf("%.2f", item.Subtotal*item.TaxRate),
-			Rate:               rate,
-			AdditionalDiscount: "0",
-		})
+		// Group Main Tax (e.g. IVA)
+		if item.TaxCode != "" && item.TaxPercentage != "" {
+			key := taxKey{Code: item.TaxCode, PercentageCode: item.TaxPercentage}
+			if _, exists := groupedTaxes[key]; !exists {
+				// Init if not exists
+				rateStr := fmt.Sprintf("%.2f", item.TaxRate)
+				groupedTaxes[key] = &invoiceSRI.TotalWithTax{
+					Code:               item.TaxCode,
+					PercentageCode:     item.TaxPercentage,
+					TaxableBase:        "0.00",
+					Value:              "0.00",
+					Rate:               &rateStr,
+					AdditionalDiscount: "0.00",
+				}
+			}
 
-		iceRate := fmt.Sprintf("%.2f", item.IceTax)
+			// Accumulate using floats to prevent precision issues
+			var currentBase, currentValue float64
+			fmt.Sscanf(groupedTaxes[key].TaxableBase, "%f", &currentBase)
+			fmt.Sscanf(groupedTaxes[key].Value, "%f", &currentValue)
 
-		iceTax := invoiceSRI.TotalWithTax{
-			Code:               item.IceTaxCode,
-			PercentageCode:     item.IceTaxPercentage,
-			TaxableBase:        fmt.Sprintf("%.2f", item.Subtotal),
-			Value:              fmt.Sprintf("%.2f", item.Subtotal*item.IceTax),
-			Rate:               &iceRate,
-			AdditionalDiscount: "0",
+			newBase := currentBase + item.Subtotal
+			newValue := currentValue + (item.Subtotal * item.TaxRate)
+
+			groupedTaxes[key].TaxableBase = fmt.Sprintf("%.2f", newBase)
+			groupedTaxes[key].Value = fmt.Sprintf("%.2f", newValue)
 		}
-		totalWithTaxes = append(totalWithTaxes, iceTax)
+
+		// Group ICE Tax
+		if item.IceTaxCode != "" && item.IceTaxCode != "3000" && item.IceTaxPercentage != "" {
+			key := taxKey{Code: item.IceTaxCode, PercentageCode: item.IceTaxPercentage}
+			if _, exists := groupedTaxes[key]; !exists {
+				// Init if not exists
+				rateStr := fmt.Sprintf("%.2f", item.IceTax)
+				groupedTaxes[key] = &invoiceSRI.TotalWithTax{
+					Code:               item.IceTaxCode,
+					PercentageCode:     item.IceTaxPercentage,
+					TaxableBase:        "0.00",
+					Value:              "0.00",
+					Rate:               &rateStr,
+					AdditionalDiscount: "0.00",
+				}
+			}
+
+			var currentBase, currentValue float64
+			fmt.Sscanf(groupedTaxes[key].TaxableBase, "%f", &currentBase)
+			fmt.Sscanf(groupedTaxes[key].Value, "%f", &currentValue)
+
+			newBase := currentBase + item.Subtotal
+			newValue := currentValue + (item.Subtotal * item.IceTax)
+
+			groupedTaxes[key].TaxableBase = fmt.Sprintf("%.2f", newBase)
+			groupedTaxes[key].Value = fmt.Sprintf("%.2f", newValue)
+		}
 
 		totalDiscount += item.Discount
+	}
+
+	var totalWithTaxes []invoiceSRI.TotalWithTax
+	for _, taxInfo := range groupedTaxes {
+		totalWithTaxes = append(totalWithTaxes, *taxInfo)
 	}
 
 	return invoiceSRI.InvoiceInfo{
@@ -253,7 +291,7 @@ func GenerateInvoiceXml(invoiceSRI invoiceSRI.InvoiceSRI) (string, error) {
 }
 
 // Function to generate the invoiceSRI with input data
-func GenerateInvoice(invoice Invoice, services []CatalogService, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string) (*invoiceSRI.InvoiceSRI, string, error) {
+func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string) (*invoiceSRI.InvoiceSRI, string, error) {
 
 	accessKey := GenerateAccessKey(invoice, tenantObj, establishmentCode, emissionCode)
 	infoTributariaData := reorderTaxInfo(invoice, accessKey, tenantObj, establishmentCode, emissionCode)

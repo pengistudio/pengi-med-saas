@@ -33,7 +33,7 @@ import { usePatientStore } from "@/store/patient-store";
 const MedicalRecords = () => {
 	const { patient, setPatient } = usePatientStore();
 	const navigate = useNavigate();
-	const { errorToast, infoToast } = useToast();
+	const { infoToast } = useToast();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
@@ -51,24 +51,14 @@ const MedicalRecords = () => {
 
 		getMedicalRecords(patient.ID)
 			.then((res) => {
-				const { success, data, message } = res;
-				if (!success) {
-					errorToast(null, message);
-					return;
+				if (res.success && res.data) {
+					setMedicalRecords(res.data as MedicalRecord[]);
 				}
-				if (data) {
-					setMedicalRecords(data as MedicalRecord[]);
-				}
-			})
-			.catch(() => {
-				infoToast(textGet("error.unexpected.title"), {
-					description: textGet("error.unexpected.description"),
-				});
 			})
 			.finally(() => {
 				setLoading(false);
 			});
-	}, [patient, errorToast, infoToast, textGet]);
+	}, [patient]);
 
 	const latestPrescription = React.useMemo(() => {
 		const withPrescription = medicalRecords.filter((r) => r.prescription);
@@ -250,12 +240,8 @@ const MedicalRecords = () => {
 	async function handleCritical() {
 		if (!patient) return;
 
-		const { success, data, message } = await updateCritical(patient.ID);
-		if (!success) {
-			errorToast(null, message);
-			return;
-		}
-		if (data) {
+		const { success, data } = await updateCritical(patient.ID);
+		if (success && data) {
 			setPatient(data as Patient);
 		}
 	}
@@ -263,12 +249,8 @@ const MedicalRecords = () => {
 	async function handleCriticalRevert() {
 		if (!patient) return;
 
-		const { success, data, message } = await updateCriticalRevert(patient.ID);
-		if (!success) {
-			errorToast(null, message);
-			return;
-		}
-		if (data) {
+		const { success, data } = await updateCriticalRevert(patient.ID);
+		if (success && data) {
 			setPatient(data as Patient);
 		}
 	}

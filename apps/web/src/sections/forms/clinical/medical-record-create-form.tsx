@@ -23,8 +23,6 @@ import {
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
-
 const formSchema = z.object({
 	date: z.date({ error: "Campo requerido" }),
 	motive: z
@@ -52,7 +50,6 @@ const formSchema = z.object({
 
 const CreateMedicalRecordForm = () => {
 	const [loading, setLoading] = React.useState(false);
-	const { errorToast } = useToast();
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
@@ -287,9 +284,7 @@ const CreateMedicalRecordForm = () => {
 		};
 
 		const res = await createMedicalRecord(payload);
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			navigate(`/clinical/medical-records/${patientId}`);
 		}
 		setLoading(false);

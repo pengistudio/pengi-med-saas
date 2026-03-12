@@ -10,6 +10,7 @@ import (
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	tenant_dto "pengi-med-saas/features/tenants/dto"
 	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
@@ -127,7 +128,44 @@ func (h *TenantHandler) GetSriStatus(c *gin.Context) envelope.Response {
 	isConfigured := tenantRecord.SriP12Path != "" && tenantRecord.SriPassword != ""
 
 	return envelope.SuccessResponse(gin.H{
-		"is_configured":   isConfigured,
-		"expiration_date": tenantRecord.SriCertExpiration,
-	}, "Configuración recuperada")
+		"is_configured":      isConfigured,
+		"expiration_date":    tenantRecord.SriCertExpiration,
+		"tax_id":             tenantRecord.TaxID,
+		"trade_name":         tenantRecord.TradeName,
+		"corporate_name":     tenantRecord.CorporateName,
+		"address":            tenantRecord.Address,
+		"accounting_obliged": tenantRecord.AccountingObliged,
+	}, "tenant.sri.status.fetch.success")
+}
+
+// UpdateSriInfo updates the tenant's SRI information
+func (h *TenantHandler) UpdateSriInfo(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	var dto tenant_dto.UpdateSriInfoDTO
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		h.logger.Error("Failed to bind UpdateSriInfo DTO", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid provided payload", core_errors.ErrBillingInvalidRequest)
+	}
+
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+	}
+
+	tenantRecord.TaxID = dto.TaxID
+	tenantRecord.TradeName = dto.TradeName
+	tenantRecord.CorporateName = dto.CorporateName
+	tenantRecord.Address = dto.Address
+	tenantRecord.AccountingObliged = dto.AccountingObliged
+
+	if err := h.db.Save(&tenantRecord).Error; err != nil {
+		h.logger.Error("Failed to update tenant SRI info", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant SRI info", core_errors.ErrInternal)
+	}
+
+	return envelope.SuccessResponse(tenantRecord, "tenant.sri_info.update.success")
 }

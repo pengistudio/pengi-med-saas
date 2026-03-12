@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
-
 const prescriptionSchema = z.object({
 	content: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
 	indications: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
@@ -41,15 +39,12 @@ export default function EditPrescriptionDialog({
 	onSuccess,
 }: EditPrescriptionDialogProps) {
 	const [loading, setLoading] = React.useState(false);
-	const { errorToast } = useToast();
 	const { textGet } = useText();
 
 	async function onSubmit(values: z.infer<typeof prescriptionSchema>) {
 		setLoading(true);
 		const res = await updatePrescription(medicalRecordId, values);
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			onOpenChange(false);
 			onSuccess?.();
 		}

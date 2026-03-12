@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type CatalogService struct {
+type CatalogItem struct {
 	gorm.Model
 	TenantID             uint    `gorm:"index" json:"tenant_id"`
 	Name                 string  `json:"name"`

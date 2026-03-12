@@ -56,6 +56,18 @@
 		"value": "Por favor, revise los siguientes campos"
 	},
 	{
+		"key": "common.days",
+		"value": "Días"
+	},
+	{
+		"key": "common.months",
+		"value": "Meses"
+	},
+	{
+		"key": "common.years",
+		"value": "Años"
+	},
+	{
 		"key": "login.title",
 		"value": "Iniciar sesión"
 	},
@@ -2290,5 +2302,221 @@
 	{
 		"key": "billing.invoice.discount",
 		"value": "Descuento"
+	},
+	{
+		"key": "billing.catalog-item.column.sku",
+		"value": "SKU"
+	},
+	{
+		"key": "billing.catalog-item.column.name",
+		"value": "Nombre"
+	},
+	{
+		"key": "billing.catalog-item.column.price",
+		"value": "Precio"
+	},
+	{
+		"key": "billing.catalog-item.column.date",
+		"value": "Fecha de Creación"
+	},
+	{
+		"key": "billing.catalog-item.create.button",
+		"value": "Crear Producto/Servicio"
+	},
+	{
+		"key": "billing.catalog-item.delete.description",
+		"value": "¿Estás seguro de que deseas eliminar los productos y servicios seleccionados? Esta acción no se puede deshacer."
+	},
+	{
+		"key": "billing.catalog-item.search.placeholder",
+		"value": "Buscar por SKU..."
+	},
+	{
+		"key": "billing.catalog-item.list.action.edit",
+		"value": "Editar"
+	},
+	{
+		"key": "billing.catalog-item.list.action.delete",
+		"value": "Eliminar"
+	},
+	{
+		"key": "dashboard.billing.catalog-items",
+		"value": "Productos y Servicios"
+	},
+	{
+		"key": "billing.catalog-item.form.name",
+		"value": "Nombre del Producto/Servicio"
+	},
+	{
+		"key": "billing.catalog-item.form.sku",
+		"value": "SKU o Código"
+	},
+	{
+		"key": "billing.catalog-item.form.description",
+		"value": "Descripción"
+	},
+	{
+		"key": "billing.catalog-item.form.unit_price",
+		"value": "Precio Unitario"
+	},
+	{
+		"key": "billing.catalog-item.form.tax",
+		"value": "Impuesto (IVA/SRI)"
+	},
+	{
+		"key": "billing.catalog-item.form.ice_tax",
+		"value": "ICE (Opcional)"
+	},
+	{
+		"key": "billing.catalog-item.form.create.title",
+		"value": "Crear Producto/Servicio"
+	},
+	{
+		"key": "billing.catalog-item.form.create.description",
+		"value": "Llene los campos para registrar un nuevo producto o servicio en el catálogo."
+	},
+	{
+		"key": "billing.catalog-item.form.edit.title",
+		"value": "Editar Producto/Servicio"
+	},
+	{
+		"key": "billing.catalog-item.form.edit.description",
+		"value": "Modifique los valores correspondientes y guarde los cambios."
+	},
+	{
+		"key": "billing.catalog-item.form.submit.create",
+		"value": "Guardar Producto"
+	},
+	{
+		"key": "billing.catalog-item.form.submit.edit",
+		"value": "Actualizar Cambios"
+	},
+	{
+		"key": "billing.catalog-item.form.error.required",
+		"value": "Este campo es obligatorio"
+	},
+	{
+		"key": "billing.catalog-item.form.error.positive",
+		"value": "El valor debe ser positivo"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.codinue",
+		"value": "Tipo de Impuesto"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.code.placeholder",
+		"value": "Seleccione impuesto"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.percentage",
+		"value": "Porcentaje de Imp. Secundario"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.percentage.placeholder",
+		"value": "Seleccione porcentaje"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.apply",
+		"value": "Aplica ICE"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.code",
+		"value": "Código ICE"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.code.placeholder",
+		"value": "Seleccione código"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.percentage",
+		"value": "Porcentaje ICE"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.percentage.placeholder",
+		"value": "Seleccione porcentaje"
+	},
+	{
+		"key": "tax.ice.search.placeholder",
+		"value": "Buscar código ICE..."
+	},
+	{
+		"key": "form.continue",
+		"value": "Continuar"
+	},
+	{
+		"key": "common.no_results",
+		"value": "Sin resultados"
+	},
+	{
+		"key": "billing.invoices.processing.queued",
+		"value": "En cola"
+	},
+	{
+		"key": "billing.sri.info.tax_id.label",
+		"value": "RUC"
+	},
+	{
+		"key": "billing.sri.info.trade_name.label",
+		"value": "Nombre Comercial"
+	},
+	{
+		"key": "billing.sri.info.corporate_name.label",
+		"value": "Razón Social"
+	},
+	{
+		"key": "billing.sri.info.address.label",
+		"value": "Dirección Matriz"
+	},
+	{
+		"key": "billing.sri.info.accounting_obliged.label",
+		"value": "Obligado a llevar contabilidad"
+	},
+	{
+		"key": "billing.sri.company_info.title",
+		"value": "Información Empresarial"
+	},
+	{
+		"key": "billing.sri.company_info.description",
+		"value": "Configure los detalles de facturación como RUC y razón social."
+	},
+	{
+		"key": "tenant.sri_info.update.success",
+		"value": "Información SRI actualizada"
+	},
+	{
+		"key": "billing.status.signed",
+		"value": "Firmado"
+	},
+	{
+		"key": "tenant.sri.status.fetch.success",
+		"value": "Tu configuración SRI está al día"
+	},
+	{
+		"key": "billing.invoice.establishment.code",
+		"value": "Código de Establecimiento"
+	},
+	{
+		"key": "billing.invoice.establishment.code.placeholder",
+		"value": "ej. 001"
+	},
+	{
+		"key": "billing.invoice.emission.point",
+		"value": "Punto de Emisión"
+	},
+	{
+		"key": "billing.invoice.emission.point.placeholder",
+		"value": "ej. 001"
+	},
+	{
+		"key": "billing.invoice.item.combobox.placeholder",
+		"value": "Escriba o seleccione..."
+	},
+	{
+		"key": "billing.invoice.item.default.description",
+		"value": "Consulta Médica"
+	},
+	{
+		"key": "billing.catalog_item.load.error",
+		"value": "No se pudo cargar el producto/servicio."
 	}
 ]

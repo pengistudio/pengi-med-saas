@@ -5,12 +5,12 @@ import usePermission from "@/hooks/use-permission";
 import { useText } from "@/hooks/use-text";
 import useToast from "@/hooks/use-toast";
 
-type Props = {
+type CheckPermissionProps = {
 	children?: React.ReactNode;
 	permissions: string[];
 };
 
-const CheckPermission = (props: Props) => {
+const CheckPermission = (props: CheckPermissionProps) => {
 	const { children, permissions } = props;
 	const { checkPermission } = usePermission();
 	const { token } = useAuth();

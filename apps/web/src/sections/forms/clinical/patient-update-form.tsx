@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
 import { usePatientStore } from "@/store/patient-store";
 
 const STATIC_INSTITUTIONS = [
@@ -60,7 +59,6 @@ const EditPatientForm = () => {
 	const [loading, setLoading] = React.useState(false);
 	const [loadingData, setLoadingData] = React.useState(true);
 	const [patient, setPatientState] = React.useState<Patient | null>(null);
-	const { errorToast } = useToast();
 	const { textGet } = useText();
 	const { setPatient } = usePatientStore();
 	const navigate = useNavigate();
@@ -71,7 +69,6 @@ const EditPatientForm = () => {
 		getPatientById(Number(id))
 			.then((res) => {
 				if (!res.success) {
-					errorToast(null, res.message);
 					navigate("/clinical");
 					return;
 				}
@@ -80,7 +77,7 @@ const EditPatientForm = () => {
 				}
 			})
 			.finally(() => setLoadingData(false));
-	}, [id, errorToast, navigate]);
+	}, [id, navigate]);
 
 	if (loadingData || !patient) {
 		return (
@@ -265,9 +262,7 @@ const EditPatientForm = () => {
 		};
 
 		const res = await updatePatient(Number(id), payload);
-		if (!res.success) {
-			errorToast(null, res.message);
-		} else {
+		if (res.success) {
 			if (res.data) {
 				setPatient(res.data as Patient);
 			}

@@ -8,11 +8,17 @@ import {
 
 const billingService = createHttpService(apiWithTenant);
 
-export interface CatalogService extends BaseModel {
+export interface CatalogItem extends BaseModel {
 	name: string;
-	code: string;
+	sku: string;
+	description: string;
 	unit_price: number;
-	tax: string;
+	tax: number;
+	tax_code: string;
+	tax_percentage_code: string;
+	ice_tax: number;
+	ice_tax_code: string;
+	ice_tax_percentage_code: string;
 }
 
 export interface InvoiceItem {
@@ -24,7 +30,7 @@ export interface InvoiceItem {
 	tax_rate: string;
 	ice_tax: number;
 	total: number;
-	product?: CatalogService;
+	product?: CatalogItem;
 }
 
 export interface Invoice extends BaseModel {
@@ -63,14 +69,34 @@ export type CreateInvoicePayload = {
 	emission_point_code?: string;
 };
 
+export type CreateCatalogItemPayload = {
+	name: string;
+	sku: string;
+	description?: string;
+	unit_price: number;
+	tax?: number;
+	tax_code?: string;
+	tax_percentage_code?: string;
+	ice_tax?: number;
+	ice_tax_code?: string;
+	ice_tax_percentage_code?: string;
+};
+
+export type UpdateCatalogItemPayload = Partial<CreateCatalogItemPayload>;
+
 export const getAllInvoices = async (): Promise<ServiceResponse<Invoice[]>> => {
-	return billingService.get<Invoice[]>("/billing/invoices");
+	return billingService.get<Invoice[]>("/billing/invoices", {
+		notifyError: true,
+	});
 };
 
 export const createInvoice = async (
 	payload: CreateInvoicePayload,
 ): Promise<ServiceResponse<Invoice>> => {
-	return billingService.post<Invoice>("/billing/invoices", payload);
+	return billingService.post<Invoice>("/billing/invoices", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
 };
 
 export const deleteInvoice = async (
@@ -78,23 +104,91 @@ export const deleteInvoice = async (
 ): Promise<ServiceResponse<null>> => {
 	return billingService.delete<null>(`/billing/invoices/${id}`, {
 		notifySuccess: true,
+		notifyError: true,
 	});
 };
 
 export const processInvoiceSRI = async (
 	id: number,
 ): Promise<ServiceResponse<null>> => {
-	return billingService.post<null>(`/billing/sri/process/${id}`, undefined, {
-		notifySuccess: true,
-	});
+	return billingService.post<null>(
+		`/billing/invoices/${id}/sri/process`,
+		undefined,
+		{
+			notifySuccess: true,
+			notifyError: true,
+		},
+	);
 };
 
 export const processMultipleInvoicesSRI = async (
 	ids: number[],
 ): Promise<ServiceResponse<null>> => {
 	return billingService.post<null>(
-		`/billing/sri/process`,
-		{ invoice_ids: ids },
-		{ notifySuccess: true },
+		`/billing/invoices/sri/process-batch`,
+		{ id_list: ids },
+		{
+			notifySuccess: true,
+			notifyError: true,
+		},
 	);
+};
+
+export const getAllCatalogItems = async (): Promise<
+	ServiceResponse<CatalogItem[]>
+> => {
+	return billingService.get<CatalogItem[]>("/billing/catalog-items", {
+		notifyError: true,
+	});
+};
+
+export const getCatalogItemById = async (
+	id: number,
+): Promise<ServiceResponse<CatalogItem>> => {
+	return billingService.get<CatalogItem>(`/billing/catalog-items/${id}`, {
+		notifyError: true,
+	});
+};
+
+export const createCatalogItem = async (
+	payload: CreateCatalogItemPayload,
+): Promise<ServiceResponse<CatalogItem>> => {
+	return billingService.post<CatalogItem>("/billing/catalog-items", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const updateCatalogItem = async (
+	id: number,
+	payload: UpdateCatalogItemPayload,
+): Promise<ServiceResponse<CatalogItem>> => {
+	return billingService.put<CatalogItem>(
+		`/billing/catalog-items/${id}`,
+		payload,
+		{
+			notifySuccess: true,
+			notifyError: true,
+		},
+	);
+};
+
+export const deleteCatalogItem = async (
+	id: number,
+): Promise<ServiceResponse<null>> => {
+	return billingService.delete<null>(`/billing/catalog-items/${id}`, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const getCatalogItems = async (
+	search?: string,
+): Promise<ServiceResponse<CatalogItem[]>> => {
+	const params = new URLSearchParams();
+	if (search) params.set("search", search);
+	const qs = params.toString() ? `?${params.toString()}` : "";
+	return billingService.get<CatalogItem[]>(`/billing/catalog-items${qs}`, {
+		notifyError: true,
+	});
 };

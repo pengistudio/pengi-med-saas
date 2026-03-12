@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/envelope"
@@ -49,25 +50,26 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 		EmissionPointCode: dto.EmissionPointCode,
 		Currency:          "USD",
 		DocumentCode:      "01",
+		IssueDate:         time.Now(),
 	}
 
 	if dto.PatientID != nil {
 		invoice.PatientID = *dto.PatientID
 	}
 
-	// Compute totals based on CatalogService (products)
+	// Compute totals based on CatalogItem (products)
 	var items []billing_models.InvoiceItem
 	var subtotalAcc, discountAcc, taxAcc, totalAcc float64
 
 	for _, itemDTO := range dto.Items {
-		var service billing_models.CatalogService
+		var service billing_models.CatalogItem
 		if err := h.db.Scopes(tenantScope).First(&service, itemDTO.ProductID).Error; err != nil {
 			h.logger.Error("Product/Service not found", zap.Uint("id", itemDTO.ProductID), zap.Error(err))
 			return envelope.ErrorResponse(http.StatusNotFound, "Product/Service not found", core_errors.ErrBillingProductNotFound)
 		}
 
 		qty := float64(itemDTO.Quantity)
-		subtotal := service.UnitPrice * qty // CatalogService has no discount property
+		subtotal := service.UnitPrice * qty // CatalogItem has no discount property
 		taxTotal := subtotal * service.Tax
 		total := subtotal + taxTotal
 

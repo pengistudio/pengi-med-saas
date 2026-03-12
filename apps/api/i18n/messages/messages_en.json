@@ -56,6 +56,18 @@
 		"value": "Please check the following fields"
 	},
 	{
+		"key": "common.days",
+		"value": "Days"
+	},
+	{
+		"key": "common.months",
+		"value": "Months"
+	},
+	{
+		"key": "common.years",
+		"value": "Years"
+	},
+	{
 		"key": "login.title",
 		"value": "Sign in"
 	},
@@ -2290,5 +2302,221 @@
 	{
 		"key": "billing.invoice.discount",
 		"value": "Discount"
+	},
+	{
+		"key": "billing.catalog-item.column.sku",
+		"value": "SKU"
+	},
+	{
+		"key": "billing.catalog-item.column.name",
+		"value": "Name"
+	},
+	{
+		"key": "billing.catalog-item.column.price",
+		"value": "Price"
+	},
+	{
+		"key": "billing.catalog-item.column.date",
+		"value": "Created At"
+	},
+	{
+		"key": "billing.catalog-item.create.button",
+		"value": "Create Product/Service"
+	},
+	{
+		"key": "billing.catalog-item.delete.description",
+		"value": "Are you sure you want to delete the selected products and services? This action cannot be undone."
+	},
+	{
+		"key": "billing.catalog-item.search.placeholder",
+		"value": "Search by SKU..."
+	},
+	{
+		"key": "billing.catalog-item.list.action.edit",
+		"value": "Edit"
+	},
+	{
+		"key": "billing.catalog-item.list.action.delete",
+		"value": "Delete"
+	},
+	{
+		"key": "dashboard.billing.catalog-items",
+		"value": "Products and Services"
+	},
+	{
+		"key": "billing.catalog-item.form.name",
+		"value": "Product/Service Name"
+	},
+	{
+		"key": "billing.catalog-item.form.sku",
+		"value": "SKU or Code"
+	},
+	{
+		"key": "billing.catalog-item.form.description",
+		"value": "Description"
+	},
+	{
+		"key": "billing.catalog-item.form.unit_price",
+		"value": "Unit Price"
+	},
+	{
+		"key": "billing.catalog-item.form.tax",
+		"value": "Tax (VAT)"
+	},
+	{
+		"key": "billing.catalog-item.form.ice_tax",
+		"value": "ICE Tax (Optional)"
+	},
+	{
+		"key": "billing.catalog-item.form.create.title",
+		"value": "Create Product/Service"
+	},
+	{
+		"key": "billing.catalog-item.form.create.description",
+		"value": "Fill out the fields below to register a new product or service in the catalog."
+	},
+	{
+		"key": "billing.catalog-item.form.edit.title",
+		"value": "Edit Product/Service"
+	},
+	{
+		"key": "billing.catalog-item.form.edit.description",
+		"value": "Modify the values and save your changes."
+	},
+	{
+		"key": "billing.catalog-item.form.submit.create",
+		"value": "Save Product"
+	},
+	{
+		"key": "billing.catalog-item.form.submit.edit",
+		"value": "Update Changes"
+	},
+	{
+		"key": "billing.catalog-item.form.error.required",
+		"value": "This field is required"
+	},
+	{
+		"key": "billing.catalog-item.form.error.positive",
+		"value": "Value must be positive"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.code",
+		"value": "Tax Type"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.code.placeholder",
+		"value": "Select tax"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.percentage",
+		"value": "Secondary Tax Percentage"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.percentage.placeholder",
+		"value": "Select percentage"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.apply",
+		"value": "Apply ICE"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.code",
+		"value": "ICE Code"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.code.placeholder",
+		"value": "Select code"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.percentage",
+		"value": "ICE Percentage"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.percentage.placeholder",
+		"value": "Select percentage"
+	},
+	{
+		"key": "tax.ice.search.placeholder",
+		"value": "Search ICE code..."
+	},
+	{
+		"key": "form.continue",
+		"value": "Continue"
+	},
+	{
+		"key": "common.no_results",
+		"value": "No results"
+	},
+	{
+		"key": "billing.invoices.processing.queued",
+		"value": "Processing queued"
+	},
+	{
+		"key": "billing.sri.info.tax_id.label",
+		"value": "Tax ID (RUC)"
+	},
+	{
+		"key": "billing.sri.info.trade_name.label",
+		"value": "Trade Name"
+	},
+	{
+		"key": "billing.sri.info.corporate_name.label",
+		"value": "Corporate Name"
+	},
+	{
+		"key": "billing.sri.info.address.label",
+		"value": "Main Address"
+	},
+	{
+		"key": "billing.sri.info.accounting_obliged.label",
+		"value": "Obliged to keep accounting"
+	},
+	{
+		"key": "billing.sri.company_info.title",
+		"value": "Company Information"
+	},
+	{
+		"key": "billing.sri.company_info.description",
+		"value": "Configure billing details such as Tax ID and corporate name."
+	},
+	{
+		"key": "tenant.sri_info.update.success",
+		"value": "SRI info updated successfully"
+	},
+	{
+		"key": "billing.status.signed",
+		"value": "Signed"
+	},
+	{
+		"key": "tenant.sri.status.fetch.success",
+		"value": "Your SRI configuration is up to date"
+	},
+	{
+		"key": "billing.invoice.establishment.code",
+		"value": "Establishment Code"
+	},
+	{
+		"key": "billing.invoice.establishment.code.placeholder",
+		"value": "e.g. 001"
+	},
+	{
+		"key": "billing.invoice.emission.point",
+		"value": "Emission Point"
+	},
+	{
+		"key": "billing.invoice.emission.point.placeholder",
+		"value": "e.g. 001"
+	},
+	{
+		"key": "billing.invoice.item.combobox.placeholder",
+		"value": "Type or select..."
+	},
+	{
+		"key": "billing.invoice.item.default.description",
+		"value": "Medical Consultation"
+	},
+	{
+		"key": "billing.catalog_item.load.error",
+		"value": "Could not load the product/service."
 	}
 ]

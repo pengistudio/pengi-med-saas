@@ -2,15 +2,18 @@ import {
 	Calendar,
 	FileKey,
 	Hospital,
+	Layers,
 	LayoutDashboard,
 	Receipt,
 	UsersRound,
 } from "lucide-react";
 import type React from "react";
+import { PERMISSIONS } from "@/lib/constants";
 
 export interface BaseNavItem {
 	label: string;
 	icon: React.ComponentType<{ className?: string }>;
+	permission?: string;
 }
 
 export type NavItemType =
@@ -44,6 +47,7 @@ export const createNavItems = (
 				icon: Calendar,
 			},
 		],
+		permission: PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_MEDICAL_RECORD,
 	},
 	{
 		icon: Receipt,
@@ -51,14 +55,20 @@ export const createNavItems = (
 		accordionItems: [
 			{
 				label: textGet("dashboard.billing.invoices"),
-				href: "/clinical/billing",
+				href: "/billing",
 				icon: Receipt,
 			},
 			{
 				label: textGet("dashboard.billing.settings"),
-				href: "/clinical/billing/settings",
+				href: "/billing/settings",
 				icon: FileKey,
 			},
+			{
+				label: textGet("dashboard.billing.catalog-items"),
+				href: "/billing/catalog-items",
+				icon: Layers,
+			},
 		],
+		permission: PERMISSIONS.BILLING.PERMISSION_READ_BILLING,
 	},
 ];

@@ -9,6 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
@@ -90,10 +91,26 @@ const SriSettingsPage = () => {
 								<SriSignatureForm onSuccess={fetchStatus} />
 							</CardContent>
 						</Card>
+
+						{status && (
+							<Card>
+								<CardHeader>
+									<CardTitle>
+										<Text uuid="billing.sri.company_info.title" />
+									</CardTitle>
+									<CardDescription>
+										<Text uuid="billing.sri.company_info.description" />
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<SriInfoForm initialData={status} onSuccess={fetchStatus} />
+								</CardContent>
+							</Card>
+						)}
 					</div>
 
-					{/* Add more SRI related settings here later (e.g environment, sequence start) */}
-					<Card className="bg-primary/5 border-primary/20 h-fit">
+					<div className="flex flex-col gap-6">
+						<Card className="bg-primary/5 border-primary/20 h-fit">
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2 text-primary">
 								<Info className="h-5 w-5" />
@@ -118,6 +135,7 @@ const SriSettingsPage = () => {
 							</div>
 						</CardContent>
 					</Card>
+					</div>
 				</div>
 			</main>
 		</DashboardLayout>
