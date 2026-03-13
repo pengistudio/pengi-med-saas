@@ -44,6 +44,19 @@ services:
     networks:
       - gentoo_network
 
+  icd-api:
+    image: whoicd/icd-api
+    container_name: icd-api
+    restart: on-failure
+    environment:
+      - acceptLicense=true
+      - saveAnalytics=false
+      - include=2026-01_en-es
+    ports:
+      - "8091:80"
+    networks:
+      - gentoo_network
+
   gotenberg:
     container_name: gotenberg-gentoo
     image: gotenberg/gotenberg:8

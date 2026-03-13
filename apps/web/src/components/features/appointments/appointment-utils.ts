@@ -16,6 +16,20 @@ export const STATUS_COLORS = {
 		dot: "bg-blue-500",
 		badge: "bg-blue-500/20 text-blue-700 dark:text-blue-400",
 	},
+	arrived: {
+		bg: "bg-amber-500/15",
+		border: "border-amber-500",
+		text: "text-amber-700 dark:text-amber-400",
+		dot: "bg-amber-500",
+		badge: "bg-amber-500/20 text-amber-700 dark:text-amber-400",
+	},
+	in_consultation: {
+		bg: "bg-violet-500/15",
+		border: "border-violet-500",
+		text: "text-violet-700 dark:text-violet-400",
+		dot: "bg-violet-500",
+		badge: "bg-violet-500/20 text-violet-700 dark:text-violet-400",
+	},
 	completed: {
 		bg: "bg-emerald-500/15",
 		border: "border-emerald-500",
@@ -42,6 +56,8 @@ export function getStatusColor(status: string) {
 
 export const STATUS_I18N_KEYS: Record<string, string> = {
 	scheduled: "appointments.status.scheduled",
+	arrived: "appointments.status.arrived",
+	in_consultation: "appointments.status.in_consultation",
 	completed: "appointments.status.completed",
 	cancelled: "appointments.status.cancelled",
 };

@@ -2,6 +2,7 @@ package clinical_handlers
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -204,6 +205,19 @@ func generatePatientReportPDF(patient *clinical_models.Patient) ([]byte, error) 
 				addSOAPField(pdf, "O (Objetivo):", record.SOAPRecord.Objective)
 				addSOAPField(pdf, "A (Analisis):", record.SOAPRecord.Assessment)
 				addSOAPField(pdf, "P (Plan):", record.SOAPRecord.Plan)
+			}
+
+			// Diagnoses
+			var diagnoses []clinical_models.DiagnosisItem
+			if json.Unmarshal(record.Diagnoses, &diagnoses) == nil && len(diagnoses) > 0 {
+					pdf.SetFont("Arial", "B", 11)
+					pdf.SetTextColor(41, 128, 185)
+					pdf.Cell(0, 6, "Diagnosticos CIE-11:")
+					pdf.SetTextColor(0, 0, 0)
+					pdf.Ln(6)
+					for _, d := range diagnoses {
+						addSOAPField(pdf, d.Code+":", d.Title)
+					}
 			}
 
 			// Observations

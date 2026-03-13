@@ -107,13 +107,17 @@ export const validateHandler = async (req: Request, res: Response) => {
 
 		logger.info("Validation result", { estado, statusCode });
 
-		res.status(statusCode).json({ status: estado, message: result?.mensaje, statusCode });
+		res
+			.status(statusCode)
+			.json({ status: estado, message: result?.mensaje, statusCode });
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 
 		// SRI already has this key in processing — treat as received (proceed to authorization)
 		if (message.toUpperCase().includes("EN PROCESAMIENTO")) {
-			logger.info("SRI key already in processing, treating as RECIBIDA", { env: sriEnv });
+			logger.info("SRI key already in processing, treating as RECIBIDA", {
+				env: sriEnv,
+			});
 			res.status(200).json({ status: "RECIBIDA", message, statusCode: 200 });
 			return;
 		}
@@ -137,14 +141,20 @@ export const authorizeHandler = async (req: Request, res: Response) => {
 	}
 
 	try {
-		const authorization = await signerService.authorize({ accessKey, env: sriEnv });
+		const authorization = await signerService.authorize({
+			accessKey,
+			env: sriEnv,
+		});
 		const estado =
-			(authorization as unknown as Record<string, unknown>)?.estado ?? "UNKNOWN";
+			(authorization as unknown as Record<string, unknown>)?.estado ??
+			"UNKNOWN";
 		const isAuthorized =
 			typeof estado === "string" ? estado.toUpperCase() === "AUTORIZADO" : true;
 		const statusCode = isAuthorized ? 200 : 422;
 
-		res.status(statusCode).json({ ...authorization, status: estado, statusCode });
+		res
+			.status(statusCode)
+			.json({ ...authorization, status: estado, statusCode });
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		logger.warn("SRI authorization error", { message, accessKey, env: sriEnv });

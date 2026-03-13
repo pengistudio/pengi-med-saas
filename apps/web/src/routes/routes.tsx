@@ -10,6 +10,7 @@ import EditCatalogItemPage from "@/pages/billing/edit-catalog-item";
 import InvoiceListPage from "@/pages/billing/invoice-list";
 import SriSettingsPage from "@/pages/billing/sri-settings";
 import AppointmentsPage from "@/pages/clincal/appointments/appointments";
+import WaitingRoomPage from "@/pages/clincal/waiting-room/waiting-room";
 import CreateMedicalRecordPage from "@/pages/clincal/patient/create-medical-record";
 import CreatePatientPage from "@/pages/clincal/patient/create-patient";
 import EditPatientPage from "@/pages/clincal/patient/edit-patient";
@@ -103,6 +104,10 @@ const clinicalRoutes: RouteObject = {
 		{
 			path: "appointments",
 			element: <AppointmentsPage />,
+		},
+		{
+			path: "waiting-room",
+			element: <WaitingRoomPage />,
 		},
 	],
 };

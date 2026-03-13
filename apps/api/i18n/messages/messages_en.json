@@ -176,6 +176,10 @@
 		"value": "Appointments"
 	},
 	{
+		"key": "dashboard.clinical.waiting_room",
+		"value": "Waiting Room"
+	},
+	{
 		"key": "E-CLIN-001",
 		"value": "Patient not found."
 	},
@@ -984,6 +988,10 @@
 		"value": "Download Prescription"
 	},
 	{
+		"key": "view.medical_record.prescription.whatsapp",
+		"value": "Send via WhatsApp"
+	},
+	{
 		"key": "clinical.medical_record.view",
 		"value": "View Record"
 	},
@@ -1149,15 +1157,55 @@
 	},
 	{
 		"key": "appointments.status.scheduled",
-		"value": "Scheduled"
+		"value": "Incoming"
+	},
+	{
+		"key": "appointments.status.arrived",
+		"value": "In waiting room"
+	},
+	{
+		"key": "appointments.status.in_consultation",
+		"value": "In consultation"
 	},
 	{
 		"key": "appointments.status.completed",
-		"value": "Completed"
+		"value": "Attended"
 	},
 	{
 		"key": "appointments.status.cancelled",
 		"value": "Cancelled"
+	},
+	{
+		"key": "waiting_room.title",
+		"value": "Waiting Room"
+	},
+	{
+		"key": "waiting_room.refresh",
+		"value": "Refresh"
+	},
+	{
+		"key": "waiting_room.empty_column",
+		"value": "No patients"
+	},
+	{
+		"key": "waiting_room.unknown_patient",
+		"value": "Unknown patient"
+	},
+	{
+		"key": "waiting_room.card.records",
+		"value": "Records"
+	},
+	{
+		"key": "waiting_room.advance.arrived",
+		"value": "Arrived"
+	},
+	{
+		"key": "waiting_room.advance.in_consultation",
+		"value": "In consultation"
+	},
+	{
+		"key": "waiting_room.advance.completed",
+		"value": "Attended"
 	},
 	{
 		"key": "appointments.action.edit",
@@ -2766,5 +2814,25 @@
 	{
 		"key": "clinical.medical_record.vital_signs",
 		"value": "Vital Signs"
+	},
+	{
+		"key": "clinical.icd11.search.success",
+		"value": "Search completed"
+	},
+	{
+		"key": "clinical.medical_record.diagnoses",
+		"value": "Diagnoses"
+	},
+	{
+		"key": "form.create_medical_record.diagnoses",
+		"value": "ICD-11 Diagnoses"
+	},
+	{
+		"key": "form.create_medical_record.diagnoses.placeholder",
+		"value": "Search diagnosis..."
+	},
+	{
+		"key": "form.create_medical_record.diagnoses.empty",
+		"value": "No results found"
 	}
 ]

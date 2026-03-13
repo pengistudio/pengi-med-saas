@@ -148,7 +148,7 @@ export interface Appointment extends BaseModel {
 	end_time: string;
 	location?: string;
 	notes?: string;
-	status: "scheduled" | "completed" | "cancelled";
+	status: "scheduled" | "arrived" | "in_consultation" | "completed" | "cancelled";
 	patient?: Patient;
 }
 
@@ -421,6 +421,14 @@ export const updateAppointmentStatus = async (
 		{ status },
 		{ notifySuccess: true, notifyError: true },
 	);
+};
+
+export const getTodayAppointments = async (): Promise<
+	ServiceResponse<Appointment[]>
+> => {
+	return clinicalService.get<Appointment[]>("/clinical/appointments/today", {
+		notifyError: true,
+	});
 };
 
 export const deleteAppointment = async (

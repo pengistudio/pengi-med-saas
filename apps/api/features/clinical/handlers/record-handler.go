@@ -50,7 +50,7 @@ func (h *MedicalRecordHandler) GetMedicalRecord(c *gin.Context) envelope.Respons
 	}
 
 	var record clinical_models.MedicalRecord
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").First(&record, id).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").Preload("Patient").First(&record, id).Error; err != nil {
 		h.logger.Error("Failed to fetch medical record", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
 	}
@@ -72,6 +72,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		PatientID:     newRecord.PatientID,
 		AppointmentID: newRecord.AppointmentID,
 		SOAPRecord:    newRecord.SOAPRecord,
+		Diagnoses:     newRecord.Diagnoses,
 	}
 
 	// Create prescription if provided
@@ -139,6 +140,9 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 	if updatedRecord.Observation != nil {
 		record["observation"] = *updatedRecord.Observation
+	}
+	if updatedRecord.Diagnoses != nil {
+		record["diagnoses"] = updatedRecord.Diagnoses
 	}
 
 	// Update MedicalRecord fields

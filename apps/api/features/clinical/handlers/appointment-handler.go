@@ -7,6 +7,7 @@ import (
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -39,6 +40,23 @@ func (h *AppointmentHandler) GetAppointments(c *gin.Context) envelope.Response {
 	var appointments []clinical_models.Appointment
 	if err := query.Order("date ASC, start_time ASC").Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get appointments", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthInvalidRequest)
+	}
+
+	return envelope.SuccessResponse(appointments, "appointments.get.success")
+}
+
+// GetTodayAppointments returns all appointments for today grouped by status (for waiting room board)
+func (h *AppointmentHandler) GetTodayAppointments(c *gin.Context) envelope.Response {
+	tenantID, _ := c.Get("tenant_id")
+	today := time.Now().Format("2006-01-02")
+
+	var appointments []clinical_models.Appointment
+	if err := h.db.Where("tenant_id = ? AND DATE(date) = ?", tenantID, today).
+		Preload("Patient").
+		Order("start_time ASC").
+		Find(&appointments).Error; err != nil {
+		h.logger.Error("Failed to get today's appointments", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
 
@@ -185,9 +203,15 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 	}
 
 	// Validate status
-	validStatuses := map[string]bool{"scheduled": true, "completed": true, "cancelled": true}
+	validStatuses := map[string]bool{
+		"scheduled":       true,
+		"arrived":         true,
+		"in_consultation": true,
+		"completed":       true,
+		"cancelled":       true,
+	}
 	if !validStatuses[dto.Status] {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid status. Must be: scheduled, completed, or cancelled", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid status. Must be: scheduled, arrived, in_consultation, completed, or cancelled", core_errors.ErrAuthInvalidRequest)
 	}
 
 	var appointment clinical_models.Appointment

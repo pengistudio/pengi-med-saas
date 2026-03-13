@@ -5,6 +5,7 @@ import {
 	Layers,
 	LayoutDashboard,
 	Receipt,
+	SquareActivity,
 	UsersRound,
 } from "lucide-react";
 import type React from "react";
@@ -45,6 +46,11 @@ export const createNavItems = (
 				label: textGet("dashboard.clinical.appointments"),
 				href: "/clinical/appointments",
 				icon: Calendar,
+			},
+			{
+				label: textGet("dashboard.clinical.waiting_room"),
+				href: "/clinical/waiting-room",
+				icon: SquareActivity,
 			},
 		],
 		permission: PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_MEDICAL_RECORD,

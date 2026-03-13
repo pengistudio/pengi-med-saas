@@ -176,6 +176,10 @@
 		"value": "Citas"
 	},
 	{
+		"key": "dashboard.clinical.waiting_room",
+		"value": "Sala de Espera"
+	},
+	{
 		"key": "E-CLIN-001",
 		"value": "Paciente no encontrado."
 	},
@@ -984,6 +988,10 @@
 		"value": "Descargar Receta"
 	},
 	{
+		"key": "view.medical_record.prescription.whatsapp",
+		"value": "Enviar por WhatsApp"
+	},
+	{
 		"key": "clinical.medical_record.view",
 		"value": "Ver Registro"
 	},
@@ -1149,15 +1157,55 @@
 	},
 	{
 		"key": "appointments.status.scheduled",
-		"value": "Agendada"
+		"value": "Por llegar"
+	},
+	{
+		"key": "appointments.status.arrived",
+		"value": "En sala de espera"
+	},
+	{
+		"key": "appointments.status.in_consultation",
+		"value": "En consulta"
 	},
 	{
 		"key": "appointments.status.completed",
-		"value": "Completada"
+		"value": "Atendido"
 	},
 	{
 		"key": "appointments.status.cancelled",
 		"value": "Cancelada"
+	},
+	{
+		"key": "waiting_room.title",
+		"value": "Sala de Espera"
+	},
+	{
+		"key": "waiting_room.refresh",
+		"value": "Actualizar"
+	},
+	{
+		"key": "waiting_room.empty_column",
+		"value": "Sin pacientes"
+	},
+	{
+		"key": "waiting_room.unknown_patient",
+		"value": "Paciente desconocido"
+	},
+	{
+		"key": "waiting_room.card.records",
+		"value": "Historial"
+	},
+	{
+		"key": "waiting_room.advance.arrived",
+		"value": "Llegó"
+	},
+	{
+		"key": "waiting_room.advance.in_consultation",
+		"value": "En consulta"
+	},
+	{
+		"key": "waiting_room.advance.completed",
+		"value": "Atendido"
 	},
 	{
 		"key": "appointments.action.edit",
@@ -2766,5 +2814,25 @@
 	{
 		"key": "clinical.medical_record.vital_signs",
 		"value": "Signos Vitales"
+	},
+	{
+		"key": "clinical.icd11.search.success",
+		"value": "Búsqueda completada"
+	},
+	{
+		"key": "clinical.medical_record.diagnoses",
+		"value": "Diagnósticos"
+	},
+	{
+		"key": "form.create_medical_record.diagnoses",
+		"value": "Diagnósticos CIE-11"
+	},
+	{
+		"key": "form.create_medical_record.diagnoses.placeholder",
+		"value": "Buscar diagnóstico..."
+	},
+	{
+		"key": "form.create_medical_record.diagnoses.empty",
+		"value": "No se encontraron resultados"
 	}
 ]
