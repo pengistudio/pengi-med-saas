@@ -1,10 +1,12 @@
 import {
 	Activity,
 	ArrowLeft,
+	BookOpen,
 	Calendar,
 	ClipboardList,
 	Download,
 	FileText,
+	MessageCircle,
 	Pill,
 	Stethoscope,
 } from "lucide-react";
@@ -16,6 +18,7 @@ import {
 	type MedicalRecord,
 } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -28,7 +31,11 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
-import { dateParser } from "@/lib/utils";
+import {
+	buildPrescriptionWhatsAppMessage,
+	dateParser,
+	generateWhatsAppLink,
+} from "@/lib/utils";
 
 const ViewMedicalRecord = () => {
 	const navigate = useNavigate();
@@ -38,6 +45,25 @@ const ViewMedicalRecord = () => {
 	const [showPrescription, setShowPrescription] = React.useState(false);
 	const [isDownloading, setIsDownloading] = React.useState(false);
 	const { textGet } = useText();
+
+	const handleSendWhatsApp = () => {
+		const phone = medicalRecord?.patient?.phone;
+		if (!phone) return;
+		const message = buildPrescriptionWhatsAppMessage({
+			patientName:
+				`${medicalRecord.patient?.first_name ?? ""} ${medicalRecord.patient?.last_name ?? ""}`.trim(),
+			date: dateParser(new Date(medicalRecord.date), { dateStyle: "medium" }),
+			items: medicalRecord.prescription?.items?.map((item) => ({
+				medication: item.medication,
+				dose: item.dose,
+				frequency: item.frequency,
+				duration: item.duration,
+				notes: item.notes,
+			})),
+			indications: medicalRecord.prescription?.indications,
+		});
+		window.open(generateWhatsAppLink(phone, message), "_blank");
+	};
 
 	const handleDownloadPrescription = async () => {
 		if (!id) return;
@@ -49,7 +75,7 @@ const ViewMedicalRecord = () => {
 			tempLink.href = blobUrl;
 			// El nombre exacto nos lo da el backend en Content-Disposition si usamos Axios default y leemos headers,
 			// pero desde el frontend es más facil forzar un nombre generico + id
-			tempLink.download = `receta_${id}.pdf`;
+			tempLink.download = response.filename ?? `receta_${id}.pdf`;
 			document.body.appendChild(tempLink);
 			tempLink.click();
 			document.body.removeChild(tempLink);
@@ -277,40 +303,103 @@ const ViewMedicalRecord = () => {
 							<div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
 								{medicalRecord.vital_signs.weight != null && (
 									<div className="space-y-1">
-										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.weight")}</p>
-										<p className="font-semibold">{medicalRecord.vital_signs.weight} kg</p>
+										<p className="text-muted-foreground font-medium">
+											{textGet("view.medical_record.vital_signs.weight")}
+										</p>
+										<p className="font-semibold">
+											{medicalRecord.vital_signs.weight} kg
+										</p>
 									</div>
 								)}
 								{medicalRecord.vital_signs.height != null && (
 									<div className="space-y-1">
-										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.height")}</p>
-										<p className="font-semibold">{medicalRecord.vital_signs.height} cm</p>
+										<p className="text-muted-foreground font-medium">
+											{textGet("view.medical_record.vital_signs.height")}
+										</p>
+										<p className="font-semibold">
+											{medicalRecord.vital_signs.height} cm
+										</p>
 									</div>
 								)}
 								{medicalRecord.vital_signs.blood_pressure && (
 									<div className="space-y-1">
-										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.blood_pressure")}</p>
-										<p className="font-semibold">{medicalRecord.vital_signs.blood_pressure} mmHg</p>
+										<p className="text-muted-foreground font-medium">
+											{textGet(
+												"view.medical_record.vital_signs.blood_pressure",
+											)}
+										</p>
+										<p className="font-semibold">
+											{medicalRecord.vital_signs.blood_pressure} mmHg
+										</p>
 									</div>
 								)}
 								{medicalRecord.vital_signs.temperature != null && (
 									<div className="space-y-1">
-										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.temperature")}</p>
-										<p className="font-semibold">{medicalRecord.vital_signs.temperature} °C</p>
+										<p className="text-muted-foreground font-medium">
+											{textGet("view.medical_record.vital_signs.temperature")}
+										</p>
+										<p className="font-semibold">
+											{medicalRecord.vital_signs.temperature} °C
+										</p>
 									</div>
 								)}
 								{medicalRecord.vital_signs.heart_rate != null && (
 									<div className="space-y-1">
-										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.heart_rate")}</p>
-										<p className="font-semibold">{medicalRecord.vital_signs.heart_rate} bpm</p>
+										<p className="text-muted-foreground font-medium">
+											{textGet("view.medical_record.vital_signs.heart_rate")}
+										</p>
+										<p className="font-semibold">
+											{medicalRecord.vital_signs.heart_rate} bpm
+										</p>
 									</div>
 								)}
 								{medicalRecord.vital_signs.o2_saturation != null && (
 									<div className="space-y-1">
-										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.o2_saturation")}</p>
-										<p className="font-semibold">{medicalRecord.vital_signs.o2_saturation}%</p>
+										<p className="text-muted-foreground font-medium">
+											{textGet("view.medical_record.vital_signs.o2_saturation")}
+										</p>
+										<p className="font-semibold">
+											{medicalRecord.vital_signs.o2_saturation}%
+										</p>
 									</div>
 								)}
+							</div>
+						</CardContent>
+					</Card>
+				</>
+			)}
+
+			{/* Diagnoses */}
+			{(medicalRecord.diagnoses?.length ?? 0) > 0 && (
+				<>
+					<Separator />
+					<Card className="border-l-4 border-l-blue-500">
+						<CardHeader>
+							<div className="flex items-center gap-3">
+								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-primary-foreground">
+									<BookOpen className="h-4 w-4" />
+								</div>
+								<div>
+									<CardTitle className="text-lg">
+										<Text uuid="clinical.medical_record.diagnoses" />
+									</CardTitle>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<div className="flex flex-wrap gap-2">
+								{medicalRecord.diagnoses?.map((d) => (
+									<Badge
+										key={d.code}
+										variant="outline"
+										className="gap-1.5 py-1"
+									>
+										<span className="font-mono text-xs text-muted-foreground">
+											{d.code}
+										</span>
+										<span>{d.title}</span>
+									</Badge>
+								))}
 							</div>
 						</CardContent>
 					</Card>
@@ -345,27 +434,52 @@ const ViewMedicalRecord = () => {
 									</p>
 									<div className="divide-y rounded-md border text-sm">
 										{medicalRecord.prescription.items?.map((item) => (
-											<div key={item.ID} className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3">
+											<div
+												key={item.ID}
+												className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3"
+											>
 												<div>
-													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.medication")}</span>
+													<span className="text-muted-foreground block text-xs">
+														{textGet(
+															"view.medical_record.prescription.item.medication",
+														)}
+													</span>
 													<span className="font-medium">{item.medication}</span>
 												</div>
 												<div>
-													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.dose")}</span>
+													<span className="text-muted-foreground block text-xs">
+														{textGet(
+															"view.medical_record.prescription.item.dose",
+														)}
+													</span>
 													<span>{item.dose}</span>
 												</div>
 												<div>
-													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.frequency")}</span>
+													<span className="text-muted-foreground block text-xs">
+														{textGet(
+															"view.medical_record.prescription.item.frequency",
+														)}
+													</span>
 													<span>{item.frequency}</span>
 												</div>
 												<div>
-													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.duration")}</span>
+													<span className="text-muted-foreground block text-xs">
+														{textGet(
+															"view.medical_record.prescription.item.duration",
+														)}
+													</span>
 													<span>{item.duration}</span>
 												</div>
 												{item.notes && (
 													<div className="col-span-2 md:col-span-4">
-														<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.notes")}</span>
-														<span className="text-muted-foreground">{item.notes}</span>
+														<span className="text-muted-foreground block text-xs">
+															{textGet(
+																"view.medical_record.prescription.item.notes",
+															)}
+														</span>
+														<span className="text-muted-foreground">
+															{item.notes}
+														</span>
 													</div>
 												)}
 											</div>
@@ -393,6 +507,12 @@ const ViewMedicalRecord = () => {
 									)}
 									<Text uuid="view.medical_record.prescription.download" />
 								</Button>
+								{medicalRecord.patient?.phone && (
+									<Button variant="outline" onClick={handleSendWhatsApp}>
+										<MessageCircle className="h-4 w-4 mr-2" />
+										<Text uuid="view.medical_record.prescription.whatsapp" />
+									</Button>
+								)}
 							</div>
 						</CardContent>
 					</Card>

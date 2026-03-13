@@ -30,12 +30,15 @@ export function SriSignatureForm({ onSuccess }: { onSuccess?: () => void }) {
 
 	async function onSubmit(values: z.infer<typeof sriSchema>) {
 		setLoading(true);
-		const response = await uploadSriSignature(values.file, values.password);
-		if (response.success) {
-			form.reset();
-			if (onSuccess) onSuccess();
+		try {
+			const response = await uploadSriSignature(values.file, values.password);
+			if (response.success) {
+				form.reset();
+				if (onSuccess) onSuccess();
+			}
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	}
 
 	return (

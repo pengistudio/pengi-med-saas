@@ -19,7 +19,10 @@ type FormTagInputProps<
 	T extends z.ZodType<Output, Input>,
 	Output = z.output<T>,
 	Input extends FieldValues = z.input<T>,
-> = Omit<React.InputHTMLAttributes<HTMLInputElement>, "name" | "value" | "onChange"> & {
+> = Omit<
+	React.InputHTMLAttributes<HTMLInputElement>,
+	"name" | "value" | "onChange"
+> & {
 	field: UseFormReturn<Input>;
 	name: Path<Input>;
 	label?: string;
@@ -84,9 +87,9 @@ function FormTagInput<
 						<div className="flex flex-col gap-2">
 							{tags.length > 0 && (
 								<div className="flex flex-wrap gap-1.5">
-									{tags.map((tag, index) => (
+									{tags.map((tag) => (
 										<span
-											key={`${tag}-${index}`}
+											key={tag}
 											className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2.5 py-0.5 text-xs font-medium"
 										>
 											{tag}
@@ -106,6 +109,7 @@ function FormTagInput<
 													strokeWidth="2.5"
 													strokeLinecap="round"
 													strokeLinejoin="round"
+													aria-hidden="true"
 												>
 													<path d="M18 6 6 18" />
 													<path d="m6 6 12 12" />

@@ -18,6 +18,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+
 const STATIC_INSTITUTIONS = [
 	{ label: "Solca", value: "Solca" },
 	{ label: "Fundacen", value: "Fundacen" },
@@ -202,11 +203,14 @@ const CreatePatientForm = () => {
 			...values,
 		};
 
-		const res = await createPatient(payload);
-		if (res.success) {
-			navigate("/clinical");
+		try {
+			const res = await createPatient(payload);
+			if (res.success) {
+				navigate("/clinical");
+			}
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	}
 };
 

@@ -72,7 +72,10 @@ export const downloadPatientReport = async (id: number): Promise<void> => {
 		const url = window.URL.createObjectURL(new Blob([response.data]));
 		const link = document.createElement("a");
 		link.href = url;
-		link.setAttribute("download", `patient_report_${id}.pdf`);
+		link.setAttribute(
+			"download",
+			response.filename ?? `patient_report_${id}.pdf`,
+		);
 		link.click();
 		link.remove();
 	}
@@ -149,6 +152,11 @@ export interface Appointment extends BaseModel {
 	patient?: Patient;
 }
 
+export interface DiagnosisItem {
+	code: string;
+	title: string;
+}
+
 export interface VitalSigns extends BaseModel {
 	medical_record_id: number;
 	weight?: number | null;
@@ -187,6 +195,7 @@ export interface MedicalRecord extends BaseModel {
 		items?: PrescriptionItem[];
 	} | null;
 	vital_signs?: VitalSigns | null;
+	diagnoses?: DiagnosisItem[];
 }
 
 export const getMedicalRecords = async (
@@ -257,6 +266,7 @@ export type CreateMedicalRecordPayload = {
 		heart_rate?: number | null;
 		o2_saturation?: number | null;
 	};
+	diagnoses?: DiagnosisItem[];
 };
 
 export const createMedicalRecord = async (
@@ -279,6 +289,7 @@ export type UpdateMedicalRecordPayload = {
 		assessment: string;
 		plan: string;
 	};
+	diagnoses?: DiagnosisItem[];
 };
 
 export const updateMedicalRecord = async (
@@ -331,6 +342,15 @@ export const upsertVitalSigns = async (
 		`/clinical/records/${recordId}/vital-signs`,
 		payload,
 		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const searchICD11 = async (
+	q: string,
+): Promise<ServiceResponse<DiagnosisItem[]>> => {
+	return clinicalService.get<DiagnosisItem[]>(
+		`/clinical/icd11/search?q=${encodeURIComponent(q)}`,
+		{ notifyError: true },
 	);
 };
 

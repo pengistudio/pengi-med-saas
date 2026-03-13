@@ -21,6 +21,7 @@ type BaseResponse = {
 export type SuccessResponse<T> = BaseResponse & {
 	success: true;
 	data: T;
+	filename?: string;
 };
 
 export type ErrorResponse = BaseResponse & {
@@ -146,11 +147,16 @@ export class HttpService {
 							: message,
 					);
 				}
+				const disposition: string =
+					response.headers["content-disposition"] ?? "";
+				const filenameMatch = disposition.match(/filename=([^;]+)/);
+				const filename = filenameMatch ? filenameMatch[1].trim() : undefined;
 				return {
 					success: true,
 					code: response.status,
 					message: message,
 					data: response.data as unknown as T,
+					filename,
 				};
 			}
 

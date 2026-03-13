@@ -272,14 +272,17 @@ const EditPatientForm = () => {
 			...values,
 		};
 
-		const res = await updatePatient(Number(id), payload);
-		if (res.success) {
-			if (res.data) {
-				setPatient(res.data as Patient);
+		try {
+			const res = await updatePatient(Number(id), payload);
+			if (res.success) {
+				if (res.data) {
+					setPatient(res.data as Patient);
+				}
+				navigate(-1 as unknown as string);
 			}
-			navigate(-1 as unknown as string);
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	}
 };
 

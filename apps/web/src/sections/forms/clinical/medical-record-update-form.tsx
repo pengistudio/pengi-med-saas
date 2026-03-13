@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
+
 const formSchema = z.object({
 	date: z.date({ error: "Campo requerido" }),
 	motive: z
@@ -264,11 +265,14 @@ const UpdateMedicalRecordForm = () => {
 			soap_record: values.soap_record,
 		};
 
-		const res = await updateMedicalRecord(Number(id), payload);
-		if (res.success) {
-			navigate(-1 as unknown as string);
+		try {
+			const res = await updateMedicalRecord(Number(id), payload);
+			if (res.success) {
+				navigate(-1 as unknown as string);
+			}
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	}
 };
 

@@ -147,4 +147,4 @@ function FormPasswordInput<
 	);
 }
 
-export { PasswordInput, FormPasswordInput };
+export { FormPasswordInput, PasswordInput };

@@ -114,11 +114,14 @@ export function InvoiceForm() {
 			total: total,
 		};
 
-		const res = await createInvoice(payload);
-		if (res.success) {
-			navigate("/billing");
+		try {
+			const res = await createInvoice(payload);
+			if (res.success) {
+				navigate("/billing");
+			}
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	}
 
 	return (

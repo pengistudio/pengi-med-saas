@@ -85,9 +85,7 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 								</Badge>
 							)}
 							{parseAllergies(patient.allergies).length > 0 && (
-								<Badge
-									className="px-4 py-1 shrink-0 hover:cursor-default bg-amber-500 hover:bg-amber-500 text-white"
-								>
+								<Badge className="px-4 py-1 shrink-0 hover:cursor-default bg-amber-500 hover:bg-amber-500 text-white">
 									<AlertTriangle className="h-4 w-4 mr-1" />
 									<Text uuid="clinical.patient_card.has_allergies" />
 								</Badge>
@@ -194,29 +192,29 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 					</div>
 
 					{parseAllergies(patient.allergies).length > 0 && (
-					<>
-						<Separator />
-						<div className="space-y-3">
-							<h3 className="font-semibold flex items-center gap-2 text-sm text-amber-600">
-								<AlertTriangle className="h-4 w-4" />
-								<Text uuid="clinical.patient_card.allergies" />
-							</h3>
-							<div className="flex flex-wrap gap-2">
-								{parseAllergies(patient.allergies).map((allergy) => (
-									<Badge
-										key={allergy}
-										className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100"
-										variant="outline"
-									>
-										{allergy}
-									</Badge>
-								))}
+						<>
+							<Separator />
+							<div className="space-y-3">
+								<h3 className="font-semibold flex items-center gap-2 text-sm text-amber-600">
+									<AlertTriangle className="h-4 w-4" />
+									<Text uuid="clinical.patient_card.allergies" />
+								</h3>
+								<div className="flex flex-wrap gap-2">
+									{parseAllergies(patient.allergies).map((allergy) => (
+										<Badge
+											key={allergy}
+											className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100"
+											variant="outline"
+										>
+											{allergy}
+										</Badge>
+									))}
+								</div>
 							</div>
-						</div>
-					</>
-				)}
+						</>
+					)}
 
-				{patient.latest_prescription && (
+					{patient.latest_prescription && (
 						<>
 							<Separator />
 
@@ -337,7 +335,10 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 
 function parseAllergies(allergies?: string): string[] {
 	if (!allergies?.trim()) return [];
-	return allergies.split(',').map((a) => a.trim()).filter(Boolean);
+	return allergies
+		.split(",")
+		.map((a) => a.trim())
+		.filter(Boolean);
 }
 
 function formatGender(

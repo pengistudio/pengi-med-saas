@@ -1,11 +1,13 @@
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
 	Activity,
+	BookOpen,
 	CopyPlus,
 	Download,
 	Edit,
 	Eye,
 	FileSearch,
+	MessageCircle,
 	MoreVertical,
 	Pill,
 	Plus,
@@ -34,6 +36,7 @@ interface ActionCellProps {
 	onViewPrescription?: (record: MedicalRecord) => void;
 	onEditPrescription?: (record: MedicalRecord) => void;
 	onDownloadPrescription?: (record: MedicalRecord) => void;
+	onSendWhatsApp?: (record: MedicalRecord) => void;
 }
 
 function ActionsCell({
@@ -43,6 +46,7 @@ function ActionsCell({
 	onViewPrescription,
 	onEditPrescription,
 	onDownloadPrescription,
+	onSendWhatsApp,
 }: ActionCellProps) {
 	const { checkPermission } = usePermission();
 	const hasPrescription = !!row.original.prescription;
@@ -106,6 +110,10 @@ function ActionsCell({
 								<Download className="w-4 h-4 mr-2" />
 								<Text uuid="view.medical_record.prescription.download" />
 							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => onSendWhatsApp?.(row.original)}>
+								<MessageCircle className="w-4 h-4 mr-2" />
+								<Text uuid="view.medical_record.prescription.whatsapp" />
+							</DropdownMenuItem>
 						</>
 					) : (
 						checkPermission([
@@ -131,6 +139,7 @@ export const getMedicalRecordColumns = (
 	onViewPrescription?: (record: MedicalRecord) => void,
 	onEditPrescription?: (record: MedicalRecord) => void,
 	onDownloadPrescription?: (record: MedicalRecord) => void,
+	onSendWhatsApp?: (record: MedicalRecord) => void,
 ): ColumnDef<MedicalRecord>[] => [
 	{
 		cell: ({ row }) => (
@@ -196,6 +205,23 @@ export const getMedicalRecordColumns = (
 		},
 	},
 	{
+		id: "diagnoses",
+		header: () => <Text uuid="clinical.medical_record.diagnoses" />,
+		meta: { title: "table.column.diagnoses" },
+		size: 80,
+		cell: ({ row }) => {
+			const count = row.original.diagnoses?.length ?? 0;
+			return count > 0 ? (
+				<span className="inline-flex items-center gap-1 text-blue-500">
+					<BookOpen className="w-4 h-4" />
+					<span className="text-xs font-medium">{count}</span>
+				</span>
+			) : (
+				<span className="text-muted-foreground">-</span>
+			);
+		},
+	},
+	{
 		id: "prescription",
 		header: () => <Text uuid="clinical.medical_record.prescription" />,
 		meta: { title: "table.column.prescription" },
@@ -218,6 +244,7 @@ export const getMedicalRecordColumns = (
 				onViewPrescription={onViewPrescription}
 				onEditPrescription={onEditPrescription}
 				onDownloadPrescription={onDownloadPrescription}
+				onSendWhatsApp={onSendWhatsApp}
 			/>
 		),
 		size: 50,

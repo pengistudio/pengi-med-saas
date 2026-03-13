@@ -111,30 +111,30 @@ const SriSettingsPage = () => {
 
 					<div className="flex flex-col gap-6">
 						<Card className="bg-primary/5 border-primary/20 h-fit">
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2 text-primary">
-								<Info className="h-5 w-5" />
-								<Text uuid="billing.sri.info.title" />
-							</CardTitle>
-							<CardDescription className="text-primary/80">
-								<Text uuid="billing.sri.info.description" />
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="text-sm text-foreground/80 space-y-4">
-							<div className="flex items-start gap-2">
-								<div className="mt-1.5 shrink-0 h-1.5 w-1.5 rounded-full bg-primary/70" />
-								<p>
-									<Text uuid="billing.sri.info.p1" />
-								</p>
-							</div>
-							<div className="flex items-start gap-2">
-								<div className="mt-1.5 shrink-0 h-1.5 w-1.5 rounded-full bg-primary/70" />
-								<p>
-									<Text uuid="billing.sri.info.p2" />
-								</p>
-							</div>
-						</CardContent>
-					</Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2 text-primary">
+									<Info className="h-5 w-5" />
+									<Text uuid="billing.sri.info.title" />
+								</CardTitle>
+								<CardDescription className="text-primary/80">
+									<Text uuid="billing.sri.info.description" />
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="text-sm text-foreground/80 space-y-4">
+								<div className="flex items-start gap-2">
+									<div className="mt-1.5 shrink-0 h-1.5 w-1.5 rounded-full bg-primary/70" />
+									<p>
+										<Text uuid="billing.sri.info.p1" />
+									</p>
+								</div>
+								<div className="flex items-start gap-2">
+									<div className="mt-1.5 shrink-0 h-1.5 w-1.5 rounded-full bg-primary/70" />
+									<p>
+										<Text uuid="billing.sri.info.p2" />
+									</p>
+								</div>
+							</CardContent>
+						</Card>
 					</div>
 				</div>
 			</main>

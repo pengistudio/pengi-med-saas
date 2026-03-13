@@ -39,11 +39,14 @@ export function SriInfoForm({ initialData, onSuccess }: SriInfoFormProps) {
 
 	const onSubmit = async (values: FormValues) => {
 		setLoading(true);
-		const response = await updateSriInfo(values);
-		if (response.success && onSuccess) {
-			onSuccess();
+		try {
+			const response = await updateSriInfo(values);
+			if (response.success && onSuccess) {
+				onSuccess();
+			}
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	};
 
 	return (

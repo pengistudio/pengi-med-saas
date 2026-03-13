@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
+
 const prescriptionSchema = z.object({
 	content: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
 	indications: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),

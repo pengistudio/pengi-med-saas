@@ -26,6 +26,11 @@ import usePermission from "@/hooks/use-permission";
 import { useText } from "@/hooks/use-text";
 import useToast from "@/hooks/use-toast";
 import { EMPTY_STRING, PERMISSIONS } from "@/lib/constants";
+import {
+	buildPrescriptionWhatsAppMessage,
+	dateParser,
+	generateWhatsAppLink,
+} from "@/lib/utils";
 import { getMedicalRecordColumns } from "@/sections/columns/clinical/medical-record-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { usePatientStore } from "@/store/patient-store";
@@ -148,6 +153,7 @@ const MedicalRecords = () => {
 									handleViewPrescription,
 									handleEditPrescription,
 									handleDownloadPrescription,
+									handleSendWhatsAppPrescription,
 								)}
 								data={medicalRecords}
 							/>
@@ -199,13 +205,37 @@ const MedicalRecords = () => {
 		});
 	}
 
+	function handleSendWhatsAppPrescription(record: MedicalRecord) {
+		if (!patient?.phone) {
+			infoToast(textGet("clinical.medical_record.contact_error.title"), {
+				description: textGet(
+					"clinical.medical_record.contact_error.description",
+				),
+			});
+			return;
+		}
+		const message = buildPrescriptionWhatsAppMessage({
+			patientName: `${patient.first_name} ${patient.last_name}`.trim(),
+			date: dateParser(new Date(record.date), { dateStyle: "medium" }),
+			items: record.prescription?.items?.map((item) => ({
+				medication: item.medication,
+				dose: item.dose,
+				frequency: item.frequency,
+				duration: item.duration,
+				notes: item.notes,
+			})),
+			indications: record.prescription?.indications,
+		});
+		window.open(generateWhatsAppLink(patient.phone, message), "_blank");
+	}
+
 	async function handleDownloadPrescription(record: MedicalRecord) {
 		const response = await downloadPrescription(record.ID);
 		if (response.success && response.data) {
 			const blobUrl = window.URL.createObjectURL(response.data);
 			const tempLink = document.createElement("a");
 			tempLink.href = blobUrl;
-			tempLink.download = `receta_${record.ID}.pdf`;
+			tempLink.download = response.filename ?? `receta_${record.ID}.pdf`;
 			document.body.appendChild(tempLink);
 			tempLink.click();
 			document.body.removeChild(tempLink);
@@ -255,21 +285,5 @@ const MedicalRecords = () => {
 		}
 	}
 };
-
-function generateWhatsAppLink(phoneNumber: string, message?: string): string {
-	let normalizedNumber = phoneNumber.trim();
-	normalizedNumber = normalizedNumber.replace(/[^0-9+]/g, "");
-
-	if (normalizedNumber.startsWith("0")) {
-		normalizedNumber = `593${normalizedNumber.slice(1)}`;
-	}
-
-	if (normalizedNumber.startsWith("+")) {
-		normalizedNumber = normalizedNumber.slice(1);
-	}
-
-	const baseUrl = `https://wa.me/${normalizedNumber}`;
-	return message ? `${baseUrl}?text=${encodeURIComponent(message)}` : baseUrl;
-}
 
 export default MedicalRecords;
