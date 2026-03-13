@@ -1,5 +1,6 @@
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
+	Activity,
 	CopyPlus,
 	Download,
 	Edit,
@@ -178,6 +179,19 @@ export const getMedicalRecordColumns = (
 				<span className="line-clamp-2" title={obs}>
 					{obs}
 				</span>
+			);
+		},
+	},
+	{
+		id: "vital_signs",
+		header: () => <Text uuid="clinical.medical_record.vital_signs" />,
+		meta: { title: "table.column.vital_signs" },
+		size: 80,
+		cell: ({ row }) => {
+			return row.original.vital_signs ? (
+				<Activity className="w-5 h-5 text-rose-500" />
+			) : (
+				<span className="text-muted-foreground">-</span>
 			);
 		},
 	},

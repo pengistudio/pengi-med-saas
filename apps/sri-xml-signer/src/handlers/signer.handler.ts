@@ -5,6 +5,15 @@ import { toBuffer } from "../utils/buffer";
 import { logger } from "../utils/logger";
 
 export const generateHandler = async (req: Request, res: Response) => {
+	if (!req.body || Object.keys(req.body).length === 0) {
+		res.status(400).json({
+			data: null,
+			error: "Empty request body",
+			message: "Request body is required",
+			statusCode: 400,
+		});
+		return;
+	}
 	const { generatedXml, invoiceJson } = await signerService.generate(req.body);
 	res.json({
 		xml: generatedXml,
@@ -24,6 +33,16 @@ export const signHandler = async (req: Request, res: Response) => {
 
 	const p12Buf = files?.p12?.[0]?.buffer ?? toBuffer(body.p12Buffer);
 	const xmlBuf = files?.xml?.[0]?.buffer ?? toBuffer(body.xmlBuffer);
+
+	if (!password) {
+		res.status(400).json({
+			data: null,
+			error: "Missing password",
+			message: "Password is required",
+			statusCode: 400,
+		});
+		return;
+	}
 
 	if (p12Buf.length === 0 || xmlBuf.length === 0) {
 		res.status(400).json({

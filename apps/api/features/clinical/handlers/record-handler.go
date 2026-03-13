@@ -33,7 +33,7 @@ func (h *MedicalRecordHandler) GetMedicalRecords(c *gin.Context) envelope.Respon
 	}
 
 	var records []clinical_models.MedicalRecord
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").Order("created_at desc").Where("patient_id = ?", id).Find(&records).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").Order("created_at desc").Where("patient_id = ?", id).Find(&records).Error; err != nil {
 		h.logger.Error("Failed to fetch medical records", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
 	}
@@ -50,7 +50,7 @@ func (h *MedicalRecordHandler) GetMedicalRecord(c *gin.Context) envelope.Respons
 	}
 
 	var record clinical_models.MedicalRecord
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").First(&record, id).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").First(&record, id).Error; err != nil {
 		h.logger.Error("Failed to fetch medical record", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
 	}
@@ -75,7 +75,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 
 	// Create prescription if provided
-	if newRecord.Prescription != nil && (newRecord.Prescription.Content != "" || newRecord.Prescription.Indications != "") {
+	if newRecord.Prescription != nil && (newRecord.Prescription.Content != "" || newRecord.Prescription.Indications != "" || len(newRecord.Prescription.Items) > 0) {
 		record.Prescription = newRecord.Prescription
 	}
 
@@ -87,6 +87,17 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(record).Error; err != nil {
 		h.logger.Error("Failed to create medical record", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordCreateError)
+	}
+
+	// Create vital signs if provided
+	if newRecord.VitalSigns != nil {
+		newRecord.VitalSigns.MedicalRecordID = record.ID
+		if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(newRecord.VitalSigns).Error; err != nil {
+			h.logger.Error("Failed to create vital signs", zap.Error(err))
+			// Non-fatal: record was created, just log the error
+		} else {
+			record.VitalSigns = newRecord.VitalSigns
+		}
 	}
 
 	h.logger.Info("Medical record created successfully", zap.Uint("id", record.ID))

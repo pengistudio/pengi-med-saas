@@ -2526,5 +2526,245 @@
 	{
 		"key": "billing.status.authorized",
 		"value": "Authorized"
+	},
+	{
+		"key": "billing.invoice.create.success",
+		"value": "Invoice created successfully."
+	},
+	{
+		"key": "billing.invoices.fetch.success",
+		"value": "Invoices fetched successfully."
+	},
+	{
+		"key": "billing.invoice.processing.queued",
+		"value": "Invoice queued for SRI processing."
+	},
+	{
+		"key": "billing.invoice.error.tenant_not_found",
+		"value": "Tenant scope not found."
+	},
+	{
+		"key": "billing.invoice.error.invalid_payload",
+		"value": "Invalid request payload."
+	},
+	{
+		"key": "billing.invoice.error.product_not_found",
+		"value": "Product or service not found."
+	},
+	{
+		"key": "billing.invoice.error.create_failed",
+		"value": "Failed to create invoice."
+	},
+	{
+		"key": "billing.invoices.error.fetch_failed",
+		"value": "Failed to fetch invoices."
+	},
+	{
+		"key": "billing.invoice.error.invalid_id",
+		"value": "Invalid invoice ID."
+	},
+	{
+		"key": "billing.invoice.error.not_found",
+		"value": "Invoice not found."
+	},
+	{
+		"key": "billing.invoice.error.delete_failed",
+		"value": "Failed to delete invoice."
+	},
+	{
+		"key": "billing.invoice.error.rabbitmq_failed",
+		"value": "Failed to connect to message broker."
+	},
+	{
+		"key": "billing.invoice.error.encode_failed",
+		"value": "Failed to encode invoice payload."
+	},
+	{
+		"key": "billing.invoice.error.enqueue_failed",
+		"value": "Failed to enqueue invoice processing job."
+	},
+	{
+		"key": "clinical.vital_signs.save.success",
+		"value": "Vital signs saved successfully."
+	},
+	{
+		"key": "clinical.vital_signs.fetch.success",
+		"value": "Vital signs retrieved successfully."
+	},
+	{
+		"key": "clinical.vital_signs.not_found",
+		"value": "No vital signs found for this record."
+	},
+	{
+		"key": "clinical.vital_signs.error.invalid_id",
+		"value": "Invalid medical record ID."
+	},
+	{
+		"key": "clinical.vital_signs.error.invalid_payload",
+		"value": "Invalid vital signs data."
+	},
+	{
+		"key": "clinical.vital_signs.error.fetch_failed",
+		"value": "Failed to retrieve vital signs."
+	},
+	{
+		"key": "clinical.vital_signs.error.save_failed",
+		"value": "Failed to save vital signs."
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.title",
+		"value": "Vital Signs"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.description",
+		"value": "Record the patient's vital signs (optional)"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.weight",
+		"value": "Weight"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.height",
+		"value": "Height"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.blood_pressure",
+		"value": "Blood Pressure"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.temperature",
+		"value": "Temperature"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.heart_rate",
+		"value": "Heart Rate"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.o2_saturation",
+		"value": "O2 Saturation"
+	},
+	{
+		"key": "form.create_medical_record.prescription.add_item",
+		"value": "Add Medication"
+	},
+	{
+		"key": "form.create_medical_record.prescription.items",
+		"value": "Medications"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.medication",
+		"value": "Medication"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.dose",
+		"value": "Dose"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.frequency",
+		"value": "Frequency"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.duration",
+		"value": "Duration"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "form.create_medical_record.prescription.tab.text",
+		"value": "Free text"
+	},
+	{
+		"key": "form.create_medical_record.prescription.tab.structured",
+		"value": "By medication"
+	},
+	{
+		"key": "form.create_medical_record.prescription.items.empty",
+		"value": "No medications added. Click \"Add Medication\" to start."
+	},
+	{
+		"key": "form.edit_patient.allergies",
+		"value": "Allergies"
+	},
+	{
+		"key": "form.edit_patient.allergies.placeholder",
+		"value": "List known allergies..."
+	},
+	{
+		"key": "view.medical_record.vital_signs.title",
+		"value": "Vital Signs"
+	},
+	{
+		"key": "view.medical_record.vital_signs.description",
+		"value": "Vital signs recorded at the time of the consultation"
+	},
+	{
+		"key": "view.medical_record.vital_signs.weight",
+		"value": "Weight"
+	},
+	{
+		"key": "view.medical_record.vital_signs.height",
+		"value": "Height"
+	},
+	{
+		"key": "view.medical_record.vital_signs.blood_pressure",
+		"value": "Blood Pressure"
+	},
+	{
+		"key": "view.medical_record.vital_signs.temperature",
+		"value": "Temperature"
+	},
+	{
+		"key": "view.medical_record.vital_signs.heart_rate",
+		"value": "Heart Rate"
+	},
+	{
+		"key": "view.medical_record.vital_signs.o2_saturation",
+		"value": "O2 Saturation"
+	},
+	{
+		"key": "view.medical_record.prescription.items",
+		"value": "Medications"
+	},
+	{
+		"key": "view.medical_record.prescription.item.medication",
+		"value": "Medication"
+	},
+	{
+		"key": "view.medical_record.prescription.item.dose",
+		"value": "Dose"
+	},
+	{
+		"key": "view.medical_record.prescription.item.frequency",
+		"value": "Frequency"
+	},
+	{
+		"key": "view.medical_record.prescription.item.duration",
+		"value": "Duration"
+	},
+	{
+		"key": "view.medical_record.prescription.item.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "clinical.patient_card.has_allergies",
+		"value": "Allergies"
+	},
+	{
+		"key": "clinical.patient_card.allergies",
+		"value": "Known Allergies"
+	},
+	{
+		"key": "form.create_medical_record.allergy_alert.title",
+		"value": "Patient has registered allergies"
+	},
+	{
+		"key": "form.create_medical_record.allergy_alert.description",
+		"value": "Please verify before prescribing medications"
+	},
+	{
+		"key": "clinical.medical_record.vital_signs",
+		"value": "Vital Signs"
 	}
 ]

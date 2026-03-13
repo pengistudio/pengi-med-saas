@@ -37,6 +37,8 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.MedicalRecord{},
 		clinical_models.SOAPRecord{},
 		clinical_models.Prescription{},
+		clinical_models.PrescriptionItem{},
+		clinical_models.VitalSigns{},
 		clinical_models.Appointment{},
 		backoffice_models.BackofficeUser{},
 		billing_models.Invoice{},

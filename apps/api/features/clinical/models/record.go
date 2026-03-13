@@ -19,6 +19,7 @@ type MedicalRecord struct {
 	SOAPRecord     SOAPRecord    `json:"soap_record" gorm:"foreignKey:SOAPRecordID"`
 	PrescriptionID *uint         `json:"prescription_id"`
 	Prescription   *Prescription `json:"prescription,omitempty" gorm:"foreignKey:PrescriptionID;constraint:OnDelete:SET NULL;"`
+	VitalSigns     *VitalSigns   `json:"vital_signs,omitempty" gorm:"foreignKey:MedicalRecordID"`
 }
 
 type SOAPRecord struct {

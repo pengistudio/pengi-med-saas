@@ -14,6 +14,7 @@ import (
 func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	patientHandler := clinical_handlers.NewPatientHandler(db, logger.Log)
 	recordHandler := clinical_handlers.NewMedicalRecordHandler(db, logger.Log)
+	vitalSignsHandler := clinical_handlers.NewVitalSignsHandler(db, logger.Log)
 	appointmentHandler := clinical_handlers.NewAppointmentHandler(db, logger.Log)
 	dashboardHandler := clinical_handlers.NewDashboardHandler(db, logger.Log)
 
@@ -49,6 +50,8 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.GET("/:id", envelope.Handle(recordHandler.GetMedicalRecord))
 			recordGroup.PUT("/:id/prescription", envelope.Handle(recordHandler.UpdatePrescription))
 			recordGroup.GET("/:id/prescription/download", downloadHandler.DownloadPrescription)
+			recordGroup.PUT("/:id/vital-signs", envelope.Handle(vitalSignsHandler.UpsertVitalSigns))
+			recordGroup.GET("/:id/vital-signs", envelope.Handle(vitalSignsHandler.GetVitalSigns))
 		}
 
 		// Appointment routes

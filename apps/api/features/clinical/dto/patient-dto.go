@@ -18,6 +18,7 @@ type CreatePatientDTO struct {
 	APP         string     `json:"app"`
 	APF         string     `json:"apf"`
 	APQX        string     `json:"apqx"`
+	Allergies   string     `json:"allergies"`
 }
 
 type UpdatePatientDTO struct {
@@ -36,6 +37,7 @@ type UpdatePatientDTO struct {
 	APP         *string    `json:"app"`
 	APF         *string    `json:"apf"`
 	APQX        *string    `json:"apqx"`
+	Allergies   *string    `json:"allergies"`
 }
 
 type DeletePatientsDTO struct {

@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { type UseFormReturn, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router";
 import * as z from "zod";
-import { createInvoice, getCatalogItems, type CatalogItem } from "@/api/billing-service";
+import {
+	type CatalogItem,
+	createInvoice,
+	getCatalogItems,
+} from "@/api/billing-service";
 import {
 	getAllPatientsWithLastFollowUp,
 	type Patient,
@@ -13,6 +17,13 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
 import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import {
 	Combobox,
 	ComboboxContent,
 	ComboboxEmpty,
@@ -21,13 +32,6 @@ import {
 	ComboboxList,
 } from "@/components/ui/combobox";
 import { Field, FieldLabel } from "@/components/ui/field";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
@@ -61,7 +65,6 @@ export function InvoiceForm() {
 	const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
-	const { textGet } = useText();
 
 	useEffect(() => {
 		getAllPatientsWithLastFollowUp().then((res) => {
@@ -126,7 +129,7 @@ export function InvoiceForm() {
 				patient_id: "",
 				items: [
 					{
-						description: textGet("billing.invoice.item.default.description"),
+						description: undefined,
 						quantity: 1,
 						unit_price: 0,
 						discount: 0,
@@ -169,6 +172,7 @@ function InvoiceFormInner({
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const [isFinalCustomer, setIsFinalCustomer] = useState(false);
+	const [itemInputValues, setItemInputValues] = useState<string[]>([]);
 
 	const itemsWatch: z.infer<typeof invoiceItemSchema>[] = form.watch("items");
 
@@ -227,13 +231,17 @@ function InvoiceFormInner({
 							field={form}
 							name="establishment_code"
 							label={textGet("billing.invoice.establishment.code")}
-							placeholder={textGet("billing.invoice.establishment.code.placeholder")}
+							placeholder={textGet(
+								"billing.invoice.establishment.code.placeholder",
+							)}
 						/>
 						<FormInput
 							field={form}
 							name="emission_point_code"
 							label={textGet("billing.invoice.emission.point")}
-							placeholder={textGet("billing.invoice.emission.point.placeholder")}
+							placeholder={textGet(
+								"billing.invoice.emission.point.placeholder",
+							)}
 						/>
 					</div>
 				</CardContent>
@@ -268,9 +276,7 @@ function InvoiceFormInner({
 						<FormSelect
 							name="patient_id"
 							label={textGet("billing.invoice.patient")}
-							placeholder={
-								textGet("billing.invoice.patient.placeholder")
-							}
+							placeholder={textGet("billing.invoice.patient.placeholder")}
 							field={form}
 							options={patients.map((p) => ({
 								label: `${p.first_name} ${p.last_name} - ${p.document}`,
@@ -291,21 +297,17 @@ function InvoiceFormInner({
 							field={form}
 							name="payment_method"
 							options={renderPaymentMethod()}
-							label={
-								textGet("billing.invoice.payment.method")
-							}
-							placeholder={
-								textGet("billing.invoice.payment.method.placeholder")
-							}
+							label={textGet("billing.invoice.payment.method")}
+							placeholder={textGet(
+								"billing.invoice.payment.method.placeholder",
+							)}
 						/>
 						<FormSelect
 							name="time_unit"
 							label={textGet("billing.invoice.time.unit")}
 							field={form}
 							options={renderTimeUnits()}
-							placeholder={
-								textGet("billing.invoice.time.unit.placeholder")
-							}
+							placeholder={textGet("billing.invoice.time.unit.placeholder")}
 						/>
 						<FormInput
 							name="term"
@@ -372,38 +374,74 @@ function InvoiceFormInner({
 										value={form.watch(`items.${index}.description` as const)}
 										onValueChange={(val) => {
 											if (!val) return;
-											form.setValue(`items.${index}.description` as const, val as string);
-											
+											form.setValue(
+												`items.${index}.description` as const,
+												val as string,
+											);
+											setItemInputValues((prev) => {
+												const next = [...prev];
+												next[index] = val as string;
+												return next;
+											});
+
 											const selectedItem = catalogItems.find(
 												(item) => item.name === val,
 											);
-											
 											if (selectedItem) {
-												form.setValue(`items.${index}.unit_price` as const, selectedItem.unit_price);
-												form.setValue(`items.${index}.tax_rate` as const, selectedItem.tax_percentage_code);
-												form.setValue(`items.${index}.ice_tax` as const, selectedItem.ice_tax);
+												form.setValue(
+													`items.${index}.unit_price` as const,
+													selectedItem.unit_price,
+												);
+												form.setValue(
+													`items.${index}.tax_rate` as const,
+													selectedItem.tax_percentage_code,
+												);
+												form.setValue(
+													`items.${index}.ice_tax` as const,
+													selectedItem.ice_tax,
+												);
 											}
 										}}
+										onInputValueChange={(val) => {
+											form.setValue(`items.${index}.description` as const, val);
+											setItemInputValues((prev) => {
+												const next = [...prev];
+												next[index] = val;
+												return next;
+											});
+										}}
+										filteredItems={catalogItems
+											.filter((item) => {
+												const q = (itemInputValues[index] ?? "").toLowerCase();
+												return !q || item.name.toLowerCase().includes(q);
+											})
+											.map((item) => item.name)}
 									>
 										<ComboboxInput
-											placeholder={textGet("billing.invoice.item.combobox.placeholder")}
-											onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-												form.setValue(`items.${index}.description` as const, e.target.value);
-											}}
+											placeholder={textGet(
+												"billing.invoice.item.combobox.placeholder",
+											)}
 										/>
 										<ComboboxContent>
 											<ComboboxEmpty>
 												{textGet("common.no_results")}
 											</ComboboxEmpty>
 											<ComboboxList>
-												{catalogItems.map((item) => (
-													<ComboboxItem
-														key={item.ID.toString()}
-														value={item.name}
-													>
-														{item.name}
-													</ComboboxItem>
-												))}
+												{catalogItems
+													.filter((item) => {
+														const q = (
+															itemInputValues[index] ?? ""
+														).toLowerCase();
+														return !q || item.name.toLowerCase().includes(q);
+													})
+													.map((item) => (
+														<ComboboxItem
+															key={item.ID.toString()}
+															value={item.name}
+														>
+															{item.name}
+														</ComboboxItem>
+													))}
 											</ComboboxList>
 										</ComboboxContent>
 									</Combobox>

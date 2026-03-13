@@ -56,6 +56,7 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 		APP:         newPatient.APP,
 		APF:         newPatient.APF,
 		APQX:        newPatient.APQX,
+		Allergies:   newPatient.Allergies,
 	}
 
 	tenantID, exists := c.Get("tenant_id")
@@ -100,6 +101,9 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	}
 	if updateData.Phone != nil {
 		updates["phone"] = *updateData.Phone
+	}
+	if updateData.Email != nil {
+		updates["email"] = *updateData.Email
 	}
 	if updateData.FirstName != nil {
 		updates["first_name"] = *updateData.FirstName
@@ -148,6 +152,9 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	}
 	if updateData.APQX != nil {
 		updates["apqx"] = *updateData.APQX
+	}
+	if updateData.Allergies != nil {
+		updates["allergies"] = *updateData.Allergies
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&patient).Updates(updates).Error; err != nil {

@@ -2526,5 +2526,245 @@
 	{
 		"key": "billing.status.authorized",
 		"value": "Autorizada"
+	},
+	{
+		"key": "billing.invoice.create.success",
+		"value": "Factura creada exitosamente."
+	},
+	{
+		"key": "billing.invoices.fetch.success",
+		"value": "Facturas obtenidas exitosamente."
+	},
+	{
+		"key": "billing.invoice.processing.queued",
+		"value": "Factura enviada a procesamiento SRI."
+	},
+	{
+		"key": "billing.invoice.error.tenant_not_found",
+		"value": "No se encontró el contexto del tenant."
+	},
+	{
+		"key": "billing.invoice.error.invalid_payload",
+		"value": "Datos de solicitud inválidos."
+	},
+	{
+		"key": "billing.invoice.error.product_not_found",
+		"value": "Producto o servicio no encontrado."
+	},
+	{
+		"key": "billing.invoice.error.create_failed",
+		"value": "Error al crear la factura."
+	},
+	{
+		"key": "billing.invoices.error.fetch_failed",
+		"value": "Error al obtener las facturas."
+	},
+	{
+		"key": "billing.invoice.error.invalid_id",
+		"value": "ID de factura inválido."
+	},
+	{
+		"key": "billing.invoice.error.not_found",
+		"value": "Factura no encontrada."
+	},
+	{
+		"key": "billing.invoice.error.delete_failed",
+		"value": "Error al eliminar la factura."
+	},
+	{
+		"key": "billing.invoice.error.rabbitmq_failed",
+		"value": "Error de conexión con el broker de mensajes."
+	},
+	{
+		"key": "billing.invoice.error.encode_failed",
+		"value": "Error al codificar el payload de la factura."
+	},
+	{
+		"key": "billing.invoice.error.enqueue_failed",
+		"value": "Error al encolar el trabajo de procesamiento."
+	},
+	{
+		"key": "clinical.vital_signs.save.success",
+		"value": "Signos vitales guardados correctamente."
+	},
+	{
+		"key": "clinical.vital_signs.fetch.success",
+		"value": "Signos vitales obtenidos correctamente."
+	},
+	{
+		"key": "clinical.vital_signs.not_found",
+		"value": "No se encontraron signos vitales para este registro."
+	},
+	{
+		"key": "clinical.vital_signs.error.invalid_id",
+		"value": "ID de registro médico inválido."
+	},
+	{
+		"key": "clinical.vital_signs.error.invalid_payload",
+		"value": "Datos de signos vitales inválidos."
+	},
+	{
+		"key": "clinical.vital_signs.error.fetch_failed",
+		"value": "Error al obtener los signos vitales."
+	},
+	{
+		"key": "clinical.vital_signs.error.save_failed",
+		"value": "Error al guardar los signos vitales."
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.title",
+		"value": "Signos Vitales"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.description",
+		"value": "Registra los signos vitales del paciente (opcional)"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.weight",
+		"value": "Peso"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.height",
+		"value": "Talla"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.blood_pressure",
+		"value": "Presión Arterial"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.temperature",
+		"value": "Temperatura"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.heart_rate",
+		"value": "Frecuencia Cardíaca"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.o2_saturation",
+		"value": "Saturación O2"
+	},
+	{
+		"key": "form.create_medical_record.prescription.add_item",
+		"value": "Agregar Medicamento"
+	},
+	{
+		"key": "form.create_medical_record.prescription.items",
+		"value": "Medicamentos"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.medication",
+		"value": "Medicamento"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.dose",
+		"value": "Dosis"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.frequency",
+		"value": "Frecuencia"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.duration",
+		"value": "Duración"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.notes",
+		"value": "Notas"
+	},
+	{
+		"key": "form.create_medical_record.prescription.tab.text",
+		"value": "Texto libre"
+	},
+	{
+		"key": "form.create_medical_record.prescription.tab.structured",
+		"value": "Por medicamento"
+	},
+	{
+		"key": "form.create_medical_record.prescription.items.empty",
+		"value": "Sin medicamentos. Presiona \"Agregar Medicamento\" para comenzar."
+	},
+	{
+		"key": "form.edit_patient.allergies",
+		"value": "Alergias"
+	},
+	{
+		"key": "form.edit_patient.allergies.placeholder",
+		"value": "Lista las alergias conocidas..."
+	},
+	{
+		"key": "view.medical_record.vital_signs.title",
+		"value": "Signos Vitales"
+	},
+	{
+		"key": "view.medical_record.vital_signs.description",
+		"value": "Signos vitales registrados al momento de la consulta"
+	},
+	{
+		"key": "view.medical_record.vital_signs.weight",
+		"value": "Peso"
+	},
+	{
+		"key": "view.medical_record.vital_signs.height",
+		"value": "Talla"
+	},
+	{
+		"key": "view.medical_record.vital_signs.blood_pressure",
+		"value": "Presión Arterial"
+	},
+	{
+		"key": "view.medical_record.vital_signs.temperature",
+		"value": "Temperatura"
+	},
+	{
+		"key": "view.medical_record.vital_signs.heart_rate",
+		"value": "Frecuencia Cardíaca"
+	},
+	{
+		"key": "view.medical_record.vital_signs.o2_saturation",
+		"value": "Saturación O2"
+	},
+	{
+		"key": "view.medical_record.prescription.items",
+		"value": "Medicamentos"
+	},
+	{
+		"key": "view.medical_record.prescription.item.medication",
+		"value": "Medicamento"
+	},
+	{
+		"key": "view.medical_record.prescription.item.dose",
+		"value": "Dosis"
+	},
+	{
+		"key": "view.medical_record.prescription.item.frequency",
+		"value": "Frecuencia"
+	},
+	{
+		"key": "view.medical_record.prescription.item.duration",
+		"value": "Duración"
+	},
+	{
+		"key": "view.medical_record.prescription.item.notes",
+		"value": "Notas"
+	},
+	{
+		"key": "clinical.patient_card.has_allergies",
+		"value": "Alergias"
+	},
+	{
+		"key": "clinical.patient_card.allergies",
+		"value": "Alergias conocidas"
+	},
+	{
+		"key": "form.create_medical_record.allergy_alert.title",
+		"value": "Paciente con alergias registradas"
+	},
+	{
+		"key": "form.create_medical_record.allergy_alert.description",
+		"value": "Verificar antes de prescribir medicamentos"
+	},
+	{
+		"key": "clinical.medical_record.vital_signs",
+		"value": "Signos Vitales"
 	}
 ]

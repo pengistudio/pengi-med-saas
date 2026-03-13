@@ -31,14 +31,14 @@ func NewInvoiceHandler(db *gorm.DB, logger *zap.Logger) *InvoiceHandler {
 func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "billing.invoice.error.tenant_not_found", core_errors.ErrTenantNotFound)
 	}
 	tenantScope := tenant_middleware.TenantScope(c)
 
 	var dto billing_dto.CreateInvoiceDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		h.logger.Error("Failed to bind CreateInvoice DTO", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid provided payload", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_payload", core_errors.ErrBillingInvalidRequest)
 	}
 
 	invoice := &billing_models.Invoice{
@@ -65,7 +65,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 		var service billing_models.CatalogItem
 		if err := h.db.Scopes(tenantScope).First(&service, itemDTO.ProductID).Error; err != nil {
 			h.logger.Error("Product/Service not found", zap.Uint("id", itemDTO.ProductID), zap.Error(err))
-			return envelope.ErrorResponse(http.StatusNotFound, "Product/Service not found", core_errors.ErrBillingProductNotFound)
+			return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.product_not_found", core_errors.ErrBillingProductNotFound)
 		}
 
 		qty := float64(itemDTO.Quantity)
@@ -144,7 +144,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 
 	if err != nil {
 		h.logger.Error("Failed to create Invoice", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create invoice", core_errors.ErrBillingInvoiceCreateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.create_failed", core_errors.ErrBillingInvoiceCreateError)
 	}
 
 	return envelope.SuccessResponse(invoice, "billing.invoice.create.success")
@@ -156,7 +156,7 @@ func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 
 	if err := h.db.Scopes(tenantScope).Preload("Patient").Find(&invoices).Error; err != nil {
 		h.logger.Error("Failed to fetch invoices", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to fetch invoices", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoices.error.fetch_failed", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(invoices, "billing.invoices.fetch.success")
@@ -166,17 +166,17 @@ func (h *InvoiceHandler) DeleteInvoiceByID(c *gin.Context) envelope.Response {
 	tenantScope := tenant_middleware.TenantScope(c)
 	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid invoice ID", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var invoice billing_models.Invoice
 	if err := h.db.Scopes(tenantScope).First(&invoice, invoiceID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Invoice not found", core_errors.ErrBillingInvoiceNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
 	}
 
 	if err := h.db.Scopes(tenantScope).Delete(&invoice).Error; err != nil {
 		h.logger.Error("Failed to delete invoice", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to delete invoice", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.delete_failed", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(invoice, "billing.invoice.delete.success")
@@ -186,12 +186,12 @@ func (h *InvoiceHandler) SRIInvoiceProcessing(c *gin.Context) envelope.Response 
 	invoiceChannel := rabbitmq.GetChannel(c, "invoice_channel")
 	if invoiceChannel == nil {
 		h.logger.Error("RabbitMQ channel not found in context")
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed RabbitMQ connection", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.rabbitmq_failed", core_errors.ErrInternal)
 	}
 
 	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid invoice ID", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
 	}
 
 	body, err := json.Marshal(&billing_dto.InvoiceDTO{
@@ -199,13 +199,13 @@ func (h *InvoiceHandler) SRIInvoiceProcessing(c *gin.Context) envelope.Response 
 	})
 	if err != nil {
 		h.logger.Error("Failed to marshal InvoiceDTO", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Failed to encode payload", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.encode_failed", core_errors.ErrBillingInvalidRequest)
 	}
 
 	err = rabbitmq.PublishMessage(invoiceChannel, "invoice_tasks", body)
 	if err != nil {
 		h.logger.Error("Failed to publish to RabbitMQ", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to enqueue invoice job", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(nil, "billing.invoice.processing.queued")
@@ -215,12 +215,12 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 	invoiceChannel := rabbitmq.GetChannel(c, "invoice_channel")
 	if invoiceChannel == nil {
 		h.logger.Error("RabbitMQ channel not found in context")
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed RabbitMQ connection", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.rabbitmq_failed", core_errors.ErrInternal)
 	}
 
 	var idList billing_dto.InvoiceIDListDTO
 	if err := c.ShouldBindJSON(&idList); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid payload", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_payload", core_errors.ErrBillingInvalidRequest)
 	}
 
 	for _, currentID := range idList.IDList {

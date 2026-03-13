@@ -1,4 +1,5 @@
 import {
+	Activity,
 	ArrowLeft,
 	Calendar,
 	ClipboardList,
@@ -252,6 +253,70 @@ const ViewMedicalRecord = () => {
 				</CardContent>
 			</Card>
 
+			{/* Vital Signs */}
+			{medicalRecord.vital_signs && (
+				<>
+					<Separator />
+					<Card className="border-l-4 border-l-rose-500">
+						<CardHeader>
+							<div className="flex items-center gap-3">
+								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500 text-primary-foreground">
+									<Activity className="h-4 w-4" />
+								</div>
+								<div>
+									<CardTitle className="text-lg">
+										<Text uuid="view.medical_record.vital_signs.title" />
+									</CardTitle>
+									<CardDescription>
+										<Text uuid="view.medical_record.vital_signs.description" />
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+								{medicalRecord.vital_signs.weight != null && (
+									<div className="space-y-1">
+										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.weight")}</p>
+										<p className="font-semibold">{medicalRecord.vital_signs.weight} kg</p>
+									</div>
+								)}
+								{medicalRecord.vital_signs.height != null && (
+									<div className="space-y-1">
+										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.height")}</p>
+										<p className="font-semibold">{medicalRecord.vital_signs.height} cm</p>
+									</div>
+								)}
+								{medicalRecord.vital_signs.blood_pressure && (
+									<div className="space-y-1">
+										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.blood_pressure")}</p>
+										<p className="font-semibold">{medicalRecord.vital_signs.blood_pressure} mmHg</p>
+									</div>
+								)}
+								{medicalRecord.vital_signs.temperature != null && (
+									<div className="space-y-1">
+										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.temperature")}</p>
+										<p className="font-semibold">{medicalRecord.vital_signs.temperature} °C</p>
+									</div>
+								)}
+								{medicalRecord.vital_signs.heart_rate != null && (
+									<div className="space-y-1">
+										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.heart_rate")}</p>
+										<p className="font-semibold">{medicalRecord.vital_signs.heart_rate} bpm</p>
+									</div>
+								)}
+								{medicalRecord.vital_signs.o2_saturation != null && (
+									<div className="space-y-1">
+										<p className="text-muted-foreground font-medium">{textGet("view.medical_record.vital_signs.o2_saturation")}</p>
+										<p className="font-semibold">{medicalRecord.vital_signs.o2_saturation}%</p>
+									</div>
+								)}
+							</div>
+						</CardContent>
+					</Card>
+				</>
+			)}
+
 			{/* Prescription Section */}
 			{medicalRecord.prescription && (
 				<>
@@ -272,7 +337,42 @@ const ViewMedicalRecord = () => {
 								</div>
 							</div>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="space-y-4">
+							{(medicalRecord.prescription.items?.length ?? 0) > 0 && (
+								<div className="space-y-2">
+									<p className="text-sm font-medium">
+										<Text uuid="view.medical_record.prescription.items" />
+									</p>
+									<div className="divide-y rounded-md border text-sm">
+										{medicalRecord.prescription.items?.map((item) => (
+											<div key={item.ID} className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3">
+												<div>
+													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.medication")}</span>
+													<span className="font-medium">{item.medication}</span>
+												</div>
+												<div>
+													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.dose")}</span>
+													<span>{item.dose}</span>
+												</div>
+												<div>
+													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.frequency")}</span>
+													<span>{item.frequency}</span>
+												</div>
+												<div>
+													<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.duration")}</span>
+													<span>{item.duration}</span>
+												</div>
+												{item.notes && (
+													<div className="col-span-2 md:col-span-4">
+														<span className="text-muted-foreground block text-xs">{textGet("view.medical_record.prescription.item.notes")}</span>
+														<span className="text-muted-foreground">{item.notes}</span>
+													</div>
+												)}
+											</div>
+										))}
+									</div>
+								</div>
+							)}
 							<div className="flex flex-wrap gap-2">
 								<Button
 									variant="outline"

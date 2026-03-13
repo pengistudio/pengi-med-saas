@@ -26,6 +26,7 @@ export interface Patient extends BaseModel {
 	app: string;
 	apf: string;
 	apqx: string;
+	allergies?: string;
 	medical_records?: MedicalRecord[];
 	appointments?: Appointment[];
 }
@@ -93,6 +94,7 @@ export type CreatePatientPayload = {
 	app?: string;
 	apf?: string;
 	apqx?: string;
+	allergies?: string;
 };
 
 export const createPatient = async (
@@ -147,6 +149,25 @@ export interface Appointment extends BaseModel {
 	patient?: Patient;
 }
 
+export interface VitalSigns extends BaseModel {
+	medical_record_id: number;
+	weight?: number | null;
+	height?: number | null;
+	blood_pressure?: string;
+	temperature?: number | null;
+	heart_rate?: number | null;
+	o2_saturation?: number | null;
+}
+
+export interface PrescriptionItem extends BaseModel {
+	prescription_id: number;
+	medication: string;
+	dose: string;
+	frequency: string;
+	duration: string;
+	notes?: string;
+}
+
 export interface MedicalRecord extends BaseModel {
 	patient_id: number;
 	date: string;
@@ -163,7 +184,9 @@ export interface MedicalRecord extends BaseModel {
 	prescription?: {
 		content: string;
 		indications: string;
+		items?: PrescriptionItem[];
 	} | null;
+	vital_signs?: VitalSigns | null;
 }
 
 export const getMedicalRecords = async (
@@ -218,6 +241,21 @@ export type CreateMedicalRecordPayload = {
 	prescription?: {
 		content: string;
 		indications: string;
+		items?: {
+			medication: string;
+			dose: string;
+			frequency: string;
+			duration: string;
+			notes?: string;
+		}[];
+	};
+	vital_signs?: {
+		weight?: number | null;
+		height?: number | null;
+		blood_pressure?: string;
+		temperature?: number | null;
+		heart_rate?: number | null;
+		o2_saturation?: number | null;
 	};
 };
 
@@ -273,6 +311,26 @@ export const updatePrescription = async (
 			notifySuccess: true,
 			notifyError: true,
 		},
+	);
+};
+
+export type UpsertVitalSignsPayload = {
+	weight?: number | null;
+	height?: number | null;
+	blood_pressure?: string;
+	temperature?: number | null;
+	heart_rate?: number | null;
+	o2_saturation?: number | null;
+};
+
+export const upsertVitalSigns = async (
+	recordId: number,
+	payload: UpsertVitalSignsPayload,
+): Promise<ServiceResponse<VitalSigns>> => {
+	return clinicalService.put<VitalSigns>(
+		`/clinical/records/${recordId}/vital-signs`,
+		payload,
+		{ notifySuccess: true, notifyError: true },
 	);
 };
 

@@ -44,7 +44,7 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 			return err
 		}
 
-		invoice.Status = "processing"
+		invoice.Status = billing_models.InvoiceStatusProcessing
 		if err := db.Save(&invoice).Error; err != nil {
 			logger.Error("Failed to update invoice status to processing", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
 			return err
@@ -136,7 +136,7 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 			return err
 		}
 
-		invoice.Status = "signed"
+		invoice.Status = billing_models.InvoiceStatusSigned
 		if err := db.Save(&invoice).Error; err != nil {
 			logger.Error("Failed to update invoice status to signed", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
 			return err
@@ -153,7 +153,7 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 			return err
 		}
 
-		invoice.Status = "validated"
+		invoice.Status = billing_models.InvoiceStatusValidated
 		if err := db.Save(&invoice).Error; err != nil {
 			logger.Error("Failed to update invoice status to validated", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
 			return err
@@ -171,7 +171,7 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		}
 		_ = authResp
 
-		invoice.Status = "authorized"
+		invoice.Status = billing_models.InvoiceStatusAuthorized
 		if err := db.Save(&invoice).Error; err != nil {
 			logger.Error("Failed to update invoice status to authorized", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
 			return err

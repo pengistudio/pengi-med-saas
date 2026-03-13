@@ -58,11 +58,11 @@ func generateRandomString(length int) string {
 }
 
 // GenerateAccessKey genera la clave de acceso para el SRI
-func GenerateAccessKey(invoice Invoice, tenantObj tenant.Tenant, establishmentCode string, emissionCode string) string {
+func GenerateAccessKey(invoice Invoice, tenantObj tenant.Tenant, establishmentCode string, emissionCode string) (string, error) {
 	max := big.NewInt(90000000) // Rango: 0 - 89999999
 	n, err := rand.Int(rand.Reader, max)
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("failed to generate random access key: %w", err)
 	}
 
 	result := int(n.Int64() + 10000000)          // Asegura que tenga 8 dígitos
@@ -79,7 +79,7 @@ func GenerateAccessKey(invoice Invoice, tenantObj tenant.Tenant, establishmentCo
 	base := date + docType + ruc + environment + establishment + point + sequence + randomCode + emissionType
 	verifier := Modulo11(base)
 
-	return base + verifier // total: 49 caracteres
+	return base + verifier, nil // total: 49 caracteres
 }
 
 // Helper function to parse date in DD/MM/YYYY format
@@ -293,7 +293,10 @@ func GenerateInvoiceXml(invoiceSRI invoiceSRI.InvoiceSRI) (string, error) {
 // Function to generate the invoiceSRI with input data
 func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string) (*invoiceSRI.InvoiceSRI, string, error) {
 
-	accessKey := GenerateAccessKey(invoice, tenantObj, establishmentCode, emissionCode)
+	accessKey, err := GenerateAccessKey(invoice, tenantObj, establishmentCode, emissionCode)
+	if err != nil {
+		return nil, "", err
+	}
 	infoTributariaData := reorderTaxInfo(invoice, accessKey, tenantObj, establishmentCode, emissionCode)
 	invoiceInfo := reorderInvoiceInfo(invoice, tenantObj, establishmentAddress)
 	invoiceDetails := reorderDetails(invoice, services)

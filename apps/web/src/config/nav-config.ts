@@ -59,14 +59,14 @@ export const createNavItems = (
 				icon: Receipt,
 			},
 			{
-				label: textGet("dashboard.billing.settings"),
-				href: "/billing/settings",
-				icon: FileKey,
-			},
-			{
 				label: textGet("dashboard.billing.catalog-items"),
 				href: "/billing/catalog-items",
 				icon: Layers,
+			},
+			{
+				label: textGet("dashboard.billing.settings"),
+				href: "/billing/settings",
+				icon: FileKey,
 			},
 		],
 		permission: PERMISSIONS.BILLING.PERMISSION_READ_BILLING,

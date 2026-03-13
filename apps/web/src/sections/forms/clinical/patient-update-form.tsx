@@ -12,6 +12,7 @@ import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormInput } from "@/components/forms/form-input";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { FormSelect } from "@/components/forms/form-select";
+import { FormTagInput } from "@/components/forms/form-tag-input";
 import { FormTextArea } from "@/components/forms/form-textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +40,7 @@ const formSchema = z.object({
 		.min(10, "Debe tener 10 caracteres")
 		.max(10, "Debe tener 10 caracteres"),
 	phone: z.string().optional(),
-	email: z.string().email().optional(),
+	email: z.union([z.literal(""), z.string().email()]).optional(),
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),
@@ -52,6 +53,7 @@ const formSchema = z.object({
 	apf: z.string().optional(),
 	apqx: z.string().optional(),
 	diagnosis: z.string().optional(),
+	allergies: z.string().optional(),
 });
 
 const EditPatientForm = () => {
@@ -107,6 +109,7 @@ const EditPatientForm = () => {
 		apf: patient.apf || "",
 		apqx: patient.apqx || "",
 		diagnosis: patient.diagnosis || "",
+		allergies: patient.allergies || "",
 	};
 
 	return (
@@ -231,6 +234,14 @@ const EditPatientForm = () => {
 							name="apqx"
 							placeholder="APQX..."
 							label={<Text uuid="form.edit_patient.apqx" />}
+							isOptional
+						/>
+
+						<FormTagInput
+							field={field}
+							name="allergies"
+							placeholder={textGet("form.edit_patient.allergies.placeholder")}
+							label={textGet("form.edit_patient.allergies")}
 							isOptional
 						/>
 

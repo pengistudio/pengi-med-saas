@@ -23,9 +23,10 @@ type Patient struct {
 	Medic          string          `json:"medic"`
 	Diagnosis      string          `json:"diagnosis"`
 	Critical       bool            `json:"critical"`
-	APP            string          `json:"app"`  // Antecedentes Personales Patológicos
-	APF            string          `json:"apf"`  // Antecedentes Patológicos Familiares
-	APQX           string          `json:"apqx"` // Antecedentes Patológicos Quirúrgicos
+	APP            string          `json:"app"`       // Antecedentes Personales Patológicos
+	APF            string          `json:"apf"`       // Antecedentes Patológicos Familiares
+	APQX           string          `json:"apqx"`      // Antecedentes Patológicos Quirúrgicos
+	Allergies      string          `json:"allergies"` // JSON array of allergy strings
 	MedicalRecords []MedicalRecord `json:"medical_records" gorm:"foreignKey:PatientID;constraint:OnDelete:CASCADE;"`
 	Appointments   []Appointment   `json:"appointments,omitempty" gorm:"foreignKey:PatientID"`
 }
