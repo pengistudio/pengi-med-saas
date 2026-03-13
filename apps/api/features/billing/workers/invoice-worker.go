@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/utils"
 	billing_dto "pengi-med-saas/features/billing/dto"
@@ -158,10 +159,17 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 			return err
 		}
 
-		if _, err := sriClient.AuthorizeXMLWithSRI(*invoice.AccessKey, sriEnv); err != nil {
+		authResp, err := sriClient.AuthorizeXMLWithSRI(*invoice.AccessKey, sriEnv)
+		if err != nil {
+			// SRI may still be processing; leave as validated so it can be retried
+			if strings.Contains(err.Error(), "autorizacion") || strings.Contains(err.Error(), "EN PROCESAMIENTO") {
+				logger.Warn("SRI authorization pending, invoice left as validated", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+				return nil
+			}
 			logger.Error("Failed to Authorize XML with SRI", zap.Error(err))
 			return err
 		}
+		_ = authResp
 
 		invoice.Status = "authorized"
 		if err := db.Save(&invoice).Error; err != nil {

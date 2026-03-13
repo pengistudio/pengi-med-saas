@@ -2518,5 +2518,13 @@
 	{
 		"key": "billing.catalog_item.load.error",
 		"value": "Could not load the product/service."
+	},
+	{
+		"key": "billing.status.validated",
+		"value": "Validated"
+	},
+	{
+		"key": "billing.status.authorized",
+		"value": "Authorized"
 	}
 ]

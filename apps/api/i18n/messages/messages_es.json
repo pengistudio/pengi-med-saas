@@ -2518,5 +2518,13 @@
 	{
 		"key": "billing.catalog_item.load.error",
 		"value": "No se pudo cargar el producto/servicio."
+	},
+	{
+		"key": "billing.status.validated",
+		"value": "Validada"
+	},
+	{
+		"key": "billing.status.authorized",
+		"value": "Autorizada"
 	}
 ]
