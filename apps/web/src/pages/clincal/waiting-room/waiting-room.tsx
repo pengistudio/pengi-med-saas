@@ -1,8 +1,15 @@
 import { ArrowRight, Clock, RefreshCw, UserCheck, Users } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
-import { getTodayAppointments, updateAppointmentStatus, type Appointment } from "@/api/clinical-service";
-import { STATUS_COLORS, STATUS_I18N_KEYS } from "@/components/features/appointments/appointment-utils";
+import {
+	type Appointment,
+	getTodayAppointments,
+	updateAppointmentStatus,
+} from "@/api/clinical-service";
+import {
+	STATUS_COLORS,
+	STATUS_I18N_KEYS,
+} from "@/components/features/appointments/appointment-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,13 +68,17 @@ function AppointmentCard({
 }) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const colors = STATUS_COLORS[appointment.status as keyof typeof STATUS_COLORS] ?? STATUS_COLORS.scheduled;
+	const colors =
+		STATUS_COLORS[appointment.status as keyof typeof STATUS_COLORS] ??
+		STATUS_COLORS.scheduled;
 	const patientName = appointment.patient
 		? `${appointment.patient.first_name} ${appointment.patient.last_name}`
 		: textGet("waiting_room.unknown_patient");
 
 	return (
-		<div className={`rounded-lg border-l-4 ${colors.border} bg-card p-3 shadow-sm space-y-2`}>
+		<div
+			className={`rounded-lg border-l-4 ${colors.border} bg-card p-3 shadow-sm space-y-2`}
+		>
 			<div className="flex items-start justify-between gap-2">
 				<div className="min-w-0">
 					<p className="font-medium text-sm truncate">{patientName}</p>
@@ -75,7 +86,9 @@ function AppointmentCard({
 						{appointment.start_time} – {appointment.end_time}
 					</p>
 					{appointment.title && (
-						<p className="text-xs text-muted-foreground truncate">{appointment.title}</p>
+						<p className="text-xs text-muted-foreground truncate">
+							{appointment.title}
+						</p>
 					)}
 				</div>
 				<Badge className={`shrink-0 text-xs ${colors.badge}`}>
@@ -88,7 +101,9 @@ function AppointmentCard({
 						variant="ghost"
 						size="sm"
 						className="h-7 text-xs px-2"
-						onClick={() => navigate(`/clinical/medical-records/${appointment.patient_id}`)}
+						onClick={() =>
+							navigate(`/clinical/medical-records/${appointment.patient_id}`)
+						}
 					>
 						<Text uuid="waiting_room.card.records" />
 					</Button>
@@ -128,7 +143,9 @@ const WaitingRoomPage = () => {
 			.finally(() => setLoading(false));
 	}, []);
 
-	React.useEffect(() => { load(); }, [load]);
+	React.useEffect(() => {
+		load();
+	}, [load]);
 
 	const handleAdvance = async (id: number, nextStatus: WaitingStatus) => {
 		setAdvancing(id);
@@ -167,7 +184,9 @@ const WaitingRoomPage = () => {
 						<p className="text-muted-foreground text-sm capitalize">{today}</p>
 					</div>
 					<Button variant="outline" size="sm" onClick={load} disabled={loading}>
-						<RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+						<RefreshCw
+							className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+						/>
 						<Text uuid="waiting_room.refresh" />
 					</Button>
 				</div>
@@ -183,7 +202,10 @@ const WaitingRoomPage = () => {
 							const Icon = col.icon;
 							const items = byStatus[col.status];
 							return (
-								<Card key={col.status} className={`border-t-4 ${col.headerClass}`}>
+								<Card
+									key={col.status}
+									className={`border-t-4 ${col.headerClass}`}
+								>
 									<CardHeader className="pb-2 pt-4 px-4">
 										<CardTitle className="text-sm font-semibold flex items-center gap-2">
 											<Icon className={`h-4 w-4 ${colors.text}`} />

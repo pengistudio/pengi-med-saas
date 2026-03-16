@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import {
 	DEFAULT_UI_SETTINGS,
-	type TenantUISettings,
 	getUISettings,
+	type TenantUISettings,
 	updateUISettings,
 } from "@/api/settings-service";
 

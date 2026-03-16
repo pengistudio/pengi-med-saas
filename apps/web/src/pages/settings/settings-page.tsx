@@ -1,9 +1,12 @@
-import type { ClinicalSettings, TenantUISettings } from "@/api/settings-service";
+import type {
+	ClinicalSettings,
+	TenantUISettings,
+} from "@/api/settings-service";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { cn } from "@/lib/utils";
+import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const SettingsPage = () => {
 	const { settings, saveSettings } = useTenantSettings();
@@ -18,7 +21,9 @@ const SettingsPage = () => {
 		});
 	}
 
-	function setDiagnosisSystem(system: TenantUISettings["clinical"]["diagnosis_system"]) {
+	function setDiagnosisSystem(
+		system: TenantUISettings["clinical"]["diagnosis_system"],
+	) {
 		saveSettings({
 			...settings,
 			clinical: { ...settings.clinical, diagnosis_system: system },
@@ -26,15 +31,18 @@ const SettingsPage = () => {
 	}
 
 	const tableToggles: { key: keyof ClinicalSettings; labelKey: string }[] = [
-		{ key: "show_next_appointment", labelKey: "settings.clinical.show_next_appointment" },
-		{ key: "show_diagnosis",        labelKey: "settings.clinical.show_diagnosis" },
-		{ key: "show_medic",            labelKey: "settings.clinical.show_medic" },
-		{ key: "show_insurance",        labelKey: "settings.clinical.show_insurance" },
+		{
+			key: "show_next_appointment",
+			labelKey: "settings.clinical.show_next_appointment",
+		},
+		{ key: "show_diagnosis", labelKey: "settings.clinical.show_diagnosis" },
+		{ key: "show_medic", labelKey: "settings.clinical.show_medic" },
+		{ key: "show_insurance", labelKey: "settings.clinical.show_insurance" },
 	];
 
 	const formToggles: { key: keyof ClinicalSettings; labelKey: string }[] = [
 		{ key: "show_vital_signs", labelKey: "settings.clinical.show_vital_signs" },
-		{ key: "show_diagnoses",   labelKey: "settings.clinical.show_diagnoses" },
+		{ key: "show_diagnoses", labelKey: "settings.clinical.show_diagnoses" },
 	];
 
 	return (
@@ -56,7 +64,10 @@ const SettingsPage = () => {
 							<Text uuid="settings.clinical.section.table" />
 						</p>
 						{tableToggles.map(({ key, labelKey }) => (
-							<div key={key} className="flex items-center justify-between gap-4">
+							<div
+								key={key}
+								className="flex items-center justify-between gap-4"
+							>
 								<span className="text-sm text-muted-foreground">
 									<Text uuid={labelKey} />
 								</span>
@@ -76,7 +87,10 @@ const SettingsPage = () => {
 							<Text uuid="settings.clinical.section.form" />
 						</p>
 						{formToggles.map(({ key, labelKey }) => (
-							<div key={key} className="flex items-center justify-between gap-4">
+							<div
+								key={key}
+								className="flex items-center justify-between gap-4"
+							>
 								<span className="text-sm text-muted-foreground">
 									<Text uuid={labelKey} />
 								</span>

@@ -17,9 +17,9 @@ import { useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 import {
 	type CreateMedicalRecordPayload,
-	type MedicalRecord,
 	createMedicalRecord,
 	getMedicalRecords,
+	type MedicalRecord,
 } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
@@ -44,8 +44,8 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
-import { useText } from "@/hooks/use-text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { useText } from "@/hooks/use-text";
 import { usePatientStore } from "@/store/patient-store";
 
 type PrescriptionMode = "text" | "structured";
@@ -107,7 +107,9 @@ const CreateMedicalRecordForm = () => {
 	const [loading, setLoading] = React.useState(false);
 	const [prescriptionMode, setPrescriptionMode] =
 		React.useState<PrescriptionMode>("text");
-	const [lastRecord, setLastRecord] = React.useState<MedicalRecord | null>(null);
+	const [lastRecord, setLastRecord] = React.useState<MedicalRecord | null>(
+		null,
+	);
 	const [previewOpen, setPreviewOpen] = React.useState(false);
 	const { textGet } = useText();
 	const navigate = useNavigate();
@@ -260,7 +262,8 @@ function FormInner({
 		control: field.control,
 	});
 	const { settings } = useTenantSettings();
-	const { show_vital_signs, show_diagnoses, diagnosis_system } = settings.clinical;
+	const { show_vital_signs, show_diagnoses, diagnosis_system } =
+		settings.clinical;
 
 	return (
 		<div className="space-y-4 max-w-4xl xl:max-w-7xl mx-auto">
@@ -334,89 +337,91 @@ function FormInner({
 					</Card>
 
 					{/* Vital Signs */}
-					{show_vital_signs && <Card className="border-l-4 border-l-rose-500">
-						<CardHeader>
-							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500 text-primary-foreground">
-									<Activity className="h-4 w-4" />
+					{show_vital_signs && (
+						<Card className="border-l-4 border-l-rose-500">
+							<CardHeader>
+								<div className="flex items-center gap-3">
+									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500 text-primary-foreground">
+										<Activity className="h-4 w-4" />
+									</div>
+									<div>
+										<CardTitle className="text-lg">
+											<Text uuid="form.create_medical_record.vital_signs.title" />
+										</CardTitle>
+										<p className="text-sm text-muted-foreground">
+											<Text uuid="form.create_medical_record.vital_signs.description" />
+										</p>
+									</div>
 								</div>
-								<div>
-									<CardTitle className="text-lg">
-										<Text uuid="form.create_medical_record.vital_signs.title" />
-									</CardTitle>
-									<p className="text-sm text-muted-foreground">
-										<Text uuid="form.create_medical_record.vital_signs.description" />
-									</p>
+							</CardHeader>
+							<CardContent>
+								<div className="grid md:grid-cols-3 grid-cols-2 gap-4">
+									<FormInput
+										field={field}
+										name="vital_signs.weight"
+										type="number"
+										step="0.1"
+										label={textGet(
+											"form.create_medical_record.vital_signs.weight",
+										)}
+										placeholder="kg"
+										isOptional
+									/>
+									<FormInput
+										field={field}
+										name="vital_signs.height"
+										type="number"
+										step="0.1"
+										label={textGet(
+											"form.create_medical_record.vital_signs.height",
+										)}
+										placeholder="cm"
+										isOptional
+									/>
+									<FormInput
+										field={field}
+										name="vital_signs.blood_pressure"
+										label={textGet(
+											"form.create_medical_record.vital_signs.blood_pressure",
+										)}
+										placeholder="120/80"
+										isOptional
+									/>
+									<FormInput
+										field={field}
+										name="vital_signs.temperature"
+										type="number"
+										step="0.1"
+										label={textGet(
+											"form.create_medical_record.vital_signs.temperature",
+										)}
+										placeholder="°C"
+										isOptional
+									/>
+									<FormInput
+										field={field}
+										name="vital_signs.heart_rate"
+										type="number"
+										label={textGet(
+											"form.create_medical_record.vital_signs.heart_rate",
+										)}
+										placeholder="bpm"
+										isOptional
+									/>
+									<FormInput
+										field={field}
+										name="vital_signs.o2_saturation"
+										type="number"
+										label={textGet(
+											"form.create_medical_record.vital_signs.o2_saturation",
+										)}
+										placeholder="%"
+										isOptional
+									/>
 								</div>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<div className="grid md:grid-cols-3 grid-cols-2 gap-4">
-								<FormInput
-									field={field}
-									name="vital_signs.weight"
-									type="number"
-									step="0.1"
-									label={textGet(
-										"form.create_medical_record.vital_signs.weight",
-									)}
-									placeholder="kg"
-									isOptional
-								/>
-								<FormInput
-									field={field}
-									name="vital_signs.height"
-									type="number"
-									step="0.1"
-									label={textGet(
-										"form.create_medical_record.vital_signs.height",
-									)}
-									placeholder="cm"
-									isOptional
-								/>
-								<FormInput
-									field={field}
-									name="vital_signs.blood_pressure"
-									label={textGet(
-										"form.create_medical_record.vital_signs.blood_pressure",
-									)}
-									placeholder="120/80"
-									isOptional
-								/>
-								<FormInput
-									field={field}
-									name="vital_signs.temperature"
-									type="number"
-									step="0.1"
-									label={textGet(
-										"form.create_medical_record.vital_signs.temperature",
-									)}
-									placeholder="°C"
-									isOptional
-								/>
-								<FormInput
-									field={field}
-									name="vital_signs.heart_rate"
-									type="number"
-									label={textGet(
-										"form.create_medical_record.vital_signs.heart_rate",
-									)}
-									placeholder="bpm"
-									isOptional
-								/>
-								<FormInput
-									field={field}
-									name="vital_signs.o2_saturation"
-									type="number"
-									label={textGet(
-										"form.create_medical_record.vital_signs.o2_saturation",
-									)}
-									placeholder="%"
-									isOptional
-								/>
-							</div>
-						</CardContent>
-					</Card>}
+							</CardContent>
+						</Card>
+					)}
 
 					{/* SOAP: Subjective */}
 					<Card className="border-l-4 border-l-primary">
@@ -531,29 +536,36 @@ function FormInner({
 					</Card>
 
 					{/* Diagnoses (optional) */}
-					{show_diagnoses && <Card className="border-l-4 border-l-blue-500">
-						<CardHeader>
-							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-primary-foreground">
-									<BookOpen className="h-4 w-4" />
+					{show_diagnoses && (
+						<Card className="border-l-4 border-l-blue-500">
+							<CardHeader>
+								<div className="flex items-center gap-3">
+									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-primary-foreground">
+										<BookOpen className="h-4 w-4" />
+									</div>
+									<div>
+										<CardTitle className="text-lg flex items-center gap-2">
+											<Text uuid="form.create_medical_record.diagnoses" />
+											<span className="text-xs font-mono bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">
+												{diagnosis_system === "cie10" ? "CIE-10" : "CIE-11"}
+											</span>
+											<span className="text-xs text-muted-foreground font-normal">
+												(<Text uuid="form.optional" />)
+											</span>
+										</CardTitle>
+									</div>
 								</div>
-								<div>
-									<CardTitle className="text-lg flex items-center gap-2">
-										<Text uuid="form.create_medical_record.diagnoses" />
-										<span className="text-xs font-mono bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">
-											{diagnosis_system === "cie10" ? "CIE-10" : "CIE-11"}
-										</span>
-										<span className="text-xs text-muted-foreground font-normal">
-											(<Text uuid="form.optional" />)
-										</span>
-									</CardTitle>
-								</div>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<FormIcd11Select field={field} name="diagnoses" isOptional system={diagnosis_system} />
-						</CardContent>
-					</Card>}
+							</CardHeader>
+							<CardContent>
+								<FormIcd11Select
+									field={field}
+									name="diagnoses"
+									isOptional
+									system={diagnosis_system}
+								/>
+							</CardContent>
+						</Card>
+					)}
 
 					{/* Prescription (optional) */}
 					<Card className="border-l-4 border-l-violet-500">
@@ -736,7 +748,9 @@ function LastRecordDialog({
 					<DialogTitle className="flex items-center gap-2">
 						<Eye className="h-4 w-4" />
 						<Text uuid="form.create_medical_record.preview_last.title" />
-						<span className="text-sm font-normal text-muted-foreground">— {date}</span>
+						<span className="text-sm font-normal text-muted-foreground">
+							— {date}
+						</span>
 					</DialogTitle>
 				</DialogHeader>
 
@@ -762,17 +776,22 @@ function LastRecordDialog({
 					{/* SOAP */}
 					{record.soap_record && (
 						<div className="grid gap-3 border rounded-md p-4">
-							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">SOAP</p>
-							{(["subjective", "objective", "assessment", "plan"] as const).map((key) => (
-								record.soap_record?.[key] ? (
-									<div key={key}>
-										<p className="text-xs font-medium capitalize text-muted-foreground mb-0.5">
-											{textGet(`form.create_medical_record.soap.${key}`)}
-										</p>
-										<p className="text-sm whitespace-pre-wrap">{record.soap_record[key]}</p>
-									</div>
-								) : null
-							))}
+							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+								SOAP
+							</p>
+							{(["subjective", "objective", "assessment", "plan"] as const).map(
+								(key) =>
+									record.soap_record?.[key] ? (
+										<div key={key}>
+											<p className="text-xs font-medium capitalize text-muted-foreground mb-0.5">
+												{textGet(`form.create_medical_record.soap.${key}`)}
+											</p>
+											<p className="text-sm whitespace-pre-wrap">
+												{record.soap_record[key]}
+											</p>
+										</div>
+									) : null,
+							)}
 						</div>
 					)}
 
@@ -783,12 +802,50 @@ function LastRecordDialog({
 								<Text uuid="form.create_medical_record.vital_signs.title" />
 							</p>
 							<div className="grid grid-cols-3 gap-2 text-sm">
-								{record.vital_signs.weight && <span>{textGet("form.create_medical_record.vital_signs.weight")}: <strong>{record.vital_signs.weight} kg</strong></span>}
-								{record.vital_signs.height && <span>{textGet("form.create_medical_record.vital_signs.height")}: <strong>{record.vital_signs.height} cm</strong></span>}
-								{record.vital_signs.blood_pressure && <span>{textGet("form.create_medical_record.vital_signs.blood_pressure")}: <strong>{record.vital_signs.blood_pressure}</strong></span>}
-								{record.vital_signs.temperature && <span>{textGet("form.create_medical_record.vital_signs.temperature")}: <strong>{record.vital_signs.temperature} °C</strong></span>}
-								{record.vital_signs.heart_rate && <span>{textGet("form.create_medical_record.vital_signs.heart_rate")}: <strong>{record.vital_signs.heart_rate} bpm</strong></span>}
-								{record.vital_signs.o2_saturation && <span>{textGet("form.create_medical_record.vital_signs.o2_saturation")}: <strong>{record.vital_signs.o2_saturation}%</strong></span>}
+								{record.vital_signs.weight && (
+									<span>
+										{textGet("form.create_medical_record.vital_signs.weight")}:{" "}
+										<strong>{record.vital_signs.weight} kg</strong>
+									</span>
+								)}
+								{record.vital_signs.height && (
+									<span>
+										{textGet("form.create_medical_record.vital_signs.height")}:{" "}
+										<strong>{record.vital_signs.height} cm</strong>
+									</span>
+								)}
+								{record.vital_signs.blood_pressure && (
+									<span>
+										{textGet(
+											"form.create_medical_record.vital_signs.blood_pressure",
+										)}
+										: <strong>{record.vital_signs.blood_pressure}</strong>
+									</span>
+								)}
+								{record.vital_signs.temperature && (
+									<span>
+										{textGet(
+											"form.create_medical_record.vital_signs.temperature",
+										)}
+										: <strong>{record.vital_signs.temperature} °C</strong>
+									</span>
+								)}
+								{record.vital_signs.heart_rate && (
+									<span>
+										{textGet(
+											"form.create_medical_record.vital_signs.heart_rate",
+										)}
+										: <strong>{record.vital_signs.heart_rate} bpm</strong>
+									</span>
+								)}
+								{record.vital_signs.o2_saturation && (
+									<span>
+										{textGet(
+											"form.create_medical_record.vital_signs.o2_saturation",
+										)}
+										: <strong>{record.vital_signs.o2_saturation}%</strong>
+									</span>
+								)}
 							</div>
 						</div>
 					)}
@@ -810,19 +867,25 @@ function LastRecordDialog({
 					)}
 
 					{/* Prescription */}
-					{record.prescription && (record.prescription.content || record.prescription.indications) && (
-						<div className="border rounded-md p-4">
-							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-								<Text uuid="form.create_medical_record.prescription.title" />
-							</p>
-							{record.prescription.content && (
-								<p className="text-sm whitespace-pre-wrap">{record.prescription.content}</p>
-							)}
-							{record.prescription.indications && (
-								<p className="text-sm text-muted-foreground whitespace-pre-wrap mt-1">{record.prescription.indications}</p>
-							)}
-						</div>
-					)}
+					{record.prescription &&
+						(record.prescription.content ||
+							record.prescription.indications) && (
+							<div className="border rounded-md p-4">
+								<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+									<Text uuid="form.create_medical_record.prescription.title" />
+								</p>
+								{record.prescription.content && (
+									<p className="text-sm whitespace-pre-wrap">
+										{record.prescription.content}
+									</p>
+								)}
+								{record.prescription.indications && (
+									<p className="text-sm text-muted-foreground whitespace-pre-wrap mt-1">
+										{record.prescription.indications}
+									</p>
+								)}
+							</div>
+						)}
 				</div>
 			</DialogContent>
 		</Dialog>

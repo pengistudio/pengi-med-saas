@@ -64,7 +64,8 @@ export function DataTable<TData, TValue>({
 	const [rowSelection, setRowSelection] = React.useState({});
 	const { setRows } = useRowStore();
 
-	const isServerPaginated = pageCount !== undefined && onPageChange !== undefined;
+	const isServerPaginated =
+		pageCount !== undefined && onPageChange !== undefined;
 
 	const table = useReactTable({
 		data,
@@ -74,7 +75,9 @@ export function DataTable<TData, TValue>({
 			columnFilters,
 			columnVisibility,
 			rowSelection,
-			...(isServerPaginated && { pagination: { pageIndex: (page ?? 1) - 1, pageSize: 20 } }),
+			...(isServerPaginated && {
+				pagination: { pageIndex: (page ?? 1) - 1, pageSize: 20 },
+			}),
 		},
 		...(isServerPaginated && {
 			manualPagination: true,

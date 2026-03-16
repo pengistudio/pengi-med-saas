@@ -55,8 +55,8 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	// Use useMemo with stable reference
 	const allNavItems = useMemo(
 		() =>
-			createNavItems(textGet).filter((item) =>
-				!item.permission || checkPermission([item.permission]),
+			createNavItems(textGet).filter(
+				(item) => !item.permission || checkPermission([item.permission]),
 			),
 		[textGet, checkPermission],
 	);
@@ -130,7 +130,10 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 						"accordionItems" in item && item.accordionItems ? (
 							<NavAccordion key={item.label} {...item} />
 						) : (
-							<NavItem key={item.label} {...(item as Parameters<typeof NavItem>[0])} />
+							<NavItem
+								key={item.label}
+								{...(item as Parameters<typeof NavItem>[0])}
+							/>
 						),
 					)}
 					<a

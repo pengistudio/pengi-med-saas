@@ -165,7 +165,12 @@ export interface Appointment extends BaseModel {
 	end_time: string;
 	location?: string;
 	notes?: string;
-	status: "scheduled" | "arrived" | "in_consultation" | "completed" | "cancelled";
+	status:
+		| "scheduled"
+		| "arrived"
+		| "in_consultation"
+		| "completed"
+		| "cancelled";
 	patient?: Patient;
 }
 

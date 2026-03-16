@@ -48,7 +48,11 @@ const CatalogItemList = () => {
 
 	const fetchItems = React.useCallback(async (p: number, s: string) => {
 		setLoading(true);
-		const res = await getAllCatalogItems({ page: p, limit: PAGE_LIMIT, search: s });
+		const res = await getAllCatalogItems({
+			page: p,
+			limit: PAGE_LIMIT,
+			search: s,
+		});
 		if (res.success && res.data) {
 			setItemList(res.data.items);
 			setTotalPages(res.data.total_pages);

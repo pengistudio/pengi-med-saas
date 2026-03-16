@@ -6,7 +6,11 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import { type DiagnosisItem, searchICD10, searchICD11 } from "@/api/clinical-service";
+import {
+	type DiagnosisItem,
+	searchICD10,
+	searchICD11,
+} from "@/api/clinical-service";
 import {
 	Combobox,
 	ComboboxChip,
@@ -58,19 +62,22 @@ function FormIcd11Select<
 
 	const searchFn = system === "cie10" ? searchICD10 : searchICD11;
 
-	const handleInputChange = useCallback((value: string) => {
-		if (debounceRef.current) clearTimeout(debounceRef.current);
-		if (!value || value.length < 2) {
-			setResults([]);
-			return;
-		}
-		debounceRef.current = setTimeout(async () => {
-			const res = await searchFn(value);
-			if (res.success && res.data) {
-				setResults(res.data);
+	const handleInputChange = useCallback(
+		(value: string) => {
+			if (debounceRef.current) clearTimeout(debounceRef.current);
+			if (!value || value.length < 2) {
+				setResults([]);
+				return;
 			}
-		}, 350);
-	}, [searchFn]);
+			debounceRef.current = setTimeout(async () => {
+				const res = await searchFn(value);
+				if (res.success && res.data) {
+					setResults(res.data);
+				}
+			}, 350);
+		},
+		[searchFn],
+	);
 
 	return (
 		<Controller

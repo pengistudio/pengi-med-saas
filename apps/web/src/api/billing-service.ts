@@ -1,6 +1,5 @@
 import { apiWithTenant } from ".";
-import type { Patient } from "./clinical-service";
-import type { PaginatedResponse } from "./clinical-service";
+import type { PaginatedResponse, Patient } from "./clinical-service";
 import {
 	type BaseModel,
 	createHttpService,
@@ -208,4 +207,3 @@ export const deleteCatalogItem = async (
 		notifyError: true,
 	});
 };
-

@@ -10,7 +10,6 @@ import EditCatalogItemPage from "@/pages/billing/edit-catalog-item";
 import InvoiceListPage from "@/pages/billing/invoice-list";
 import SriSettingsPage from "@/pages/billing/sri-settings";
 import AppointmentsPage from "@/pages/clincal/appointments/appointments";
-import WaitingRoomPage from "@/pages/clincal/waiting-room/waiting-room";
 import CreateMedicalRecordPage from "@/pages/clincal/patient/create-medical-record";
 import CreatePatientPage from "@/pages/clincal/patient/create-patient";
 import EditPatientPage from "@/pages/clincal/patient/edit-patient";
@@ -18,11 +17,12 @@ import MedicalRecords from "@/pages/clincal/patient/medical-record-list";
 import Clinical from "@/pages/clincal/patient/patient-list";
 import UpdateMedicalRecordPage from "@/pages/clincal/patient/update-medical-record";
 import ViewMedicalRecordPage from "@/pages/clincal/patient/view-medical-record";
+import WaitingRoomPage from "@/pages/clincal/waiting-room/waiting-room";
 import Home from "@/pages/home/home";
-import SettingsPage from "@/pages/settings/settings-page";
 import LoginEnvironments from "@/pages/login/login-environments";
 import Login from "@/pages/login/login-page";
 import Profile from "@/pages/profile/profile";
+import SettingsPage from "@/pages/settings/settings-page";
 import Signup from "@/pages/signup/signup-page";
 
 const clinicalRoutes: RouteObject = {

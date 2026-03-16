@@ -207,10 +207,27 @@ export const patientColumns: ColumnDef<Patient>[] = [
 							<HelpCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
 						</TooltipTrigger>
 						<TooltipContent side="top" className="max-w-48 text-xs space-y-1">
-							<p className="font-medium"><Text uuid="clinical.patient.next_appointment" /></p>
-							<div className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-red-500" /><span><Text uuid="clinical.patient.appointment.today" /></span></div>
-							<div className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /><span><Text uuid="clinical.patient.appointment.tomorrow" /></span></div>
-							<div className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-emerald-500" /><span><Text uuid="clinical.patient.appointment.upcoming" /></span></div>
+							<p className="font-medium">
+								<Text uuid="clinical.patient.next_appointment" />
+							</p>
+							<div className="flex items-center gap-1.5">
+								<span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+								<span>
+									<Text uuid="clinical.patient.appointment.today" />
+								</span>
+							</div>
+							<div className="flex items-center gap-1.5">
+								<span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+								<span>
+									<Text uuid="clinical.patient.appointment.tomorrow" />
+								</span>
+							</div>
+							<div className="flex items-center gap-1.5">
+								<span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+								<span>
+									<Text uuid="clinical.patient.appointment.upcoming" />
+								</span>
+							</div>
 						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
@@ -234,7 +251,9 @@ export const patientColumns: ColumnDef<Patient>[] = [
 			today.setHours(0, 0, 0, 0);
 			const apptDay = new Date(apptDate);
 			apptDay.setHours(0, 0, 0, 0);
-			const diffDays = Math.round((apptDay.getTime() - today.getTime()) / 86400000);
+			const diffDays = Math.round(
+				(apptDay.getTime() - today.getTime()) / 86400000,
+			);
 
 			const colorClass =
 				diffDays === 0
@@ -249,9 +268,13 @@ export const patientColumns: ColumnDef<Patient>[] = [
 			});
 
 			return (
-				<span className={`inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium ${colorClass}`}>
+				<span
+					className={`inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium ${colorClass}`}
+				>
 					<span>{dateLabel}</span>
-					<span className="opacity-80">{nextScheduled.start_time} – {nextScheduled.end_time}</span>
+					<span className="opacity-80">
+						{nextScheduled.start_time} – {nextScheduled.end_time}
+					</span>
 				</span>
 			);
 		},
@@ -279,7 +302,9 @@ export function usePatientColumns(): ColumnDef<Patient>[] {
 	const clinical = settings.clinical;
 
 	return patientColumns.filter((col) => {
-		const key = (col as { accessorKey?: string }).accessorKey ?? (col as { id?: string }).id;
+		const key =
+			(col as { accessorKey?: string }).accessorKey ??
+			(col as { id?: string }).id;
 		const settingKey = key ? OPTIONAL_COLUMN_KEYS[key] : undefined;
 		if (!settingKey) return true;
 		return clinical[settingKey as keyof typeof clinical] !== false;

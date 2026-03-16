@@ -1,10 +1,10 @@
 import axios from "axios";
 import { toast } from "sonner";
+import { redirectToRootDomain } from "@/lib/url-utils";
 import { useMessageStore } from "@/store/message-store";
 import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
-import { redirectToRootDomain } from "@/lib/url-utils";
 
 // Called when a 401 is received at runtime (token revoked or expired server-side).
 // Uses store getState() directly since interceptors run outside React.
