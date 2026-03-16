@@ -6,7 +6,7 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import { type DiagnosisItem, searchICD11 } from "@/api/clinical-service";
+import { type DiagnosisItem, searchICD10, searchICD11 } from "@/api/clinical-service";
 import {
 	Combobox,
 	ComboboxChip,
@@ -36,6 +36,7 @@ type FormIcd11SelectProps<
 	label?: string;
 	isOptional?: boolean;
 	description?: string;
+	system?: "cie11" | "cie10";
 };
 
 function FormIcd11Select<
@@ -48,11 +49,14 @@ function FormIcd11Select<
 	label,
 	isOptional,
 	description,
+	system = "cie11",
 }: FormIcd11SelectProps<T, Output, Input>) {
 	const { textGet } = useText();
 	const anchor = useComboboxAnchor();
 	const [results, setResults] = useState<DiagnosisItem[]>([]);
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const searchFn = system === "cie10" ? searchICD10 : searchICD11;
 
 	const handleInputChange = useCallback((value: string) => {
 		if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -61,12 +65,12 @@ function FormIcd11Select<
 			return;
 		}
 		debounceRef.current = setTimeout(async () => {
-			const res = await searchICD11(value);
+			const res = await searchFn(value);
 			if (res.success && res.data) {
 				setResults(res.data);
 			}
 		}, 350);
-	}, []);
+	}, [searchFn]);
 
 	return (
 		<Controller

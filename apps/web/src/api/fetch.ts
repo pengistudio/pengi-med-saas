@@ -215,7 +215,7 @@ export class HttpService {
 				toast.error(
 					typeof config.notifyError === "string"
 						? config.notifyError
-						: errorObj.data.error_message,
+						: errorObj.message,
 				);
 			}
 

@@ -34,7 +34,7 @@ export interface Patient extends BaseModel {
 export const getAllPatientsWithLastFollowUp = async (): Promise<
 	ServiceResponse<Patient[]>
 > => {
-	return clinicalService.get<Patient[]>("/clinical/patients", {
+	return clinicalService.get<Patient[]>("/clinical/patients/follow-up", {
 		notifyError: true,
 	});
 };
@@ -350,6 +350,15 @@ export const searchICD11 = async (
 ): Promise<ServiceResponse<DiagnosisItem[]>> => {
 	return clinicalService.get<DiagnosisItem[]>(
 		`/clinical/icd11/search?q=${encodeURIComponent(q)}`,
+		{ notifyError: true },
+	);
+};
+
+export const searchICD10 = async (
+	q: string,
+): Promise<ServiceResponse<DiagnosisItem[]>> => {
+	return clinicalService.get<DiagnosisItem[]>(
+		`/clinical/icd10/search?q=${encodeURIComponent(q)}`,
 		{ notifyError: true },
 	);
 };

@@ -53,13 +53,15 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	}, [environment?.name]);
 
 	// Use useMemo with stable reference
-	const navItems = useMemo(
+	const allNavItems = useMemo(
 		() =>
 			createNavItems(textGet).filter((item) =>
-				checkPermission([item.permission || ""]),
+				!item.permission || checkPermission([item.permission]),
 			),
 		[textGet, checkPermission],
 	);
+	const navItems = allNavItems.filter((item) => !item.isBottom);
+	const bottomNavItems = allNavItems.filter((item) => item.isBottom);
 
 	const handleLogout = useCallback(() => {
 		logout();
@@ -123,7 +125,14 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 				</nav>
 
 				{/* Sidebar Footer */}
-				<div className="border-t border-sidebar-border p-2 py-4 overflow-hidden">
+				<div className="border-t border-sidebar-border p-2 py-4 overflow-hidden space-y-1">
+					{bottomNavItems.map((item) =>
+						"accordionItems" in item && item.accordionItems ? (
+							<NavAccordion key={item.label} {...item} />
+						) : (
+							<NavItem key={item.label} {...(item as Parameters<typeof NavItem>[0])} />
+						),
+					)}
 					<a
 						href="/"
 						title={!sidebarOpen ? textGet("dashboard.help") : undefined}

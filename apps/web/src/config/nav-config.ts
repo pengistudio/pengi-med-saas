@@ -5,6 +5,7 @@ import {
 	Layers,
 	LayoutDashboard,
 	Receipt,
+	Settings,
 	SquareActivity,
 	UsersRound,
 } from "lucide-react";
@@ -15,6 +16,7 @@ export interface BaseNavItem {
 	label: string;
 	icon: React.ComponentType<{ className?: string }>;
 	permission?: string;
+	isBottom?: boolean;
 }
 
 export type NavItemType =
@@ -54,6 +56,12 @@ export const createNavItems = (
 			},
 		],
 		permission: PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_MEDICAL_RECORD,
+	},
+	{
+		icon: Settings,
+		label: textGet("settings.title"),
+		href: "/settings",
+		isBottom: true,
 	},
 	{
 		icon: Receipt,

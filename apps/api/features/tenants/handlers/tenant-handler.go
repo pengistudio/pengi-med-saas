@@ -2,6 +2,7 @@ package tenant_handlers
 
 import (
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -168,4 +169,51 @@ func (h *TenantHandler) UpdateSriInfo(c *gin.Context) envelope.Response {
 	}
 
 	return envelope.SuccessResponse(tenantRecord, "tenant.sri_info.update.success")
+}
+
+// GetUISettings returns the current UI settings for the tenant.
+func (h *TenantHandler) GetUISettings(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+	}
+
+	settings := tenant_models.DefaultUISettings()
+	if tenantRecord.UISettings != "" && tenantRecord.UISettings != "{}" {
+		if err := json.Unmarshal([]byte(tenantRecord.UISettings), &settings); err != nil {
+			h.logger.Warn("Failed to parse UISettings, using defaults", zap.Error(err))
+		}
+	}
+
+	return envelope.SuccessResponse(settings, "tenant.settings.fetch.success")
+}
+
+// UpdateUISettings saves new UI settings for the tenant.
+func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	var settings tenant_models.UISettings
+	if err := c.ShouldBindJSON(&settings); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid settings payload", core_errors.ErrTenantNotFound)
+	}
+
+	raw, err := json.Marshal(settings)
+	if err != nil {
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to encode settings", core_errors.ErrInternal)
+	}
+
+	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("ui_settings", string(raw)).Error; err != nil {
+		h.logger.Error("Failed to save UISettings", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save settings", core_errors.ErrInternal)
+	}
+
+	return envelope.SuccessResponse(settings, "tenant.settings.update.success")
 }

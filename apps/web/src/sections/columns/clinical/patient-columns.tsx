@@ -3,6 +3,7 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
 	Download,
 	Eye,
+	HelpCircle,
 	MoreVertical,
 	Pencil,
 	Phone,
@@ -24,8 +25,15 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Text } from "@/components/ui/text";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import useAuth from "@/hooks/use-auth";
 import usePermission from "@/hooks/use-permission";
+import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
 import { usePatientStore } from "@/store/patient-store";
 
@@ -188,7 +196,24 @@ export const patientColumns: ColumnDef<Patient>[] = [
 	},
 	{
 		id: "next_appointment",
-		header: () => <Text uuid="clinical.patient.next_appointment" />,
+		header: () => (
+			<div className="flex items-center gap-1">
+				<Text uuid="clinical.patient.next_appointment" />
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger className="cursor-help">
+							<HelpCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+						</TooltipTrigger>
+						<TooltipContent side="top" className="max-w-48 text-xs space-y-1">
+							<p className="font-medium"><Text uuid="clinical.patient.next_appointment" /></p>
+							<div className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-red-500" /><span><Text uuid="clinical.patient.appointment.today" /></span></div>
+							<div className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /><span><Text uuid="clinical.patient.appointment.tomorrow" /></span></div>
+							<div className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-emerald-500" /><span><Text uuid="clinical.patient.appointment.upcoming" /></span></div>
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			</div>
+		),
 		meta: { title: "table.column.next_appointment" },
 		size: 100,
 		cell: ({ row }) => {
@@ -201,11 +226,32 @@ export const patientColumns: ColumnDef<Patient>[] = [
 					</Badge>
 				);
 			}
-			return new Date(nextScheduled.date).toLocaleDateString("es-EC", {
-				year: "numeric",
+
+			const apptDate = new Date(nextScheduled.date);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const apptDay = new Date(apptDate);
+			apptDay.setHours(0, 0, 0, 0);
+			const diffDays = Math.round((apptDay.getTime() - today.getTime()) / 86400000);
+
+			const colorClass =
+				diffDays === 0
+					? "bg-red-500/15 text-red-700 dark:text-red-400 border-red-400/40"
+					: diffDays === 1
+						? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/40"
+						: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-400/40";
+
+			const dateLabel = apptDate.toLocaleDateString("es-EC", {
 				month: "short",
 				day: "numeric",
 			});
+
+			return (
+				<span className={`inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium ${colorClass}`}>
+					<span>{dateLabel}</span>
+					<span className="opacity-80">{nextScheduled.start_time} – {nextScheduled.end_time}</span>
+				</span>
+			);
 		},
 	},
 	{
@@ -220,6 +266,24 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		size: 50,
 	},
 ];
+const OPTIONAL_COLUMN_KEYS: Record<string, string> = {
+	diagnosis: "show_diagnosis",
+	next_appointment: "show_next_appointment",
+	medic: "show_medic",
+};
+
+export function usePatientColumns(): ColumnDef<Patient>[] {
+	const { settings } = useTenantSettings();
+	const clinical = settings.clinical;
+
+	return patientColumns.filter((col) => {
+		const key = (col as { accessorKey?: string }).accessorKey ?? (col as { id?: string }).id;
+		const settingKey = key ? OPTIONAL_COLUMN_KEYS[key] : undefined;
+		if (!settingKey) return true;
+		return clinical[settingKey as keyof typeof clinical] !== false;
+	});
+}
+
 export const patientColumnsMobile: ColumnDef<Patient>[] = [
 	{
 		cell: ({ row }) => (

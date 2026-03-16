@@ -34,7 +34,7 @@ func (h *AppointmentHandler) GetAppointments(c *gin.Context) envelope.Response {
 	start := c.Query("start")
 	end := c.Query("end")
 	if start != "" && end != "" {
-		query = query.Where("date >= ? AND date <= ?", start, end)
+		query = query.Where("DATE(date) >= DATE(?) AND DATE(date) <= DATE(?)", start, end)
 	}
 
 	var appointments []clinical_models.Appointment
@@ -108,6 +108,20 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
 	}
 
+	tenantID, exists := c.Get("tenant_id")
+
+	// Check for overlapping appointments on the same date and tenant
+	if exists {
+		var count int64
+		h.db.Model(&clinical_models.Appointment{}).
+			Where("tenant_id = ? AND DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ?",
+				tenantID, dto.Date, dto.EndTime, dto.StartTime).
+			Count(&count)
+		if count > 0 {
+			return envelope.ErrorResponse(http.StatusConflict, "appointments.overlap.error", core_errors.ErrClinicalAppointmentOverlap)
+		}
+	}
+
 	appointment := &clinical_models.Appointment{
 		PatientID: dto.PatientID,
 		Title:     dto.Title,
@@ -119,7 +133,6 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 		Status:    "scheduled",
 	}
 
-	tenantID, exists := c.Get("tenant_id")
 	if exists {
 		appointment.TenantID = tenantID.(uint)
 	}
@@ -176,6 +189,30 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 	}
 	if dto.Notes != nil {
 		updates["notes"] = *dto.Notes
+	}
+
+	// Check for overlap only when time or date fields are being changed
+	newDate := appointment.Date
+	if dto.Date != nil {
+		newDate = *dto.Date
+	}
+	newStart := appointment.StartTime
+	if dto.StartTime != nil {
+		newStart = *dto.StartTime
+	}
+	newEnd := appointment.EndTime
+	if dto.EndTime != nil {
+		newEnd = *dto.EndTime
+	}
+
+	tenantID, _ := c.Get("tenant_id")
+	var count int64
+	h.db.Model(&clinical_models.Appointment{}).
+		Where("tenant_id = ? AND DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ? AND id != ?",
+			tenantID, newDate, newEnd, newStart, id).
+		Count(&count)
+	if count > 0 {
+		return envelope.ErrorResponse(http.StatusConflict, "appointments.overlap.error", core_errors.ErrClinicalAppointmentOverlap)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&appointment).Updates(updates).Error; err != nil {

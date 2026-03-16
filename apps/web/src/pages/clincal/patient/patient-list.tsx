@@ -26,8 +26,8 @@ import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import {
-	patientColumns,
 	patientColumnsMobile,
+	usePatientColumns,
 } from "@/sections/columns/clinical/patient-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { usePatientStore } from "@/store/patient-store";
@@ -40,6 +40,7 @@ const Clinical = () => {
 	const { patientList, setPatientList } = usePatientStore();
 	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
+	const patientColumns = usePatientColumns();
 	const { textGet } = useText();
 
 	React.useEffect(() => {

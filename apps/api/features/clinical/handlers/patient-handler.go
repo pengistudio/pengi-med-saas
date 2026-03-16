@@ -183,10 +183,14 @@ func (h *PatientHandler) GetAllPatients(c *gin.Context) envelope.Response {
 
 func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope.Response {
 	var patients []clinical_models.Patient
+	now := time.Now()
 	err := h.db.
 		Scopes(tenant_middleware.TenantScope(c)).
 		Preload("MedicalRecords", func(db *gorm.DB) *gorm.DB {
 			return db.Order("date DESC").Limit(1)
+		}).
+		Preload("Appointments", func(db *gorm.DB) *gorm.DB {
+			return db.Where("status = ? AND date >= ?", "scheduled", now).Order("date ASC")
 		}).
 		Model(&clinical_models.Patient{}).
 		Find(&patients).Error

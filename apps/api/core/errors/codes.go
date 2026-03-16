@@ -27,7 +27,8 @@ var (
 	ErrClinicalRecordNotFound      AppError = NewAppError("E-CLIN-005", "Medical record not found.")
 	ErrClinicalRecordCreateError   AppError = NewAppError("E-CLIN-006", "Error creating medical record.")
 	ErrClinicalRecordUpdateError   AppError = NewAppError("E-CLIN-007", "Error updating medical record.")
-	ErrClinicalReportGenerateError AppError = NewAppError("E-CLIN-008", "Error generating patient report.")
+	ErrClinicalReportGenerateError    AppError = NewAppError("E-CLIN-008", "Error generating patient report.")
+	ErrClinicalAppointmentOverlap     AppError = NewAppError("E-CLIN-009", "Appointment overlaps with an existing one.")
 
 	// Permission Errors
 	ErrPermissionGetError AppError = NewAppError("E-PERM-001", "Error getting permissions.")

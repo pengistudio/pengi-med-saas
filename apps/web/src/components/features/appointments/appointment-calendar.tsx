@@ -144,7 +144,7 @@ export default function AppointmentCalendar() {
 					style={{ scrollbarGutter: "stable" }}
 				>
 					{/* Day Headers (sticky) */}
-					<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-10">
+					<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20">
 						<div className="border-r" />
 						{weekDays.map((day) => (
 							<div
@@ -185,7 +185,6 @@ export default function AppointmentCalendar() {
 									className="absolute w-full pr-2 text-right"
 									style={{
 										top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
-										transform: "translateY(-50%)",
 									}}
 								>
 									<span className="text-xs text-muted-foreground block">

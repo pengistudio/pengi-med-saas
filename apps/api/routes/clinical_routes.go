@@ -18,14 +18,16 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	appointmentHandler := clinical_handlers.NewAppointmentHandler(db, logger.Log)
 	dashboardHandler := clinical_handlers.NewDashboardHandler(db, logger.Log)
 	icd11Handler := clinical_handlers.NewICD11Handler(logger.Log)
+	icd10Handler := clinical_handlers.NewICD10Handler(db, logger.Log)
 
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db))
 	{
 
-		// ICD-11 search route
+		// ICD search routes
 		clinicalGroup.GET("/icd11/search", envelope.Handle(icd11Handler.Search))
+		clinicalGroup.GET("/icd10/search", envelope.Handle(icd10Handler.Search))
 
 		// Dashboard route
 		clinicalGroup.GET("/dashboard/stats", envelope.Handle(dashboardHandler.GetDashboardStats))

@@ -19,6 +19,7 @@ import Clinical from "@/pages/clincal/patient/patient-list";
 import UpdateMedicalRecordPage from "@/pages/clincal/patient/update-medical-record";
 import ViewMedicalRecordPage from "@/pages/clincal/patient/view-medical-record";
 import Home from "@/pages/home/home";
+import SettingsPage from "@/pages/settings/settings-page";
 import LoginEnvironments from "@/pages/login/login-environments";
 import Login from "@/pages/login/login-page";
 import Profile from "@/pages/profile/profile";
@@ -204,6 +205,10 @@ const router = createBrowserRouter([
 			{
 				path: "/profile",
 				element: <Profile />,
+			},
+			{
+				path: "/settings",
+				element: <SettingsPage />,
 			},
 			...routes,
 		],

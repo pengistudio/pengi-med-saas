@@ -40,6 +40,7 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.PrescriptionItem{},
 		clinical_models.VitalSigns{},
 		clinical_models.Appointment{},
+		clinical_models.Cie10Code{},
 		backoffice_models.BackofficeUser{},
 		billing_models.Invoice{},
 		billing_models.InvoiceItem{},
