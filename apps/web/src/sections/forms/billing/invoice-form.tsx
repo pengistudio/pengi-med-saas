@@ -6,7 +6,7 @@ import * as z from "zod";
 import {
 	type CatalogItem,
 	createInvoice,
-	getCatalogItems,
+	getAllCatalogItems,
 } from "@/api/billing-service";
 import {
 	getAllPatientsWithLastFollowUp,
@@ -72,9 +72,9 @@ export function InvoiceForm() {
 				setPatients(res.data);
 			}
 		});
-		getCatalogItems().then((res) => {
+		getAllCatalogItems({ limit: 100 }).then((res) => {
 			if (res.success && res.data) {
-				setCatalogItems(res.data);
+				setCatalogItems(res.data.items);
 			}
 		});
 	}, []);

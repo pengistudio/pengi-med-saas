@@ -1,5 +1,6 @@
 import { apiWithTenant } from ".";
 import type { Patient } from "./clinical-service";
+import type { PaginatedResponse } from "./clinical-service";
 import {
 	type BaseModel,
 	createHttpService,
@@ -84,10 +85,24 @@ export type CreateCatalogItemPayload = {
 
 export type UpdateCatalogItemPayload = Partial<CreateCatalogItemPayload>;
 
-export const getAllInvoices = async (): Promise<ServiceResponse<Invoice[]>> => {
-	return billingService.get<Invoice[]>("/billing/invoices", {
-		notifyError: true,
-	});
+export type InvoiceListParams = {
+	page?: number;
+	limit?: number;
+	search?: string;
+};
+
+export const getAllInvoices = async (
+	params: InvoiceListParams = {},
+): Promise<ServiceResponse<PaginatedResponse<Invoice>>> => {
+	const qs = new URLSearchParams();
+	if (params.page) qs.set("page", String(params.page));
+	if (params.limit) qs.set("limit", String(params.limit));
+	if (params.search) qs.set("search", params.search);
+	const query = qs.toString() ? `?${qs.toString()}` : "";
+	return billingService.get<PaginatedResponse<Invoice>>(
+		`/billing/invoices${query}`,
+		{ notifyError: true },
+	);
 };
 
 export const createInvoice = async (
@@ -134,12 +149,24 @@ export const processMultipleInvoicesSRI = async (
 	);
 };
 
-export const getAllCatalogItems = async (): Promise<
-	ServiceResponse<CatalogItem[]>
-> => {
-	return billingService.get<CatalogItem[]>("/billing/catalog-items", {
-		notifyError: true,
-	});
+export type CatalogItemListParams = {
+	page?: number;
+	limit?: number;
+	search?: string;
+};
+
+export const getAllCatalogItems = async (
+	params: CatalogItemListParams = {},
+): Promise<ServiceResponse<PaginatedResponse<CatalogItem>>> => {
+	const qs = new URLSearchParams();
+	if (params.page) qs.set("page", String(params.page));
+	if (params.limit) qs.set("limit", String(params.limit));
+	if (params.search) qs.set("search", params.search);
+	const query = qs.toString() ? `?${qs.toString()}` : "";
+	return billingService.get<PaginatedResponse<CatalogItem>>(
+		`/billing/catalog-items${query}`,
+		{ notifyError: true },
+	);
 };
 
 export const getCatalogItemById = async (
@@ -182,13 +209,3 @@ export const deleteCatalogItem = async (
 	});
 };
 
-export const getCatalogItems = async (
-	search?: string,
-): Promise<ServiceResponse<CatalogItem[]>> => {
-	const params = new URLSearchParams();
-	if (search) params.set("search", search);
-	const qs = params.toString() ? `?${params.toString()}` : "";
-	return billingService.get<CatalogItem[]>(`/billing/catalog-items${qs}`, {
-		notifyError: true,
-	});
-};

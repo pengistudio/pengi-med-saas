@@ -1,7 +1,30 @@
 import axios from "axios";
+import { toast } from "sonner";
 import { useMessageStore } from "@/store/message-store";
 import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
+import { useUserStore } from "@/store/user-store";
+import { redirectToRootDomain } from "@/lib/url-utils";
+
+// Called when a 401 is received at runtime (token revoked or expired server-side).
+// Uses store getState() directly since interceptors run outside React.
+let sessionExpiredHandled = false;
+export function resetSessionExpiredFlag() {
+	sessionExpiredHandled = false;
+}
+function handleSessionExpired() {
+	if (sessionExpiredHandled || !useTokenStore.getState().token) return;
+	sessionExpiredHandled = true;
+
+	const messages = useMessageStore.getState().messages;
+	toast.error(messages["session.expired"] ?? "Sesión expirada");
+
+	localStorage.clear();
+	sessionStorage.clear();
+	useTokenStore.getState().setToken(undefined);
+	useUserStore.getState().clean();
+	redirectToRootDomain();
+}
 
 export const api = axios.create({
 	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
@@ -70,17 +93,17 @@ noAuthApi.interceptors.request.use(
 	},
 );
 
-api.interceptors.response.use(
-	(response) => response,
-	async (error) => {
-		const originalRequest = error.config;
+function make401Interceptor(instance: ReturnType<typeof axios.create>) {
+	instance.interceptors.response.use(
+		(response) => response,
+		(error) => {
+			if (error.response?.status === 401) {
+				handleSessionExpired();
+			}
+			return Promise.reject(error);
+		},
+	);
+}
 
-		// Si el error es 401 y no hemos intentado refrescar el token aún
-		if (error.response?.status === 401 && !originalRequest._retry) {
-			originalRequest._retry = true;
-			// Aquí podrías implementar la lógica de refresh token si la tienes
-			// Por ahora solo rechazamos
-		}
-		return Promise.reject(error);
-	},
-);
+make401Interceptor(api);
+make401Interceptor(apiWithTenant);

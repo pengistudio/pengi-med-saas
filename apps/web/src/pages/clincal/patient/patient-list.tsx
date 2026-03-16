@@ -30,31 +30,53 @@ import {
 	usePatientColumns,
 } from "@/sections/columns/clinical/patient-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { usePatientStore } from "@/store/patient-store";
 import { useRowStore } from "@/store/row-store";
+
+const PAGE_LIMIT = 20;
 
 const Clinical = () => {
 	const [loading, setLoading] = React.useState(true);
+	const [patients, setPatients] = React.useState<Patient[]>([]);
+	const [page, setPage] = React.useState(1);
+	const [totalPages, setTotalPages] = React.useState(1);
+	const [_, setTotal] = React.useState(0);
+	const [search, setSearch] = React.useState("");
+	const [searchInput, setSearchInput] = React.useState("");
+
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { patientList, setPatientList } = usePatientStore();
 	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const patientColumns = usePatientColumns();
 	const { textGet } = useText();
 
-	React.useEffect(() => {
-		async function fetchPatients() {
-			const res = await getAllPatientsWithLastFollowUp();
-			if (!res.success) {
-				navigate("/");
-			} else if (res.data) {
-				setPatientList(res.data);
-			}
-			setLoading(false);
+	const fetchPatients = React.useCallback(async (p: number, s: string) => {
+		setLoading(true);
+		const res = await getAllPatientsWithLastFollowUp({
+			page: p,
+			limit: PAGE_LIMIT,
+			search: s,
+		});
+		if (res.success && res.data) {
+			setPatients(res.data.items);
+			setTotal(res.data.total);
+			setTotalPages(res.data.total_pages);
 		}
-		fetchPatients();
-	}, [navigate, setPatientList]);
+		setLoading(false);
+	}, []);
+
+	React.useEffect(() => {
+		fetchPatients(page, search);
+	}, [page, search, fetchPatients]);
+
+	// Debounce search input
+	React.useEffect(() => {
+		const timer = setTimeout(() => {
+			setPage(1);
+			setSearch(searchInput);
+		}, 400);
+		return () => clearTimeout(timer);
+	}, [searchInput]);
 
 	return (
 		<DashboardLayout>
@@ -105,17 +127,19 @@ const Clinical = () => {
 						</AlertDialogContent>
 					</AlertDialog>
 				</div>
+
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-					{loading ? (
-						<div className="h-24 w-full animate-pulse bg-muted rounded-md" />
-					) : (
-						<DataTable
-							searchKey="document"
-							searchPlaceholder={textGet("clinical.patient.search.placeholder")}
-							columns={isMobile ? patientColumnsMobile : patientColumns}
-							data={patientList ? patientList : []}
-						/>
-					)}
+					<DataTable
+						columns={isMobile ? patientColumnsMobile : patientColumns}
+						data={patients}
+						loading={loading}
+						searchPlaceholder={textGet("clinical.patient.search.placeholder")}
+						searchValue={searchInput}
+						onSearchChange={setSearchInput}
+						pageCount={totalPages}
+						page={page}
+						onPageChange={setPage}
+					/>
 				</div>
 			</main>
 		</DashboardLayout>
@@ -127,7 +151,9 @@ const Clinical = () => {
 			parsedRows.map((row) => row.original.ID),
 		);
 		if (res.success && res.data) {
-			setPatientList(res.data);
+			setPatients(res.data.items ?? []);
+			setTotal(res.data.total ?? 0);
+			setTotalPages(res.data.total_pages ?? 1);
 		}
 	}
 

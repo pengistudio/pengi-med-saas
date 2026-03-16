@@ -76,14 +76,37 @@ func (h *CatalogItemHandler) CreateCatalogItem(c *gin.Context) envelope.Response
 
 func (h *CatalogItemHandler) GetAllCatalogItems(c *gin.Context) envelope.Response {
 	tenantScope := tenant_middleware.TenantScope(c)
-	var items []billing_models.CatalogItem
 
-	if err := h.db.Scopes(tenantScope).Find(&items).Error; err != nil {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	search := c.Query("search")
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
+	baseQuery := h.db.Scopes(tenantScope).Model(&billing_models.CatalogItem{})
+	if search != "" {
+		like := "%" + search + "%"
+		baseQuery = baseQuery.Where("name ILIKE ? OR sku ILIKE ?", like, like)
+	}
+
+	var total int64
+	if err := baseQuery.Count(&total).Error; err != nil {
+		h.logger.Error("Failed to count catalog items", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to count catalog items", core_errors.ErrInternal)
+	}
+
+	var items []billing_models.CatalogItem
+	if err := baseQuery.Order("name ASC").Limit(limit).Offset(offset).Find(&items).Error; err != nil {
 		h.logger.Error("Failed to fetch catalog items", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to fetch catalog items", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(items, "billing.catalog_items.fetch.success")
+	return envelope.PagedSuccessResponse(items, int(total), page, limit, "billing.catalog_items.fetch.success")
 }
 
 func (h *CatalogItemHandler) GetCatalogItemByID(c *gin.Context) envelope.Response {

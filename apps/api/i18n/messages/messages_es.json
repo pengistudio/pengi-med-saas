@@ -164,6 +164,10 @@
     "value": "Tu sesión ha expirado, por favor inicia sesión de nuevo."
   },
   {
+    "key": "error.rate_limit_exceeded",
+    "value": "Demasiadas solicitudes. Por favor espera un momento e intenta de nuevo."
+  },
+  {
     "key": "dashboard.clinical",
     "value": "Bitácora"
   },
@@ -2918,5 +2922,13 @@
   {
     "key": "E-CLIN-009",
     "value": "Ya existe una cita en ese horario. Por favor elige otro horario."
+  },
+  {
+    "key": "pagination.showing",
+    "value": "Mostrando"
+  },
+  {
+    "key": "pagination.of",
+    "value": "de"
   }
 ]

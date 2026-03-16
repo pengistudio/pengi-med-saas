@@ -152,14 +152,37 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 
 func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 	tenantScope := tenant_middleware.TenantScope(c)
-	var invoices []billing_models.Invoice
 
-	if err := h.db.Scopes(tenantScope).Preload("Patient").Find(&invoices).Error; err != nil {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	search := c.Query("search")
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
+	baseQuery := h.db.Scopes(tenantScope).Model(&billing_models.Invoice{})
+	if search != "" {
+		like := "%" + search + "%"
+		baseQuery = baseQuery.Where("sequential ILIKE ? OR status ILIKE ?", like, like)
+	}
+
+	var total int64
+	if err := baseQuery.Count(&total).Error; err != nil {
+		h.logger.Error("Failed to count invoices", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoices.error.fetch_failed", core_errors.ErrInternal)
+	}
+
+	var invoices []billing_models.Invoice
+	if err := baseQuery.Preload("Patient").Order("created_at DESC").Limit(limit).Offset(offset).Find(&invoices).Error; err != nil {
 		h.logger.Error("Failed to fetch invoices", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoices.error.fetch_failed", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(invoices, "billing.invoices.fetch.success")
+	return envelope.PagedSuccessResponse(invoices, int(total), page, limit, "billing.invoices.fetch.success")
 }
 
 func (h *InvoiceHandler) DeleteInvoiceByID(c *gin.Context) envelope.Response {

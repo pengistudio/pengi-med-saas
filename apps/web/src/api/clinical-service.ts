@@ -31,19 +31,37 @@ export interface Patient extends BaseModel {
 	appointments?: Appointment[];
 }
 
-export const getAllPatientsWithLastFollowUp = async (): Promise<
-	ServiceResponse<Patient[]>
-> => {
-	return clinicalService.get<Patient[]>("/clinical/patients/follow-up", {
-		notifyError: true,
-	});
+export interface PaginatedResponse<T> {
+	items: T[];
+	total: number;
+	page: number;
+	limit: number;
+	total_pages: number;
+}
+
+export type PatientListParams = {
+	page?: number;
+	limit?: number;
+	search?: string;
+};
+
+export const getAllPatientsWithLastFollowUp = async (
+	params: PatientListParams = {},
+): Promise<ServiceResponse<PaginatedResponse<Patient>>> => {
+	const qs = new URLSearchParams();
+	if (params.page) qs.set("page", String(params.page));
+	if (params.limit) qs.set("limit", String(params.limit));
+	if (params.search) qs.set("search", params.search);
+	const query = qs.toString() ? `?${qs.toString()}` : "";
+	return clinicalService.get<PaginatedResponse<Patient>>(
+		`/clinical/patients/follow-up${query}`,
+		{ notifyError: true },
+	);
 };
 
 export const deleteMultiplePatients = async (
 	ids: number[],
-): Promise<ServiceResponse<Patient[]>> => {
-	// Our API has a DeletePatient endpoint (DELETE /clinical/patients/:id)
-	// We map the calls and then fetch patients again to simulate "delete multiple and return list"
+): Promise<ServiceResponse<PaginatedResponse<Patient>>> => {
 	const promises = ids.map((id) =>
 		clinicalService.delete<Patient>(`/clinical/patients/${id}`, {
 			notifySuccess: true,
@@ -53,10 +71,9 @@ export const deleteMultiplePatients = async (
 	const results = await Promise.all(promises);
 
 	const failed = results.find((r) => !r.success);
-	if (failed) return failed as ServiceResponse<Patient[]>;
+	if (failed) return failed as ServiceResponse<PaginatedResponse<Patient>>;
 
-	// if all succeed, fetch freshest map
-	return getAllPatientsWithLastFollowUp();
+	return getAllPatientsWithLastFollowUp({});
 };
 
 export const downloadPatientReport = async (id: number): Promise<void> => {
@@ -198,11 +215,21 @@ export interface MedicalRecord extends BaseModel {
 	diagnoses?: DiagnosisItem[];
 }
 
+export type MedicalRecordListParams = {
+	page?: number;
+	limit?: number;
+};
+
 export const getMedicalRecords = async (
 	patientId: number,
-): Promise<ServiceResponse<MedicalRecord[]>> => {
-	return clinicalService.get<MedicalRecord[]>(
-		`/clinical/records/patient/${patientId}`,
+	params: MedicalRecordListParams = {},
+): Promise<ServiceResponse<PaginatedResponse<MedicalRecord>>> => {
+	const qs = new URLSearchParams();
+	if (params.page) qs.set("page", String(params.page));
+	if (params.limit) qs.set("limit", String(params.limit));
+	const query = qs.toString() ? `?${qs.toString()}` : "";
+	return clinicalService.get<PaginatedResponse<MedicalRecord>>(
+		`/clinical/records/patient/${patientId}${query}`,
 		{ notifyError: true },
 	);
 };

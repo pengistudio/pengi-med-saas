@@ -31,6 +31,8 @@ import {
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useRowStore } from "@/store/row-store";
 
+const PAGE_LIMIT = 20;
+
 const CatalogItemList = () => {
 	const { checkPermission } = usePermission();
 	const navigate = useNavigate();
@@ -39,24 +41,36 @@ const CatalogItemList = () => {
 	const { isMobile } = useResponsive();
 	const { textGet } = useText();
 	const [itemList, setItemList] = React.useState<CatalogItem[]>([]);
+	const [page, setPage] = React.useState(1);
+	const [totalPages, setTotalPages] = React.useState(1);
+	const [search, setSearch] = React.useState("");
+	const [searchInput, setSearchInput] = React.useState("");
 
-	React.useEffect(() => {
+	const fetchItems = React.useCallback(async (p: number, s: string) => {
 		setLoading(true);
-		getAllCatalogItems().then((res) => {
-			if (res.success) {
-				setItemList(res.data || []);
-			}
-			setLoading(false);
-		});
-	}, []);
-
-	const loadItems = async () => {
-		setLoading(true);
-		const res = await getAllCatalogItems();
-		if (res.success) {
-			setItemList(res.data || []);
+		const res = await getAllCatalogItems({ page: p, limit: PAGE_LIMIT, search: s });
+		if (res.success && res.data) {
+			setItemList(res.data.items);
+			setTotalPages(res.data.total_pages);
 		}
 		setLoading(false);
+	}, []);
+
+	React.useEffect(() => {
+		fetchItems(page, search);
+	}, [page, search, fetchItems]);
+
+	// Debounce search
+	React.useEffect(() => {
+		const timer = setTimeout(() => {
+			setPage(1);
+			setSearch(searchInput);
+		}, 400);
+		return () => clearTimeout(timer);
+	}, [searchInput]);
+
+	const loadItems = async () => {
+		fetchItems(page, search);
 	};
 
 	const handleEdit = (id: number) => {
@@ -125,28 +139,29 @@ const CatalogItemList = () => {
 					</AlertDialog>
 				</div>
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-					{loading ? (
-						<div className="h-24 w-full animate-pulse bg-muted rounded-md" />
-					) : (
-						<DataTable
-							searchKey="sku"
-							searchPlaceholder={textGet(
-								"billing.catalog-item.search.placeholder",
-							)}
-							columns={
-								isMobile
-									? getCatalogItemColumnsMobile({
-											onEdit: handleEdit,
-											onDelete: handleDeleteRow,
-										})
-									: getCatalogItemColumns({
-											onEdit: handleEdit,
-											onDelete: handleDeleteRow,
-										})
-							}
-							data={itemList || []}
-						/>
-					)}
+					<DataTable
+						searchPlaceholder={textGet(
+							"billing.catalog-item.search.placeholder",
+						)}
+						searchValue={searchInput}
+						onSearchChange={setSearchInput}
+						columns={
+							isMobile
+								? getCatalogItemColumnsMobile({
+										onEdit: handleEdit,
+										onDelete: handleDeleteRow,
+									})
+								: getCatalogItemColumns({
+										onEdit: handleEdit,
+										onDelete: handleDeleteRow,
+									})
+						}
+						data={itemList}
+						loading={loading}
+						pageCount={totalPages}
+						page={page}
+						onPageChange={setPage}
+					/>
 				</div>
 			</main>
 		</DashboardLayout>

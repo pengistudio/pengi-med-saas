@@ -30,15 +30,29 @@ import { DataTableViewOptions } from "./data-table-view-options";
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	loading?: boolean;
 	searchKey?: string;
 	searchPlaceholder?: string;
+	// Server-side search
+	searchValue?: string;
+	onSearchChange?: (value: string) => void;
+	// Server-side pagination
+	pageCount?: number;
+	page?: number;
+	onPageChange?: (page: number) => void;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
+	loading,
 	searchKey,
 	searchPlaceholder,
+	searchValue,
+	onSearchChange,
+	pageCount,
+	page,
+	onPageChange,
 }: DataTableProps<TData, TValue>) {
 	const { textGet } = useText();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -50,6 +64,8 @@ export function DataTable<TData, TValue>({
 	const [rowSelection, setRowSelection] = React.useState({});
 	const { setRows } = useRowStore();
 
+	const isServerPaginated = pageCount !== undefined && onPageChange !== undefined;
+
 	const table = useReactTable({
 		data,
 		columns,
@@ -58,7 +74,17 @@ export function DataTable<TData, TValue>({
 			columnFilters,
 			columnVisibility,
 			rowSelection,
+			...(isServerPaginated && { pagination: { pageIndex: (page ?? 1) - 1, pageSize: 20 } }),
 		},
+		...(isServerPaginated && {
+			manualPagination: true,
+			pageCount,
+			onPaginationChange: (updater) => {
+				const prev = { pageIndex: (page ?? 1) - 1, pageSize: 20 };
+				const next = typeof updater === "function" ? updater(prev) : updater;
+				onPageChange(next.pageIndex + 1);
+			},
+		}),
 		enableRowSelection: true,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
@@ -78,7 +104,18 @@ export function DataTable<TData, TValue>({
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				{searchKey && (
+				{onSearchChange ? (
+					<div className="flex items-center py-4 max-w-sm w-full">
+						<Input
+							placeholder={
+								searchPlaceholder || textGet("table.search.placeholder")
+							}
+							value={searchValue ?? ""}
+							onChange={(event) => onSearchChange(event.target.value)}
+							className="max-w-sm w-full"
+						/>
+					</div>
+				) : searchKey ? (
 					<div className="flex items-center py-4 max-w-sm w-full">
 						<Input
 							placeholder={
@@ -93,7 +130,7 @@ export function DataTable<TData, TValue>({
 							className="max-w-sm w-full"
 						/>
 					</div>
-				)}
+				) : null}
 				<DataTableViewOptions table={table} />
 			</div>
 
@@ -118,7 +155,19 @@ export function DataTable<TData, TValue>({
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows?.length ? (
+						{loading ? (
+							Array.from({ length: 6 }).map((_, i) => (
+								// biome-ignore lint/suspicious/noArrayIndexKey: skeleton rows
+								<TableRow key={i}>
+									{columns.map((_, j) => (
+										// biome-ignore lint/suspicious/noArrayIndexKey: skeleton cells
+										<TableCell key={j}>
+											<div className="h-4 w-full animate-pulse rounded bg-muted" />
+										</TableCell>
+									))}
+								</TableRow>
+							))
+						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
@@ -147,7 +196,7 @@ export function DataTable<TData, TValue>({
 					</TableBody>
 				</Table>
 			</div>
-			<DataTablePagination table={table} />
+			<DataTablePagination table={table} serverSide={isServerPaginated} />
 		</div>
 	);
 }

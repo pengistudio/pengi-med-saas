@@ -52,7 +52,7 @@ type icd11ApiResponse struct {
 func (h *ICD11Handler) Search(c *gin.Context) envelope.Response {
 	q := c.Query("q")
 	if q == "" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "query param 'q' is required", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "query param 'q' is required", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	lang := c.Query("lang")

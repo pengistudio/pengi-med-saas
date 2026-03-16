@@ -29,7 +29,7 @@ func (h *EnvironmentHandler) GetEnvironmentsFromUser(c *gin.Context) envelope.Re
 	userID, exists := c.Get("user_id")
 	if !exists {
 		h.logger.Error("User ID not found in context")
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Unauthorized", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Unauthorized", core_errors.ErrInvalidRequest)
 	}
 
 	var user user_models.User

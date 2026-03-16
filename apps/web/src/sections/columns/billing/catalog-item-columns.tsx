@@ -117,12 +117,14 @@ export const getCatalogItemColumns = ({
 			const catalogItem = row.original;
 			return (
 				<DropdownMenu>
-					<DropdownMenuTrigger>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<Text uuid="table.button.open_menu" className="sr-only" />
-							<MoreHorizontal className="h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
+					<DropdownMenuTrigger
+						render={
+							<Button variant="ghost" className="h-8 w-8 p-0">
+								<Text uuid="table.button.open_menu" className="sr-only" />
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						}
+					/>
 					<DropdownMenuContent align="end">
 						<DropdownMenuGroup>
 							<DropdownMenuLabel>
@@ -244,12 +246,14 @@ export const getCatalogItemColumnsMobile = ({
 			const catalogItem = row.original;
 			return (
 				<DropdownMenu>
-					<DropdownMenuTrigger>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<Text uuid="table.button.open_menu" className="sr-only" />
-							<MoreHorizontal className="h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
+					<DropdownMenuTrigger
+						render={
+							<Button variant="ghost" className="h-8 w-8 p-0">
+								<Text uuid="table.button.open_menu" className="sr-only" />
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						}
+					/>
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>
 							<Text uuid="table.actions" />

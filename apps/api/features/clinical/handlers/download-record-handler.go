@@ -36,7 +36,7 @@ func (h *DownloadRecordHandler) DownloadPatientReport(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrAuthInvalidRequest))
+		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest))
 		return
 	}
 
@@ -313,7 +313,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 	idParam := c.Param("id")
 	recordID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrAuthInvalidRequest))
+		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest))
 		return
 	}
 

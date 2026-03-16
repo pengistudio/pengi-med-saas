@@ -164,6 +164,10 @@
     "value": "Your session has expired, please log in again."
   },
   {
+    "key": "error.rate_limit_exceeded",
+    "value": "Too many requests. Please wait a moment and try again."
+  },
+  {
     "key": "dashboard.clinical",
     "value": "Journal"
   },
@@ -2918,5 +2922,13 @@
   {
     "key": "E-CLIN-009",
     "value": "There is already an appointment in that time slot. Please choose a different time."
+  },
+  {
+    "key": "pagination.showing",
+    "value": "Showing"
+  },
+  {
+    "key": "pagination.of",
+    "value": "of"
   }
 ]

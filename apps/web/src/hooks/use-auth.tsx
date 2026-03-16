@@ -1,5 +1,6 @@
 import { extendSessionWithToken, userLogin } from "@/api/auth-service";
 import type { ResponseError } from "@/api/fetch";
+import { resetSessionExpiredFlag } from "@/api/index";
 import { redirectToRootDomain } from "@/lib/url-utils";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
@@ -20,6 +21,7 @@ const useAuth = () => {
 		user_name: string,
 		password: string,
 	): Promise<AuthResponse> => {
+		resetSessionExpiredFlag();
 		const result = await userLogin({ user_name, password });
 
 		if (result.success) {

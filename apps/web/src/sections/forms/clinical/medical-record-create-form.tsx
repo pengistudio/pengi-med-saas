@@ -118,9 +118,9 @@ const CreateMedicalRecordForm = () => {
 
 	React.useEffect(() => {
 		if (!patientId) return;
-		getMedicalRecords(Number(patientId)).then((res) => {
-			if (res.success && res.data && res.data.length > 0) {
-				setLastRecord(res.data[0]);
+		getMedicalRecords(Number(patientId), { page: 1, limit: 1 }).then((res) => {
+			if (res.success && res.data && res.data.items.length > 0) {
+				setLastRecord(res.data.items[0]);
 			}
 		});
 	}, [patientId]);

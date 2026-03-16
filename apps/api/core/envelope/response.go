@@ -32,6 +32,32 @@ func SuccessResponse(data any, message string) Response {
 	}
 }
 
+type PagedData struct {
+	Items      any `json:"items"`
+	Total      int `json:"total"`
+	Page       int `json:"page"`
+	Limit      int `json:"limit"`
+	TotalPages int `json:"total_pages"`
+}
+
+func PagedSuccessResponse(items any, total int, page int, limit int, message string) Response {
+	totalPages := 0
+	if limit > 0 {
+		totalPages = (total + limit - 1) / limit
+	}
+	return Response{
+		Code:    http.StatusOK,
+		Message: message,
+		Data: PagedData{
+			Items:      items,
+			Total:      total,
+			Page:       page,
+			Limit:      limit,
+			TotalPages: totalPages,
+		},
+	}
+}
+
 func ErrorResponse(code int, message string, data core_errors.AppError) Response {
 	return Response{
 		Code:    code,

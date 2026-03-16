@@ -279,7 +279,7 @@ func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Re
 
 	var req UpdateCompanyUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	// Find the environment linking this user to this company

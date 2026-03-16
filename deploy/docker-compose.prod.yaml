@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: pengi-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile.prod
+    container_name: pengi-api
+    restart: unless-stopped
+    env_file: .env.prod
+    volumes:
+      - api_storage:/app/storage
+    depends_on:
+      - rabbitmq
+    networks:
+      - app
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: pengi-web
+    restart: unless-stopped
+    networks:
+      - app
+
+  backoffice:
+    build:
+      context: ../apps/backoffice
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: pengi-backoffice
+    restart: unless-stopped
+    networks:
+      - app
+
+  landing:
+    build:
+      context: ../apps/landing
+      dockerfile: Dockerfile
+    container_name: pengi-landing
+    restart: unless-stopped
+    networks:
+      - app
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: pengi-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - app
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: pengi-gotenberg
+    restart: unless-stopped
+    networks:
+      - app
+
+  icd-api:
+    image: whoicd/icd-api
+    container_name: pengi-icd-api
+    restart: unless-stopped
+    environment:
+      - acceptLicense=true
+      - saveAnalytics=false
+      - include=2026-01_en-es
+    networks:
+      - app
+
+  sri-xml-signer:
+    build:
+      context: ../apps/sri-xml-signer
+      dockerfile: Dockerfile
+    container_name: pengi-sri-xml-signer
+    restart: unless-stopped
+    environment:
+      - ALLOWED_ORIGIN=http://api:8080
+    networks:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:
+  api_storage:
+  rabbitmq_data:
+
+networks:
+  app:
+    driver: bridge

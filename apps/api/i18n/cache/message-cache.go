@@ -61,5 +61,8 @@ func Get(lang, key string) string {
 }
 
 func Reload(db *gorm.DB) error {
+	mutex.Lock()
+	cache = make(map[string]map[string]string)
+	mutex.Unlock()
 	return loadMessages(db)
 }

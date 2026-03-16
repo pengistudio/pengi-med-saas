@@ -43,7 +43,7 @@ func (h *UserHandler) SignUp(c *gin.Context) envelope.Response {
 	var user user_models.User
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid signup request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
 	}
 	if err := user.Save(h.db); err != nil {
 		h.logger.Error("Failed to create user", zap.Error(err))
@@ -57,7 +57,7 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	var user user_dto.LoginDTO
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid login request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
 	}
 
 	// 1) Buscar usuario
@@ -150,18 +150,18 @@ func (h *UserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {
 	if err != nil {
 		// ExtractAndValidateBearerToken returns error which we map
 		h.logger.Warn("Bearer token validation failed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrInvalidRequest)
 	}
 
 	// Extraer información del token
 	userID, ok := claims["userId"].(float64)
 	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid user ID in token", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid user ID in token", core_errors.ErrInvalidRequest)
 	}
 
 	username, ok := claims["username"].(string)
 	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid username in token", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid username in token", core_errors.ErrInvalidRequest)
 	}
 
 	// Responder con la información del token validado
@@ -210,7 +210,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	var req user_dto.CompanySignupDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Error("Invalid company signup request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
 	}
 
 	// 1) Validate the signup token

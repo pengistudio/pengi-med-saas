@@ -31,31 +31,46 @@ import {
 	invoiceColumnsMobile,
 } from "@/sections/columns/billing/invoice-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useBillingStore } from "@/store/billing-store";
 import { useRowStore } from "@/store/row-store";
+
+const PAGE_LIMIT = 20;
 
 const InvoiceListPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [processing, setProcessing] = useState(false);
+	const [invoiceList, setInvoiceList] = useState<Invoice[]>([]);
+	const [page, setPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const [search, setSearch] = useState("");
+	const [searchInput, setSearchInput] = useState("");
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { invoiceList, setInvoiceList } = useBillingStore();
 	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
-	const fetchInvoices = useCallback(async () => {
+	const fetchInvoices = useCallback(async (p: number, s: string) => {
 		setLoading(true);
-		const res = await getAllInvoices();
-		if (res.success) {
-			setInvoiceList(res.data);
+		const res = await getAllInvoices({ page: p, limit: PAGE_LIMIT, search: s });
+		if (res.success && res.data) {
+			setInvoiceList(res.data.items);
+			setTotalPages(res.data.total_pages);
 		}
 		setLoading(false);
-	}, [setInvoiceList]);
+	}, []);
 
 	useEffect(() => {
-		fetchInvoices();
-	}, [fetchInvoices]);
+		fetchInvoices(page, search);
+	}, [page, search, fetchInvoices]);
+
+	// Debounce search
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setPage(1);
+			setSearch(searchInput);
+		}, 400);
+		return () => clearTimeout(timer);
+	}, [searchInput]);
 
 	return (
 		<DashboardLayout>
@@ -114,16 +129,17 @@ const InvoiceListPage = () => {
 					</AlertDialog>
 				</div>
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-					{loading ? (
-						<div className="h-24 w-full animate-pulse bg-muted rounded-md" />
-					) : (
-						<DataTable
-							searchKey="sequential"
-							searchPlaceholder={textGet("billing.invoice.search.placeholder")}
-							columns={isMobile ? invoiceColumnsMobile : invoiceColumns}
-							data={invoiceList || []}
-						/>
-					)}
+					<DataTable
+						searchPlaceholder={textGet("billing.invoice.search.placeholder")}
+						searchValue={searchInput}
+						onSearchChange={setSearchInput}
+						columns={isMobile ? invoiceColumnsMobile : invoiceColumns}
+						data={invoiceList}
+						loading={loading}
+						pageCount={totalPages}
+						page={page}
+						onPageChange={setPage}
+					/>
 				</div>
 			</main>
 		</DashboardLayout>
@@ -135,7 +151,7 @@ const InvoiceListPage = () => {
 			const res = await deleteInvoice(row.original.ID);
 			if (!res.success) break;
 		}
-		fetchInvoices();
+		fetchInvoices(page, search);
 	}
 
 	async function handleProcessSelected() {
@@ -147,7 +163,7 @@ const InvoiceListPage = () => {
 		setProcessing(false);
 
 		if (res.success) {
-			fetchInvoices();
+			fetchInvoices(page, search);
 		}
 	}
 };

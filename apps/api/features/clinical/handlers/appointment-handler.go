@@ -40,7 +40,7 @@ func (h *AppointmentHandler) GetAppointments(c *gin.Context) envelope.Response {
 	var appointments []clinical_models.Appointment
 	if err := query.Order("date ASC, start_time ASC").Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get appointments", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	return envelope.SuccessResponse(appointments, "appointments.get.success")
@@ -57,7 +57,7 @@ func (h *AppointmentHandler) GetTodayAppointments(c *gin.Context) envelope.Respo
 		Order("start_time ASC").
 		Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get today's appointments", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	return envelope.SuccessResponse(appointments, "appointments.get.success")
@@ -67,7 +67,7 @@ func (h *AppointmentHandler) GetTodayAppointments(c *gin.Context) envelope.Respo
 func (h *AppointmentHandler) GetPatientAppointments(c *gin.Context) envelope.Response {
 	patientID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	tenantID, _ := c.Get("tenant_id")
@@ -78,7 +78,7 @@ func (h *AppointmentHandler) GetPatientAppointments(c *gin.Context) envelope.Res
 		Order("date ASC, start_time ASC").
 		Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get patient appointments", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	return envelope.SuccessResponse(appointments, "appointments.get.success")
@@ -88,13 +88,13 @@ func (h *AppointmentHandler) GetPatientAppointments(c *gin.Context) envelope.Res
 func (h *AppointmentHandler) GetAppointment(c *gin.Context) envelope.Response {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var appointment clinical_models.Appointment
 	if err := h.db.Preload("Patient").First(&appointment, id).Error; err != nil {
 		h.logger.Error("Failed to get appointment", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	return envelope.SuccessResponse(appointment, "appointments.get.success")
@@ -105,7 +105,7 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 	var dto clinical_dto.CreateAppointmentDTO
 	if err := c.ShouldBind(&dto); err != nil {
 		h.logger.Error("Invalid create appointment request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	tenantID, exists := c.Get("tenant_id")
@@ -139,7 +139,7 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(appointment).Error; err != nil {
 		h.logger.Error("Failed to create appointment", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// Reload with patient
@@ -153,19 +153,19 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var appointment clinical_models.Appointment
 	if err := h.db.First(&appointment, id).Error; err != nil {
 		h.logger.Error("Appointment not found", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var dto clinical_dto.UpdateAppointmentDTO
 	if err := c.ShouldBind(&dto); err != nil {
 		h.logger.Error("Invalid update appointment request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	updates := map[string]interface{}{}
@@ -217,7 +217,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&appointment).Updates(updates).Error; err != nil {
 		h.logger.Error("Failed to update appointment", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	h.db.Preload("Patient").First(&appointment, id)
@@ -230,13 +230,13 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var dto clinical_dto.UpdateAppointmentStatusDTO
 	if err := c.ShouldBind(&dto); err != nil {
 		h.logger.Error("Invalid status update request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// Validate status
@@ -248,17 +248,17 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 		"cancelled":       true,
 	}
 	if !validStatuses[dto.Status] {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid status. Must be: scheduled, arrived, in_consultation, completed, or cancelled", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid status. Must be: scheduled, arrived, in_consultation, completed, or cancelled", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var appointment clinical_models.Appointment
 	if err := h.db.First(&appointment, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&appointment).Update("status", dto.Status).Error; err != nil {
 		h.logger.Error("Failed to update appointment status", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	h.db.Preload("Patient").First(&appointment, id)
@@ -271,21 +271,21 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var appointment clinical_models.Appointment
 	if err := h.db.First(&appointment, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if appointment.Status != "scheduled" && appointment.Status != "cancelled" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Only scheduled or cancelled appointments can be deleted", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Only scheduled or cancelled appointments can be deleted", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Delete(&appointment).Error; err != nil {
 		h.logger.Error("Failed to delete appointment", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	h.logger.Info("Appointment deleted", zap.Int("id", id))

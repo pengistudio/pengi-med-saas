@@ -15,5 +15,6 @@ func RegisterI18nRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	{
 		group.GET("/messages", envelope.Handle(i18nHandler.GetAllMessages))
 		group.GET("/version", envelope.Handle(i18nHandler.GetMessageVersion))
+		group.POST("/reload", envelope.Handle(i18nHandler.ReloadMessages))
 	}
 }

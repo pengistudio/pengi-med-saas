@@ -53,12 +53,14 @@ function ActionsCell({
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger>
-				<Button variant="outline" size="icon" className="ml-auto">
-					<MoreVertical className="h-4 w-4" />
-					<span className="sr-only">Abrir Menu</span>
-				</Button>
-			</DropdownMenuTrigger>
+			<DropdownMenuTrigger
+				render={
+					<Button variant="outline" size="icon" className="ml-auto">
+						<MoreVertical className="h-4 w-4" />
+						<span className="sr-only">Abrir Menu</span>
+					</Button>
+				}
+			/>
 			<DropdownMenuContent align="end" className="w-64">
 				<DropdownMenuGroup>
 					<DropdownMenuLabel>

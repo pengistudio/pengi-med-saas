@@ -29,7 +29,7 @@ type icd10SearchResult struct {
 func (h *ICD10Handler) Search(c *gin.Context) envelope.Response {
 	q := c.Query("q")
 	if q == "" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "query param 'q' is required", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "query param 'q' is required", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var codes []clinical_models.Cie10Code

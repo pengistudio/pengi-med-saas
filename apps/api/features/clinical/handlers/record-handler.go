@@ -29,16 +29,34 @@ func (h *MedicalRecordHandler) GetMedicalRecords(c *gin.Context) envelope.Respon
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest)
+	}
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+
+	baseQuery := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.MedicalRecord{}).Where("patient_id = ?", id)
+
+	var total int64
+	if err := baseQuery.Count(&total).Error; err != nil {
+		h.logger.Error("Failed to count medical records", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
 	}
 
 	var records []clinical_models.MedicalRecord
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").Order("created_at desc").Where("patient_id = ?", id).Find(&records).Error; err != nil {
+	if err := baseQuery.Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").Order("created_at desc").Limit(limit).Offset(offset).Find(&records).Error; err != nil {
 		h.logger.Error("Failed to fetch medical records", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
 	}
 
-	return envelope.SuccessResponse(records, "clinical.medical_record.list.success")
+	return envelope.PagedSuccessResponse(records, int(total), page, limit, "clinical.medical_record.list.success")
 }
 
 func (h *MedicalRecordHandler) GetMedicalRecord(c *gin.Context) envelope.Response {
@@ -46,7 +64,7 @@ func (h *MedicalRecordHandler) GetMedicalRecord(c *gin.Context) envelope.Respons
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid medical record ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var record clinical_models.MedicalRecord
@@ -62,7 +80,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	var newRecord clinical_dto.CreateMedicalRecordDTO
 	if err := c.ShouldBind(&newRecord); err != nil {
 		h.logger.Error("Invalid create medical record request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	record := &clinical_models.MedicalRecord{
@@ -110,7 +128,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid medical record ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var medicalRecord clinical_models.MedicalRecord
@@ -122,7 +140,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	var updatedRecord clinical_dto.UpdateMedicalRecordDTO
 	if err := c.ShouldBind(&updatedRecord); err != nil {
 		h.logger.Error("Invalid update medical record request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// Build update map only with provided fields for MedicalRecord
@@ -240,13 +258,13 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid medical record ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var prescriptionData clinical_dto.UpdatePrescriptionDTO
 	if err := c.ShouldBindJSON(&prescriptionData); err != nil {
 		h.logger.Error("Invalid update prescription request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid prescription data", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid prescription data", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// Find medical record

@@ -6,7 +6,6 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
-	"sort"
 	"strconv"
 	"time"
 
@@ -30,7 +29,7 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 	var newPatient clinical_dto.CreatePatientDTO
 	if err := c.ShouldBind(&newPatient); err != nil {
 		h.logger.Error("Invalid create patient request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	birthDate := time.Time{}
@@ -78,13 +77,13 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var updateData clinical_dto.UpdatePatientDTO
 	if err := c.ShouldBind(&updateData); err != nil {
 		h.logger.Error("Invalid update patient request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var patient clinical_models.Patient
@@ -182,17 +181,47 @@ func (h *PatientHandler) GetAllPatients(c *gin.Context) envelope.Response {
 }
 
 func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope.Response {
-	var patients []clinical_models.Patient
+	// Pagination params
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	search := c.Query("search")
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
 	now := time.Now()
-	err := h.db.
-		Scopes(tenant_middleware.TenantScope(c)).
+
+	baseQuery := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.Patient{})
+	if search != "" {
+		like := "%" + search + "%"
+		baseQuery = baseQuery.Where(
+			"full_name ILIKE ? OR document ILIKE ? OR phone ILIKE ?",
+			like, like, like,
+		)
+	}
+
+	// Count total (critical first, then paginate)
+	var total int64
+	if err := baseQuery.Count(&total).Error; err != nil {
+		h.logger.Error("Failed to count patients", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
+	}
+
+	var patients []clinical_models.Patient
+	err := baseQuery.
+		Order("critical DESC, updated_at DESC").
+		Limit(limit).
+		Offset(offset).
 		Preload("MedicalRecords", func(db *gorm.DB) *gorm.DB {
 			return db.Order("date DESC").Limit(1)
 		}).
 		Preload("Appointments", func(db *gorm.DB) *gorm.DB {
 			return db.Where("status = ? AND date >= ?", "scheduled", now).Order("date ASC")
 		}).
-		Model(&clinical_models.Patient{}).
 		Find(&patients).Error
 
 	if err != nil {
@@ -200,18 +229,14 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
 	}
 
-	sort.SliceStable(patients, func(i, j int) bool {
-		return patients[i].Critical && !patients[j].Critical
-	})
-
-	return envelope.SuccessResponse(patients, "clinical.patient.followup.success")
+	return envelope.PagedSuccessResponse(patients, int(total), page, limit, "clinical.patient.followup.success")
 }
 
 func (h *PatientHandler) DeleteMultiplePatients(c *gin.Context) envelope.Response {
 	var deleteJSON clinical_dto.DeletePatientsDTO
 	if err := c.ShouldBind(&deleteJSON); err != nil {
 		h.logger.Error("Invalid delete multiple request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.Patient{}).Where("id IN (?)", deleteJSON.IdList).Delete(&clinical_models.Patient{}).Error; err != nil {
@@ -228,7 +253,7 @@ func (h *PatientHandler) DeleteOnePatient(c *gin.Context) envelope.Response {
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Where("id = ?", id).Delete(&clinical_models.Patient{}).Error; err != nil {
@@ -244,7 +269,7 @@ func (h *PatientHandler) GetPatientByID(c *gin.Context) envelope.Response {
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var patient clinical_models.Patient
@@ -261,7 +286,7 @@ func (h *PatientHandler) UpdatePatientCritical(c *gin.Context) envelope.Response
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var patient clinical_models.Patient
@@ -293,7 +318,7 @@ func (h *PatientHandler) UpdatePatientCriticalRevert(c *gin.Context) envelope.Re
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var patient clinical_models.Patient

@@ -63,7 +63,7 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 
 	var req UpdateBackofficeUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	updates := map[string]interface{}{}
@@ -110,7 +110,7 @@ func (h *BackofficeUserHandler) SignUp(c *gin.Context) envelope.Response {
 	var user backoffice_models.BackofficeUser
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid signup request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrBackofficeInvalidRequest)
 	}
 	if err := user.Save(h.db); err != nil {
 		h.logger.Error("Failed to create backoffice user", zap.Error(err))
@@ -123,7 +123,7 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 	var user backoffice_dto.LoginDTO
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid login request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	var foundUser backoffice_models.BackofficeUser
@@ -208,17 +208,17 @@ func (h *BackofficeUserHandler) ValidateBearerToken(c *gin.Context) envelope.Res
 	claims, token, err := ExtractAndValidateBearerToken(c)
 	if err != nil {
 		h.logger.Warn("Bearer token validation failed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	userID, ok := claims["userId"].(float64)
 	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid user ID in token", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid user ID in token", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	username, ok := claims["username"].(string)
 	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid username in token", core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid username in token", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	return envelope.SuccessResponse(gin.H{

@@ -45,6 +45,8 @@ const MedicalRecords = () => {
 	const [medicalRecords, setMedicalRecords] = React.useState<MedicalRecord[]>(
 		[],
 	);
+	const [page, setPage] = React.useState(1);
+	const [totalPages, setTotalPages] = React.useState(1);
 	const [loading, setLoading] = React.useState(true);
 	const [showPrescription, setShowPrescription] = React.useState(false);
 	const [showEditPrescription, setShowEditPrescription] = React.useState(false);
@@ -53,17 +55,18 @@ const MedicalRecords = () => {
 
 	React.useEffect(() => {
 		if (!patient) return;
-
-		getMedicalRecords(patient.ID)
+		setLoading(true);
+		getMedicalRecords(patient.ID, { page, limit: 10 })
 			.then((res) => {
 				if (res.success && res.data) {
-					setMedicalRecords(res.data as MedicalRecord[]);
+					setMedicalRecords(res.data.items);
+					setTotalPages(res.data.total_pages);
 				}
 			})
 			.finally(() => {
 				setLoading(false);
 			});
-	}, [patient]);
+	}, [patient, page]);
 
 	const latestPrescription = React.useMemo(() => {
 		const withPrescription = medicalRecords.filter((r) => r.prescription);
@@ -139,25 +142,25 @@ const MedicalRecords = () => {
 							<CalendarCheck className="w-5 h-5 text-muted-foreground" />
 							<Text uuid="clinical.medical_record.history_title" />
 						</h2>
-						{loading ? (
-							<div className="h-24 w-full animate-pulse bg-muted rounded-md" />
-						) : (
-							<DataTable
-								searchKey="motive"
-								searchPlaceholder={textGet(
-									"clinical.medical_record.search.placeholder",
-								)}
-								columns={getMedicalRecordColumns(
-									handleView,
-									handleEdit,
-									handleViewPrescription,
-									handleEditPrescription,
-									handleDownloadPrescription,
-									handleSendWhatsAppPrescription,
-								)}
-								data={medicalRecords}
-							/>
-						)}
+						<DataTable
+							searchKey="motive"
+							searchPlaceholder={textGet(
+								"clinical.medical_record.search.placeholder",
+							)}
+							columns={getMedicalRecordColumns(
+								handleView,
+								handleEdit,
+								handleViewPrescription,
+								handleEditPrescription,
+								handleDownloadPrescription,
+								handleSendWhatsAppPrescription,
+							)}
+							data={medicalRecords}
+							loading={loading}
+							pageCount={totalPages}
+							page={page}
+							onPageChange={setPage}
+						/>
 					</div>
 				</div>
 
@@ -198,9 +201,10 @@ const MedicalRecords = () => {
 
 	function reloadRecords() {
 		if (!patient) return;
-		getMedicalRecords(patient.ID).then((res) => {
+		getMedicalRecords(patient.ID, { page, limit: 10 }).then((res) => {
 			if (res.success && res.data) {
-				setMedicalRecords(res.data as MedicalRecord[]);
+				setMedicalRecords(res.data.items);
+				setTotalPages(res.data.total_pages);
 			}
 		});
 	}
