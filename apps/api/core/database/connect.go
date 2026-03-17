@@ -73,9 +73,10 @@ func EnsureDatabase() error {
 		return fmt.Errorf("missing required environment variables for database connection")
 	}
 
-	// 1️⃣ Conexión temporal sin especificar la base de datos
+	// 1️⃣ Conexión temporal a la base de datos por defecto (defaultdb en DO Managed PostgreSQL)
 	sslmode := config.GetEnvWithDefault("DB_SSL_MODE", "disable")
-	rootDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=%s", host, port, user, password, sslmode)
+	rootDBName := config.GetEnvWithDefault("DB_ROOT_NAME", "defaultdb")
+	rootDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, rootDBName, sslmode)
 	rootDB, err := sql.Open("postgres", rootDSN)
 	if err != nil {
 		return fmt.Errorf("error connecting to postgres server: %w", err)
