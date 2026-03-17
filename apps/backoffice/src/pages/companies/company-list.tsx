@@ -151,9 +151,15 @@ const CompanyList = () => {
 											</TableCell>
 											<TableCell>{company.legal_name}</TableCell>
 											<TableCell>
-												<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-													{company.plan_code}
-												</span>
+												{company.Subscriptions?.[0] ? (
+													<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+														{company.Subscriptions[0].plan_code}
+													</span>
+												) : (
+													<span className="text-muted-foreground text-xs">
+														—
+													</span>
+												)}
 											</TableCell>
 											<TableCell className="text-muted-foreground">
 												{company.tenant?.slug}

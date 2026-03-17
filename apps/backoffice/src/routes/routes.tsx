@@ -12,6 +12,9 @@ import Login from "@/pages/login/login-page";
 import CreatePlan from "@/pages/plans/create-plan";
 import EditPlan from "@/pages/plans/edit-plan";
 import PlanList from "@/pages/plans/plan-list";
+import CreateRole from "@/pages/roles/create-role";
+import EditRole from "@/pages/roles/edit-role";
+import RoleList from "@/pages/roles/role-list";
 import CreateSubscription from "@/pages/subscriptions/create-subscription";
 import EditSubscription from "@/pages/subscriptions/edit-subscription";
 import SubscriptionList from "@/pages/subscriptions/subscription-list";
@@ -45,6 +48,9 @@ const router = createBrowserRouter([
 			{ path: "/subscriptions", element: <SubscriptionList /> },
 			{ path: "/subscriptions/create", element: <CreateSubscription /> },
 			{ path: "/subscriptions/edit/:id", element: <EditSubscription /> },
+			{ path: "/roles", element: <RoleList /> },
+			{ path: "/roles/create", element: <CreateRole /> },
+			{ path: "/roles/edit/:id", element: <EditRole /> },
 			{ path: "/users", element: <UserList /> },
 			{ path: "/users/create", element: <CreateUser /> },
 			{ path: "/users/edit/:id", element: <EditUser /> },

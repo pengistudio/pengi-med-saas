@@ -16,12 +16,17 @@ export interface Company {
 		name: string;
 		slug: string;
 	};
+	Subscriptions?: {
+		ID: number;
+		plan_code: string;
+		status: string;
+		expires_at: string;
+	}[];
 }
 
 export interface CreateCompanyRequest extends Record<string, unknown> {
 	legal_name: string;
 	trade_name: string;
-	plan_code: string;
 }
 
 export interface UpdateCompanyRequest extends Record<string, unknown> {

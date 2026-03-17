@@ -3,6 +3,7 @@ package routes
 import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
+	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	clinical_handlers "pengi-med-saas/features/clinical/handlers"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
@@ -23,7 +24,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
 	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log)
 
-	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db))
+	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 	{
 
 		// ICD search routes
@@ -33,32 +34,34 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		// Dashboard route
 		clinicalGroup.GET("/dashboard/stats", envelope.Handle(dashboardHandler.GetDashboardStats))
 
+		rp := subscription_middleware.RequirePermission
+
 		// Patient routes
 		patientGroup := clinicalGroup.Group("/patients")
 		{
-			patientGroup.POST("", envelope.Handle(patientHandler.CreatePatient))
-			patientGroup.PUT("/:id", envelope.Handle(patientHandler.UpdatePatient))
-			patientGroup.PUT("/:id/critical", envelope.Handle(patientHandler.UpdatePatientCritical))
-			patientGroup.PUT("/:id/critical-revert", envelope.Handle(patientHandler.UpdatePatientCriticalRevert))
-			patientGroup.GET("", envelope.Handle(patientHandler.GetAllPatients))
-			patientGroup.GET("/follow-up", envelope.Handle(patientHandler.GetAllPatientsWithLastFollowUp))
-			patientGroup.GET("/:id", envelope.Handle(patientHandler.GetPatientByID))
-			patientGroup.GET("/:id/report", downloadHandler.DownloadPatientReport)
-			patientGroup.POST("/delete-multiple", envelope.Handle(patientHandler.DeleteMultiplePatients))
-			patientGroup.DELETE("/delete-multiple/:id", envelope.Handle(patientHandler.DeleteOnePatient))
+			patientGroup.POST("", rp(db, "CREATE_PATIENT"), envelope.Handle(patientHandler.CreatePatient))
+			patientGroup.PUT("/:id", rp(db, "UPDATE_PATIENT"), envelope.Handle(patientHandler.UpdatePatient))
+			patientGroup.PUT("/:id/critical", rp(db, "UPDATE_PATIENT"), envelope.Handle(patientHandler.UpdatePatientCritical))
+			patientGroup.PUT("/:id/critical-revert", rp(db, "UPDATE_PATIENT"), envelope.Handle(patientHandler.UpdatePatientCriticalRevert))
+			patientGroup.GET("", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetAllPatients))
+			patientGroup.GET("/follow-up", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetAllPatientsWithLastFollowUp))
+			patientGroup.GET("/:id", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetPatientByID))
+			patientGroup.GET("/:id/report", rp(db, "DOWNLOAD_PATIENT_REPORT"), downloadHandler.DownloadPatientReport)
+			patientGroup.POST("/delete-multiple", rp(db, "DELETE_PATIENT"), envelope.Handle(patientHandler.DeleteMultiplePatients))
+			patientGroup.DELETE("/delete-multiple/:id", rp(db, "DELETE_PATIENT"), envelope.Handle(patientHandler.DeleteOnePatient))
 		}
 
 		// Medical Record routes
 		recordGroup := clinicalGroup.Group("/records")
 		{
-			recordGroup.POST("", envelope.Handle(recordHandler.CreateMedicalRecord))
-			recordGroup.PUT("/:id", envelope.Handle(recordHandler.UpdateMedicalRecord))
-			recordGroup.GET("/patient/:id", envelope.Handle(recordHandler.GetMedicalRecords))
-			recordGroup.GET("/:id", envelope.Handle(recordHandler.GetMedicalRecord))
-			recordGroup.PUT("/:id/prescription", envelope.Handle(recordHandler.UpdatePrescription))
-			recordGroup.GET("/:id/prescription/download", downloadHandler.DownloadPrescription)
-			recordGroup.PUT("/:id/vital-signs", envelope.Handle(vitalSignsHandler.UpsertVitalSigns))
-			recordGroup.GET("/:id/vital-signs", envelope.Handle(vitalSignsHandler.GetVitalSigns))
+			recordGroup.POST("", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(recordHandler.CreateMedicalRecord))
+			recordGroup.PUT("/:id", rp(db, "UPDATE_MEDICAL_RECORD"), envelope.Handle(recordHandler.UpdateMedicalRecord))
+			recordGroup.GET("/patient/:id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(recordHandler.GetMedicalRecords))
+			recordGroup.GET("/:id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(recordHandler.GetMedicalRecord))
+			recordGroup.PUT("/:id/prescription", rp(db, "UPDATE_PRESCRIPTION"), envelope.Handle(recordHandler.UpdatePrescription))
+			recordGroup.GET("/:id/prescription/download", rp(db, "UPDATE_PRESCRIPTION"), downloadHandler.DownloadPrescription)
+			recordGroup.PUT("/:id/vital-signs", rp(db, "UPDATE_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.UpsertVitalSigns))
+			recordGroup.GET("/:id/vital-signs", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.GetVitalSigns))
 		}
 
 		// Prescription template routes

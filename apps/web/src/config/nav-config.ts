@@ -7,6 +7,7 @@ import {
 	Receipt,
 	Settings,
 	SquareActivity,
+	Users,
 	UsersRound,
 } from "lucide-react";
 import type React from "react";
@@ -56,6 +57,11 @@ export const createNavItems = (
 			},
 		],
 		permission: PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_MEDICAL_RECORD,
+	},
+	{
+		icon: Users,
+		label: textGet("team.title"),
+		href: "/team",
 	},
 	{
 		icon: Settings,

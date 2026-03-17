@@ -3,6 +3,7 @@ import {
 	CreditCard,
 	LayoutDashboard,
 	Puzzle,
+	ShieldCheck,
 	Users,
 } from "lucide-react";
 import type React from "react";
@@ -57,5 +58,10 @@ export const createNavItems = (
 		icon: Users,
 		label: textGet("backoffice.nav.users"),
 		href: "/users",
+	},
+	{
+		icon: ShieldCheck,
+		label: textGet("backoffice.nav.roles"),
+		href: "/roles",
 	},
 ];

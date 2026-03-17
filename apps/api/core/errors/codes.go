@@ -44,6 +44,8 @@ var (
 	ErrBackofficeFeatureNotFound      AppError = NewAppError("E-BO-005", "Feature not found.")
 	ErrBackofficePlanNotFound         AppError = NewAppError("E-BO-006", "Plan not found.")
 	ErrBackofficeSubscriptionNotFound AppError = NewAppError("E-BO-007", "Subscription not found.")
+	ErrPlanLimitUsers                 AppError = NewAppError("E-PLAN-001", "User limit reached for this plan.")
+	ErrPlanLimitPatients              AppError = NewAppError("E-PLAN-002", "Patient limit reached for this plan.")
 
 	// Billing Errors
 	ErrBillingInvalidRequest       AppError = NewAppError("E-BILL-001", "Invalid billing request.")

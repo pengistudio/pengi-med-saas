@@ -99,6 +99,12 @@ function make401Interceptor(instance: ReturnType<typeof axios.create>) {
 			if (error.response?.status === 401) {
 				handleSessionExpired();
 			}
+			if (
+				error.response?.status === 403 &&
+				error.response?.data?.data?.error_code === "E-BO-007"
+			) {
+				useSessionStore.getState().setSubscriptionExpired(true);
+			}
 			return Promise.reject(error);
 		},
 	);

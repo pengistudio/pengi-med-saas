@@ -17,6 +17,8 @@ type SessionState = {
 		tenant_slug: string;
 		permissions: string[];
 	};
+	subscriptionExpired: boolean;
+	setSubscriptionExpired: (value: boolean) => void;
 	clean: () => void;
 	setEnvironment: (env: EnvironmentWithCompany) => void;
 };
@@ -24,7 +26,10 @@ type SessionState = {
 const persistSession = persist<SessionState>(
 	(set) => ({
 		environment: undefined,
-		clean: () => set({ environment: undefined }),
+		subscriptionExpired: false,
+		setSubscriptionExpired: (value: boolean) =>
+			set({ subscriptionExpired: value }),
+		clean: () => set({ environment: undefined, subscriptionExpired: false }),
 		setEnvironment: (env: EnvironmentWithCompany) =>
 			set({
 				environment: {

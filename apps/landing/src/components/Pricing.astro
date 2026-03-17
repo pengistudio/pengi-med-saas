@@ -2,30 +2,51 @@
 const plans = [
 	{
 		name: "Básico",
-		price: "$0",
+		price: "$29",
 		period: "/mes",
-		description: "Ideal para consultorios pequeños que están comenzando.",
-		features: [] as string[],
-		cta: "Comenzar gratis",
+		description: "Para consultorios independientes que quieren digitalizarse.",
+		features: [
+			"Hasta 500 pacientes",
+			"Agenda de citas",
+			"Expedientes clínicos con ICD-11",
+			"Recetas médicas en PDF",
+			"Hasta 3 usuarios / 1 consultorio",
+			"Soporte por correo",
+		],
+		cta: "Solicitar acceso",
 		highlighted: false,
 	},
 	{
 		name: "Profesional",
-		price: "$0",
+		price: "$59",
 		period: "/mes",
-		description:
-			"Para clínicas en crecimiento que necesitan más funcionalidades.",
-		features: [] as string[],
-		cta: "Comenzar gratis",
+		description: "Para clínicas en crecimiento con necesidades avanzadas.",
+		features: [
+			"Pacientes ilimitados",
+			"Todo lo del plan Básico",
+			"Facturación electrónica SRI",
+			"Sala de espera digital",
+			"Plantillas personalizadas de recetas",
+			"Hasta 3 usuarios",
+			"Soporte prioritario",
+		],
+		cta: "Solicitar acceso",
 		highlighted: true,
 	},
 	{
 		name: "Empresarial",
-		price: "$0",
-		period: "/mes",
-		description: "Para instituciones médicas con múltiples consultorios.",
-		features: [] as string[],
-		cta: "Comenzar gratis",
+		price: "A medida",
+		period: "",
+		description: "Para instituciones con múltiples consultorios y equipos.",
+		features: [
+			"Todo lo del plan Profesional",
+			"Usuarios y consultorios ilimitados",
+			"Roles y permisos personalizados",
+			"Onboarding dedicado",
+			"SLA garantizado",
+			"Soporte 24/7",
+		],
+		cta: "Contactar ventas",
 		highlighted: false,
 	},
 ];
@@ -42,7 +63,7 @@ const plans = [
 				Un plan para cada necesidad
 			</h2>
 			<p class="text-lg text-text-muted">
-				Elige el plan que mejor se adapte a tu práctica médica. Sin compromisos, cambia cuando quieras.
+				Elige el plan que mejor se adapte a tu práctica médica. Sin contratos anuales obligatorios.
 			</p>
 		</div>
 
@@ -71,27 +92,23 @@ const plans = [
 
 					<div class="flex items-baseline gap-1 mb-8">
 						<span class="text-5xl font-extrabold text-text">{plan.price}</span>
-						<span class="text-text-muted font-medium">{plan.period}</span>
+						{plan.period && <span class="text-text-muted font-medium">{plan.period}</span>}
 					</div>
 
 					<!-- Feature list -->
-					<ul class="flex flex-col gap-3 mb-8 flex-1 min-h-[120px]">
-						{plan.features.length > 0 ? (
-							plan.features.map((feature) => (
-								<li class="flex items-start gap-3 text-sm text-text-muted">
-									<svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-										<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-									</svg>
-									{feature}
-								</li>
-							))
-						) : (
-							<li class="text-sm text-text-muted/50 italic">Funcionalidades próximamente...</li>
-						)}
+					<ul class="flex flex-col gap-3 mb-8 flex-1">
+						{plan.features.map((feature) => (
+							<li class="flex items-start gap-3 text-sm text-text-muted">
+								<svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+								</svg>
+								{feature}
+							</li>
+						))}
 					</ul>
 
 					<a
-						href="#cta"
+						href="mailto:pengiservicios@gmail.com"
 						class:list={[
 							'inline-flex items-center justify-center w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-300',
 							plan.highlighted

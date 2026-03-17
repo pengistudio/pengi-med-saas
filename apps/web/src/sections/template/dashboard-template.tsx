@@ -1,4 +1,5 @@
 import {
+	AlertTriangle,
 	Building2,
 	HelpCircle,
 	Menu,
@@ -13,6 +14,13 @@ import NavItem from "@/components/custom/nav/nav-item";
 import SelectLanguage from "@/components/custom/select-language";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -41,7 +49,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
 	const { checkPermission } = usePermission();
 
-	const { environment } = useSessionStore();
+	const { environment, subscriptionExpired } = useSessionStore();
 
 	const handleAvatarFallbackText = useCallback(() => {
 		return environment?.name
@@ -229,7 +237,38 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 
 				{/* Page Content */}
 				<main className="flex-1 overflow-auto p-4 md:p-6 relative">
-					{children}
+					{subscriptionExpired ? (
+						<div className="flex items-center justify-center h-full">
+							<Card className="max-w-md w-full border-destructive/50">
+								<CardHeader className="text-center">
+									<div className="flex justify-center mb-2">
+										<AlertTriangle className="h-12 w-12 text-destructive" />
+									</div>
+									<CardTitle className="text-destructive">
+										{textGet("subscription.expired.title")}
+									</CardTitle>
+									<CardDescription>
+										{textGet("subscription.expired.description")}
+									</CardDescription>
+								</CardHeader>
+								<CardContent className="text-center">
+									<p className="text-sm text-muted-foreground">
+										{textGet("subscription.expired.contact")}
+									</p>
+									<Button
+										variant="outline"
+										className="mt-4"
+										onClick={handleLogout}
+									>
+										<Power className="w-4 h-4 mr-2" />
+										{textGet("dashboard.dropdown.logout")}
+									</Button>
+								</CardContent>
+							</Card>
+						</div>
+					) : (
+						children
+					)}
 				</main>
 			</div>
 		</div>

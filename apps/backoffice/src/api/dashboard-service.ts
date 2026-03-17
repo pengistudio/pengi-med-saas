@@ -16,6 +16,14 @@ export interface DashboardStats {
 		plan_code: string;
 		created_at: string;
 		tenant?: { slug: string };
+		Subscriptions?: { plan_code: string; status: string }[];
+	}[];
+	expiring_subscriptions: {
+		id: number;
+		company_name: string;
+		plan_code: string;
+		expires_at: string;
+		days_left: number;
 	}[];
 }
 

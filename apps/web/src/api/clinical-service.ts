@@ -512,6 +512,13 @@ export interface UpcomingAppointment {
 	status: string;
 }
 
+export interface SubscriptionInfo {
+	plan_name: string;
+	plan_code: string;
+	expires_at: string;
+	days_left: number;
+}
+
 export interface DashboardStats {
 	total_patients: number;
 	critical_patients: number;
@@ -519,6 +526,7 @@ export interface DashboardStats {
 	monthly_completed: number;
 	weekly_appointments: WeekDayStat[];
 	upcoming_appointments: UpcomingAppointment[];
+	subscription?: SubscriptionInfo;
 }
 
 export const getDashboardStats = async (): Promise<

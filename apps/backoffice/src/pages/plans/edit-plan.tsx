@@ -19,6 +19,11 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
+import {
+	PLAN_LIMIT_KEYS,
+	type PlanLimits,
+	PlanLimitsEditor,
+} from "./plan-limits-editor";
 
 const formSchema = z.object({
 	name: z.string().min(2),
@@ -38,6 +43,11 @@ const EditPlan = () => {
 	});
 	const [features, setFeatures] = React.useState<Feature[]>([]);
 	const [selectedFeatures, setSelectedFeatures] = React.useState<string[]>([]);
+	const [limits, setLimits] = React.useState<PlanLimits>({
+		max_users: -1,
+		max_patients: -1,
+		max_offices: -1,
+	});
 
 	React.useEffect(() => {
 		getFeatures().then((res) => {
@@ -52,6 +62,15 @@ const EditPlan = () => {
 				setDefaultValues({ name: res.data.name, price: res.data.price });
 				setCode(res.data.code);
 				setSelectedFeatures(res.data.Features?.map((f) => f.code) ?? []);
+
+				// Load limits from Properties
+				const props = res.data.Properties ?? {};
+				const loaded: PlanLimits = {};
+				for (const key of PLAN_LIMIT_KEYS) {
+					const val = props[key];
+					loaded[key] = val === undefined || val === null ? -1 : Number(val);
+				}
+				setLimits(loaded);
 			}
 			setInitialLoading(false);
 		});
@@ -71,6 +90,7 @@ const EditPlan = () => {
 		const res = await updatePlan(id, {
 			...values,
 			feature_codes: selectedFeatures,
+			properties: limits as Record<string, unknown>,
 		});
 		setLoading(false);
 		if (res.success) navigate("/plans");
@@ -127,6 +147,8 @@ const EditPlan = () => {
 									label={textGet("backoffice.plans.col.price")}
 									placeholder="99.99"
 								/>
+
+								<PlanLimitsEditor limits={limits} onChange={setLimits} />
 
 								{features.length > 0 && (
 									<div className="space-y-3">

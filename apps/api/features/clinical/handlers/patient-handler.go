@@ -6,6 +6,8 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	company_models "pengi-med-saas/features/companies/models"
+	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	"strconv"
 	"time"
 
@@ -30,6 +32,19 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 	if err := c.ShouldBind(&newPatient); err != nil {
 		h.logger.Error("Invalid create patient request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
+	}
+
+	tenantID, _ := c.Get("tenant_id")
+	tid := tenantID.(uint)
+
+	// Check max_patients plan limit
+	var company company_models.Company
+	if err := h.db.Where("tenant_id = ?", tid).First(&company).Error; err == nil {
+		var count int64
+		h.db.Model(&clinical_models.Patient{}).Where("tenant_id = ?", tid).Count(&count)
+		if subscription_middleware.ExceedsPlanLimit(h.db, company.ID, "max_patients", count) {
+			return envelope.ErrorResponse(http.StatusForbidden, "plan.limit.patients", core_errors.ErrPlanLimitPatients)
+		}
 	}
 
 	birthDate := time.Time{}
@@ -58,10 +73,7 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 		Allergies:   newPatient.Allergies,
 	}
 
-	tenantID, exists := c.Get("tenant_id")
-	if exists {
-		patient.TenantID = tenantID.(uint)
-	}
+	patient.TenantID = tid
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(patient).Error; err != nil {
 		h.logger.Error("Failed to create patient", zap.Error(err))

@@ -164,6 +164,18 @@
     "value": "Your session has expired, please log in again."
   },
   {
+    "key": "subscription.expired.title",
+    "value": "Inactive subscription"
+  },
+  {
+    "key": "subscription.expired.description",
+    "value": "Your subscription has expired or you don't have an active plan. You cannot access this section."
+  },
+  {
+    "key": "subscription.expired.contact",
+    "value": "Contact the administrator to renew your subscription."
+  },
+  {
     "key": "error.rate_limit_exceeded",
     "value": "Too many requests. Please wait a moment and try again."
   },
@@ -1284,6 +1296,18 @@
     "value": "Completed this Month"
   },
   {
+    "key": "dashboard.subscription.title",
+    "value": "Active Subscription"
+  },
+  {
+    "key": "dashboard.subscription.expires",
+    "value": "Expires on"
+  },
+  {
+    "key": "dashboard.subscription.days_left",
+    "value": "days left"
+  },
+  {
     "key": "dashboard.chart.weekly_title",
     "value": "Weekly Appointments"
   },
@@ -1416,6 +1440,22 @@
     "value": "Recent Activity"
   },
   {
+    "key": "backoffice.dashboard.expiring.title",
+    "value": "Expiring Subscriptions"
+  },
+  {
+    "key": "backoffice.dashboard.expiring.description",
+    "value": "Active subscriptions expiring in the next 30 days"
+  },
+  {
+    "key": "backoffice.dashboard.expiring.days_left",
+    "value": "Days left"
+  },
+  {
+    "key": "backoffice.dashboard.expiring.days",
+    "value": "days"
+  },
+  {
     "key": "backoffice.dashboard.recent.description",
     "value": "Latest actions performed on the platform"
   },
@@ -1514,6 +1554,62 @@
   {
     "key": "backoffice.companies.create.description",
     "value": "Fill in the details to register a new company on the platform."
+  },
+  {
+    "key": "backoffice.onboarding.step.company",
+    "value": "Company"
+  },
+  {
+    "key": "backoffice.onboarding.step.subscription",
+    "value": "Subscription"
+  },
+  {
+    "key": "backoffice.onboarding.step.access",
+    "value": "Access"
+  },
+  {
+    "key": "backoffice.onboarding.next",
+    "value": "Next"
+  },
+  {
+    "key": "backoffice.onboarding.back",
+    "value": "Back"
+  },
+  {
+    "key": "backoffice.onboarding.finish",
+    "value": "Go to Companies"
+  },
+  {
+    "key": "backoffice.onboarding.company.title",
+    "value": "Company Details"
+  },
+  {
+    "key": "backoffice.onboarding.company.description",
+    "value": "Enter the trade name and legal name of the new company."
+  },
+  {
+    "key": "backoffice.onboarding.subscription.title",
+    "value": "Assign Plan"
+  },
+  {
+    "key": "backoffice.onboarding.subscription.description",
+    "value": "Select the plan and expiration date for the subscription."
+  },
+  {
+    "key": "backoffice.onboarding.subscription.plan_placeholder",
+    "value": "Select a plan..."
+  },
+  {
+    "key": "backoffice.onboarding.access.title",
+    "value": "Company created!"
+  },
+  {
+    "key": "backoffice.onboarding.access.description",
+    "value": "Share this link with the first user of"
+  },
+  {
+    "key": "backoffice.onboarding.access.hint",
+    "value": "This link allows the first user to register and set up their account on the platform."
   },
   {
     "key": "backoffice.companies.edit.title",
@@ -1692,6 +1788,46 @@
     "value": "Modify the plan details."
   },
   {
+    "key": "backoffice.plans.limits.title",
+    "value": "Plan Limits"
+  },
+  {
+    "key": "backoffice.plans.limits.max_users",
+    "value": "Users"
+  },
+  {
+    "key": "backoffice.plans.limits.max_users.desc",
+    "value": "Maximum number of users allowed"
+  },
+  {
+    "key": "backoffice.plans.limits.max_patients",
+    "value": "Patients"
+  },
+  {
+    "key": "backoffice.plans.limits.max_patients.desc",
+    "value": "Maximum number of registered patients"
+  },
+  {
+    "key": "backoffice.plans.limits.max_offices",
+    "value": "Offices"
+  },
+  {
+    "key": "backoffice.plans.limits.max_offices.desc",
+    "value": "Maximum number of active offices"
+  },
+  {
+    "key": "backoffice.plans.limits.unlimited",
+    "value": "Unlimited"
+  },
+  {
+    "key": "plan.limit.users",
+    "value": "You have reached the user limit for your current plan."
+  },
+  {
+    "key": "plan.limit.patients",
+    "value": "You have reached the patient limit for your current plan."
+  },
+  {
     "key": "backoffice.plan.list.success",
     "value": "Plans retrieved successfully"
   },
@@ -1806,6 +1942,10 @@
   {
     "key": "backoffice.nav.users",
     "value": "Users"
+  },
+  {
+    "key": "backoffice.nav.roles",
+    "value": "Roles"
   },
   {
     "key": "backoffice.users.title",
@@ -2070,6 +2210,66 @@
   {
     "key": "backoffice.roles.list.success",
     "value": "Roles retrieved successfully"
+  },
+  {
+    "key": "backoffice.roles.title",
+    "value": "Roles"
+  },
+  {
+    "key": "backoffice.roles.create",
+    "value": "Create Role"
+  },
+  {
+    "key": "backoffice.roles.list.title",
+    "value": "Role List"
+  },
+  {
+    "key": "backoffice.roles.list.description",
+    "value": "Manage roles and their associated permissions"
+  },
+  {
+    "key": "backoffice.roles.empty",
+    "value": "No roles found"
+  },
+  {
+    "key": "backoffice.roles.col.name",
+    "value": "Name"
+  },
+  {
+    "key": "backoffice.roles.col.name.placeholder",
+    "value": "e.g. Administrator, Doctor..."
+  },
+  {
+    "key": "backoffice.roles.create.title",
+    "value": "Create Role"
+  },
+  {
+    "key": "backoffice.roles.create.description",
+    "value": "Define a new role with its permissions"
+  },
+  {
+    "key": "backoffice.roles.edit.title",
+    "value": "Edit Role"
+  },
+  {
+    "key": "backoffice.roles.edit.description",
+    "value": "Modify the role and its assigned permissions"
+  },
+  {
+    "key": "backoffice.roles.create.success",
+    "value": "Role created successfully"
+  },
+  {
+    "key": "backoffice.roles.update.success",
+    "value": "Role updated successfully"
+  },
+  {
+    "key": "backoffice.roles.delete.success",
+    "value": "Role deleted successfully"
+  },
+  {
+    "key": "backoffice.roles.get.success",
+    "value": "Role retrieved successfully"
   },
   {
     "key": "billing.invoice.patient",
@@ -2966,5 +3166,93 @@
   {
     "key": "pagination.of",
     "value": "of"
+  },
+  {
+    "key": "team.title",
+    "value": "Team"
+  },
+  {
+    "key": "team.description",
+    "value": "Manage the members who have access to this office."
+  },
+  {
+    "key": "team.invite",
+    "value": "Invite member"
+  },
+  {
+    "key": "team.members.title",
+    "value": "Active members"
+  },
+  {
+    "key": "team.members.loading",
+    "value": "Loading members..."
+  },
+  {
+    "key": "team.members.count",
+    "value": "members"
+  },
+  {
+    "key": "team.members.empty",
+    "value": "No members in this team yet."
+  },
+  {
+    "key": "team.invite_dialog.title",
+    "value": "Invite link"
+  },
+  {
+    "key": "team.invite_dialog.description",
+    "value": "Share this link so the person can register to your company. The link expires in 24 hours."
+  },
+  {
+    "key": "team.invite_dialog.close",
+    "value": "Close"
+  },
+  {
+    "key": "team.invite_dialog.copied",
+    "value": "Link copied to clipboard!"
+  },
+  {
+    "key": "team.invite_dialog.role_for",
+    "value": "This link will assign the role"
+  },
+  {
+    "key": "team.invite_dialog.warning",
+    "value": "The link expires in 72 hours. Anyone with this link can register."
+  },
+  {
+    "key": "team.role_dialog.title",
+    "value": "Select role"
+  },
+  {
+    "key": "team.role_dialog.description",
+    "value": "Choose which role the person who registers with this link will have."
+  },
+  {
+    "key": "team.role_dialog.role_label",
+    "value": "Role"
+  },
+  {
+    "key": "team.role_dialog.role_placeholder",
+    "value": "Select a role..."
+  },
+  {
+    "key": "team.role_dialog.generate",
+    "value": "Generate link"
+  },
+  {
+    "key": "company.team.roles.success",
+    "value": "Roles retrieved successfully"
+  },
+  {
+    "key": "auth.invalid_credentials",
+    "value": "Incorrect username or password"
+  },
+  {
+    "key": "company.team.list.success",
+    "value": "Team retrieved successfully"
+  },
+  {
+    "key": "company.invite_link.success",
+    "value": "Invite link generated"
   }
 ]

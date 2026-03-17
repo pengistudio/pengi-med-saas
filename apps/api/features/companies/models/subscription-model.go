@@ -13,6 +13,7 @@ type Subscription struct {
 	Plan      Plan      `gorm:"foreignKey:PlanCode;references:Code" json:"plan"`
 	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`
 	CompanyID uint
+	Company   Company `gorm:"foreignKey:CompanyID" json:"company"`
 }
 
 func (s *Subscription) Save(db *gorm.DB) error {

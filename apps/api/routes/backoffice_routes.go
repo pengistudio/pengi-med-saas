@@ -18,6 +18,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	backofficeSubscriptionHandler := backoffice_handlers.NewBackofficeSubscriptionHandler(db, logger.Log)
 	backofficePermissionHandler := backoffice_handlers.NewBackofficePermissionHandler(db, logger.Log)
 	backofficeDashboardHandler := backoffice_handlers.NewBackofficeDashboardHandler(db, logger.Log)
+	backofficeRoleHandler := backoffice_handlers.NewBackofficeRoleHandler(db, logger.Log)
 
 	backofficeRoutes := router.Group("/backoffice")
 	{
@@ -57,7 +58,11 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 
 	backofficeRoleRoutes := router.Group("/backoffice/roles", auth_middleware.AuthMiddleware())
 	{
-		backofficeRoleRoutes.GET("", envelope.Handle(backofficeCompanyHandler.GetRoles))
+		backofficeRoleRoutes.GET("", envelope.Handle(backofficeRoleHandler.GetRoles))
+		backofficeRoleRoutes.GET("/:id", envelope.Handle(backofficeRoleHandler.GetRoleByID))
+		backofficeRoleRoutes.POST("", envelope.Handle(backofficeRoleHandler.CreateRole))
+		backofficeRoleRoutes.PUT("/:id", envelope.Handle(backofficeRoleHandler.UpdateRole))
+		backofficeRoleRoutes.DELETE("/:id", envelope.Handle(backofficeRoleHandler.DeleteRole))
 	}
 
 	backofficeFeatureRoutes := router.Group("/backoffice/features", auth_middleware.AuthMiddleware())

@@ -7,6 +7,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
+	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
 	"strings"
@@ -64,7 +65,7 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	var foundUser user_models.User
 	if err := h.db.Omit("password").Where("user_name = ?", user.UserName).First(&foundUser).Error; err != nil {
 		h.logger.Error("Failed to find user", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidCredentials)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
 	}
 
 	foundUser.Password = user.Password
@@ -72,7 +73,7 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	// 2) Validar credenciales
 	if err := foundUser.ValidateCredentials(h.db); err != nil {
 		h.logger.Warn("Failed login attempt", zap.String("username", user.UserName), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidCredentials)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
 	}
 
 	// 3) Generar tokens
@@ -214,7 +215,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	}
 
 	// 1) Validate the signup token
-	companyID, err := auth.ParseCompanySignupToken(req.Token)
+	companyID, roleID, err := auth.ParseCompanySignupToken(req.Token)
 	if err != nil {
 		h.logger.Warn("Invalid company signup token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired signup token", core_errors.ErrAuthInvalidSignupToken)
@@ -227,23 +228,37 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
 	}
 
-	// 3) Check if username already exists
+	// 3) Check max_users plan limit
+	var envCount int64
+	h.db.Model(&user_models.Environment{}).Where("company_id = ?", company.ID).Count(&envCount)
+	if subscription_middleware.ExceedsPlanLimit(h.db, company.ID, "max_users", envCount) {
+		return envelope.ErrorResponse(http.StatusForbidden, "plan.limit.users", core_errors.ErrPlanLimitUsers)
+	}
+
+	// 4) Check if username already exists
 	var existingUser user_models.User
 	if err := h.db.Where("user_name = ?", req.UserName).First(&existingUser).Error; err == nil {
 		return envelope.ErrorResponse(http.StatusConflict, "Username already exists", core_errors.ErrAuthUserCreateError)
 	}
 
-	// 4) Find the default role (first role available, or "user")
+	// 5) Resolve the role: use token's role_id if set, otherwise fall back to admin
 	var defaultRole user_models.Role
-	if err := h.db.Where("role = ?", "user").First(&defaultRole).Error; err != nil {
-		// If no "user" role, pick the first available role
-		if err := h.db.First(&defaultRole).Error; err != nil {
-			h.logger.Error("No roles available", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "No roles configured", core_errors.ErrInternal)
+	if roleID != 0 {
+		if err := h.db.First(&defaultRole, roleID).Error; err != nil {
+			h.logger.Warn("Role from token not found, falling back to admin", zap.Uint("role_id", roleID))
+			roleID = 0
+		}
+	}
+	if roleID == 0 {
+		if err := h.db.Where("role = ?", "admin").First(&defaultRole).Error; err != nil {
+			if err := h.db.First(&defaultRole).Error; err != nil {
+				h.logger.Error("No roles available", zap.Error(err))
+				return envelope.ErrorResponse(http.StatusInternalServerError, "No roles configured", core_errors.ErrInternal)
+			}
 		}
 	}
 
-	// 5) Create user + environment in a transaction
+	// 6) Create user + environment in a transaction
 	var newUser user_models.User
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
 		newUser = user_models.User{

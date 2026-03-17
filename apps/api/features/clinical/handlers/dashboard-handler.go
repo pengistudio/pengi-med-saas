@@ -2,12 +2,13 @@ package clinical_handlers
 
 import (
 	"net/http"
-	clinical_models "pengi-med-saas/features/clinical/models"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	"time"
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	clinical_models "pengi-med-saas/features/clinical/models"
+	company_models "pengi-med-saas/features/companies/models"
+	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -41,6 +42,13 @@ type UpcomingAppointment struct {
 	Status      string `json:"status"`
 }
 
+type SubscriptionInfo struct {
+	PlanName  string    `json:"plan_name"`
+	PlanCode  string    `json:"plan_code"`
+	ExpiresAt time.Time `json:"expires_at"`
+	DaysLeft  int       `json:"days_left"`
+}
+
 type DashboardStats struct {
 	TotalPatients        int64                 `json:"total_patients"`
 	CriticalPatients     int64                 `json:"critical_patients"`
@@ -48,6 +56,7 @@ type DashboardStats struct {
 	MonthlyCompleted     int64                 `json:"monthly_completed"`
 	WeeklyAppointments   []WeekDayStat         `json:"weekly_appointments"`
 	UpcomingAppointments []UpcomingAppointment `json:"upcoming_appointments"`
+	Subscription         *SubscriptionInfo     `json:"subscription"`
 }
 
 // GetDashboardStats returns aggregated statistics for the dashboard
@@ -142,6 +151,25 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		})
 	}
 
+	// 7. Active subscription for this tenant's company
+	var subscriptionInfo *SubscriptionInfo
+	tenantID := c.GetUint("tenant_id")
+	var company company_models.Company
+	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err == nil {
+		var sub company_models.Subscription
+		if err := h.db.Preload("Plan").
+			Where("company_id = ? AND status = ? AND expires_at > ?", company.ID, "active", now).
+			First(&sub).Error; err == nil {
+			daysLeft := int(time.Until(sub.ExpiresAt).Hours() / 24)
+			subscriptionInfo = &SubscriptionInfo{
+				PlanName:  sub.Plan.Name,
+				PlanCode:  sub.PlanCode,
+				ExpiresAt: sub.ExpiresAt,
+				DaysLeft:  daysLeft,
+			}
+		}
+	}
+
 	stats := DashboardStats{
 		TotalPatients:        totalPatients,
 		CriticalPatients:     criticalPatients,
@@ -149,6 +177,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		MonthlyCompleted:     monthlyCompleted,
 		WeeklyAppointments:   weeklyStats,
 		UpcomingAppointments: upcoming,
+		Subscription:         subscriptionInfo,
 	}
 
 	return envelope.SuccessResponse(stats, "dashboard.stats.success")

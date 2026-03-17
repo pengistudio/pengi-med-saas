@@ -3,11 +3,16 @@ import {
 	Calendar,
 	CheckCircle,
 	Clock,
+	CreditCard,
 	Users,
 } from "lucide-react";
 import React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { type DashboardStats, getDashboardStats } from "@/api/clinical-service";
+import {
+	type DashboardStats,
+	getDashboardStats,
+	type SubscriptionInfo,
+} from "@/api/clinical-service";
 import {
 	Card,
 	CardContent,
@@ -63,6 +68,61 @@ function StatCard({
 	);
 }
 
+// ─── Subscription Card ───────────────────────────────────────────────────────
+
+function SubscriptionCard({
+	subscription,
+	textGet,
+}: {
+	subscription: SubscriptionInfo;
+	textGet: (k: string) => string;
+}) {
+	const isExpiringSoon = subscription.days_left <= 30;
+	const isUrgent = subscription.days_left <= 7;
+	return (
+		<Card
+			className={cn(
+				isUrgent
+					? "border-red-500/40"
+					: isExpiringSoon
+						? "border-amber-500/40"
+						: "",
+			)}
+		>
+			<CardHeader className="flex flex-row items-center justify-between pb-2">
+				<CardDescription className="text-sm font-medium">
+					{textGet("dashboard.subscription.title")}
+				</CardDescription>
+				<CreditCard
+					className={cn(
+						"h-5 w-5",
+						isUrgent
+							? "text-red-500"
+							: isExpiringSoon
+								? "text-amber-500"
+								: "text-muted-foreground",
+					)}
+				/>
+			</CardHeader>
+			<CardContent className="space-y-1">
+				<p className="text-xl font-bold tracking-tight">
+					{subscription.plan_name}
+				</p>
+				<p
+					className={cn(
+						"text-xs",
+						isUrgent ? "text-red-500 font-medium" : "text-muted-foreground",
+					)}
+				>
+					{textGet("dashboard.subscription.expires")}{" "}
+					{new Date(subscription.expires_at).toLocaleDateString()} {"·"}{" "}
+					{subscription.days_left} {textGet("dashboard.subscription.days_left")}
+				</p>
+			</CardContent>
+		</Card>
+	);
+}
+
 // ─── Home ────────────────────────────────────────────────────────────────────
 
 const Home = () => {
@@ -98,7 +158,12 @@ const Home = () => {
 				</h1>
 
 				{/* Stat Cards */}
-				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				<div
+					className={cn(
+						"grid gap-4 sm:grid-cols-2",
+						stats.subscription ? "lg:grid-cols-5" : "lg:grid-cols-4",
+					)}
+				>
 					<StatCard
 						title={textGet("dashboard.stat.total_patients")}
 						value={stats.total_patients}
@@ -122,6 +187,12 @@ const Home = () => {
 						icon={CheckCircle}
 						iconClassName="text-emerald-500"
 					/>
+					{stats.subscription && (
+						<SubscriptionCard
+							subscription={stats.subscription}
+							textGet={textGet}
+						/>
+					)}
 				</div>
 
 				{/* Charts Row */}

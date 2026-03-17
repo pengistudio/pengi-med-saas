@@ -1,8 +1,10 @@
 name: Build & Deploy
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI - Biome"]
     branches: [main]
+    types: [completed]
 
 env:
   REGISTRY: ghcr.io
@@ -12,6 +14,7 @@ jobs:
   build-and-push:
     name: Build & push images
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: read
       packages: write

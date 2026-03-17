@@ -33,7 +33,7 @@ func NewBackofficeCompanyHandler(db *gorm.DB, logger *zap.Logger) *BackofficeCom
 type CreateCompanyRequest struct {
 	LegalName string `json:"legal_name" binding:"required"`
 	TradeName string `json:"trade_name" binding:"required"`
-	PlanCode  string `json:"plan_code"  binding:"required"`
+	PlanCode  string `json:"plan_code"`
 }
 
 type UpdateCompanyRequest struct {
@@ -61,7 +61,7 @@ func slugify(s string) string {
 
 func (h *BackofficeCompanyHandler) GetCompanies(c *gin.Context) envelope.Response {
 	var companies []company_models.Company
-	if err := h.db.Preload("Tenant").Find(&companies).Error; err != nil {
+	if err := h.db.Preload("Tenant").Preload("Subscriptions", "status = ? AND expires_at > NOW()", "active").Find(&companies).Error; err != nil {
 		h.logger.Error("Failed to fetch companies", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining companies", core_errors.ErrCompanyNotFound)
 	}
@@ -190,7 +190,7 @@ func (h *BackofficeCompanyHandler) GenerateCompanySignupToken(c *gin.Context) en
 		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
 	}
 
-	token, err := auth.GenerateCompanySignupToken(company.ID)
+	token, err := auth.GenerateCompanySignupToken(company.ID, 0)
 	if err != nil {
 		h.logger.Error("Failed to generate company signup token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating signup token", core_errors.ErrAuthTokenGenerateError)

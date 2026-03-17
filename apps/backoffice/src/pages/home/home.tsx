@@ -1,4 +1,11 @@
-import { Building2, CreditCard, Puzzle, Shield, Users } from "lucide-react";
+import {
+	AlertTriangle,
+	Building2,
+	CreditCard,
+	Puzzle,
+	Shield,
+	Users,
+} from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import {
@@ -104,6 +111,77 @@ const Home = () => {
 					/>
 				</div>
 
+				{/* Expiring Subscriptions */}
+				{!loading && !!stats?.expiring_subscriptions?.length && (
+					<Card className="border-amber-500/30">
+						<CardHeader>
+							<div className="flex items-center gap-2">
+								<AlertTriangle className="h-5 w-5 text-amber-500" />
+								<CardTitle>
+									{textGet("backoffice.dashboard.expiring.title")}
+								</CardTitle>
+							</div>
+							<CardDescription>
+								{textGet("backoffice.dashboard.expiring.description")}
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>
+											{textGet("backoffice.subscriptions.col.company")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.subscriptions.col.plan")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.subscriptions.col.expires")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.dashboard.expiring.days_left")}
+										</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{stats.expiring_subscriptions.map((s) => (
+										<TableRow
+											key={s.id}
+											className="cursor-pointer hover:bg-muted/50"
+											onClick={() => navigate("/subscriptions")}
+										>
+											<TableCell className="font-medium">
+												{s.company_name}
+											</TableCell>
+											<TableCell>
+												<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+													{s.plan_code}
+												</span>
+											</TableCell>
+											<TableCell className="text-muted-foreground">
+												{new Date(s.expires_at).toLocaleDateString()}
+											</TableCell>
+											<TableCell>
+												<span
+													className={cn(
+														"inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
+														s.days_left <= 7
+															? "bg-red-500/10 text-red-600"
+															: "bg-amber-500/10 text-amber-600",
+													)}
+												>
+													{s.days_left}{" "}
+													{textGet("backoffice.dashboard.expiring.days")}
+												</span>
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				)}
+
 				{/* Recent Companies */}
 				<Card>
 					<CardHeader>
@@ -149,9 +227,15 @@ const Home = () => {
 												{c.trade_name}
 											</TableCell>
 											<TableCell>
-												<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-													{c.plan_code}
-												</span>
+												{c.Subscriptions?.[0] ? (
+													<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+														{c.Subscriptions[0].plan_code}
+													</span>
+												) : (
+													<span className="text-muted-foreground text-xs">
+														—
+													</span>
+												)}
 											</TableCell>
 											<TableCell className="text-muted-foreground">
 												{c.tenant?.slug}

@@ -20,7 +20,6 @@ import { DashboardLayout } from "@/sections/template/dashboard-template";
 const formSchema = z.object({
 	legal_name: z.string().min(2),
 	trade_name: z.string().min(2),
-	plan_code: z.string().min(2),
 });
 
 const EditCompany = () => {
@@ -32,7 +31,6 @@ const EditCompany = () => {
 	const [defaultValues, setDefaultValues] = React.useState({
 		legal_name: "",
 		trade_name: "",
-		plan_code: "",
 	});
 
 	React.useEffect(() => {
@@ -43,7 +41,6 @@ const EditCompany = () => {
 				setDefaultValues({
 					legal_name: company.legal_name,
 					trade_name: company.trade_name,
-					plan_code: company.plan_code,
 				});
 			}
 			setInitialLoading(false);
@@ -108,13 +105,6 @@ const EditCompany = () => {
 									placeholder={textGet(
 										"backoffice.companies.col.legal_name.placeholder",
 									)}
-								/>
-								<FormInput
-									field={field}
-									name="plan_code"
-									type="text"
-									label={textGet("backoffice.companies.col.plan")}
-									placeholder="ENTERPRISE, PRO, BASIC..."
 								/>
 							</CardContent>
 							<CardFooter className="flex justify-between">

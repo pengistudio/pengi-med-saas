@@ -40,7 +40,7 @@ type UpdateSubscriptionRequest struct {
 
 func (h *BackofficeSubscriptionHandler) GetSubscriptions(c *gin.Context) envelope.Response {
 	var subscriptions []company_models.Subscription
-	if err := h.db.Preload("Plan").Find(&subscriptions).Error; err != nil {
+	if err := h.db.Preload("Plan").Preload("Company").Find(&subscriptions).Error; err != nil {
 		h.logger.Error("Failed to fetch subscriptions", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining subscriptions", core_errors.ErrInternal)
 	}
