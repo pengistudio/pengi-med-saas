@@ -6,10 +6,11 @@ import {
 	TriangleAlert,
 } from "lucide-react";
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
 	downloadPrescription,
 	getMedicalRecords,
+	getPatientById,
 	type MedicalRecord,
 	type Patient,
 	updateCritical,
@@ -37,7 +38,15 @@ import { usePatientStore } from "@/store/patient-store";
 
 const MedicalRecords = () => {
 	const { patient, setPatient } = usePatientStore();
+	const { patientId } = useParams<{ patientId: string }>();
 	const navigate = useNavigate();
+
+	React.useEffect(() => {
+		if (!patientId) return;
+		getPatientById(Number(patientId)).then((res) => {
+			if (res.success && res.data) setPatient(res.data as Patient);
+		});
+	}, [patientId, setPatient]);
 	const { infoToast } = useToast();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();

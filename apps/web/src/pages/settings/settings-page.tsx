@@ -1,7 +1,14 @@
+import React from "react";
 import type {
 	ClinicalSettings,
 	TenantUISettings,
 } from "@/api/settings-service";
+import {
+	deletePrescriptionTemplate,
+	getPrescriptionTemplateStatus,
+	uploadPrescriptionTemplate,
+} from "@/api/settings-service";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
@@ -10,6 +17,34 @@ import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const SettingsPage = () => {
 	const { settings, saveSettings } = useTenantSettings();
+	const [hasCustomTemplate, setHasCustomTemplate] = React.useState<
+		boolean | null
+	>(null);
+	const [templateLoading, setTemplateLoading] = React.useState(false);
+	const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+	React.useEffect(() => {
+		getPrescriptionTemplateStatus().then((res) => {
+			if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
+		});
+	}, []);
+
+	async function handleUploadTemplate(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		setTemplateLoading(true);
+		const res = await uploadPrescriptionTemplate(file);
+		if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
+		setTemplateLoading(false);
+		if (fileInputRef.current) fileInputRef.current.value = "";
+	}
+
+	async function handleDeleteTemplate() {
+		setTemplateLoading(true);
+		const res = await deletePrescriptionTemplate();
+		if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
+		setTemplateLoading(false);
+	}
 
 	function toggleClinical(key: keyof ClinicalSettings) {
 		saveSettings({
@@ -130,6 +165,63 @@ const SettingsPage = () => {
 									</p>
 								)}
 							</div>
+						)}
+					</div>
+				</section>
+
+				{/* Prescription template */}
+				<section className="rounded-lg border bg-card p-6 grid gap-4">
+					<div>
+						<h2 className="text-base font-medium text-muted-foreground">
+							<Text uuid="settings.prescription_template.title" />
+						</h2>
+						<p className="text-sm text-muted-foreground mt-1">
+							<Text uuid="settings.prescription_template.description" />
+						</p>
+					</div>
+
+					<div className="flex items-center gap-3">
+						<span
+							className={cn(
+								"inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+								hasCustomTemplate
+									? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+									: "bg-muted text-muted-foreground",
+							)}
+						>
+							{hasCustomTemplate ? (
+								<Text uuid="settings.prescription_template.status.custom" />
+							) : (
+								<Text uuid="settings.prescription_template.status.default" />
+							)}
+						</span>
+					</div>
+
+					<div className="flex gap-2">
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept=".html"
+							className="hidden"
+							onChange={handleUploadTemplate}
+						/>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={templateLoading}
+							onClick={() => fileInputRef.current?.click()}
+						>
+							<Text uuid="settings.prescription_template.upload" />
+						</Button>
+						{hasCustomTemplate && (
+							<Button
+								variant="destructive"
+								size="sm"
+								disabled={templateLoading}
+								onClick={handleDeleteTemplate}
+							>
+								<Text uuid="settings.prescription_template.reset" />
+							</Button>
 						)}
 					</div>
 				</section>

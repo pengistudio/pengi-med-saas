@@ -21,6 +21,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	icd10Handler := clinical_handlers.NewICD10Handler(db, logger.Log)
 
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
+	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log)
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db))
 	{
@@ -59,6 +60,11 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.PUT("/:id/vital-signs", envelope.Handle(vitalSignsHandler.UpsertVitalSigns))
 			recordGroup.GET("/:id/vital-signs", envelope.Handle(vitalSignsHandler.GetVitalSigns))
 		}
+
+		// Prescription template routes
+		clinicalGroup.GET("/prescription-template/status", envelope.Handle(prescriptionTemplateHandler.GetPrescriptionTemplateStatus))
+		clinicalGroup.POST("/prescription-template", envelope.Handle(prescriptionTemplateHandler.UploadPrescriptionTemplate))
+		clinicalGroup.DELETE("/prescription-template", envelope.Handle(prescriptionTemplateHandler.DeletePrescriptionTemplate))
 
 		// Appointment routes
 		appointmentGroup := clinicalGroup.Group("/appointments")

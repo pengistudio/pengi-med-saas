@@ -49,3 +49,32 @@ export const updateUISettings = async (
 		notifyError: true,
 	});
 };
+
+export const getPrescriptionTemplateStatus = async (): Promise<
+	ServiceResponse<{ has_custom: boolean }>
+> => {
+	return settingsService.get<{ has_custom: boolean }>(
+		"/clinical/prescription-template/status",
+	);
+};
+
+export const uploadPrescriptionTemplate = async (
+	file: File,
+): Promise<ServiceResponse<{ has_custom: boolean }>> => {
+	const form = new FormData();
+	form.append("template", file);
+	return settingsService.postForm<{ has_custom: boolean }>(
+		"/clinical/prescription-template",
+		form,
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const deletePrescriptionTemplate = async (): Promise<
+	ServiceResponse<{ has_custom: boolean }>
+> => {
+	return settingsService.delete<{ has_custom: boolean }>(
+		"/clinical/prescription-template",
+		{ notifySuccess: true, notifyError: true },
+	);
+};

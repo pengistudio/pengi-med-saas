@@ -2924,6 +2924,42 @@
     "value": "Ya existe una cita en ese horario. Por favor elige otro horario."
   },
   {
+    "key": "settings.prescription_template.title",
+    "value": "Template de receta"
+  },
+  {
+    "key": "settings.prescription_template.description",
+    "value": "Sube un archivo HTML personalizado para el formato de tus recetas médicas."
+  },
+  {
+    "key": "settings.prescription_template.status.custom",
+    "value": "Template personalizado activo"
+  },
+  {
+    "key": "settings.prescription_template.status.default",
+    "value": "Template predeterminado"
+  },
+  {
+    "key": "settings.prescription_template.upload",
+    "value": "Subir template (.html)"
+  },
+  {
+    "key": "settings.prescription_template.reset",
+    "value": "Restaurar predeterminado"
+  },
+  {
+    "key": "clinical.prescription_template.status",
+    "value": "Estado del template obtenido"
+  },
+  {
+    "key": "clinical.prescription_template.uploaded",
+    "value": "Template de receta actualizado correctamente"
+  },
+  {
+    "key": "clinical.prescription_template.deleted",
+    "value": "Template restaurado al predeterminado"
+  },
+  {
     "key": "pagination.showing",
     "value": "Mostrando"
   },

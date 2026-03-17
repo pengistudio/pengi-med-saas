@@ -19,6 +19,7 @@ type MedicalRecord struct {
 	Motive         string         `json:"motive"`
 	Observation    string         `json:"observation"`
 	PatientID      uint           `json:"patient_id"`
+	Patient        *Patient       `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 	AppointmentID  *uint          `json:"appointment_id,omitempty"`
 	Appointment    *Appointment   `json:"appointment,omitempty" gorm:"foreignKey:AppointmentID"`
 	SOAPRecordID   uint           `json:"soap_record_id"`

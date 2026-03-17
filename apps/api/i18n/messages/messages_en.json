@@ -2924,6 +2924,42 @@
     "value": "There is already an appointment in that time slot. Please choose a different time."
   },
   {
+    "key": "settings.prescription_template.title",
+    "value": "Prescription template"
+  },
+  {
+    "key": "settings.prescription_template.description",
+    "value": "Upload a custom HTML file to define the format of your prescription documents."
+  },
+  {
+    "key": "settings.prescription_template.status.custom",
+    "value": "Custom template active"
+  },
+  {
+    "key": "settings.prescription_template.status.default",
+    "value": "Default template"
+  },
+  {
+    "key": "settings.prescription_template.upload",
+    "value": "Upload template (.html)"
+  },
+  {
+    "key": "settings.prescription_template.reset",
+    "value": "Restore default"
+  },
+  {
+    "key": "clinical.prescription_template.status",
+    "value": "Template status retrieved"
+  },
+  {
+    "key": "clinical.prescription_template.uploaded",
+    "value": "Prescription template updated successfully"
+  },
+  {
+    "key": "clinical.prescription_template.deleted",
+    "value": "Template restored to default"
+  },
+  {
     "key": "pagination.showing",
     "value": "Showing"
   },

@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -410,8 +411,13 @@ func generatePrescriptionPDF(db *gorm.DB, c *gin.Context, record *clinical_model
 		Address:             "Ecuador", // Default, as location isn't currently in models
 	}
 
-	// Read and parse template
+	// Use custom template if tenant has one, otherwise fall back to default
+	customPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantID), "prescription_template.html")
 	tmplPath := "features/clinical/templates/prescription_template.html"
+	if _, err := os.Stat(customPath); err == nil {
+		tmplPath = customPath
+	}
+
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return nil, fmt.Errorf("error loading prescription template: %w", err)
