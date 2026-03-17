@@ -1,7 +1,6 @@
 import { extendSessionWithToken, userLogin } from "@/api/auth-service";
 import type { ResponseError } from "@/api/fetch";
 import { resetSessionExpiredFlag } from "@/api/index";
-import { redirectToRootDomain } from "@/lib/url-utils";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
 import useToast from "./use-toast";
@@ -38,7 +37,7 @@ const useAuth = () => {
 		sessionStorage.clear();
 		useTokenStore.getState().setToken(undefined);
 		useUserStore.getState().clean();
-		redirectToRootDomain();
+		window.location.href = "/login";
 	};
 
 	const refreshExtendToken = async (): Promise<AuthResponse> => {

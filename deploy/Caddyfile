@@ -1,17 +1,15 @@
-# Reemplaza tudominio.com con tu dominio real
-
-tudominio.com, www.tudominio.com {
+gentoo.pengistudio.com {
     reverse_proxy landing:80
 }
 
-app.tudominio.com {
+app.gentoo.pengistudio.com {
     reverse_proxy web:80
 }
 
-admin.tudominio.com {
+admin.gentoo.pengistudio.com {
     reverse_proxy backoffice:80
 }
 
-api.tudominio.com {
+api.gentoo.pengistudio.com {
     reverse_proxy api:8080
 }

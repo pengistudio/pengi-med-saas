@@ -11,7 +11,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useText } from "@/hooks/use-text";
-import { redirectToSubdomain } from "@/lib/url-utils";
 import { useSessionStore } from "@/store/session-store";
 import type { EnvironmentWithCompany } from "@/types/user-type";
 
@@ -42,13 +41,6 @@ export default function LoginEnvironments() {
 		const selectedEnv = environments.find((e) => e.ID === envId);
 		if (selectedEnv) {
 			setEnvironment(selectedEnv);
-
-			// Build the subdomain URL using the tenant slug
-			const slug = selectedEnv.company?.tenant?.slug;
-			if (slug) {
-				redirectToSubdomain(slug);
-				return;
-			}
 		}
 		navigate("/");
 	};

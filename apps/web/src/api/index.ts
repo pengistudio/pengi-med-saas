@@ -1,6 +1,5 @@
 import axios from "axios";
 import { toast } from "sonner";
-import { redirectToRootDomain } from "@/lib/url-utils";
 import { useMessageStore } from "@/store/message-store";
 import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
@@ -23,7 +22,7 @@ function handleSessionExpired() {
 	sessionStorage.clear();
 	useTokenStore.getState().setToken(undefined);
 	useUserStore.getState().clean();
-	redirectToRootDomain();
+	window.location.href = "/login";
 }
 
 export const api = axios.create({

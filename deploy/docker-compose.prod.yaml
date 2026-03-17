@@ -17,9 +17,7 @@ services:
       - app
 
   api:
-    build:
-      context: ../apps/api
-      dockerfile: Dockerfile.prod
+    image: ghcr.io/pengistudio/pengi-api:latest
     container_name: pengi-api
     restart: unless-stopped
     env_file: .env.prod
@@ -31,31 +29,21 @@ services:
       - app
 
   web:
-    build:
-      context: ../apps/web
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL}
+    image: ghcr.io/pengistudio/pengi-web:latest
     container_name: pengi-web
     restart: unless-stopped
     networks:
       - app
 
   backoffice:
-    build:
-      context: ../apps/backoffice
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL}
+    image: ghcr.io/pengistudio/pengi-backoffice:latest
     container_name: pengi-backoffice
     restart: unless-stopped
     networks:
       - app
 
   landing:
-    build:
-      context: ../apps/landing
-      dockerfile: Dockerfile
+    image: ghcr.io/pengistudio/pengi-landing:latest
     container_name: pengi-landing
     restart: unless-stopped
     networks:
@@ -92,9 +80,7 @@ services:
       - app
 
   sri-xml-signer:
-    build:
-      context: ../apps/sri-xml-signer
-      dockerfile: Dockerfile
+    image: ghcr.io/pengistudio/pengi-sri-xml-signer:latest
     container_name: pengi-sri-xml-signer
     restart: unless-stopped
     environment:
