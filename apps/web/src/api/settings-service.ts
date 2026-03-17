@@ -17,6 +17,7 @@ export interface ClinicalSettings {
 }
 
 export interface TenantUISettings {
+	[key: string]: unknown;
 	clinical: ClinicalSettings;
 }
 
