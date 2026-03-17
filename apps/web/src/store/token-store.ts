@@ -13,7 +13,7 @@ const persistToken = persist<TokenState>(
 		clean: () => set({ token: undefined }),
 		setToken: (token?: string) => set({ token }),
 	}),
-	{ name: "token", storage: createJSONStorage(() => sessionStorage) },
+	{ name: "token", storage: createJSONStorage(() => localStorage) },
 );
 
 export const useTokenStore = create(persistToken);

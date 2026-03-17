@@ -48,7 +48,7 @@ const persistSession = persist<SessionState>(
 				},
 			}),
 	}),
-	{ name: "session", storage: createJSONStorage(() => sessionStorage) },
+	{ name: "session", storage: createJSONStorage(() => localStorage) },
 );
 
 export const useSessionStore = create(persistSession);
