@@ -22,7 +22,7 @@ func getRabbitMQConnectionString() string {
 	}
 	host := os.Getenv("RABBITMQ_HOST")
 	if host == "" {
-		host = "pengi-rabbitmq"
+		host = "rabbitmq"
 	}
 	port := os.Getenv("RABBITMQ_PORT")
 	if port == "" {
