@@ -38,7 +38,8 @@ func Connect() (*gorm.DB, error) {
 		return nil, fmt.Errorf("missing required environment variables for database connection")
 	}
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, password, dbname)
+	sslmode := config.GetEnvWithDefault("DB_SSL_MODE", "disable")
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, dbname, sslmode)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -73,7 +74,8 @@ func EnsureDatabase() error {
 	}
 
 	// 1️⃣ Conexión temporal sin especificar la base de datos
-	rootDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=disable", host, port, user, password)
+	sslmode := config.GetEnvWithDefault("DB_SSL_MODE", "disable")
+	rootDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=%s", host, port, user, password, sslmode)
 	rootDB, err := sql.Open("postgres", rootDSN)
 	if err != nil {
 		return fmt.Errorf("error connecting to postgres server: %w", err)
