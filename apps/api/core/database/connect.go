@@ -75,7 +75,7 @@ func EnsureDatabase() error {
 
 	// 1️⃣ Conexión temporal a la base de datos por defecto (defaultdb en DO Managed PostgreSQL)
 	sslmode := config.GetEnvWithDefault("DB_SSL_MODE", "disable")
-	rootDBName := config.GetEnvWithDefault("DB_ROOT_NAME", "defaultdb")
+	rootDBName := config.GetEnvWithDefault("DB_ROOT_NAME", "postgres")
 	rootDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, rootDBName, sslmode)
 	rootDB, err := sql.Open("postgres", rootDSN)
 	if err != nil {
