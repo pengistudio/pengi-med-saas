@@ -106,8 +106,8 @@ jobs:
             git -C ~/pengi-med-saas pull
 
             # Traer nuevas imágenes y reiniciar servicios
-            docker compose -f docker-compose.prod.yaml pull
-            docker compose -f docker-compose.prod.yaml up -d
+            docker compose --env-file .env.prod -f docker-compose.prod.yaml pull
+            docker compose --env-file .env.prod -f docker-compose.prod.yaml up -d
 
             # Limpiar imágenes viejas
             docker image prune -f
