@@ -200,6 +200,7 @@ export interface PrescriptionItem extends BaseModel {
 
 export interface MedicalRecord extends BaseModel {
 	patient_id: number;
+	patient?: Patient | null;
 	date: string;
 	appointment_id?: number | null;
 	appointment?: Appointment | null;

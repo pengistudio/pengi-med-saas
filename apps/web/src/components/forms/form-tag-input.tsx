@@ -87,7 +87,7 @@ function FormTagInput<
 						<div className="flex flex-col gap-2">
 							{tags.length > 0 && (
 								<div className="flex flex-wrap gap-1.5">
-									{tags.map((tag) => (
+									{tags.map((tag, index) => (
 										<span
 											key={tag}
 											className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2.5 py-0.5 text-xs font-medium"

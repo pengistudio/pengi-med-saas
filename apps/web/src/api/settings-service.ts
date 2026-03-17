@@ -4,6 +4,7 @@ import { createHttpService, type ServiceResponse } from "./fetch";
 const settingsService = createHttpService(apiWithTenant);
 
 export interface ClinicalSettings {
+	[key: string]: boolean | string;
 	// Patient table columns
 	show_next_appointment: boolean;
 	show_diagnosis: boolean;

@@ -64,7 +64,7 @@ export function AppointmentFormDialog({
 		if (open && !isEdit) {
 			getAllPatientsWithLastFollowUp().then((res) => {
 				if (res.success && res.data) {
-					setPatients(res.data as Patient[]);
+					setPatients(res.data.items);
 				}
 			});
 			setSelectedPatient(null);

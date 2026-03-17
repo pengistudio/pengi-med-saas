@@ -69,7 +69,7 @@ export function InvoiceForm() {
 	useEffect(() => {
 		getAllPatientsWithLastFollowUp().then((res) => {
 			if (res.success && res.data) {
-				setPatients(res.data);
+				setPatients(res.data.items);
 			}
 		});
 		getAllCatalogItems({ limit: 100 }).then((res) => {
