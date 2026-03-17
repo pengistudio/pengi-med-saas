@@ -242,7 +242,7 @@ const CreateCompany = () => {
 								<Label>{textGet("backoffice.subscriptions.col.plan")}</Label>
 								<Select
 									value={selectedPlanCode}
-									onValueChange={setSelectedPlanCode}
+									onValueChange={(val) => setSelectedPlanCode(val ?? "")}
 								>
 									<SelectTrigger>
 										<SelectValue
