@@ -704,6 +704,30 @@
     "value": "Plan"
   },
   {
+    "key": "form.create_medical_record.soap.subjective.placeholder",
+    "value": "Symptoms, complaints and description reported by the patient..."
+  },
+  {
+    "key": "form.create_medical_record.soap.objective.placeholder",
+    "value": "Clinical findings, physical examination, test results..."
+  },
+  {
+    "key": "form.create_medical_record.soap.assessment.placeholder",
+    "value": "Diagnosis or clinical impression based on findings..."
+  },
+  {
+    "key": "form.create_medical_record.soap.plan.placeholder",
+    "value": "Treatment, medications, referrals, follow-up..."
+  },
+  {
+    "key": "form.create_medical_record.tab.consulta",
+    "value": "Consultation"
+  },
+  {
+    "key": "form.create_medical_record.tab.complementario",
+    "value": "Additional"
+  },
+  {
     "key": "form.create_medical_record.prescription.title",
     "value": "Medical Prescription"
   },
@@ -900,12 +924,32 @@
     "value": "Patient found"
   },
   {
+    "key": "clinical.patient.critical.label",
+    "value": "Critical patient"
+  },
+  {
     "key": "clinical.patient.critical.success",
     "value": "Patient marked as critical"
   },
   {
     "key": "clinical.patient.critical_revert.success",
     "value": "Patient critical status reverted"
+  },
+  {
+    "key": "clinical.patient.sort.recent",
+    "value": "Newest first"
+  },
+  {
+    "key": "clinical.patient.sort.oldest",
+    "value": "Oldest first"
+  },
+  {
+    "key": "clinical.patient.sort.last_name_asc",
+    "value": "Last name A → Z"
+  },
+  {
+    "key": "clinical.patient.sort.last_name_desc",
+    "value": "Last name Z → A"
   },
   {
     "key": "clinical.medical_record.list.success",

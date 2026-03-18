@@ -205,6 +205,17 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 	}
 	offset := (page - 1) * limit
 
+	// Sorting params
+	sortBy := c.DefaultQuery("sort_by", "created_at")
+	sortOrder := c.DefaultQuery("sort_order", "desc")
+	if sortBy != "last_name" && sortBy != "created_at" {
+		sortBy = "created_at"
+	}
+	if sortOrder != "asc" && sortOrder != "desc" {
+		sortOrder = "desc"
+	}
+	orderClause := "critical DESC, " + sortBy + " " + sortOrder
+
 	now := time.Now()
 
 	baseQuery := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.Patient{})
@@ -225,7 +236,7 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 
 	var patients []clinical_models.Patient
 	err := baseQuery.
-		Order("critical DESC, updated_at DESC").
+		Order(orderClause).
 		Limit(limit).
 		Offset(offset).
 		Preload("MedicalRecords", func(db *gorm.DB) *gorm.DB {

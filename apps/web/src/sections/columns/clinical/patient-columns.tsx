@@ -46,10 +46,23 @@ function renderActions({ row }: CellContext<Patient, unknown>) {
 	});
 	const { checkPermission } = usePermission();
 	return (
-		<DropdownMenu>
+		<div className="flex items-center gap-1 justify-end">
+			{row.original.critical && (
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger className="cursor-default">
+							<TriangleAlert className="text-destructive w-4 h-4 shrink-0" />
+						</TooltipTrigger>
+						<TooltipContent side="left">
+							<Text uuid="clinical.patient.critical.label" />
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			)}
+			<DropdownMenu>
 			<DropdownMenuTrigger
 				render={
-					<Button variant="outline" size="icon" className="ml-auto">
+					<Button variant="outline" size="icon">
 						<MoreVertical className="h-4 w-4" />
 						<span className="sr-only">Abrir Menu</span>
 					</Button>
@@ -112,6 +125,7 @@ function renderActions({ row }: CellContext<Patient, unknown>) {
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>
+		</div>
 	);
 }
 

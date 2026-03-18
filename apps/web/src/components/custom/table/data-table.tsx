@@ -40,6 +40,8 @@ interface DataTableProps<TData, TValue> {
 	pageCount?: number;
 	page?: number;
 	onPageChange?: (page: number) => void;
+	// Extra content rendered between search and Vista button
+	toolbarRight?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -53,6 +55,7 @@ export function DataTable<TData, TValue>({
 	pageCount,
 	page,
 	onPageChange,
+	toolbarRight,
 }: DataTableProps<TData, TValue>) {
 	const { textGet } = useText();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -106,7 +109,7 @@ export function DataTable<TData, TValue>({
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-center justify-between">
+			<div className="flex items-center gap-2 justify-between">
 				{onSearchChange ? (
 					<div className="flex items-center py-4 max-w-sm w-full">
 						<Input
@@ -134,7 +137,10 @@ export function DataTable<TData, TValue>({
 						/>
 					</div>
 				) : null}
-				<DataTableViewOptions table={table} />
+				<div className="flex items-center gap-2 ml-auto">
+					{toolbarRight}
+					<DataTableViewOptions table={table} />
+				</div>
 			</div>
 
 			<div className="rounded-md border">

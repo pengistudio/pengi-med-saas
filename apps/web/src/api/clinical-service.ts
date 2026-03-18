@@ -39,10 +39,15 @@ export interface PaginatedResponse<T> {
 	total_pages: number;
 }
 
+export type PatientSortBy = "last_name" | "created_at";
+export type PatientSortOrder = "asc" | "desc";
+
 export type PatientListParams = {
 	page?: number;
 	limit?: number;
 	search?: string;
+	sort_by?: PatientSortBy;
+	sort_order?: PatientSortOrder;
 };
 
 export const getAllPatientsWithLastFollowUp = async (
@@ -52,6 +57,8 @@ export const getAllPatientsWithLastFollowUp = async (
 	if (params.page) qs.set("page", String(params.page));
 	if (params.limit) qs.set("limit", String(params.limit));
 	if (params.search) qs.set("search", params.search);
+	if (params.sort_by) qs.set("sort_by", params.sort_by);
+	if (params.sort_order) qs.set("sort_order", params.sort_order);
 	const query = qs.toString() ? `?${qs.toString()}` : "";
 	return clinicalService.get<PaginatedResponse<Patient>>(
 		`/clinical/patients/follow-up${query}`,

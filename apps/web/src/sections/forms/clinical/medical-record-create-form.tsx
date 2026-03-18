@@ -3,16 +3,16 @@ import {
 	AlertTriangle,
 	BookOpen,
 	Calendar,
-	ClipboardList,
+	ChevronLeft,
+	ChevronRight,
 	Eye,
-	FileText,
 	Pill,
 	Plus,
 	Stethoscope,
 	Trash,
 } from "lucide-react";
 import React from "react";
-import { type UseFormReturn, useFieldArray } from "react-hook-form";
+import { type UseFormReturn, useFieldArray, useWatch } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 import {
@@ -26,7 +26,6 @@ import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextArea } from "@/components/forms/form-textarea";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -102,6 +101,9 @@ const formSchema = z.object({
 		.array(z.object({ code: z.string(), title: z.string() }))
 		.optional(),
 });
+
+const TABS = ["consulta", "soap", "complementario"] as const;
+type TabId = (typeof TABS)[number];
 
 const CreateMedicalRecordForm = () => {
 	const [loading, setLoading] = React.useState(false);
@@ -180,9 +182,6 @@ const CreateMedicalRecordForm = () => {
 		} else {
 			const items = values.prescription?.items ?? [];
 			if (items.length > 0) {
-				// Map structured items to PDF fields:
-				// content = medication names (one per line)
-				// indications = instructions per medication (one per line)
 				const content = items.map((item) => item.medication).join("\n");
 				const indications = items
 					.map((item) =>
@@ -257,6 +256,21 @@ function FormInner({
 	lastRecord: MedicalRecord | null;
 	onPreviewLastRecord: () => void;
 }) {
+	const [activeTab, setActiveTab] = React.useState<TabId>("consulta");
+	const [footerStuck, setFooterStuck] = React.useState(false);
+	const sentinelRef = React.useRef<HTMLDivElement>(null);
+
+	React.useEffect(() => {
+		const sentinel = sentinelRef.current;
+		if (!sentinel) return;
+		const observer = new IntersectionObserver(
+			([entry]) => setFooterStuck(!entry.isIntersecting),
+			{ threshold: 0 },
+		);
+		observer.observe(sentinel);
+		return () => observer.disconnect();
+	}, []);
+
 	const { fields, append, remove } = useFieldArray({
 		name: "prescription.items",
 		control: field.control,
@@ -265,37 +279,102 @@ function FormInner({
 	const { show_vital_signs, show_diagnoses, diagnosis_system } =
 		settings.clinical;
 
+	const watchedMotive = useWatch({ control: field.control, name: "motive" });
+	const watchedSoap = useWatch({
+		control: field.control,
+		name: "soap_record",
+	});
+
+	const watchedPrescription = useWatch({
+		control: field.control,
+		name: "prescription",
+	});
+	const watchedDiagnoses = useWatch({
+		control: field.control,
+		name: "diagnoses",
+	});
+
+	const tabDone: Record<TabId, boolean> = {
+		consulta: !!watchedMotive,
+		soap: !!(
+			watchedSoap?.subjective &&
+			watchedSoap?.objective &&
+			watchedSoap?.assessment &&
+			watchedSoap?.plan
+		),
+		complementario: !!(
+			(watchedDiagnoses && watchedDiagnoses.length > 0) ||
+			watchedPrescription?.content ||
+			watchedPrescription?.indications ||
+			(watchedPrescription?.items && watchedPrescription.items.length > 0)
+		),
+	};
+
+	function goTo(tab: TabId) {
+		setActiveTab(tab);
+	}
+
+	function goNext() {
+		const idx = TABS.indexOf(activeTab);
+		if (idx < TABS.length - 1) setActiveTab(TABS[idx + 1]);
+	}
+
+	function goPrev() {
+		const idx = TABS.indexOf(activeTab);
+		if (idx > 0) setActiveTab(TABS[idx - 1]);
+	}
+
+	const isFirst = activeTab === TABS[0];
+	const isLast = activeTab === TABS[TABS.length - 1];
+
 	return (
-		<div className="space-y-4 max-w-4xl xl:max-w-7xl mx-auto">
-			{/* Allergy Alert */}
+		<div className="max-w-5xl mx-auto flex flex-col gap-4">
+			{/* Sticky compact allergy banner */}
 			{allergies.length > 0 && (
-				<Alert className="border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200">
-					<AlertTriangle className="text-amber-600!" />
-					<AlertTitle>
-						<Text uuid="form.create_medical_record.allergy_alert.title" />
-					</AlertTitle>
-					<AlertDescription className="space-y-2 text-amber-700 dark:text-amber-400">
-						<p>
-							<Text uuid="form.create_medical_record.allergy_alert.description" />
-						</p>
-						<div className="flex flex-wrap gap-2">
+				<div className="sticky top-0 z-20 -mx-1">
+					<div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-lg px-4 py-2 shadow-sm">
+						<AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+						<span className="text-sm font-semibold text-amber-800 dark:text-amber-200 shrink-0">
+							<Text uuid="form.create_medical_record.allergy_alert.title" />:
+						</span>
+						<div className="flex flex-wrap gap-1.5 min-w-0">
 							{allergies.map((a) => (
 								<Badge
 									key={a}
 									variant="outline"
-									className="bg-amber-100 text-amber-800 border-amber-400"
+									className="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-400 text-xs"
 								>
 									{a}
 								</Badge>
 							))}
 						</div>
-					</AlertDescription>
-				</Alert>
+					</div>
+				</div>
 			)}
 
-			<div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
-				<div className="space-y-4 w-full">
-					{/* General Info */}
+			{/* Tab navigation */}
+			<Tabs
+				value={activeTab}
+				onValueChange={(v) => setActiveTab(v as TabId)}
+				className="w-full mb-16"
+			>
+				<TabsList className="w-full">
+					<TabsTrigger value="consulta" className="flex-1 gap-1.5">
+						<Calendar className="h-3.5 w-3.5 shrink-0" />
+						<Text uuid="form.create_medical_record.tab.consulta" />
+					</TabsTrigger>
+					<TabsTrigger value="soap" className="flex-1 gap-1.5">
+						<Stethoscope className="h-3.5 w-3.5 shrink-0" />
+						SOAP
+					</TabsTrigger>
+					<TabsTrigger value="complementario" className="flex-1 gap-1.5">
+						<BookOpen className="h-3.5 w-3.5 shrink-0" />
+						<Text uuid="form.create_medical_record.tab.complementario" />
+					</TabsTrigger>
+				</TabsList>
+
+				{/* ── Tab 1: Consulta (General + Vitals) ── */}
+				<TabsContent value="consulta" className="mt-4 space-y-4 pb-4">
 					<Card>
 						<CardHeader>
 							<CardTitle>
@@ -306,7 +385,7 @@ function FormInner({
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div className="grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-4">
+							<div className="grid md:grid-cols-2 grid-cols-1 gap-4">
 								<FormCalendar
 									field={field}
 									name="date"
@@ -323,6 +402,7 @@ function FormInner({
 								description={textGet(
 									"form.create_medical_record.motive.description",
 								)}
+								rows={3}
 							/>
 							<FormTextArea
 								field={field}
@@ -332,20 +412,20 @@ function FormInner({
 									"form.create_medical_record.observation.placeholder",
 								)}
 								isOptional
+								rows={2}
 							/>
 						</CardContent>
 					</Card>
 
-					{/* Vital Signs */}
 					{show_vital_signs && (
 						<Card className="border-l-4 border-l-rose-500">
 							<CardHeader>
 								<div className="flex items-center gap-3">
-									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500 text-primary-foreground">
+									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500 text-white">
 										<Activity className="h-4 w-4" />
 									</div>
 									<div>
-										<CardTitle className="text-lg">
+										<CardTitle className="text-base">
 											<Text uuid="form.create_medical_record.vital_signs.title" />
 										</CardTitle>
 										<p className="text-sm text-muted-foreground">
@@ -364,7 +444,12 @@ function FormInner({
 										label={textGet(
 											"form.create_medical_record.vital_signs.weight",
 										)}
-										placeholder="kg"
+										placeholder="0.0"
+										endAddon={
+											<span className="text-muted-foreground text-sm px-2">
+												kg
+											</span>
+										}
 										isOptional
 									/>
 									<FormInput
@@ -375,7 +460,12 @@ function FormInner({
 										label={textGet(
 											"form.create_medical_record.vital_signs.height",
 										)}
-										placeholder="cm"
+										placeholder="0.0"
+										endAddon={
+											<span className="text-muted-foreground text-sm px-2">
+												cm
+											</span>
+										}
 										isOptional
 									/>
 									<FormInput
@@ -385,6 +475,11 @@ function FormInner({
 											"form.create_medical_record.vital_signs.blood_pressure",
 										)}
 										placeholder="120/80"
+										endAddon={
+											<span className="text-muted-foreground text-sm px-2">
+												mmHg
+											</span>
+										}
 										isOptional
 									/>
 									<FormInput
@@ -395,7 +490,12 @@ function FormInner({
 										label={textGet(
 											"form.create_medical_record.vital_signs.temperature",
 										)}
-										placeholder="°C"
+										placeholder="36.5"
+										endAddon={
+											<span className="text-muted-foreground text-sm px-2">
+												°C
+											</span>
+										}
 										isOptional
 									/>
 									<FormInput
@@ -405,7 +505,12 @@ function FormInner({
 										label={textGet(
 											"form.create_medical_record.vital_signs.heart_rate",
 										)}
-										placeholder="bpm"
+										placeholder="70"
+										endAddon={
+											<span className="text-muted-foreground text-sm px-2">
+												bpm
+											</span>
+										}
 										isOptional
 									/>
 									<FormInput
@@ -415,136 +520,218 @@ function FormInner({
 										label={textGet(
 											"form.create_medical_record.vital_signs.o2_saturation",
 										)}
-										placeholder="%"
+										placeholder="98"
+										endAddon={
+											<span className="text-muted-foreground text-sm px-2">
+												%
+											</span>
+										}
 										isOptional
 									/>
 								</div>
 							</CardContent>
 						</Card>
 					)}
+				</TabsContent>
 
-					{/* SOAP: Subjective */}
-					<Card className="border-l-4 border-l-primary">
-						<CardHeader>
-							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-									<FileText className="h-4 w-4" />
+				{/* ── Tab 2: SOAP ── */}
+				<TabsContent value="soap" className="mt-4 pb-4">
+					{/* SOAP step indicator */}
+					<div className="flex items-center gap-2 mb-5">
+						{(
+							[
+								{
+									letter: "S",
+									color: "bg-primary",
+									key: "subjective",
+									label: textGet(
+										"form.create_medical_record.soap.subjective.title",
+									),
+								},
+								{
+									letter: "O",
+									color: "bg-emerald-500",
+									key: "objective",
+									label: textGet(
+										"form.create_medical_record.soap.objective.title",
+									),
+								},
+								{
+									letter: "A",
+									color: "bg-orange-500",
+									key: "assessment",
+									label: textGet(
+										"form.create_medical_record.soap.assessment.title",
+									),
+								},
+								{
+									letter: "P",
+									color: "bg-teal-500",
+									key: "plan",
+									label: textGet(
+										"form.create_medical_record.soap.plan.title",
+									),
+								},
+							] as const
+						).map((step, i) => (
+							<React.Fragment key={step.key}>
+								<div className="flex items-center gap-2">
+									<div
+										className={`h-7 w-7 rounded-full ${step.color} text-white flex items-center justify-center text-xs font-bold`}
+									>
+										{step.letter}
+									</div>
+									<span className="text-xs text-muted-foreground hidden sm:inline">
+										{step.label}
+									</span>
 								</div>
-								<div>
-									<CardTitle className="text-lg">
-										<Text uuid="form.create_medical_record.soap.subjective.title" />
-									</CardTitle>
-									<p className="text-sm text-muted-foreground">
-										<Text uuid="form.create_medical_record.soap.subjective.description" />
-									</p>
-								</div>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<FormTextArea
-								field={field}
-								name="soap_record.subjective"
-								label={
-									<Text uuid="form.create_medical_record.soap.subjective" />
-								}
-							/>
-						</CardContent>
-					</Card>
+								{i < 3 && (
+									<div className="flex-1 h-px bg-border max-w-8" />
+								)}
+							</React.Fragment>
+						))}
+					</div>
 
-					{/* SOAP: Objective */}
-					<Card className="border-l-4 border-l-emerald-400">
-						<CardHeader>
-							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-400 text-primary-foreground">
-									<Stethoscope className="h-4 w-4" />
+					<div className="space-y-4">
+						{/* S — Subjective */}
+						<Card className="border-l-4 border-l-primary">
+							<CardHeader className="pb-3">
+								<div className="flex items-center gap-3">
+									<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+										S
+									</div>
+									<div>
+										<CardTitle className="text-base">
+											<Text uuid="form.create_medical_record.soap.subjective.title" />
+										</CardTitle>
+										<p className="text-xs text-muted-foreground">
+											<Text uuid="form.create_medical_record.soap.subjective.description" />
+										</p>
+									</div>
 								</div>
-								<div>
-									<CardTitle className="text-lg">
-										<Text uuid="form.create_medical_record.soap.objective.title" />
-									</CardTitle>
-									<p className="text-sm text-muted-foreground">
-										<Text uuid="form.create_medical_record.soap.objective.description" />
-									</p>
-								</div>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<FormTextArea
-								field={field}
-								name="soap_record.objective"
-								label={
-									<Text uuid="form.create_medical_record.soap.objective" />
-								}
-							/>
-						</CardContent>
-					</Card>
-				</div>
+							</CardHeader>
+							<CardContent>
+								<FormTextArea
+									field={field}
+									name="soap_record.subjective"
+									label={
+										<Text uuid="form.create_medical_record.soap.subjective" />
+									}
+									placeholder={textGet(
+										"form.create_medical_record.soap.subjective.placeholder",
+									)}
+									rows={4}
+								/>
+							</CardContent>
+						</Card>
 
-				<div className="space-y-4 w-full">
-					{/* SOAP: Assessment */}
-					<Card className="border-l-4 border-l-orange-500">
-						<CardHeader>
-							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500 text-primary-foreground">
-									<ClipboardList className="h-4 w-4" />
+						{/* O — Objective */}
+						<Card className="border-l-4 border-l-emerald-500">
+							<CardHeader className="pb-3">
+								<div className="flex items-center gap-3">
+									<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-white text-sm font-bold">
+										O
+									</div>
+									<div>
+										<CardTitle className="text-base">
+											<Text uuid="form.create_medical_record.soap.objective.title" />
+										</CardTitle>
+										<p className="text-xs text-muted-foreground">
+											<Text uuid="form.create_medical_record.soap.objective.description" />
+										</p>
+									</div>
 								</div>
-								<div>
-									<CardTitle className="text-lg">
-										<Text uuid="form.create_medical_record.soap.assessment.title" />
-									</CardTitle>
-									<p className="text-sm text-muted-foreground">
-										<Text uuid="form.create_medical_record.soap.assessment.description" />
-									</p>
-								</div>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<FormTextArea
-								field={field}
-								name="soap_record.assessment"
-								label={
-									<Text uuid="form.create_medical_record.soap.assessment" />
-								}
-							/>
-						</CardContent>
-					</Card>
+							</CardHeader>
+							<CardContent>
+								<FormTextArea
+									field={field}
+									name="soap_record.objective"
+									label={
+										<Text uuid="form.create_medical_record.soap.objective" />
+									}
+									placeholder={textGet(
+										"form.create_medical_record.soap.objective.placeholder",
+									)}
+									rows={4}
+								/>
+							</CardContent>
+						</Card>
 
-					{/* SOAP: Plan */}
-					<Card className="border-l-4 border-l-teal-400">
-						<CardHeader>
-							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-400 text-primary-foreground">
-									<Calendar className="h-4 w-4" />
+						{/* A — Assessment */}
+						<Card className="border-l-4 border-l-orange-500">
+							<CardHeader className="pb-3">
+								<div className="flex items-center gap-3">
+									<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500 text-white text-sm font-bold">
+										A
+									</div>
+									<div>
+										<CardTitle className="text-base">
+											<Text uuid="form.create_medical_record.soap.assessment.title" />
+										</CardTitle>
+										<p className="text-xs text-muted-foreground">
+											<Text uuid="form.create_medical_record.soap.assessment.description" />
+										</p>
+									</div>
 								</div>
-								<div>
-									<CardTitle className="text-lg">
-										<Text uuid="form.create_medical_record.soap.plan.title" />
-									</CardTitle>
-									<p className="text-sm text-muted-foreground">
-										<Text uuid="form.create_medical_record.soap.plan.description" />
-									</p>
-								</div>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<FormTextArea
-								field={field}
-								name="soap_record.plan"
-								label={<Text uuid="form.create_medical_record.soap.plan" />}
-							/>
-						</CardContent>
-					</Card>
+							</CardHeader>
+							<CardContent>
+								<FormTextArea
+									field={field}
+									name="soap_record.assessment"
+									label={
+										<Text uuid="form.create_medical_record.soap.assessment" />
+									}
+									placeholder={textGet(
+										"form.create_medical_record.soap.assessment.placeholder",
+									)}
+									rows={4}
+								/>
+							</CardContent>
+						</Card>
 
-					{/* Diagnoses (optional) */}
+						{/* P — Plan */}
+						<Card className="border-l-4 border-l-teal-500">
+							<CardHeader className="pb-3">
+								<div className="flex items-center gap-3">
+									<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500 text-white text-sm font-bold">
+										P
+									</div>
+									<div>
+										<CardTitle className="text-base">
+											<Text uuid="form.create_medical_record.soap.plan.title" />
+										</CardTitle>
+										<p className="text-xs text-muted-foreground">
+											<Text uuid="form.create_medical_record.soap.plan.description" />
+										</p>
+									</div>
+								</div>
+							</CardHeader>
+							<CardContent>
+								<FormTextArea
+									field={field}
+									name="soap_record.plan"
+									label={<Text uuid="form.create_medical_record.soap.plan" />}
+									placeholder={textGet(
+										"form.create_medical_record.soap.plan.placeholder",
+									)}
+									rows={4}
+								/>
+							</CardContent>
+						</Card>
+					</div>
+				</TabsContent>
+
+				{/* ── Tab 3: Complementario (Diagnoses + Prescription) ── */}
+				<TabsContent value="complementario" className="mt-4 space-y-4 pb-4">
 					{show_diagnoses && (
 						<Card className="border-l-4 border-l-blue-500">
 							<CardHeader>
 								<div className="flex items-center gap-3">
-									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-primary-foreground">
+									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-white">
 										<BookOpen className="h-4 w-4" />
 									</div>
 									<div>
-										<CardTitle className="text-lg flex items-center gap-2">
+										<CardTitle className="text-base flex items-center gap-2">
 											<Text uuid="form.create_medical_record.diagnoses" />
 											<span className="text-xs font-mono bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">
 												{diagnosis_system === "cie10" ? "CIE-10" : "CIE-11"}
@@ -567,15 +754,14 @@ function FormInner({
 						</Card>
 					)}
 
-					{/* Prescription (optional) */}
 					<Card className="border-l-4 border-l-violet-500">
 						<CardHeader>
 							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500 text-primary-foreground">
+								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500 text-white">
 									<Pill className="h-4 w-4" />
 								</div>
 								<div>
-									<CardTitle className="text-lg">
+									<CardTitle className="text-base">
 										<Text uuid="form.create_medical_record.prescription.title" />
 									</CardTitle>
 									<p className="text-sm text-muted-foreground">
@@ -600,7 +786,6 @@ function FormInner({
 									</TabsTrigger>
 								</TabsList>
 
-								{/* Free text tab */}
 								<TabsContent value="text" className="space-y-4 pt-4">
 									<FormTextArea
 										field={field}
@@ -609,6 +794,7 @@ function FormInner({
 											<Text uuid="form.create_medical_record.prescription.content" />
 										}
 										isOptional
+										rows={4}
 									/>
 									<FormTextArea
 										field={field}
@@ -617,10 +803,10 @@ function FormInner({
 											<Text uuid="form.create_medical_record.prescription.indications" />
 										}
 										isOptional
+										rows={3}
 									/>
 								</TabsContent>
 
-								{/* Structured tab */}
 								<TabsContent value="structured" className="pt-4 space-y-3">
 									<div className="flex justify-end">
 										<Button
@@ -642,12 +828,29 @@ function FormInner({
 										</Button>
 									</div>
 									{fields.length === 0 && (
-										<p className="text-sm text-muted-foreground text-center py-6">
+										<p className="text-sm text-muted-foreground text-center py-8 border border-dashed rounded-lg">
 											<Text uuid="form.create_medical_record.prescription.items.empty" />
 										</p>
 									)}
 									{fields.map((f, index) => (
-										<div key={f.id} className="border rounded-md p-4 space-y-3">
+										<div
+											key={f.id}
+											className="border rounded-lg p-4 space-y-3 bg-muted/20"
+										>
+											<div className="flex items-center justify-between mb-1">
+												<span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+													Medicamento {index + 1}
+												</span>
+												<Button
+													type="button"
+													variant="ghost"
+													size="sm"
+													className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+													onClick={() => remove(index)}
+												>
+													<Trash className="h-3.5 w-3.5" />
+												</Button>
+											</div>
 											<div className="grid md:grid-cols-2 grid-cols-1 gap-3">
 												<FormInput
 													field={field}
@@ -682,47 +885,99 @@ function FormInner({
 													placeholder="7 días"
 												/>
 											</div>
-											<div className="flex items-end gap-2">
-												<div className="flex-1">
-													<FormInput
-														field={field}
-														name={`prescription.items.${index}.notes`}
-														label={textGet(
-															"form.create_medical_record.prescription.item.notes",
-														)}
-														placeholder="..."
-														isOptional
-													/>
-												</div>
-												<Button
-													type="button"
-													variant="destructive"
-													size="icon"
-													onClick={() => remove(index)}
-												>
-													<Trash className="h-4 w-4" />
-												</Button>
-											</div>
+											<FormInput
+												field={field}
+												name={`prescription.items.${index}.notes`}
+												label={textGet(
+													"form.create_medical_record.prescription.item.notes",
+												)}
+												placeholder="Tomar con alimentos..."
+												isOptional
+											/>
 										</div>
 									))}
 								</TabsContent>
 							</Tabs>
 						</CardContent>
 					</Card>
-				</div>
-			</div>
+				</TabsContent>
+			</Tabs>
 
-			<div className="flex justify-end gap-2">
-				{lastRecord && (
-					<Button type="button" variant="outline" onClick={onPreviewLastRecord}>
-						<Eye className="mr-2 h-4 w-4" />
-						<Text uuid="form.create_medical_record.preview_last" />
-					</Button>
-				)}
-				<Button type="submit" disabled={loading}>
-					<Plus className="mr-2 h-4 w-4" />
-					<Text uuid="form.create_medical_record.submit" />
-				</Button>
+			{/* Sentinel — detected to know when footer is sticky */}
+			<div ref={sentinelRef} className="h-px" />
+
+			{/* Sticky bottom action bar */}
+			<div
+				className={`sticky z-10 bg-background/95 backdrop-blur-sm px-4 py-3 transition-all ${
+					footerStuck
+						? "bottom-3 -mx-1 border border-border rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
+						: "bottom-0 -mx-1"
+				}`}
+			>
+				<div className="flex items-center justify-between gap-3">
+					{/* Left: last record preview */}
+					<div className="flex items-center gap-2 shrink-0">
+						{lastRecord && (
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								className="text-muted-foreground"
+								onClick={onPreviewLastRecord}
+							>
+								<Eye className="mr-1.5 h-4 w-4" />
+								<span className="hidden sm:inline">
+									<Text uuid="form.create_medical_record.preview_last" />
+								</span>
+							</Button>
+						)}
+					</div>
+
+					{/* Center: tab step dots */}
+					<div className="flex items-center gap-2">
+						{TABS.map((tab) => (
+							<button
+								key={tab}
+								type="button"
+								onClick={() => goTo(tab)}
+								className={`rounded-full transition-all ${
+									activeTab === tab
+										? "h-2.5 w-2.5 bg-primary"
+										: tabDone[tab]
+											? "h-2 w-2 bg-emerald-500"
+											: "h-2 w-2 bg-muted-foreground/25"
+								}`}
+							/>
+						))}
+					</div>
+
+					{/* Right: navigation + submit */}
+					<div className="flex items-center gap-2 shrink-0">
+						{!isFirst && (
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={goPrev}
+							>
+								<ChevronLeft className="h-4 w-4" />
+								<span className="hidden sm:inline ml-1">Anterior</span>
+							</Button>
+						)}
+						{!isLast ? (
+							<Button type="button" size="sm" onClick={goNext}>
+								<span className="hidden sm:inline mr-1">Siguiente</span>
+								<ChevronRight className="h-4 w-4" />
+							</Button>
+						) : (
+							<Button type="submit" disabled={loading} size="sm">
+								<Plus className="mr-1.5 h-4 w-4" />
+								<Text uuid="form.create_medical_record.submit" />
+								
+							</Button>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	);
@@ -755,7 +1010,6 @@ function LastRecordDialog({
 				</DialogHeader>
 
 				<div className="space-y-4 pt-2">
-					{/* Motive */}
 					<div>
 						<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
 							<Text uuid="form.create_medical_record.motive" />
@@ -763,7 +1017,6 @@ function LastRecordDialog({
 						<p className="text-sm">{record.motive}</p>
 					</div>
 
-					{/* Observation */}
 					{record.observation && (
 						<div>
 							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
@@ -773,7 +1026,6 @@ function LastRecordDialog({
 						</div>
 					)}
 
-					{/* SOAP */}
 					{record.soap_record && (
 						<div className="grid gap-3 border rounded-md p-4">
 							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -795,7 +1047,6 @@ function LastRecordDialog({
 						</div>
 					)}
 
-					{/* Vital Signs */}
 					{record.vital_signs && (
 						<div className="border rounded-md p-4">
 							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
@@ -850,7 +1101,6 @@ function LastRecordDialog({
 						</div>
 					)}
 
-					{/* Diagnoses */}
 					{record.diagnoses && record.diagnoses.length > 0 && (
 						<div>
 							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
@@ -866,7 +1116,6 @@ function LastRecordDialog({
 						</div>
 					)}
 
-					{/* Prescription */}
 					{record.prescription &&
 						(record.prescription.content ||
 							record.prescription.indications) && (
