@@ -19,8 +19,8 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	environmentHandler := user_handlers.NewEnvironmentHandler(db, logger.Log)
 	profileHandler := user_handlers.NewProfileHandler(db, logger.Log)
 
-	// 5 requests/min, burst 5 — for sensitive auth endpoints
-	authLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/5), 5)
+	// 15 requests/min, burst 15 — for sensitive auth endpoints
+	authLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/15), 15)
 
 	userRoutes := router.Group("/users")
 	{
