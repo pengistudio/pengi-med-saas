@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-type PatientSortValue = "created_at_desc" | "created_at_asc" | "last_name_asc" | "last_name_desc";
+type PatientSortValue =
+	| "created_at_desc"
+	| "created_at_asc"
+	| "last_name_asc"
+	| "last_name_desc";
 
 interface ClinicalListState {
 	patientSortValue: PatientSortValue;

@@ -60,71 +60,71 @@ function renderActions({ row }: CellContext<Patient, unknown>) {
 				</TooltipProvider>
 			)}
 			<DropdownMenu>
-			<DropdownMenuTrigger
-				render={
-					<Button variant="outline" size="icon">
-						<MoreVertical className="h-4 w-4" />
-						<span className="sr-only">Abrir Menu</span>
-					</Button>
-				}
-			/>
-			<DropdownMenuContent align="end" className="w-48">
-				<DropdownMenuGroup>
-					<DropdownMenuLabel>
-						<Text uuid="table.actions" />
-					</DropdownMenuLabel>
-					{checkPermission([
-						PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
-					]) && (
+				<DropdownMenuTrigger
+					render={
+						<Button variant="outline" size="icon">
+							<MoreVertical className="h-4 w-4" />
+							<span className="sr-only">Abrir Menu</span>
+						</Button>
+					}
+				/>
+				<DropdownMenuContent align="end" className="w-48">
+					<DropdownMenuGroup>
+						<DropdownMenuLabel>
+							<Text uuid="table.actions" />
+						</DropdownMenuLabel>
+						{checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
+						]) && (
+							<DropdownMenuItem
+								onClick={() => {
+									navigate(
+										`/clinical/medical-records/create?${params.toString()}`,
+									);
+								}}
+							>
+								<Plus className="w-4 h-4 mr-2" />
+								<Text uuid="clinical.medical_record.new" />
+							</DropdownMenuItem>
+						)}
 						<DropdownMenuItem
 							onClick={() => {
-								navigate(
-									`/clinical/medical-records/create?${params.toString()}`,
-								);
+								setPatient(row.original);
+								navigate(`/clinical/medical-records/${row.original.ID}`);
 							}}
 						>
-							<Plus className="w-4 h-4 mr-2" />
-							<Text uuid="clinical.medical_record.new" />
+							<Eye className="w-4 h-4 mr-2" />
+							<Text uuid="clinical.medical_record.view" />
 						</DropdownMenuItem>
-					)}
-					<DropdownMenuItem
-						onClick={() => {
-							setPatient(row.original);
-							navigate(`/clinical/medical-records/${row.original.ID}`);
-						}}
-					>
-						<Eye className="w-4 h-4 mr-2" />
-						<Text uuid="clinical.medical_record.view" />
-					</DropdownMenuItem>
-					{checkPermission([
-						PERMISSIONS.MEDICAL_RECORD.PERMISSION_UPDATE_PATIENT,
-					]) && (
-						<DropdownMenuItem
-							onClick={() => {
-								navigate(`/clinical/edit/${row.original.ID}`);
-							}}
-						>
-							<Pencil className="w-4 h-4 mr-2" />
-							<Text uuid="clinical.patient.edit" />
-						</DropdownMenuItem>
-					)}
-					{checkPermission([
-						PERMISSIONS.MEDICAL_RECORD.PERMISSION_DOWNLOAD_PATIENT_REPORT,
-					]) && (
-						<DropdownMenuItem
-							onClick={async () => {
-								if (token) {
-									await downloadPatientReport(row.original.ID);
-								}
-							}}
-						>
-							<Download className="w-4 h-4 mr-2 mb-1" />
-							<Text uuid="clinical.patient.download_records" />
-						</DropdownMenuItem>
-					)}
-				</DropdownMenuGroup>
-			</DropdownMenuContent>
-		</DropdownMenu>
+						{checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_UPDATE_PATIENT,
+						]) && (
+							<DropdownMenuItem
+								onClick={() => {
+									navigate(`/clinical/edit/${row.original.ID}`);
+								}}
+							>
+								<Pencil className="w-4 h-4 mr-2" />
+								<Text uuid="clinical.patient.edit" />
+							</DropdownMenuItem>
+						)}
+						{checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_DOWNLOAD_PATIENT_REPORT,
+						]) && (
+							<DropdownMenuItem
+								onClick={async () => {
+									if (token) {
+										await downloadPatientReport(row.original.ID);
+									}
+								}}
+							>
+								<Download className="w-4 h-4 mr-2 mb-1" />
+								<Text uuid="clinical.patient.download_records" />
+							</DropdownMenuItem>
+						)}
+					</DropdownMenuGroup>
+				</DropdownMenuContent>
+			</DropdownMenu>
 		</div>
 	);
 }

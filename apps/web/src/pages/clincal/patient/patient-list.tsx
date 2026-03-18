@@ -44,16 +44,26 @@ import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
 
-type SortValue = "created_at_desc" | "created_at_asc" | "last_name_asc" | "last_name_desc";
+type SortValue =
+	| "created_at_desc"
+	| "created_at_asc"
+	| "last_name_asc"
+	| "last_name_desc";
 
-function parseSortValue(v: SortValue): { sort_by: PatientSortBy; sort_order: PatientSortOrder } {
+function parseSortValue(v: SortValue): {
+	sort_by: PatientSortBy;
+	sort_order: PatientSortOrder;
+} {
 	if (v.startsWith("last_name")) {
 		return {
 			sort_by: "last_name",
 			sort_order: v.endsWith("asc") ? "asc" : "desc",
 		};
 	}
-	const [sort_by, sort_order] = v.split("_") as [PatientSortBy, PatientSortOrder];
+	const [sort_by, sort_order] = v.split("_") as [
+		PatientSortBy,
+		PatientSortOrder,
+	];
 	return { sort_by, sort_order };
 }
 
@@ -65,7 +75,8 @@ const Clinical = () => {
 	const [_, setTotal] = React.useState(0);
 	const [search, setSearch] = React.useState("");
 	const [searchInput, setSearchInput] = React.useState("");
-	const { patientSortValue: sortValue, setPatientSortValue: setSortValue } = useClinicalListStore();
+	const { patientSortValue: sortValue, setPatientSortValue: setSortValue } =
+		useClinicalListStore();
 
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
@@ -129,10 +140,18 @@ const Clinical = () => {
 					<SelectValue>{sortLabels[sortValue]}</SelectValue>
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="created_at_desc">{sortLabels.created_at_desc}</SelectItem>
-					<SelectItem value="created_at_asc">{sortLabels.created_at_asc}</SelectItem>
-					<SelectItem value="last_name_asc">{sortLabels.last_name_asc}</SelectItem>
-					<SelectItem value="last_name_desc">{sortLabels.last_name_desc}</SelectItem>
+					<SelectItem value="created_at_desc">
+						{sortLabels.created_at_desc}
+					</SelectItem>
+					<SelectItem value="created_at_asc">
+						{sortLabels.created_at_asc}
+					</SelectItem>
+					<SelectItem value="last_name_asc">
+						{sortLabels.last_name_asc}
+					</SelectItem>
+					<SelectItem value="last_name_desc">
+						{sortLabels.last_name_desc}
+					</SelectItem>
 				</SelectContent>
 			</Select>
 		</div>

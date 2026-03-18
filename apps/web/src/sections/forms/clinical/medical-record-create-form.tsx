@@ -568,9 +568,7 @@ function FormInner({
 									letter: "P",
 									color: "bg-teal-500",
 									key: "plan",
-									label: textGet(
-										"form.create_medical_record.soap.plan.title",
-									),
+									label: textGet("form.create_medical_record.soap.plan.title"),
 								},
 							] as const
 						).map((step, i) => (
@@ -585,9 +583,7 @@ function FormInner({
 										{step.label}
 									</span>
 								</div>
-								{i < 3 && (
-									<div className="flex-1 h-px bg-border max-w-8" />
-								)}
+								{i < 3 && <div className="flex-1 h-px bg-border max-w-8" />}
 							</React.Fragment>
 						))}
 					</div>
@@ -973,7 +969,6 @@ function FormInner({
 							<Button type="submit" disabled={loading} size="sm">
 								<Plus className="mr-1.5 h-4 w-4" />
 								<Text uuid="form.create_medical_record.submit" />
-								
 							</Button>
 						)}
 					</div>
