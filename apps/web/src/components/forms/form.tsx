@@ -14,6 +14,20 @@ import { useLanguage } from "@/contexts/language-context";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 
+function countLeafErrors(errors: FieldErrors): number {
+	let count = 0;
+	for (const key of Object.keys(errors)) {
+		const error = errors[key];
+		if (!error) continue;
+		if (typeof (error as { message?: unknown }).message === "string") {
+			count++;
+		} else {
+			count += countLeafErrors(error as FieldErrors);
+		}
+	}
+	return count;
+}
+
 type FormProps<
 	T extends z.ZodType<Output, Input>, // <- aquí T depende de Output e Input
 	Output = z.output<T>, // <- Output se infiere a partir de T
@@ -74,41 +88,18 @@ export const Form = <
 	// Función para manejar errores de validación
 	const handleInvalidSubmit = React.useCallback(
 		(errors: FieldErrors<Input>) => {
-			const errorFields = Object.keys(errors);
-			const errorMessages = errorFields.map((field) => {
-				const error = errors[field] as
-					| {
-							message?: string;
-							root?: { message?: string };
-					  }
-					| undefined;
-				const message =
-					error?.message || error?.root?.message || "Campo inválido";
-				return `${field}: ${message}`;
-			});
+			const count = countLeafErrors(errors);
+			const description =
+				count === 1
+					? textGet("form.validation.single_field_error")
+					: textGet("form.validation.multiple_fields_error").replace(
+							"{count}",
+							String(count),
+						);
 
 			toast.error(textGet("form.validation.invalid_fields"), {
-				description: (
-					<div className="mt-2">
-						<p className="text-sm text-foreground font-medium mb-1">
-							{textGet("form.validation.check_following_fields")}:
-						</p>
-						<ul className="list list-disc list-inside">
-							{errorMessages.map((message, index) => (
-								<li
-									className="text-sm text-foreground/90"
-									key={`error-${
-										// biome-ignore lint/suspicious/noArrayIndexKey: needed here
-										index
-									}`}
-								>
-									{message}
-								</li>
-							))}
-						</ul>
-					</div>
-				),
-				duration: 8000,
+				description,
+				duration: 5000,
 			});
 
 			console.error("❌ Form validation errors:", errors);

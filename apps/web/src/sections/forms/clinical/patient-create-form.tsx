@@ -18,6 +18,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import useTenantSettings from "@/hooks/use-tenant-settings";
+import { useText } from "@/hooks/use-text";
 
 const STATIC_INSTITUTIONS = [
 	{ label: "Solca", value: "Solca" },
@@ -36,6 +38,7 @@ const formSchema = z.object({
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),
+	age: z.coerce.number().int().min(0).max(150).optional(),
 	notes: z.string().optional(),
 	insurance: z.string().optional(),
 	medic: z.string().min(1, "No debe estar vacío"),
@@ -47,10 +50,17 @@ const formSchema = z.object({
 	diagnosis: z.string().optional(),
 });
 
+function ageToDate(age: number): Date {
+	const now = new Date();
+	return new Date(now.getFullYear() - age, now.getMonth(), now.getDate());
+}
+
 const CreatePatientForm = () => {
 	const [loading, setLoading] = React.useState(false);
-
 	const navigate = useNavigate();
+	const { settings } = useTenantSettings();
+	const { textGet } = useText();
+	const useAgeInput = settings.clinical.patient_age_input;
 
 	return (
 		<Form
@@ -106,12 +116,23 @@ const CreatePatientForm = () => {
 								isOptional
 							/>
 
-							<FormCalendar
-								field={field}
-								name="birth_date"
-								label="Fecha de Nacimiento"
-								isOptional
-							/>
+							{useAgeInput ? (
+								<FormInput
+									field={field}
+									name="age"
+									type="number"
+									placeholder={textGet("form.patient.age.placeholder")}
+									label={textGet("form.patient.age")}
+									isOptional
+								/>
+							) : (
+								<FormCalendar
+									field={field}
+									name="birth_date"
+									label="Fecha de Nacimiento"
+									isOptional
+								/>
+							)}
 
 							<FormRadioGroup
 								name="gender"
@@ -199,9 +220,13 @@ const CreatePatientForm = () => {
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoading(true);
 
-		const payload = {
-			...values,
-		};
+		const birth_date =
+			useAgeInput && values.age !== undefined
+				? ageToDate(values.age)
+				: values.birth_date;
+
+		const { age: _age, ...rest } = values;
+		const payload = { ...rest, birth_date };
 
 		try {
 			const res = await createPatient(payload);

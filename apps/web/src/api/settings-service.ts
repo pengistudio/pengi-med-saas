@@ -14,6 +14,8 @@ export interface ClinicalSettings {
 	show_vital_signs: boolean;
 	show_diagnoses: boolean;
 	diagnosis_system: "cie11" | "cie10";
+	// Patient form
+	patient_age_input: boolean;
 }
 
 export interface TenantUISettings {
@@ -30,6 +32,7 @@ export const DEFAULT_UI_SETTINGS: TenantUISettings = {
 		show_vital_signs: true,
 		show_diagnoses: true,
 		diagnosis_system: "cie11",
+		patient_age_input: false,
 	},
 };
 

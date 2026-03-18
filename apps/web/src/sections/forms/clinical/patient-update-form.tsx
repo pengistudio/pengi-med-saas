@@ -24,6 +24,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 import { usePatientStore } from "@/store/patient-store";
 
@@ -44,6 +45,7 @@ const formSchema = z.object({
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),
+	age: z.coerce.number().int().min(0).max(150).optional(),
 	notes: z.string().optional(),
 	insurance: z.string().optional(),
 	medic: z.string().min(1, "No debe estar vacío"),
@@ -62,8 +64,10 @@ const EditPatientForm = () => {
 	const [loadingData, setLoadingData] = React.useState(true);
 	const [patient, setPatientState] = React.useState<Patient | null>(null);
 	const { textGet } = useText();
+	const { settings } = useTenantSettings();
 	const { setPatient } = usePatientStore();
 	const navigate = useNavigate();
+	const useAgeInput = settings.clinical.patient_age_input;
 
 	React.useEffect(() => {
 		if (!id) return;
@@ -93,6 +97,13 @@ const EditPatientForm = () => {
 		);
 	}
 
+	const existingAge = patient.birth_date
+		? Math.floor(
+				(Date.now() - new Date(patient.birth_date).getTime()) /
+					(365.25 * 24 * 60 * 60 * 1000),
+			)
+		: undefined;
+
 	const defaultValues = {
 		document: patient.document,
 		phone: patient.phone || "",
@@ -100,6 +111,7 @@ const EditPatientForm = () => {
 		first_name: patient.first_name,
 		last_name: patient.last_name,
 		birth_date: patient.birth_date ? new Date(patient.birth_date) : undefined,
+		age: useAgeInput ? existingAge : undefined,
 		notes: patient.notes || "",
 		insurance: patient.insurance || "",
 		medic: patient.medic,
@@ -164,12 +176,23 @@ const EditPatientForm = () => {
 								isOptional
 							/>
 
-							<FormCalendar
-								field={field}
-								name="birth_date"
-								label={textGet("form.edit_patient.birth_date")}
-								isOptional
-							/>
+							{useAgeInput ? (
+								<FormInput
+									field={field}
+									name="age"
+									type="number"
+									placeholder={textGet("form.patient.age.placeholder")}
+									label={textGet("form.patient.age")}
+									isOptional
+								/>
+							) : (
+								<FormCalendar
+									field={field}
+									name="birth_date"
+									label={textGet("form.edit_patient.birth_date")}
+									isOptional
+								/>
+							)}
 
 							<FormRadioGroup
 								name="gender"
@@ -268,9 +291,20 @@ const EditPatientForm = () => {
 		if (!id) return;
 		setLoading(true);
 
-		const payload = {
-			...values,
-		};
+		const birth_date =
+			useAgeInput && values.age !== undefined
+				? (() => {
+						const now = new Date();
+						return new Date(
+							now.getFullYear() - values.age,
+							now.getMonth(),
+							now.getDate(),
+						);
+					})()
+				: values.birth_date;
+
+		const { age: _age, ...rest } = values;
+		const payload = { ...rest, birth_date };
 
 		try {
 			const res = await updatePatient(Number(id), payload);

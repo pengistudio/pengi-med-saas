@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/text";
+import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 
@@ -55,6 +56,14 @@ const NotAvailable = () => (
 export default function PatientCard({ patient }: { patient: PatientCardData }) {
 	const [showPrescription, setShowPrescription] = React.useState(false);
 	const { textGet } = useText();
+	const { settings } = useTenantSettings();
+	const useAgeInput = settings.clinical.patient_age_input;
+	const age = patient.birth_date
+		? Math.floor(
+				(Date.now() - new Date(patient.birth_date).getTime()) /
+					(365.25 * 24 * 60 * 60 * 1000),
+			)
+		: null;
 
 	const displayName =
 		patient.full_name || `${patient.first_name} ${patient.last_name}`;
@@ -102,12 +111,24 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 						<div className="grid gap-3 text-sm">
 							<div className="grid grid-cols-[120px_1fr] items-center">
 								<span className="font-medium text-muted-foreground">
-									<Text uuid="clinical.patient_card.birth_date" />
+									{useAgeInput ? (
+										<Text uuid="clinical.patient_card.age" />
+									) : (
+										<Text uuid="clinical.patient_card.birth_date" />
+									)}
 								</span>
 								<span>
-									{dateParser(patient.birth_date, {
-										dateStyle: "medium",
-									})}
+									{useAgeInput ? (
+										age !== null ? (
+											`${age} años`
+										) : (
+											<span className="text-muted-foreground italic text-sm">
+												<Text uuid="clinical.patient_card.not_available" />
+											</span>
+										)
+									) : (
+										dateParser(patient.birth_date, { dateStyle: "medium" })
+									)}
 								</span>
 							</div>
 							<div className="grid grid-cols-[120px_1fr] items-center">

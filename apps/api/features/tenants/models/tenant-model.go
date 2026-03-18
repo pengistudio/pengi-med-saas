@@ -21,6 +21,8 @@ type ClinicalSettings struct {
 	ShowVitalSigns  bool   `json:"show_vital_signs"`
 	ShowDiagnoses   bool   `json:"show_diagnoses"`
 	DiagnosisSystem string `json:"diagnosis_system"` // "cie11" | "cie10"
+	// Patient form
+	PatientAgeInput bool `json:"patient_age_input"` // use age number instead of birth date picker
 }
 
 // DefaultUISettings returns sensible defaults (all visible, CIE-11).

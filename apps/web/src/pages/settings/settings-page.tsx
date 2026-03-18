@@ -78,6 +78,10 @@ const SettingsPage = () => {
 	const formToggles: { key: keyof ClinicalSettings; labelKey: string }[] = [
 		{ key: "show_vital_signs", labelKey: "settings.clinical.show_vital_signs" },
 		{ key: "show_diagnoses", labelKey: "settings.clinical.show_diagnoses" },
+		{
+			key: "patient_age_input",
+			labelKey: "settings.clinical.patient_age_input",
+		},
 	];
 
 	return (

@@ -56,6 +56,14 @@
     "value": "Por favor, revise los siguientes campos"
   },
   {
+    "key": "form.validation.single_field_error",
+    "value": "Hay 1 campo marcado en rojo que debes corregir."
+  },
+  {
+    "key": "form.validation.multiple_fields_error",
+    "value": "Hay {count} campos marcados en rojo que debes corregir."
+  },
+  {
     "key": "common.days",
     "value": "Días"
   },
@@ -494,6 +502,10 @@
   {
     "key": "clinical.patient_card.birth_date",
     "value": "Fecha de Nac.:"
+  },
+  {
+    "key": "clinical.patient_card.age",
+    "value": "Edad:"
   },
   {
     "key": "clinical.patient_card.gender",
@@ -3134,6 +3146,18 @@
   {
     "key": "settings.clinical.show_diagnoses",
     "value": "Mostrar diagnósticos (CIE)"
+  },
+  {
+    "key": "settings.clinical.patient_age_input",
+    "value": "Ingresar edad en lugar de fecha de nacimiento"
+  },
+  {
+    "key": "form.patient.age",
+    "value": "Edad"
+  },
+  {
+    "key": "form.patient.age.placeholder",
+    "value": "Ej: 45"
   },
   {
     "key": "settings.clinical.diagnosis_system",

@@ -56,6 +56,14 @@
     "value": "Please check the following fields"
   },
   {
+    "key": "form.validation.single_field_error",
+    "value": "There is 1 field marked in red that needs to be corrected."
+  },
+  {
+    "key": "form.validation.multiple_fields_error",
+    "value": "There are {count} fields marked in red that need to be corrected."
+  },
+  {
     "key": "common.days",
     "value": "Days"
   },
@@ -494,6 +502,10 @@
   {
     "key": "clinical.patient_card.birth_date",
     "value": "Date of Birth:"
+  },
+  {
+    "key": "clinical.patient_card.age",
+    "value": "Age:"
   },
   {
     "key": "clinical.patient_card.gender",
@@ -3134,6 +3146,18 @@
   {
     "key": "settings.clinical.show_diagnoses",
     "value": "Show diagnoses (ICD)"
+  },
+  {
+    "key": "settings.clinical.patient_age_input",
+    "value": "Enter age instead of birth date"
+  },
+  {
+    "key": "form.patient.age",
+    "value": "Age"
+  },
+  {
+    "key": "form.patient.age.placeholder",
+    "value": "e.g. 45"
   },
   {
     "key": "settings.clinical.diagnosis_system",

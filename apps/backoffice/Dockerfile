@@ -9,6 +9,8 @@ RUN --mount=type=cache,id=pnpm-backoffice,target=/pnpm/store pnpm install --froz
 COPY . .
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+ARG VITE_WEB_APP_URL
+ENV VITE_WEB_APP_URL=$VITE_WEB_APP_URL
 RUN pnpm run build
 
 # Serve stage
