@@ -74,6 +74,8 @@ jobs:
           file: apps/landing/Dockerfile
           push: true
           tags: ghcr.io/${{ env.ORG }}/pengi-landing:latest
+          build-args: |
+            PUBLIC_APP_URL=${{ secrets.PUBLIC_APP_URL }}
           cache-from: type=gha,scope=landing
           cache-to: type=gha,mode=max,scope=landing
 
