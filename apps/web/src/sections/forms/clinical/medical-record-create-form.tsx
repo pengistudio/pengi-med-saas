@@ -961,12 +961,17 @@ function FormInner({
 							</Button>
 						)}
 						{!isLast ? (
-							<Button type="button" size="sm" onClick={goNext}>
+							<Button key="nav-next" type="button" size="sm" onClick={goNext}>
 								<span className="hidden sm:inline mr-1">Siguiente</span>
 								<ChevronRight className="h-4 w-4" />
 							</Button>
 						) : (
-							<Button type="submit" disabled={loading} size="sm">
+							<Button
+								key="nav-submit"
+								type="submit"
+								disabled={loading}
+								size="sm"
+							>
 								<Plus className="mr-1.5 h-4 w-4" />
 								<Text uuid="form.create_medical_record.submit" />
 							</Button>

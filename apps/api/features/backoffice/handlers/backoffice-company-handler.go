@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"pengi-med-saas/core/auth"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
@@ -321,6 +322,35 @@ func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Re
 
 	h.logger.Info("Company user updated", zap.String("company_id", companyID), zap.String("user_id", userID))
 	return envelope.SuccessResponse(nil, "backoffice.company.users.update.success")
+}
+
+// GenerateUserPasswordResetLink generates a password-reset link for a tenant user.
+// Returns the link so the backoffice operator can copy and send it manually (or via email later).
+func (h *BackofficeCompanyHandler) GenerateUserPasswordResetLink(c *gin.Context) envelope.Response {
+	userID := c.Param("user_id")
+
+	var user user_models.User
+	if err := h.db.First(&user, userID).Error; err != nil {
+		h.logger.Error("User not found for password reset", zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+	}
+
+	token, err := auth.GeneratePasswordResetToken(user.ID)
+	if err != nil {
+		h.logger.Error("Failed to generate password reset token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating password reset token", core_errors.ErrAuthTokenGenerateError)
+	}
+
+	appURL := config.GetEnvWithDefault("PUBLIC_APP_URL", "http://localhost:5173")
+	link := fmt.Sprintf("%s/reset-password?token=%s", appURL, token)
+
+	h.logger.Info("Password reset link generated", zap.String("user_id", userID))
+	return envelope.SuccessResponse(gin.H{
+		"link":     link,
+		"user_id":  user.ID,
+		"username": user.UserName,
+		"email":    user.Email,
+	}, "backoffice.user.password_reset_link.success")
 }
 
 // GetRoles returns all available roles.

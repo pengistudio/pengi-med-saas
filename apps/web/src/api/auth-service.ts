@@ -48,6 +48,17 @@ export interface CompanySignupResponse {
 	email: string;
 }
 
+export const resetPassword = async (
+	token: string,
+	newPassword: string,
+): Promise<ServiceResponse<null>> => {
+	return loginService.post<null>(
+		"/auth/reset-password",
+		{ token, new_password: newPassword },
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
 export const companySignup = async (
 	data: CompanySignupRequest,
 ): Promise<ServiceResponse<CompanySignupResponse>> => {

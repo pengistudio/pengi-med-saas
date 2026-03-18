@@ -41,7 +41,7 @@ const formSchema = z.object({
 		.min(10, "Debe tener 10 caracteres")
 		.max(10, "Debe tener 10 caracteres"),
 	phone: z.string().optional(),
-	email: z.union([z.literal(""), z.string().email()]).optional(),
+	email: z.union([z.literal(""), z.email()]).optional(),
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),

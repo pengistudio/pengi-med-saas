@@ -54,6 +54,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeCompanyRoutes.GET("/:id/signup-token", envelope.Handle(backofficeCompanyHandler.GenerateCompanySignupToken))
 		backofficeCompanyRoutes.GET("/:id/users", envelope.Handle(backofficeCompanyHandler.GetCompanyUsers))
 		backofficeCompanyRoutes.PUT("/:id/users/:user_id", envelope.Handle(backofficeCompanyHandler.UpdateCompanyUser))
+		backofficeCompanyRoutes.GET("/:id/users/:user_id/password-reset-link", envelope.Handle(backofficeCompanyHandler.GenerateUserPasswordResetLink))
 	}
 
 	backofficeRoleRoutes := router.Group("/backoffice/roles", auth_middleware.AuthMiddleware())

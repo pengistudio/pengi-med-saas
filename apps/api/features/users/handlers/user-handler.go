@@ -298,3 +298,38 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 		"email":    newUser.Email,
 	}, "user.company_signup.success")
 }
+
+func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
+	var req struct {
+		Token       string `json:"token" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required,min=6"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+	}
+
+	userID, err := auth.ParsePasswordResetToken(req.Token)
+	if err != nil {
+		h.logger.Warn("Invalid password reset token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired token", core_errors.ErrAuthInvalidPasswordResetToken)
+	}
+
+	var user user_models.User
+	if err := h.db.First(&user, userID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+	}
+
+	hashed, err := auth.HashPassword(req.NewPassword)
+	if err != nil {
+		h.logger.Error("Failed to hash password", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating password", core_errors.ErrInternal)
+	}
+
+	if err := h.db.Model(&user).Update("password", hashed).Error; err != nil {
+		h.logger.Error("Failed to update password", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating password", core_errors.ErrInternal)
+	}
+
+	h.logger.Info("Password reset successfully", zap.Uint("user_id", userID))
+	return envelope.SuccessResponse(nil, "auth.reset_password.success")
+}

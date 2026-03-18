@@ -760,6 +760,18 @@
     "value": "Crear Consulta"
   },
   {
+    "key": "form.create_patient.title",
+    "value": "Crear Paciente"
+  },
+  {
+    "key": "form.create_patient.description",
+    "value": "Llena los campos para crear un paciente"
+  },
+  {
+    "key": "form.create_patient.submit",
+    "value": "Crear Paciente"
+  },
+  {
     "key": "form.edit_patient.loading",
     "value": "Cargando..."
   },
@@ -2116,6 +2128,46 @@
     "value": "Volver al inicio de sesión"
   },
   {
+    "key": "reset_password.title",
+    "value": "Cambiar contraseña"
+  },
+  {
+    "key": "reset_password.description",
+    "value": "Ingresa tu nueva contraseña."
+  },
+  {
+    "key": "reset_password.new_password",
+    "value": "Nueva contraseña"
+  },
+  {
+    "key": "reset_password.new_password.placeholder",
+    "value": "Mínimo 6 caracteres"
+  },
+  {
+    "key": "reset_password.confirm_password",
+    "value": "Confirmar contraseña"
+  },
+  {
+    "key": "reset_password.confirm_password.placeholder",
+    "value": "Repite la nueva contraseña"
+  },
+  {
+    "key": "reset_password.submit",
+    "value": "Cambiar contraseña"
+  },
+  {
+    "key": "reset_password.invalid_link.title",
+    "value": "Link inválido o expirado"
+  },
+  {
+    "key": "reset_password.invalid_link.description",
+    "value": "Este link de cambio de contraseña no es válido o ya expiró. Solicita uno nuevo."
+  },
+  {
+    "key": "auth.reset_password.success",
+    "value": "Contraseña actualizada exitosamente"
+  },
+  {
     "key": "signup.name",
     "value": "Nombre"
   },
@@ -2200,6 +2252,10 @@
     "value": "Token de registro generado exitosamente"
   },
   {
+    "key": "backoffice.user.password_reset_link.success",
+    "value": "Link de cambio de contraseña generado exitosamente"
+  },
+  {
     "key": "backoffice.company_users.title",
     "value": "Usuarios de la Empresa"
   },
@@ -2254,6 +2310,30 @@
   {
     "key": "backoffice.company_users.save",
     "value": "Guardar"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.button_title",
+    "value": "Generar link de cambio de contraseña"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.dialog_title",
+    "value": "Link de cambio de contraseña"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.dialog_description",
+    "value": "Copia el link y envíalo al usuario. Expira en 24 horas."
+  },
+  {
+    "key": "backoffice.company_users.password_reset.copied",
+    "value": "Link copiado al portapapeles"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.copy",
+    "value": "Copiar link"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.close",
+    "value": "Cerrar"
   },
   {
     "key": "backoffice.company.users.list.success",

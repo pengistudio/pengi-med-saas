@@ -22,7 +22,7 @@ import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useSessionStore } from "@/store/session-store";
 
 const profileSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 	environment_name: z.string().min(1),
 });
 

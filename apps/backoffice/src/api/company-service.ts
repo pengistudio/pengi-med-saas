@@ -133,3 +133,20 @@ export const updateCompanyUser = async (
 export const getRoles = async (): Promise<ServiceResponse<Role[]>> => {
 	return httpService.get<Role[]>("/backoffice/roles");
 };
+
+export interface PasswordResetLinkResponse {
+	link: string;
+	user_id: number;
+	username: string;
+	email: string;
+}
+
+export const getPasswordResetLink = async (
+	companyId: number | string,
+	userId: number | string,
+): Promise<ServiceResponse<PasswordResetLinkResponse>> => {
+	return httpService.get<PasswordResetLinkResponse>(
+		`/backoffice/companies/${companyId}/users/${userId}/password-reset-link`,
+		{ notifyError: true },
+	);
+};

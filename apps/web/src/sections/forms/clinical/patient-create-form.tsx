@@ -8,6 +8,7 @@ import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormInput } from "@/components/forms/form-input";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { FormSelect } from "@/components/forms/form-select";
+import { FormTagInput } from "@/components/forms/form-tag-input";
 import { FormTextArea } from "@/components/forms/form-textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 
@@ -34,7 +36,7 @@ const formSchema = z.object({
 		.min(10, "Debe tener 10 caracteres")
 		.max(10, "Debe tener 10 caracteres"),
 	phone: z.string().optional(),
-	email: z.string().email().optional(),
+	email: z.union([z.literal(""), z.email()]).optional(),
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
 	birth_date: z.date().optional(),
@@ -48,6 +50,7 @@ const formSchema = z.object({
 	apf: z.string().optional(),
 	apqx: z.string().optional(),
 	diagnosis: z.string().optional(),
+	allergies: z.string().optional(),
 });
 
 function ageToDate(age: number): Date {
@@ -73,9 +76,11 @@ const CreatePatientForm = () => {
 			{(field) => (
 				<Card className="max-w-4xl mx-auto">
 					<CardHeader>
-						<CardTitle>Crear Paciente</CardTitle>
+						<CardTitle>
+							<Text uuid="form.create_patient.title" />
+						</CardTitle>
 						<CardDescription>
-							Llena los campos para crear un paciente
+							<Text uuid="form.create_patient.description" />
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
@@ -83,36 +88,38 @@ const CreatePatientForm = () => {
 							<FormInput
 								field={field}
 								name="document"
-								placeholder="Cédula..."
-								label="Cédula"
+								placeholder={textGet("form.edit_patient.document.placeholder")}
+								label={textGet("form.edit_patient.document")}
 							/>
 							<FormInput
 								field={field}
 								name="first_name"
-								placeholder="Nombre..."
-								label="Nombre"
+								placeholder={textGet(
+									"form.edit_patient.first_name.placeholder",
+								)}
+								label={textGet("form.edit_patient.first_name")}
 							/>
 							<FormInput
 								field={field}
 								name="last_name"
-								placeholder="Apellido..."
-								label="Apellido"
+								placeholder={textGet("form.edit_patient.last_name.placeholder")}
+								label={textGet("form.edit_patient.last_name")}
 							/>
 						</div>
 						<div className="grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-4">
 							<FormInput
 								field={field}
 								name="phone"
-								placeholder="Teléfono..."
-								label="Teléfono"
+								placeholder={textGet("form.edit_patient.phone.placeholder")}
+								label={textGet("form.edit_patient.phone")}
 								isOptional
 							/>
 							<FormInput
 								field={field}
 								name="email"
 								type="email"
-								placeholder="Correo electrónico..."
-								label="Correo Electrónico"
+								placeholder={textGet("form.edit_patient.email.placeholder")}
+								label={textGet("form.edit_patient.email")}
 								isOptional
 							/>
 
@@ -129,14 +136,14 @@ const CreatePatientForm = () => {
 								<FormCalendar
 									field={field}
 									name="birth_date"
-									label="Fecha de Nacimiento"
+									label={textGet("form.edit_patient.birth_date")}
 									isOptional
 								/>
 							)}
 
 							<FormRadioGroup
 								name="gender"
-								label="Género"
+								label={textGet("form.edit_patient.gender")}
 								field={field}
 								isRow
 								options={[
@@ -146,22 +153,24 @@ const CreatePatientForm = () => {
 							/>
 							<FormSelect
 								name="institution"
-								label="Institución"
-								placeholder="Seleccionar Institución..."
+								label={textGet("form.edit_patient.institution")}
+								placeholder={textGet(
+									"form.edit_patient.institution.placeholder",
+								)}
 								field={field}
 								options={STATIC_INSTITUTIONS}
 							/>
 							<FormInput
 								field={field}
 								name="medic"
-								placeholder="Dr. o Dra..."
-								label="Médico Tratante"
+								placeholder={textGet("form.edit_patient.medic.placeholder")}
+								label={textGet("form.edit_patient.medic")}
 							/>
 							<FormInput
 								field={field}
 								name="insurance"
-								placeholder="Seguro Médico..."
-								label="Seguro Médico"
+								placeholder={textGet("form.edit_patient.insurance.placeholder")}
+								label={textGet("form.edit_patient.insurance")}
 								isOptional
 							/>
 						</div>
@@ -169,8 +178,8 @@ const CreatePatientForm = () => {
 						<FormTextArea
 							field={field}
 							name="diagnosis"
-							placeholder="Diagnóstico..."
-							label="Diagnóstico"
+							placeholder={textGet("form.edit_patient.diagnosis.placeholder")}
+							label={<Text uuid="form.edit_patient.diagnosis" />}
 							isOptional
 						/>
 
@@ -178,38 +187,46 @@ const CreatePatientForm = () => {
 							field={field}
 							name="app"
 							placeholder="APP..."
-							label="Antecedentes Personales Patológicos"
+							label={<Text uuid="form.edit_patient.app" />}
 							isOptional
 						/>
 
 						<FormTextArea
 							field={field}
 							name="apf"
-							placeholder="APF (Antecedentes Patológicos Familiares)..."
-							label="Antecedentes Patológicos Familiares"
+							placeholder="APF..."
+							label={<Text uuid="form.edit_patient.apf" />}
 							isOptional
 						/>
 
 						<FormTextArea
 							field={field}
 							name="apqx"
-							placeholder="APQX (Antecedentes Patológicos Quirúrgicos)..."
-							label="Antecedentes Patológicos Quirúrgicos"
+							placeholder="APQX..."
+							label={<Text uuid="form.edit_patient.apqx" />}
+							isOptional
+						/>
+
+						<FormTagInput
+							field={field}
+							name="allergies"
+							placeholder={textGet("form.edit_patient.allergies.placeholder")}
+							label={textGet("form.edit_patient.allergies")}
 							isOptional
 						/>
 
 						<FormTextArea
 							field={field}
 							name="notes"
-							label="Notas"
-							placeholder="Notas..."
+							placeholder={textGet("form.edit_patient.notes.placeholder")}
+							label={<Text uuid="form.edit_patient.notes" />}
 							isOptional
 						/>
 					</CardContent>
 					<CardFooter>
 						<Button type="submit" disabled={loading}>
 							<Plus className="mr-2 h-4 w-4" />
-							Crear Paciente
+							<Text uuid="form.create_patient.submit" />
 						</Button>
 					</CardFooter>
 				</Card>

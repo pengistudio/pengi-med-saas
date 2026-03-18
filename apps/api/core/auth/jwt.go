@@ -167,6 +167,38 @@ func ParseExchangeToken(token string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
+// GeneratePasswordResetToken creates a JWT for password reset. It expires in
+// 24 hours and encodes the user_id of the tenant user that needs to reset.
+func GeneratePasswordResetToken(userID uint) (string, error) {
+	secretKey := config.GetEnv("AUTH_KEY")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"type":    "password_reset",
+		"user_id": userID,
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+	})
+	return token.SignedString([]byte(secretKey))
+}
+
+// ParsePasswordResetToken validates the token and returns the user_id.
+func ParsePasswordResetToken(tokenStr string) (uint, error) {
+	claims, err := ParseToken(tokenStr)
+	if err != nil {
+		return 0, err
+	}
+
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "password_reset" {
+		return 0, errors.New("invalid token type, expected password_reset")
+	}
+
+	userIDFloat, ok := claims["user_id"].(float64)
+	if !ok {
+		return 0, errors.New("invalid user_id in token")
+	}
+
+	return uint(userIDFloat), nil
+}
+
 // GenerateCompanySignupToken creates a JWT that encodes a company_id and an
 // optional role_id. It expires in 72 hours and is used to let new users
 // self-register under a specific company with a pre-assigned role.

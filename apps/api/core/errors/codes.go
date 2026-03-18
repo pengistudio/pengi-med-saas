@@ -54,5 +54,6 @@ var (
 	ErrBillingInvoiceCreateError   AppError = NewAppError("E-BILL-004", "Error creating invoice.")
 	ErrBillingInvalidSignatureFile AppError = NewAppError("E-BILL-005", "Incorrect password or invalid signature file.")
 
-	ErrAuthInvalidSignupToken AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
+	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
+	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")
 )

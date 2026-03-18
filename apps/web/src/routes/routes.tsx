@@ -22,6 +22,7 @@ import Home from "@/pages/home/home";
 import LoginEnvironments from "@/pages/login/login-environments";
 import Login from "@/pages/login/login-page";
 import Profile from "@/pages/profile/profile";
+import ResetPasswordPage from "@/pages/reset-password/reset-password-page";
 import SettingsPage from "@/pages/settings/settings-page";
 import Signup from "@/pages/signup/signup-page";
 import TeamPage from "@/pages/team/team-page";
@@ -190,6 +191,10 @@ const router = createBrowserRouter([
 	{
 		path: "/signup",
 		element: <Signup />,
+	},
+	{
+		path: "/reset-password",
+		element: <ResetPasswordPage />,
 	},
 
 	{

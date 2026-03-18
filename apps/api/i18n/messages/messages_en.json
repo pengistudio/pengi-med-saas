@@ -760,6 +760,18 @@
     "value": "Create Consultation"
   },
   {
+    "key": "form.create_patient.title",
+    "value": "Create Patient"
+  },
+  {
+    "key": "form.create_patient.description",
+    "value": "Fill in the fields to create a patient"
+  },
+  {
+    "key": "form.create_patient.submit",
+    "value": "Create Patient"
+  },
+  {
     "key": "form.edit_patient.loading",
     "value": "Loading..."
   },
@@ -2116,6 +2128,46 @@
     "value": "Back to login"
   },
   {
+    "key": "reset_password.title",
+    "value": "Reset password"
+  },
+  {
+    "key": "reset_password.description",
+    "value": "Enter your new password."
+  },
+  {
+    "key": "reset_password.new_password",
+    "value": "New password"
+  },
+  {
+    "key": "reset_password.new_password.placeholder",
+    "value": "At least 6 characters"
+  },
+  {
+    "key": "reset_password.confirm_password",
+    "value": "Confirm password"
+  },
+  {
+    "key": "reset_password.confirm_password.placeholder",
+    "value": "Repeat the new password"
+  },
+  {
+    "key": "reset_password.submit",
+    "value": "Reset password"
+  },
+  {
+    "key": "reset_password.invalid_link.title",
+    "value": "Invalid or expired link"
+  },
+  {
+    "key": "reset_password.invalid_link.description",
+    "value": "This password reset link is invalid or has expired. Please request a new one."
+  },
+  {
+    "key": "auth.reset_password.success",
+    "value": "Password updated successfully"
+  },
+  {
     "key": "signup.name",
     "value": "Full name"
   },
@@ -2200,6 +2252,10 @@
     "value": "Signup token generated successfully"
   },
   {
+    "key": "backoffice.user.password_reset_link.success",
+    "value": "Password reset link generated successfully"
+  },
+  {
     "key": "backoffice.company_users.title",
     "value": "Company Users"
   },
@@ -2254,6 +2310,30 @@
   {
     "key": "backoffice.company_users.save",
     "value": "Save"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.button_title",
+    "value": "Generate password reset link"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.dialog_title",
+    "value": "Password reset link"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.dialog_description",
+    "value": "Copy the link and send it to the user. Expires in 24 hours."
+  },
+  {
+    "key": "backoffice.company_users.password_reset.copied",
+    "value": "Link copied to clipboard"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.copy",
+    "value": "Copy link"
+  },
+  {
+    "key": "backoffice.company_users.password_reset.close",
+    "value": "Close"
   },
   {
     "key": "backoffice.company.users.list.success",
