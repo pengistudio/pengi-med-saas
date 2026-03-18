@@ -1,5 +1,6 @@
 ---
-
+const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:5173";
+const loginUrl = `${appUrl}/login`;
 ---
 
 <nav
@@ -37,6 +38,12 @@
         </div>
 
         <div class="flex items-center gap-3">
+            <a
+                href={loginUrl}
+                class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border border-border text-text hover:bg-surface-alt transition-all duration-200"
+            >
+                Iniciar sesión
+            </a>
             <a
                 href="#cta"
                 id="nav-cta"
@@ -85,6 +92,11 @@
                 href="#cta"
                 class="mobile-link py-2 text-sm font-medium text-text-muted hover:text-primary transition-colors"
                 >Contacto</a
+            >
+            <a
+                href={loginUrl}
+                class="mt-1 inline-flex justify-center items-center px-5 py-2.5 rounded-xl text-sm font-semibold border border-border text-text hover:bg-surface-alt transition-colors"
+                >Iniciar sesión</a
             >
         </div>
     </div>

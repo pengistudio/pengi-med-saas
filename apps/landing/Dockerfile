@@ -7,6 +7,8 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,id=pnpm-landing,target=/pnpm/store pnpm install --frozen-lockfile
 COPY . .
+ARG PUBLIC_APP_URL
+ENV PUBLIC_APP_URL=$PUBLIC_APP_URL
 RUN pnpm run build
 
 # Serve stage
