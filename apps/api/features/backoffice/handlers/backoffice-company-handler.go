@@ -362,3 +362,36 @@ func (h *BackofficeCompanyHandler) GetRoles(c *gin.Context) envelope.Response {
 	}
 	return envelope.SuccessResponse(roles, "backoffice.roles.list.success")
 }
+
+// DeleteCompanyUser removes a tenant user and all their environments from the system.
+func (h *BackofficeCompanyHandler) DeleteCompanyUser(c *gin.Context) envelope.Response {
+	companyID := c.Param("id")
+	userID := c.Param("user_id")
+
+	// Verify the user belongs to this company
+	var env user_models.Environment
+	if err := h.db.Where("company_id = ? AND user_id = ?", companyID, userID).First(&env).Error; err != nil {
+		h.logger.Error("User not found in company", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "User not found in this company", core_errors.ErrUserNotFound)
+	}
+
+	txErr := h.db.Transaction(func(tx *gorm.DB) error {
+		// Delete all environments for this user
+		if err := tx.Where("user_id = ?", userID).Delete(&user_models.Environment{}).Error; err != nil {
+			return err
+		}
+		// Delete the user
+		if err := tx.Delete(&user_models.User{}, userID).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if txErr != nil {
+		h.logger.Error("Failed to delete company user", zap.Error(txErr))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting user", core_errors.ErrInternal)
+	}
+
+	h.logger.Info("Company user deleted", zap.String("user_id", userID), zap.String("company_id", companyID))
+	return envelope.SuccessResponse(nil, "backoffice.company.user.delete.success")
+}

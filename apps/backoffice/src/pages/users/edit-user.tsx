@@ -20,7 +20,10 @@ import { DashboardLayout } from "@/sections/template/dashboard-template";
 const formSchema = z.object({
 	name: z.string().min(2),
 	user_name: z.string().min(2),
-	password: z.string().optional(),
+	password: z
+		.string()
+		.regex(/^\S+$/, { message: "form.validation.no_spaces" })
+		.optional(),
 });
 
 const EditUser = () => {

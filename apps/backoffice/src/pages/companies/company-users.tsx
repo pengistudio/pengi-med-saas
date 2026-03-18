@@ -1,10 +1,11 @@
-import { ArrowLeft, Copy, KeyRound, Pencil } from "lucide-react";
+import { ArrowLeft, Copy, KeyRound, Pencil, Trash2 } from "lucide-react";
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import z from "zod";
 import {
 	type CompanyUser,
+	deleteCompanyUser,
 	getCompanyByID,
 	getCompanyUsers,
 	getPasswordResetLink,
@@ -17,6 +18,16 @@ import {
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -46,7 +57,9 @@ import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const editUserSchema = z.object({
-	user_name: z.string().min(2),
+	user_name: z.string().min(2).regex(/^\S+$/, {
+		message: "form.validation.no_spaces",
+	}),
 	email: z.string().email(),
 	role_id: z.string().min(1),
 });
@@ -66,6 +79,13 @@ const CompanyUsers = () => {
 		null,
 	);
 	const [saving, setSaving] = React.useState(false);
+
+	// Delete dialog state
+	const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+	const [deletingUser, setDeletingUser] = React.useState<CompanyUser | null>(
+		null,
+	);
+	const [deleting, setDeleting] = React.useState(false);
 
 	// Password reset link dialog state
 	const [resetLinkDialogOpen, setResetLinkDialogOpen] = React.useState(false);
@@ -119,6 +139,23 @@ const CompanyUsers = () => {
 	const handleCopyLink = (link: string) => {
 		navigator.clipboard.writeText(link);
 		toast.success(textGet("backoffice.company_users.password_reset.copied"));
+	};
+
+	const handleDeleteClick = (user: CompanyUser) => {
+		setDeletingUser(user);
+		setDeleteDialogOpen(true);
+	};
+
+	const handleDelete = async () => {
+		if (!id || !deletingUser) return;
+		setDeleting(true);
+		const res = await deleteCompanyUser(id, deletingUser.user_id);
+		setDeleting(false);
+		if (res.success) {
+			setDeleteDialogOpen(false);
+			setDeletingUser(null);
+			fetchData();
+		}
 	};
 
 	const handleSave = async (values: z.infer<typeof editUserSchema>) => {
@@ -243,6 +280,16 @@ const CompanyUsers = () => {
 													>
 														<KeyRound className="h-4 w-4" />
 													</Button>
+													<Button
+														variant="ghost"
+														size="icon"
+														onClick={() => handleDeleteClick(user)}
+														title={textGet(
+															"backoffice.company_users.delete.button_title",
+														)}
+													>
+														<Trash2 className="h-4 w-4 text-destructive" />
+													</Button>
 												</TableCell>
 											</TableRow>
 										))}
@@ -364,6 +411,34 @@ const CompanyUsers = () => {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			{/* Delete User Confirmation */}
+			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{textGet("backoffice.company_users.delete.confirm_title")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{textGet("backoffice.company_users.delete.confirm_description")} (
+							<strong>{deletingUser?.user_name}</strong>)
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={deleting}>
+							{textGet("backoffice.company_users.cancel")}
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleDelete}
+							disabled={deleting}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							{deleting && <Spinner />}
+							{textGet("backoffice.company_users.delete.confirm")}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	);
 };

@@ -19,11 +19,17 @@ import { useText } from "@/hooks/use-text";
 
 const formSchema = z
 	.object({
-		new_password: z.string().min(6),
-		confirm_password: z.string().min(6),
+		new_password: z
+			.string()
+			.min(6)
+			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
+		confirm_password: z
+			.string()
+			.min(6)
+			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 	})
 	.refine((data) => data.new_password === data.confirm_password, {
-		message: "Las contraseñas no coinciden",
+		message: "form.validation.passwords_no_match",
 		path: ["confirm_password"],
 	});
 

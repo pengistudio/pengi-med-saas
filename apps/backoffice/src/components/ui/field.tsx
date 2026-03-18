@@ -1,9 +1,10 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
@@ -181,6 +182,16 @@ function FieldError({
 }: React.ComponentProps<"div"> & {
 	errors?: Array<{ message?: string } | undefined>;
 }) {
+	const { textGet } = useText();
+
+	const translate = useCallback(
+		(message: string) => {
+			const translated = textGet(message);
+			return translated === `*${message}*` ? message : translated;
+		},
+		[textGet],
+	);
+
 	const content = useMemo(() => {
 		if (children) {
 			return children;
@@ -195,7 +206,8 @@ function FieldError({
 		];
 
 		if (uniqueErrors?.length === 1) {
-			return uniqueErrors[0]?.message;
+			const msg = uniqueErrors[0]?.message;
+			return msg ? translate(msg) : msg;
 		}
 
 		return (
@@ -203,11 +215,12 @@ function FieldError({
 				{uniqueErrors.map(
 					(error, index) =>
 						// biome-ignore lint/suspicious/noArrayIndexKey: needed here
-						error?.message && <li key={index}>{error.message}</li>,
+						error?.message && <li key={index}>{translate(error.message)}</li>,
 				)}
 			</ul>
 		);
-	}, [children, errors]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [children, errors, translate]);
 
 	if (!content) {
 		return null;

@@ -420,6 +420,14 @@
     "value": "optional"
   },
   {
+    "key": "form.validation.no_spaces",
+    "value": "Cannot contain spaces"
+  },
+  {
+    "key": "form.validation.passwords_no_match",
+    "value": "Passwords do not match"
+  },
+  {
     "key": "table.column.last_name",
     "value": "Last Name"
   },
@@ -2184,6 +2192,10 @@
     "value": "Choose a username"
   },
   {
+    "key": "signup.username.invalid_chars",
+    "value": "Username cannot contain spaces"
+  },
+  {
     "key": "signup.email",
     "value": "Email address"
   },
@@ -2310,6 +2322,26 @@
   {
     "key": "backoffice.company_users.save",
     "value": "Save"
+  },
+  {
+    "key": "backoffice.company.user.delete.success",
+    "value": "User deleted successfully"
+  },
+  {
+    "key": "backoffice.company_users.delete.button_title",
+    "value": "Delete user"
+  },
+  {
+    "key": "backoffice.company_users.delete.confirm_title",
+    "value": "Delete user?"
+  },
+  {
+    "key": "backoffice.company_users.delete.confirm_description",
+    "value": "This action is irreversible. The user and all their access will be removed."
+  },
+  {
+    "key": "backoffice.company_users.delete.confirm",
+    "value": "Delete"
   },
   {
     "key": "backoffice.company_users.password_reset.button_title",

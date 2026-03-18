@@ -141,6 +141,16 @@ export interface PasswordResetLinkResponse {
 	email: string;
 }
 
+export const deleteCompanyUser = async (
+	companyId: number | string,
+	userId: number | string,
+): Promise<ServiceResponse<null>> => {
+	return httpService.delete<null>(
+		`/backoffice/companies/${companyId}/users/${userId}`,
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
 export const getPasswordResetLink = async (
 	companyId: number | string,
 	userId: number | string,

@@ -21,13 +21,21 @@ import { useText } from "@/hooks/use-text";
 const formSchema = z
 	.object({
 		name: z.string().min(2),
-		user_name: z.string().min(3),
+		user_name: z.string().min(3).regex(/^\S+$/, {
+			message: "form.validation.no_spaces",
+		}),
 		email: z.email(),
-		password: z.string().min(6),
-		confirm_password: z.string().min(6),
+		password: z
+			.string()
+			.min(6)
+			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
+		confirm_password: z
+			.string()
+			.min(6)
+			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 	})
 	.refine((data) => data.password === data.confirm_password, {
-		message: "Passwords do not match",
+		message: "form.validation.passwords_no_match",
 		path: ["confirm_password"],
 	});
 

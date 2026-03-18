@@ -20,8 +20,14 @@ import { useText } from "@/hooks/use-text";
 import { useTokenStore } from "@/store/token-store";
 
 const formSchema = z.object({
-	password: z.string().min(6),
-	user_name: z.string().min(3),
+	password: z
+		.string()
+		.min(6)
+		.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
+	user_name: z
+		.string()
+		.min(3)
+		.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 });
 
 const LoginForm = () => {

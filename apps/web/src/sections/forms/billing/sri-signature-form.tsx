@@ -11,7 +11,10 @@ import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 
 const sriSchema = z.object({
-	password: z.string().min(1),
+	password: z
+		.string()
+		.min(1)
+		.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 	file: z.any().refine((file) => file instanceof File),
 });
 
