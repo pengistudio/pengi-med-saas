@@ -1284,6 +1284,10 @@
     "value": "Sala de Espera"
   },
   {
+    "key": "waiting_room.copy_tv_link",
+    "value": "Copiar enlace TV"
+  },
+  {
     "key": "waiting_room.refresh",
     "value": "Actualizar"
   },
@@ -1310,6 +1314,18 @@
   {
     "key": "waiting_room.advance.completed",
     "value": "Atendido"
+  },
+  {
+    "key": "tenant.display_token.generate.success",
+    "value": "Enlace de TV generado correctamente"
+  },
+  {
+    "key": "waiting_room.display.last_updated",
+    "value": "Última actualización:"
+  },
+  {
+    "key": "waiting_room.display.next_refresh",
+    "value": "Próxima actualización en"
   },
   {
     "key": "appointments.action.edit",

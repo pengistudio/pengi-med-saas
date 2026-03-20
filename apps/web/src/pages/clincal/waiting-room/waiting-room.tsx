@@ -1,8 +1,9 @@
-import { ArrowRight, Clock, RefreshCw, UserCheck, Users } from "lucide-react";
+import { ArrowRight, Clock, Link, RefreshCw, UserCheck, Users } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import {
 	type Appointment,
+	generateDisplayToken,
 	getTodayAppointments,
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
@@ -133,6 +134,7 @@ const WaitingRoomPage = () => {
 	const [appointments, setAppointments] = React.useState<Appointment[]>([]);
 	const [loading, setLoading] = React.useState(true);
 	const [advancing, setAdvancing] = React.useState<number | null>(null);
+	const [copyingLink, setCopyingLink] = React.useState(false);
 
 	const load = React.useCallback(() => {
 		setLoading(true);
@@ -171,6 +173,17 @@ const WaitingRoomPage = () => {
 		return map;
 	}, [appointments]);
 
+	const handleCopyLink = async () => {
+		setCopyingLink(true);
+		const res = await generateDisplayToken();
+		if (res.success && res.data) {
+			const token = (res.data as { token: string }).token;
+			const url = `${window.location.origin}/display/waiting-room?token=${token}`;
+			await navigator.clipboard.writeText(url);
+		}
+		setCopyingLink(false);
+	};
+
 	const today = dateParser(new Date(), { dateStyle: "full" });
 
 	return (
@@ -183,12 +196,23 @@ const WaitingRoomPage = () => {
 						</h1>
 						<p className="text-muted-foreground text-sm capitalize">{today}</p>
 					</div>
+					<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={handleCopyLink}
+						disabled={copyingLink}
+					>
+						<Link className="h-4 w-4 mr-2" />
+						<Text uuid="waiting_room.copy_tv_link" />
+					</Button>
 					<Button variant="outline" size="sm" onClick={load} disabled={loading}>
 						<RefreshCw
 							className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
 						/>
 						<Text uuid="waiting_room.refresh" />
 					</Button>
+				</div>
 				</div>
 
 				{loading ? (

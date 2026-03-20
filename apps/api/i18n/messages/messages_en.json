@@ -1284,6 +1284,10 @@
     "value": "Waiting Room"
   },
   {
+    "key": "waiting_room.copy_tv_link",
+    "value": "Copy TV link"
+  },
+  {
     "key": "waiting_room.refresh",
     "value": "Refresh"
   },
@@ -1310,6 +1314,18 @@
   {
     "key": "waiting_room.advance.completed",
     "value": "Attended"
+  },
+  {
+    "key": "tenant.display_token.generate.success",
+    "value": "TV display link generated successfully"
+  },
+  {
+    "key": "waiting_room.display.last_updated",
+    "value": "Last updated:"
+  },
+  {
+    "key": "waiting_room.display.next_refresh",
+    "value": "Next refresh in"
   },
   {
     "key": "appointments.action.edit",

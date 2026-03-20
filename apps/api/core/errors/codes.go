@@ -9,7 +9,8 @@ var (
 
 	ErrCompanyNotFound AppError = NewAppError("E-COMP-001", "Company not found.")
 
-	ErrTenantNotFound AppError = NewAppError("E-TEN-001", "Tenant not found.")
+	ErrTenantNotFound            AppError = NewAppError("E-TEN-001", "Tenant not found.")
+	ErrTenantInvalidDisplayToken AppError = NewAppError("E-TEN-002", "Invalid or missing display token.")
 
 	ErrUserNotFound AppError = NewAppError("E-USR-001", "User not found.")
 

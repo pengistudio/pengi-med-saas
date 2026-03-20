@@ -1,4 +1,4 @@
-import { apiWithTenant } from ".";
+import { apiWithTenant, noAuthApi } from ".";
 import {
 	type BaseModel,
 	createHttpService,
@@ -6,6 +6,7 @@ import {
 } from "./fetch";
 
 const clinicalService = createHttpService(apiWithTenant);
+const publicService = createHttpService(noAuthApi);
 
 export interface Patient extends BaseModel {
 	tenant_id: number;
@@ -487,6 +488,25 @@ export const deleteAppointment = async (
 		notifySuccess: true,
 		notifyError: true,
 	});
+};
+
+export const generateDisplayToken = async (): Promise<
+	ServiceResponse<{ token: string }>
+> => {
+	return clinicalService.post<{ token: string }>(
+		"/tenants/display-token",
+		{},
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const getTodayAppointmentsPublic = async (
+	token: string,
+): Promise<ServiceResponse<Appointment[]>> => {
+	return publicService.get<Appointment[]>(
+		`/public/appointments/today?token=${encodeURIComponent(token)}`,
+		{ notifyError: false },
+	);
 };
 
 export const downloadPrescription = async (

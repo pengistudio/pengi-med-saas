@@ -8,13 +8,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	clinical_models "pengi-med-saas/features/clinical/models"
 	tenant_dto "pengi-med-saas/features/tenants/dto"
 	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"software.sslmate.com/src/go-pkcs12"
@@ -191,6 +194,49 @@ func (h *TenantHandler) GetUISettings(c *gin.Context) envelope.Response {
 	}
 
 	return envelope.SuccessResponse(settings, "tenant.settings.fetch.success")
+}
+
+// GenerateDisplayToken creates or replaces the public display token for the tenant.
+func (h *TenantHandler) GenerateDisplayToken(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	token := uuid.NewString()
+
+	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("display_token", token).Error; err != nil {
+		h.logger.Error("Failed to generate display token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to generate display token", core_errors.ErrInternal)
+	}
+
+	return envelope.SuccessResponse(gin.H{"token": token}, "tenant.display_token.generate.success")
+}
+
+// GetTodayAppointmentsPublic is a public endpoint that returns today's appointments
+// for the tenant identified by the display token query parameter.
+func (h *TenantHandler) GetTodayAppointmentsPublic(c *gin.Context) envelope.Response {
+	token := c.Query("token")
+	if token == "" {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Missing display token", core_errors.ErrTenantInvalidDisplayToken)
+	}
+
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.Where("display_token = ?", token).First(&tenantRecord).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid display token", core_errors.ErrTenantInvalidDisplayToken)
+	}
+
+	today := time.Now().Format("2006-01-02")
+	var appointments []clinical_models.Appointment
+	if err := h.db.Where("tenant_id = ? AND DATE(date) = ?", tenantRecord.ID, today).
+		Preload("Patient").
+		Order("start_time ASC").
+		Find(&appointments).Error; err != nil {
+		h.logger.Error("Failed to get today's appointments for display", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to fetch appointments", core_errors.ErrInternal)
+	}
+
+	return envelope.SuccessResponse(appointments, "appointments.get.success")
 }
 
 // UpdateUISettings saves new UI settings for the tenant.

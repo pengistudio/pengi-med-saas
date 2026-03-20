@@ -53,6 +53,7 @@ type Tenant struct {
 	SriP12Path        string     `json:"sri_p12_path"`        // Local storage path to the uploaded signature
 	SriCertExpiration *time.Time `json:"sri_cert_expiration"` // Date the certificate expires
 	UISettings        string     `gorm:"type:text;default:'{}'" json:"-"` // JSON-encoded UISettings
+	DisplayToken      string     `gorm:"type:varchar(36);uniqueIndex" json:"-"` // Token for public TV display access
 }
 
 func NewTenant(name string) *Tenant {

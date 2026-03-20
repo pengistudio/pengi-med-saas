@@ -18,6 +18,7 @@ import Clinical from "@/pages/clincal/patient/patient-list";
 import UpdateMedicalRecordPage from "@/pages/clincal/patient/update-medical-record";
 import ViewMedicalRecordPage from "@/pages/clincal/patient/view-medical-record";
 import WaitingRoomPage from "@/pages/clincal/waiting-room/waiting-room";
+import WaitingRoomDisplayPage from "@/pages/clincal/waiting-room/waiting-room-display";
 import Home from "@/pages/home/home";
 import LoginEnvironments from "@/pages/login/login-environments";
 import Login from "@/pages/login/login-page";
@@ -222,6 +223,10 @@ const router = createBrowserRouter([
 			},
 			...routes,
 		],
+	},
+	{
+		path: "/display/waiting-room",
+		element: <WaitingRoomDisplayPage />,
 	},
 ]);
 
