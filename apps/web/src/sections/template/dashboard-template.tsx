@@ -200,10 +200,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 							<DropdownMenuTrigger>
 								<div className="relative h-10 w-10 rounded-full cursor-pointer">
 									<Avatar className="h-10 w-10">
-										<AvatarImage
-											src="/placeholder.svg?height=40&width=40"
-											alt="User"
-										/>
+										<AvatarImage alt="User" />
 										<AvatarFallback>
 											{handleAvatarFallbackText()}
 										</AvatarFallback>
