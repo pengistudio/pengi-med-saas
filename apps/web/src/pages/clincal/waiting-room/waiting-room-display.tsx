@@ -83,7 +83,34 @@ function PatientCard({ appointment }: { appointment: Appointment }) {
 	);
 }
 
+function useWakeLock() {
+	const lockRef = React.useRef<WakeLockSentinel | null>(null);
+
+	const acquire = React.useCallback(async () => {
+		try {
+			if ("wakeLock" in navigator) {
+				lockRef.current = await navigator.wakeLock.request("screen");
+			}
+		} catch {
+			// Wake Lock not supported or denied — silently ignore
+		}
+	}, []);
+
+	React.useEffect(() => {
+		acquire();
+		const onVisibilityChange = () => {
+			if (document.visibilityState === "visible") acquire();
+		};
+		document.addEventListener("visibilitychange", onVisibilityChange);
+		return () => {
+			document.removeEventListener("visibilitychange", onVisibilityChange);
+			lockRef.current?.release();
+		};
+	}, [acquire]);
+}
+
 const WaitingRoomDisplayPage = () => {
+	useWakeLock();
 	const { textGet } = useText();
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get("token") ?? "";
@@ -103,14 +130,27 @@ const WaitingRoomDisplayPage = () => {
 			if (res.success && res.data) {
 				setAppointments(res.data as Appointment[]);
 				setInvalidToken(false);
-			} else {
+			} else if (res.code === 401 || res.code === 403) {
+				// Only mark invalid on explicit auth rejection, not network errors
 				setInvalidToken(true);
 			}
+			// Network/server errors: keep showing last data, try again next cycle
 			setLastUpdated(new Date());
 			setLoading(false);
 			setCountdown(REFRESH_INTERVAL_MS / 1000);
 		});
 	}, [token]);
+
+	// Reload immediately when coming back from sleep / tab regains focus
+	React.useEffect(() => {
+		const onVisible = () => {
+			if (document.visibilityState === "visible") {
+				load();
+			}
+		};
+		document.addEventListener("visibilitychange", onVisible);
+		return () => document.removeEventListener("visibilitychange", onVisible);
+	}, [load]);
 
 	// Initial load
 	React.useEffect(() => {
