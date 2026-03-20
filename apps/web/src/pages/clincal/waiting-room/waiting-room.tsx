@@ -1,4 +1,11 @@
-import { ArrowRight, Clock, Link, RefreshCw, UserCheck, Users } from "lucide-react";
+import {
+	ArrowRight,
+	Clock,
+	Link,
+	RefreshCw,
+	UserCheck,
+	Users,
+} from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import {
@@ -197,22 +204,27 @@ const WaitingRoomPage = () => {
 						<p className="text-muted-foreground text-sm capitalize">{today}</p>
 					</div>
 					<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handleCopyLink}
-						disabled={copyingLink}
-					>
-						<Link className="h-4 w-4 mr-2" />
-						<Text uuid="waiting_room.copy_tv_link" />
-					</Button>
-					<Button variant="outline" size="sm" onClick={load} disabled={loading}>
-						<RefreshCw
-							className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-						/>
-						<Text uuid="waiting_room.refresh" />
-					</Button>
-				</div>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={handleCopyLink}
+							disabled={copyingLink}
+						>
+							<Link className="h-4 w-4 mr-2" />
+							<Text uuid="waiting_room.copy_tv_link" />
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={load}
+							disabled={loading}
+						>
+							<RefreshCw
+								className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+							/>
+							<Text uuid="waiting_room.refresh" />
+						</Button>
+					</div>
 				</div>
 
 				{loading ? (

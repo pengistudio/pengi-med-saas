@@ -149,7 +149,9 @@ const WaitingRoomDisplayPage = () => {
 	if (invalidToken) {
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center">
-				<p className="text-2xl text-muted-foreground">Enlace inválido o expirado.</p>
+				<p className="text-2xl text-muted-foreground">
+					Enlace inválido o expirado.
+				</p>
 			</div>
 		);
 	}
@@ -206,9 +208,7 @@ const WaitingRoomDisplayPage = () => {
 										{textGet("waiting_room.empty_column")}
 									</div>
 								) : (
-									items.map((a) => (
-										<PatientCard key={a.ID} appointment={a} />
-									))
+									items.map((a) => <PatientCard key={a.ID} appointment={a} />)
 								)}
 							</div>
 						</div>
@@ -219,9 +219,7 @@ const WaitingRoomDisplayPage = () => {
 			{/* Footer */}
 			<footer className="flex items-center justify-between px-10 py-4 border-t bg-card text-muted-foreground text-base">
 				<div className="flex items-center gap-2">
-					<RefreshCw
-						className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-					/>
+					<RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
 					<span>
 						{textGet("waiting_room.display.last_updated")}{" "}
 						{lastUpdated
