@@ -42,6 +42,10 @@ interface DataTableProps<TData, TValue> {
 	onPageChange?: (page: number) => void;
 	// Extra content rendered between search and Vista button
 	toolbarRight?: React.ReactNode;
+	// Optional per-row className
+	rowClassName?: (row: Row<TData>) => string;
+	// Optional custom empty state (replaces default "no results" text)
+	emptyState?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -56,6 +60,8 @@ export function DataTable<TData, TValue>({
 	page,
 	onPageChange,
 	toolbarRight,
+	rowClassName,
+	emptyState,
 }: DataTableProps<TData, TValue>) {
 	const { textGet } = useText();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -181,6 +187,7 @@ export function DataTable<TData, TValue>({
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
+									className={rowClassName?.(row)}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
@@ -196,9 +203,9 @@ export function DataTable<TData, TValue>({
 							<TableRow>
 								<TableCell
 									colSpan={columns.length}
-									className="h-24 text-center"
+									className="h-32 text-center"
 								>
-									{textGet("table.no_results")}
+									{emptyState ?? textGet("table.no_results")}
 								</TableCell>
 							</TableRow>
 						)}

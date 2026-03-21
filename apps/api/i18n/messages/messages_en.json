@@ -1,3454 +1,3502 @@
 [
-  {
-    "key": "pengi.copywright",
-    "value": "pengistudio"
-  },
-  {
-    "key": "E-INT-001",
-    "value": "Internal server error."
-  },
-  {
-    "key": "E-MES-001",
-    "value": "Messages not found."
-  },
-  {
-    "key": "E-COMP-001",
-    "value": "Company not found."
-  },
-  {
-    "key": "E-TEN-001",
-    "value": "Tenant not found."
-  },
-  {
-    "key": "E-USR-001",
-    "value": "User not found."
-  },
-  {
-    "key": "E-AUTH-001",
-    "value": "Invalid authentication request."
-  },
-  {
-    "key": "E-AUTH-002",
-    "value": "Error creating user."
-  },
-  {
-    "key": "E-AUTH-003",
-    "value": "Invalid credentials."
-  },
-  {
-    "key": "E-AUTH-004",
-    "value": "Error generating token."
-  },
-  {
-    "key": "E-AUTH-005",
-    "value": "Invalid refresh token."
-  },
-  {
-    "key": "E-AUTH-006",
-    "value": "Invalid user ID."
-  },
-  {
-    "key": "form.validation.invalid_fields",
-    "value": "Invalid fields"
-  },
-  {
-    "key": "form.validation.check_following_fields",
-    "value": "Please check the following fields"
-  },
-  {
-    "key": "form.validation.single_field_error",
-    "value": "There is 1 field marked in red that needs to be corrected."
-  },
-  {
-    "key": "form.validation.multiple_fields_error",
-    "value": "There are {count} fields marked in red that need to be corrected."
-  },
-  {
-    "key": "common.days",
-    "value": "Days"
-  },
-  {
-    "key": "common.months",
-    "value": "Months"
-  },
-  {
-    "key": "common.years",
-    "value": "Years"
-  },
-  {
-    "key": "login.title",
-    "value": "Sign in"
-  },
-  {
-    "key": "login.subtitle",
-    "value": "Welcome back, please login to your account."
-  },
-  {
-    "key": "login.username.placeholder",
-    "value": "Enter your username"
-  },
-  {
-    "key": "login.username",
-    "value": "Username"
-  },
-  {
-    "key": "login.password.placeholder",
-    "value": "Enter your password"
-  },
-  {
-    "key": "login.password",
-    "value": "Password"
-  },
-  {
-    "key": "login.login_button",
-    "value": "Login"
-  },
-  {
-    "key": "session.register.button",
-    "value": "Register"
-  },
-  {
-    "key": "login.successful",
-    "value": "Login successful"
-  },
-  {
-    "key": "login.environments.title",
-    "value": "Select your environment"
-  },
-  {
-    "key": "login.environments.subtitle",
-    "value": "Choose the branch or clinic you want to access."
-  },
-  {
-    "key": "login.environments.cancel",
-    "value": "Cancel and go to login"
-  },
-  {
-    "key": "dashboard.title",
-    "value": "Dashboard"
-  },
-  {
-    "key": "dashboard.customers",
-    "value": "Customers"
-  },
-  {
-    "key": "dashboard.products",
-    "value": "Products"
-  },
-  {
-    "key": "dashboard.users",
-    "value": "Users"
-  },
-  {
-    "key": "dashboard.settings",
-    "value": "Settings"
-  },
-  {
-    "key": "dashboard.help",
-    "value": "Help"
-  },
-  {
-    "key": "dashboard.dropdown.profile.title",
-    "value": "My Account"
-  },
-  {
-    "key": "dashboard.dropdown.profile",
-    "value": "Profile"
-  },
-  {
-    "key": "dashboard.dropdown.settings",
-    "value": "Settings"
-  },
-  {
-    "key": "dashboard.dropdown.logout",
-    "value": "Logout"
-  },
-  {
-    "key": "session.expired.title",
-    "value": "Session expired"
-  },
-  {
-    "key": "session.expired",
-    "value": "Your session has expired, please log in again."
-  },
-  {
-    "key": "subscription.expired.title",
-    "value": "Inactive subscription"
-  },
-  {
-    "key": "subscription.expired.description",
-    "value": "Your subscription has expired or you don't have an active plan. You cannot access this section."
-  },
-  {
-    "key": "subscription.expired.contact",
-    "value": "Contact the administrator to renew your subscription."
-  },
-  {
-    "key": "error.rate_limit_exceeded",
-    "value": "Too many requests. Please wait a moment and try again."
-  },
-  {
-    "key": "dashboard.clinical",
-    "value": "Journal"
-  },
-  {
-    "key": "dashboard.clinical.patients",
-    "value": "Patients"
-  },
-  {
-    "key": "dashboard.clinical.appointments",
-    "value": "Appointments"
-  },
-  {
-    "key": "dashboard.clinical.waiting_room",
-    "value": "Waiting Room"
-  },
-  {
-    "key": "E-CLIN-001",
-    "value": "Patient not found."
-  },
-  {
-    "key": "E-CLIN-002",
-    "value": "Error creating patient."
-  },
-  {
-    "key": "E-CLIN-003",
-    "value": "Error updating patient."
-  },
-  {
-    "key": "E-CLIN-004",
-    "value": "Error deleting patient."
-  },
-  {
-    "key": "E-CLIN-005",
-    "value": "Medical record not found."
-  },
-  {
-    "key": "E-CLIN-006",
-    "value": "Error creating medical record."
-  },
-  {
-    "key": "E-CLIN-007",
-    "value": "Error updating medical record."
-  },
-  {
-    "key": "E-CLIN-008",
-    "value": "Error generating patient report."
-  },
-  {
-    "key": "table.actions",
-    "value": "Actions"
-  },
-  {
-    "key": "table.button.open_menu",
-    "value": "Open menu"
-  },
-  {
-    "key": "clinical.medical_record.new",
-    "value": "New Consultation"
-  },
-  {
-    "key": "clinical.medical_record.view",
-    "value": "View Medical Record"
-  },
-  {
-    "key": "clinical.patient.download_records",
-    "value": "Download Medical Records"
-  },
-  {
-    "key": "clinical.patient.last_name",
-    "value": "Last Name"
-  },
-  {
-    "key": "clinical.patient.first_name",
-    "value": "First Name"
-  },
-  {
-    "key": "clinical.patient.document",
-    "value": "Document"
-  },
-  {
-    "key": "clinical.patient.phone",
-    "value": "Phone"
-  },
-  {
-    "key": "clinical.patient.phone.unregistered",
-    "value": "Unregistered"
-  },
-  {
-    "key": "clinical.patient.diagnosis",
-    "value": "Diagnosis"
-  },
-  {
-    "key": "clinical.patient.diagnosis.none",
-    "value": "No diagnosis"
-  },
-  {
-    "key": "clinical.patient.next_appointment",
-    "value": "Next Appointment"
-  },
-  {
-    "key": "clinical.patient.appointment.none",
-    "value": "No appointment"
-  },
-  {
-    "key": "clinical.patient.appointment.today",
-    "value": "Today"
-  },
-  {
-    "key": "clinical.patient.appointment.tomorrow",
-    "value": "Tomorrow"
-  },
-  {
-    "key": "clinical.patient.appointment.upcoming",
-    "value": "Upcoming"
-  },
-  {
-    "key": "clinical.patient.medic",
-    "value": "Medic"
-  },
-  {
-    "key": "clinical.patient.name",
-    "value": "Name"
-  },
-  {
-    "key": "error.unexpected.title",
-    "value": "Unexpected Error"
-  },
-  {
-    "key": "error.unexpected.description",
-    "value": "An unhandled error occurred"
-  },
-  {
-    "key": "clinical.patient.search.placeholder",
-    "value": "Search by document..."
-  },
-  {
-    "key": "error.permission.title",
-    "value": "Access denied"
-  },
-  {
-    "key": "error.permission.description",
-    "value": "You don't have sufficient permissions to access this route"
-  },
-  {
-    "key": "table.pagination.of",
-    "value": " of "
-  },
-  {
-    "key": "table.pagination.rows_selected",
-    "value": " row(s) selected."
-  },
-  {
-    "key": "table.pagination.rows_per_page",
-    "value": "Rows per page"
-  },
-  {
-    "key": "table.pagination.page",
-    "value": "Page "
-  },
-  {
-    "key": "table.pagination.first_page",
-    "value": "Go to first page"
-  },
-  {
-    "key": "table.pagination.previous_page",
-    "value": "Go to previous page"
-  },
-  {
-    "key": "table.pagination.next_page",
-    "value": "Go to next page"
-  },
-  {
-    "key": "table.pagination.last_page",
-    "value": "Go to last page"
-  },
-  {
-    "key": "table.column_header.asc",
-    "value": "Asc"
-  },
-  {
-    "key": "table.column_header.desc",
-    "value": "Desc"
-  },
-  {
-    "key": "table.column_header.hide",
-    "value": "Hide"
-  },
-  {
-    "key": "table.view_options.view",
-    "value": "View"
-  },
-  {
-    "key": "table.view_options.toggle_columns",
-    "value": "Toggle columns"
-  },
-  {
-    "key": "table.search.placeholder",
-    "value": "Search..."
-  },
-  {
-    "key": "table.no_results",
-    "value": "No results."
-  },
-  {
-    "key": "clinical.patient.create",
-    "value": "Create Patient"
-  },
-  {
-    "key": "table.button.delete.all.selected",
-    "value": "Delete all selected"
-  },
-  {
-    "key": "form.calendar.pick_date",
-    "value": "Pick a date"
-  },
-  {
-    "key": "form.calendar.time_interval",
-    "value": "Time Interval"
-  },
-  {
-    "key": "form.calendar.start",
-    "value": "Start"
-  },
-  {
-    "key": "form.calendar.end",
-    "value": "End"
-  },
-  {
-    "key": "form.optional",
-    "value": "optional"
-  },
-  {
-    "key": "form.validation.no_spaces",
-    "value": "Cannot contain spaces"
-  },
-  {
-    "key": "form.validation.passwords_no_match",
-    "value": "Passwords do not match"
-  },
-  {
-    "key": "table.column.last_name",
-    "value": "Last Name"
-  },
-  {
-    "key": "table.column.first_name",
-    "value": "First Name"
-  },
-  {
-    "key": "table.column.document",
-    "value": "Document"
-  },
-  {
-    "key": "table.column.phone",
-    "value": "Phone"
-  },
-  {
-    "key": "table.column.diagnosis",
-    "value": "Diagnosis"
-  },
-  {
-    "key": "table.column.next_appointment",
-    "value": "Next Appointment"
-  },
-  {
-    "key": "table.column.medic",
-    "value": "Medic"
-  },
-  {
-    "key": "clinical.medical_record.update",
-    "value": "Edit Consultation"
-  },
-  {
-    "key": "clinical.medical_record.date",
-    "value": "Date"
-  },
-  {
-    "key": "clinical.medical_record.motive",
-    "value": "Reason"
-  },
-  {
-    "key": "clinical.medical_record.observation",
-    "value": "Observations"
-  },
-  {
-    "key": "clinical.medical_record.prescription",
-    "value": "Prescription"
-  },
-  {
-    "key": "clinical.medical_record.search.placeholder",
-    "value": "Search by reason..."
-  },
-  {
-    "key": "table.column.date",
-    "value": "Date"
-  },
-  {
-    "key": "table.column.motive",
-    "value": "Reason"
-  },
-  {
-    "key": "table.column.observation",
-    "value": "Observations"
-  },
-  {
-    "key": "table.column.prescription",
-    "value": "Prescription"
-  },
-  {
-    "key": "clinical.patient_card.document",
-    "value": "ID:"
-  },
-  {
-    "key": "clinical.patient_card.critical",
-    "value": "Critical"
-  },
-  {
-    "key": "clinical.patient_card.personal_info",
-    "value": "PERSONAL INFORMATION"
-  },
-  {
-    "key": "clinical.patient_card.birth_date",
-    "value": "Date of Birth:"
-  },
-  {
-    "key": "clinical.patient_card.age",
-    "value": "Age:"
-  },
-  {
-    "key": "clinical.patient_card.gender",
-    "value": "Gender:"
-  },
-  {
-    "key": "clinical.patient_card.phone",
-    "value": "Phone:"
-  },
-  {
-    "key": "clinical.patient_card.not_registered",
-    "value": "Not registered"
-  },
-  {
-    "key": "clinical.patient_card.family_phone",
-    "value": "Family Phone:"
-  },
-  {
-    "key": "clinical.patient_card.family_phone_2",
-    "value": "Family Phone 2:"
-  },
-  {
-    "key": "clinical.patient_card.medical_info",
-    "value": "MEDICAL INFORMATION"
-  },
-  {
-    "key": "clinical.patient_card.insurance",
-    "value": "Insurance:"
-  },
-  {
-    "key": "clinical.patient_card.medic",
-    "value": "Doctor:"
-  },
-  {
-    "key": "clinical.patient_card.diagnosis",
-    "value": "Diagnosis:"
-  },
-  {
-    "key": "clinical.patient_card.not_available",
-    "value": "Not available"
-  },
-  {
-    "key": "clinical.patient_card.latest_prescription",
-    "value": "LATEST PRESCRIPTION"
-  },
-  {
-    "key": "clinical.patient_card.view_prescription",
-    "value": "View Medical Prescription"
-  },
-  {
-    "key": "clinical.patient_card.medical_history",
-    "value": "MEDICAL HISTORY"
-  },
-  {
-    "key": "clinical.patient_card.app",
-    "value": "APP - Personal Pathological History"
-  },
-  {
-    "key": "clinical.patient_card.apf",
-    "value": "APF - Family Pathological History"
-  },
-  {
-    "key": "clinical.patient_card.apqx",
-    "value": "APQX - Surgical Pathological History"
-  },
-  {
-    "key": "clinical.patient_card.notes",
-    "value": "NOTES"
-  },
-  {
-    "key": "clinical.patient_card.no_notes",
-    "value": "No notes registered"
-  },
-  {
-    "key": "clinical.patient_card.gender.male",
-    "value": "Male"
-  },
-  {
-    "key": "clinical.patient_card.gender.female",
-    "value": "Female"
-  },
-  {
-    "key": "clinical.patient_card.gender.other",
-    "value": "Other"
-  },
-  {
-    "key": "clinical.medical_record.actions",
-    "value": "Actions"
-  },
-  {
-    "key": "clinical.medical_record.new_consultation",
-    "value": "New Consultation"
-  },
-  {
-    "key": "clinical.medical_record.view_prescriptions",
-    "value": "View Prescriptions"
-  },
-  {
-    "key": "clinical.medical_record.edit_patient",
-    "value": "Edit Patient"
-  },
-  {
-    "key": "clinical.medical_record.contact_ws",
-    "value": "Contact via WS"
-  },
-  {
-    "key": "clinical.medical_record.mark_critical",
-    "value": "Mark as critical"
-  },
-  {
-    "key": "clinical.medical_record.unmark_critical",
-    "value": "Unmark as critical"
-  },
-  {
-    "key": "clinical.medical_record.history_title",
-    "value": "Medical Consultation History"
-  },
-  {
-    "key": "clinical.medical_record.contact_error.title",
-    "value": "Cannot contact the patient"
-  },
-  {
-    "key": "clinical.medical_record.contact_error.description",
-    "value": "No phone number registered"
-  },
-  {
-    "key": "form.create_medical_record.title",
-    "value": "New Medical Consultation"
-  },
-  {
-    "key": "form.create_medical_record.description",
-    "value": "Fill in the fields to register a new consultation."
-  },
-  {
-    "key": "form.create_medical_record.date",
-    "value": "Consultation Date"
-  },
-  {
-    "key": "form.create_medical_record.next_appointment",
-    "value": "Next Appointment"
-  },
-  {
-    "key": "form.create_medical_record.motive",
-    "value": "Motive"
-  },
-  {
-    "key": "form.create_medical_record.motive.placeholder",
-    "value": "Reason for consultation..."
-  },
-  {
-    "key": "form.create_medical_record.motive.description",
-    "value": "Maximum 100 characters."
-  },
-  {
-    "key": "form.create_medical_record.observation",
-    "value": "Observations"
-  },
-  {
-    "key": "form.create_medical_record.observation.placeholder",
-    "value": "General observations..."
-  },
-  {
-    "key": "form.create_medical_record.soap.subjective.title",
-    "value": "Subjective"
-  },
-  {
-    "key": "form.create_medical_record.soap.subjective.description",
-    "value": "Symptoms and complaints reported by the patient."
-  },
-  {
-    "key": "form.create_medical_record.soap.subjective",
-    "value": "Subjective"
-  },
-  {
-    "key": "form.create_medical_record.soap.objective.title",
-    "value": "Objective"
-  },
-  {
-    "key": "form.create_medical_record.soap.objective.description",
-    "value": "Clinical findings and exam results."
-  },
-  {
-    "key": "form.create_medical_record.soap.objective",
-    "value": "Objective"
-  },
-  {
-    "key": "form.create_medical_record.soap.assessment.title",
-    "value": "Assessment"
-  },
-  {
-    "key": "form.create_medical_record.soap.assessment.description",
-    "value": "Diagnosis or clinical impression."
-  },
-  {
-    "key": "form.create_medical_record.soap.assessment",
-    "value": "Assessment"
-  },
-  {
-    "key": "form.create_medical_record.soap.plan.title",
-    "value": "Plan"
-  },
-  {
-    "key": "form.create_medical_record.soap.plan.description",
-    "value": "Treatment and follow-up plan."
-  },
-  {
-    "key": "form.create_medical_record.soap.plan",
-    "value": "Plan"
-  },
-  {
-    "key": "form.create_medical_record.soap.subjective.placeholder",
-    "value": "Symptoms, complaints and description reported by the patient..."
-  },
-  {
-    "key": "form.create_medical_record.soap.objective.placeholder",
-    "value": "Clinical findings, physical examination, test results..."
-  },
-  {
-    "key": "form.create_medical_record.soap.assessment.placeholder",
-    "value": "Diagnosis or clinical impression based on findings..."
-  },
-  {
-    "key": "form.create_medical_record.soap.plan.placeholder",
-    "value": "Treatment, medications, referrals, follow-up..."
-  },
-  {
-    "key": "form.create_medical_record.tab.consulta",
-    "value": "Consultation"
-  },
-  {
-    "key": "form.create_medical_record.tab.complementario",
-    "value": "Additional"
-  },
-  {
-    "key": "form.create_medical_record.prescription.title",
-    "value": "Medical Prescription"
-  },
-  {
-    "key": "form.create_medical_record.prescription.description",
-    "value": "Optional. Add a medical prescription to the consultation."
-  },
-  {
-    "key": "form.create_medical_record.prescription.content",
-    "value": "Medications"
-  },
-  {
-    "key": "form.create_medical_record.prescription.indications",
-    "value": "Indications"
-  },
-  {
-    "key": "form.create_medical_record.submit",
-    "value": "Create Consultation"
-  },
-  {
-    "key": "form.create_patient.title",
-    "value": "Create Patient"
-  },
-  {
-    "key": "form.create_patient.description",
-    "value": "Fill in the fields to create a patient"
-  },
-  {
-    "key": "form.create_patient.submit",
-    "value": "Create Patient"
-  },
-  {
-    "key": "form.edit_patient.loading",
-    "value": "Loading..."
-  },
-  {
-    "key": "form.edit_patient.title",
-    "value": "Edit Patient"
-  },
-  {
-    "key": "form.edit_patient.description",
-    "value": "Modify the patient's data"
-  },
-  {
-    "key": "form.edit_patient.document",
-    "value": "ID Number"
-  },
-  {
-    "key": "form.edit_patient.document.placeholder",
-    "value": "ID Number..."
-  },
-  {
-    "key": "form.edit_patient.first_name",
-    "value": "First Name"
-  },
-  {
-    "key": "form.edit_patient.first_name.placeholder",
-    "value": "First Name..."
-  },
-  {
-    "key": "form.edit_patient.last_name",
-    "value": "Last Name"
-  },
-  {
-    "key": "form.edit_patient.last_name.placeholder",
-    "value": "Last Name..."
-  },
-  {
-    "key": "form.edit_patient.phone",
-    "value": "Phone"
-  },
-  {
-    "key": "form.edit_patient.phone.placeholder",
-    "value": "Phone..."
-  },
-  {
-    "key": "form.edit_patient.email",
-    "value": "Email"
-  },
-  {
-    "key": "form.edit_patient.email.placeholder",
-    "value": "Email address..."
-  },
-  {
-    "key": "form.edit_patient.birth_date",
-    "value": "Date of Birth"
-  },
-  {
-    "key": "form.edit_patient.next_appointment",
-    "value": "Next Appointment"
-  },
-  {
-    "key": "form.edit_patient.gender",
-    "value": "Gender"
-  },
-  {
-    "key": "form.edit_patient.institution",
-    "value": "Institution"
-  },
-  {
-    "key": "form.edit_patient.institution.placeholder",
-    "value": "Select Institution..."
-  },
-  {
-    "key": "form.edit_patient.medic",
-    "value": "Attending Physician"
-  },
-  {
-    "key": "form.edit_patient.medic.placeholder",
-    "value": "Dr..."
-  },
-  {
-    "key": "form.edit_patient.insurance",
-    "value": "Medical Insurance"
-  },
-  {
-    "key": "form.edit_patient.insurance.placeholder",
-    "value": "Medical Insurance..."
-  },
-  {
-    "key": "form.edit_patient.diagnosis",
-    "value": "Diagnosis"
-  },
-  {
-    "key": "form.edit_patient.diagnosis.placeholder",
-    "value": "Diagnosis..."
-  },
-  {
-    "key": "form.edit_patient.app",
-    "value": "Personal Medical History"
-  },
-  {
-    "key": "form.edit_patient.apf",
-    "value": "Family Medical History"
-  },
-  {
-    "key": "form.edit_patient.apqx",
-    "value": "Surgical History"
-  },
-  {
-    "key": "form.edit_patient.notes",
-    "value": "Notes"
-  },
-  {
-    "key": "form.edit_patient.notes.placeholder",
-    "value": "Notes..."
-  },
-  {
-    "key": "form.edit_patient.submit",
-    "value": "Save Changes"
-  },
-  {
-    "key": "user.list.success",
-    "value": "Users obtained successfully"
-  },
-  {
-    "key": "user.create.success",
-    "value": "User created successfully"
-  },
-  {
-    "key": "auth.token.refresh.success",
-    "value": "Token refreshed successfully"
-  },
-  {
-    "key": "auth.session.extend.success",
-    "value": "Session extended successfully"
-  },
-  {
-    "key": "auth.token.valid",
-    "value": "Token is valid"
-  },
-  {
-    "key": "company.list.success",
-    "value": "Companies obtained successfully"
-  },
-  {
-    "key": "permission.list.success",
-    "value": "Permissions obtained successfully"
-  },
-  {
-    "key": "permission.categories.success",
-    "value": "Permissions with categories obtained successfully"
-  },
-  {
-    "key": "environment.list.success",
-    "value": "Environments obtained successfully"
-  },
-  {
-    "key": "clinical.patient.create.success",
-    "value": "Patient created successfully"
-  },
-  {
-    "key": "clinical.patient.update.success",
-    "value": "Patient updated successfully"
-  },
-  {
-    "key": "clinical.patient.list.success",
-    "value": "Patients obtained successfully"
-  },
-  {
-    "key": "clinical.patient.followup.success",
-    "value": "Patients with follow-ups obtained successfully"
-  },
-  {
-    "key": "clinical.patient.found",
-    "value": "Patient found"
-  },
-  {
-    "key": "clinical.patient.critical.label",
-    "value": "Critical patient"
-  },
-  {
-    "key": "clinical.patient.critical.success",
-    "value": "Patient marked as critical"
-  },
-  {
-    "key": "clinical.patient.critical_revert.success",
-    "value": "Patient critical status reverted"
-  },
-  {
-    "key": "clinical.patient.sort.recent",
-    "value": "Newest first"
-  },
-  {
-    "key": "clinical.patient.sort.oldest",
-    "value": "Oldest first"
-  },
-  {
-    "key": "clinical.patient.sort.last_name_asc",
-    "value": "Last name A → Z"
-  },
-  {
-    "key": "clinical.patient.sort.last_name_desc",
-    "value": "Last name Z → A"
-  },
-  {
-    "key": "clinical.medical_record.list.success",
-    "value": "Medical records obtained successfully"
-  },
-  {
-    "key": "clinical.medical_record.found",
-    "value": "Medical record found"
-  },
-  {
-    "key": "clinical.medical_record.create.success",
-    "value": "Medical consultation created successfully"
-  },
-  {
-    "key": "clinical.medical_record.update.success",
-    "value": "Medical consultation updated successfully"
-  },
-  {
-    "key": "clinical.prescription.update.success",
-    "value": "Prescription updated successfully"
-  },
-  {
-    "key": "view.medical_record.loading",
-    "value": "Loading..."
-  },
-  {
-    "key": "view.medical_record.title",
-    "value": "Medical Record"
-  },
-  {
-    "key": "view.medical_record.subtitle",
-    "value": "Read-only view"
-  },
-  {
-    "key": "view.medical_record.back",
-    "value": "Back"
-  },
-  {
-    "key": "view.medical_record.info.title",
-    "value": "General Information"
-  },
-  {
-    "key": "view.medical_record.info.description",
-    "value": "Details of the medical consultation"
-  },
-  {
-    "key": "view.medical_record.date",
-    "value": "Date"
-  },
-  {
-    "key": "view.medical_record.motive",
-    "value": "Motive"
-  },
-  {
-    "key": "view.medical_record.observation",
-    "value": "Observations"
-  },
-  {
-    "key": "view.medical_record.not_registered",
-    "value": "Not registered"
-  },
-  {
-    "key": "view.medical_record.soap.subjective.title",
-    "value": "Subjective (S)"
-  },
-  {
-    "key": "view.medical_record.soap.subjective.description",
-    "value": "Symptoms reported by the patient"
-  },
-  {
-    "key": "view.medical_record.soap.objective.title",
-    "value": "Objective (O)"
-  },
-  {
-    "key": "view.medical_record.soap.objective.description",
-    "value": "Physical examination findings"
-  },
-  {
-    "key": "view.medical_record.soap.assessment.title",
-    "value": "Assessment (A)"
-  },
-  {
-    "key": "view.medical_record.soap.assessment.description",
-    "value": "Diagnosis and analysis"
-  },
-  {
-    "key": "view.medical_record.soap.plan.title",
-    "value": "Plan (P)"
-  },
-  {
-    "key": "view.medical_record.soap.plan.description",
-    "value": "Treatment and follow-up"
-  },
-  {
-    "key": "view.medical_record.prescription.title",
-    "value": "Medical Prescription"
-  },
-  {
-    "key": "view.medical_record.prescription.description",
-    "value": "Prescription associated with this consultation"
-  },
-  {
-    "key": "view.medical_record.prescription.view",
-    "value": "View Full Prescription"
-  },
-  {
-    "key": "view.medical_record.prescription.download",
-    "value": "Download Prescription"
-  },
-  {
-    "key": "view.medical_record.prescription.whatsapp",
-    "value": "Send via WhatsApp"
-  },
-  {
-    "key": "clinical.medical_record.view",
-    "value": "View Record"
-  },
-  {
-    "key": "form.update_medical_record.loading",
-    "value": "Loading..."
-  },
-  {
-    "key": "form.update_medical_record.title",
-    "value": "Update Medical Consultation"
-  },
-  {
-    "key": "form.update_medical_record.description",
-    "value": "Modify the medical consultation data"
-  },
-  {
-    "key": "form.update_medical_record.date",
-    "value": "Consultation Date"
-  },
-  {
-    "key": "form.update_medical_record.next_appointment",
-    "value": "Next Appointment"
-  },
-  {
-    "key": "form.update_medical_record.motive",
-    "value": "Motive"
-  },
-  {
-    "key": "form.update_medical_record.motive.placeholder",
-    "value": "Motive..."
-  },
-  {
-    "key": "form.update_medical_record.motive.description",
-    "value": "Maximum 100 characters"
-  },
-  {
-    "key": "form.update_medical_record.observation",
-    "value": "Observations"
-  },
-  {
-    "key": "form.update_medical_record.observation.placeholder",
-    "value": "Observations..."
-  },
-  {
-    "key": "form.update_medical_record.submit",
-    "value": "Update Consultation"
-  },
-  {
-    "key": "clinical.medical_record.view_prescription",
-    "value": "View Prescription"
-  },
-  {
-    "key": "clinical.medical_record.edit_prescription",
-    "value": "Edit Prescription"
-  },
-  {
-    "key": "dialog.edit_prescription.title",
-    "value": "Edit Medical Prescription"
-  },
-  {
-    "key": "dialog.edit_prescription.description",
-    "value": "Modify the content and indications of the prescription"
-  },
-  {
-    "key": "dialog.edit_prescription.content",
-    "value": "Content"
-  },
-  {
-    "key": "dialog.edit_prescription.content.placeholder",
-    "value": "Prescription content..."
-  },
-  {
-    "key": "dialog.edit_prescription.indications",
-    "value": "Indications"
-  },
-  {
-    "key": "dialog.edit_prescription.indications.placeholder",
-    "value": "Indications..."
-  },
-  {
-    "key": "dialog.edit_prescription.submit",
-    "value": "Save Prescription"
-  },
-  {
-    "key": "clinical.patient.edit",
-    "value": "Edit Patient"
-  },
-  {
-    "key": "clinical.medical_record.create_prescription",
-    "value": "Create Prescription"
-  },
-  {
-    "key": "appointments.title",
-    "value": "Appointment Schedule"
-  },
-  {
-    "key": "appointments.today",
-    "value": "Today"
-  },
-  {
-    "key": "appointments.new",
-    "value": "New Appointment"
-  },
-  {
-    "key": "appointments.edit",
-    "value": "Edit Appointment"
-  },
-  {
-    "key": "appointments.patient",
-    "value": "Patient"
-  },
-  {
-    "key": "appointments.patient.search",
-    "value": "Search by name or ID..."
-  },
-  {
-    "key": "appointments.patient.not_found",
-    "value": "No patients found"
-  },
-  {
-    "key": "appointments.form.title_label",
-    "value": "Title"
-  },
-  {
-    "key": "appointments.form.title_placeholder",
-    "value": "General consultation, follow-up, etc."
-  },
-  {
-    "key": "appointments.form.start_time",
-    "value": "Start time"
-  },
-  {
-    "key": "appointments.form.end_time",
-    "value": "End time"
-  },
-  {
-    "key": "appointments.form.location",
-    "value": "Location"
-  },
-  {
-    "key": "appointments.form.location_placeholder",
-    "value": "Office 1"
-  },
-  {
-    "key": "appointments.form.notes",
-    "value": "Notes"
-  },
-  {
-    "key": "appointments.form.notes_placeholder",
-    "value": "Additional observations..."
-  },
-  {
-    "key": "appointments.form.save",
-    "value": "Save changes"
-  },
-  {
-    "key": "appointments.form.create",
-    "value": "Create appointment"
-  },
-  {
-    "key": "appointments.form.select_patient",
-    "value": "Select a patient"
-  },
-  {
-    "key": "appointments.status.scheduled",
-    "value": "Incoming"
-  },
-  {
-    "key": "appointments.status.arrived",
-    "value": "In waiting room"
-  },
-  {
-    "key": "appointments.status.in_consultation",
-    "value": "In consultation"
-  },
-  {
-    "key": "appointments.status.completed",
-    "value": "Attended"
-  },
-  {
-    "key": "appointments.status.cancelled",
-    "value": "Cancelled"
-  },
-  {
-    "key": "waiting_room.title",
-    "value": "Waiting Room"
-  },
-  {
-    "key": "waiting_room.copy_tv_link",
-    "value": "Copy TV link"
-  },
-  {
-    "key": "waiting_room.refresh",
-    "value": "Refresh"
-  },
-  {
-    "key": "waiting_room.empty_column",
-    "value": "No patients"
-  },
-  {
-    "key": "waiting_room.unknown_patient",
-    "value": "Unknown patient"
-  },
-  {
-    "key": "waiting_room.card.records",
-    "value": "Records"
-  },
-  {
-    "key": "waiting_room.advance.arrived",
-    "value": "Arrived"
-  },
-  {
-    "key": "waiting_room.advance.in_consultation",
-    "value": "In consultation"
-  },
-  {
-    "key": "waiting_room.advance.completed",
-    "value": "Attended"
-  },
-  {
-    "key": "tenant.display_token.generate.success",
-    "value": "TV display link generated successfully"
-  },
-  {
-    "key": "waiting_room.display.last_updated",
-    "value": "Last updated:"
-  },
-  {
-    "key": "waiting_room.display.next_refresh",
-    "value": "Next refresh in"
-  },
-  {
-    "key": "appointments.action.edit",
-    "value": "Edit"
-  },
-  {
-    "key": "appointments.action.complete",
-    "value": "Complete"
-  },
-  {
-    "key": "appointments.action.cancel",
-    "value": "Cancel"
-  },
-  {
-    "key": "appointments.action.delete",
-    "value": "Delete"
-  },
-  {
-    "key": "appointments.get.success",
-    "value": "Appointments retrieved successfully"
-  },
-  {
-    "key": "appointments.create.success",
-    "value": "Appointment created successfully"
-  },
-  {
-    "key": "appointments.update.success",
-    "value": "Appointment updated successfully"
-  },
-  {
-    "key": "appointments.status.update.success",
-    "value": "Appointment status updated successfully"
-  },
-  {
-    "key": "appointments.delete.success",
-    "value": "Appointment deleted successfully"
-  },
-  {
-    "key": "dashboard.title",
-    "value": "Dashboard"
-  },
-  {
-    "key": "dashboard.loading",
-    "value": "Loading..."
-  },
-  {
-    "key": "dashboard.stat.total_patients",
-    "value": "Total Patients"
-  },
-  {
-    "key": "dashboard.stat.critical_patients",
-    "value": "Critical Patients"
-  },
-  {
-    "key": "dashboard.stat.today_appointments",
-    "value": "Today's Appointments"
-  },
-  {
-    "key": "dashboard.stat.monthly_completed",
-    "value": "Completed this Month"
-  },
-  {
-    "key": "dashboard.subscription.title",
-    "value": "Active Subscription"
-  },
-  {
-    "key": "dashboard.subscription.expires",
-    "value": "Expires on"
-  },
-  {
-    "key": "dashboard.subscription.days_left",
-    "value": "days left"
-  },
-  {
-    "key": "dashboard.chart.weekly_title",
-    "value": "Weekly Appointments"
-  },
-  {
-    "key": "dashboard.chart.weekly_description",
-    "value": "Appointment distribution for the current week"
-  },
-  {
-    "key": "dashboard.upcoming.title",
-    "value": "Upcoming Appointments"
-  },
-  {
-    "key": "dashboard.upcoming.description",
-    "value": "Appointments scheduled for today"
-  },
-  {
-    "key": "dashboard.upcoming.empty",
-    "value": "No appointments scheduled for today"
-  },
-  {
-    "key": "dashboard.stats.success",
-    "value": "Dashboard statistics retrieved successfully"
-  },
-  {
-    "key": "profile.title",
-    "value": "My Profile"
-  },
-  {
-    "key": "profile.user_info",
-    "value": "User Information"
-  },
-  {
-    "key": "profile.user_info.description",
-    "value": "Your account details"
-  },
-  {
-    "key": "profile.username",
-    "value": "Username"
-  },
-  {
-    "key": "profile.role",
-    "value": "Role"
-  },
-  {
-    "key": "profile.environment_info",
-    "value": "Environment Information"
-  },
-  {
-    "key": "profile.environment_info.description",
-    "value": "Selected environment details"
-  },
-  {
-    "key": "profile.email",
-    "value": "Email"
-  },
-  {
-    "key": "profile.environment_name",
-    "value": "Environment name"
-  },
-  {
-    "key": "profile.legal_name",
-    "value": "Legal name"
-  },
-  {
-    "key": "profile.trade_name",
-    "value": "Trade name"
-  },
-  {
-    "key": "profile.save",
-    "value": "Save changes"
-  },
-  {
-    "key": "profile.get.success",
-    "value": "Profile retrieved successfully"
-  },
-  {
-    "key": "profile.update.success",
-    "value": "Profile updated successfully"
-  },
-  {
-    "key": "backoffice.nav.dashboard",
-    "value": "Dashboard"
-  },
-  {
-    "key": "backoffice.nav.companies",
-    "value": "Companies"
-  },
-  {
-    "key": "backoffice.nav.companies.list",
-    "value": "Company List"
-  },
-  {
-    "key": "backoffice.nav.team",
-    "value": "Internal Team"
-  },
-  {
-    "key": "backoffice.help",
-    "value": "Help"
-  },
-  {
-    "key": "backoffice.dropdown.account",
-    "value": "My Account"
-  },
-  {
-    "key": "backoffice.dropdown.settings",
-    "value": "Settings"
-  },
-  {
-    "key": "backoffice.dropdown.logout",
-    "value": "Log Out"
-  },
-  {
-    "key": "backoffice.dashboard.title",
-    "value": "Administration Panel"
-  },
-  {
-    "key": "backoffice.dashboard.stat.total_companies",
-    "value": "Total Clinics"
-  },
-  {
-    "key": "backoffice.dashboard.stat.total_users",
-    "value": "Registered Users"
-  },
-  {
-    "key": "backoffice.dashboard.stat.active_plans",
-    "value": "Active Plans"
-  },
-  {
-    "key": "backoffice.dashboard.recent.title",
-    "value": "Recent Activity"
-  },
-  {
-    "key": "backoffice.dashboard.expiring.title",
-    "value": "Expiring Subscriptions"
-  },
-  {
-    "key": "backoffice.dashboard.expiring.description",
-    "value": "Active subscriptions expiring in the next 30 days"
-  },
-  {
-    "key": "backoffice.dashboard.expiring.days_left",
-    "value": "Days left"
-  },
-  {
-    "key": "backoffice.dashboard.expiring.days",
-    "value": "days"
-  },
-  {
-    "key": "backoffice.dashboard.recent.description",
-    "value": "Latest actions performed on the platform"
-  },
-  {
-    "key": "backoffice.dashboard.recent.empty",
-    "value": "No recent activity to show."
-  },
-  {
-    "key": "backoffice.login.title",
-    "value": "Backoffice Access"
-  },
-  {
-    "key": "backoffice.login.subtitle",
-    "value": "Administration area exclusive to Pengi Med operators."
-  },
-  {
-    "key": "backoffice.login.username",
-    "value": "Network Username"
-  },
-  {
-    "key": "backoffice.login.username.placeholder",
-    "value": "Enter your username"
-  },
-  {
-    "key": "backoffice.login.password",
-    "value": "Password"
-  },
-  {
-    "key": "backoffice.login.password.placeholder",
-    "value": "••••••••"
-  },
-  {
-    "key": "backoffice.login.button",
-    "value": "Secure Sign In"
-  },
-  {
-    "key": "backoffice_user.list.success",
-    "value": "Backoffice users retrieved successfully"
-  },
-  {
-    "key": "backoffice_user.create.success",
-    "value": "Backoffice user created successfully"
-  },
-  {
-    "key": "backoffice.companies.title",
-    "value": "Companies"
-  },
-  {
-    "key": "backoffice.companies.create",
-    "value": "New Company"
-  },
-  {
-    "key": "backoffice.companies.list.title",
-    "value": "Company List"
-  },
-  {
-    "key": "backoffice.companies.list.description",
-    "value": "Manage companies registered on the platform"
-  },
-  {
-    "key": "backoffice.companies.loading",
-    "value": "Loading..."
-  },
-  {
-    "key": "backoffice.companies.empty",
-    "value": "No companies registered."
-  },
-  {
-    "key": "backoffice.companies.col.trade_name",
-    "value": "Trade Name"
-  },
-  {
-    "key": "backoffice.companies.col.trade_name.placeholder",
-    "value": "E.g.: My Clinic"
-  },
-  {
-    "key": "backoffice.companies.col.legal_name",
-    "value": "Legal Name"
-  },
-  {
-    "key": "backoffice.companies.col.legal_name.placeholder",
-    "value": "E.g.: My Clinic Inc."
-  },
-  {
-    "key": "backoffice.companies.col.plan",
-    "value": "Plan"
-  },
-  {
-    "key": "backoffice.companies.col.tenant",
-    "value": "Tenant"
-  },
-  {
-    "key": "backoffice.companies.create.title",
-    "value": "Create Company"
-  },
-  {
-    "key": "backoffice.companies.create.description",
-    "value": "Fill in the details to register a new company on the platform."
-  },
-  {
-    "key": "backoffice.onboarding.step.company",
-    "value": "Company"
-  },
-  {
-    "key": "backoffice.onboarding.step.subscription",
-    "value": "Subscription"
-  },
-  {
-    "key": "backoffice.onboarding.step.access",
-    "value": "Access"
-  },
-  {
-    "key": "backoffice.onboarding.next",
-    "value": "Next"
-  },
-  {
-    "key": "backoffice.onboarding.back",
-    "value": "Back"
-  },
-  {
-    "key": "backoffice.onboarding.finish",
-    "value": "Go to Companies"
-  },
-  {
-    "key": "backoffice.onboarding.company.title",
-    "value": "Company Details"
-  },
-  {
-    "key": "backoffice.onboarding.company.description",
-    "value": "Enter the trade name and legal name of the new company."
-  },
-  {
-    "key": "backoffice.onboarding.subscription.title",
-    "value": "Assign Plan"
-  },
-  {
-    "key": "backoffice.onboarding.subscription.description",
-    "value": "Select the plan and expiration date for the subscription."
-  },
-  {
-    "key": "backoffice.onboarding.subscription.plan_placeholder",
-    "value": "Select a plan..."
-  },
-  {
-    "key": "backoffice.onboarding.access.title",
-    "value": "Company created!"
-  },
-  {
-    "key": "backoffice.onboarding.access.description",
-    "value": "Share this link with the first user of"
-  },
-  {
-    "key": "backoffice.onboarding.access.hint",
-    "value": "This link allows the first user to register and set up their account on the platform."
-  },
-  {
-    "key": "backoffice.companies.edit.title",
-    "value": "Edit Company"
-  },
-  {
-    "key": "backoffice.companies.edit.description",
-    "value": "Modify the company details."
-  },
-  {
-    "key": "backoffice.companies.cancel",
-    "value": "Cancel"
-  },
-  {
-    "key": "backoffice.companies.save",
-    "value": "Save Changes"
-  },
-  {
-    "key": "backoffice.company.list.success",
-    "value": "Companies retrieved successfully"
-  },
-  {
-    "key": "backoffice.company.found",
-    "value": "Company found"
-  },
-  {
-    "key": "backoffice.company.create.success",
-    "value": "Company created successfully"
-  },
-  {
-    "key": "backoffice.company.update.success",
-    "value": "Company updated successfully"
-  },
-  {
-    "key": "backoffice.company.delete.success",
-    "value": "Company deleted successfully"
-  },
-  {
-    "key": "backoffice.nav.features",
-    "value": "Features"
-  },
-  {
-    "key": "backoffice.nav.plans",
-    "value": "Plans"
-  },
-  {
-    "key": "backoffice.nav.subscriptions",
-    "value": "Subscriptions"
-  },
-  {
-    "key": "backoffice.features.title",
-    "value": "Features"
-  },
-  {
-    "key": "backoffice.features.create",
-    "value": "New Feature"
-  },
-  {
-    "key": "backoffice.features.list.title",
-    "value": "Feature List"
-  },
-  {
-    "key": "backoffice.features.list.description",
-    "value": "Manage platform features"
-  },
-  {
-    "key": "backoffice.features.empty",
-    "value": "No features registered."
-  },
-  {
-    "key": "backoffice.features.col.code",
-    "value": "Code"
-  },
-  {
-    "key": "backoffice.features.col.name",
-    "value": "Name"
-  },
-  {
-    "key": "backoffice.features.col.name.placeholder",
-    "value": "E.g.: Clinical Logbook"
-  },
-  {
-    "key": "backoffice.features.col.permissions",
-    "value": "Permissions"
-  },
-  {
-    "key": "backoffice.features.create.title",
-    "value": "Create Feature"
-  },
-  {
-    "key": "backoffice.features.create.description",
-    "value": "Register a new feature with code and name."
-  },
-  {
-    "key": "backoffice.features.edit.title",
-    "value": "Edit Feature"
-  },
-  {
-    "key": "backoffice.features.edit.description",
-    "value": "Modify the feature details."
-  },
-  {
-    "key": "backoffice.feature.list.success",
-    "value": "Features retrieved successfully"
-  },
-  {
-    "key": "backoffice.feature.found",
-    "value": "Feature found"
-  },
-  {
-    "key": "backoffice.feature.create.success",
-    "value": "Feature created successfully"
-  },
-  {
-    "key": "backoffice.feature.update.success",
-    "value": "Feature updated successfully"
-  },
-  {
-    "key": "backoffice.feature.delete.success",
-    "value": "Feature deleted successfully"
-  },
-  {
-    "key": "backoffice.plans.title",
-    "value": "Plans"
-  },
-  {
-    "key": "backoffice.plans.create",
-    "value": "New Plan"
-  },
-  {
-    "key": "backoffice.plans.list.title",
-    "value": "Plan List"
-  },
-  {
-    "key": "backoffice.plans.list.description",
-    "value": "Manage plans available for companies"
-  },
-  {
-    "key": "backoffice.plans.empty",
-    "value": "No plans registered."
-  },
-  {
-    "key": "backoffice.plans.col.name",
-    "value": "Name"
-  },
-  {
-    "key": "backoffice.plans.col.name.placeholder",
-    "value": "E.g.: Enterprise"
-  },
-  {
-    "key": "backoffice.plans.col.code",
-    "value": "Code"
-  },
-  {
-    "key": "backoffice.plans.col.price",
-    "value": "Price"
-  },
-  {
-    "key": "backoffice.plans.col.features",
-    "value": "Features"
-  },
-  {
-    "key": "backoffice.plans.create.title",
-    "value": "Create Plan"
-  },
-  {
-    "key": "backoffice.plans.create.description",
-    "value": "Register a new plan with price and code."
-  },
-  {
-    "key": "backoffice.plans.edit.title",
-    "value": "Edit Plan"
-  },
-  {
-    "key": "backoffice.plans.edit.description",
-    "value": "Modify the plan details."
-  },
-  {
-    "key": "backoffice.plans.limits.title",
-    "value": "Plan Limits"
-  },
-  {
-    "key": "backoffice.plans.limits.max_users",
-    "value": "Users"
-  },
-  {
-    "key": "backoffice.plans.limits.max_users.desc",
-    "value": "Maximum number of users allowed"
-  },
-  {
-    "key": "backoffice.plans.limits.max_patients",
-    "value": "Patients"
-  },
-  {
-    "key": "backoffice.plans.limits.max_patients.desc",
-    "value": "Maximum number of registered patients"
-  },
-  {
-    "key": "backoffice.plans.limits.max_offices",
-    "value": "Offices"
-  },
-  {
-    "key": "backoffice.plans.limits.max_offices.desc",
-    "value": "Maximum number of active offices"
-  },
-  {
-    "key": "backoffice.plans.limits.unlimited",
-    "value": "Unlimited"
-  },
-  {
-    "key": "plan.limit.users",
-    "value": "You have reached the user limit for your current plan."
-  },
-  {
-    "key": "plan.limit.patients",
-    "value": "You have reached the patient limit for your current plan."
-  },
-  {
-    "key": "backoffice.plan.list.success",
-    "value": "Plans retrieved successfully"
-  },
-  {
-    "key": "backoffice.plan.found",
-    "value": "Plan found"
-  },
-  {
-    "key": "backoffice.plan.create.success",
-    "value": "Plan created successfully"
-  },
-  {
-    "key": "backoffice.plan.update.success",
-    "value": "Plan updated successfully"
-  },
-  {
-    "key": "backoffice.plan.delete.success",
-    "value": "Plan deleted successfully"
-  },
-  {
-    "key": "backoffice.subscriptions.title",
-    "value": "Subscriptions"
-  },
-  {
-    "key": "backoffice.subscriptions.create",
-    "value": "New Subscription"
-  },
-  {
-    "key": "backoffice.subscriptions.list.title",
-    "value": "Subscription List"
-  },
-  {
-    "key": "backoffice.subscriptions.list.description",
-    "value": "Manage company subscriptions"
-  },
-  {
-    "key": "backoffice.subscriptions.empty",
-    "value": "No subscriptions registered."
-  },
-  {
-    "key": "backoffice.subscriptions.col.company",
-    "value": "Company"
-  },
-  {
-    "key": "backoffice.subscriptions.col.plan",
-    "value": "Plan"
-  },
-  {
-    "key": "backoffice.subscriptions.col.status",
-    "value": "Status"
-  },
-  {
-    "key": "backoffice.subscriptions.col.expires",
-    "value": "Expiry Date"
-  },
-  {
-    "key": "backoffice.subscriptions.select.company",
-    "value": "Select a company..."
-  },
-  {
-    "key": "backoffice.subscriptions.select.plan",
-    "value": "Select a plan..."
-  },
-  {
-    "key": "backoffice.subscriptions.create.title",
-    "value": "Create Subscription"
-  },
-  {
-    "key": "backoffice.subscriptions.create.description",
-    "value": "Assign a plan to a company."
-  },
-  {
-    "key": "backoffice.subscriptions.edit.title",
-    "value": "Edit Subscription"
-  },
-  {
-    "key": "backoffice.subscriptions.edit.description",
-    "value": "Modify the subscription details."
-  },
-  {
-    "key": "backoffice.subscription.list.success",
-    "value": "Subscriptions retrieved successfully"
-  },
-  {
-    "key": "backoffice.subscription.create.success",
-    "value": "Subscription created successfully"
-  },
-  {
-    "key": "backoffice.subscription.update.success",
-    "value": "Subscription updated successfully"
-  },
-  {
-    "key": "backoffice.subscription.delete.success",
-    "value": "Subscription deleted successfully"
-  },
-  {
-    "key": "backoffice.linking.selected",
-    "value": "selected"
-  },
-  {
-    "key": "backoffice.linking.select_all",
-    "value": "Select all"
-  },
-  {
-    "key": "backoffice.linking.deselect_all",
-    "value": "Deselect all"
-  },
-  {
-    "key": "backoffice.permission.list.success",
-    "value": "Permissions retrieved successfully"
-  },
-  {
-    "key": "backoffice.nav.users",
-    "value": "Users"
-  },
-  {
-    "key": "backoffice.nav.roles",
-    "value": "Roles"
-  },
-  {
-    "key": "backoffice.users.title",
-    "value": "Users"
-  },
-  {
-    "key": "backoffice.users.create",
-    "value": "New User"
-  },
-  {
-    "key": "backoffice.users.list.title",
-    "value": "User List"
-  },
-  {
-    "key": "backoffice.users.list.description",
-    "value": "Manage backoffice users"
-  },
-  {
-    "key": "backoffice.users.empty",
-    "value": "No users registered."
-  },
-  {
-    "key": "backoffice.users.col.name",
-    "value": "Name"
-  },
-  {
-    "key": "backoffice.users.col.name.placeholder",
-    "value": "E.g.: John Doe"
-  },
-  {
-    "key": "backoffice.users.col.user_name",
-    "value": "Username"
-  },
-  {
-    "key": "backoffice.users.col.user_name.placeholder",
-    "value": "E.g.: admin"
-  },
-  {
-    "key": "backoffice.users.col.password",
-    "value": "Password"
-  },
-  {
-    "key": "backoffice.users.col.password_new",
-    "value": "New Password"
-  },
-  {
-    "key": "backoffice.users.col.password_new.placeholder",
-    "value": "Leave empty to keep current"
-  },
-  {
-    "key": "backoffice.users.create.title",
-    "value": "Create User"
-  },
-  {
-    "key": "backoffice.users.create.description",
-    "value": "Register a new backoffice user."
-  },
-  {
-    "key": "backoffice.users.edit.title",
-    "value": "Edit User"
-  },
-  {
-    "key": "backoffice.users.edit.description",
-    "value": "Modify the user details."
-  },
-  {
-    "key": "backoffice.users.list.success",
-    "value": "Users retrieved successfully"
-  },
-  {
-    "key": "backoffice.users.found",
-    "value": "User found"
-  },
-  {
-    "key": "backoffice.users.update.success",
-    "value": "User updated successfully"
-  },
-  {
-    "key": "backoffice.users.delete.success",
-    "value": "User deleted successfully"
-  },
-  {
-    "key": "backoffice.dashboard.stat.total_features",
-    "value": "Total Features"
-  },
-  {
-    "key": "backoffice.dashboard.stat.active_subscriptions",
-    "value": "Active Subscriptions"
-  },
-  {
-    "key": "backoffice.dashboard.stats.success",
-    "value": "Dashboard stats retrieved successfully"
-  },
-  {
-    "key": "signup.title",
-    "value": "Create an account"
-  },
-  {
-    "key": "signup.subtitle",
-    "value": "Enter your details to register."
-  },
-  {
-    "key": "signup.invalid_link.title",
-    "value": "Invalid link"
-  },
-  {
-    "key": "signup.invalid_link.description",
-    "value": "The signup link is invalid or has expired. Please request a new link."
-  },
-  {
-    "key": "signup.go_to_login",
-    "value": "Back to login"
-  },
-  {
-    "key": "reset_password.title",
-    "value": "Reset password"
-  },
-  {
-    "key": "reset_password.description",
-    "value": "Enter your new password."
-  },
-  {
-    "key": "reset_password.new_password",
-    "value": "New password"
-  },
-  {
-    "key": "reset_password.new_password.placeholder",
-    "value": "At least 6 characters"
-  },
-  {
-    "key": "reset_password.confirm_password",
-    "value": "Confirm password"
-  },
-  {
-    "key": "reset_password.confirm_password.placeholder",
-    "value": "Repeat the new password"
-  },
-  {
-    "key": "reset_password.submit",
-    "value": "Reset password"
-  },
-  {
-    "key": "reset_password.invalid_link.title",
-    "value": "Invalid or expired link"
-  },
-  {
-    "key": "reset_password.invalid_link.description",
-    "value": "This password reset link is invalid or has expired. Please request a new one."
-  },
-  {
-    "key": "auth.reset_password.success",
-    "value": "Password updated successfully"
-  },
-  {
-    "key": "signup.name",
-    "value": "Full name"
-  },
-  {
-    "key": "signup.name.placeholder",
-    "value": "Enter your full name"
-  },
-  {
-    "key": "signup.username",
-    "value": "Username"
-  },
-  {
-    "key": "signup.username.placeholder",
-    "value": "Choose a username"
-  },
-  {
-    "key": "signup.username.invalid_chars",
-    "value": "Username cannot contain spaces"
-  },
-  {
-    "key": "signup.email",
-    "value": "Email address"
-  },
-  {
-    "key": "signup.email.placeholder",
-    "value": "you@example.com"
-  },
-  {
-    "key": "signup.password",
-    "value": "Password"
-  },
-  {
-    "key": "signup.password.placeholder",
-    "value": "Create a secure password"
-  },
-  {
-    "key": "signup.confirm_password",
-    "value": "Confirm password"
-  },
-  {
-    "key": "signup.confirm_password.placeholder",
-    "value": "Type your password again"
-  },
-  {
-    "key": "signup.submit_button",
-    "value": "Sign up"
-  },
-  {
-    "key": "signup.validation.password_mismatch",
-    "value": "Passwords do not match"
-  },
-  {
-    "key": "signup.success",
-    "value": "Account created successfully"
-  },
-  {
-    "key": "E-AUTH-007",
-    "value": "The signup link is invalid or has expired."
-  },
-  {
-    "key": "backoffice.companies.generate_signup_link",
-    "value": "Generate signup link"
-  },
-  {
-    "key": "backoffice.companies.signup_link.title",
-    "value": "Signup Link"
-  },
-  {
-    "key": "backoffice.companies.signup_link.description",
-    "value": "Share this link for new users to register in the company"
-  },
-  {
-    "key": "backoffice.companies.signup_link.generating",
-    "value": "Generating link..."
-  },
-  {
-    "key": "backoffice.companies.signup_link.error",
-    "value": "Error generating link."
-  },
-  {
-    "key": "user.company_signup.success",
-    "value": "User registered successfully"
-  },
-  {
-    "key": "backoffice.company.signup_token.success",
-    "value": "Signup token generated successfully"
-  },
-  {
-    "key": "backoffice.user.password_reset_link.success",
-    "value": "Password reset link generated successfully"
-  },
-  {
-    "key": "backoffice.company_users.title",
-    "value": "Company Users"
-  },
-  {
-    "key": "backoffice.company_users.list.title",
-    "value": "Registered Users"
-  },
-  {
-    "key": "backoffice.company_users.list.description",
-    "value": "List of users registered in this company."
-  },
-  {
-    "key": "backoffice.company_users.loading",
-    "value": "Loading users..."
-  },
-  {
-    "key": "backoffice.company_users.empty",
-    "value": "No users registered in this company."
-  },
-  {
-    "key": "backoffice.company_users.col.username",
-    "value": "Username"
-  },
-  {
-    "key": "backoffice.company_users.col.email",
-    "value": "Email"
-  },
-  {
-    "key": "backoffice.company_users.col.role",
-    "value": "Role"
-  },
-  {
-    "key": "backoffice.company_users.col.environment",
-    "value": "Environment"
-  },
-  {
-    "key": "backoffice.company_users.edit.title",
-    "value": "Edit User"
-  },
-  {
-    "key": "backoffice.company_users.edit.description",
-    "value": "Modify the user's attributes in this company."
-  },
-  {
-    "key": "backoffice.company_users.select_role",
-    "value": "Select role..."
-  },
-  {
-    "key": "backoffice.company_users.cancel",
-    "value": "Cancel"
-  },
-  {
-    "key": "backoffice.company_users.save",
-    "value": "Save"
-  },
-  {
-    "key": "backoffice.company.user.delete.success",
-    "value": "User deleted successfully"
-  },
-  {
-    "key": "backoffice.company_users.delete.button_title",
-    "value": "Delete user"
-  },
-  {
-    "key": "backoffice.company_users.delete.confirm_title",
-    "value": "Delete user?"
-  },
-  {
-    "key": "backoffice.company_users.delete.confirm_description",
-    "value": "This action is irreversible. The user and all their access will be removed."
-  },
-  {
-    "key": "backoffice.company_users.delete.confirm",
-    "value": "Delete"
-  },
-  {
-    "key": "backoffice.company_users.password_reset.button_title",
-    "value": "Generate password reset link"
-  },
-  {
-    "key": "backoffice.company_users.password_reset.dialog_title",
-    "value": "Password reset link"
-  },
-  {
-    "key": "backoffice.company_users.password_reset.dialog_description",
-    "value": "Copy the link and send it to the user. Expires in 24 hours."
-  },
-  {
-    "key": "backoffice.company_users.password_reset.copied",
-    "value": "Link copied to clipboard"
-  },
-  {
-    "key": "backoffice.company_users.password_reset.copy",
-    "value": "Copy link"
-  },
-  {
-    "key": "backoffice.company_users.password_reset.close",
-    "value": "Close"
-  },
-  {
-    "key": "backoffice.company.users.list.success",
-    "value": "Company users retrieved successfully"
-  },
-  {
-    "key": "backoffice.company.users.update.success",
-    "value": "User updated successfully"
-  },
-  {
-    "key": "backoffice.roles.list.success",
-    "value": "Roles retrieved successfully"
-  },
-  {
-    "key": "backoffice.roles.title",
-    "value": "Roles"
-  },
-  {
-    "key": "backoffice.roles.create",
-    "value": "Create Role"
-  },
-  {
-    "key": "backoffice.roles.list.title",
-    "value": "Role List"
-  },
-  {
-    "key": "backoffice.roles.list.description",
-    "value": "Manage roles and their associated permissions"
-  },
-  {
-    "key": "backoffice.roles.empty",
-    "value": "No roles found"
-  },
-  {
-    "key": "backoffice.roles.col.name",
-    "value": "Name"
-  },
-  {
-    "key": "backoffice.roles.col.name.placeholder",
-    "value": "e.g. Administrator, Doctor..."
-  },
-  {
-    "key": "backoffice.roles.create.title",
-    "value": "Create Role"
-  },
-  {
-    "key": "backoffice.roles.create.description",
-    "value": "Define a new role with its permissions"
-  },
-  {
-    "key": "backoffice.roles.edit.title",
-    "value": "Edit Role"
-  },
-  {
-    "key": "backoffice.roles.edit.description",
-    "value": "Modify the role and its assigned permissions"
-  },
-  {
-    "key": "backoffice.roles.create.success",
-    "value": "Role created successfully"
-  },
-  {
-    "key": "backoffice.roles.update.success",
-    "value": "Role updated successfully"
-  },
-  {
-    "key": "backoffice.roles.delete.success",
-    "value": "Role deleted successfully"
-  },
-  {
-    "key": "backoffice.roles.get.success",
-    "value": "Role retrieved successfully"
-  },
-  {
-    "key": "billing.invoice.patient",
-    "value": "Patient"
-  },
-  {
-    "key": "billing.invoice.patient.placeholder",
-    "value": "Select patient..."
-  },
-  {
-    "key": "billing.invoice.items",
-    "value": "Invoice Items"
-  },
-  {
-    "key": "billing.invoice.item.add",
-    "value": "Add Item"
-  },
-  {
-    "key": "billing.invoice.item.description",
-    "value": "Description"
-  },
-  {
-    "key": "billing.invoice.item.description.placeholder",
-    "value": "Item description..."
-  },
-  {
-    "key": "billing.invoice.item.qty",
-    "value": "Qty."
-  },
-  {
-    "key": "billing.invoice.item.price",
-    "value": "Unit Price"
-  },
-  {
-    "key": "billing.invoice.item.tax",
-    "value": "Tax"
-  },
-  {
-    "key": "billing.invoice.subtotal",
-    "value": "Subtotal"
-  },
-  {
-    "key": "billing.invoice.tax",
-    "value": "Taxes (VAT)"
-  },
-  {
-    "key": "billing.invoice.total",
-    "value": "Total"
-  },
-  {
-    "key": "billing.invoice.save",
-    "value": "Save Invoice"
-  },
-  {
-    "key": "billing.invoice.create.button",
-    "value": "Create Invoice"
-  },
-  {
-    "key": "billing.invoice.create.description",
-    "value": "Fill in the details to issue a new invoice."
-  },
-  {
-    "key": "billing.invoice.create.title",
-    "value": "New Invoice"
-  },
-  {
-    "key": "billing.invoice.delete.description",
-    "value": "Are you sure you want to delete the selected invoices? This action cannot be undone."
-  },
-  {
-    "key": "billing.invoice.delete.success",
-    "value": "Invoice(s) successfully deleted"
-  },
-  {
-    "key": "billing.invoice.process.selected",
-    "value": "Process Selected to SRI"
-  },
-  {
-    "key": "billing.invoice.search.placeholder",
-    "value": "Search by sequential or patient..."
-  },
-  {
-    "key": "billing.sri.button.save",
-    "value": "Save SRI Configuration"
-  },
-  {
-    "key": "billing.sri.file.description",
-    "value": "Upload your electronic signature .p12 file."
-  },
-  {
-    "key": "billing.sri.file.label",
-    "value": "Signature File (.p12)"
-  },
-  {
-    "key": "billing.sri.info.description",
-    "value": "Configure your credentials for electronic billing"
-  },
-  {
-    "key": "billing.sri.info.p1",
-    "value": "Your signature and password are encrypted and stored safely."
-  },
-  {
-    "key": "billing.sri.info.p2",
-    "value": "Make sure your signature is currently valid."
-  },
-  {
-    "key": "billing.sri.info.title",
-    "value": "Important Information"
-  },
-  {
-    "key": "billing.sri.password.description",
-    "value": "The password for your electronic signature."
-  },
-  {
-    "key": "billing.sri.password.label",
-    "value": "Signature Password"
-  },
-  {
-    "key": "billing.sri.settings.title",
-    "value": "SRI Settings"
-  },
-  {
-    "key": "billing.sri.signature.description",
-    "value": "Configure your electronic signature to issue authorized receipts."
-  },
-  {
-    "key": "billing.sri.signature.title",
-    "value": "Electronic Signature"
-  },
-  {
-    "key": "billing.status.authorized",
-    "value": "Authorized"
-  },
-  {
-    "key": "billing.status.draft",
-    "value": "Draft"
-  },
-  {
-    "key": "billing.status.processing",
-    "value": "Processing"
-  },
-  {
-    "key": "dashboard.billing.invoices",
-    "value": "Invoices"
-  },
-  {
-    "key": "dashboard.billing.settings",
-    "value": "SRI Settings"
-  },
-  {
-    "key": "dashboard.billing",
-    "value": "Billing"
-  },
-  {
-    "key": "form.cancel",
-    "value": "Cancel"
-  },
-  {
-    "key": "tenant.signature.upload.success",
-    "value": "Electronic signature uploaded and configured successfully"
-  },
-  {
-    "key": "E-BILL-001",
-    "value": "Invalid billing request"
-  },
-  {
-    "key": "E-BILL-002",
-    "value": "Invoice not found"
-  },
-  {
-    "key": "E-BILL-003",
-    "value": "Product or service not found"
-  },
-  {
-    "key": "E-BILL-004",
-    "value": "Error creating invoice"
-  },
-  {
-    "key": "E-BILL-005",
-    "value": "Incorrect password or invalid signature file"
-  },
-  {
-    "key": "billing.sri.invalid_file",
-    "value": "Incorrect password or invalid signature file"
-  },
-  {
-    "key": "billing.sri.status.configured",
-    "value": "Electronic signature configured and active"
-  },
-  {
-    "key": "billing.sri.status.valid_until",
-    "value": "Valid until:"
-  },
-  {
-    "key": "billing.sri.status.unconfigured",
-    "value": "No electronic signature configured"
-  },
-  {
-    "key": "billing.sri.status.unconfigured_desc",
-    "value": "Please upload your .p12 file to issue invoices."
-  },
-  {
-    "key": "billing.invoice.column.sequential",
-    "value": "Sequential"
-  },
-  {
-    "key": "billing.invoice.column.document",
-    "value": "Document"
-  },
-  {
-    "key": "billing.invoice.column.name",
-    "value": "Name"
-  },
-  {
-    "key": "billing.invoice.column.total",
-    "value": "Total"
-  },
-  {
-    "key": "billing.invoice.column.status",
-    "value": "Status"
-  },
-  {
-    "key": "billing.invoice.column.date",
-    "value": "Date"
-  },
-  {
-    "key": "billing.invoice.column.summary",
-    "value": "Summary"
-  },
-  {
-    "key": "billing.invoice.establishment.title",
-    "value": "Establishment and Emission Point"
-  },
-  {
-    "key": "billing.invoice.establishment.desc",
-    "value": "Configure the emission data for SRI."
-  },
-  {
-    "key": "billing.invoice.client.title",
-    "value": "Client and Payment"
-  },
-  {
-    "key": "billing.invoice.client.desc",
-    "value": "Select the patient and credit conditions."
-  },
-  {
-    "key": "billing.invoice.final_consumer",
-    "value": "Final Consumer"
-  },
-  {
-    "key": "billing.invoice.final_consumer.desc",
-    "value": "Generate invoice without data (9999999999999)"
-  },
-  {
-    "key": "billing.invoice.new_patient",
-    "value": "New Patient"
-  },
-  {
-    "key": "billing.invoice.payment.method",
-    "value": "Payment Method"
-  },
-  {
-    "key": "billing.invoice.payment.method.placeholder",
-    "value": "Select method..."
-  },
-  {
-    "key": "billing.invoice.time.unit",
-    "value": "Time Unit"
-  },
-  {
-    "key": "billing.invoice.time.unit.placeholder",
-    "value": "Select unit..."
-  },
-  {
-    "key": "billing.invoice.term",
-    "value": "Term"
-  },
-  {
-    "key": "billing.invoice.term.placeholder",
-    "value": "Ex. 15"
-  },
-  {
-    "key": "billing.invoice.items.desc",
-    "value": "Detail of billed goods or services."
-  },
-  {
-    "key": "billing.invoice.summary.title",
-    "value": "Invoice Summary"
-  },
-  {
-    "key": "billing.invoice.summary.desc",
-    "value": "Automatically calculated totals."
-  },
-  {
-    "key": "billing.invoice.discount",
-    "value": "Discount"
-  },
-  {
-    "key": "billing.catalog-item.column.sku",
-    "value": "SKU"
-  },
-  {
-    "key": "billing.catalog-item.column.name",
-    "value": "Name"
-  },
-  {
-    "key": "billing.catalog-item.column.price",
-    "value": "Price"
-  },
-  {
-    "key": "billing.catalog-item.column.date",
-    "value": "Created At"
-  },
-  {
-    "key": "billing.catalog-item.create.button",
-    "value": "Create Product/Service"
-  },
-  {
-    "key": "billing.catalog-item.delete.description",
-    "value": "Are you sure you want to delete the selected products and services? This action cannot be undone."
-  },
-  {
-    "key": "billing.catalog-item.search.placeholder",
-    "value": "Search by SKU..."
-  },
-  {
-    "key": "billing.catalog-item.list.action.edit",
-    "value": "Edit"
-  },
-  {
-    "key": "billing.catalog-item.list.action.delete",
-    "value": "Delete"
-  },
-  {
-    "key": "dashboard.billing.catalog-items",
-    "value": "Products and Services"
-  },
-  {
-    "key": "billing.catalog-item.form.name",
-    "value": "Product/Service Name"
-  },
-  {
-    "key": "billing.catalog-item.form.sku",
-    "value": "SKU or Code"
-  },
-  {
-    "key": "billing.catalog-item.form.description",
-    "value": "Description"
-  },
-  {
-    "key": "billing.catalog-item.form.unit_price",
-    "value": "Unit Price"
-  },
-  {
-    "key": "billing.catalog-item.form.tax",
-    "value": "Tax (VAT)"
-  },
-  {
-    "key": "billing.catalog-item.form.ice_tax",
-    "value": "ICE Tax (Optional)"
-  },
-  {
-    "key": "billing.catalog-item.form.create.title",
-    "value": "Create Product/Service"
-  },
-  {
-    "key": "billing.catalog-item.form.create.description",
-    "value": "Fill out the fields below to register a new product or service in the catalog."
-  },
-  {
-    "key": "billing.catalog-item.form.edit.title",
-    "value": "Edit Product/Service"
-  },
-  {
-    "key": "billing.catalog-item.form.edit.description",
-    "value": "Modify the values and save your changes."
-  },
-  {
-    "key": "billing.catalog-item.form.submit.create",
-    "value": "Save Product"
-  },
-  {
-    "key": "billing.catalog-item.form.submit.edit",
-    "value": "Update Changes"
-  },
-  {
-    "key": "billing.catalog-item.form.error.required",
-    "value": "This field is required"
-  },
-  {
-    "key": "billing.catalog-item.form.error.positive",
-    "value": "Value must be positive"
-  },
-  {
-    "key": "billing.catalog-item.form.tax.code",
-    "value": "Tax Type"
-  },
-  {
-    "key": "billing.catalog-item.form.tax.code.placeholder",
-    "value": "Select tax"
-  },
-  {
-    "key": "billing.catalog-item.form.tax.percentage",
-    "value": "Secondary Tax Percentage"
-  },
-  {
-    "key": "billing.catalog-item.form.tax.percentage.placeholder",
-    "value": "Select percentage"
-  },
-  {
-    "key": "billing.catalog-item.form.ice.apply",
-    "value": "Apply ICE"
-  },
-  {
-    "key": "billing.catalog-item.form.ice.tax.code",
-    "value": "ICE Code"
-  },
-  {
-    "key": "billing.catalog-item.form.ice.tax.code.placeholder",
-    "value": "Select code"
-  },
-  {
-    "key": "billing.catalog-item.form.ice.tax.percentage",
-    "value": "ICE Percentage"
-  },
-  {
-    "key": "billing.catalog-item.form.ice.tax.percentage.placeholder",
-    "value": "Select percentage"
-  },
-  {
-    "key": "tax.ice.search.placeholder",
-    "value": "Search ICE code..."
-  },
-  {
-    "key": "form.continue",
-    "value": "Continue"
-  },
-  {
-    "key": "common.no_results",
-    "value": "No results"
-  },
-  {
-    "key": "billing.invoices.processing.queued",
-    "value": "Processing queued"
-  },
-  {
-    "key": "billing.sri.info.tax_id.label",
-    "value": "Tax ID (RUC)"
-  },
-  {
-    "key": "billing.sri.info.trade_name.label",
-    "value": "Trade Name"
-  },
-  {
-    "key": "billing.sri.info.corporate_name.label",
-    "value": "Corporate Name"
-  },
-  {
-    "key": "billing.sri.info.address.label",
-    "value": "Main Address"
-  },
-  {
-    "key": "billing.sri.info.accounting_obliged.label",
-    "value": "Obliged to keep accounting"
-  },
-  {
-    "key": "billing.sri.company_info.title",
-    "value": "Company Information"
-  },
-  {
-    "key": "billing.sri.company_info.description",
-    "value": "Configure billing details such as Tax ID and corporate name."
-  },
-  {
-    "key": "tenant.sri_info.update.success",
-    "value": "SRI info updated successfully"
-  },
-  {
-    "key": "billing.status.signed",
-    "value": "Signed"
-  },
-  {
-    "key": "tenant.sri.status.fetch.success",
-    "value": "Your SRI configuration is up to date"
-  },
-  {
-    "key": "billing.invoice.establishment.code",
-    "value": "Establishment Code"
-  },
-  {
-    "key": "billing.invoice.establishment.code.placeholder",
-    "value": "e.g. 001"
-  },
-  {
-    "key": "billing.invoice.emission.point",
-    "value": "Emission Point"
-  },
-  {
-    "key": "billing.invoice.emission.point.placeholder",
-    "value": "e.g. 001"
-  },
-  {
-    "key": "billing.invoice.item.combobox.placeholder",
-    "value": "Type or select..."
-  },
-  {
-    "key": "billing.invoice.item.default.description",
-    "value": "Medical Consultation"
-  },
-  {
-    "key": "billing.catalog_item.load.error",
-    "value": "Could not load the product/service."
-  },
-  {
-    "key": "billing.status.validated",
-    "value": "Validated"
-  },
-  {
-    "key": "billing.status.authorized",
-    "value": "Authorized"
-  },
-  {
-    "key": "billing.invoice.create.success",
-    "value": "Invoice created successfully."
-  },
-  {
-    "key": "billing.invoices.fetch.success",
-    "value": "Invoices fetched successfully."
-  },
-  {
-    "key": "billing.invoice.processing.queued",
-    "value": "Invoice queued for SRI processing."
-  },
-  {
-    "key": "billing.invoice.error.tenant_not_found",
-    "value": "Tenant scope not found."
-  },
-  {
-    "key": "billing.invoice.error.invalid_payload",
-    "value": "Invalid request payload."
-  },
-  {
-    "key": "billing.invoice.error.product_not_found",
-    "value": "Product or service not found."
-  },
-  {
-    "key": "billing.invoice.error.create_failed",
-    "value": "Failed to create invoice."
-  },
-  {
-    "key": "billing.invoices.error.fetch_failed",
-    "value": "Failed to fetch invoices."
-  },
-  {
-    "key": "billing.invoice.error.invalid_id",
-    "value": "Invalid invoice ID."
-  },
-  {
-    "key": "billing.invoice.error.not_found",
-    "value": "Invoice not found."
-  },
-  {
-    "key": "billing.invoice.error.delete_failed",
-    "value": "Failed to delete invoice."
-  },
-  {
-    "key": "billing.invoice.error.rabbitmq_failed",
-    "value": "Failed to connect to message broker."
-  },
-  {
-    "key": "billing.invoice.error.encode_failed",
-    "value": "Failed to encode invoice payload."
-  },
-  {
-    "key": "billing.invoice.error.enqueue_failed",
-    "value": "Failed to enqueue invoice processing job."
-  },
-  {
-    "key": "clinical.vital_signs.save.success",
-    "value": "Vital signs saved successfully."
-  },
-  {
-    "key": "clinical.vital_signs.fetch.success",
-    "value": "Vital signs retrieved successfully."
-  },
-  {
-    "key": "clinical.vital_signs.not_found",
-    "value": "No vital signs found for this record."
-  },
-  {
-    "key": "clinical.vital_signs.error.invalid_id",
-    "value": "Invalid medical record ID."
-  },
-  {
-    "key": "clinical.vital_signs.error.invalid_payload",
-    "value": "Invalid vital signs data."
-  },
-  {
-    "key": "clinical.vital_signs.error.fetch_failed",
-    "value": "Failed to retrieve vital signs."
-  },
-  {
-    "key": "clinical.vital_signs.error.save_failed",
-    "value": "Failed to save vital signs."
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.title",
-    "value": "Vital Signs"
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.description",
-    "value": "Record the patient's vital signs (optional)"
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.weight",
-    "value": "Weight"
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.height",
-    "value": "Height"
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.blood_pressure",
-    "value": "Blood Pressure"
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.temperature",
-    "value": "Temperature"
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.heart_rate",
-    "value": "Heart Rate"
-  },
-  {
-    "key": "form.create_medical_record.vital_signs.o2_saturation",
-    "value": "O2 Saturation"
-  },
-  {
-    "key": "form.create_medical_record.prescription.add_item",
-    "value": "Add Medication"
-  },
-  {
-    "key": "form.create_medical_record.prescription.items",
-    "value": "Medications"
-  },
-  {
-    "key": "form.create_medical_record.prescription.item.medication",
-    "value": "Medication"
-  },
-  {
-    "key": "form.create_medical_record.prescription.item.dose",
-    "value": "Dose"
-  },
-  {
-    "key": "form.create_medical_record.prescription.item.frequency",
-    "value": "Frequency"
-  },
-  {
-    "key": "form.create_medical_record.prescription.item.duration",
-    "value": "Duration"
-  },
-  {
-    "key": "form.create_medical_record.prescription.item.notes",
-    "value": "Notes"
-  },
-  {
-    "key": "form.create_medical_record.prescription.tab.text",
-    "value": "Free text"
-  },
-  {
-    "key": "form.create_medical_record.prescription.tab.structured",
-    "value": "By medication"
-  },
-  {
-    "key": "form.create_medical_record.prescription.items.empty",
-    "value": "No medications added. Click \"Add Medication\" to start."
-  },
-  {
-    "key": "form.edit_patient.allergies",
-    "value": "Allergies"
-  },
-  {
-    "key": "form.edit_patient.allergies.placeholder",
-    "value": "List known allergies..."
-  },
-  {
-    "key": "view.medical_record.vital_signs.title",
-    "value": "Vital Signs"
-  },
-  {
-    "key": "view.medical_record.vital_signs.description",
-    "value": "Vital signs recorded at the time of the consultation"
-  },
-  {
-    "key": "view.medical_record.vital_signs.weight",
-    "value": "Weight"
-  },
-  {
-    "key": "view.medical_record.vital_signs.height",
-    "value": "Height"
-  },
-  {
-    "key": "view.medical_record.vital_signs.blood_pressure",
-    "value": "Blood Pressure"
-  },
-  {
-    "key": "view.medical_record.vital_signs.temperature",
-    "value": "Temperature"
-  },
-  {
-    "key": "view.medical_record.vital_signs.heart_rate",
-    "value": "Heart Rate"
-  },
-  {
-    "key": "view.medical_record.vital_signs.o2_saturation",
-    "value": "O2 Saturation"
-  },
-  {
-    "key": "view.medical_record.prescription.items",
-    "value": "Medications"
-  },
-  {
-    "key": "view.medical_record.prescription.item.medication",
-    "value": "Medication"
-  },
-  {
-    "key": "view.medical_record.prescription.item.dose",
-    "value": "Dose"
-  },
-  {
-    "key": "view.medical_record.prescription.item.frequency",
-    "value": "Frequency"
-  },
-  {
-    "key": "view.medical_record.prescription.item.duration",
-    "value": "Duration"
-  },
-  {
-    "key": "view.medical_record.prescription.item.notes",
-    "value": "Notes"
-  },
-  {
-    "key": "clinical.patient_card.has_allergies",
-    "value": "Allergies"
-  },
-  {
-    "key": "clinical.patient_card.allergies",
-    "value": "Known Allergies"
-  },
-  {
-    "key": "form.create_medical_record.allergy_alert.title",
-    "value": "Patient has registered allergies"
-  },
-  {
-    "key": "form.create_medical_record.allergy_alert.description",
-    "value": "Please verify before prescribing medications"
-  },
-  {
-    "key": "clinical.medical_record.vital_signs",
-    "value": "Vital Signs"
-  },
-  {
-    "key": "clinical.icd11.search.success",
-    "value": "Search completed"
-  },
-  {
-    "key": "clinical.medical_record.diagnoses",
-    "value": "Diagnoses"
-  },
-  {
-    "key": "form.create_medical_record.diagnoses",
-    "value": "Diagnoses"
-  },
-  {
-    "key": "form.create_medical_record.diagnoses.placeholder",
-    "value": "Search diagnosis..."
-  },
-  {
-    "key": "form.create_medical_record.diagnoses.empty",
-    "value": "No results found"
-  },
-  {
-    "key": "tenant.settings.fetch.success",
-    "value": "Settings loaded"
-  },
-  {
-    "key": "tenant.settings.update.success",
-    "value": "Settings saved"
-  },
-  {
-    "key": "settings.title",
-    "value": "Settings"
-  },
-  {
-    "key": "settings.clinical.title",
-    "value": "Clinical module"
-  },
-  {
-    "key": "settings.clinical.show_next_appointment",
-    "value": "Show next appointment"
-  },
-  {
-    "key": "settings.clinical.show_diagnosis",
-    "value": "Show diagnosis"
-  },
-  {
-    "key": "settings.clinical.show_medic",
-    "value": "Show physician"
-  },
-  {
-    "key": "settings.clinical.show_insurance",
-    "value": "Show insurance"
-  },
-  {
-    "key": "settings.clinical.show_vital_signs",
-    "value": "Show vital signs"
-  },
-  {
-    "key": "settings.clinical.show_diagnoses",
-    "value": "Show diagnoses (ICD)"
-  },
-  {
-    "key": "settings.clinical.patient_age_input",
-    "value": "Enter age instead of birth date"
-  },
-  {
-    "key": "form.patient.age",
-    "value": "Age"
-  },
-  {
-    "key": "form.patient.age.placeholder",
-    "value": "e.g. 45"
-  },
-  {
-    "key": "settings.clinical.diagnosis_system",
-    "value": "Coding system"
-  },
-  {
-    "key": "settings.clinical.section.table",
-    "value": "Patient table columns"
-  },
-  {
-    "key": "settings.clinical.section.form",
-    "value": "Consultation form sections"
-  },
-  {
-    "key": "settings.clinical.cie10_lang_warning",
-    "value": "CIE-10 codes are only available in Spanish"
-  },
-  {
-    "key": "form.create_medical_record.preview_last",
-    "value": "View last consultation"
-  },
-  {
-    "key": "form.create_medical_record.preview_last.title",
-    "value": "Last consultation"
-  },
-  {
-    "key": "appointments.overlap.error",
-    "value": "There is already an appointment in that time slot. Please choose a different time."
-  },
-  {
-    "key": "E-CLIN-009",
-    "value": "There is already an appointment in that time slot. Please choose a different time."
-  },
-  {
-    "key": "settings.prescription_template.title",
-    "value": "Prescription template"
-  },
-  {
-    "key": "settings.prescription_template.description",
-    "value": "Upload a custom HTML file to define the format of your prescription documents."
-  },
-  {
-    "key": "settings.prescription_template.status.custom",
-    "value": "Custom template active"
-  },
-  {
-    "key": "settings.prescription_template.status.default",
-    "value": "Default template"
-  },
-  {
-    "key": "settings.prescription_template.upload",
-    "value": "Upload template (.html)"
-  },
-  {
-    "key": "settings.prescription_template.reset",
-    "value": "Restore default"
-  },
-  {
-    "key": "clinical.prescription_template.status",
-    "value": "Template status retrieved"
-  },
-  {
-    "key": "clinical.prescription_template.uploaded",
-    "value": "Prescription template updated successfully"
-  },
-  {
-    "key": "clinical.prescription_template.deleted",
-    "value": "Template restored to default"
-  },
-  {
-    "key": "pagination.showing",
-    "value": "Showing"
-  },
-  {
-    "key": "pagination.of",
-    "value": "of"
-  },
-  {
-    "key": "team.title",
-    "value": "Team"
-  },
-  {
-    "key": "team.description",
-    "value": "Manage the members who have access to this office."
-  },
-  {
-    "key": "team.invite",
-    "value": "Invite member"
-  },
-  {
-    "key": "team.members.title",
-    "value": "Active members"
-  },
-  {
-    "key": "team.members.loading",
-    "value": "Loading members..."
-  },
-  {
-    "key": "team.members.count",
-    "value": "members"
-  },
-  {
-    "key": "team.members.empty",
-    "value": "No members in this team yet."
-  },
-  {
-    "key": "team.invite_dialog.title",
-    "value": "Invite link"
-  },
-  {
-    "key": "team.invite_dialog.description",
-    "value": "Share this link so the person can register to your company. The link expires in 24 hours."
-  },
-  {
-    "key": "team.invite_dialog.close",
-    "value": "Close"
-  },
-  {
-    "key": "team.invite_dialog.copied",
-    "value": "Link copied to clipboard!"
-  },
-  {
-    "key": "team.invite_dialog.role_for",
-    "value": "This link will assign the role"
-  },
-  {
-    "key": "team.invite_dialog.warning",
-    "value": "The link expires in 72 hours. Anyone with this link can register."
-  },
-  {
-    "key": "team.role_dialog.title",
-    "value": "Select role"
-  },
-  {
-    "key": "team.role_dialog.description",
-    "value": "Choose which role the person who registers with this link will have."
-  },
-  {
-    "key": "team.role_dialog.role_label",
-    "value": "Role"
-  },
-  {
-    "key": "team.role_dialog.role_placeholder",
-    "value": "Select a role..."
-  },
-  {
-    "key": "team.role_dialog.generate",
-    "value": "Generate link"
-  },
-  {
-    "key": "company.team.roles.success",
-    "value": "Roles retrieved successfully"
-  },
-  {
-    "key": "auth.invalid_credentials",
-    "value": "Incorrect username or password"
-  },
-  {
-    "key": "company.team.list.success",
-    "value": "Team retrieved successfully"
-  },
-  {
-    "key": "company.invite_link.success",
-    "value": "Invite link generated"
-  }
+	{
+		"key": "pengi.copywright",
+		"value": "pengistudio"
+	},
+	{
+		"key": "E-INT-001",
+		"value": "Internal server error."
+	},
+	{
+		"key": "E-MES-001",
+		"value": "Messages not found."
+	},
+	{
+		"key": "E-COMP-001",
+		"value": "Company not found."
+	},
+	{
+		"key": "E-TEN-001",
+		"value": "Tenant not found."
+	},
+	{
+		"key": "E-USR-001",
+		"value": "User not found."
+	},
+	{
+		"key": "E-AUTH-001",
+		"value": "Invalid authentication request."
+	},
+	{
+		"key": "E-AUTH-002",
+		"value": "Error creating user."
+	},
+	{
+		"key": "E-AUTH-003",
+		"value": "Invalid credentials."
+	},
+	{
+		"key": "E-AUTH-004",
+		"value": "Error generating token."
+	},
+	{
+		"key": "E-AUTH-005",
+		"value": "Invalid refresh token."
+	},
+	{
+		"key": "E-AUTH-006",
+		"value": "Invalid user ID."
+	},
+	{
+		"key": "form.validation.invalid_fields",
+		"value": "Invalid fields"
+	},
+	{
+		"key": "form.validation.check_following_fields",
+		"value": "Please check the following fields"
+	},
+	{
+		"key": "form.validation.single_field_error",
+		"value": "There is 1 field marked in red that needs to be corrected."
+	},
+	{
+		"key": "form.validation.multiple_fields_error",
+		"value": "There are {count} fields marked in red that need to be corrected."
+	},
+	{
+		"key": "common.days",
+		"value": "Days"
+	},
+	{
+		"key": "common.months",
+		"value": "Months"
+	},
+	{
+		"key": "common.years",
+		"value": "Years"
+	},
+	{
+		"key": "login.title",
+		"value": "Sign in"
+	},
+	{
+		"key": "login.subtitle",
+		"value": "Welcome back, please login to your account."
+	},
+	{
+		"key": "login.username.placeholder",
+		"value": "Enter your username"
+	},
+	{
+		"key": "login.username",
+		"value": "Username"
+	},
+	{
+		"key": "login.password.placeholder",
+		"value": "Enter your password"
+	},
+	{
+		"key": "login.password",
+		"value": "Password"
+	},
+	{
+		"key": "login.login_button",
+		"value": "Login"
+	},
+	{
+		"key": "session.register.button",
+		"value": "Register"
+	},
+	{
+		"key": "login.successful",
+		"value": "Login successful"
+	},
+	{
+		"key": "login.environments.title",
+		"value": "Select your environment"
+	},
+	{
+		"key": "login.environments.subtitle",
+		"value": "Choose the branch or clinic you want to access."
+	},
+	{
+		"key": "login.environments.cancel",
+		"value": "Cancel and go to login"
+	},
+	{
+		"key": "dashboard.title",
+		"value": "Dashboard"
+	},
+	{
+		"key": "dashboard.customers",
+		"value": "Customers"
+	},
+	{
+		"key": "dashboard.products",
+		"value": "Products"
+	},
+	{
+		"key": "dashboard.users",
+		"value": "Users"
+	},
+	{
+		"key": "dashboard.settings",
+		"value": "Settings"
+	},
+	{
+		"key": "dashboard.help",
+		"value": "Help"
+	},
+	{
+		"key": "dashboard.dropdown.profile.title",
+		"value": "My Account"
+	},
+	{
+		"key": "dashboard.dropdown.profile",
+		"value": "Profile"
+	},
+	{
+		"key": "dashboard.dropdown.settings",
+		"value": "Settings"
+	},
+	{
+		"key": "dashboard.dropdown.logout",
+		"value": "Logout"
+	},
+	{
+		"key": "session.expired.title",
+		"value": "Session expired"
+	},
+	{
+		"key": "session.expired",
+		"value": "Your session has expired, please log in again."
+	},
+	{
+		"key": "subscription.expired.title",
+		"value": "Inactive subscription"
+	},
+	{
+		"key": "subscription.expired.description",
+		"value": "Your subscription has expired or you don't have an active plan. You cannot access this section."
+	},
+	{
+		"key": "subscription.expired.contact",
+		"value": "Contact the administrator to renew your subscription."
+	},
+	{
+		"key": "error.rate_limit_exceeded",
+		"value": "Too many requests. Please wait a moment and try again."
+	},
+	{
+		"key": "dashboard.clinical",
+		"value": "Journal"
+	},
+	{
+		"key": "dashboard.clinical.patients",
+		"value": "Patients"
+	},
+	{
+		"key": "dashboard.clinical.appointments",
+		"value": "Appointments"
+	},
+	{
+		"key": "dashboard.clinical.waiting_room",
+		"value": "Waiting Room"
+	},
+	{
+		"key": "E-CLIN-001",
+		"value": "Patient not found."
+	},
+	{
+		"key": "E-CLIN-002",
+		"value": "Error creating patient."
+	},
+	{
+		"key": "E-CLIN-003",
+		"value": "Error updating patient."
+	},
+	{
+		"key": "E-CLIN-004",
+		"value": "Error deleting patient."
+	},
+	{
+		"key": "E-CLIN-005",
+		"value": "Medical record not found."
+	},
+	{
+		"key": "E-CLIN-006",
+		"value": "Error creating medical record."
+	},
+	{
+		"key": "E-CLIN-007",
+		"value": "Error updating medical record."
+	},
+	{
+		"key": "E-CLIN-008",
+		"value": "Error generating patient report."
+	},
+	{
+		"key": "table.actions",
+		"value": "Actions"
+	},
+	{
+		"key": "table.button.open_menu",
+		"value": "Open menu"
+	},
+	{
+		"key": "clinical.medical_record.new",
+		"value": "New Consultation"
+	},
+	{
+		"key": "clinical.medical_record.view",
+		"value": "View Medical Record"
+	},
+	{
+		"key": "clinical.patient.download_records",
+		"value": "Download Medical Records"
+	},
+	{
+		"key": "clinical.patient.last_name",
+		"value": "Last Name"
+	},
+	{
+		"key": "clinical.patient.first_name",
+		"value": "First Name"
+	},
+	{
+		"key": "clinical.patient.document",
+		"value": "Document"
+	},
+	{
+		"key": "clinical.patient.phone",
+		"value": "Phone"
+	},
+	{
+		"key": "clinical.patient.phone.unregistered",
+		"value": "Unregistered"
+	},
+	{
+		"key": "clinical.patient.diagnosis",
+		"value": "Diagnosis"
+	},
+	{
+		"key": "clinical.patient.diagnosis.none",
+		"value": "No diagnosis"
+	},
+	{
+		"key": "clinical.patient.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "clinical.patient.appointment.none",
+		"value": "No appointment"
+	},
+	{
+		"key": "clinical.patient.appointment.today",
+		"value": "Today"
+	},
+	{
+		"key": "clinical.patient.appointment.tomorrow",
+		"value": "Tomorrow"
+	},
+	{
+		"key": "clinical.patient.appointment.upcoming",
+		"value": "Upcoming"
+	},
+	{
+		"key": "clinical.patient.medic",
+		"value": "Medic"
+	},
+	{
+		"key": "clinical.patient.name",
+		"value": "Name"
+	},
+	{
+		"key": "error.unexpected.title",
+		"value": "Unexpected Error"
+	},
+	{
+		"key": "error.unexpected.description",
+		"value": "An unhandled error occurred"
+	},
+	{
+		"key": "clinical.patient.search.placeholder",
+		"value": "Search by name, document or phone..."
+	},
+	{
+		"key": "error.permission.title",
+		"value": "Access denied"
+	},
+	{
+		"key": "error.permission.description",
+		"value": "You don't have sufficient permissions to access this route"
+	},
+	{
+		"key": "table.pagination.of",
+		"value": " of "
+	},
+	{
+		"key": "table.pagination.rows_selected",
+		"value": " row(s) selected."
+	},
+	{
+		"key": "table.pagination.rows_per_page",
+		"value": "Rows per page"
+	},
+	{
+		"key": "table.pagination.page",
+		"value": "Page "
+	},
+	{
+		"key": "table.pagination.first_page",
+		"value": "Go to first page"
+	},
+	{
+		"key": "table.pagination.previous_page",
+		"value": "Go to previous page"
+	},
+	{
+		"key": "table.pagination.next_page",
+		"value": "Go to next page"
+	},
+	{
+		"key": "table.pagination.last_page",
+		"value": "Go to last page"
+	},
+	{
+		"key": "table.column_header.asc",
+		"value": "Asc"
+	},
+	{
+		"key": "table.column_header.desc",
+		"value": "Desc"
+	},
+	{
+		"key": "table.column_header.hide",
+		"value": "Hide"
+	},
+	{
+		"key": "table.view_options.view",
+		"value": "View"
+	},
+	{
+		"key": "table.view_options.toggle_columns",
+		"value": "Toggle columns"
+	},
+	{
+		"key": "table.search.placeholder",
+		"value": "Search..."
+	},
+	{
+		"key": "table.no_results",
+		"value": "No results."
+	},
+	{
+		"key": "clinical.patient.create",
+		"value": "Create Patient"
+	},
+	{
+		"key": "table.button.delete.all.selected",
+		"value": "Delete all selected"
+	},
+	{
+		"key": "form.calendar.pick_date",
+		"value": "Pick a date"
+	},
+	{
+		"key": "form.calendar.time_interval",
+		"value": "Time Interval"
+	},
+	{
+		"key": "form.calendar.start",
+		"value": "Start"
+	},
+	{
+		"key": "form.calendar.end",
+		"value": "End"
+	},
+	{
+		"key": "form.optional",
+		"value": "optional"
+	},
+	{
+		"key": "form.validation.no_spaces",
+		"value": "Cannot contain spaces"
+	},
+	{
+		"key": "form.validation.passwords_no_match",
+		"value": "Passwords do not match"
+	},
+	{
+		"key": "table.column.last_name",
+		"value": "Last Name"
+	},
+	{
+		"key": "table.column.first_name",
+		"value": "First Name"
+	},
+	{
+		"key": "table.column.document",
+		"value": "Document"
+	},
+	{
+		"key": "table.column.phone",
+		"value": "Phone"
+	},
+	{
+		"key": "table.column.diagnosis",
+		"value": "Diagnosis"
+	},
+	{
+		"key": "table.column.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "table.column.medic",
+		"value": "Medic"
+	},
+	{
+		"key": "clinical.medical_record.update",
+		"value": "Edit Consultation"
+	},
+	{
+		"key": "clinical.medical_record.date",
+		"value": "Date"
+	},
+	{
+		"key": "clinical.medical_record.motive",
+		"value": "Reason"
+	},
+	{
+		"key": "clinical.medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "clinical.medical_record.prescription",
+		"value": "Prescription"
+	},
+	{
+		"key": "clinical.medical_record.search.placeholder",
+		"value": "Search by reason..."
+	},
+	{
+		"key": "table.column.date",
+		"value": "Date"
+	},
+	{
+		"key": "table.column.motive",
+		"value": "Reason"
+	},
+	{
+		"key": "table.column.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "table.column.prescription",
+		"value": "Prescription"
+	},
+	{
+		"key": "clinical.patient_card.document",
+		"value": "ID:"
+	},
+	{
+		"key": "clinical.patient_card.critical",
+		"value": "Critical"
+	},
+	{
+		"key": "clinical.patient_card.personal_info",
+		"value": "PERSONAL INFORMATION"
+	},
+	{
+		"key": "clinical.patient_card.birth_date",
+		"value": "Date of Birth:"
+	},
+	{
+		"key": "clinical.patient_card.age",
+		"value": "Age:"
+	},
+	{
+		"key": "clinical.patient_card.gender",
+		"value": "Gender:"
+	},
+	{
+		"key": "clinical.patient_card.phone",
+		"value": "Phone:"
+	},
+	{
+		"key": "clinical.patient_card.not_registered",
+		"value": "Not registered"
+	},
+	{
+		"key": "clinical.patient_card.family_phone",
+		"value": "Family Phone:"
+	},
+	{
+		"key": "clinical.patient_card.family_phone_2",
+		"value": "Family Phone 2:"
+	},
+	{
+		"key": "clinical.patient_card.medical_info",
+		"value": "MEDICAL INFORMATION"
+	},
+	{
+		"key": "clinical.patient_card.insurance",
+		"value": "Insurance:"
+	},
+	{
+		"key": "clinical.patient_card.medic",
+		"value": "Doctor:"
+	},
+	{
+		"key": "clinical.patient_card.diagnosis",
+		"value": "Diagnosis:"
+	},
+	{
+		"key": "clinical.patient_card.not_available",
+		"value": "Not available"
+	},
+	{
+		"key": "clinical.patient_card.latest_prescription",
+		"value": "LATEST PRESCRIPTION"
+	},
+	{
+		"key": "clinical.patient_card.view_prescription",
+		"value": "View Medical Prescription"
+	},
+	{
+		"key": "clinical.patient_card.medical_history",
+		"value": "MEDICAL HISTORY"
+	},
+	{
+		"key": "clinical.patient_card.app",
+		"value": "APP - Personal Pathological History"
+	},
+	{
+		"key": "clinical.patient_card.apf",
+		"value": "APF - Family Pathological History"
+	},
+	{
+		"key": "clinical.patient_card.apqx",
+		"value": "APQX - Surgical Pathological History"
+	},
+	{
+		"key": "clinical.patient_card.notes",
+		"value": "NOTES"
+	},
+	{
+		"key": "clinical.patient_card.no_notes",
+		"value": "No notes registered"
+	},
+	{
+		"key": "clinical.patient_card.add_notes",
+		"value": "Add note"
+	},
+	{
+		"key": "clinical.patient_card.edit_notes",
+		"value": "Edit note"
+	},
+	{
+		"key": "clinical.patient_card.no_history",
+		"value": "No medical history registered"
+	},
+	{
+		"key": "clinical.patient_card.tab.summary",
+		"value": "Summary"
+	},
+	{
+		"key": "clinical.patient_card.tab.history",
+		"value": "History"
+	},
+	{
+		"key": "clinical.patient_card.tab.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "clinical.medical_record.empty",
+		"value": "This patient has no consultations registered."
+	},
+	{
+		"key": "clinical.patient_card.gender.male",
+		"value": "Male"
+	},
+	{
+		"key": "clinical.patient_card.gender.female",
+		"value": "Female"
+	},
+	{
+		"key": "clinical.patient_card.gender.other",
+		"value": "Other"
+	},
+	{
+		"key": "clinical.medical_record.actions",
+		"value": "Actions"
+	},
+	{
+		"key": "clinical.medical_record.new_consultation",
+		"value": "New Consultation"
+	},
+	{
+		"key": "clinical.medical_record.view_prescriptions",
+		"value": "View Prescriptions"
+	},
+	{
+		"key": "clinical.medical_record.edit_patient",
+		"value": "Edit Patient"
+	},
+	{
+		"key": "clinical.medical_record.contact_ws",
+		"value": "Contact via WS"
+	},
+	{
+		"key": "clinical.medical_record.mark_critical",
+		"value": "Mark as critical"
+	},
+	{
+		"key": "clinical.medical_record.unmark_critical",
+		"value": "Unmark as critical"
+	},
+	{
+		"key": "clinical.medical_record.history_title",
+		"value": "Medical Consultation History"
+	},
+	{
+		"key": "clinical.medical_record.contact_error.title",
+		"value": "Cannot contact the patient"
+	},
+	{
+		"key": "clinical.medical_record.contact_error.description",
+		"value": "No phone number registered"
+	},
+	{
+		"key": "form.create_medical_record.title",
+		"value": "New Medical Consultation"
+	},
+	{
+		"key": "form.create_medical_record.description",
+		"value": "Fill in the fields to register a new consultation."
+	},
+	{
+		"key": "form.create_medical_record.date",
+		"value": "Consultation Date"
+	},
+	{
+		"key": "form.create_medical_record.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "form.create_medical_record.motive",
+		"value": "Motive"
+	},
+	{
+		"key": "form.create_medical_record.motive.placeholder",
+		"value": "Reason for consultation..."
+	},
+	{
+		"key": "form.create_medical_record.motive.description",
+		"value": "Maximum 100 characters."
+	},
+	{
+		"key": "form.create_medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "form.create_medical_record.observation.placeholder",
+		"value": "General observations..."
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective.title",
+		"value": "Subjective"
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective.description",
+		"value": "Symptoms and complaints reported by the patient."
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective",
+		"value": "Subjective"
+	},
+	{
+		"key": "form.create_medical_record.soap.objective.title",
+		"value": "Objective"
+	},
+	{
+		"key": "form.create_medical_record.soap.objective.description",
+		"value": "Clinical findings and exam results."
+	},
+	{
+		"key": "form.create_medical_record.soap.objective",
+		"value": "Objective"
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment.title",
+		"value": "Assessment"
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment.description",
+		"value": "Diagnosis or clinical impression."
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment",
+		"value": "Assessment"
+	},
+	{
+		"key": "form.create_medical_record.soap.plan.title",
+		"value": "Plan"
+	},
+	{
+		"key": "form.create_medical_record.soap.plan.description",
+		"value": "Treatment and follow-up plan."
+	},
+	{
+		"key": "form.create_medical_record.soap.plan",
+		"value": "Plan"
+	},
+	{
+		"key": "form.create_medical_record.soap.subjective.placeholder",
+		"value": "Symptoms, complaints and description reported by the patient..."
+	},
+	{
+		"key": "form.create_medical_record.soap.objective.placeholder",
+		"value": "Clinical findings, physical examination, test results..."
+	},
+	{
+		"key": "form.create_medical_record.soap.assessment.placeholder",
+		"value": "Diagnosis or clinical impression based on findings..."
+	},
+	{
+		"key": "form.create_medical_record.soap.plan.placeholder",
+		"value": "Treatment, medications, referrals, follow-up..."
+	},
+	{
+		"key": "form.create_medical_record.tab.consulta",
+		"value": "Consultation"
+	},
+	{
+		"key": "form.create_medical_record.tab.complementario",
+		"value": "Additional"
+	},
+	{
+		"key": "form.create_medical_record.prescription.title",
+		"value": "Medical Prescription"
+	},
+	{
+		"key": "form.create_medical_record.prescription.description",
+		"value": "Optional. Add a medical prescription to the consultation."
+	},
+	{
+		"key": "form.create_medical_record.prescription.content",
+		"value": "Medications"
+	},
+	{
+		"key": "form.create_medical_record.prescription.indications",
+		"value": "Indications"
+	},
+	{
+		"key": "form.create_medical_record.submit",
+		"value": "Create Consultation"
+	},
+	{
+		"key": "form.create_patient.title",
+		"value": "Create Patient"
+	},
+	{
+		"key": "form.create_patient.description",
+		"value": "Fill in the fields to create a patient"
+	},
+	{
+		"key": "form.create_patient.submit",
+		"value": "Create Patient"
+	},
+	{
+		"key": "form.edit_patient.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "form.edit_patient.title",
+		"value": "Edit Patient"
+	},
+	{
+		"key": "form.edit_patient.description",
+		"value": "Modify the patient's data"
+	},
+	{
+		"key": "form.edit_patient.document",
+		"value": "ID Number"
+	},
+	{
+		"key": "form.edit_patient.document.placeholder",
+		"value": "ID Number..."
+	},
+	{
+		"key": "form.edit_patient.first_name",
+		"value": "First Name"
+	},
+	{
+		"key": "form.edit_patient.first_name.placeholder",
+		"value": "First Name..."
+	},
+	{
+		"key": "form.edit_patient.last_name",
+		"value": "Last Name"
+	},
+	{
+		"key": "form.edit_patient.last_name.placeholder",
+		"value": "Last Name..."
+	},
+	{
+		"key": "form.edit_patient.phone",
+		"value": "Phone"
+	},
+	{
+		"key": "form.edit_patient.phone.placeholder",
+		"value": "Phone..."
+	},
+	{
+		"key": "form.edit_patient.email",
+		"value": "Email"
+	},
+	{
+		"key": "form.edit_patient.email.placeholder",
+		"value": "Email address..."
+	},
+	{
+		"key": "form.edit_patient.birth_date",
+		"value": "Date of Birth"
+	},
+	{
+		"key": "form.edit_patient.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "form.edit_patient.gender",
+		"value": "Gender"
+	},
+	{
+		"key": "form.edit_patient.institution",
+		"value": "Institution"
+	},
+	{
+		"key": "form.edit_patient.institution.placeholder",
+		"value": "Select Institution..."
+	},
+	{
+		"key": "form.edit_patient.medic",
+		"value": "Attending Physician"
+	},
+	{
+		"key": "form.edit_patient.medic.placeholder",
+		"value": "Dr..."
+	},
+	{
+		"key": "form.edit_patient.insurance",
+		"value": "Medical Insurance"
+	},
+	{
+		"key": "form.edit_patient.insurance.placeholder",
+		"value": "Medical Insurance..."
+	},
+	{
+		"key": "form.edit_patient.diagnosis",
+		"value": "Diagnosis"
+	},
+	{
+		"key": "form.edit_patient.diagnosis.placeholder",
+		"value": "Diagnosis..."
+	},
+	{
+		"key": "form.edit_patient.app",
+		"value": "Personal Medical History"
+	},
+	{
+		"key": "form.edit_patient.apf",
+		"value": "Family Medical History"
+	},
+	{
+		"key": "form.edit_patient.apqx",
+		"value": "Surgical History"
+	},
+	{
+		"key": "form.edit_patient.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "form.edit_patient.notes.placeholder",
+		"value": "Notes..."
+	},
+	{
+		"key": "form.edit_patient.submit",
+		"value": "Save Changes"
+	},
+	{
+		"key": "user.list.success",
+		"value": "Users obtained successfully"
+	},
+	{
+		"key": "user.create.success",
+		"value": "User created successfully"
+	},
+	{
+		"key": "auth.token.refresh.success",
+		"value": "Token refreshed successfully"
+	},
+	{
+		"key": "auth.session.extend.success",
+		"value": "Session extended successfully"
+	},
+	{
+		"key": "auth.token.valid",
+		"value": "Token is valid"
+	},
+	{
+		"key": "company.list.success",
+		"value": "Companies obtained successfully"
+	},
+	{
+		"key": "permission.list.success",
+		"value": "Permissions obtained successfully"
+	},
+	{
+		"key": "permission.categories.success",
+		"value": "Permissions with categories obtained successfully"
+	},
+	{
+		"key": "environment.list.success",
+		"value": "Environments obtained successfully"
+	},
+	{
+		"key": "clinical.patient.create.success",
+		"value": "Patient created successfully"
+	},
+	{
+		"key": "clinical.patient.update.success",
+		"value": "Patient updated successfully"
+	},
+	{
+		"key": "clinical.patient.list.success",
+		"value": "Patients obtained successfully"
+	},
+	{
+		"key": "clinical.patient.followup.success",
+		"value": "Patients with follow-ups obtained successfully"
+	},
+	{
+		"key": "clinical.patient.found",
+		"value": "Patient found"
+	},
+	{
+		"key": "clinical.patient.critical.label",
+		"value": "Critical patient"
+	},
+	{
+		"key": "clinical.patient.critical.success",
+		"value": "Patient marked as critical"
+	},
+	{
+		"key": "clinical.patient.critical_revert.success",
+		"value": "Patient critical status reverted"
+	},
+	{
+		"key": "clinical.patient.sort.recent",
+		"value": "Newest first"
+	},
+	{
+		"key": "clinical.patient.sort.oldest",
+		"value": "Oldest first"
+	},
+	{
+		"key": "clinical.patient.sort.last_name_asc",
+		"value": "Last name A → Z"
+	},
+	{
+		"key": "clinical.patient.sort.last_name_desc",
+		"value": "Last name Z → A"
+	},
+	{
+		"key": "clinical.medical_record.list.success",
+		"value": "Medical records obtained successfully"
+	},
+	{
+		"key": "clinical.medical_record.found",
+		"value": "Medical record found"
+	},
+	{
+		"key": "clinical.medical_record.create.success",
+		"value": "Medical consultation created successfully"
+	},
+	{
+		"key": "clinical.medical_record.update.success",
+		"value": "Medical consultation updated successfully"
+	},
+	{
+		"key": "clinical.prescription.update.success",
+		"value": "Prescription updated successfully"
+	},
+	{
+		"key": "view.medical_record.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "view.medical_record.title",
+		"value": "Medical Record"
+	},
+	{
+		"key": "view.medical_record.subtitle",
+		"value": "Read-only view"
+	},
+	{
+		"key": "view.medical_record.back",
+		"value": "Back"
+	},
+	{
+		"key": "view.medical_record.info.title",
+		"value": "General Information"
+	},
+	{
+		"key": "view.medical_record.info.description",
+		"value": "Details of the medical consultation"
+	},
+	{
+		"key": "view.medical_record.date",
+		"value": "Date"
+	},
+	{
+		"key": "view.medical_record.motive",
+		"value": "Motive"
+	},
+	{
+		"key": "view.medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "view.medical_record.not_registered",
+		"value": "Not registered"
+	},
+	{
+		"key": "view.medical_record.soap.subjective.title",
+		"value": "Subjective (S)"
+	},
+	{
+		"key": "view.medical_record.soap.subjective.description",
+		"value": "Symptoms reported by the patient"
+	},
+	{
+		"key": "view.medical_record.soap.objective.title",
+		"value": "Objective (O)"
+	},
+	{
+		"key": "view.medical_record.soap.objective.description",
+		"value": "Physical examination findings"
+	},
+	{
+		"key": "view.medical_record.soap.assessment.title",
+		"value": "Assessment (A)"
+	},
+	{
+		"key": "view.medical_record.soap.assessment.description",
+		"value": "Diagnosis and analysis"
+	},
+	{
+		"key": "view.medical_record.soap.plan.title",
+		"value": "Plan (P)"
+	},
+	{
+		"key": "view.medical_record.soap.plan.description",
+		"value": "Treatment and follow-up"
+	},
+	{
+		"key": "view.medical_record.prescription.title",
+		"value": "Medical Prescription"
+	},
+	{
+		"key": "view.medical_record.prescription.description",
+		"value": "Prescription associated with this consultation"
+	},
+	{
+		"key": "view.medical_record.prescription.view",
+		"value": "View Full Prescription"
+	},
+	{
+		"key": "view.medical_record.prescription.download",
+		"value": "Download Prescription"
+	},
+	{
+		"key": "view.medical_record.prescription.whatsapp",
+		"value": "Send via WhatsApp"
+	},
+	{
+		"key": "clinical.medical_record.view",
+		"value": "View Record"
+	},
+	{
+		"key": "form.update_medical_record.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "form.update_medical_record.title",
+		"value": "Update Medical Consultation"
+	},
+	{
+		"key": "form.update_medical_record.description",
+		"value": "Modify the medical consultation data"
+	},
+	{
+		"key": "form.update_medical_record.date",
+		"value": "Consultation Date"
+	},
+	{
+		"key": "form.update_medical_record.next_appointment",
+		"value": "Next Appointment"
+	},
+	{
+		"key": "form.update_medical_record.motive",
+		"value": "Motive"
+	},
+	{
+		"key": "form.update_medical_record.motive.placeholder",
+		"value": "Motive..."
+	},
+	{
+		"key": "form.update_medical_record.motive.description",
+		"value": "Maximum 100 characters"
+	},
+	{
+		"key": "form.update_medical_record.observation",
+		"value": "Observations"
+	},
+	{
+		"key": "form.update_medical_record.observation.placeholder",
+		"value": "Observations..."
+	},
+	{
+		"key": "form.update_medical_record.submit",
+		"value": "Update Consultation"
+	},
+	{
+		"key": "clinical.medical_record.view_prescription",
+		"value": "View Prescription"
+	},
+	{
+		"key": "clinical.medical_record.edit_prescription",
+		"value": "Edit Prescription"
+	},
+	{
+		"key": "dialog.edit_prescription.title",
+		"value": "Edit Medical Prescription"
+	},
+	{
+		"key": "dialog.edit_prescription.description",
+		"value": "Modify the content and indications of the prescription"
+	},
+	{
+		"key": "dialog.edit_prescription.content",
+		"value": "Content"
+	},
+	{
+		"key": "dialog.edit_prescription.content.placeholder",
+		"value": "Prescription content..."
+	},
+	{
+		"key": "dialog.edit_prescription.indications",
+		"value": "Indications"
+	},
+	{
+		"key": "dialog.edit_prescription.indications.placeholder",
+		"value": "Indications..."
+	},
+	{
+		"key": "dialog.edit_prescription.submit",
+		"value": "Save Prescription"
+	},
+	{
+		"key": "clinical.patient.edit",
+		"value": "Edit Patient"
+	},
+	{
+		"key": "clinical.medical_record.create_prescription",
+		"value": "Create Prescription"
+	},
+	{
+		"key": "appointments.title",
+		"value": "Appointment Schedule"
+	},
+	{
+		"key": "appointments.today",
+		"value": "Today"
+	},
+	{
+		"key": "appointments.new",
+		"value": "New Appointment"
+	},
+	{
+		"key": "appointments.edit",
+		"value": "Edit Appointment"
+	},
+	{
+		"key": "appointments.patient",
+		"value": "Patient"
+	},
+	{
+		"key": "appointments.patient.search",
+		"value": "Search by name or ID..."
+	},
+	{
+		"key": "appointments.patient.not_found",
+		"value": "No patients found"
+	},
+	{
+		"key": "appointments.form.title_label",
+		"value": "Title"
+	},
+	{
+		"key": "appointments.form.title_placeholder",
+		"value": "General consultation, follow-up, etc."
+	},
+	{
+		"key": "appointments.form.start_time",
+		"value": "Start time"
+	},
+	{
+		"key": "appointments.form.end_time",
+		"value": "End time"
+	},
+	{
+		"key": "appointments.form.location",
+		"value": "Location"
+	},
+	{
+		"key": "appointments.form.location_placeholder",
+		"value": "Office 1"
+	},
+	{
+		"key": "appointments.form.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "appointments.form.notes_placeholder",
+		"value": "Additional observations..."
+	},
+	{
+		"key": "appointments.form.save",
+		"value": "Save changes"
+	},
+	{
+		"key": "appointments.form.create",
+		"value": "Create appointment"
+	},
+	{
+		"key": "appointments.form.select_patient",
+		"value": "Select a patient"
+	},
+	{
+		"key": "appointments.status.scheduled",
+		"value": "Incoming"
+	},
+	{
+		"key": "appointments.status.arrived",
+		"value": "In waiting room"
+	},
+	{
+		"key": "appointments.status.in_consultation",
+		"value": "In consultation"
+	},
+	{
+		"key": "appointments.status.completed",
+		"value": "Attended"
+	},
+	{
+		"key": "appointments.status.cancelled",
+		"value": "Cancelled"
+	},
+	{
+		"key": "waiting_room.title",
+		"value": "Waiting Room"
+	},
+	{
+		"key": "waiting_room.copy_tv_link",
+		"value": "Copy TV link"
+	},
+	{
+		"key": "waiting_room.refresh",
+		"value": "Refresh"
+	},
+	{
+		"key": "waiting_room.empty_column",
+		"value": "No patients"
+	},
+	{
+		"key": "waiting_room.unknown_patient",
+		"value": "Unknown patient"
+	},
+	{
+		"key": "waiting_room.card.records",
+		"value": "Records"
+	},
+	{
+		"key": "waiting_room.advance.arrived",
+		"value": "Arrived"
+	},
+	{
+		"key": "waiting_room.advance.in_consultation",
+		"value": "In consultation"
+	},
+	{
+		"key": "waiting_room.advance.completed",
+		"value": "Attended"
+	},
+	{
+		"key": "tenant.display_token.generate.success",
+		"value": "TV display link generated successfully"
+	},
+	{
+		"key": "waiting_room.display.last_updated",
+		"value": "Last updated:"
+	},
+	{
+		"key": "waiting_room.display.next_refresh",
+		"value": "Next refresh in"
+	},
+	{
+		"key": "appointments.action.edit",
+		"value": "Edit"
+	},
+	{
+		"key": "appointments.action.complete",
+		"value": "Complete"
+	},
+	{
+		"key": "appointments.action.cancel",
+		"value": "Cancel"
+	},
+	{
+		"key": "appointments.action.delete",
+		"value": "Delete"
+	},
+	{
+		"key": "appointments.get.success",
+		"value": "Appointments retrieved successfully"
+	},
+	{
+		"key": "appointments.create.success",
+		"value": "Appointment created successfully"
+	},
+	{
+		"key": "appointments.update.success",
+		"value": "Appointment updated successfully"
+	},
+	{
+		"key": "appointments.status.update.success",
+		"value": "Appointment status updated successfully"
+	},
+	{
+		"key": "appointments.delete.success",
+		"value": "Appointment deleted successfully"
+	},
+	{
+		"key": "dashboard.title",
+		"value": "Dashboard"
+	},
+	{
+		"key": "dashboard.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "dashboard.stat.total_patients",
+		"value": "Total Patients"
+	},
+	{
+		"key": "dashboard.stat.critical_patients",
+		"value": "Critical Patients"
+	},
+	{
+		"key": "dashboard.stat.today_appointments",
+		"value": "Today's Appointments"
+	},
+	{
+		"key": "dashboard.stat.monthly_completed",
+		"value": "Completed this Month"
+	},
+	{
+		"key": "dashboard.stat.delta.new_this_month",
+		"value": "new this month"
+	},
+	{
+		"key": "dashboard.stat.delta.vs_yesterday",
+		"value": "vs yesterday"
+	},
+	{
+		"key": "dashboard.stat.delta.vs_last_month",
+		"value": "vs last month"
+	},
+	{
+		"key": "dashboard.subscription.title",
+		"value": "Active Subscription"
+	},
+	{
+		"key": "dashboard.subscription.expires",
+		"value": "Expires on"
+	},
+	{
+		"key": "dashboard.subscription.days_left",
+		"value": "days left"
+	},
+	{
+		"key": "dashboard.chart.weekly_title",
+		"value": "Weekly Appointments"
+	},
+	{
+		"key": "dashboard.chart.weekly_description",
+		"value": "Appointment distribution for the current week"
+	},
+	{
+		"key": "dashboard.upcoming.title",
+		"value": "Upcoming Appointments"
+	},
+	{
+		"key": "dashboard.upcoming.description",
+		"value": "Appointments scheduled for today"
+	},
+	{
+		"key": "dashboard.upcoming.empty",
+		"value": "No appointments today"
+	},
+	{
+		"key": "dashboard.upcoming.empty_hint",
+		"value": "Schedule an appointment to see it here"
+	},
+	{
+		"key": "dashboard.upcoming.schedule_btn",
+		"value": "Schedule appointment"
+	},
+	{
+		"key": "dashboard.stats.success",
+		"value": "Dashboard statistics retrieved successfully"
+	},
+	{
+		"key": "profile.title",
+		"value": "My Profile"
+	},
+	{
+		"key": "profile.user_info",
+		"value": "User Information"
+	},
+	{
+		"key": "profile.user_info.description",
+		"value": "Your account details"
+	},
+	{
+		"key": "profile.username",
+		"value": "Username"
+	},
+	{
+		"key": "profile.role",
+		"value": "Role"
+	},
+	{
+		"key": "profile.environment_info",
+		"value": "Environment Information"
+	},
+	{
+		"key": "profile.environment_info.description",
+		"value": "Selected environment details"
+	},
+	{
+		"key": "profile.email",
+		"value": "Email"
+	},
+	{
+		"key": "profile.environment_name",
+		"value": "Environment name"
+	},
+	{
+		"key": "profile.legal_name",
+		"value": "Legal name"
+	},
+	{
+		"key": "profile.trade_name",
+		"value": "Trade name"
+	},
+	{
+		"key": "profile.save",
+		"value": "Save changes"
+	},
+	{
+		"key": "profile.get.success",
+		"value": "Profile retrieved successfully"
+	},
+	{
+		"key": "profile.update.success",
+		"value": "Profile updated successfully"
+	},
+	{
+		"key": "backoffice.nav.dashboard",
+		"value": "Dashboard"
+	},
+	{
+		"key": "backoffice.nav.companies",
+		"value": "Companies"
+	},
+	{
+		"key": "backoffice.nav.companies.list",
+		"value": "Company List"
+	},
+	{
+		"key": "backoffice.nav.team",
+		"value": "Internal Team"
+	},
+	{
+		"key": "backoffice.help",
+		"value": "Help"
+	},
+	{
+		"key": "backoffice.dropdown.account",
+		"value": "My Account"
+	},
+	{
+		"key": "backoffice.dropdown.settings",
+		"value": "Settings"
+	},
+	{
+		"key": "backoffice.dropdown.logout",
+		"value": "Log Out"
+	},
+	{
+		"key": "backoffice.dashboard.title",
+		"value": "Administration Panel"
+	},
+	{
+		"key": "backoffice.dashboard.stat.total_companies",
+		"value": "Total Clinics"
+	},
+	{
+		"key": "backoffice.dashboard.stat.total_users",
+		"value": "Registered Users"
+	},
+	{
+		"key": "backoffice.dashboard.stat.active_plans",
+		"value": "Active Plans"
+	},
+	{
+		"key": "backoffice.dashboard.recent.title",
+		"value": "Recent Activity"
+	},
+	{
+		"key": "backoffice.dashboard.expiring.title",
+		"value": "Expiring Subscriptions"
+	},
+	{
+		"key": "backoffice.dashboard.expiring.description",
+		"value": "Active subscriptions expiring in the next 30 days"
+	},
+	{
+		"key": "backoffice.dashboard.expiring.days_left",
+		"value": "Days left"
+	},
+	{
+		"key": "backoffice.dashboard.expiring.days",
+		"value": "days"
+	},
+	{
+		"key": "backoffice.dashboard.recent.description",
+		"value": "Latest actions performed on the platform"
+	},
+	{
+		"key": "backoffice.dashboard.recent.empty",
+		"value": "No recent activity to show."
+	},
+	{
+		"key": "backoffice.login.title",
+		"value": "Backoffice Access"
+	},
+	{
+		"key": "backoffice.login.subtitle",
+		"value": "Administration area exclusive to Pengi Med operators."
+	},
+	{
+		"key": "backoffice.login.username",
+		"value": "Network Username"
+	},
+	{
+		"key": "backoffice.login.username.placeholder",
+		"value": "Enter your username"
+	},
+	{
+		"key": "backoffice.login.password",
+		"value": "Password"
+	},
+	{
+		"key": "backoffice.login.password.placeholder",
+		"value": "••••••••"
+	},
+	{
+		"key": "backoffice.login.button",
+		"value": "Secure Sign In"
+	},
+	{
+		"key": "backoffice_user.list.success",
+		"value": "Backoffice users retrieved successfully"
+	},
+	{
+		"key": "backoffice_user.create.success",
+		"value": "Backoffice user created successfully"
+	},
+	{
+		"key": "backoffice.companies.title",
+		"value": "Companies"
+	},
+	{
+		"key": "backoffice.companies.create",
+		"value": "New Company"
+	},
+	{
+		"key": "backoffice.companies.list.title",
+		"value": "Company List"
+	},
+	{
+		"key": "backoffice.companies.list.description",
+		"value": "Manage companies registered on the platform"
+	},
+	{
+		"key": "backoffice.companies.loading",
+		"value": "Loading..."
+	},
+	{
+		"key": "backoffice.companies.empty",
+		"value": "No companies registered."
+	},
+	{
+		"key": "backoffice.companies.col.trade_name",
+		"value": "Trade Name"
+	},
+	{
+		"key": "backoffice.companies.col.trade_name.placeholder",
+		"value": "E.g.: My Clinic"
+	},
+	{
+		"key": "backoffice.companies.col.legal_name",
+		"value": "Legal Name"
+	},
+	{
+		"key": "backoffice.companies.col.legal_name.placeholder",
+		"value": "E.g.: My Clinic Inc."
+	},
+	{
+		"key": "backoffice.companies.col.plan",
+		"value": "Plan"
+	},
+	{
+		"key": "backoffice.companies.col.tenant",
+		"value": "Tenant"
+	},
+	{
+		"key": "backoffice.companies.create.title",
+		"value": "Create Company"
+	},
+	{
+		"key": "backoffice.companies.create.description",
+		"value": "Fill in the details to register a new company on the platform."
+	},
+	{
+		"key": "backoffice.onboarding.step.company",
+		"value": "Company"
+	},
+	{
+		"key": "backoffice.onboarding.step.subscription",
+		"value": "Subscription"
+	},
+	{
+		"key": "backoffice.onboarding.step.access",
+		"value": "Access"
+	},
+	{
+		"key": "backoffice.onboarding.next",
+		"value": "Next"
+	},
+	{
+		"key": "backoffice.onboarding.back",
+		"value": "Back"
+	},
+	{
+		"key": "backoffice.onboarding.finish",
+		"value": "Go to Companies"
+	},
+	{
+		"key": "backoffice.onboarding.company.title",
+		"value": "Company Details"
+	},
+	{
+		"key": "backoffice.onboarding.company.description",
+		"value": "Enter the trade name and legal name of the new company."
+	},
+	{
+		"key": "backoffice.onboarding.subscription.title",
+		"value": "Assign Plan"
+	},
+	{
+		"key": "backoffice.onboarding.subscription.description",
+		"value": "Select the plan and expiration date for the subscription."
+	},
+	{
+		"key": "backoffice.onboarding.subscription.plan_placeholder",
+		"value": "Select a plan..."
+	},
+	{
+		"key": "backoffice.onboarding.access.title",
+		"value": "Company created!"
+	},
+	{
+		"key": "backoffice.onboarding.access.description",
+		"value": "Share this link with the first user of"
+	},
+	{
+		"key": "backoffice.onboarding.access.hint",
+		"value": "This link allows the first user to register and set up their account on the platform."
+	},
+	{
+		"key": "backoffice.companies.edit.title",
+		"value": "Edit Company"
+	},
+	{
+		"key": "backoffice.companies.edit.description",
+		"value": "Modify the company details."
+	},
+	{
+		"key": "backoffice.companies.cancel",
+		"value": "Cancel"
+	},
+	{
+		"key": "backoffice.companies.save",
+		"value": "Save Changes"
+	},
+	{
+		"key": "backoffice.company.list.success",
+		"value": "Companies retrieved successfully"
+	},
+	{
+		"key": "backoffice.company.found",
+		"value": "Company found"
+	},
+	{
+		"key": "backoffice.company.create.success",
+		"value": "Company created successfully"
+	},
+	{
+		"key": "backoffice.company.update.success",
+		"value": "Company updated successfully"
+	},
+	{
+		"key": "backoffice.company.delete.success",
+		"value": "Company deleted successfully"
+	},
+	{
+		"key": "backoffice.nav.features",
+		"value": "Features"
+	},
+	{
+		"key": "backoffice.nav.plans",
+		"value": "Plans"
+	},
+	{
+		"key": "backoffice.nav.subscriptions",
+		"value": "Subscriptions"
+	},
+	{
+		"key": "backoffice.features.title",
+		"value": "Features"
+	},
+	{
+		"key": "backoffice.features.create",
+		"value": "New Feature"
+	},
+	{
+		"key": "backoffice.features.list.title",
+		"value": "Feature List"
+	},
+	{
+		"key": "backoffice.features.list.description",
+		"value": "Manage platform features"
+	},
+	{
+		"key": "backoffice.features.empty",
+		"value": "No features registered."
+	},
+	{
+		"key": "backoffice.features.col.code",
+		"value": "Code"
+	},
+	{
+		"key": "backoffice.features.col.name",
+		"value": "Name"
+	},
+	{
+		"key": "backoffice.features.col.name.placeholder",
+		"value": "E.g.: Clinical Logbook"
+	},
+	{
+		"key": "backoffice.features.col.permissions",
+		"value": "Permissions"
+	},
+	{
+		"key": "backoffice.features.create.title",
+		"value": "Create Feature"
+	},
+	{
+		"key": "backoffice.features.create.description",
+		"value": "Register a new feature with code and name."
+	},
+	{
+		"key": "backoffice.features.edit.title",
+		"value": "Edit Feature"
+	},
+	{
+		"key": "backoffice.features.edit.description",
+		"value": "Modify the feature details."
+	},
+	{
+		"key": "backoffice.feature.list.success",
+		"value": "Features retrieved successfully"
+	},
+	{
+		"key": "backoffice.feature.found",
+		"value": "Feature found"
+	},
+	{
+		"key": "backoffice.feature.create.success",
+		"value": "Feature created successfully"
+	},
+	{
+		"key": "backoffice.feature.update.success",
+		"value": "Feature updated successfully"
+	},
+	{
+		"key": "backoffice.feature.delete.success",
+		"value": "Feature deleted successfully"
+	},
+	{
+		"key": "backoffice.plans.title",
+		"value": "Plans"
+	},
+	{
+		"key": "backoffice.plans.create",
+		"value": "New Plan"
+	},
+	{
+		"key": "backoffice.plans.list.title",
+		"value": "Plan List"
+	},
+	{
+		"key": "backoffice.plans.list.description",
+		"value": "Manage plans available for companies"
+	},
+	{
+		"key": "backoffice.plans.empty",
+		"value": "No plans registered."
+	},
+	{
+		"key": "backoffice.plans.col.name",
+		"value": "Name"
+	},
+	{
+		"key": "backoffice.plans.col.name.placeholder",
+		"value": "E.g.: Enterprise"
+	},
+	{
+		"key": "backoffice.plans.col.code",
+		"value": "Code"
+	},
+	{
+		"key": "backoffice.plans.col.price",
+		"value": "Price"
+	},
+	{
+		"key": "backoffice.plans.col.features",
+		"value": "Features"
+	},
+	{
+		"key": "backoffice.plans.create.title",
+		"value": "Create Plan"
+	},
+	{
+		"key": "backoffice.plans.create.description",
+		"value": "Register a new plan with price and code."
+	},
+	{
+		"key": "backoffice.plans.edit.title",
+		"value": "Edit Plan"
+	},
+	{
+		"key": "backoffice.plans.edit.description",
+		"value": "Modify the plan details."
+	},
+	{
+		"key": "backoffice.plans.limits.title",
+		"value": "Plan Limits"
+	},
+	{
+		"key": "backoffice.plans.limits.max_users",
+		"value": "Users"
+	},
+	{
+		"key": "backoffice.plans.limits.max_users.desc",
+		"value": "Maximum number of users allowed"
+	},
+	{
+		"key": "backoffice.plans.limits.max_patients",
+		"value": "Patients"
+	},
+	{
+		"key": "backoffice.plans.limits.max_patients.desc",
+		"value": "Maximum number of registered patients"
+	},
+	{
+		"key": "backoffice.plans.limits.max_offices",
+		"value": "Offices"
+	},
+	{
+		"key": "backoffice.plans.limits.max_offices.desc",
+		"value": "Maximum number of active offices"
+	},
+	{
+		"key": "backoffice.plans.limits.unlimited",
+		"value": "Unlimited"
+	},
+	{
+		"key": "plan.limit.users",
+		"value": "You have reached the user limit for your current plan."
+	},
+	{
+		"key": "plan.limit.patients",
+		"value": "You have reached the patient limit for your current plan."
+	},
+	{
+		"key": "backoffice.plan.list.success",
+		"value": "Plans retrieved successfully"
+	},
+	{
+		"key": "backoffice.plan.found",
+		"value": "Plan found"
+	},
+	{
+		"key": "backoffice.plan.create.success",
+		"value": "Plan created successfully"
+	},
+	{
+		"key": "backoffice.plan.update.success",
+		"value": "Plan updated successfully"
+	},
+	{
+		"key": "backoffice.plan.delete.success",
+		"value": "Plan deleted successfully"
+	},
+	{
+		"key": "backoffice.subscriptions.title",
+		"value": "Subscriptions"
+	},
+	{
+		"key": "backoffice.subscriptions.create",
+		"value": "New Subscription"
+	},
+	{
+		"key": "backoffice.subscriptions.list.title",
+		"value": "Subscription List"
+	},
+	{
+		"key": "backoffice.subscriptions.list.description",
+		"value": "Manage company subscriptions"
+	},
+	{
+		"key": "backoffice.subscriptions.empty",
+		"value": "No subscriptions registered."
+	},
+	{
+		"key": "backoffice.subscriptions.col.company",
+		"value": "Company"
+	},
+	{
+		"key": "backoffice.subscriptions.col.plan",
+		"value": "Plan"
+	},
+	{
+		"key": "backoffice.subscriptions.col.status",
+		"value": "Status"
+	},
+	{
+		"key": "backoffice.subscriptions.col.expires",
+		"value": "Expiry Date"
+	},
+	{
+		"key": "backoffice.subscriptions.select.company",
+		"value": "Select a company..."
+	},
+	{
+		"key": "backoffice.subscriptions.select.plan",
+		"value": "Select a plan..."
+	},
+	{
+		"key": "backoffice.subscriptions.create.title",
+		"value": "Create Subscription"
+	},
+	{
+		"key": "backoffice.subscriptions.create.description",
+		"value": "Assign a plan to a company."
+	},
+	{
+		"key": "backoffice.subscriptions.edit.title",
+		"value": "Edit Subscription"
+	},
+	{
+		"key": "backoffice.subscriptions.edit.description",
+		"value": "Modify the subscription details."
+	},
+	{
+		"key": "backoffice.subscription.list.success",
+		"value": "Subscriptions retrieved successfully"
+	},
+	{
+		"key": "backoffice.subscription.create.success",
+		"value": "Subscription created successfully"
+	},
+	{
+		"key": "backoffice.subscription.update.success",
+		"value": "Subscription updated successfully"
+	},
+	{
+		"key": "backoffice.subscription.delete.success",
+		"value": "Subscription deleted successfully"
+	},
+	{
+		"key": "backoffice.linking.selected",
+		"value": "selected"
+	},
+	{
+		"key": "backoffice.linking.select_all",
+		"value": "Select all"
+	},
+	{
+		"key": "backoffice.linking.deselect_all",
+		"value": "Deselect all"
+	},
+	{
+		"key": "backoffice.permission.list.success",
+		"value": "Permissions retrieved successfully"
+	},
+	{
+		"key": "backoffice.nav.users",
+		"value": "Users"
+	},
+	{
+		"key": "backoffice.nav.roles",
+		"value": "Roles"
+	},
+	{
+		"key": "backoffice.users.title",
+		"value": "Users"
+	},
+	{
+		"key": "backoffice.users.create",
+		"value": "New User"
+	},
+	{
+		"key": "backoffice.users.list.title",
+		"value": "User List"
+	},
+	{
+		"key": "backoffice.users.list.description",
+		"value": "Manage backoffice users"
+	},
+	{
+		"key": "backoffice.users.empty",
+		"value": "No users registered."
+	},
+	{
+		"key": "backoffice.users.col.name",
+		"value": "Name"
+	},
+	{
+		"key": "backoffice.users.col.name.placeholder",
+		"value": "E.g.: John Doe"
+	},
+	{
+		"key": "backoffice.users.col.user_name",
+		"value": "Username"
+	},
+	{
+		"key": "backoffice.users.col.user_name.placeholder",
+		"value": "E.g.: admin"
+	},
+	{
+		"key": "backoffice.users.col.password",
+		"value": "Password"
+	},
+	{
+		"key": "backoffice.users.col.password_new",
+		"value": "New Password"
+	},
+	{
+		"key": "backoffice.users.col.password_new.placeholder",
+		"value": "Leave empty to keep current"
+	},
+	{
+		"key": "backoffice.users.create.title",
+		"value": "Create User"
+	},
+	{
+		"key": "backoffice.users.create.description",
+		"value": "Register a new backoffice user."
+	},
+	{
+		"key": "backoffice.users.edit.title",
+		"value": "Edit User"
+	},
+	{
+		"key": "backoffice.users.edit.description",
+		"value": "Modify the user details."
+	},
+	{
+		"key": "backoffice.users.list.success",
+		"value": "Users retrieved successfully"
+	},
+	{
+		"key": "backoffice.users.found",
+		"value": "User found"
+	},
+	{
+		"key": "backoffice.users.update.success",
+		"value": "User updated successfully"
+	},
+	{
+		"key": "backoffice.users.delete.success",
+		"value": "User deleted successfully"
+	},
+	{
+		"key": "backoffice.dashboard.stat.total_features",
+		"value": "Total Features"
+	},
+	{
+		"key": "backoffice.dashboard.stat.active_subscriptions",
+		"value": "Active Subscriptions"
+	},
+	{
+		"key": "backoffice.dashboard.stats.success",
+		"value": "Dashboard stats retrieved successfully"
+	},
+	{
+		"key": "signup.title",
+		"value": "Create an account"
+	},
+	{
+		"key": "signup.subtitle",
+		"value": "Enter your details to register."
+	},
+	{
+		"key": "signup.invalid_link.title",
+		"value": "Invalid link"
+	},
+	{
+		"key": "signup.invalid_link.description",
+		"value": "The signup link is invalid or has expired. Please request a new link."
+	},
+	{
+		"key": "signup.go_to_login",
+		"value": "Back to login"
+	},
+	{
+		"key": "reset_password.title",
+		"value": "Reset password"
+	},
+	{
+		"key": "reset_password.description",
+		"value": "Enter your new password."
+	},
+	{
+		"key": "reset_password.new_password",
+		"value": "New password"
+	},
+	{
+		"key": "reset_password.new_password.placeholder",
+		"value": "At least 6 characters"
+	},
+	{
+		"key": "reset_password.confirm_password",
+		"value": "Confirm password"
+	},
+	{
+		"key": "reset_password.confirm_password.placeholder",
+		"value": "Repeat the new password"
+	},
+	{
+		"key": "reset_password.submit",
+		"value": "Reset password"
+	},
+	{
+		"key": "reset_password.invalid_link.title",
+		"value": "Invalid or expired link"
+	},
+	{
+		"key": "reset_password.invalid_link.description",
+		"value": "This password reset link is invalid or has expired. Please request a new one."
+	},
+	{
+		"key": "auth.reset_password.success",
+		"value": "Password updated successfully"
+	},
+	{
+		"key": "signup.name",
+		"value": "Full name"
+	},
+	{
+		"key": "signup.name.placeholder",
+		"value": "Enter your full name"
+	},
+	{
+		"key": "signup.username",
+		"value": "Username"
+	},
+	{
+		"key": "signup.username.placeholder",
+		"value": "Choose a username"
+	},
+	{
+		"key": "signup.username.invalid_chars",
+		"value": "Username cannot contain spaces"
+	},
+	{
+		"key": "signup.email",
+		"value": "Email address"
+	},
+	{
+		"key": "signup.email.placeholder",
+		"value": "you@example.com"
+	},
+	{
+		"key": "signup.password",
+		"value": "Password"
+	},
+	{
+		"key": "signup.password.placeholder",
+		"value": "Create a secure password"
+	},
+	{
+		"key": "signup.confirm_password",
+		"value": "Confirm password"
+	},
+	{
+		"key": "signup.confirm_password.placeholder",
+		"value": "Type your password again"
+	},
+	{
+		"key": "signup.submit_button",
+		"value": "Sign up"
+	},
+	{
+		"key": "signup.validation.password_mismatch",
+		"value": "Passwords do not match"
+	},
+	{
+		"key": "signup.success",
+		"value": "Account created successfully"
+	},
+	{
+		"key": "E-AUTH-007",
+		"value": "The signup link is invalid or has expired."
+	},
+	{
+		"key": "backoffice.companies.generate_signup_link",
+		"value": "Generate signup link"
+	},
+	{
+		"key": "backoffice.companies.signup_link.title",
+		"value": "Signup Link"
+	},
+	{
+		"key": "backoffice.companies.signup_link.description",
+		"value": "Share this link for new users to register in the company"
+	},
+	{
+		"key": "backoffice.companies.signup_link.generating",
+		"value": "Generating link..."
+	},
+	{
+		"key": "backoffice.companies.signup_link.error",
+		"value": "Error generating link."
+	},
+	{
+		"key": "user.company_signup.success",
+		"value": "User registered successfully"
+	},
+	{
+		"key": "backoffice.company.signup_token.success",
+		"value": "Signup token generated successfully"
+	},
+	{
+		"key": "backoffice.user.password_reset_link.success",
+		"value": "Password reset link generated successfully"
+	},
+	{
+		"key": "backoffice.company_users.title",
+		"value": "Company Users"
+	},
+	{
+		"key": "backoffice.company_users.list.title",
+		"value": "Registered Users"
+	},
+	{
+		"key": "backoffice.company_users.list.description",
+		"value": "List of users registered in this company."
+	},
+	{
+		"key": "backoffice.company_users.loading",
+		"value": "Loading users..."
+	},
+	{
+		"key": "backoffice.company_users.empty",
+		"value": "No users registered in this company."
+	},
+	{
+		"key": "backoffice.company_users.col.username",
+		"value": "Username"
+	},
+	{
+		"key": "backoffice.company_users.col.email",
+		"value": "Email"
+	},
+	{
+		"key": "backoffice.company_users.col.role",
+		"value": "Role"
+	},
+	{
+		"key": "backoffice.company_users.col.environment",
+		"value": "Environment"
+	},
+	{
+		"key": "backoffice.company_users.edit.title",
+		"value": "Edit User"
+	},
+	{
+		"key": "backoffice.company_users.edit.description",
+		"value": "Modify the user's attributes in this company."
+	},
+	{
+		"key": "backoffice.company_users.select_role",
+		"value": "Select role..."
+	},
+	{
+		"key": "backoffice.company_users.cancel",
+		"value": "Cancel"
+	},
+	{
+		"key": "backoffice.company_users.save",
+		"value": "Save"
+	},
+	{
+		"key": "backoffice.company.user.delete.success",
+		"value": "User deleted successfully"
+	},
+	{
+		"key": "backoffice.company_users.delete.button_title",
+		"value": "Delete user"
+	},
+	{
+		"key": "backoffice.company_users.delete.confirm_title",
+		"value": "Delete user?"
+	},
+	{
+		"key": "backoffice.company_users.delete.confirm_description",
+		"value": "This action is irreversible. The user and all their access will be removed."
+	},
+	{
+		"key": "backoffice.company_users.delete.confirm",
+		"value": "Delete"
+	},
+	{
+		"key": "backoffice.company_users.password_reset.button_title",
+		"value": "Generate password reset link"
+	},
+	{
+		"key": "backoffice.company_users.password_reset.dialog_title",
+		"value": "Password reset link"
+	},
+	{
+		"key": "backoffice.company_users.password_reset.dialog_description",
+		"value": "Copy the link and send it to the user. Expires in 24 hours."
+	},
+	{
+		"key": "backoffice.company_users.password_reset.copied",
+		"value": "Link copied to clipboard"
+	},
+	{
+		"key": "backoffice.company_users.password_reset.copy",
+		"value": "Copy link"
+	},
+	{
+		"key": "backoffice.company_users.password_reset.close",
+		"value": "Close"
+	},
+	{
+		"key": "backoffice.company.users.list.success",
+		"value": "Company users retrieved successfully"
+	},
+	{
+		"key": "backoffice.company.users.update.success",
+		"value": "User updated successfully"
+	},
+	{
+		"key": "backoffice.roles.list.success",
+		"value": "Roles retrieved successfully"
+	},
+	{
+		"key": "backoffice.roles.title",
+		"value": "Roles"
+	},
+	{
+		"key": "backoffice.roles.create",
+		"value": "Create Role"
+	},
+	{
+		"key": "backoffice.roles.list.title",
+		"value": "Role List"
+	},
+	{
+		"key": "backoffice.roles.list.description",
+		"value": "Manage roles and their associated permissions"
+	},
+	{
+		"key": "backoffice.roles.empty",
+		"value": "No roles found"
+	},
+	{
+		"key": "backoffice.roles.col.name",
+		"value": "Name"
+	},
+	{
+		"key": "backoffice.roles.col.name.placeholder",
+		"value": "e.g. Administrator, Doctor..."
+	},
+	{
+		"key": "backoffice.roles.create.title",
+		"value": "Create Role"
+	},
+	{
+		"key": "backoffice.roles.create.description",
+		"value": "Define a new role with its permissions"
+	},
+	{
+		"key": "backoffice.roles.edit.title",
+		"value": "Edit Role"
+	},
+	{
+		"key": "backoffice.roles.edit.description",
+		"value": "Modify the role and its assigned permissions"
+	},
+	{
+		"key": "backoffice.roles.create.success",
+		"value": "Role created successfully"
+	},
+	{
+		"key": "backoffice.roles.update.success",
+		"value": "Role updated successfully"
+	},
+	{
+		"key": "backoffice.roles.delete.success",
+		"value": "Role deleted successfully"
+	},
+	{
+		"key": "backoffice.roles.get.success",
+		"value": "Role retrieved successfully"
+	},
+	{
+		"key": "billing.invoice.patient",
+		"value": "Patient"
+	},
+	{
+		"key": "billing.invoice.patient.placeholder",
+		"value": "Select patient..."
+	},
+	{
+		"key": "billing.invoice.items",
+		"value": "Invoice Items"
+	},
+	{
+		"key": "billing.invoice.item.add",
+		"value": "Add Item"
+	},
+	{
+		"key": "billing.invoice.item.description",
+		"value": "Description"
+	},
+	{
+		"key": "billing.invoice.item.description.placeholder",
+		"value": "Item description..."
+	},
+	{
+		"key": "billing.invoice.item.qty",
+		"value": "Qty."
+	},
+	{
+		"key": "billing.invoice.item.price",
+		"value": "Unit Price"
+	},
+	{
+		"key": "billing.invoice.item.tax",
+		"value": "Tax"
+	},
+	{
+		"key": "billing.invoice.subtotal",
+		"value": "Subtotal"
+	},
+	{
+		"key": "billing.invoice.tax",
+		"value": "Taxes (VAT)"
+	},
+	{
+		"key": "billing.invoice.total",
+		"value": "Total"
+	},
+	{
+		"key": "billing.invoice.save",
+		"value": "Save Invoice"
+	},
+	{
+		"key": "billing.invoice.create.button",
+		"value": "Create Invoice"
+	},
+	{
+		"key": "billing.invoice.create.description",
+		"value": "Fill in the details to issue a new invoice."
+	},
+	{
+		"key": "billing.invoice.create.title",
+		"value": "New Invoice"
+	},
+	{
+		"key": "billing.invoice.delete.description",
+		"value": "Are you sure you want to delete the selected invoices? This action cannot be undone."
+	},
+	{
+		"key": "billing.invoice.delete.success",
+		"value": "Invoice(s) successfully deleted"
+	},
+	{
+		"key": "billing.invoice.process.selected",
+		"value": "Process Selected to SRI"
+	},
+	{
+		"key": "billing.invoice.search.placeholder",
+		"value": "Search by sequential or patient..."
+	},
+	{
+		"key": "billing.sri.button.save",
+		"value": "Save SRI Configuration"
+	},
+	{
+		"key": "billing.sri.file.description",
+		"value": "Upload your electronic signature .p12 file."
+	},
+	{
+		"key": "billing.sri.file.label",
+		"value": "Signature File (.p12)"
+	},
+	{
+		"key": "billing.sri.info.description",
+		"value": "Configure your credentials for electronic billing"
+	},
+	{
+		"key": "billing.sri.info.p1",
+		"value": "Your signature and password are encrypted and stored safely."
+	},
+	{
+		"key": "billing.sri.info.p2",
+		"value": "Make sure your signature is currently valid."
+	},
+	{
+		"key": "billing.sri.info.title",
+		"value": "Important Information"
+	},
+	{
+		"key": "billing.sri.password.description",
+		"value": "The password for your electronic signature."
+	},
+	{
+		"key": "billing.sri.password.label",
+		"value": "Signature Password"
+	},
+	{
+		"key": "billing.sri.settings.title",
+		"value": "SRI Settings"
+	},
+	{
+		"key": "billing.sri.signature.description",
+		"value": "Configure your electronic signature to issue authorized receipts."
+	},
+	{
+		"key": "billing.sri.signature.title",
+		"value": "Electronic Signature"
+	},
+	{
+		"key": "billing.status.authorized",
+		"value": "Authorized"
+	},
+	{
+		"key": "billing.status.draft",
+		"value": "Draft"
+	},
+	{
+		"key": "billing.status.processing",
+		"value": "Processing"
+	},
+	{
+		"key": "dashboard.billing.invoices",
+		"value": "Invoices"
+	},
+	{
+		"key": "dashboard.billing.settings",
+		"value": "SRI Settings"
+	},
+	{
+		"key": "dashboard.billing",
+		"value": "Billing"
+	},
+	{
+		"key": "form.cancel",
+		"value": "Cancel"
+	},
+	{
+		"key": "tenant.signature.upload.success",
+		"value": "Electronic signature uploaded and configured successfully"
+	},
+	{
+		"key": "E-BILL-001",
+		"value": "Invalid billing request"
+	},
+	{
+		"key": "E-BILL-002",
+		"value": "Invoice not found"
+	},
+	{
+		"key": "E-BILL-003",
+		"value": "Product or service not found"
+	},
+	{
+		"key": "E-BILL-004",
+		"value": "Error creating invoice"
+	},
+	{
+		"key": "E-BILL-005",
+		"value": "Incorrect password or invalid signature file"
+	},
+	{
+		"key": "billing.sri.invalid_file",
+		"value": "Incorrect password or invalid signature file"
+	},
+	{
+		"key": "billing.sri.status.configured",
+		"value": "Electronic signature configured and active"
+	},
+	{
+		"key": "billing.sri.status.valid_until",
+		"value": "Valid until:"
+	},
+	{
+		"key": "billing.sri.status.unconfigured",
+		"value": "No electronic signature configured"
+	},
+	{
+		"key": "billing.sri.status.unconfigured_desc",
+		"value": "Please upload your .p12 file to issue invoices."
+	},
+	{
+		"key": "billing.invoice.column.sequential",
+		"value": "Sequential"
+	},
+	{
+		"key": "billing.invoice.column.document",
+		"value": "Document"
+	},
+	{
+		"key": "billing.invoice.column.name",
+		"value": "Name"
+	},
+	{
+		"key": "billing.invoice.column.total",
+		"value": "Total"
+	},
+	{
+		"key": "billing.invoice.column.status",
+		"value": "Status"
+	},
+	{
+		"key": "billing.invoice.column.date",
+		"value": "Date"
+	},
+	{
+		"key": "billing.invoice.column.summary",
+		"value": "Summary"
+	},
+	{
+		"key": "billing.invoice.establishment.title",
+		"value": "Establishment and Emission Point"
+	},
+	{
+		"key": "billing.invoice.establishment.desc",
+		"value": "Configure the emission data for SRI."
+	},
+	{
+		"key": "billing.invoice.client.title",
+		"value": "Client and Payment"
+	},
+	{
+		"key": "billing.invoice.client.desc",
+		"value": "Select the patient and credit conditions."
+	},
+	{
+		"key": "billing.invoice.final_consumer",
+		"value": "Final Consumer"
+	},
+	{
+		"key": "billing.invoice.final_consumer.desc",
+		"value": "Generate invoice without data (9999999999999)"
+	},
+	{
+		"key": "billing.invoice.new_patient",
+		"value": "New Patient"
+	},
+	{
+		"key": "billing.invoice.payment.method",
+		"value": "Payment Method"
+	},
+	{
+		"key": "billing.invoice.payment.method.placeholder",
+		"value": "Select method..."
+	},
+	{
+		"key": "billing.invoice.time.unit",
+		"value": "Time Unit"
+	},
+	{
+		"key": "billing.invoice.time.unit.placeholder",
+		"value": "Select unit..."
+	},
+	{
+		"key": "billing.invoice.term",
+		"value": "Term"
+	},
+	{
+		"key": "billing.invoice.term.placeholder",
+		"value": "Ex. 15"
+	},
+	{
+		"key": "billing.invoice.items.desc",
+		"value": "Detail of billed goods or services."
+	},
+	{
+		"key": "billing.invoice.summary.title",
+		"value": "Invoice Summary"
+	},
+	{
+		"key": "billing.invoice.summary.desc",
+		"value": "Automatically calculated totals."
+	},
+	{
+		"key": "billing.invoice.discount",
+		"value": "Discount"
+	},
+	{
+		"key": "billing.catalog-item.column.sku",
+		"value": "SKU"
+	},
+	{
+		"key": "billing.catalog-item.column.name",
+		"value": "Name"
+	},
+	{
+		"key": "billing.catalog-item.column.price",
+		"value": "Price"
+	},
+	{
+		"key": "billing.catalog-item.column.date",
+		"value": "Created At"
+	},
+	{
+		"key": "billing.catalog-item.create.button",
+		"value": "Create Product/Service"
+	},
+	{
+		"key": "billing.catalog-item.delete.description",
+		"value": "Are you sure you want to delete the selected products and services? This action cannot be undone."
+	},
+	{
+		"key": "billing.catalog-item.search.placeholder",
+		"value": "Search by SKU..."
+	},
+	{
+		"key": "billing.catalog-item.list.action.edit",
+		"value": "Edit"
+	},
+	{
+		"key": "billing.catalog-item.list.action.delete",
+		"value": "Delete"
+	},
+	{
+		"key": "dashboard.billing.catalog-items",
+		"value": "Products and Services"
+	},
+	{
+		"key": "billing.catalog-item.form.name",
+		"value": "Product/Service Name"
+	},
+	{
+		"key": "billing.catalog-item.form.sku",
+		"value": "SKU or Code"
+	},
+	{
+		"key": "billing.catalog-item.form.description",
+		"value": "Description"
+	},
+	{
+		"key": "billing.catalog-item.form.unit_price",
+		"value": "Unit Price"
+	},
+	{
+		"key": "billing.catalog-item.form.tax",
+		"value": "Tax (VAT)"
+	},
+	{
+		"key": "billing.catalog-item.form.ice_tax",
+		"value": "ICE Tax (Optional)"
+	},
+	{
+		"key": "billing.catalog-item.form.create.title",
+		"value": "Create Product/Service"
+	},
+	{
+		"key": "billing.catalog-item.form.create.description",
+		"value": "Fill out the fields below to register a new product or service in the catalog."
+	},
+	{
+		"key": "billing.catalog-item.form.edit.title",
+		"value": "Edit Product/Service"
+	},
+	{
+		"key": "billing.catalog-item.form.edit.description",
+		"value": "Modify the values and save your changes."
+	},
+	{
+		"key": "billing.catalog-item.form.submit.create",
+		"value": "Save Product"
+	},
+	{
+		"key": "billing.catalog-item.form.submit.edit",
+		"value": "Update Changes"
+	},
+	{
+		"key": "billing.catalog-item.form.error.required",
+		"value": "This field is required"
+	},
+	{
+		"key": "billing.catalog-item.form.error.positive",
+		"value": "Value must be positive"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.code",
+		"value": "Tax Type"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.code.placeholder",
+		"value": "Select tax"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.percentage",
+		"value": "Secondary Tax Percentage"
+	},
+	{
+		"key": "billing.catalog-item.form.tax.percentage.placeholder",
+		"value": "Select percentage"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.apply",
+		"value": "Apply ICE"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.code",
+		"value": "ICE Code"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.code.placeholder",
+		"value": "Select code"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.percentage",
+		"value": "ICE Percentage"
+	},
+	{
+		"key": "billing.catalog-item.form.ice.tax.percentage.placeholder",
+		"value": "Select percentage"
+	},
+	{
+		"key": "tax.ice.search.placeholder",
+		"value": "Search ICE code..."
+	},
+	{
+		"key": "form.continue",
+		"value": "Continue"
+	},
+	{
+		"key": "common.no_results",
+		"value": "No results"
+	},
+	{
+		"key": "billing.invoices.processing.queued",
+		"value": "Processing queued"
+	},
+	{
+		"key": "billing.sri.info.tax_id.label",
+		"value": "Tax ID (RUC)"
+	},
+	{
+		"key": "billing.sri.info.trade_name.label",
+		"value": "Trade Name"
+	},
+	{
+		"key": "billing.sri.info.corporate_name.label",
+		"value": "Corporate Name"
+	},
+	{
+		"key": "billing.sri.info.address.label",
+		"value": "Main Address"
+	},
+	{
+		"key": "billing.sri.info.accounting_obliged.label",
+		"value": "Obliged to keep accounting"
+	},
+	{
+		"key": "billing.sri.company_info.title",
+		"value": "Company Information"
+	},
+	{
+		"key": "billing.sri.company_info.description",
+		"value": "Configure billing details such as Tax ID and corporate name."
+	},
+	{
+		"key": "tenant.sri_info.update.success",
+		"value": "SRI info updated successfully"
+	},
+	{
+		"key": "billing.status.signed",
+		"value": "Signed"
+	},
+	{
+		"key": "tenant.sri.status.fetch.success",
+		"value": "Your SRI configuration is up to date"
+	},
+	{
+		"key": "billing.invoice.establishment.code",
+		"value": "Establishment Code"
+	},
+	{
+		"key": "billing.invoice.establishment.code.placeholder",
+		"value": "e.g. 001"
+	},
+	{
+		"key": "billing.invoice.emission.point",
+		"value": "Emission Point"
+	},
+	{
+		"key": "billing.invoice.emission.point.placeholder",
+		"value": "e.g. 001"
+	},
+	{
+		"key": "billing.invoice.item.combobox.placeholder",
+		"value": "Type or select..."
+	},
+	{
+		"key": "billing.invoice.item.default.description",
+		"value": "Medical Consultation"
+	},
+	{
+		"key": "billing.catalog_item.load.error",
+		"value": "Could not load the product/service."
+	},
+	{
+		"key": "billing.status.validated",
+		"value": "Validated"
+	},
+	{
+		"key": "billing.status.authorized",
+		"value": "Authorized"
+	},
+	{
+		"key": "billing.invoice.create.success",
+		"value": "Invoice created successfully."
+	},
+	{
+		"key": "billing.invoices.fetch.success",
+		"value": "Invoices fetched successfully."
+	},
+	{
+		"key": "billing.invoice.processing.queued",
+		"value": "Invoice queued for SRI processing."
+	},
+	{
+		"key": "billing.invoice.error.tenant_not_found",
+		"value": "Tenant scope not found."
+	},
+	{
+		"key": "billing.invoice.error.invalid_payload",
+		"value": "Invalid request payload."
+	},
+	{
+		"key": "billing.invoice.error.product_not_found",
+		"value": "Product or service not found."
+	},
+	{
+		"key": "billing.invoice.error.create_failed",
+		"value": "Failed to create invoice."
+	},
+	{
+		"key": "billing.invoices.error.fetch_failed",
+		"value": "Failed to fetch invoices."
+	},
+	{
+		"key": "billing.invoice.error.invalid_id",
+		"value": "Invalid invoice ID."
+	},
+	{
+		"key": "billing.invoice.error.not_found",
+		"value": "Invoice not found."
+	},
+	{
+		"key": "billing.invoice.error.delete_failed",
+		"value": "Failed to delete invoice."
+	},
+	{
+		"key": "billing.invoice.error.rabbitmq_failed",
+		"value": "Failed to connect to message broker."
+	},
+	{
+		"key": "billing.invoice.error.encode_failed",
+		"value": "Failed to encode invoice payload."
+	},
+	{
+		"key": "billing.invoice.error.enqueue_failed",
+		"value": "Failed to enqueue invoice processing job."
+	},
+	{
+		"key": "clinical.vital_signs.save.success",
+		"value": "Vital signs saved successfully."
+	},
+	{
+		"key": "clinical.vital_signs.fetch.success",
+		"value": "Vital signs retrieved successfully."
+	},
+	{
+		"key": "clinical.vital_signs.not_found",
+		"value": "No vital signs found for this record."
+	},
+	{
+		"key": "clinical.vital_signs.error.invalid_id",
+		"value": "Invalid medical record ID."
+	},
+	{
+		"key": "clinical.vital_signs.error.invalid_payload",
+		"value": "Invalid vital signs data."
+	},
+	{
+		"key": "clinical.vital_signs.error.fetch_failed",
+		"value": "Failed to retrieve vital signs."
+	},
+	{
+		"key": "clinical.vital_signs.error.save_failed",
+		"value": "Failed to save vital signs."
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.title",
+		"value": "Vital Signs"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.description",
+		"value": "Record the patient's vital signs (optional)"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.weight",
+		"value": "Weight"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.height",
+		"value": "Height"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.blood_pressure",
+		"value": "Blood Pressure"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.temperature",
+		"value": "Temperature"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.heart_rate",
+		"value": "Heart Rate"
+	},
+	{
+		"key": "form.create_medical_record.vital_signs.o2_saturation",
+		"value": "O2 Saturation"
+	},
+	{
+		"key": "form.create_medical_record.prescription.add_item",
+		"value": "Add Medication"
+	},
+	{
+		"key": "form.create_medical_record.prescription.items",
+		"value": "Medications"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.medication",
+		"value": "Medication"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.dose",
+		"value": "Dose"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.frequency",
+		"value": "Frequency"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.duration",
+		"value": "Duration"
+	},
+	{
+		"key": "form.create_medical_record.prescription.item.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "form.create_medical_record.prescription.tab.text",
+		"value": "Free text"
+	},
+	{
+		"key": "form.create_medical_record.prescription.tab.structured",
+		"value": "By medication"
+	},
+	{
+		"key": "form.create_medical_record.prescription.items.empty",
+		"value": "No medications added. Click \"Add Medication\" to start."
+	},
+	{
+		"key": "form.edit_patient.allergies",
+		"value": "Allergies"
+	},
+	{
+		"key": "form.edit_patient.allergies.placeholder",
+		"value": "List known allergies..."
+	},
+	{
+		"key": "view.medical_record.vital_signs.title",
+		"value": "Vital Signs"
+	},
+	{
+		"key": "view.medical_record.vital_signs.description",
+		"value": "Vital signs recorded at the time of the consultation"
+	},
+	{
+		"key": "view.medical_record.vital_signs.weight",
+		"value": "Weight"
+	},
+	{
+		"key": "view.medical_record.vital_signs.height",
+		"value": "Height"
+	},
+	{
+		"key": "view.medical_record.vital_signs.blood_pressure",
+		"value": "Blood Pressure"
+	},
+	{
+		"key": "view.medical_record.vital_signs.temperature",
+		"value": "Temperature"
+	},
+	{
+		"key": "view.medical_record.vital_signs.heart_rate",
+		"value": "Heart Rate"
+	},
+	{
+		"key": "view.medical_record.vital_signs.o2_saturation",
+		"value": "O2 Saturation"
+	},
+	{
+		"key": "view.medical_record.prescription.items",
+		"value": "Medications"
+	},
+	{
+		"key": "view.medical_record.prescription.item.medication",
+		"value": "Medication"
+	},
+	{
+		"key": "view.medical_record.prescription.item.dose",
+		"value": "Dose"
+	},
+	{
+		"key": "view.medical_record.prescription.item.frequency",
+		"value": "Frequency"
+	},
+	{
+		"key": "view.medical_record.prescription.item.duration",
+		"value": "Duration"
+	},
+	{
+		"key": "view.medical_record.prescription.item.notes",
+		"value": "Notes"
+	},
+	{
+		"key": "clinical.patient_card.has_allergies",
+		"value": "Allergies"
+	},
+	{
+		"key": "clinical.patient_card.allergies",
+		"value": "Known Allergies"
+	},
+	{
+		"key": "form.create_medical_record.allergy_alert.title",
+		"value": "Patient has registered allergies"
+	},
+	{
+		"key": "form.create_medical_record.allergy_alert.description",
+		"value": "Please verify before prescribing medications"
+	},
+	{
+		"key": "clinical.medical_record.vital_signs",
+		"value": "Vital Signs"
+	},
+	{
+		"key": "clinical.icd11.search.success",
+		"value": "Search completed"
+	},
+	{
+		"key": "clinical.medical_record.diagnoses",
+		"value": "Diagnoses"
+	},
+	{
+		"key": "form.create_medical_record.diagnoses",
+		"value": "Diagnoses"
+	},
+	{
+		"key": "form.create_medical_record.diagnoses.placeholder",
+		"value": "Search diagnosis..."
+	},
+	{
+		"key": "form.create_medical_record.diagnoses.empty",
+		"value": "No results found"
+	},
+	{
+		"key": "tenant.settings.fetch.success",
+		"value": "Settings loaded"
+	},
+	{
+		"key": "tenant.settings.update.success",
+		"value": "Settings saved"
+	},
+	{
+		"key": "settings.title",
+		"value": "Settings"
+	},
+	{
+		"key": "settings.clinical.title",
+		"value": "Clinical module"
+	},
+	{
+		"key": "settings.clinical.show_next_appointment",
+		"value": "Show next appointment"
+	},
+	{
+		"key": "settings.clinical.show_diagnosis",
+		"value": "Show diagnosis"
+	},
+	{
+		"key": "settings.clinical.show_medic",
+		"value": "Show physician"
+	},
+	{
+		"key": "settings.clinical.show_insurance",
+		"value": "Show insurance"
+	},
+	{
+		"key": "settings.clinical.show_vital_signs",
+		"value": "Show vital signs"
+	},
+	{
+		"key": "settings.clinical.show_diagnoses",
+		"value": "Show diagnoses (ICD)"
+	},
+	{
+		"key": "settings.clinical.patient_age_input",
+		"value": "Enter age instead of birth date"
+	},
+	{
+		"key": "form.patient.age",
+		"value": "Age"
+	},
+	{
+		"key": "form.patient.age.placeholder",
+		"value": "e.g. 45"
+	},
+	{
+		"key": "settings.clinical.diagnosis_system",
+		"value": "Coding system"
+	},
+	{
+		"key": "settings.clinical.section.table",
+		"value": "Patient table columns"
+	},
+	{
+		"key": "settings.clinical.section.form",
+		"value": "Consultation form sections"
+	},
+	{
+		"key": "settings.clinical.cie10_lang_warning",
+		"value": "CIE-10 codes are only available in Spanish"
+	},
+	{
+		"key": "form.create_medical_record.preview_last",
+		"value": "View last consultation"
+	},
+	{
+		"key": "form.create_medical_record.preview_last.title",
+		"value": "Last consultation"
+	},
+	{
+		"key": "appointments.overlap.error",
+		"value": "There is already an appointment in that time slot. Please choose a different time."
+	},
+	{
+		"key": "E-CLIN-009",
+		"value": "There is already an appointment in that time slot. Please choose a different time."
+	},
+	{
+		"key": "settings.prescription_template.title",
+		"value": "Prescription template"
+	},
+	{
+		"key": "settings.prescription_template.description",
+		"value": "Upload a custom HTML file to define the format of your prescription documents."
+	},
+	{
+		"key": "settings.prescription_template.status.custom",
+		"value": "Custom template active"
+	},
+	{
+		"key": "settings.prescription_template.status.default",
+		"value": "Default template"
+	},
+	{
+		"key": "settings.prescription_template.upload",
+		"value": "Upload template (.html)"
+	},
+	{
+		"key": "settings.prescription_template.reset",
+		"value": "Restore default"
+	},
+	{
+		"key": "clinical.prescription_template.status",
+		"value": "Template status retrieved"
+	},
+	{
+		"key": "clinical.prescription_template.uploaded",
+		"value": "Prescription template updated successfully"
+	},
+	{
+		"key": "clinical.prescription_template.deleted",
+		"value": "Template restored to default"
+	},
+	{
+		"key": "pagination.showing",
+		"value": "Showing"
+	},
+	{
+		"key": "pagination.of",
+		"value": "of"
+	},
+	{
+		"key": "team.title",
+		"value": "Team"
+	},
+	{
+		"key": "team.description",
+		"value": "Manage the members who have access to this office."
+	},
+	{
+		"key": "team.invite",
+		"value": "Invite member"
+	},
+	{
+		"key": "team.members.title",
+		"value": "Active members"
+	},
+	{
+		"key": "team.members.loading",
+		"value": "Loading members..."
+	},
+	{
+		"key": "team.members.count",
+		"value": "members"
+	},
+	{
+		"key": "team.members.empty",
+		"value": "No members in this team yet."
+	},
+	{
+		"key": "team.invite_dialog.title",
+		"value": "Invite link"
+	},
+	{
+		"key": "team.invite_dialog.description",
+		"value": "Share this link so the person can register to your company. The link expires in 24 hours."
+	},
+	{
+		"key": "team.invite_dialog.close",
+		"value": "Close"
+	},
+	{
+		"key": "team.invite_dialog.copied",
+		"value": "Link copied to clipboard!"
+	},
+	{
+		"key": "team.invite_dialog.role_for",
+		"value": "This link will assign the role"
+	},
+	{
+		"key": "team.invite_dialog.warning",
+		"value": "The link expires in 72 hours. Anyone with this link can register."
+	},
+	{
+		"key": "team.role_dialog.title",
+		"value": "Select role"
+	},
+	{
+		"key": "team.role_dialog.description",
+		"value": "Choose which role the person who registers with this link will have."
+	},
+	{
+		"key": "team.role_dialog.role_label",
+		"value": "Role"
+	},
+	{
+		"key": "team.role_dialog.role_placeholder",
+		"value": "Select a role..."
+	},
+	{
+		"key": "team.role_dialog.generate",
+		"value": "Generate link"
+	},
+	{
+		"key": "company.team.roles.success",
+		"value": "Roles retrieved successfully"
+	},
+	{
+		"key": "auth.invalid_credentials",
+		"value": "Incorrect username or password"
+	},
+	{
+		"key": "company.team.list.success",
+		"value": "Team retrieved successfully"
+	},
+	{
+		"key": "company.invite_link.success",
+		"value": "Invite link generated"
+	}
 ]

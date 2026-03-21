@@ -6,14 +6,12 @@ import {
 	HelpCircle,
 	MoreVertical,
 	Pencil,
-	Phone,
 	Plus,
-	TriangleAlert,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Patient } from "@/api/clinical-service";
 import { downloadPatientReport } from "@/api/clinical-service";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -35,7 +33,14 @@ import useAuth from "@/hooks/use-auth";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { usePatientStore } from "@/store/patient-store";
+
+function getInitials(patient: Patient): string {
+	const first = patient.first_name?.[0] ?? "";
+	const last = patient.last_name?.[0] ?? "";
+	return (first + last).toUpperCase();
+}
 
 function renderActions({ row }: CellContext<Patient, unknown>) {
 	const navigate = useNavigate();
@@ -47,22 +52,10 @@ function renderActions({ row }: CellContext<Patient, unknown>) {
 	const { checkPermission } = usePermission();
 	return (
 		<div className="flex items-center gap-1 justify-end">
-			{row.original.critical && (
-				<TooltipProvider>
-					<Tooltip>
-						<TooltipTrigger className="cursor-default">
-							<TriangleAlert className="text-destructive w-4 h-4 shrink-0" />
-						</TooltipTrigger>
-						<TooltipContent side="left">
-							<Text uuid="clinical.patient.critical.label" />
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
-			)}
 			<DropdownMenu>
 				<DropdownMenuTrigger
 					render={
-						<Button variant="outline" size="icon">
+						<Button variant="ghost" size="icon">
 							<MoreVertical className="h-4 w-4" />
 							<span className="sr-only">Abrir Menu</span>
 						</Button>
@@ -153,62 +146,78 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		size: 50,
 	},
 	{
-		accessorKey: "last_name",
-		header: () => <Text uuid="clinical.patient.last_name" />,
-		meta: { title: "table.column.last_name" },
-		size: 150,
-	},
-	{
-		accessorKey: "first_name",
-		header: () => <Text uuid="clinical.patient.first_name" />,
-		meta: { title: "table.column.first_name" },
-		size: 150,
+		id: "patient",
+		header: () => <Text uuid="clinical.patient.name" />,
+		meta: { title: "table.column.patient" },
+		size: 220,
+		cell: ({ row }) => {
+			const p = row.original;
+			const fullName = `${p.last_name} ${p.first_name}`.trim();
+			return (
+				<div className="flex items-center gap-3">
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger>
+								<Avatar
+									className={cn(
+										"h-8 w-8 shrink-0 text-xs",
+										p.critical ? "ring-2 ring-destructive" : "",
+									)}
+								>
+									<AvatarFallback
+										className={
+											p.critical ? "bg-destructive/10 text-destructive" : ""
+										}
+									>
+										{getInitials(p)}
+									</AvatarFallback>
+								</Avatar>
+							</TooltipTrigger>
+							{p.critical && (
+								<TooltipContent side="right">
+									<Text uuid="clinical.patient.critical.label" />
+								</TooltipContent>
+							)}
+						</Tooltip>
+					</TooltipProvider>
+					<span className="font-medium truncate">{fullName}</span>
+				</div>
+			);
+		},
 	},
 	{
 		accessorKey: "document",
 		header: () => <Text uuid="clinical.patient.document" />,
 		meta: { title: "table.column.document" },
-		size: 50,
+		size: 130,
 	},
-
 	{
 		accessorKey: "phone",
 		header: () => <Text uuid="clinical.patient.phone" />,
 		meta: { title: "table.column.phone" },
 		cell: ({ row }) => {
-			return (
-				<div className="flex items-center gap-2">
-					{row.original.phone ? (
-						<span>{row.original.phone}</span>
-					) : (
-						<Badge variant="secondary" className="font-normal">
-							<Phone className="h-3 w-3 mr-1" />
-							<Text uuid="clinical.patient.phone.unregistered" />
-						</Badge>
-					)}
-				</div>
+			return row.original.phone ? (
+				<span>{row.original.phone}</span>
+			) : (
+				<span className="text-muted-foreground">—</span>
 			);
 		},
-		size: 50,
+		size: 120,
 	},
 	{
 		accessorKey: "diagnosis",
 		header: () => <Text uuid="clinical.patient.diagnosis" />,
 		meta: { title: "table.column.diagnosis" },
 		cell: ({ row }) => {
-			return (
-				<div className="flex items-center gap-2">
-					{row.original.diagnosis ? (
-						<span>{row.original.diagnosis}</span>
-					) : (
-						<Badge variant="secondary" className="font-normal">
-							<Text uuid="clinical.patient.diagnosis.none" />
-						</Badge>
-					)}
-				</div>
+			return row.original.diagnosis ? (
+				<span className="truncate max-w-[180px] block">
+					{row.original.diagnosis}
+				</span>
+			) : (
+				<span className="text-muted-foreground">—</span>
 			);
 		},
-		size: 100,
+		size: 180,
 	},
 	{
 		id: "next_appointment",
@@ -248,16 +257,12 @@ export const patientColumns: ColumnDef<Patient>[] = [
 			</div>
 		),
 		meta: { title: "table.column.next_appointment" },
-		size: 100,
+		size: 120,
 		cell: ({ row }) => {
 			const appointments = row.original.appointments;
 			const nextScheduled = appointments?.find((a) => a.status === "scheduled");
 			if (!nextScheduled) {
-				return (
-					<Badge variant="secondary" className="font-normal">
-						<Text uuid="clinical.patient.appointment.none" />
-					</Badge>
-				);
+				return <span className="text-muted-foreground">—</span>;
 			}
 
 			const apptDate = new Date(nextScheduled.date);
@@ -297,7 +302,13 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		accessorKey: "medic",
 		header: () => <Text uuid="clinical.patient.medic" />,
 		meta: { title: "table.column.medic" },
-		size: 50,
+		cell: ({ row }) =>
+			row.original.medic ? (
+				<span>{row.original.medic}</span>
+			) : (
+				<span className="text-muted-foreground">—</span>
+			),
+		size: 120,
 	},
 	{
 		cell: renderActions,
@@ -305,6 +316,7 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		size: 50,
 	},
 ];
+
 const OPTIONAL_COLUMN_KEYS: Record<string, string> = {
 	diagnosis: "show_diagnosis",
 	next_appointment: "show_next_appointment",
@@ -347,14 +359,6 @@ export const patientColumnsMobile: ColumnDef<Patient>[] = [
 		),
 		id: "select",
 		size: 50,
-	},
-	{
-		id: "warning",
-		size: 50,
-		cell: ({ row }) => {
-			if (!row.original.critical) return null;
-			return <TriangleAlert className="text-destructive w-4 h-4" />;
-		},
 	},
 	{
 		accessorKey: "full_name",

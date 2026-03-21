@@ -2,7 +2,8 @@ import {
 	CalendarCheck,
 	CircleAlert,
 	Pencil,
-	Triangle,
+	Plus,
+	Stethoscope,
 	TriangleAlert,
 } from "lucide-react";
 import React from "react";
@@ -90,24 +91,47 @@ const MedicalRecords = () => {
 	return (
 		<DashboardLayout>
 			<main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 auto-rows-max">
+				{patient && (
+					<nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+						<button
+							type="button"
+							onClick={() => navigate("/clinical")}
+							className="hover:text-foreground transition-colors"
+						>
+							<Text uuid="dashboard.clinical.patients" />
+						</button>
+						<span>/</span>
+						<span className="text-foreground font-medium">
+							{`${patient.last_name} ${patient.first_name}`.trim()}
+						</span>
+					</nav>
+				)}
 				<div className="grid lg:grid-cols-[400px_1fr] md:grid-cols-[300px_1fr] grid-cols-1 gap-4">
 					<div className="space-y-4">
-						{patient && <PatientCard patient={patient} />}
+						{patient && (
+							<PatientCard
+								patient={patient}
+								onEditPatient={handleEditPatient}
+								headerAction={
+									checkPermission([
+										PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+									]) ? (
+										<Button size="sm" onClick={handleCreateMedicalRecord}>
+											<Plus className="w-3.5 h-3.5 mr-1.5" />
+											<Text uuid="clinical.medical_record.new_consultation" />
+										</Button>
+									) : undefined
+								}
+							/>
+						)}
 						<Card>
 							<CardHeader>
 								<CardTitle className="flex items-center gap-2">
-									<Triangle className="h-5 w-5" />
+									<Stethoscope className="h-5 w-5" />
 									<Text uuid="clinical.medical_record.actions" />
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="grid grid-cols-1 gap-4">
-								{checkPermission([
-									PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
-								]) && (
-									<Button variant="outline" onClick={handleCreateMedicalRecord}>
-										<Text uuid="clinical.medical_record.new_consultation" />
-									</Button>
-								)}
 								<Button
 									variant="outline"
 									onClick={() => setShowPrescription(true)}
@@ -169,6 +193,24 @@ const MedicalRecords = () => {
 							pageCount={totalPages}
 							page={page}
 							onPageChange={setPage}
+							emptyState={
+								<div className="flex flex-col items-center gap-3 py-4">
+									<p className="text-sm text-muted-foreground">
+										{textGet("clinical.medical_record.empty")}
+									</p>
+									{checkPermission([
+										PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+									]) && (
+										<button
+											type="button"
+											onClick={handleCreateMedicalRecord}
+											className="text-sm text-primary underline-offset-4 hover:underline"
+										>
+											{textGet("clinical.medical_record.new_consultation")}
+										</button>
+									)}
+								</div>
+							}
 						/>
 					</div>
 				</div>

@@ -4,4 +4,14 @@ dev:
 
 # Check formatting and lint for all TS/JS apps
 check:
-	npx @biomejs/biome ci ./apps/web ./apps/backoffice
+	npx @biomejs/biome check ./apps/web ./apps/backoffice
+
+
+lint:
+	npx @biomejs/biome check --write ./apps/web ./apps/backoffice
+
+# Configure git to use shared hooks (run once after cloning)
+setup:
+	git config core.hooksPath .githooks
+	chmod +x .githooks/pre-commit
+	@echo "Git hooks configured."

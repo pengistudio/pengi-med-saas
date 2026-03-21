@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+echo "▶ Biome check --write..."
+# Run biome, then re-stage any files it auto-fixed that were already staged
+STAGED=$(git diff --name-only --cached)
+npx @biomejs/biome check --write ./apps/web ./apps/backoffice
+if [ -n "$STAGED" ]; then
+  echo "$STAGED" | xargs git add 2>/dev/null || true
+fi
+
+echo "▶ TypeScript (apps/web)..."
+cd "$REPO_ROOT/apps/web" && pnpm run typecheck
+
+echo "▶ TypeScript (apps/backoffice)..."
+cd "$REPO_ROOT/apps/backoffice" && pnpm run typecheck
+
+echo "✓ All checks passed."

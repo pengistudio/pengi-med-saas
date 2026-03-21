@@ -2,7 +2,7 @@ import {
 	AlertCircle,
 	AlertTriangle,
 	FileText,
-	Heart,
+	Pencil,
 	Phone,
 	Pill,
 	Stethoscope,
@@ -27,6 +27,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
@@ -47,13 +48,19 @@ interface PatientCardData extends Patient {
 	} | null;
 }
 
-const NotAvailable = () => (
-	<span className="text-muted-foreground italic text-sm">
-		<Text uuid="clinical.patient_card.not_available" />
-	</span>
-);
+interface PatientCardProps {
+	patient: PatientCardData;
+	headerAction?: React.ReactNode;
+	onEditPatient?: () => void;
+}
 
-export default function PatientCard({ patient }: { patient: PatientCardData }) {
+const NotAvailable = () => <span className="text-muted-foreground">—</span>;
+
+export default function PatientCard({
+	patient,
+	headerAction,
+	onEditPatient,
+}: PatientCardProps) {
 	const [showPrescription, setShowPrescription] = React.useState(false);
 	const { textGet } = useText();
 	const { settings } = useTenantSettings();
@@ -66,14 +73,21 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 		: null;
 
 	const displayName =
-		patient.full_name || `${patient.first_name} ${patient.last_name}`;
+		patient.full_name || `${patient.last_name} ${patient.first_name}`;
+
+	const allergies = parseAllergies(patient.allergies);
+	const hasMedicalHistory = !!(
+		patient.app?.trim() ||
+		patient.apf?.trim() ||
+		patient.apqx?.trim()
+	);
 
 	return (
 		<>
 			<Card className="h-fit border-l-4 border-l-primary">
 				<CardHeader className="space-y-4">
 					<div className="flex items-start justify-between gap-4">
-						<div className="space-y-2">
+						<div className="space-y-2 min-w-0">
 							<CardTitle className="text-2xl leading-tight wrap-break-word max-w-[250px]">
 								{displayName}
 							</CardTitle>
@@ -93,180 +107,194 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 									<Text uuid="clinical.patient_card.critical" />
 								</Badge>
 							)}
-							{parseAllergies(patient.allergies).length > 0 && (
+							{allergies.length > 0 && (
 								<Badge className="px-4 py-1 shrink-0 hover:cursor-default bg-amber-500 hover:bg-amber-500 text-white">
 									<AlertTriangle className="h-4 w-4 mr-1" />
 									<Text uuid="clinical.patient_card.has_allergies" />
 								</Badge>
 							)}
+							{headerAction}
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent className="space-y-6">
-					<div className="space-y-4">
-						<h3 className="font-semibold flex items-center gap-2 text-sm text-muted-foreground">
-							<UserRound className="h-4 w-4" />
-							<Text uuid="clinical.patient_card.personal_info" />
-						</h3>
-						<div className="grid gap-3 text-sm">
-							<div className="grid grid-cols-[120px_1fr] items-center">
-								<span className="font-medium text-muted-foreground">
-									{useAgeInput ? (
-										<Text uuid="clinical.patient_card.age" />
-									) : (
-										<Text uuid="clinical.patient_card.birth_date" />
-									)}
-								</span>
-								<span>
-									{useAgeInput ? (
-										age !== null ? (
-											`${age} años`
-										) : (
-											<span className="text-muted-foreground italic text-sm">
-												<Text uuid="clinical.patient_card.not_available" />
-											</span>
-										)
-									) : (
-										dateParser(patient.birth_date, { dateStyle: "medium" })
-									)}
-								</span>
-							</div>
-							<div className="grid grid-cols-[120px_1fr] items-center">
-								<span className="font-medium text-muted-foreground">
-									<Text uuid="clinical.patient_card.gender" />
-								</span>
-								<span>{formatGender(patient.gender, textGet)}</span>
-							</div>
-							<div className="grid grid-cols-[120px_1fr] items-center">
-								<span className="font-medium text-muted-foreground">
-									<Text uuid="clinical.patient_card.phone" />
-								</span>
-								<div className="flex items-center gap-2">
-									{patient.phone ? (
-										<span>{patient.phone}</span>
-									) : (
-										<Badge variant="secondary" className="font-normal">
-											<Phone className="h-3 w-3 mr-1" />
-											<Text uuid="clinical.patient_card.not_registered" />
-										</Badge>
-									)}
-								</div>
-							</div>
-							{patient.family_number && (
-								<div className="grid grid-cols-[120px_1fr] items-center">
-									<span className="font-medium text-muted-foreground">
-										<Text uuid="clinical.patient_card.family_phone" />
-									</span>
-									<span>{patient.family_number}</span>
-								</div>
-							)}
-							{patient.second_family_number && (
-								<div className="grid grid-cols-[120px_1fr] items-center">
-									<span className="font-medium text-muted-foreground">
-										<Text uuid="clinical.patient_card.family_phone_2" />
-									</span>
-									<span>{patient.second_family_number}</span>
-								</div>
-							)}
-						</div>
-					</div>
 
-					<Separator />
+				<CardContent className="pb-4">
+					<Tabs defaultValue="resumen">
+						<TabsList className="w-full mb-4">
+							<TabsTrigger value="resumen" className="flex-1">
+								<Text uuid="clinical.patient_card.tab.summary" />
+							</TabsTrigger>
+							<TabsTrigger value="antecedentes" className="flex-1">
+								<Text uuid="clinical.patient_card.tab.history" />
+							</TabsTrigger>
+							<TabsTrigger value="notas" className="flex-1">
+								<Text uuid="clinical.patient_card.tab.notes" />
+							</TabsTrigger>
+						</TabsList>
 
-					<div className="space-y-4">
-						<h3 className="font-semibold flex items-center gap-2 text-sm text-muted-foreground">
-							<Stethoscope className="h-4 w-4" />
-							<Text uuid="clinical.patient_card.medical_info" />
-						</h3>
-						<div className="grid gap-3 text-sm">
-							<div className="grid grid-cols-[120px_1fr] items-center">
-								<span className="font-medium text-muted-foreground">
-									<Text uuid="clinical.patient_card.insurance" />
-								</span>
-								{patient.insurance ? (
-									<span>{patient.insurance}</span>
-								) : (
-									<NotAvailable />
-								)}
-							</div>
-							<div className="grid grid-cols-[120px_1fr] items-center">
-								<span className="font-medium text-muted-foreground">
-									<Text uuid="clinical.patient_card.medic" />
-								</span>
-								{patient.medic ? (
-									<span>{patient.medic}</span>
-								) : (
-									<NotAvailable />
-								)}
-							</div>
-							<div className="grid grid-cols-[120px_1fr] items-start">
-								<span className="font-medium text-muted-foreground">
-									<Text uuid="clinical.patient_card.diagnosis" />
-								</span>
-								{patient.diagnosis ? (
-									<span className="wrap-break-word">{patient.diagnosis}</span>
-								) : (
-									<NotAvailable />
-								)}
-							</div>
-						</div>
-					</div>
-
-					{parseAllergies(patient.allergies).length > 0 && (
-						<>
-							<Separator />
+						{/* ── Tab: Resumen ── */}
+						<TabsContent value="resumen" className="space-y-5 mt-0">
+							{/* Personal */}
 							<div className="space-y-3">
-								<h3 className="font-semibold flex items-center gap-2 text-sm text-amber-600">
-									<AlertTriangle className="h-4 w-4" />
-									<Text uuid="clinical.patient_card.allergies" />
+								<h3 className="font-semibold flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
+									<UserRound className="h-3.5 w-3.5" />
+									<Text uuid="clinical.patient_card.personal_info" />
 								</h3>
-								<div className="flex flex-wrap gap-2">
-									{parseAllergies(patient.allergies).map((allergy) => (
-										<Badge
-											key={allergy}
-											className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100"
-											variant="outline"
-										>
-											{allergy}
-										</Badge>
-									))}
+								<div className="grid gap-2.5 text-sm">
+									<div className="grid grid-cols-[110px_1fr] items-center">
+										<span className="text-muted-foreground">
+											{useAgeInput ? (
+												<Text uuid="clinical.patient_card.age" />
+											) : (
+												<Text uuid="clinical.patient_card.birth_date" />
+											)}
+										</span>
+										<span>
+											{useAgeInput ? (
+												age !== null ? (
+													`${age} años`
+												) : (
+													<NotAvailable />
+												)
+											) : (
+												dateParser(patient.birth_date, { dateStyle: "medium" })
+											)}
+										</span>
+									</div>
+									<div className="grid grid-cols-[110px_1fr] items-center">
+										<span className="text-muted-foreground">
+											<Text uuid="clinical.patient_card.gender" />
+										</span>
+										<span>{formatGender(patient.gender, textGet)}</span>
+									</div>
+									<div className="grid grid-cols-[110px_1fr] items-center">
+										<span className="text-muted-foreground">
+											<Text uuid="clinical.patient_card.phone" />
+										</span>
+										<div className="flex items-center gap-2">
+											{patient.phone ? (
+												<span>{patient.phone}</span>
+											) : (
+												<Badge variant="secondary" className="font-normal">
+													<Phone className="h-3 w-3 mr-1" />
+													<Text uuid="clinical.patient_card.not_registered" />
+												</Badge>
+											)}
+										</div>
+									</div>
+									{patient.family_number && (
+										<div className="grid grid-cols-[110px_1fr] items-center">
+											<span className="text-muted-foreground">
+												<Text uuid="clinical.patient_card.family_phone" />
+											</span>
+											<span>{patient.family_number}</span>
+										</div>
+									)}
+									{patient.second_family_number && (
+										<div className="grid grid-cols-[110px_1fr] items-center">
+											<span className="text-muted-foreground">
+												<Text uuid="clinical.patient_card.family_phone_2" />
+											</span>
+											<span>{patient.second_family_number}</span>
+										</div>
+									)}
 								</div>
 							</div>
-						</>
-					)}
 
-					{patient.latest_prescription && (
-						<>
 							<Separator />
 
-							<div className="space-y-4">
-								<h3 className="font-semibold flex items-center gap-2 text-sm text-muted-foreground">
-									<Pill className="h-4 w-4" />
-									<Text uuid="clinical.patient_card.latest_prescription" />
+							{/* Médica */}
+							<div className="space-y-3">
+								<h3 className="font-semibold flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
+									<Stethoscope className="h-3.5 w-3.5" />
+									<Text uuid="clinical.patient_card.medical_info" />
 								</h3>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setShowPrescription(true)}
-									className="w-full"
-								>
-									<Pill className="h-4 w-4 mr-2" />
-									<Text uuid="clinical.patient_card.view_prescription" />
-								</Button>
+								<div className="grid gap-2.5 text-sm">
+									<div className="grid grid-cols-[110px_1fr] items-center">
+										<span className="text-muted-foreground">
+											<Text uuid="clinical.patient_card.insurance" />
+										</span>
+										{patient.insurance ? (
+											<span>{patient.insurance}</span>
+										) : (
+											<NotAvailable />
+										)}
+									</div>
+									<div className="grid grid-cols-[110px_1fr] items-center">
+										<span className="text-muted-foreground">
+											<Text uuid="clinical.patient_card.medic" />
+										</span>
+										{patient.medic ? (
+											<span>{patient.medic}</span>
+										) : (
+											<NotAvailable />
+										)}
+									</div>
+									<div className="grid grid-cols-[110px_1fr] items-start">
+										<span className="text-muted-foreground">
+											<Text uuid="clinical.patient_card.diagnosis" />
+										</span>
+										{patient.diagnosis ? (
+											<span className="wrap-break-word">
+												{patient.diagnosis}
+											</span>
+										) : (
+											<NotAvailable />
+										)}
+									</div>
+								</div>
 							</div>
-						</>
-					)}
 
-					{hasAnyMedicalHistory() && (
-						<>
-							<Separator />
+							{/* Alergias */}
+							{allergies.length > 0 && (
+								<>
+									<Separator />
+									<div className="space-y-2.5">
+										<h3 className="font-semibold flex items-center gap-2 text-xs text-amber-600 uppercase tracking-wide">
+											<AlertTriangle className="h-3.5 w-3.5" />
+											<Text uuid="clinical.patient_card.allergies" />
+										</h3>
+										<div className="flex flex-wrap gap-2">
+											{allergies.map((allergy) => (
+												<Badge
+													key={allergy}
+													className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100"
+													variant="outline"
+												>
+													{allergy}
+												</Badge>
+											))}
+										</div>
+									</div>
+								</>
+							)}
 
-							<div className="space-y-4">
-								<h3 className="font-semibold flex items-center gap-2 text-sm text-muted-foreground">
-									<FileText className="h-4 w-4" />
-									<Text uuid="clinical.patient_card.medical_history" />
-								</h3>
+							{/* Receta */}
+							{patient.latest_prescription && (
+								<>
+									<Separator />
+									<div className="space-y-3">
+										<h3 className="font-semibold flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
+											<Pill className="h-3.5 w-3.5" />
+											<Text uuid="clinical.patient_card.latest_prescription" />
+										</h3>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => setShowPrescription(true)}
+											className="w-full"
+										>
+											<Pill className="h-4 w-4 mr-2" />
+											<Text uuid="clinical.patient_card.view_prescription" />
+										</Button>
+									</div>
+								</>
+							)}
+						</TabsContent>
 
+						{/* ── Tab: Antecedentes ── */}
+						<TabsContent value="antecedentes" className="mt-0">
+							{hasMedicalHistory ? (
 								<Accordion multiple className="w-full">
 									{patient.app?.trim() && (
 										<AccordionItem value="app">
@@ -282,7 +310,6 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 											</AccordionContent>
 										</AccordionItem>
 									)}
-
 									{patient.apf?.trim() && (
 										<AccordionItem value="apf">
 											<AccordionTrigger className="text-sm hover:no-underline">
@@ -297,7 +324,6 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 											</AccordionContent>
 										</AccordionItem>
 									)}
-
 									{patient.apqx?.trim() && (
 										<AccordionItem value="apqx">
 											<AccordionTrigger className="text-sm hover:no-underline">
@@ -313,27 +339,45 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 										</AccordionItem>
 									)}
 								</Accordion>
-							</div>
-						</>
-					)}
+							) : (
+								<p className="text-sm text-muted-foreground text-center py-8">
+									<Text uuid="clinical.patient_card.no_history" />
+								</p>
+							)}
+						</TabsContent>
 
-					<Separator />
-
-					<div className="space-y-4">
-						<h3 className="font-semibold flex items-center gap-2 text-sm text-muted-foreground">
-							<Heart className="h-4 w-4" />
-							<Text uuid="clinical.patient_card.notes" />
-						</h3>
-						{patient.notes ? (
-							<p className="text-sm">{patient.notes}</p>
-						) : (
-							<div className="text-center py-3 rounded-md">
-								<span className="text-sm text-muted-foreground">
-									<Text uuid="clinical.patient_card.no_notes" />
-								</span>
-							</div>
-						)}
-					</div>
+						{/* ── Tab: Notas ── */}
+						<TabsContent value="notas" className="mt-0">
+							{patient.notes ? (
+								<div className="space-y-3">
+									<p className="text-sm whitespace-pre-wrap">{patient.notes}</p>
+									{onEditPatient && (
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={onEditPatient}
+											className="text-muted-foreground"
+										>
+											<Pencil className="h-3.5 w-3.5 mr-1.5" />
+											<Text uuid="clinical.patient_card.edit_notes" />
+										</Button>
+									)}
+								</div>
+							) : (
+								<div className="flex flex-col items-center gap-3 py-8">
+									<p className="text-sm text-muted-foreground">
+										<Text uuid="clinical.patient_card.no_notes" />
+									</p>
+									{onEditPatient && (
+										<Button variant="outline" size="sm" onClick={onEditPatient}>
+											<Pencil className="h-3.5 w-3.5 mr-1.5" />
+											<Text uuid="clinical.patient_card.add_notes" />
+										</Button>
+									)}
+								</div>
+							)}
+						</TabsContent>
+					</Tabs>
 				</CardContent>
 			</Card>
 
@@ -344,14 +388,6 @@ export default function PatientCard({ patient }: { patient: PatientCardData }) {
 			/>
 		</>
 	);
-
-	function hasAnyMedicalHistory(): boolean {
-		return !!(
-			patient.app?.trim() ||
-			patient.apf?.trim() ||
-			patient.apqx?.trim()
-		);
-	}
 }
 
 function parseAllergies(allergies?: string): string[] {

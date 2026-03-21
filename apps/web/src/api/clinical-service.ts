@@ -548,9 +548,12 @@ export interface SubscriptionInfo {
 
 export interface DashboardStats {
 	total_patients: number;
+	new_patients_this_month: number;
 	critical_patients: number;
 	today_appointments: number;
+	yesterday_appointments: number;
 	monthly_completed: number;
+	prev_month_completed: number;
 	weekly_appointments: WeekDayStat[];
 	upcoming_appointments: UpcomingAppointment[];
 	subscription?: SubscriptionInfo;

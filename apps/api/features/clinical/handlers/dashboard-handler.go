@@ -50,13 +50,16 @@ type SubscriptionInfo struct {
 }
 
 type DashboardStats struct {
-	TotalPatients        int64                 `json:"total_patients"`
-	CriticalPatients     int64                 `json:"critical_patients"`
-	TodayAppointments    int64                 `json:"today_appointments"`
-	MonthlyCompleted     int64                 `json:"monthly_completed"`
-	WeeklyAppointments   []WeekDayStat         `json:"weekly_appointments"`
-	UpcomingAppointments []UpcomingAppointment `json:"upcoming_appointments"`
-	Subscription         *SubscriptionInfo     `json:"subscription"`
+	TotalPatients         int64                 `json:"total_patients"`
+	NewPatientsThisMonth  int64                 `json:"new_patients_this_month"`
+	CriticalPatients      int64                 `json:"critical_patients"`
+	TodayAppointments     int64                 `json:"today_appointments"`
+	YesterdayAppointments int64                 `json:"yesterday_appointments"`
+	MonthlyCompleted      int64                 `json:"monthly_completed"`
+	PrevMonthCompleted    int64                 `json:"prev_month_completed"`
+	WeeklyAppointments    []WeekDayStat         `json:"weekly_appointments"`
+	UpcomingAppointments  []UpcomingAppointment `json:"upcoming_appointments"`
+	Subscription          *SubscriptionInfo     `json:"subscription"`
 }
 
 // GetDashboardStats returns aggregated statistics for the dashboard
@@ -66,7 +69,9 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 	now := time.Now()
 	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	todayEnd := todayStart.Add(24 * time.Hour)
+	yesterdayStart := todayStart.AddDate(0, 0, -1)
 	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	prevMonthStart := monthStart.AddDate(0, -1, 0)
 
 	// 1. Total patients
 	var totalPatients int64
@@ -99,6 +104,22 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		h.logger.Error("Dashboard: failed to count monthly completed", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
+
+	// 4b. Delta queries (best-effort — don't fail the whole response on error)
+	var newPatientsThisMonth int64
+	h.db.Scopes(scope).Model(&clinical_models.Patient{}).
+		Where("created_at >= ?", monthStart).
+		Count(&newPatientsThisMonth)
+
+	var prevMonthCompleted int64
+	h.db.Scopes(scope).Model(&clinical_models.Appointment{}).
+		Where("status = ? AND date >= ? AND date < ?", "completed", prevMonthStart, monthStart).
+		Count(&prevMonthCompleted)
+
+	var yesterdayAppointments int64
+	h.db.Scopes(scope).Model(&clinical_models.Appointment{}).
+		Where("date >= ? AND date < ?", yesterdayStart, todayStart).
+		Count(&yesterdayAppointments)
 
 	// 5. Weekly appointments (current week Mon-Sun)
 	weekday := now.Weekday()
@@ -171,13 +192,16 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 	}
 
 	stats := DashboardStats{
-		TotalPatients:        totalPatients,
-		CriticalPatients:     criticalPatients,
-		TodayAppointments:    todayAppointments,
-		MonthlyCompleted:     monthlyCompleted,
-		WeeklyAppointments:   weeklyStats,
-		UpcomingAppointments: upcoming,
-		Subscription:         subscriptionInfo,
+		TotalPatients:         totalPatients,
+		NewPatientsThisMonth:  newPatientsThisMonth,
+		CriticalPatients:      criticalPatients,
+		TodayAppointments:     todayAppointments,
+		YesterdayAppointments: yesterdayAppointments,
+		MonthlyCompleted:      monthlyCompleted,
+		PrevMonthCompleted:    prevMonthCompleted,
+		WeeklyAppointments:    weeklyStats,
+		UpcomingAppointments:  upcoming,
+		Subscription:          subscriptionInfo,
 	}
 
 	return envelope.SuccessResponse(stats, "dashboard.stats.success")

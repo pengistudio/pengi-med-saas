@@ -219,6 +219,12 @@ const Clinical = () => {
 						page={page}
 						onPageChange={setPage}
 						toolbarRight={sortSelect}
+						rowClassName={(row) => {
+							const p = row.original as Patient;
+							return p.critical
+								? "border-l-2 border-l-destructive bg-destructive/5"
+								: "";
+						}}
 					/>
 				</div>
 			</main>

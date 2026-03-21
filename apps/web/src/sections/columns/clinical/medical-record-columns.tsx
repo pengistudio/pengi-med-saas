@@ -186,10 +186,12 @@ export const getMedicalRecordColumns = (
 		size: 250,
 		cell: ({ row }) => {
 			const obs = row.original.observation;
-			return (
-				<span className="line-clamp-2" title={obs}>
+			return obs ? (
+				<span className="line-clamp-2 text-sm" title={obs}>
 					{obs}
 				</span>
+			) : (
+				<span className="text-muted-foreground">—</span>
 			);
 		},
 	},
