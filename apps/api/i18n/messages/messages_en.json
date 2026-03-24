@@ -253,7 +253,11 @@
 	},
 	{
 		"key": "clinical.patient.download_records",
-		"value": "Download Medical Records"
+		"value": "Download Medical Consultation History"
+	},
+	{
+		"key": "clinical.patient.report.title",
+		"value": "MEDICAL CONSULTATION HISTORY"
 	},
 	{
 		"key": "clinical.patient.last_name",

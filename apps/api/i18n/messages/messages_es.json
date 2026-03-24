@@ -253,7 +253,11 @@
 	},
 	{
 		"key": "clinical.patient.download_records",
-		"value": "Descargar Historias Clínicas"
+		"value": "Descargar Historial de Consultas Médicas"
+	},
+	{
+		"key": "clinical.patient.report.title",
+		"value": "HISTORIAL DE CONSULTAS MEDICAS"
 	},
 	{
 		"key": "clinical.patient.last_name",

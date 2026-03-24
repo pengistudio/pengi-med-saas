@@ -21,6 +21,7 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
+	message_cache "pengi-med-saas/i18n/cache"
 	"strconv"
 )
 
@@ -58,7 +59,13 @@ func (h *DownloadRecordHandler) DownloadPatientReport(c *gin.Context) {
 	}
 
 	// Generate PDF
-	pdfBytes, err := generatePatientReportPDF(&patient)
+	lang, _ := c.Get("lang")
+	langStr, _ := lang.(string)
+	if langStr == "" {
+		langStr = "es"
+	}
+	reportTitle := message_cache.Get(langStr, "clinical.patient.report.title")
+	pdfBytes, err := generatePatientReportPDF(&patient, reportTitle)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "Error generando el PDF", core_errors.ErrClinicalReportGenerateError))
 		return
@@ -75,7 +82,7 @@ func (h *DownloadRecordHandler) DownloadPatientReport(c *gin.Context) {
 	c.Data(http.StatusOK, "application/pdf", pdfBytes)
 }
 
-func generatePatientReportPDF(patient *clinical_models.Patient) ([]byte, error) {
+func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle string) ([]byte, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 
 	// Set footer function to appear on all pages
@@ -93,7 +100,7 @@ func generatePatientReportPDF(patient *clinical_models.Patient) ([]byte, error) 
 	// === HEADER ===
 	pdf.SetFont("Arial", "B", 18)
 	pdf.SetTextColor(41, 128, 185)
-	pdf.Cell(0, 10, "INFORME MEDICO DEL PACIENTE")
+	pdf.Cell(0, 10, reportTitle)
 	pdf.Ln(8)
 
 	pdf.SetFont("Arial", "", 10)
