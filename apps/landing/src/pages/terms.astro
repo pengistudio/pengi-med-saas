@@ -1,0 +1,146 @@
+---
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import Layout from "../layouts/main.astro";
+
+const lastUpdated = "27 de marzo de 2026";
+---
+
+<Layout
+	title="Condiciones de Servicio — Gentoo"
+	description="Condiciones de servicio de Gentoo, software médico inteligente para clínicas y consultorios."
+>
+	<Navbar />
+	<main class="max-w-3xl mx-auto px-6 pt-28 pb-16 font-[Inter]">
+		<h1 class="text-3xl font-bold mb-2">Condiciones de Servicio</h1>
+		<p class="text-sm text-gray-500 mb-10">Última actualización: {lastUpdated}</p>
+
+		<div class="prose prose-gray max-w-none space-y-8 text-gray-700 leading-relaxed">
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">1. Aceptación de los términos</h2>
+				<p>
+					Al registrarte y utilizar Gentoo ("el Servicio"), aceptas quedar vinculado por estas
+					Condiciones de Servicio. Si no estás de acuerdo con alguna parte, no debes usar el Servicio.
+				</p>
+				<p class="mt-3">
+					Estas condiciones aplican a todos los usuarios de la plataforma, incluyendo administradores,
+					médicos y personal de clínicas o consultorios.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">2. Descripción del Servicio</h2>
+				<p>
+					Gentoo es una plataforma SaaS (Software como Servicio) de gestión médica que permite:
+				</p>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li>Gestión de pacientes y expedientes clínicos.</li>
+					<li>Programación y seguimiento de citas médicas.</li>
+					<li>Emisión de recetas médicas.</li>
+					<li>Facturación electrónica conforme al SRI de Ecuador.</li>
+					<li>Integración opcional con servicios de terceros como Google Calendar.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">3. Cuentas de usuario</h2>
+				<p>
+					Eres responsable de mantener la confidencialidad de tus credenciales de acceso y de todas
+					las actividades que ocurran bajo tu cuenta. Debes notificarnos de inmediato ante cualquier
+					uso no autorizado.
+				</p>
+				<p class="mt-3">
+					Cada cuenta está asociada a un consultorio o clínica (tenant). El administrador de la cuenta
+					es responsable de gestionar los accesos de su equipo.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">4. Uso aceptable</h2>
+				<p>Te comprometes a usar Gentoo únicamente para fines legítimos de gestión médica. Está prohibido:</p>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li>Usar el Servicio para actividades ilegales o fraudulentas.</li>
+					<li>Intentar acceder a datos de otros consultorios o clínicas.</li>
+					<li>Realizar ingeniería inversa, descompilar o intentar extraer el código fuente.</li>
+					<li>Usar el Servicio para almacenar o transmitir malware.</li>
+					<li>Revender o sublicenciar el acceso al Servicio sin autorización.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">5. Integraciones de terceros</h2>
+				<p>
+					Gentoo puede conectarse con servicios de terceros (como Google Calendar). El uso de estas
+					integraciones está sujeto a los términos y condiciones de dichos servicios. Gentoo no se
+					hace responsable por interrupciones, cambios o problemas en servicios de terceros.
+				</p>
+				<p class="mt-3">
+					Puedes activar o desactivar integraciones en cualquier momento desde la configuración de
+					tu cuenta.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">6. Propiedad de los datos</h2>
+				<p>
+					Los datos clínicos y de pacientes ingresados en Gentoo son de exclusiva propiedad del
+					consultorio o clínica. Gentoo actúa como procesador de datos y no reclama ningún derecho
+					de propiedad sobre dicha información.
+				</p>
+				<p class="mt-3">
+					Puedes exportar o solicitar la eliminación de tus datos en cualquier momento contactándonos
+					en <a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">7. Disponibilidad del Servicio</h2>
+				<p>
+					Nos esforzamos por mantener el Servicio disponible de forma continua, pero no garantizamos
+					disponibilidad ininterrumpida. Pueden ocurrir interrupciones por mantenimiento, actualizaciones
+					o causas fuera de nuestro control.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">8. Limitación de responsabilidad</h2>
+				<p>
+					Gentoo no será responsable por daños indirectos, incidentales o consecuentes derivados del
+					uso o la imposibilidad de usar el Servicio. La responsabilidad total de Gentoo no excederá
+					el monto pagado por el Servicio en los últimos 3 meses.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">9. Cancelación</h2>
+				<p>
+					Puedes cancelar tu suscripción en cualquier momento. Tras la cancelación, tus datos serán
+					conservados por 30 días antes de ser eliminados definitivamente, salvo que solicites
+					eliminación inmediata.
+				</p>
+				<p class="mt-3">
+					Nos reservamos el derecho de suspender cuentas que violen estas condiciones.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">10. Legislación aplicable</h2>
+				<p>
+					Estas condiciones se rigen por las leyes de la República del Ecuador. Cualquier disputa
+					será sometida a la jurisdicción de los tribunales competentes de la ciudad de Quito, Ecuador.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">11. Contacto</h2>
+				<p>
+					Para cualquier consulta sobre estas Condiciones de Servicio:<br />
+					<a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>
+				</p>
+			</section>
+
+		</div>
+	</main>
+	<Footer />
+</Layout>

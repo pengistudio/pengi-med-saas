@@ -1,0 +1,123 @@
+---
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import Layout from "../layouts/main.astro";
+
+const lastUpdated = "27 de marzo de 2026";
+---
+
+<Layout
+	title="Política de Privacidad — Gentoo"
+	description="Política de privacidad de Gentoo, software médico inteligente para clínicas y consultorios."
+>
+	<Navbar />
+	<main class="max-w-3xl mx-auto px-6 pt-28 pb-16 font-[Inter]">
+		<h1 class="text-3xl font-bold mb-2">Política de Privacidad</h1>
+		<p class="text-sm text-gray-500 mb-10">Última actualización: {lastUpdated}</p>
+
+		<div class="prose prose-gray max-w-none space-y-8 text-gray-700 leading-relaxed">
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">1. Introducción</h2>
+				<p>
+					Gentoo ("nosotros", "nuestro") es un software de gestión médica desarrollado para clínicas
+					y consultorios. Esta Política de Privacidad describe cómo recopilamos, usamos y protegemos
+					la información que nos proporcionas al utilizar nuestra plataforma.
+				</p>
+				<p class="mt-3">
+					Al usar Gentoo, aceptas las prácticas descritas en este documento. Si no estás de acuerdo,
+					te pedimos que no utilices nuestros servicios.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">2. Información que recopilamos</h2>
+				<p>Recopilamos la siguiente información según el uso que hagas de la plataforma:</p>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li><strong>Datos de cuenta:</strong> nombre, correo electrónico y contraseña del usuario administrador.</li>
+					<li><strong>Datos del consultorio o clínica:</strong> nombre comercial, RUC, dirección y configuración de la cuenta.</li>
+					<li><strong>Datos clínicos:</strong> información de pacientes, expedientes médicos, citas, recetas y signos vitales ingresados por los profesionales de salud.</li>
+					<li><strong>Datos de facturación:</strong> información tributaria para emisión de facturas electrónicas al SRI.</li>
+					<li><strong>Datos de uso:</strong> registros de actividad dentro de la plataforma para fines de auditoría y seguridad.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">3. Integración con Google Calendar</h2>
+				<p>
+					Gentoo ofrece una integración opcional con Google Calendar. Si decides activarla:
+				</p>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li>Solicitamos acceso únicamente al alcance <code class="bg-gray-100 px-1 rounded text-sm">calendar.events</code>, que permite crear, editar y eliminar eventos en tu calendario.</li>
+					<li>No leemos ni accedemos a eventos existentes en tu calendario.</li>
+					<li>Solo sincronizamos las citas que crees dentro de Gentoo.</li>
+					<li>Puedes desconectar la integración en cualquier momento desde Configuración.</li>
+					<li>Los tokens de acceso se almacenan de forma segura y nunca se comparten con terceros.</li>
+				</ul>
+				<p class="mt-3">
+					El uso de la API de Google Calendar está sujeto a la
+					<a href="https://policies.google.com/privacy" target="_blank" class="text-blue-600 underline">Política de Privacidad de Google</a>.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">4. Cómo usamos tu información</h2>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li>Proveer y mantener los servicios de la plataforma.</li>
+					<li>Gestionar tu cuenta y la de tu equipo.</li>
+					<li>Procesar la facturación electrónica ante el SRI de Ecuador.</li>
+					<li>Sincronizar citas con Google Calendar si tienes la integración activa.</li>
+					<li>Mejorar la seguridad y detectar actividad fraudulenta.</li>
+					<li>Cumplir con obligaciones legales y regulatorias.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">5. Almacenamiento y seguridad</h2>
+				<p>
+					Toda la información se almacena en servidores seguros. Implementamos medidas técnicas y
+					organizativas para proteger tus datos contra acceso no autorizado, pérdida o divulgación,
+					incluyendo cifrado en tránsito (HTTPS) y control de acceso basado en roles.
+				</p>
+				<p class="mt-3">
+					Los datos clínicos son de exclusiva propiedad del consultorio o clínica. Gentoo actúa
+					únicamente como procesador de datos y no comercializa ni comparte información clínica con
+					terceros.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">6. Tus derechos</h2>
+				<p>Como titular de datos tienes derecho a:</p>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li>Acceder a la información que hemos recopilado sobre ti.</li>
+					<li>Solicitar la corrección de datos incorrectos.</li>
+					<li>Solicitar la eliminación de tu cuenta y datos asociados.</li>
+					<li>Revocar cualquier integración de terceros (como Google Calendar) en cualquier momento.</li>
+				</ul>
+				<p class="mt-3">
+					Para ejercer estos derechos, contáctanos en <a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">7. Cambios a esta política</h2>
+				<p>
+					Podemos actualizar esta política ocasionalmente. Te notificaremos por correo electrónico
+					o mediante un aviso en la plataforma ante cambios significativos. El uso continuado de
+					Gentoo tras los cambios implica tu aceptación.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">8. Contacto</h2>
+				<p>
+					Si tienes preguntas sobre esta Política de Privacidad, puedes escribirnos a:<br />
+					<a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>
+				</p>
+			</section>
+
+		</div>
+	</main>
+	<Footer />
+</Layout>
