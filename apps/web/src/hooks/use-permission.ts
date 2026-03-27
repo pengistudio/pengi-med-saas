@@ -14,7 +14,7 @@ const usePermission = () => {
 	 */
 	const checkPermission = React.useCallback(
 		(featurePermissions: string[]): boolean => {
-			if (!environment || !environment.permissions) return false;
+			if (!environment?.permissions) return false;
 			const permissionList = environment.permissions;
 			return featurePermissions.every((permission) =>
 				permissionList.includes(permission),

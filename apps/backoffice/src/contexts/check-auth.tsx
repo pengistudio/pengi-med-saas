@@ -42,7 +42,7 @@ const CheckAuth = (props: Props) => {
 
 	// Schedule a silent refresh before the token expires
 	React.useEffect(() => {
-		if (!decoded || !decoded.exp) return;
+		if (!decoded?.exp) return;
 
 		const now = Date.now();
 		const expirationTime = decoded.exp * ONE_SECOND;
