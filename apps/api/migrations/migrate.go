@@ -7,6 +7,7 @@ import (
 	"pengi-med-saas/core/database"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	billing_models "pengi-med-saas/features/billing/models"
+	integration_models "pengi-med-saas/features/integrations/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	permission_models "pengi-med-saas/features/permissions/models"
@@ -41,6 +42,7 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.VitalSigns{},
 		clinical_models.Appointment{},
 		clinical_models.Cie10Code{},
+		integration_models.TenantIntegration{},
 		backoffice_models.BackofficeUser{},
 		billing_models.Invoice{},
 		billing_models.InvoiceItem{},

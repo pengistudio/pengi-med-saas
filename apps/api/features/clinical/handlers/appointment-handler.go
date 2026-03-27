@@ -4,8 +4,10 @@ import (
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	google_calendar "pengi-med-saas/core/google"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	integration_models "pengi-med-saas/features/integrations/models"
 	"strconv"
 	"time"
 
@@ -17,12 +19,96 @@ import (
 )
 
 type AppointmentHandler struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db        *gorm.DB
+	logger    *zap.Logger
+	googleSvc *google_calendar.CalendarService
 }
 
 func NewAppointmentHandler(db *gorm.DB, logger *zap.Logger) *AppointmentHandler {
-	return &AppointmentHandler{db: db, logger: logger}
+	return &AppointmentHandler{
+		db:        db,
+		logger:    logger,
+		googleSvc: google_calendar.NewCalendarService(),
+	}
+}
+
+// syncCreate creates a Google Calendar event for the appointment and saves the event ID.
+// Errors are logged but never propagate to the caller.
+func (h *AppointmentHandler) syncCreate(tenantID uint, appointment *clinical_models.Appointment) {
+	if !h.googleSvc.IsConfigured() {
+		return
+	}
+	token, calendarID, ok := h.getValidToken(tenantID)
+	if !ok {
+		return
+	}
+	patientName := appointment.Patient.FirstName + " " + appointment.Patient.LastName
+	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.Date, appointment.StartTime, appointment.EndTime)
+	eventID, err := h.googleSvc.CreateEvent(token, calendarID, event)
+	if err != nil {
+		h.logger.Warn("Google Calendar: failed to create event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
+		return
+	}
+	h.db.Model(appointment).Update("google_event_id", eventID)
+	h.logger.Info("Google Calendar: event created", zap.String("event_id", eventID), zap.Uint("appointment_id", appointment.ID))
+}
+
+// syncUpdate updates the Google Calendar event for the appointment.
+func (h *AppointmentHandler) syncUpdate(tenantID uint, appointment *clinical_models.Appointment) {
+	if !h.googleSvc.IsConfigured() || appointment.GoogleEventID == "" {
+		return
+	}
+	token, calendarID, ok := h.getValidToken(tenantID)
+	if !ok {
+		return
+	}
+	patientName := appointment.Patient.FirstName + " " + appointment.Patient.LastName
+	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.Date, appointment.StartTime, appointment.EndTime)
+	if err := h.googleSvc.UpdateEvent(token, calendarID, appointment.GoogleEventID, event); err != nil {
+		h.logger.Warn("Google Calendar: failed to update event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
+	}
+}
+
+// syncDelete deletes the Google Calendar event for the appointment.
+func (h *AppointmentHandler) syncDelete(tenantID uint, appointment *clinical_models.Appointment) {
+	if !h.googleSvc.IsConfigured() || appointment.GoogleEventID == "" {
+		return
+	}
+	token, calendarID, ok := h.getValidToken(tenantID)
+	if !ok {
+		return
+	}
+	if err := h.googleSvc.DeleteEvent(token, calendarID, appointment.GoogleEventID); err != nil {
+		h.logger.Warn("Google Calendar: failed to delete event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
+	}
+}
+
+// getValidToken returns a valid access token and calendar ID for the tenant.
+// Returns false if not connected or on any error.
+func (h *AppointmentHandler) getValidToken(tenantID uint) (accessToken, calendarID string, ok bool) {
+	var integration integration_models.TenantIntegration
+	if err := h.db.Where("tenant_id = ? AND google_connected = true", tenantID).First(&integration).Error; err != nil {
+		return "", "", false
+	}
+
+	if google_calendar.IsExpired(integration.GoogleTokenExpiry) {
+		if integration.GoogleRefreshToken == "" {
+			return "", "", false
+		}
+		newToken, err := h.googleSvc.RefreshAccessToken(integration.GoogleRefreshToken)
+		if err != nil {
+			h.logger.Warn("Google Calendar: token refresh failed", zap.Error(err), zap.Uint("tenant_id", tenantID))
+			return "", "", false
+		}
+		expiry := google_calendar.TokenExpiry(newToken.ExpiresIn)
+		h.db.Model(&integration).Updates(map[string]interface{}{
+			"google_access_token": newToken.AccessToken,
+			"google_token_expiry": &expiry,
+		})
+		integration.GoogleAccessToken = newToken.AccessToken
+	}
+
+	return integration.GoogleAccessToken, integration.GoogleCalendarID, true
 }
 
 // GetAppointments returns all appointments for the tenant, optionally filtered by date range
@@ -145,6 +231,11 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 	// Reload with patient
 	h.db.Preload("Patient").First(appointment, appointment.ID)
 
+	// Sync to Google Calendar (non-blocking, errors are logged)
+	if exists {
+		go h.syncCreate(tenantID.(uint), appointment)
+	}
+
 	h.logger.Info("Appointment created successfully", zap.Uint("id", appointment.ID))
 	return envelope.SuccessResponse(appointment, "appointments.create.success")
 }
@@ -222,6 +313,9 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 
 	h.db.Preload("Patient").First(&appointment, id)
 
+	// Sync to Google Calendar (non-blocking, errors are logged)
+	go h.syncUpdate(tenantID.(uint), &appointment)
+
 	h.logger.Info("Appointment updated successfully", zap.Int("id", id))
 	return envelope.SuccessResponse(appointment, "appointments.update.success")
 }
@@ -263,6 +357,15 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 
 	h.db.Preload("Patient").First(&appointment, id)
 
+	tenantID, _ := c.Get("tenant_id")
+	if tenantID != nil {
+		if dto.Status == "cancelled" || dto.Status == "completed" {
+			go h.syncDelete(tenantID.(uint), &appointment)
+		} else {
+			go h.syncUpdate(tenantID.(uint), &appointment)
+		}
+	}
+
 	h.logger.Info("Appointment status updated", zap.Int("id", id), zap.String("status", dto.Status))
 	return envelope.SuccessResponse(appointment, "appointments.status.update.success")
 }
@@ -279,13 +382,18 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
-	if appointment.Status != "scheduled" && appointment.Status != "cancelled" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Only scheduled or cancelled appointments can be deleted", core_errors.ErrClinicalInvalidRequest)
+	if appointment.Status != "scheduled" && appointment.Status != "cancelled" && appointment.Status != "completed" {
+		return envelope.ErrorResponse(http.StatusBadRequest, "Only scheduled, cancelled or completed appointments can be deleted", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Delete(&appointment).Error; err != nil {
 		h.logger.Error("Failed to delete appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
+	}
+
+	tenantID, _ := c.Get("tenant_id")
+	if tenantID != nil {
+		go h.syncDelete(tenantID.(uint), &appointment)
 	}
 
 	h.logger.Info("Appointment deleted", zap.Int("id", id))

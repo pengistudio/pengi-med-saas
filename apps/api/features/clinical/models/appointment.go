@@ -16,8 +16,9 @@ type Appointment struct {
 	EndTime   string    `json:"end_time"`
 	Location  string    `json:"location,omitempty"`
 	Notes     string    `json:"notes,omitempty"`
-	Status    string    `json:"status" gorm:"default:scheduled"`
-	Patient   Patient   `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
+	Status        string  `json:"status" gorm:"default:scheduled"`
+	GoogleEventID string  `json:"google_event_id,omitempty"`
+	Patient       Patient `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 }
 
 func (Appointment) IsAuditable() bool { return true }

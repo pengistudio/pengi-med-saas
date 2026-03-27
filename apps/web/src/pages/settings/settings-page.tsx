@@ -1,4 +1,11 @@
 import React from "react";
+import { useSearchParams } from "react-router";
+import {
+	disconnectGoogle,
+	type GoogleIntegrationStatus,
+	getGoogleAuthUrl,
+	getGoogleIntegrationStatus,
+} from "@/api/integration-service";
 import type {
 	ClinicalSettings,
 	TenantUISettings,
@@ -12,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import useToast from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
@@ -23,11 +31,32 @@ const SettingsPage = () => {
 	const [templateLoading, setTemplateLoading] = React.useState(false);
 	const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+	const [googleStatus, setGoogleStatus] =
+		React.useState<GoogleIntegrationStatus | null>(null);
+	const [googleLoading, setGoogleLoading] = React.useState(false);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const { successToast, errorToast } = useToast();
+
 	React.useEffect(() => {
 		getPrescriptionTemplateStatus().then((res) => {
 			if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
 		});
+		getGoogleIntegrationStatus().then((res) => {
+			if (res.success && res.data) setGoogleStatus(res.data);
+		});
 	}, []);
+
+	React.useEffect(() => {
+		const googleParam = searchParams.get("google");
+		if (googleParam === "connected") {
+			successToast("settings.integrations.google.connected");
+			setGoogleStatus((prev) => ({ ...prev, connected: true }));
+			setSearchParams({});
+		} else if (googleParam === "error") {
+			errorToast(null, "Error al conectar con Google Calendar");
+			setSearchParams({});
+		}
+	}, [searchParams, errorToast, setSearchParams, successToast]);
 
 	async function handleUploadTemplate(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
@@ -37,6 +66,24 @@ const SettingsPage = () => {
 		if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
 		setTemplateLoading(false);
 		if (fileInputRef.current) fileInputRef.current.value = "";
+	}
+
+	async function handleConnectGoogle() {
+		setGoogleLoading(true);
+		const res = await getGoogleAuthUrl();
+		if (res.success && res.data) {
+			window.location.href = res.data.url;
+		}
+		setGoogleLoading(false);
+	}
+
+	async function handleDisconnectGoogle() {
+		setGoogleLoading(true);
+		const res = await disconnectGoogle();
+		if (res.success) {
+			setGoogleStatus((prev) => ({ ...prev, connected: false }));
+		}
+		setGoogleLoading(false);
 	}
 
 	async function handleDeleteTemplate() {
@@ -228,6 +275,91 @@ const SettingsPage = () => {
 							</Button>
 						)}
 					</div>
+				</section>
+
+				{/* Google Calendar integration */}
+				<section className="rounded-lg border bg-card p-6 grid gap-4">
+					<h2 className="text-base font-medium text-muted-foreground">
+						<Text uuid="settings.integrations.title" />
+					</h2>
+
+					{/* Header row: title + status badge + button */}
+					<div className="flex items-start justify-between gap-4">
+						<div className="grid gap-1">
+							<p className="text-sm font-medium">
+								<Text uuid="settings.integrations.google.title" />
+							</p>
+							<p className="text-sm text-muted-foreground">
+								<Text uuid="settings.integrations.google.description" />
+							</p>
+							<span
+								className={cn(
+									"mt-1 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+									googleStatus?.connected
+										? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+										: "bg-muted text-muted-foreground",
+								)}
+							>
+								<span
+									className={cn(
+										"size-1.5 rounded-full",
+										googleStatus?.connected
+											? "bg-green-500"
+											: "bg-muted-foreground/50",
+									)}
+								/>
+								{googleStatus?.connected ? (
+									<Text uuid="settings.integrations.google.connected" />
+								) : (
+									<Text uuid="settings.integrations.google.disconnected" />
+								)}
+							</span>
+						</div>
+
+						<div className="shrink-0">
+							{googleStatus?.connected ? (
+								<Button
+									variant="outline"
+									size="sm"
+									disabled={googleLoading}
+									onClick={handleDisconnectGoogle}
+								>
+									<Text uuid="settings.integrations.google.disconnect" />
+								</Button>
+							) : (
+								<Button
+									size="sm"
+									disabled={googleLoading}
+									onClick={handleConnectGoogle}
+								>
+									<Text uuid="settings.integrations.google.connect" />
+								</Button>
+							)}
+						</div>
+					</div>
+
+					{/* Tutorial: only shown when not connected */}
+					{!googleStatus?.connected && (
+						<div className="rounded-md bg-muted/50 border p-4 grid gap-3">
+							<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+								<Text uuid="settings.integrations.google.tutorial.title" />
+							</p>
+							<ol className="grid gap-2">
+								{[1, 2, 3].map((step) => (
+									<li key={step} className="flex gap-3 text-sm">
+										<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+											{step}
+										</span>
+										<span className="text-muted-foreground">
+											<Text
+												uuid={`settings.integrations.google.tutorial.step${step}`}
+											/>
+										</span>
+									</li>
+								))}
+							</ol>
+						</div>
+					)}
 				</section>
 			</main>
 		</DashboardLayout>

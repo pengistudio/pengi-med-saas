@@ -15,4 +15,5 @@ func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	RegisterBackofficeRoutes(router, db)
 	RegisterBillingRoutes(router, db)
 	RegisterTenantRoutes(router, db)
+	RegisterIntegrationRoutes(router, db)
 }

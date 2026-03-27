@@ -3502,5 +3502,61 @@
 	{
 		"key": "company.invite_link.success",
 		"value": "Invite link generated"
+	},
+	{
+		"key": "integrations.google.auth.url.success",
+		"value": "Auth URL generated"
+	},
+	{
+		"key": "integrations.google.status.success",
+		"value": "Integration status retrieved"
+	},
+	{
+		"key": "integrations.google.disconnect.success",
+		"value": "Disconnected from Google Calendar"
+	},
+	{
+		"key": "settings.integrations.title",
+		"value": "Integrations"
+	},
+	{
+		"key": "settings.integrations.google.title",
+		"value": "Google Calendar"
+	},
+	{
+		"key": "settings.integrations.google.description",
+		"value": "Automatically sync your appointments with Google Calendar."
+	},
+	{
+		"key": "settings.integrations.google.connect",
+		"value": "Connect Google Calendar"
+	},
+	{
+		"key": "settings.integrations.google.disconnect",
+		"value": "Disconnect"
+	},
+	{
+		"key": "settings.integrations.google.connected",
+		"value": "Connected"
+	},
+	{
+		"key": "settings.integrations.google.disconnected",
+		"value": "Not connected"
+	},
+	{
+		"key": "settings.integrations.google.tutorial.title",
+		"value": "How to connect"
+	},
+	{
+		"key": "settings.integrations.google.tutorial.step1",
+		"value": "Click \"Connect Google Calendar\" — you'll be redirected to Google to authorize access."
+	},
+	{
+		"key": "settings.integrations.google.tutorial.step2",
+		"value": "Select the Google account where you want to sync appointments and accept the permissions."
+	},
+	{
+		"key": "settings.integrations.google.tutorial.step3",
+		"value": "Done. From now on, every appointment you create, edit, or cancel will automatically appear in your Google Calendar."
 	}
 ]

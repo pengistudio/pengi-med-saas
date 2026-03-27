@@ -57,4 +57,8 @@ var (
 
 	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")
+
+	// Integration Errors
+	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")
+	ErrIntegrationNotFound      AppError = NewAppError("E-INT-005", "Integration not found.")
 )

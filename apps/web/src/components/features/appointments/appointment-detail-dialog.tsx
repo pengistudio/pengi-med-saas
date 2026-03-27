@@ -179,7 +179,8 @@ export function AppointmentDetailDialog({
 							</Button>
 						</>
 					)}
-					{appointment.status === "cancelled" && (
+					{(appointment.status === "cancelled" ||
+						appointment.status === "completed") && (
 						<Button
 							variant="destructive"
 							size="sm"

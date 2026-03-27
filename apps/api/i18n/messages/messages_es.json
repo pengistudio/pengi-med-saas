@@ -3502,5 +3502,61 @@
 	{
 		"key": "company.invite_link.success",
 		"value": "Enlace de invitación generado"
+	},
+	{
+		"key": "integrations.google.auth.url.success",
+		"value": "URL de autenticación generada"
+	},
+	{
+		"key": "integrations.google.status.success",
+		"value": "Estado de integración obtenido"
+	},
+	{
+		"key": "integrations.google.disconnect.success",
+		"value": "Desconectado de Google Calendar"
+	},
+	{
+		"key": "settings.integrations.title",
+		"value": "Integraciones"
+	},
+	{
+		"key": "settings.integrations.google.title",
+		"value": "Google Calendar"
+	},
+	{
+		"key": "settings.integrations.google.description",
+		"value": "Sincroniza tus citas automáticamente con Google Calendar."
+	},
+	{
+		"key": "settings.integrations.google.connect",
+		"value": "Conectar Google Calendar"
+	},
+	{
+		"key": "settings.integrations.google.disconnect",
+		"value": "Desconectar"
+	},
+	{
+		"key": "settings.integrations.google.connected",
+		"value": "Conectado"
+	},
+	{
+		"key": "settings.integrations.google.disconnected",
+		"value": "No conectado"
+	},
+	{
+		"key": "settings.integrations.google.tutorial.title",
+		"value": "Cómo conectar"
+	},
+	{
+		"key": "settings.integrations.google.tutorial.step1",
+		"value": "Haz clic en \"Conectar Google Calendar\" — serás redirigido a Google para autorizar el acceso."
+	},
+	{
+		"key": "settings.integrations.google.tutorial.step2",
+		"value": "Selecciona la cuenta de Google donde quieres sincronizar las citas y acepta los permisos."
+	},
+	{
+		"key": "settings.integrations.google.tutorial.step3",
+		"value": "Listo. Desde ahora cada cita que crees, edites o canceles se reflejará automáticamente en tu Google Calendar."
 	}
 ]
