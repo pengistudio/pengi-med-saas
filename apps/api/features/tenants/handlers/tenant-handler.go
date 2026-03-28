@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,7 +18,6 @@ import (
 	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"software.sslmate.com/src/go-pkcs12"
@@ -196,21 +196,21 @@ func (h *TenantHandler) GetUISettings(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(settings, "tenant.settings.fetch.success")
 }
 
-// GenerateDisplayToken creates or replaces the public display token for the tenant.
+// GenerateDisplayToken creates or replaces the 8-digit pairing code for the tenant TV display.
 func (h *TenantHandler) GenerateDisplayToken(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
 	}
 
-	token := uuid.NewString()
+	code := fmt.Sprintf("%08d", rand.IntN(100_000_000))
 
-	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("display_token", token).Error; err != nil {
+	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("display_token", code).Error; err != nil {
 		h.logger.Error("Failed to generate display token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to generate display token", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(gin.H{"token": token}, "tenant.display_token.generate.success")
+	return envelope.SuccessResponse(gin.H{"token": code}, "tenant.display_token.generate.success")
 }
 
 // GetTodayAppointmentsPublic is a public endpoint that returns today's appointments

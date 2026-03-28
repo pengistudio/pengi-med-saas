@@ -1320,6 +1320,10 @@
 		"value": "Copiar enlace TV"
 	},
 	{
+		"key": "waiting_room.generate_tv_code",
+		"value": "Código TV"
+	},
+	{
 		"key": "waiting_room.refresh",
 		"value": "Actualizar"
 	},
