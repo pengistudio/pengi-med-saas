@@ -139,14 +139,16 @@ function useWakeLock() {
 
 function VideoPanel({ embedUrl }: { embedUrl: string }) {
 	return (
-		<div className="w-[320px] shrink-0 flex flex-col bg-black rounded-xl overflow-hidden">
-			<iframe
-				src={embedUrl}
-				className="w-full flex-1"
-				allow="autoplay; encrypted-media"
-				allowFullScreen={false}
-				title="Display video"
-			/>
+		<div className="w-full shrink-0 rounded-xl overflow-hidden bg-black shadow-lg">
+			<div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+				<iframe
+					src={embedUrl}
+					className="absolute inset-0 w-full h-full"
+					allow="autoplay; encrypted-media"
+					allowFullScreen={false}
+					title="Display video"
+				/>
+			</div>
 		</div>
 	);
 }
@@ -376,19 +378,18 @@ const WaitingRoomDisplayPage = () => {
 			</header>
 
 			{/* Main */}
-			<main className="flex-1 flex gap-6 p-8 min-h-0">
-				<div
-					className={`flex-1 grid gap-6 ${showPanel ? "grid-cols-3" : "grid-cols-3"}`}
-				>
+			<main className="flex-1 flex gap-6 p-8 min-h-0 overflow-hidden">
+				{/* Patient columns — left side */}
+				<div className="flex-1 grid grid-cols-3 gap-6 min-h-0">
 					{DISPLAY_COLUMNS.map((col) => {
 						const colors = STATUS_COLORS[col.status];
 						const Icon = col.icon;
 						const items = byStatus[col.status];
 
 						return (
-							<div key={col.status} className="flex flex-col gap-4">
+							<div key={col.status} className="flex flex-col gap-4 min-h-0">
 								<div
-									className={`flex items-center gap-2 rounded-xl border-2 ${col.borderClass} ${col.bgClass} px-4 py-3`}
+									className={`flex items-center gap-2 rounded-xl border-2 ${col.borderClass} ${col.bgClass} px-4 py-3 shrink-0`}
 								>
 									<Icon className={`h-5 w-5 shrink-0 ${colors.text}`} />
 									<span
@@ -416,8 +417,11 @@ const WaitingRoomDisplayPage = () => {
 					})}
 				</div>
 
+				{/* Video panel — right side */}
 				{showPanel && videoId && (
-					<VideoPanel embedUrl={buildEmbedUrl(videoId)} />
+					<div className="w-[480px] shrink-0 flex items-start">
+						<VideoPanel embedUrl={buildEmbedUrl(videoId)} />
+					</div>
 				)}
 			</main>
 
