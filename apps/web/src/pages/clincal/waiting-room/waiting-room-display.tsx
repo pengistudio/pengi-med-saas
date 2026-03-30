@@ -67,7 +67,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function buildEmbedUrl(videoId: string): string {
-	return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&rel=0`;
+	return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&rel=0`;
 }
 
 function LiveClock() {
@@ -100,8 +100,8 @@ function PatientCard({ appointment }: { appointment: Appointment }) {
 		<div
 			className={`rounded-xl border-l-4 ${colors.border} ${colors.bg} px-5 py-4 space-y-1`}
 		>
-			<p className="text-2xl font-semibold leading-tight">{name}</p>
-			<p className={`text-lg font-medium ${colors.text}`}>
+			<p className="text-lg font-semibold leading-tight">{name}</p>
+			<p className={`text-base font-medium ${colors.text}`}>
 				{appointment.start_time} – {appointment.end_time}
 			</p>
 			{appointment.title && (
@@ -139,7 +139,7 @@ function useWakeLock() {
 
 function VideoPanel({ embedUrl }: { embedUrl: string }) {
 	return (
-		<div className="w-[380px] shrink-0 flex flex-col bg-black rounded-xl overflow-hidden">
+		<div className="w-[320px] shrink-0 flex flex-col bg-black rounded-xl overflow-hidden">
 			<iframe
 				src={embedUrl}
 				className="w-full flex-1"
@@ -388,23 +388,23 @@ const WaitingRoomDisplayPage = () => {
 						return (
 							<div key={col.status} className="flex flex-col gap-4">
 								<div
-									className={`flex items-center gap-3 rounded-xl border-2 ${col.borderClass} ${col.bgClass} px-6 py-4`}
+									className={`flex items-center gap-2 rounded-xl border-2 ${col.borderClass} ${col.bgClass} px-4 py-3`}
 								>
-									<Icon className={`h-7 w-7 ${colors.text}`} />
+									<Icon className={`h-5 w-5 shrink-0 ${colors.text}`} />
 									<span
-										className={`text-2xl font-bold uppercase tracking-wide ${colors.text}`}
+										className={`text-base font-bold uppercase tracking-wide leading-tight ${colors.text}`}
 									>
 										{textGet(STATUS_I18N_KEYS[col.status])}
 									</span>
 									<span
-										className={`ml-auto text-3xl font-bold tabular-nums ${colors.text}`}
+										className={`ml-auto text-xl font-bold tabular-nums shrink-0 ${colors.text}`}
 									>
 										{items.length}
 									</span>
 								</div>
 								<div className="flex flex-col gap-3 overflow-y-auto">
 									{items.length === 0 ? (
-										<div className="p-8 text-center text-xl text-muted-foreground/50">
+										<div className="p-6 text-center text-base text-muted-foreground/50">
 											{textGet("waiting_room.empty_column")}
 										</div>
 									) : (

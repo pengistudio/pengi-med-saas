@@ -1328,6 +1328,10 @@
 		"value": "Refresh"
 	},
 	{
+		"key": "waiting_room.column.scheduled",
+		"value": "To check in"
+	},
+	{
 		"key": "waiting_room.empty_column",
 		"value": "No patients"
 	},

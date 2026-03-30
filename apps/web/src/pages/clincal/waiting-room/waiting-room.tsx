@@ -440,7 +440,9 @@ const WaitingRoomPage = () => {
 											<CardTitle className="text-sm font-semibold flex items-center gap-2">
 												<Icon className={`h-4 w-4 ${colors.text}`} />
 												<span className={colors.text}>
-													{textGet(STATUS_I18N_KEYS[col.status])}
+													{col.status === "scheduled"
+														? textGet("waiting_room.column.scheduled")
+														: textGet(STATUS_I18N_KEYS[col.status])}
 												</span>
 												<Badge variant="outline" className="ml-auto text-xs">
 													{items.length}

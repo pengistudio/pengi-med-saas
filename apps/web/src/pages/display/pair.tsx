@@ -28,10 +28,10 @@ const PairDisplayPage = () => {
 		<div className="min-h-screen bg-background flex items-center justify-center p-6">
 			<div className="w-full max-w-sm space-y-8 text-center">
 				<div className="flex flex-col items-center gap-3">
-					<div className="rounded-full bg-primary/10 p-4">
-						<Monitor className="h-10 w-10 text-primary" />
+					<div className="rounded-full bg-primary/10 p-3">
+						<Monitor className="h-7 w-7 text-primary" />
 					</div>
-					<h1 className="text-2xl font-bold">Conectar pantalla</h1>
+					<h1 className="text-xl font-bold">Conectar pantalla</h1>
 					<p className="text-muted-foreground text-sm">
 						Ingresa el código de 8 dígitos que aparece en la aplicación
 					</p>
@@ -44,7 +44,7 @@ const PairDisplayPage = () => {
 						placeholder="00000000"
 						inputMode="numeric"
 						maxLength={8}
-						className={`text-center text-3xl font-mono tracking-[0.5em] h-16 ${error ? "border-destructive" : ""}`}
+						className={`text-center text-xl font-mono tracking-[0.5em] h-12 ${error ? "border-destructive" : ""}`}
 						autoFocus
 					/>
 					{error && (

@@ -1297,7 +1297,7 @@
 	},
 	{
 		"key": "appointments.status.arrived",
-		"value": "En sala de espera"
+		"value": "En espera"
 	},
 	{
 		"key": "appointments.status.in_consultation",
@@ -1326,6 +1326,10 @@
 	{
 		"key": "waiting_room.refresh",
 		"value": "Actualizar"
+	},
+	{
+		"key": "waiting_room.column.scheduled",
+		"value": "Por ingresar"
 	},
 	{
 		"key": "waiting_room.empty_column",
