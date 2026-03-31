@@ -84,13 +84,14 @@ func (h *DownloadRecordHandler) DownloadPatientReport(c *gin.Context) {
 
 func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle string) ([]byte, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
+	tr := pdf.UnicodeTranslatorFromDescriptor("")
 
 	// Set footer function to appear on all pages
 	pdf.SetFooterFunc(func() {
 		pdf.SetY(-20)
 		pdf.SetFont("Arial", "I", 8)
 		pdf.SetTextColor(128, 128, 128)
-		pdf.CellFormat(0, 5, "Este documento es confidencial y de uso exclusivo medico", "0", 0, "C", false, 0, "")
+		pdf.CellFormat(0, 5, tr("Este documento es confidencial y de uso exclusivo medico"), "0", 0, "C", false, 0, "")
 		pdf.Ln(4)
 		pdf.CellFormat(0, 5, fmt.Sprintf("Generado el %s", time.Now().Format("02/01/2006 15:04")), "0", 0, "C", false, 0, "")
 	})
@@ -100,19 +101,19 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 	// === HEADER ===
 	pdf.SetFont("Arial", "B", 18)
 	pdf.SetTextColor(41, 128, 185)
-	pdf.Cell(0, 10, reportTitle)
+	pdf.Cell(0, 10, tr(reportTitle))
 	pdf.Ln(8)
 
 	pdf.SetFont("Arial", "", 10)
 	pdf.SetTextColor(100, 100, 100)
-	pdf.Cell(0, 6, fmt.Sprintf("Fecha de generacion: %s", time.Now().Format("02/01/2006 15:04")))
+	pdf.Cell(0, 6, tr(fmt.Sprintf("Fecha de generacion: %s", time.Now().Format("02/01/2006 15:04"))))
 	pdf.Ln(12)
 
 	// === PATIENT DATA ===
 	pdf.SetFont("Arial", "B", 14)
 	pdf.SetFillColor(41, 128, 185)
 	pdf.SetTextColor(255, 255, 255)
-	pdf.CellFormat(0, 8, "DATOS DEL PACIENTE", "0", 1, "L", true, 0, "")
+	pdf.CellFormat(0, 8, tr("DATOS DEL PACIENTE"), "0", 1, "L", true, 0, "")
 	pdf.SetTextColor(0, 0, 0)
 	pdf.Ln(3)
 
@@ -121,37 +122,37 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 	if patient.FullName != nil {
 		fullName = *patient.FullName
 	}
-	addField(pdf, "Nombre completo:", fullName)
-	addField(pdf, "Cedula:", patient.Document)
+	addField(pdf, tr, "Nombre completo:", fullName)
+	addField(pdf, tr, "Cedula:", patient.Document)
 	if patient.Phone != "" {
-		addField(pdf, "Telefono:", patient.Phone)
+		addField(pdf, tr, "Telefono:", patient.Phone)
 	}
 	if !patient.BirthDate.IsZero() {
-		addField(pdf, "Fecha de nacimiento:", patient.BirthDate.Format("02/01/2006"))
+		addField(pdf, tr, "Fecha de nacimiento:", patient.BirthDate.Format("02/01/2006"))
 	}
 	if patient.Gender != "" {
-		addField(pdf, "Genero:", patient.Gender)
+		addField(pdf, tr, "Genero:", patient.Gender)
 	}
 	if patient.Insurance != "" {
-		addField(pdf, "Seguro:", patient.Insurance)
+		addField(pdf, tr, "Seguro:", patient.Insurance)
 	}
 	if patient.Medic != "" {
-		addField(pdf, "Medico tratante:", patient.Medic)
+		addField(pdf, tr, "Medico tratante:", patient.Medic)
 	}
 	if patient.Diagnosis != "" {
-		addField(pdf, "Diagnostico:", patient.Diagnosis)
+		addField(pdf, tr, "Diagnostico:", patient.Diagnosis)
 	}
 	if patient.APP != "" {
-		addField(pdf, "APP:", patient.APP)
+		addField(pdf, tr, "APP:", patient.APP)
 	}
 	if patient.APF != "" {
-		addField(pdf, "APF:", patient.APF)
+		addField(pdf, tr, "APF:", patient.APF)
 	}
 	if patient.APQX != "" {
-		addField(pdf, "APQX:", patient.APQX)
+		addField(pdf, tr, "APQX:", patient.APQX)
 	}
 	if patient.Institution != "" {
-		addField(pdf, "Institucion:", patient.Institution)
+		addField(pdf, tr, "Institucion:", patient.Institution)
 	}
 	pdf.Ln(5)
 
@@ -159,17 +160,17 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 	pdf.SetFont("Arial", "B", 14)
 	pdf.SetFillColor(46, 204, 113)
 	pdf.SetTextColor(255, 255, 255)
-	pdf.CellFormat(0, 8, "RESUMEN", "0", 1, "L", true, 0, "")
+	pdf.CellFormat(0, 8, tr("RESUMEN"), "0", 1, "L", true, 0, "")
 	pdf.SetTextColor(0, 0, 0)
 	pdf.Ln(3)
 
 	pdf.SetFont("Arial", "", 10)
-	addField(pdf, "Total de consultas:", fmt.Sprintf("%d", len(patient.MedicalRecords)))
+	addField(pdf, tr, "Total de consultas:", fmt.Sprintf("%d", len(patient.MedicalRecords)))
 	if len(patient.MedicalRecords) > 0 {
 		lastRecord := patient.MedicalRecords[0]
-		addField(pdf, "Ultima consulta:", lastRecord.Date.Format("02/01/2006"))
+		addField(pdf, tr, "Ultima consulta:", lastRecord.Date.Format("02/01/2006"))
 		if lastRecord.Appointment != nil {
-			addField(pdf, "Proxima cita:", lastRecord.Appointment.Date.Format("02/01/2006"))
+			addField(pdf, tr, "Proxima cita:", lastRecord.Appointment.Date.Format("02/01/2006"))
 		}
 	}
 	pdf.Ln(5)
@@ -179,7 +180,7 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 		pdf.SetFont("Arial", "B", 14)
 		pdf.SetFillColor(230, 126, 34)
 		pdf.SetTextColor(255, 255, 255)
-		pdf.CellFormat(0, 8, "HISTORIAL DE CONSULTAS MEDICAS", "0", 1, "L", true, 0, "")
+		pdf.CellFormat(0, 8, tr("HISTORIAL DE CONSULTAS MEDICAS"), "0", 1, "L", true, 0, "")
 		pdf.SetTextColor(0, 0, 0)
 		pdf.Ln(4)
 
@@ -191,49 +192,49 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 
 			pdf.SetFont("Arial", "B", 12)
 			pdf.SetTextColor(41, 128, 185)
-			pdf.Cell(0, 6, fmt.Sprintf("Consulta #%d - %s", len(patient.MedicalRecords)-i, record.Date.Format("02/01/2006")))
+			pdf.Cell(0, 6, tr(fmt.Sprintf("Consulta #%d - %s", len(patient.MedicalRecords)-i, record.Date.Format("02/01/2006"))))
 			pdf.SetTextColor(0, 0, 0)
 			pdf.Ln(7)
 
 			pdf.SetFont("Arial", "B", 10)
-			pdf.Cell(35, 6, "Motivo:")
+			pdf.Cell(35, 6, tr("Motivo:"))
 			pdf.SetFont("Arial", "", 10)
-			pdf.MultiCell(0, 6, record.Motive, "0", "L", false)
+			pdf.MultiCell(0, 6, tr(record.Motive), "0", "L", false)
 			pdf.Ln(2)
 
 			// SOAP Record
 			if record.SOAPRecord.ID != 0 {
 				pdf.SetFont("Arial", "B", 11)
 				pdf.SetTextColor(52, 152, 219)
-				pdf.Cell(0, 6, "Registro SOAP:")
+				pdf.Cell(0, 6, tr("Registro SOAP:"))
 				pdf.SetTextColor(0, 0, 0)
 				pdf.Ln(6)
 
-				addSOAPField(pdf, "S (Subjetivo):", record.SOAPRecord.Subjective)
-				addSOAPField(pdf, "O (Objetivo):", record.SOAPRecord.Objective)
-				addSOAPField(pdf, "A (Analisis):", record.SOAPRecord.Assessment)
-				addSOAPField(pdf, "P (Plan):", record.SOAPRecord.Plan)
+				addSOAPField(pdf, tr, "S (Subjetivo):", record.SOAPRecord.Subjective)
+				addSOAPField(pdf, tr, "O (Objetivo):", record.SOAPRecord.Objective)
+				addSOAPField(pdf, tr, "A (Analisis):", record.SOAPRecord.Assessment)
+				addSOAPField(pdf, tr, "P (Plan):", record.SOAPRecord.Plan)
 			}
 
 			// Diagnoses
 			var diagnoses []clinical_models.DiagnosisItem
 			if json.Unmarshal(record.Diagnoses, &diagnoses) == nil && len(diagnoses) > 0 {
-					pdf.SetFont("Arial", "B", 11)
-					pdf.SetTextColor(41, 128, 185)
-					pdf.Cell(0, 6, "Diagnosticos CIE-11:")
-					pdf.SetTextColor(0, 0, 0)
-					pdf.Ln(6)
-					for _, d := range diagnoses {
-						addSOAPField(pdf, d.Code+":", d.Title)
-					}
+				pdf.SetFont("Arial", "B", 11)
+				pdf.SetTextColor(41, 128, 185)
+				pdf.Cell(0, 6, tr("Diagnosticos CIE-11:"))
+				pdf.SetTextColor(0, 0, 0)
+				pdf.Ln(6)
+				for _, d := range diagnoses {
+					addSOAPField(pdf, tr, d.Code+":", d.Title)
+				}
 			}
 
 			// Observations
 			if record.Observation != "" {
 				pdf.SetFont("Arial", "B", 10)
-				pdf.Cell(35, 6, "Observaciones:")
+				pdf.Cell(35, 6, tr("Observaciones:"))
 				pdf.SetFont("Arial", "", 10)
-				pdf.MultiCell(0, 6, record.Observation, "0", "L", false)
+				pdf.MultiCell(0, 6, tr(record.Observation), "0", "L", false)
 				pdf.Ln(2)
 			}
 
@@ -241,15 +242,15 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 			if record.Prescription != nil && (record.Prescription.Content != "" || record.Prescription.Indications != "") {
 				pdf.SetFont("Arial", "B", 11)
 				pdf.SetTextColor(52, 152, 219)
-				pdf.Cell(0, 6, "Receta Medica:")
+				pdf.Cell(0, 6, tr("Receta Medica:"))
 				pdf.SetTextColor(0, 0, 0)
 				pdf.Ln(6)
 
 				if record.Prescription.Content != "" {
-					addSOAPField(pdf, "Contenido:", record.Prescription.Content)
+					addSOAPField(pdf, tr, "Contenido:", record.Prescription.Content)
 				}
 				if record.Prescription.Indications != "" {
-					addSOAPField(pdf, "Indicaciones:", record.Prescription.Indications)
+					addSOAPField(pdf, tr, "Indicaciones:", record.Prescription.Indications)
 				}
 			}
 
@@ -257,7 +258,7 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 			if record.Appointment != nil {
 				pdf.SetFont("Arial", "B", 10)
 				pdf.SetTextColor(46, 204, 113)
-				pdf.Cell(0, 6, fmt.Sprintf("Cita enlazada: %s (%s-%s)", record.Appointment.Date.Format("02/01/2006"), record.Appointment.StartTime, record.Appointment.EndTime))
+				pdf.Cell(0, 6, tr(fmt.Sprintf("Cita enlazada: %s (%s-%s)", record.Appointment.Date.Format("02/01/2006"), record.Appointment.StartTime, record.Appointment.EndTime)))
 				pdf.SetTextColor(0, 0, 0)
 				pdf.Ln(6)
 			}
@@ -280,22 +281,22 @@ func generatePatientReportPDF(patient *clinical_models.Patient, reportTitle stri
 }
 
 // Helper function to add a labeled field
-func addField(pdf *gofpdf.Fpdf, label, value string) {
+func addField(pdf *gofpdf.Fpdf, tr func(string) string, label, value string) {
 	pdf.SetFont("Arial", "B", 10)
-	pdf.Cell(50, 6, label)
+	pdf.Cell(50, 6, tr(label))
 	pdf.SetFont("Arial", "", 10)
-	pdf.Cell(0, 6, value)
+	pdf.Cell(0, 6, tr(value))
 	pdf.Ln(6)
 }
 
 // Helper function to add SOAP fields with proper formatting
-func addSOAPField(pdf *gofpdf.Fpdf, label, value string) {
+func addSOAPField(pdf *gofpdf.Fpdf, tr func(string) string, label, value string) {
 	pdf.SetFont("Arial", "B", 9)
 	pdf.SetTextColor(80, 80, 80)
-	pdf.Cell(30, 5, label)
+	pdf.Cell(30, 5, tr(label))
 	pdf.SetTextColor(0, 0, 0)
 	pdf.SetFont("Arial", "", 9)
-	pdf.MultiCell(0, 5, value, "0", "L", false)
+	pdf.MultiCell(0, 5, tr(value), "0", "L", false)
 	pdf.Ln(1)
 }
 
