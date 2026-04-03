@@ -212,8 +212,8 @@ const Home = () => {
 				{/* Stat Cards */}
 				<div
 					className={cn(
-						"grid gap-4 sm:grid-cols-2",
-						stats.subscription ? "lg:grid-cols-5" : "lg:grid-cols-4",
+						"grid gap-4 sm:grid-cols-2 md:grid-cols-3",
+						stats.subscription ? "xl:grid-cols-5" : "xl:grid-cols-4",
 					)}
 				>
 					<StatCard
@@ -255,9 +255,9 @@ const Home = () => {
 				</div>
 
 				{/* Charts Row */}
-				<div className="grid gap-4 lg:grid-cols-5">
+				<div className="grid gap-4 xl:grid-cols-5">
 					{/* Weekly Bar Chart */}
-					<Card className="lg:col-span-3">
+					<Card className="xl:col-span-3">
 						<CardHeader>
 							<CardTitle>
 								<Text uuid="dashboard.chart.weekly_title" />
@@ -299,7 +299,7 @@ const Home = () => {
 					</Card>
 
 					{/* Upcoming Appointments */}
-					<Card className="lg:col-span-2">
+					<Card className="xl:col-span-2">
 						<CardHeader>
 							<CardTitle>
 								<Text uuid="dashboard.upcoming.title" />

@@ -23,6 +23,24 @@ export default function LoginEnvironments() {
 	const [environments, setEnvironments] = React.useState<
 		EnvironmentWithCompany[]
 	>([]);
+
+	const handleSelectEnvironment = React.useCallback(
+		(envId: number) => {
+			const selectedEnv = environments.find((e) => e.ID === envId);
+			if (selectedEnv) {
+				setEnvironment(selectedEnv);
+			}
+			navigate("/");
+		},
+		[environments, navigate, setEnvironment],
+	);
+
+	React.useEffect(() => {
+		if (environments.length === 1) {
+			handleSelectEnvironment(environments[0].ID);
+		}
+	}, [environments, handleSelectEnvironment]);
+
 	React.useEffect(() => {
 		if (!exchangeToken) {
 			navigate("/login");
@@ -37,17 +55,13 @@ export default function LoginEnvironments() {
 		});
 	}, [exchangeToken, navigate]);
 
-	const handleSelectEnvironment = (envId: number) => {
-		const selectedEnv = environments.find((e) => e.ID === envId);
-		if (selectedEnv) {
-			setEnvironment(selectedEnv);
-		}
-		navigate("/");
-	};
-
 	const handleLogout = () => {
 		navigate("/login");
 	};
+
+	if (environments.length <= 1) {
+		return null;
+	}
 
 	return (
 		<div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
