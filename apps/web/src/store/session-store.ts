@@ -16,6 +16,7 @@ type SessionState = {
 		tenant_name: string;
 		tenant_slug: string;
 		permissions: string[];
+		enabled_features?: string;
 	};
 	subscriptionExpired: boolean;
 	setSubscriptionExpired: (value: boolean) => void;
@@ -45,6 +46,7 @@ const persistSession = persist<SessionState>(
 					tenant_name: env.company.tenant.name,
 					tenant_slug: env.company.tenant.slug,
 					permissions: env.role.permissions?.map((p) => p.ID) || [],
+					enabled_features: env.company.tenant.enabled_features,
 				},
 			}),
 	}),

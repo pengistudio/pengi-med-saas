@@ -23,6 +23,12 @@ export interface TenantUISettings {
 	clinical: ClinicalSettings;
 }
 
+export interface EnabledFeatures extends Record<string, unknown> {
+	clinical?: boolean;
+	billing?: boolean;
+	team?: boolean;
+}
+
 export const DEFAULT_UI_SETTINGS: TenantUISettings = {
 	clinical: {
 		show_next_appointment: true,
@@ -34,6 +40,12 @@ export const DEFAULT_UI_SETTINGS: TenantUISettings = {
 		diagnosis_system: "cie11",
 		patient_age_input: false,
 	},
+};
+
+export const DEFAULT_ENABLED_FEATURES: EnabledFeatures = {
+	clinical: true,
+	billing: true,
+	team: true,
 };
 
 export const getUISettings = async (): Promise<
@@ -80,4 +92,21 @@ export const deletePrescriptionTemplate = async (): Promise<
 		"/clinical/prescription-template",
 		{ notifySuccess: true, notifyError: true },
 	);
+};
+
+export const getEnabledFeatures = async (): Promise<
+	ServiceResponse<EnabledFeatures>
+> => {
+	return settingsService.get<EnabledFeatures>("/tenants/features", {
+		notifyError: true,
+	});
+};
+
+export const updateEnabledFeatures = async (
+	payload: EnabledFeatures,
+): Promise<ServiceResponse<EnabledFeatures>> => {
+	return settingsService.put<EnabledFeatures>("/tenants/features", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
 };

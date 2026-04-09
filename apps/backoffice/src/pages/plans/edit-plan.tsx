@@ -90,7 +90,9 @@ const EditPlan = () => {
 		const res = await updatePlan(id, {
 			...values,
 			feature_codes: selectedFeatures,
-			properties: limits as Record<string, unknown>,
+			properties: {
+				...limits,
+			} as Record<string, unknown>,
 		});
 		setLoading(false);
 		if (res.success) navigate("/plans");
@@ -151,7 +153,7 @@ const EditPlan = () => {
 								<PlanLimitsEditor limits={limits} onChange={setLimits} />
 
 								{features.length > 0 && (
-									<div className="space-y-3">
+									<div className="space-y-3 border-t pt-4">
 										<Label>{textGet("backoffice.plans.col.features")}</Label>
 										<div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto border rounded-md p-3">
 											{features.map((f) => (

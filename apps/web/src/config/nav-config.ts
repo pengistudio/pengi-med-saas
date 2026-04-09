@@ -17,6 +17,7 @@ export interface BaseNavItem {
 	label: string;
 	icon: React.ComponentType<{ className?: string }>;
 	permission?: string;
+	feature?: string;
 	isBottom?: boolean;
 }
 
@@ -26,6 +27,12 @@ export type NavItemType =
 			href?: never;
 			accordionItems: (BaseNavItem & { href: string })[];
 	  });
+
+export interface EnabledFeatures {
+	clinical?: boolean;
+	billing?: boolean;
+	team?: boolean;
+}
 
 // Factory to create navigation items with localized labels
 export const createNavItems = (
@@ -57,11 +64,13 @@ export const createNavItems = (
 			},
 		],
 		permission: PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_MEDICAL_RECORD,
+		feature: "clinical",
 	},
 	{
 		icon: Users,
 		label: textGet("team.title"),
 		href: "/team",
+		feature: "team",
 	},
 	{
 		icon: Settings,
@@ -90,5 +99,6 @@ export const createNavItems = (
 			},
 		],
 		permission: PERMISSIONS.BILLING.PERMISSION_READ_BILLING,
+		feature: "billing",
 	},
 ];

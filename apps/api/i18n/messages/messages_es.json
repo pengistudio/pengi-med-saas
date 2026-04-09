@@ -1924,6 +1924,14 @@
 		"value": "Features"
 	},
 	{
+		"key": "backoffice.plans.col.enabled_features",
+		"value": "Features Habilitados"
+	},
+	{
+		"key": "backoffice.plans.enabled_features.description",
+		"value": "Selecciona cuáles módulos estarán disponibles para los tenants con este plan."
+	},
+	{
 		"key": "backoffice.plans.create.title",
 		"value": "Crear Plan"
 	},

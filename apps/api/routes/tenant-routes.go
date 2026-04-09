@@ -21,6 +21,8 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	tenantGroup.PUT("/sri/info", envelope.Handle(tenantHandler.UpdateSriInfo))
 	tenantGroup.GET("/settings", envelope.Handle(tenantHandler.GetUISettings))
 	tenantGroup.PUT("/settings", envelope.Handle(tenantHandler.UpdateUISettings))
+	tenantGroup.GET("/features", envelope.Handle(tenantHandler.GetEnabledFeatures))
+	tenantGroup.PUT("/features", envelope.Handle(tenantHandler.UpdateEnabledFeatures))
 	tenantGroup.POST("/display-token", envelope.Handle(tenantHandler.GenerateDisplayToken))
 
 	// Public — no auth required, validated via display token

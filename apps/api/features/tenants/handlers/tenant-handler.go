@@ -263,3 +263,50 @@ func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 
 	return envelope.SuccessResponse(settings, "tenant.settings.update.success")
 }
+
+// GetEnabledFeatures returns the enabled features for the tenant
+func (h *TenantHandler) GetEnabledFeatures(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+	}
+
+	features := tenant_models.DefaultEnabledFeatures()
+	if tenantRecord.EnabledFeatures != "" && tenantRecord.EnabledFeatures != "{}" {
+		if err := json.Unmarshal([]byte(tenantRecord.EnabledFeatures), &features); err != nil {
+			h.logger.Warn("Failed to parse EnabledFeatures, using defaults", zap.Error(err))
+		}
+	}
+
+	return envelope.SuccessResponse(features, "tenant.features.fetch.success")
+}
+
+// UpdateEnabledFeatures saves new enabled features for the tenant
+func (h *TenantHandler) UpdateEnabledFeatures(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	var features tenant_models.EnabledFeatures
+	if err := c.ShouldBindJSON(&features); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid features payload", core_errors.ErrBillingInvalidRequest)
+	}
+
+	raw, err := json.Marshal(features)
+	if err != nil {
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to encode features", core_errors.ErrInternal)
+	}
+
+	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("enabled_features", string(raw)).Error; err != nil {
+		h.logger.Error("Failed to save EnabledFeatures", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save features", core_errors.ErrInternal)
+	}
+
+	return envelope.SuccessResponse(features, "tenant.features.update.success")
+}

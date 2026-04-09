@@ -94,3 +94,36 @@ var BillingPermissions = []permission_models.Permission{
 		Description:  "Configure electronic signature and SRI environment",
 	},
 }
+
+var TeamPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_TEAM"},
+		Name:         "Read Team",
+		Category:     "TEAM",
+		Description:  "View teams",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "CREATE_TEAM"},
+		Name:         "Create Team",
+		Category:     "TEAM",
+		Description:  "Create new teams",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "UPDATE_TEAM"},
+		Name:         "Update Team",
+		Category:     "TEAM",
+		Description:  "Update team information",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "DELETE_TEAM"},
+		Name:         "Delete Team",
+		Category:     "TEAM",
+		Description:  "Delete teams",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_TEAM_MEMBERS"},
+		Name:         "Manage Team Members",
+		Category:     "TEAM",
+		Description:  "Add or remove team members",
+	},
+}

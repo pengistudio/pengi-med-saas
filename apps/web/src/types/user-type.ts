@@ -20,6 +20,7 @@ export type Tenant = {
 	name: string;
 	slug: string;
 	plan_code: string;
+	enabled_features?: string; // JSON-encoded EnabledFeatures
 } & Base;
 
 export type Company = {

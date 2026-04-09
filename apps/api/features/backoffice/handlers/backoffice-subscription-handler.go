@@ -1,10 +1,12 @@
 package backoffice_handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
+	tenant_models "pengi-med-saas/features/tenants/models"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -19,6 +21,53 @@ type BackofficeSubscriptionHandler struct {
 
 func NewBackofficeSubscriptionHandler(db *gorm.DB, logger *zap.Logger) *BackofficeSubscriptionHandler {
 	return &BackofficeSubscriptionHandler{db: db, logger: logger}
+}
+
+// applyPlanFeaturedToTenant applies enabled features from the plan to the tenant
+func (h *BackofficeSubscriptionHandler) applyPlanFeaturesToTenant(subscription *company_models.Subscription) error {
+	// Fetch the plan with full data
+	var plan company_models.Plan
+	if err := h.db.Where("code = ?", subscription.PlanCode).First(&plan).Error; err != nil {
+		return err
+	}
+
+	// Fetch the company and tenant
+	var company company_models.Company
+	if err := h.db.First(&company, subscription.CompanyID).Error; err != nil {
+		return err
+	}
+
+	var tenant tenant_models.Tenant
+	if err := h.db.First(&tenant, company.TenantID).Error; err != nil {
+		return err
+	}
+
+	// Extract enabled_features from plan properties
+	enabledFeatures := tenant_models.DefaultEnabledFeatures()
+	if properties := plan.Properties; properties != nil {
+		if featuresData, ok := properties["enabled_features"]; ok {
+			if featuresJSON, err := json.Marshal(featuresData); err == nil {
+				json.Unmarshal(featuresJSON, &enabledFeatures)
+			}
+		}
+	}
+
+	// Update tenant with new enabled features
+	featuresJSON, err := json.Marshal(enabledFeatures)
+	if err != nil {
+		return err
+	}
+
+	if err := h.db.Model(&tenant).Update("enabled_features", string(featuresJSON)).Error; err != nil {
+		return err
+	}
+
+	h.logger.Info("Applied plan features to tenant",
+		zap.Uint("company_id", subscription.CompanyID),
+		zap.Uint("tenant_id", tenant.ID),
+		zap.String("plan_code", subscription.PlanCode))
+
+	return nil
 }
 
 // ── DTOs ────────────────────────────────────────────────────────────────────
@@ -80,6 +129,11 @@ func (h *BackofficeSubscriptionHandler) CreateSubscription(c *gin.Context) envel
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating subscription", core_errors.ErrInternal)
 	}
 
+	// Apply plan features to tenant
+	if err := h.applyPlanFeaturesToTenant(&subscription); err != nil {
+		h.logger.Warn("Failed to apply plan features to tenant", zap.Error(err))
+	}
+
 	h.db.Preload("Plan").First(&subscription, subscription.ID)
 	h.logger.Info("Subscription created", zap.Uint("company_id", req.CompanyID), zap.String("plan_code", req.PlanCode))
 	return envelope.New(http.StatusCreated, "backoffice.subscription.create.success", subscription)
@@ -114,6 +168,13 @@ func (h *BackofficeSubscriptionHandler) UpdateSubscription(c *gin.Context) envel
 
 	if len(updates) > 0 {
 		h.db.Model(&subscription).Updates(updates)
+	}
+
+	// If plan changed, apply new plan features to tenant
+	if req.PlanCode != "" {
+		if err := h.applyPlanFeaturesToTenant(&subscription); err != nil {
+			h.logger.Warn("Failed to apply plan features to tenant", zap.Error(err))
+		}
 	}
 
 	h.db.Preload("Plan").First(&subscription, subscription.ID)

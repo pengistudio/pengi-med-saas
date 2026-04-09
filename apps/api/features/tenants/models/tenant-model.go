@@ -40,6 +40,21 @@ func DefaultUISettings() UISettings {
 	}
 }
 
+type EnabledFeatures struct {
+	Clinical bool `json:"clinical"`
+	Billing  bool `json:"billing"`
+	Team     bool `json:"team"`
+}
+
+// DefaultEnabledFeatures returns all features enabled by default
+func DefaultEnabledFeatures() EnabledFeatures {
+	return EnabledFeatures{
+		Clinical: true,
+		Billing:  true,
+		Team:     true,
+	}
+}
+
 type Tenant struct {
 	gorm.Model
 	Name              string     `gorm:"not null" json:"name"`
@@ -53,6 +68,7 @@ type Tenant struct {
 	SriP12Path        string     `json:"sri_p12_path"`        // Local storage path to the uploaded signature
 	SriCertExpiration *time.Time `json:"sri_cert_expiration"` // Date the certificate expires
 	UISettings        string     `gorm:"type:text;default:'{}'" json:"-"` // JSON-encoded UISettings
+	EnabledFeatures   string     `gorm:"type:text;default:'{}'" json:"enabled_features"` // JSON-encoded EnabledFeatures
 	DisplayToken      string     `gorm:"type:varchar(36);uniqueIndex" json:"-"` // Token for public TV display access
 }
 

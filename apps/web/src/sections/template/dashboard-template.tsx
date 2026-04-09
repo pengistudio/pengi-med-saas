@@ -40,7 +40,7 @@ interface DashboardLayoutProps {
 	children: React.ReactNode;
 }
 
-import { createNavItems } from "@/config/nav-config";
+import { createNavItems, type EnabledFeatures } from "@/config/nav-config";
 import usePermission from "@/hooks/use-permission";
 
 function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
@@ -60,13 +60,29 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 			: "";
 	}, [environment?.name]);
 
+	// Parse enabled features from environment
+	const enabledFeatures: EnabledFeatures = useMemo(() => {
+		if (!environment?.enabled_features) {
+			return { clinical: true, billing: true, team: true };
+		}
+		try {
+			return JSON.parse(environment.enabled_features);
+		} catch {
+			return { clinical: true, billing: true, team: true };
+		}
+	}, [environment?.enabled_features]);
+
 	// Use useMemo with stable reference
 	const allNavItems = useMemo(
 		() =>
 			createNavItems(textGet).filter(
-				(item) => !item.permission || checkPermission([item.permission]),
+				(item) =>
+					(!item.permission || checkPermission([item.permission])) &&
+					(!item.feature ||
+						(enabledFeatures as Record<string, boolean>)[item.feature] !==
+							false),
 			),
-		[textGet, checkPermission],
+		[textGet, enabledFeatures, checkPermission],
 	);
 	const navItems = allNavItems.filter((item) => !item.isBottom);
 	const bottomNavItems = allNavItems.filter((item) => item.isBottom);
