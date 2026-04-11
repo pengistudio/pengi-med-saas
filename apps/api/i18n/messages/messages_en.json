@@ -3830,5 +3830,9 @@
   {
     "key": "kanban.settings.title",
     "value": "Kanban Settings"
+  },
+  {
+    "key": "common.loading",
+    "value": "Loading..."
   }
 ]
