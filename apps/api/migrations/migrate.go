@@ -2,8 +2,6 @@ package migrations
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"pengi-med-saas/core/database"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	billing_models "pengi-med-saas/features/billing/models"
@@ -14,6 +12,7 @@ import (
 	permission_models "pengi-med-saas/features/permissions/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
+	i18n_messages "pengi-med-saas/i18n/messages"
 	message_models "pengi-med-saas/i18n/models"
 
 	"gorm.io/gorm"
@@ -59,21 +58,12 @@ func RunMigrations(db *gorm.DB) error {
 }
 
 func MigrateMessages(db *gorm.DB, lang string) error {
-
 	if lang == "" {
 		lang = "es" // Default language
 	}
 
-	// Obtener el directorio actual de trabajo
-	workDir, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("error getting working directory: %w", err)
-	}
-
-	// Construir la ruta absoluta usando path/filepath
-	file := filepath.Join(workDir, "i18n", "messages", fmt.Sprintf("messages_%s.json", lang))
-	return message_models.LoadMessagesFromFile(db, file, lang)
-
+	filename := fmt.Sprintf("messages_%s.json", lang)
+	return message_models.LoadMessagesFromFS(db, i18n_messages.FS, filename, lang)
 }
 
 func RunAllMigrations(db *gorm.DB) error {
