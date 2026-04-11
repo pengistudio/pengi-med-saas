@@ -3,11 +3,10 @@ package i18n_handlers
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	message_cache "pengi-med-saas/i18n/cache"
+	i18n_messages "pengi-med-saas/i18n/messages"
 	message_models "pengi-med-saas/i18n/models"
 
 	"github.com/gin-gonic/gin"
@@ -41,15 +40,9 @@ func (h *MessageHandler) GetMessageVersion(c *gin.Context) envelope.Response {
 func (h *MessageHandler) ReloadMessages(c *gin.Context) envelope.Response {
 	logger := zap.L()
 
-	workDir, err := os.Getwd()
-	if err != nil {
-		logger.Error("Failed to get working directory", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to get working directory", core_errors.ErrInternal)
-	}
-
 	for _, lang := range []string{"es", "en"} {
-		file := filepath.Join(workDir, "i18n", "messages", fmt.Sprintf("messages_%s.json", lang))
-		if err := message_models.LoadMessagesFromFile(h.db, file, lang); err != nil {
+		filename := fmt.Sprintf("messages_%s.json", lang)
+		if err := message_models.LoadMessagesFromFS(h.db, i18n_messages.FS, filename, lang); err != nil {
 			logger.Error("Failed to seed messages", zap.String("lang", lang), zap.Error(err))
 			return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to seed messages", core_errors.ErrInternal)
 		}

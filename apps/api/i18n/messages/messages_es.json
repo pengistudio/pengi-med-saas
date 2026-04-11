@@ -3838,5 +3838,9 @@
   {
     "key": "common.loading",
     "value": "Cargando..."
+  },
+  {
+    "key": "i18n.reload.success",
+    "value": "Mensajes recargados exitosamente"
   }
 ]
