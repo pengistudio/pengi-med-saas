@@ -52,6 +52,7 @@ type FormCalendarProps<
 	description?: string;
 	enableTime?: boolean;
 	className?: string;
+	showMonthYearDropdowns?: boolean;
 };
 
 // Represents the value object when time is enabled
@@ -72,6 +73,7 @@ function FormCalendar<
 	description,
 	enableTime = false,
 	className,
+	showMonthYearDropdowns = false,
 }: FormCalendarProps<T, Input>) {
 	const { textGet } = useText();
 
@@ -167,6 +169,7 @@ function FormCalendar<
 									selected={selectedDate}
 									onSelect={handleDateSelect}
 									initialFocus
+									captionLayout={showMonthYearDropdowns ? "dropdown" : "label"}
 								/>
 								{enableTime && (
 									<div className="p-3 border-t border-border bg-muted/30">
