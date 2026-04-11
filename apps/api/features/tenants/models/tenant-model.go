@@ -9,6 +9,7 @@ import (
 // UISettings holds per-tenant UI configuration stored as a JSON string.
 type UISettings struct {
 	Clinical ClinicalSettings `json:"clinical"`
+	Kanban   KanbanSettings   `json:"kanban"`
 }
 
 type ClinicalSettings struct {
@@ -25,6 +26,10 @@ type ClinicalSettings struct {
 	PatientAgeInput bool `json:"patient_age_input"` // use age number instead of birth date picker
 }
 
+type KanbanSettings struct {
+	AutoArchiveDelay string `json:"auto_archive_delay"` // "never", "1_day", "1_week", "2_weeks", "1_month"
+}
+
 // DefaultUISettings returns sensible defaults (all visible, CIE-11).
 func DefaultUISettings() UISettings {
 	return UISettings{
@@ -37,6 +42,9 @@ func DefaultUISettings() UISettings {
 			ShowDiagnoses:       true,
 			DiagnosisSystem:     "cie11",
 		},
+		Kanban: KanbanSettings{
+			AutoArchiveDelay: "never",
+		},
 	}
 }
 
@@ -44,6 +52,7 @@ type EnabledFeatures struct {
 	Clinical bool `json:"clinical"`
 	Billing  bool `json:"billing"`
 	Team     bool `json:"team"`
+	Kanban   bool `json:"kanban"`
 }
 
 // DefaultEnabledFeatures returns all features enabled by default
@@ -52,6 +61,7 @@ func DefaultEnabledFeatures() EnabledFeatures {
 		Clinical: true,
 		Billing:  true,
 		Team:     true,
+		Kanban:   true,
 	}
 }
 
