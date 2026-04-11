@@ -1,25 +1,40 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
 
-// Mock the hooks and service
+// Create saveSettings mock at module level so all tests can reference it
+const mockSaveSettings = vi.fn();
+
 vi.mock("@/store/tenant-settings-store", () => ({
 	useTenantSettingsStore: () => ({
 		settings: {
-			clinical: {},
+			clinical: {
+				show_next_appointment: true,
+				show_diagnosis: true,
+				show_medic: true,
+				show_insurance: true,
+				show_vital_signs: true,
+				show_diagnoses: true,
+				diagnosis_system: "cie11",
+				patient_age_input: false,
+			},
 			kanban: { auto_archive_delay: "never" },
 		},
-		saveSettings: vi.fn(),
+		saveSettings: mockSaveSettings,
 	}),
 }));
 
 vi.mock("@/hooks/use-text", () => ({
 	useText: () => ({
-		textGet: (key: string) => key, // Return the key itself for testing
+		textGet: (key: string) => key,
 	}),
 }));
 
 describe("KanbanSettings", () => {
+	beforeEach(() => {
+		mockSaveSettings.mockClear();
+	});
+
 	it("renders archive delay radio buttons", () => {
 		render(<KanbanSettings />);
 
@@ -53,7 +68,18 @@ describe("KanbanSettings", () => {
 		const oneDayOption = screen.getByDisplayValue("1_day");
 		fireEvent.click(oneDayOption);
 
-		// Verify saveSettings was called (would need actual mock setup)
-		// expect(mockSaveSettings).toHaveBeenCalled();
+		// Wait for async saveSettings call
+		await waitFor(() => {
+			expect(mockSaveSettings).toHaveBeenCalled();
+		});
+
+		// Verify the right settings were passed
+		expect(mockSaveSettings).toHaveBeenCalledWith(
+			expect.objectContaining({
+				kanban: expect.objectContaining({
+					auto_archive_delay: "1_day",
+				}),
+			}),
+		);
 	});
 });
