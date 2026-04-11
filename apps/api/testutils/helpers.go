@@ -20,9 +20,12 @@ import (
 func SetupTestDB(t *testing.T, models ...interface{}) *gorm.DB {
 	t.Helper()
 
-	// Set default AUTH_KEY for tests if not set
+	// Set default AUTH_KEY and AUTH_EXP for tests if not set
 	if os.Getenv("AUTH_KEY") == "" {
 		os.Setenv("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
+	}
+	if os.Getenv("AUTH_EXP") == "" {
+		os.Setenv("AUTH_EXP", "60") // 60 minutes
 	}
 
 	// Check if we're in CI environment
