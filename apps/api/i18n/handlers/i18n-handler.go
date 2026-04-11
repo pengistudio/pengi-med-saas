@@ -29,11 +29,7 @@ func (h *MessageHandler) GetAllMessages(c *gin.Context) envelope.Response {
 		lang = "es" // Default language
 	}
 
-	messages := []message_models.Message{}
-	if err := h.db.Where("lang = ?", lang).Find(&messages).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining messages", core_errors.ErrMessagesNotFound)
-	}
-
+	messages := message_cache.GetAll(lang)
 	return envelope.SuccessResponse(messages, "Messages obtained successfully")
 }
 
