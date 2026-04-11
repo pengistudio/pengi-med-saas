@@ -31,14 +31,15 @@ tests-api:
 tests-web:
 	docker compose -f docker-compose.dev.yaml exec web pnpm test:run
 
-# Run E2E tests (requires running stack with `just dev`)
+# Run E2E tests locally (requires stack running with `just dev`)
+# Note: Playwright runs LOCAL, not in Docker - it needs real browsers
 tests-e2e:
-	docker compose -f docker-compose.dev.yaml exec web pnpm exec playwright test
+	cd apps/web && pnpm exec playwright test
 
-# Run E2E tests with UI browser visible
+# Run E2E tests with UI (browser visible)
 tests-e2e-ui:
-	docker compose -f docker-compose.dev.yaml exec web pnpm exec playwright test --ui
+	cd apps/web && pnpm exec playwright test --ui
 
 # Run E2E tests in debug mode
 tests-e2e-debug:
-	docker compose -f docker-compose.dev.yaml exec web pnpm exec playwright test --debug
+	cd apps/web && pnpm exec playwright test --debug

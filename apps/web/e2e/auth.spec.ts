@@ -4,8 +4,18 @@ test.describe("Authentication Flow", () => {
 	test("login with valid credentials", async ({ page }) => {
 		await page.goto("/login");
 
+		// Wait for page to load
+		await page.waitForLoadState("networkidle").catch(() => {});
+
 		// Verify login page loads
 		expect(page).toHaveURL(/.*login/);
+
+		// Wait for inputs to be visible
+		await page
+			.locator('input[type="text"]')
+			.first()
+			.waitFor({ state: "visible", timeout: 5000 })
+			.catch(() => {});
 
 		// Fill credentials
 		const usernameInputs = await page.locator('input[type="text"]').all();
@@ -21,26 +31,29 @@ test.describe("Authentication Flow", () => {
 		// Submit form
 		const loginButton = page
 			.locator("button")
-			.filter({ hasText: /login|submit|enviar/i })
+			.filter({ hasText: /login|iniciar|submit|enviar/i })
 			.first();
+		await loginButton.waitFor({ state: "visible", timeout: 5000 });
 		await loginButton.click();
 
-		// Wait for navigation (with timeout fallback)
+		// Wait for navigation to environments page after login
 		try {
-			await page.waitForURL("**/dashboard", { timeout: 5000 });
+			await page.waitForURL("**/login/environments**", { timeout: 10000 });
 		} catch {
-			// If dashboard URL doesn't exist, just verify we left the login page
-			await page.waitForURL(/^(?!.*login)/, { timeout: 5000 });
+			// Navigation timeout - that's okay, just verify we got the exchange_token
 		}
 
-		// Verify we're authenticated (no longer on login page)
+		// Verify we're on the environments selection page (logged in)
 		const url = page.url();
-		expect(url).not.toContain("/login");
+		expect(url).toContain("login/environments");
+		expect(url).toContain("exchange_token");
 	});
 
 	test("logout functionality", async ({ page }) => {
 		// First login
 		await page.goto("/login");
+		await page.waitForLoadState("networkidle").catch(() => {});
+
 		const usernameInputs = await page.locator('input[type="text"]').all();
 		const passwordInputs = await page.locator('input[type="password"]').all();
 
@@ -53,8 +66,9 @@ test.describe("Authentication Flow", () => {
 
 		const loginButton = page
 			.locator("button")
-			.filter({ hasText: /login|submit|enviar/i })
+			.filter({ hasText: /login|iniciar|submit|enviar/i })
 			.first();
+		await loginButton.waitFor({ state: "visible", timeout: 5000 });
 		await loginButton.click();
 
 		// Wait for successful login
@@ -77,6 +91,7 @@ test.describe("Authentication Flow", () => {
 
 	test("invalid credentials show error", async ({ page }) => {
 		await page.goto("/login");
+		await page.waitForLoadState("networkidle").catch(() => {});
 
 		const usernameInputs = await page.locator('input[type="text"]').all();
 		const passwordInputs = await page.locator('input[type="password"]').all();
@@ -90,8 +105,9 @@ test.describe("Authentication Flow", () => {
 
 		const loginButton = page
 			.locator("button")
-			.filter({ hasText: /login|submit|enviar/i })
+			.filter({ hasText: /login|iniciar|submit|enviar/i })
 			.first();
+		await loginButton.waitFor({ state: "visible", timeout: 5000 });
 		await loginButton.click();
 
 		// Should remain on login page or show error

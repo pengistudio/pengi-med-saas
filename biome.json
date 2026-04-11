@@ -14,7 +14,12 @@
 			"!**/.astro",
 			"!**/node_modules",
 			"!**/.cache",
-			"!**/.output"
+			"!**/.output",
+			"!**/test-results",
+			"!**/.playwright",
+			"!**/coverage",
+			"!**/.next",
+			"!**/playwright-report"
 		]
 	},
 	"formatter": {
