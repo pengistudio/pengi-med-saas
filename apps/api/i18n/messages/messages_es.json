@@ -3826,5 +3826,9 @@
   {
     "key": "kanban.tasks.fetch.error",
     "value": "Error al obtener tareas"
+  },
+  {
+    "key": "kanban.settings.title",
+    "value": "Configuración de Kanban"
   }
 ]

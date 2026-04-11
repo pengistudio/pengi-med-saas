@@ -21,6 +21,7 @@ import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import useToast from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { KanbanSettings } from "@/sections/settings/kanban-settings";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const SettingsPage = () => {
@@ -360,6 +361,14 @@ const SettingsPage = () => {
 							</ol>
 						</div>
 					)}
+				</section>
+
+				{/* Kanban Settings */}
+				<section className="rounded-lg border bg-card p-6 grid gap-4">
+					<h2 className="text-base font-medium text-muted-foreground">
+						<Text uuid="kanban.settings.title" />
+					</h2>
+					<KanbanSettings />
 				</section>
 			</main>
 		</DashboardLayout>
