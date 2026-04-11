@@ -112,6 +112,7 @@ const UpdateMedicalRecordForm = () => {
 									field={field}
 									name="date"
 									label={textGet("form.update_medical_record.date")}
+									showMonthYearDropdowns
 								/>
 							</div>
 							<FormTextArea

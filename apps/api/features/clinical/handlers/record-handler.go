@@ -7,6 +7,7 @@ import (
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -83,13 +84,19 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
 	}
 
+	nextAppointmentDate := (*time.Time)(nil)
+	if newRecord.NextAppointmentDate != nil {
+		t := time.Time(*newRecord.NextAppointmentDate)
+		nextAppointmentDate = &t
+	}
+
 	record := &clinical_models.MedicalRecord{
-		Date:                newRecord.Date,
+		Date:                time.Time(newRecord.Date),
 		Motive:              newRecord.Motive,
 		Observation:         *newRecord.Observation,
 		PatientID:           newRecord.PatientID,
 		AppointmentID:       newRecord.AppointmentID,
-		NextAppointmentDate: newRecord.NextAppointmentDate,
+		NextAppointmentDate: nextAppointmentDate,
 		SOAPRecord:          newRecord.SOAPRecord,
 		Diagnoses:           newRecord.Diagnoses,
 	}
@@ -147,7 +154,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	// Build update map only with provided fields for MedicalRecord
 	record := make(map[string]interface{})
 	if updatedRecord.Date != nil {
-		record["date"] = *updatedRecord.Date
+		record["date"] = time.Time(*updatedRecord.Date)
 	}
 	if updatedRecord.AppointmentID != nil {
 		record["appointment_id"] = *updatedRecord.AppointmentID
@@ -161,7 +168,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 		record["observation"] = *updatedRecord.Observation
 	}
 	if updatedRecord.NextAppointmentDate != nil {
-		record["next_appointment_date"] = *updatedRecord.NextAppointmentDate
+		record["next_appointment_date"] = time.Time(*updatedRecord.NextAppointmentDate)
 	}
 	if updatedRecord.Diagnoses != nil {
 		record["diagnoses"] = updatedRecord.Diagnoses

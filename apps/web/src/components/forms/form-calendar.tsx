@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { enUS, es } from "date-fns/locale";
 import { CalendarIcon, Clock } from "lucide-react";
 import {
 	Controller,
@@ -28,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
+import { useMessageStore } from "@/store/message-store";
 
 // Generate time slots (e.g., 08:00, 09:00, ..., 20:00)
 const generateTimeSlots = (startHour = 8, endHour = 20, interval = 1) => {
@@ -76,6 +78,8 @@ function FormCalendar<
 	showMonthYearDropdowns = false,
 }: FormCalendarProps<T, Input>) {
 	const { textGet } = useText();
+	const lang = useMessageStore((state) => state.lang);
+	const locale = lang === "es" ? es : enUS;
 
 	return (
 		<Controller
@@ -156,7 +160,7 @@ function FormCalendar<
 							>
 								<CalendarIcon className="mr-2 h-4 w-4" />
 								{selectedDate ? (
-									format(selectedDate, "PPP")
+									format(selectedDate, "PPP", { locale })
 								) : (
 									<span>
 										{textGet("form.calendar.pick_date") || "Pick a date"}
@@ -169,6 +173,7 @@ function FormCalendar<
 									selected={selectedDate}
 									onSelect={handleDateSelect}
 									initialFocus
+									locale={locale}
 									captionLayout={showMonthYearDropdowns ? "dropdown" : "label"}
 								/>
 								{enableTime && (

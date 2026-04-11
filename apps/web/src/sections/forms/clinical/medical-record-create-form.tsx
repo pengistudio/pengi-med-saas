@@ -394,6 +394,7 @@ function FormInner({
 									field={field}
 									name="date"
 									label={textGet("form.create_medical_record.date")}
+									showMonthYearDropdowns
 								/>
 							</div>
 							<FormTextArea
@@ -747,6 +748,7 @@ function FormInner({
 									name="next_appointment_date"
 									label={textGet("form.create_medical_record.next_appointment")}
 									isOptional
+									showMonthYearDropdowns
 								/>
 							</div>
 						</CardContent>

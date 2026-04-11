@@ -191,6 +191,7 @@ const EditPatientForm = () => {
 									name="birth_date"
 									label={textGet("form.edit_patient.birth_date")}
 									isOptional
+									showMonthYearDropdowns
 								/>
 							)}
 
