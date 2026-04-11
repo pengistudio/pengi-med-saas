@@ -20,6 +20,11 @@ import (
 func SetupTestDB(t *testing.T, models ...interface{}) *gorm.DB {
 	t.Helper()
 
+	// Set default AUTH_KEY for tests if not set
+	if os.Getenv("AUTH_KEY") == "" {
+		os.Setenv("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
+	}
+
 	// Check if we're in CI environment
 	isCI := os.Getenv("CI") != "" || os.Getenv("GITHUB_ACTIONS") != ""
 
