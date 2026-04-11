@@ -18,15 +18,21 @@ export interface ClinicalSettings {
 	patient_age_input: boolean;
 }
 
+export interface KanbanSettings {
+	auto_archive_delay: "never" | "1_day" | "1_week" | "2_weeks" | "1_month";
+}
+
 export interface TenantUISettings {
 	[key: string]: unknown;
 	clinical: ClinicalSettings;
+	kanban?: KanbanSettings;
 }
 
 export interface EnabledFeatures extends Record<string, unknown> {
 	clinical?: boolean;
 	billing?: boolean;
 	team?: boolean;
+	kanban?: boolean;
 }
 
 export const DEFAULT_UI_SETTINGS: TenantUISettings = {
@@ -39,6 +45,9 @@ export const DEFAULT_UI_SETTINGS: TenantUISettings = {
 		show_diagnoses: true,
 		diagnosis_system: "cie11",
 		patient_age_input: false,
+	},
+	kanban: {
+		auto_archive_delay: "never",
 	},
 };
 
