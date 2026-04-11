@@ -1,12 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { LoginForm } from "@/sections/forms/login/login-form";
+import LoginForm from "@/sections/forms/login/login-form";
 
-const mockUserLogin = vi.fn();
-
-vi.mock("@/api/auth-service", () => ({
-	userLogin: mockUserLogin,
-}));
+vi.mock("@/api/auth-service");
 
 vi.mock("react-router", () => ({
 	useNavigate: () => vi.fn(),
@@ -24,9 +20,11 @@ vi.mock("@/hooks/use-text", () => ({
 	}),
 }));
 
+import * as authService from "@/api/auth-service";
+
 describe("LoginForm", () => {
 	beforeEach(() => {
-		mockUserLogin.mockClear();
+		vi.clearAllMocks();
 	});
 
 	it("renders username and password inputs", () => {
@@ -48,6 +46,7 @@ describe("LoginForm", () => {
 	});
 
 	it("calls userLogin with valid credentials", async () => {
+		const mockUserLogin = vi.mocked(authService.userLogin);
 		mockUserLogin.mockResolvedValue({
 			success: true,
 			data: { token: "test-token", exchange_token: "ex-token" },

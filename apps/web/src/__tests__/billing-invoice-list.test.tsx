@@ -1,12 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import BillingInvoiceList from "@/pages/billing";
+import InvoiceListPage from "@/pages/billing/invoice-list";
 
-const mockGetAllInvoices = vi.fn();
-
-vi.mock("@/api/billing-service", () => ({
-	getAllInvoices: mockGetAllInvoices,
-}));
+vi.mock("@/api/billing-service");
 
 vi.mock("@/hooks/use-text", () => ({
 	useText: () => ({
@@ -21,8 +17,15 @@ vi.mock("@/store/billing-store", () => ({
 	}),
 }));
 
-describe("BillingInvoiceList", () => {
+vi.mock("react-router", () => ({
+	useNavigate: () => vi.fn(),
+}));
+
+import * as billingService from "@/api/billing-service";
+
+describe("InvoiceListPage", () => {
 	it("renders invoice list component", async () => {
+		const mockGetAllInvoices = vi.mocked(billingService.getAllInvoices);
 		mockGetAllInvoices.mockResolvedValue({
 			success: true,
 			data: {
@@ -31,21 +34,22 @@ describe("BillingInvoiceList", () => {
 					{ ID: 2, sequential: "INV-002", status: "paid", total: 200 },
 				],
 			},
-		});
+		} as any);
 
-		render(<BillingInvoiceList />);
+		render(<InvoiceListPage />);
 
 		// Component should render without errors
 		expect(screen.getByRole("main") || screen.getByRole("table")).toBeDefined();
 	});
 
 	it("renders empty state when no invoices", () => {
+		const mockGetAllInvoices = vi.mocked(billingService.getAllInvoices);
 		mockGetAllInvoices.mockResolvedValue({
 			success: true,
 			data: { items: [], total: 0 },
-		});
+		} as any);
 
-		render(<BillingInvoiceList />);
+		render(<InvoiceListPage />);
 
 		// Just verify it renders without crashing
 		expect(screen.queryByText || screen.queryByRole).toBeDefined();

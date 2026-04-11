@@ -52,20 +52,20 @@ func TestLogin_Success(t *testing.T) {
 		t.Errorf("expected status 200, got %d", response.Code)
 	}
 
-	// Verify response data contains token, exchange_token, user_id
-	respData, ok := response.Data.(map[string]interface{})
-	if !ok {
-		t.Errorf("expected response data to be map, got %T", response.Data)
-	}
+	// Verify response data is a map and contains required fields
+	// Convert to JSON and back to get consistent map type
+	respBytes, _ := json.Marshal(response.Data)
+	var respData map[string]interface{}
+	json.Unmarshal(respBytes, &respData)
 
 	if _, hasToken := respData["token"]; !hasToken {
-		t.Errorf("expected 'token' in response")
+		t.Errorf("expected 'token' in response, got: %v", respData)
 	}
 	if _, hasExchangeToken := respData["exchange_token"]; !hasExchangeToken {
-		t.Errorf("expected 'exchange_token' in response")
+		t.Errorf("expected 'exchange_token' in response, got: %v", respData)
 	}
 	if _, hasUserID := respData["user_id"]; !hasUserID {
-		t.Errorf("expected 'user_id' in response")
+		t.Errorf("expected 'user_id' in response, got: %v", respData)
 	}
 
 	// Verify refresh token cookie was set
