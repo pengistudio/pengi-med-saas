@@ -46,3 +46,5 @@ docker-compose.override.yml
 
 .pnpm-store
 storage
+
+test-results
