@@ -66,3 +66,24 @@ func Reload(db *gorm.DB) error {
 	mutex.Unlock()
 	return loadMessages(db)
 }
+
+// GetAll devuelve todos los mensajes de un idioma como slice
+func GetAll(lang string) []message_models.Message {
+	mutex.RLock()
+	defer mutex.RUnlock()
+
+	langCache := cache[lang]
+	if langCache == nil {
+		langCache = cache["es"] // fallback
+	}
+
+	messages := make([]message_models.Message, 0, len(langCache))
+	for key, value := range langCache {
+		messages = append(messages, message_models.Message{
+			Key:   key,
+			Value: value,
+			Lang:  lang,
+		})
+	}
+	return messages
+}
