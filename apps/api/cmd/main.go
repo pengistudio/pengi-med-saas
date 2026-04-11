@@ -8,6 +8,7 @@ import (
 	billing_workers "pengi-med-saas/features/billing/workers"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
 	"pengi-med-saas/features/health"
+	message_cache "pengi-med-saas/i18n/cache"
 	i18n_middleware "pengi-med-saas/i18n/middleware"
 	"pengi-med-saas/migrations"
 	"pengi-med-saas/routes"
@@ -42,6 +43,12 @@ func main() {
 	if err != nil {
 		panic("Failed to run migrations: " + err.Error())
 	}
+
+	// Initialize message cache
+	if err := message_cache.Init(DB_CONNECTION); err != nil {
+		logger.Log.Warn("Failed to initialize message cache", zap.Error(err))
+	}
+	logger.Log.Info("message cache initialized")
 
 	// Initialize RabbitMQ
 	rabbitConn, rabbitChannel, err := rabbitmq.StartRabbitMQWithChannel()
