@@ -27,14 +27,33 @@ pnpm run lint                     # ESLint
 
 ### Code quality (root — applies to all TS/JS)
 ```bash
-npx @biomejs/biome ci .           # Check formatting + lint
-npx @biomejs/biome format --write . # Auto-format
+just check                         # Check formatting + lint (primary command)
+just lint                          # Auto-format all TS/JS
+```
+
+### Setup & utilities
+```bash
+just setup                         # Configure git hooks (run once after cloning)
 ```
 
 ### Infrastructure dependencies (for local backend dev without Docker)
 ```bash
 docker compose -f docker-compose.dev.yaml up pengi-db-dev pengi-rabbitmq-dev gotenberg sri-xml-signer -d
 ```
+
+---
+
+## Documentation & Skills
+
+**Complete implementation guides** are in `docs/skills/`:
+- [`api-backend-complete-guide.md`](docs/skills/api-backend-complete-guide.md) — Backend architecture + patterns + how-to
+- [`web-frontend-complete-guide.md`](docs/skills/web-frontend-complete-guide.md) — Frontend architecture + patterns + how-to
+- [`form-creation-standard.md`](docs/skills/form-creation-standard.md) — Standard for creating forms (Zod + Form components)
+
+When implementing a feature:
+1. Read the complete guide for your stack (API or Web)
+2. Follow the "Paso a paso" (step-by-step) section
+3. Use the checklist at the end
 
 ---
 
@@ -96,7 +115,7 @@ func NewInvoiceHandler(db *gorm.DB, logger *zap.Logger) *InvoiceHandler {
 
 Handlers are instantiated in `apps/api/routes/` and injected with `db` + `logger.Log`.
 
-### Multi-tenancy
+### Multi-tenancy — CRITICAL
 
 Every DB query that touches tenant data **must** apply the GORM scope:
 
@@ -105,7 +124,14 @@ tenantScope := tenant_middleware.TenantScope(c)
 h.db.Scopes(tenantScope).Find(&records)
 ```
 
-The scope is populated by `TenantMiddleware(db)`, which reads the `X-Tenant-Slug` header.
+**Never query without the scope.** The scope is populated by `TenantMiddleware(db)`, which reads the `X-Tenant-Slug` header from the request context.
+
+Every model has `TenantID uint`. When creating records, always set it:
+
+```go
+tenantID, _ := c.Get("tenant_id")
+item := &models.Item{TenantID: tenantID.(uint), ...}
+```
 
 ### Error codes
 
@@ -121,6 +147,17 @@ features/[domain]/
   workers/      # Background consumers (billing only)
   middleware/   # Feature-specific middleware (tenants, users)
 ```
+
+### i18n Messages
+
+All user-facing strings are stored in `apps/api/i18n/messages/`:
+- `messages_es.json` — Spanish
+- `messages_en.json` — English
+
+When creating endpoints or features:
+1. Use i18n keys in `SuccessResponse`/`ErrorResponse`
+2. Add new keys to **both** JSON files
+3. Keys follow pattern: `{domain}.{resource}.{action}` (e.g., `billing.invoice.create.success`)
 
 ### Migrations
 
@@ -192,20 +229,44 @@ export interface Invoice extends BaseModel {   // BaseModel has ID, CreatedAt, U
 ### i18n
 
 ```typescript
-const { textGet } = useText();   // hook from @/hooks/use-text
+const { textGet } = useText();   // hook from @/hooks/use-text (never use `t` or `useTranslation`)
 const label = textGet("billing.invoice.title");
 // Missing keys render as *billing.invoice.title* — no fallback needed
 ```
 
-Never hardcode user-visible strings. Every label, placeholder, and message must be an i18n key. Add new keys to both `apps/api/i18n/messages/messages_es.json` and `messages_en.json`.
+Never hardcode user-visible strings. Every label, placeholder, and message must be an i18n key. Add new keys to **both** `apps/api/i18n/messages/messages_es.json` and `messages_en.json`.
+
+Keys are sourced from backend JSON and seeded into the database on startup.
 
 ### State management
 
-Zustand only — no Redux. Stores live in `src/store/`. Use `sessionStorage` persistence for page-level data (e.g. `billing-store.ts`) and `localStorage` for session data (e.g. `token-store.ts`).
+**Zustand only** — no Redux, Context, or Recoil. Stores live in `src/store/`.
+
+Create a store only if state is **shared across multiple components**. For single-component state, use `useState`.
+
+```typescript
+interface ItemStore {
+  items: Item[];
+  selectedItem?: Item;
+  setItems: (items: Item[]) => void;
+  setSelectedItem: (item: Item | undefined) => void;
+}
+
+export const useItemStore = create<ItemStore>((set) => ({
+  items: [],
+  selectedItem: undefined,
+  setItems: (items) => set({ items }),
+  setSelectedItem: (item) => set({ selectedItem: item }),
+}));
+```
 
 ### Routing & permissions
 
 Routes are defined in `src/routes/routes.tsx` and wrapped with `<CheckPermission permissions={[...]} />`. Permission constants are in `src/lib/constants.ts` under `PERMISSIONS`.
+
+Navigation items are managed in `src/config/nav-config.ts`. Each item can be filtered by:
+- `feature` — Feature flag from backend (disabled items hide automatically)
+- `permission` — RBAC permission requirement
 
 ---
 
@@ -220,3 +281,45 @@ Backend template: `apps/api/.env.example`. Key vars:
 - `GIN_MODE` — `development` or `release`
 
 Frontend env: Vite reads `VITE_API_URL` (defaults to `http://localhost:8000/api/v1`).
+
+---
+
+## Important Patterns to Remember
+
+### 1. Never Query Without TenantScope (Backend)
+```go
+// ❌ WRONG
+h.db.Find(&items)
+
+// ✅ CORRECT
+h.db.Scopes(tenant_middleware.TenantScope(c)).Find(&items)
+```
+
+### 2. Never Call API Directly (Frontend)
+```typescript
+// ❌ WRONG
+const res = await apiWithTenant.get("/items");
+
+// ✅ CORRECT
+const res = await itemService.getItems();  // Service layer handles it
+```
+
+### 3. All User-Facing Strings Must Be i18n Keys
+```typescript
+// ❌ WRONG
+<h1>Items</h1>
+
+// ✅ CORRECT
+<h1>{textGet("item.title")}</h1>
+```
+
+### 4. Toasts Are Service Responsibility (Frontend)
+```typescript
+// ❌ WRONG
+const res = await createItem(data);
+if (res.success) showSuccessToast("Item created");
+
+// ✅ CORRECT
+const res = await createItem(data);  // Service shows toast automatically
+if (res.success) navigate("/items");
+```

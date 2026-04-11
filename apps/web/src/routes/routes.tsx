@@ -21,6 +21,7 @@ import WaitingRoomPage from "@/pages/clincal/waiting-room/waiting-room";
 import WaitingRoomDisplayPage from "@/pages/clincal/waiting-room/waiting-room-display";
 import PairDisplayPage from "@/pages/display/pair";
 import Home from "@/pages/home/home";
+import KanbanPage from "@/pages/kanban/kanban-page";
 import LoginEnvironments from "@/pages/login/login-environments";
 import Login from "@/pages/login/login-page";
 import Profile from "@/pages/profile/profile";
@@ -221,6 +222,16 @@ const router = createBrowserRouter([
 			{
 				path: "/team",
 				element: <TeamPage />,
+			},
+			{
+				path: "/tasks",
+				element: (
+					<CheckPermission
+						permissions={[PERMISSIONS.KANBAN.PERMISSION_READ_KANBAN]}
+					>
+						<KanbanPage />
+					</CheckPermission>
+				),
 			},
 			...routes,
 		],

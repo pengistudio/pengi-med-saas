@@ -251,6 +251,12 @@ export const patientColumns: ColumnDef<Patient>[] = [
 									<Text uuid="clinical.patient.appointment.upcoming" />
 								</span>
 							</div>
+							<div className="flex items-center gap-1.5">
+								<span className="inline-block h-2 w-2 rounded-full bg-blue-500" />
+								<span>
+									<Text uuid="clinical.patient.appointment.suggested" />
+								</span>
+							</div>
 						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
@@ -261,41 +267,61 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		cell: ({ row }) => {
 			const appointments = row.original.appointments;
 			const nextScheduled = appointments?.find((a) => a.status === "scheduled");
-			if (!nextScheduled) {
-				return <span className="text-muted-foreground">—</span>;
+
+			// Prioridad 1: cita formal agendada
+			if (nextScheduled) {
+				const apptDate = new Date(nextScheduled.date);
+				const today = new Date();
+				today.setHours(0, 0, 0, 0);
+				const apptDay = new Date(apptDate);
+				apptDay.setHours(0, 0, 0, 0);
+				const diffDays = Math.round(
+					(apptDay.getTime() - today.getTime()) / 86400000,
+				);
+
+				const colorClass =
+					diffDays === 0
+						? "bg-red-500/15 text-red-700 dark:text-red-400 border-red-400/40"
+						: diffDays === 1
+							? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/40"
+							: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-400/40";
+
+				const dateLabel = apptDate.toLocaleDateString("es-EC", {
+					month: "short",
+					day: "numeric",
+				});
+
+				return (
+					<span
+						className={`inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium ${colorClass}`}
+					>
+						<span>{dateLabel}</span>
+						<span className="opacity-80">
+							{nextScheduled.start_time} – {nextScheduled.end_time}
+						</span>
+					</span>
+				);
 			}
 
-			const apptDate = new Date(nextScheduled.date);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0);
-			const apptDay = new Date(apptDate);
-			apptDay.setHours(0, 0, 0, 0);
-			const diffDays = Math.round(
-				(apptDay.getTime() - today.getTime()) / 86400000,
-			);
-
-			const colorClass =
-				diffDays === 0
-					? "bg-red-500/15 text-red-700 dark:text-red-400 border-red-400/40"
-					: diffDays === 1
-						? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/40"
-						: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-400/40";
-
-			const dateLabel = apptDate.toLocaleDateString("es-EC", {
-				month: "short",
-				day: "numeric",
-			});
-
-			return (
-				<span
-					className={`inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium ${colorClass}`}
-				>
-					<span>{dateLabel}</span>
-					<span className="opacity-80">
-						{nextScheduled.start_time} – {nextScheduled.end_time}
+			// Prioridad 2: fecha sugerida por el médico
+			const lastRecord = row.original.medical_records?.[0];
+			if (lastRecord?.next_appointment_date) {
+				const suggestedDate = new Date(lastRecord.next_appointment_date);
+				const dateLabel = suggestedDate.toLocaleDateString("es-EC", {
+					month: "short",
+					day: "numeric",
+				});
+				return (
+					<span className="inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-400/40">
+						<span>{dateLabel}</span>
+						<span className="opacity-80 text-[10px]">
+							<Text uuid="clinical.patient.appointment.suggested" />
+						</span>
 					</span>
-				</span>
-			);
+				);
+			}
+
+			return <span className="text-muted-foreground">—</span>;
 		},
 	},
 	{

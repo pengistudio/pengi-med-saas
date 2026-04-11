@@ -212,6 +212,7 @@ export interface MedicalRecord extends BaseModel {
 	date: string;
 	appointment_id?: number | null;
 	appointment?: Appointment | null;
+	next_appointment_date?: string | null;
 	motive: string;
 	observation: string;
 	soap_record?: {
@@ -282,6 +283,7 @@ export type CreateMedicalRecordPayload = {
 	motive: string;
 	observation: string;
 	appointment_id?: number;
+	next_appointment_date?: string;
 	soap_record: {
 		subjective: string;
 		objective: string;
@@ -324,6 +326,7 @@ export type UpdateMedicalRecordPayload = {
 	motive?: string;
 	observation?: string;
 	appointment_id?: number;
+	next_appointment_date?: string;
 	soap_record?: {
 		subjective: string;
 		objective: string;

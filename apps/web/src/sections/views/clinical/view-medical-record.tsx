@@ -167,6 +167,23 @@ const ViewMedicalRecord = () => {
 								</span>
 							</div>
 						)}
+						{medicalRecord.next_appointment_date && (
+							<div className="grid grid-cols-[120px_1fr] items-center">
+								<span className="font-medium text-muted-foreground">
+									{textGet("form.create_medical_record.next_appointment")}:
+								</span>
+								<span className="inline-flex items-center gap-2 rounded-md bg-blue-500/15 px-2.5 py-1 text-sm font-medium text-blue-700">
+									<Calendar className="h-4 w-4" />
+									{new Date(
+										medicalRecord.next_appointment_date,
+									).toLocaleDateString("es-EC", {
+										year: "numeric",
+										month: "long",
+										day: "numeric",
+									})}
+								</span>
+							</div>
+						)}
 					</div>
 				</CardContent>
 			</Card>

@@ -64,6 +64,7 @@ const formSchema = z.object({
 		.min(1, "Campo requerido")
 		.max(100, "Máximo 100 caracteres"),
 	observation: z.string().optional(),
+	next_appointment_date: z.date().optional(),
 	soap_record: z.object({
 		subjective: z
 			.string({ error: "Campo requerido" })
@@ -199,6 +200,9 @@ const CreateMedicalRecordForm = () => {
 			date: values.date.toISOString(),
 			motive: values.motive,
 			observation: values.observation || "",
+			next_appointment_date: values.next_appointment_date
+				? values.next_appointment_date.toISOString().split("T")[0]
+				: undefined,
 			soap_record: values.soap_record,
 			prescription,
 			diagnoses: values.diagnoses ?? [],
@@ -719,6 +723,35 @@ function FormInner({
 
 				{/* ── Tab 3: Complementario (Diagnoses + Prescription) ── */}
 				<TabsContent value="complementario" className="mt-4 space-y-4 pb-4">
+					{/* Próxima Cita Sugerida */}
+					<Card className="border-l-4 border-l-cyan-500">
+						<CardHeader>
+							<div className="flex items-center gap-3">
+								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-500 text-white">
+									<Calendar className="h-4 w-4" />
+								</div>
+								<div>
+									<CardTitle className="text-base">
+										<Text uuid="form.create_medical_record.next_appointment" />
+									</CardTitle>
+									<CardDescription className="text-xs">
+										<Text uuid="form.optional" />
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+								<FormCalendar
+									field={field}
+									name="next_appointment_date"
+									label={textGet("form.create_medical_record.next_appointment")}
+									isOptional
+								/>
+							</div>
+						</CardContent>
+					</Card>
+
 					{show_diagnoses && (
 						<Card className="border-l-4 border-l-blue-500">
 							<CardHeader>

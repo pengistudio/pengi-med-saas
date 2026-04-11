@@ -32,6 +32,7 @@ export interface EnabledFeatures {
 	clinical?: boolean;
 	billing?: boolean;
 	team?: boolean;
+	kanban?: boolean;
 }
 
 // Factory to create navigation items with localized labels
@@ -42,6 +43,13 @@ export const createNavItems = (
 		icon: LayoutDashboard,
 		label: textGet("dashboard.title"),
 		href: "/",
+	},
+	{
+		icon: Layers,
+		label: textGet("tasks.title"),
+		href: "/tasks",
+		permission: PERMISSIONS.KANBAN.PERMISSION_READ_KANBAN,
+		feature: "kanban",
 	},
 	{
 		icon: Hospital,

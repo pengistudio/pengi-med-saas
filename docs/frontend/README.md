@@ -4,45 +4,31 @@ Guías de desarrollo para el frontend SaaS (`apps/web` y `apps/backoffice`).
 
 ## 📚 Documentación
 
-### Architecture & Patterns
-- **[web-architecture-reference.md](web-architecture-reference.md)** — Stack, estructura de carpetas, patrones clave
-  - React 19 + Vite + TypeScript + Zustand
-  - Componentes con shadcn/ui + Tailwind
-  - i18n, routing, state management
-  - Features habilitados & navegación dináminca
+### 🎯 Complete Guide (Recommended)
+**👉 [Web Frontend — Complete Guide](../skills/web-frontend-complete-guide.md)**
 
-### API Integration
-- **[web-api-services.md](web-api-services.md)** — Cómo crear y usar servicios de API
-  - HttpService class + axios instances
-  - Patrones de request/response
-  - Toast notifications (manejadas por servicio)
-  - Error handling
-  - Ejemplos prácticos por dominio
+Guía consolidada que cubre:
+- Stack: React 19 + TypeScript + Vite + TailwindCSS + Zustand
+- Estructura de directorios y patrones clave
+- Axios instances (cuál usar cuándo)
+- Service layer pattern (NUNCA API directo)
+- Types pattern (extends BaseModel, payloads)
+- Zustand state management (cuándo crear, patrones)
+- i18n pattern (useText hook)
+- Paso a paso: implementar un feature nuevo
 
-### State Management
-- **[web-state-management.md](web-state-management.md)** — Zustand para estado compartido
-  - Crear stores por dominio
-  - Persistencia (localStorage/sessionStorage)
-  - Casos de uso comunes
-  - Testing y debugging
-  - Cuándo usar store vs useState
-
-### Implementation Guides
-- **[web-new-feature.md](web-new-feature.md)** — Paso a paso para agregar nuevas features
-  - Crear tipos TypeScript
-  - Servicio de API
-  - Store (si necesario)
-  - Componentes y páginas
-  - Routing y navegación
-  - i18n keys
-  - Checklist completo
+### Form Creation
+- **[Form Creation Standard](../skills/form-creation-standard.md)** — Estándar para formularios
+  - Schema con Zod
+  - Form components (Input, Select, TextArea)
+  - Validación y binding
+  - i18n integration
+  - Ejemplos por tipo
 
 ## 🚀 Quick Start
 
-1. Lee [web-architecture-reference.md](web-architecture-reference.md) para entender la estructura
-2. Para una nueva feature, sigue [web-new-feature.md](web-new-feature.md)
-3. Para comunicación con API, consulta [web-api-services.md](web-api-services.md)
-4. Para state compartido, usa [web-state-management.md](web-state-management.md)
+1. Lee [Web Frontend — Complete Guide](../skills/web-frontend-complete-guide.md) — cubre todo
+2. Para crear formularios: [Form Creation Standard](../skills/form-creation-standard.md)
 
 ## 📂 Related
 - Frontend source: `apps/web/`

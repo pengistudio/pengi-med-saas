@@ -127,3 +127,30 @@ var TeamPermissions = []permission_models.Permission{
 		Description:  "Add or remove team members",
 	},
 }
+
+var KanbanPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_KANBAN"},
+		Name:         "Read Kanban",
+		Category:     "KANBAN",
+		Description:  "View kanban tasks",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "CREATE_KANBAN"},
+		Name:         "Create Kanban Task",
+		Category:     "KANBAN",
+		Description:  "Create new kanban tasks",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "UPDATE_KANBAN"},
+		Name:         "Update Kanban Task",
+		Category:     "KANBAN",
+		Description:  "Update and move kanban tasks",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "DELETE_KANBAN"},
+		Name:         "Delete Kanban Task",
+		Category:     "KANBAN",
+		Description:  "Delete kanban tasks",
+	},
+}

@@ -4,31 +4,37 @@ Central documentation hub for all developers working on Pengi Med SaaS.
 
 **Whether you use Claude Code, Cursor, Copilot, VS Code, or anything else — this is where to find development guides.**
 
-## 📚 Documentation by Area
+## 🎯 START HERE: Consolidated Skills
+
+**All documentation has been consolidated into comprehensive guides in [`docs/skills/`](skills/README.md)**
+
+### Quick Links
+
+- **[API Backend — Complete Guide](skills/api-backend-complete-guide.md)** — Architecture + patterns + how-to implement features
+- **[Web Frontend — Complete Guide](skills/web-frontend-complete-guide.md)** — Architecture + patterns + how-to implement features
+- **[Form Creation Standard](skills/form-creation-standard.md)** — Standard for creating forms with Zod + Form components
+- **[Skills Index](skills/README.md)** — Full list of all available skills
+
+---
+
+## 📚 Documentation by Area (Legacy References)
 
 ### Backend (Go)
 **Path:** [`apps/api/`](../apps/api)
 
-See [backend/README.md](backend/README.md) for:
-- Architecture & design patterns
-- How to implement new features
-- Database migrations
-- Error handling & responses
-- Permissions & authorization
+**Recommended:** [API Backend — Complete Guide](skills/api-backend-complete-guide.md)
 
-Start here: [backend/api-architecture-reference.md](backend/api-architecture-reference.md)
+Additional references:
+- [backend/api-code-migration.md](backend/api-code-migration.md) — Code migrations & database changes
+- [backend/permissions-system.md](backend/permissions-system.md) — RBAC & granular permissions
 
 ### Frontend (React — SaaS App)
 **Path:** [`apps/web/`](../apps/web)
 
-See [frontend/README.md](frontend/README.md) for:
-- Frontend architecture & patterns
-- API services integration
-- State management (Zustand)
-- How to implement new features
-- Routing, permissions & features
+**Recommended:** [Web Frontend — Complete Guide](skills/web-frontend-complete-guide.md)
 
-Start here: [frontend/web-architecture-reference.md](frontend/web-architecture-reference.md)
+Additional references:
+- [frontend/README.md](frontend/README.md) — Frontend overview
 
 ### Backoffice (React — Admin Panel)
 **Path:** [`apps/backoffice/`](../apps/backoffice)

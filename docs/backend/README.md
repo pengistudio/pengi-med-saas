@@ -4,43 +4,34 @@ Guías de desarrollo para el backend API (`apps/api`).
 
 ## 📚 Documentación
 
-### Architecture & Patterns
-- **[api-architecture-reference.md](api-architecture-reference.md)** — Stack técnico, estructura de directorios, patrones de la arquitectura
-  - Stack: Go + Gin + GORM + Zap + RabbitMQ
-  - Estructura de carpetas y dónde va cada cosa
-  - Multi-tenancy con GORM scopes
-  - Error handling centralizado
+### 🎯 Complete Guide (Recommended)
+**👉 [API Backend — Complete Guide](../skills/api-backend-complete-guide.md)**
 
-### Implementation Guides
-- **[api-new-feature.md](api-new-feature.md)** — Cómo agregar nuevas funcionalidades al API paso a paso
-  - Crear modelos GORM
-  - Estructurar handlers
-  - Implementar DTOs
-  - Registrar rutas
-  - Trabajar con multi-tenancy
-  - Ejemplos prácticos (Patient, Invoice, etc.)
+Guía consolidada que cubre:
+- Stack técnico, estructura de directorios
+- Multi-tenancy model & TenantScope
+- Flujo de request, middlewares
+- Patrones core: handlers, DTOs, modelos, error codes
+- Paso a paso: implementar un feature nuevo
+- Logging con Zap, reglas multi-tenancy
 
-### Database & Migrations
-- **[api-code-migration.md](api-code-migration.md)** — Cómo crear y ejecutar migraciones de código
+### Specialized References
+- **[api-code-migration.md](api-code-migration.md)** — Cómo crear migraciones de código
   - Ubicación de migraciones
   - Estructura de una migración
   - Ejecutar migraciones
   - Debugging
 
-### API Response & Error Handling
-- **[api-errors-routes-responses.md](api-errors-routes-responses.md)** — Patrones de responses, errores y rutas
-  - Response envelope pattern
-  - Error codes centralizados
-  - Route registration
-  - i18n messages
-  - Request validation
+- **[permissions-system.md](permissions-system.md)** — Sistema RBAC granular
+  - Permisos por rol
+  - Requerimientos de permiso
+  - Integración con subscriptions
 
 ## 🚀 Quick Start
 
-1. Lee [api-architecture-reference.md](api-architecture-reference.md) para entender la estructura
-2. Cuando crees un feature, sigue [api-new-feature.md](api-new-feature.md)
-3. Para cambios en BD, consulta [api-code-migration.md](api-code-migration.md)
-4. Para responses/errores, revisa [api-errors-routes-responses.md](api-errors-routes-responses.md)
+1. Lee [API Backend — Complete Guide](../skills/api-backend-complete-guide.md) — cubre todo
+2. Para migraciones específicas: [api-code-migration.md](api-code-migration.md)
+3. Para permisos: [permissions-system.md](permissions-system.md)
 
 ## 📂 Related
 - Backend source: `apps/api/`

@@ -45,6 +45,7 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 		Clinical: false,
 		Billing:  false,
 		Team:     false,
+		Kanban:   false,
 	}
 
 	if len(featureCodes) == 0 {
@@ -52,6 +53,7 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 			"clinical": false,
 			"billing":  false,
 			"team":     false,
+			"kanban":   false,
 		}, nil
 	}
 
@@ -80,11 +82,15 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 	if categoriesFound["TEAM"] {
 		enabledFeatures.Team = true
 	}
+	if categoriesFound["KANBAN"] {
+		enabledFeatures.Kanban = true
+	}
 
 	return map[string]interface{}{
 		"clinical": enabledFeatures.Clinical,
 		"billing":  enabledFeatures.Billing,
 		"team":     enabledFeatures.Team,
+		"kanban":   enabledFeatures.Kanban,
 	}, nil
 }
 

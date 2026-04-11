@@ -84,13 +84,14 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 
 	record := &clinical_models.MedicalRecord{
-		Date:          newRecord.Date,
-		Motive:        newRecord.Motive,
-		Observation:   *newRecord.Observation,
-		PatientID:     newRecord.PatientID,
-		AppointmentID: newRecord.AppointmentID,
-		SOAPRecord:    newRecord.SOAPRecord,
-		Diagnoses:     newRecord.Diagnoses,
+		Date:                newRecord.Date,
+		Motive:              newRecord.Motive,
+		Observation:         *newRecord.Observation,
+		PatientID:           newRecord.PatientID,
+		AppointmentID:       newRecord.AppointmentID,
+		NextAppointmentDate: newRecord.NextAppointmentDate,
+		SOAPRecord:          newRecord.SOAPRecord,
+		Diagnoses:           newRecord.Diagnoses,
 	}
 
 	// Create prescription if provided
@@ -158,6 +159,9 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 	if updatedRecord.Observation != nil {
 		record["observation"] = *updatedRecord.Observation
+	}
+	if updatedRecord.NextAppointmentDate != nil {
+		record["next_appointment_date"] = *updatedRecord.NextAppointmentDate
 	}
 	if updatedRecord.Diagnoses != nil {
 		record["diagnoses"] = updatedRecord.Diagnoses
