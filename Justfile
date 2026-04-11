@@ -30,3 +30,15 @@ tests-api:
 # Run frontend tests only
 tests-web:
 	docker compose -f docker-compose.dev.yaml exec web pnpm test:run
+
+# Run E2E tests (requires running stack with `just dev`)
+tests-e2e:
+	docker compose -f docker-compose.dev.yaml exec web pnpm exec playwright test
+
+# Run E2E tests with UI browser visible
+tests-e2e-ui:
+	docker compose -f docker-compose.dev.yaml exec web pnpm exec playwright test --ui
+
+# Run E2E tests in debug mode
+tests-e2e-debug:
+	docker compose -f docker-compose.dev.yaml exec web pnpm exec playwright test --debug
