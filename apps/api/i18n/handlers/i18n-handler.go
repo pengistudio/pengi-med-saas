@@ -30,7 +30,7 @@ func (h *MessageHandler) GetAllMessages(c *gin.Context) envelope.Response {
 	}
 
 	messages := message_cache.GetAll(lang)
-	return envelope.SuccessResponse(messages, "Messages obtained successfully")
+	return envelope.SuccessResponse(messages, "i18n.messages.fetch.success")
 }
 
 func (h *MessageHandler) GetMessageVersion(c *gin.Context) envelope.Response {

@@ -13,7 +13,7 @@
   },
   {
     "key": "E-COMP-001",
-    "value": "Compañía no encontrada."
+    "value": "Compa\u00f1\u00eda no encontrada."
   },
   {
     "key": "E-TEN-001",
@@ -25,7 +25,7 @@
   },
   {
     "key": "E-AUTH-001",
-    "value": "Solicitud de autenticación inválida."
+    "value": "Solicitud de autenticaci\u00f3n inv\u00e1lida."
   },
   {
     "key": "E-AUTH-002",
@@ -33,7 +33,7 @@
   },
   {
     "key": "E-AUTH-003",
-    "value": "Credenciales inválidas."
+    "value": "Credenciales inv\u00e1lidas."
   },
   {
     "key": "E-AUTH-004",
@@ -41,15 +41,15 @@
   },
   {
     "key": "E-AUTH-005",
-    "value": "Token de refresco inválido."
+    "value": "Token de refresco inv\u00e1lido."
   },
   {
     "key": "E-AUTH-006",
-    "value": "ID de usuario inválido."
+    "value": "ID de usuario inv\u00e1lido."
   },
   {
     "key": "form.validation.invalid_fields",
-    "value": "Campos inválidos"
+    "value": "Campos inv\u00e1lidos"
   },
   {
     "key": "form.validation.check_following_fields",
@@ -65,7 +65,7 @@
   },
   {
     "key": "common.days",
-    "value": "Días"
+    "value": "D\u00edas"
   },
   {
     "key": "common.months",
@@ -73,15 +73,15 @@
   },
   {
     "key": "common.years",
-    "value": "Años"
+    "value": "A\u00f1os"
   },
   {
     "key": "login.title",
-    "value": "Iniciar sesión"
+    "value": "Iniciar sesi\u00f3n"
   },
   {
     "key": "login.subtitle",
-    "value": "Bienvenido de nuevo, por favor inicie sesión en su cuenta."
+    "value": "Bienvenido de nuevo, por favor inicie sesi\u00f3n en su cuenta."
   },
   {
     "key": "login.username.placeholder",
@@ -93,15 +93,15 @@
   },
   {
     "key": "login.password.placeholder",
-    "value": "Ingrese su contraseña"
+    "value": "Ingrese su contrase\u00f1a"
   },
   {
     "key": "login.password",
-    "value": "Contraseña"
+    "value": "Contrase\u00f1a"
   },
   {
     "key": "login.login_button",
-    "value": "Iniciar sesión"
+    "value": "Iniciar sesi\u00f3n"
   },
   {
     "key": "session.register.button",
@@ -109,7 +109,7 @@
   },
   {
     "key": "login.successful",
-    "value": "Inicio de sesión exitoso"
+    "value": "Inicio de sesi\u00f3n exitoso"
   },
   {
     "key": "login.environments.title",
@@ -117,7 +117,7 @@
   },
   {
     "key": "login.environments.subtitle",
-    "value": "Elige la sucursal o clínica a la que deseas acceder."
+    "value": "Elige la sucursal o cl\u00ednica a la que deseas acceder."
   },
   {
     "key": "login.environments.cancel",
@@ -141,7 +141,7 @@
   },
   {
     "key": "dashboard.settings",
-    "value": "Configuración"
+    "value": "Configuraci\u00f3n"
   },
   {
     "key": "dashboard.help",
@@ -161,27 +161,27 @@
   },
   {
     "key": "dashboard.dropdown.logout",
-    "value": "Cerrar sesión"
+    "value": "Cerrar sesi\u00f3n"
   },
   {
     "key": "session.expired.title",
-    "value": "Sesión expirada"
+    "value": "Sesi\u00f3n expirada"
   },
   {
     "key": "session.expired",
-    "value": "Tu sesión ha expirado, por favor inicia sesión de nuevo."
+    "value": "Tu sesi\u00f3n ha expirado, por favor inicia sesi\u00f3n de nuevo."
   },
   {
     "key": "subscription.expired.title",
-    "value": "Suscripción inactiva"
+    "value": "Suscripci\u00f3n inactiva"
   },
   {
     "key": "subscription.expired.description",
-    "value": "Tu suscripción ha expirado o no tienes un plan activo. No puedes acceder a esta sección."
+    "value": "Tu suscripci\u00f3n ha expirado o no tienes un plan activo. No puedes acceder a esta secci\u00f3n."
   },
   {
     "key": "subscription.expired.contact",
-    "value": "Contacta al administrador para renovar tu suscripción."
+    "value": "Contacta al administrador para renovar tu suscripci\u00f3n."
   },
   {
     "key": "error.rate_limit_exceeded",
@@ -189,7 +189,7 @@
   },
   {
     "key": "dashboard.clinical",
-    "value": "Bitácora"
+    "value": "Bit\u00e1cora"
   },
   {
     "key": "dashboard.clinical.patients",
@@ -221,15 +221,15 @@
   },
   {
     "key": "E-CLIN-005",
-    "value": "Historia clínica no encontrada."
+    "value": "Historia cl\u00ednica no encontrada."
   },
   {
     "key": "E-CLIN-006",
-    "value": "Error al crear la historia clínica."
+    "value": "Error al crear la historia cl\u00ednica."
   },
   {
     "key": "E-CLIN-007",
-    "value": "Error al actualizar la historia clínica."
+    "value": "Error al actualizar la historia cl\u00ednica."
   },
   {
     "key": "E-CLIN-008",
@@ -241,7 +241,7 @@
   },
   {
     "key": "table.button.open_menu",
-    "value": "Abrir menú"
+    "value": "Abrir men\u00fa"
   },
   {
     "key": "clinical.medical_record.new",
@@ -249,11 +249,11 @@
   },
   {
     "key": "clinical.medical_record.view",
-    "value": "Ver Historia Clínica"
+    "value": "Ver Historia Cl\u00ednica"
   },
   {
     "key": "clinical.patient.download_records",
-    "value": "Descargar Historial de Consultas Médicas"
+    "value": "Descargar Historial de Consultas M\u00e9dicas"
   },
   {
     "key": "clinical.patient.report.title",
@@ -269,11 +269,11 @@
   },
   {
     "key": "clinical.patient.document",
-    "value": "Cédula"
+    "value": "C\u00e9dula"
   },
   {
     "key": "clinical.patient.phone",
-    "value": "Teléfono"
+    "value": "Tel\u00e9fono"
   },
   {
     "key": "clinical.patient.phone.unregistered",
@@ -281,15 +281,15 @@
   },
   {
     "key": "clinical.patient.diagnosis",
-    "value": "Diagnóstico"
+    "value": "Diagn\u00f3stico"
   },
   {
     "key": "clinical.patient.diagnosis.none",
-    "value": "Sin diagnóstico"
+    "value": "Sin diagn\u00f3stico"
   },
   {
     "key": "clinical.patient.next_appointment",
-    "value": "Próxima Cita"
+    "value": "Pr\u00f3xima Cita"
   },
   {
     "key": "clinical.patient.appointment.none",
@@ -301,19 +301,19 @@
   },
   {
     "key": "clinical.patient.appointment.tomorrow",
-    "value": "Mañana"
+    "value": "Ma\u00f1ana"
   },
   {
     "key": "clinical.patient.appointment.upcoming",
-    "value": "Próximamente"
+    "value": "Pr\u00f3ximamente"
   },
   {
     "key": "clinical.patient.appointment.suggested",
-    "value": "Sugerida por el médico"
+    "value": "Sugerida por el m\u00e9dico"
   },
   {
     "key": "clinical.patient.medic",
-    "value": "Médico"
+    "value": "M\u00e9dico"
   },
   {
     "key": "clinical.patient.name",
@@ -329,7 +329,7 @@
   },
   {
     "key": "clinical.patient.search.placeholder",
-    "value": "Buscar por nombre, cédula o teléfono..."
+    "value": "Buscar por nombre, c\u00e9dula o tel\u00e9fono..."
   },
   {
     "key": "error.permission.title",
@@ -349,27 +349,27 @@
   },
   {
     "key": "table.pagination.rows_per_page",
-    "value": "Filas por página"
+    "value": "Filas por p\u00e1gina"
   },
   {
     "key": "table.pagination.page",
-    "value": "Página "
+    "value": "P\u00e1gina "
   },
   {
     "key": "table.pagination.first_page",
-    "value": "Ir a la primera página"
+    "value": "Ir a la primera p\u00e1gina"
   },
   {
     "key": "table.pagination.previous_page",
-    "value": "Ir a la página anterior"
+    "value": "Ir a la p\u00e1gina anterior"
   },
   {
     "key": "table.pagination.next_page",
-    "value": "Ir a la siguiente página"
+    "value": "Ir a la siguiente p\u00e1gina"
   },
   {
     "key": "table.pagination.last_page",
-    "value": "Ir a la última página"
+    "value": "Ir a la \u00faltima p\u00e1gina"
   },
   {
     "key": "table.column_header.asc",
@@ -433,7 +433,7 @@
   },
   {
     "key": "form.validation.passwords_no_match",
-    "value": "Las contraseñas no coinciden"
+    "value": "Las contrase\u00f1as no coinciden"
   },
   {
     "key": "table.column.last_name",
@@ -445,23 +445,23 @@
   },
   {
     "key": "table.column.document",
-    "value": "Cédula"
+    "value": "C\u00e9dula"
   },
   {
     "key": "table.column.phone",
-    "value": "Teléfono"
+    "value": "Tel\u00e9fono"
   },
   {
     "key": "table.column.diagnosis",
-    "value": "Diagnóstico"
+    "value": "Diagn\u00f3stico"
   },
   {
     "key": "table.column.next_appointment",
-    "value": "Próxima Cita"
+    "value": "Pr\u00f3xima Cita"
   },
   {
     "key": "table.column.medic",
-    "value": "Médico"
+    "value": "M\u00e9dico"
   },
   {
     "key": "clinical.medical_record.update",
@@ -505,15 +505,15 @@
   },
   {
     "key": "clinical.patient_card.document",
-    "value": "Cédula:"
+    "value": "C\u00e9dula:"
   },
   {
     "key": "clinical.patient_card.critical",
-    "value": "Crítico"
+    "value": "Cr\u00edtico"
   },
   {
     "key": "clinical.patient_card.personal_info",
-    "value": "INFORMACIÓN PERSONAL"
+    "value": "INFORMACI\u00d3N PERSONAL"
   },
   {
     "key": "clinical.patient_card.birth_date",
@@ -525,11 +525,11 @@
   },
   {
     "key": "clinical.patient_card.gender",
-    "value": "Género:"
+    "value": "G\u00e9nero:"
   },
   {
     "key": "clinical.patient_card.phone",
-    "value": "Teléfono:"
+    "value": "Tel\u00e9fono:"
   },
   {
     "key": "clinical.patient_card.not_registered",
@@ -545,7 +545,7 @@
   },
   {
     "key": "clinical.patient_card.medical_info",
-    "value": "INFORMACIÓN MÉDICA"
+    "value": "INFORMACI\u00d3N M\u00c9DICA"
   },
   {
     "key": "clinical.patient_card.insurance",
@@ -553,11 +553,11 @@
   },
   {
     "key": "clinical.patient_card.medic",
-    "value": "Médico:"
+    "value": "M\u00e9dico:"
   },
   {
     "key": "clinical.patient_card.diagnosis",
-    "value": "Diagnóstico:"
+    "value": "Diagn\u00f3stico:"
   },
   {
     "key": "clinical.patient_card.not_available",
@@ -565,27 +565,27 @@
   },
   {
     "key": "clinical.patient_card.latest_prescription",
-    "value": "ÚLTIMA RECETA"
+    "value": "\u00daLTIMA RECETA"
   },
   {
     "key": "clinical.patient_card.view_prescription",
-    "value": "Ver Receta Médica"
+    "value": "Ver Receta M\u00e9dica"
   },
   {
     "key": "clinical.patient_card.medical_history",
-    "value": "ANTECEDENTES MÉDICOS"
+    "value": "ANTECEDENTES M\u00c9DICOS"
   },
   {
     "key": "clinical.patient_card.app",
-    "value": "APP - Antecedentes Personales Patológicos"
+    "value": "APP - Antecedentes Personales Patol\u00f3gicos"
   },
   {
     "key": "clinical.patient_card.apf",
-    "value": "APF - Antecedentes Patológicos Familiares"
+    "value": "APF - Antecedentes Patol\u00f3gicos Familiares"
   },
   {
     "key": "clinical.patient_card.apqx",
-    "value": "APQX - Antecedentes Patológicos Quirúrgicos"
+    "value": "APQX - Antecedentes Patol\u00f3gicos Quir\u00fargicos"
   },
   {
     "key": "clinical.patient_card.notes",
@@ -657,15 +657,15 @@
   },
   {
     "key": "clinical.medical_record.mark_critical",
-    "value": "Marcar como crítico"
+    "value": "Marcar como cr\u00edtico"
   },
   {
     "key": "clinical.medical_record.unmark_critical",
-    "value": "Desmarcar como crítico"
+    "value": "Desmarcar como cr\u00edtico"
   },
   {
     "key": "clinical.medical_record.history_title",
-    "value": "Historial de Consultas Médicas"
+    "value": "Historial de Consultas M\u00e9dicas"
   },
   {
     "key": "clinical.medical_record.contact_error.title",
@@ -673,11 +673,11 @@
   },
   {
     "key": "clinical.medical_record.contact_error.description",
-    "value": "No tiene número registrado"
+    "value": "No tiene n\u00famero registrado"
   },
   {
     "key": "form.create_medical_record.title",
-    "value": "Nueva Consulta Médica"
+    "value": "Nueva Consulta M\u00e9dica"
   },
   {
     "key": "form.create_medical_record.description",
@@ -689,7 +689,7 @@
   },
   {
     "key": "form.create_medical_record.next_appointment",
-    "value": "Próxima Cita"
+    "value": "Pr\u00f3xima Cita"
   },
   {
     "key": "form.create_medical_record.motive",
@@ -701,7 +701,7 @@
   },
   {
     "key": "form.create_medical_record.motive.description",
-    "value": "Máximo 100 caracteres."
+    "value": "M\u00e1ximo 100 caracteres."
   },
   {
     "key": "form.create_medical_record.observation",
@@ -717,7 +717,7 @@
   },
   {
     "key": "form.create_medical_record.soap.subjective.description",
-    "value": "Síntomas y quejas reportados por el paciente."
+    "value": "S\u00edntomas y quejas reportados por el paciente."
   },
   {
     "key": "form.create_medical_record.soap.subjective",
@@ -729,7 +729,7 @@
   },
   {
     "key": "form.create_medical_record.soap.objective.description",
-    "value": "Hallazgos clínicos y resultados de exámenes."
+    "value": "Hallazgos cl\u00ednicos y resultados de ex\u00e1menes."
   },
   {
     "key": "form.create_medical_record.soap.objective",
@@ -737,15 +737,15 @@
   },
   {
     "key": "form.create_medical_record.soap.assessment.title",
-    "value": "Evaluación"
+    "value": "Evaluaci\u00f3n"
   },
   {
     "key": "form.create_medical_record.soap.assessment.description",
-    "value": "Diagnóstico o impresión clínica."
+    "value": "Diagn\u00f3stico o impresi\u00f3n cl\u00ednica."
   },
   {
     "key": "form.create_medical_record.soap.assessment",
-    "value": "Evaluación"
+    "value": "Evaluaci\u00f3n"
   },
   {
     "key": "form.create_medical_record.soap.plan.title",
@@ -761,15 +761,15 @@
   },
   {
     "key": "form.create_medical_record.soap.subjective.placeholder",
-    "value": "Síntomas, quejas y descripción que refiere el paciente..."
+    "value": "S\u00edntomas, quejas y descripci\u00f3n que refiere el paciente..."
   },
   {
     "key": "form.create_medical_record.soap.objective.placeholder",
-    "value": "Hallazgos clínicos, exploración física, resultados de exámenes..."
+    "value": "Hallazgos cl\u00ednicos, exploraci\u00f3n f\u00edsica, resultados de ex\u00e1menes..."
   },
   {
     "key": "form.create_medical_record.soap.assessment.placeholder",
-    "value": "Diagnóstico o impresión clínica basada en los hallazgos..."
+    "value": "Diagn\u00f3stico o impresi\u00f3n cl\u00ednica basada en los hallazgos..."
   },
   {
     "key": "form.create_medical_record.soap.plan.placeholder",
@@ -785,11 +785,11 @@
   },
   {
     "key": "form.create_medical_record.prescription.title",
-    "value": "Receta Médica"
+    "value": "Receta M\u00e9dica"
   },
   {
     "key": "form.create_medical_record.prescription.description",
-    "value": "Opcional. Agrega una receta médica a la consulta."
+    "value": "Opcional. Agrega una receta m\u00e9dica a la consulta."
   },
   {
     "key": "form.create_medical_record.prescription.content",
@@ -829,11 +829,11 @@
   },
   {
     "key": "form.edit_patient.document",
-    "value": "Cédula"
+    "value": "C\u00e9dula"
   },
   {
     "key": "form.edit_patient.document.placeholder",
-    "value": "Cédula..."
+    "value": "C\u00e9dula..."
   },
   {
     "key": "form.edit_patient.first_name",
@@ -853,19 +853,19 @@
   },
   {
     "key": "form.edit_patient.phone",
-    "value": "Teléfono"
+    "value": "Tel\u00e9fono"
   },
   {
     "key": "form.edit_patient.phone.placeholder",
-    "value": "Teléfono..."
+    "value": "Tel\u00e9fono..."
   },
   {
     "key": "form.edit_patient.email",
-    "value": "Correo Electrónico"
+    "value": "Correo Electr\u00f3nico"
   },
   {
     "key": "form.edit_patient.email.placeholder",
-    "value": "Correo electrónico..."
+    "value": "Correo electr\u00f3nico..."
   },
   {
     "key": "form.edit_patient.birth_date",
@@ -873,23 +873,23 @@
   },
   {
     "key": "form.edit_patient.next_appointment",
-    "value": "Próxima Cita"
+    "value": "Pr\u00f3xima Cita"
   },
   {
     "key": "form.edit_patient.gender",
-    "value": "Género"
+    "value": "G\u00e9nero"
   },
   {
     "key": "form.edit_patient.institution",
-    "value": "Institución"
+    "value": "Instituci\u00f3n"
   },
   {
     "key": "form.edit_patient.institution.placeholder",
-    "value": "Seleccionar Institución..."
+    "value": "Seleccionar Instituci\u00f3n..."
   },
   {
     "key": "form.edit_patient.medic",
-    "value": "Médico Tratante"
+    "value": "M\u00e9dico Tratante"
   },
   {
     "key": "form.edit_patient.medic.placeholder",
@@ -897,31 +897,31 @@
   },
   {
     "key": "form.edit_patient.insurance",
-    "value": "Seguro Médico"
+    "value": "Seguro M\u00e9dico"
   },
   {
     "key": "form.edit_patient.insurance.placeholder",
-    "value": "Seguro Médico..."
+    "value": "Seguro M\u00e9dico..."
   },
   {
     "key": "form.edit_patient.diagnosis",
-    "value": "Diagnóstico"
+    "value": "Diagn\u00f3stico"
   },
   {
     "key": "form.edit_patient.diagnosis.placeholder",
-    "value": "Diagnóstico..."
+    "value": "Diagn\u00f3stico..."
   },
   {
     "key": "form.edit_patient.app",
-    "value": "Antecedentes Personales Patológicos"
+    "value": "Antecedentes Personales Patol\u00f3gicos"
   },
   {
     "key": "form.edit_patient.apf",
-    "value": "Antecedentes Patológicos Familiares"
+    "value": "Antecedentes Patol\u00f3gicos Familiares"
   },
   {
     "key": "form.edit_patient.apqx",
-    "value": "Antecedentes Patológicos Quirúrgicos"
+    "value": "Antecedentes Patol\u00f3gicos Quir\u00fargicos"
   },
   {
     "key": "form.edit_patient.notes",
@@ -949,11 +949,11 @@
   },
   {
     "key": "auth.session.extend.success",
-    "value": "Sesión extendida exitosamente"
+    "value": "Sesi\u00f3n extendida exitosamente"
   },
   {
     "key": "auth.token.valid",
-    "value": "Token válido"
+    "value": "Token v\u00e1lido"
   },
   {
     "key": "company.list.success",
@@ -965,7 +965,7 @@
   },
   {
     "key": "permission.categories.success",
-    "value": "Permisos con categorías obtenidos exitosamente"
+    "value": "Permisos con categor\u00edas obtenidos exitosamente"
   },
   {
     "key": "environment.list.success",
@@ -993,47 +993,47 @@
   },
   {
     "key": "clinical.patient.critical.label",
-    "value": "Paciente crítico"
+    "value": "Paciente cr\u00edtico"
   },
   {
     "key": "clinical.patient.critical.success",
-    "value": "Paciente marcado como crítico"
+    "value": "Paciente marcado como cr\u00edtico"
   },
   {
     "key": "clinical.patient.critical_revert.success",
-    "value": "Estado crítico del paciente revertido"
+    "value": "Estado cr\u00edtico del paciente revertido"
   },
   {
     "key": "clinical.patient.sort.recent",
-    "value": "Más recientes primero"
+    "value": "M\u00e1s recientes primero"
   },
   {
     "key": "clinical.patient.sort.oldest",
-    "value": "Más antiguos primero"
+    "value": "M\u00e1s antiguos primero"
   },
   {
     "key": "clinical.patient.sort.last_name_asc",
-    "value": "Apellido A → Z"
+    "value": "Apellido A \u2192 Z"
   },
   {
     "key": "clinical.patient.sort.last_name_desc",
-    "value": "Apellido Z → A"
+    "value": "Apellido Z \u2192 A"
   },
   {
     "key": "clinical.medical_record.list.success",
-    "value": "Registros médicos obtenidos exitosamente"
+    "value": "Registros m\u00e9dicos obtenidos exitosamente"
   },
   {
     "key": "clinical.medical_record.found",
-    "value": "Registro médico encontrado"
+    "value": "Registro m\u00e9dico encontrado"
   },
   {
     "key": "clinical.medical_record.create.success",
-    "value": "Consulta médica creada exitosamente"
+    "value": "Consulta m\u00e9dica creada exitosamente"
   },
   {
     "key": "clinical.medical_record.update.success",
-    "value": "Consulta médica actualizada exitosamente"
+    "value": "Consulta m\u00e9dica actualizada exitosamente"
   },
   {
     "key": "clinical.prescription.update.success",
@@ -1045,7 +1045,7 @@
   },
   {
     "key": "view.medical_record.title",
-    "value": "Registro Médico"
+    "value": "Registro M\u00e9dico"
   },
   {
     "key": "view.medical_record.subtitle",
@@ -1057,11 +1057,11 @@
   },
   {
     "key": "view.medical_record.info.title",
-    "value": "Información General"
+    "value": "Informaci\u00f3n General"
   },
   {
     "key": "view.medical_record.info.description",
-    "value": "Detalles de la consulta médica"
+    "value": "Detalles de la consulta m\u00e9dica"
   },
   {
     "key": "view.medical_record.date",
@@ -1085,7 +1085,7 @@
   },
   {
     "key": "view.medical_record.soap.subjective.description",
-    "value": "Síntomas reportados por el paciente"
+    "value": "S\u00edntomas reportados por el paciente"
   },
   {
     "key": "view.medical_record.soap.objective.title",
@@ -1093,15 +1093,15 @@
   },
   {
     "key": "view.medical_record.soap.objective.description",
-    "value": "Hallazgos del examen físico"
+    "value": "Hallazgos del examen f\u00edsico"
   },
   {
     "key": "view.medical_record.soap.assessment.title",
-    "value": "Evaluación (A)"
+    "value": "Evaluaci\u00f3n (A)"
   },
   {
     "key": "view.medical_record.soap.assessment.description",
-    "value": "Diagnóstico y análisis"
+    "value": "Diagn\u00f3stico y an\u00e1lisis"
   },
   {
     "key": "view.medical_record.soap.plan.title",
@@ -1113,11 +1113,11 @@
   },
   {
     "key": "view.medical_record.prescription.title",
-    "value": "Receta Médica"
+    "value": "Receta M\u00e9dica"
   },
   {
     "key": "view.medical_record.prescription.description",
-    "value": "Prescripción asociada a esta consulta"
+    "value": "Prescripci\u00f3n asociada a esta consulta"
   },
   {
     "key": "view.medical_record.prescription.view",
@@ -1141,11 +1141,11 @@
   },
   {
     "key": "form.update_medical_record.title",
-    "value": "Actualizar Consulta Médica"
+    "value": "Actualizar Consulta M\u00e9dica"
   },
   {
     "key": "form.update_medical_record.description",
-    "value": "Modifica los datos de la consulta médica"
+    "value": "Modifica los datos de la consulta m\u00e9dica"
   },
   {
     "key": "form.update_medical_record.date",
@@ -1153,7 +1153,7 @@
   },
   {
     "key": "form.update_medical_record.next_appointment",
-    "value": "Próxima Cita"
+    "value": "Pr\u00f3xima Cita"
   },
   {
     "key": "form.update_medical_record.motive",
@@ -1165,7 +1165,7 @@
   },
   {
     "key": "form.update_medical_record.motive.description",
-    "value": "Máximo 100 caracteres"
+    "value": "M\u00e1ximo 100 caracteres"
   },
   {
     "key": "form.update_medical_record.observation",
@@ -1189,7 +1189,7 @@
   },
   {
     "key": "dialog.edit_prescription.title",
-    "value": "Editar Receta Médica"
+    "value": "Editar Receta M\u00e9dica"
   },
   {
     "key": "dialog.edit_prescription.description",
@@ -1245,7 +1245,7 @@
   },
   {
     "key": "appointments.patient.search",
-    "value": "Buscar por nombre o cédula..."
+    "value": "Buscar por nombre o c\u00e9dula..."
   },
   {
     "key": "appointments.patient.not_found",
@@ -1253,7 +1253,7 @@
   },
   {
     "key": "appointments.form.title_label",
-    "value": "Título"
+    "value": "T\u00edtulo"
   },
   {
     "key": "appointments.form.title_placeholder",
@@ -1269,7 +1269,7 @@
   },
   {
     "key": "appointments.form.location",
-    "value": "Ubicación"
+    "value": "Ubicaci\u00f3n"
   },
   {
     "key": "appointments.form.location_placeholder",
@@ -1325,7 +1325,7 @@
   },
   {
     "key": "waiting_room.generate_tv_code",
-    "value": "Código TV"
+    "value": "C\u00f3digo TV"
   },
   {
     "key": "waiting_room.refresh",
@@ -1349,7 +1349,7 @@
   },
   {
     "key": "waiting_room.advance.arrived",
-    "value": "Llegó"
+    "value": "Lleg\u00f3"
   },
   {
     "key": "waiting_room.advance.in_consultation",
@@ -1365,11 +1365,11 @@
   },
   {
     "key": "waiting_room.display.last_updated",
-    "value": "Última actualización:"
+    "value": "\u00daltima actualizaci\u00f3n:"
   },
   {
     "key": "waiting_room.display.next_refresh",
-    "value": "Próxima actualización en"
+    "value": "Pr\u00f3xima actualizaci\u00f3n en"
   },
   {
     "key": "appointments.action.edit",
@@ -1421,7 +1421,7 @@
   },
   {
     "key": "dashboard.stat.critical_patients",
-    "value": "Pacientes Críticos"
+    "value": "Pacientes Cr\u00edticos"
   },
   {
     "key": "dashboard.stat.today_appointments",
@@ -1445,7 +1445,7 @@
   },
   {
     "key": "dashboard.subscription.title",
-    "value": "Suscripción Activa"
+    "value": "Suscripci\u00f3n Activa"
   },
   {
     "key": "dashboard.subscription.expires",
@@ -1453,7 +1453,7 @@
   },
   {
     "key": "dashboard.subscription.days_left",
-    "value": "días restantes"
+    "value": "d\u00edas restantes"
   },
   {
     "key": "dashboard.chart.weekly_title",
@@ -1461,11 +1461,11 @@
   },
   {
     "key": "dashboard.chart.weekly_description",
-    "value": "Distribución de citas de la semana actual"
+    "value": "Distribuci\u00f3n de citas de la semana actual"
   },
   {
     "key": "dashboard.upcoming.title",
-    "value": "Próximas Citas"
+    "value": "Pr\u00f3ximas Citas"
   },
   {
     "key": "dashboard.upcoming.description",
@@ -1477,7 +1477,7 @@
   },
   {
     "key": "dashboard.upcoming.empty_hint",
-    "value": "Agenda una cita para verla aquí"
+    "value": "Agenda una cita para verla aqu\u00ed"
   },
   {
     "key": "dashboard.upcoming.schedule_btn",
@@ -1485,7 +1485,7 @@
   },
   {
     "key": "dashboard.stats.success",
-    "value": "Estadísticas del dashboard obtenidas exitosamente"
+    "value": "Estad\u00edsticas del dashboard obtenidas exitosamente"
   },
   {
     "key": "profile.title",
@@ -1493,7 +1493,7 @@
   },
   {
     "key": "profile.user_info",
-    "value": "Información de Usuario"
+    "value": "Informaci\u00f3n de Usuario"
   },
   {
     "key": "profile.user_info.description",
@@ -1509,7 +1509,7 @@
   },
   {
     "key": "profile.environment_info",
-    "value": "Información del Ambiente"
+    "value": "Informaci\u00f3n del Ambiente"
   },
   {
     "key": "profile.environment_info.description",
@@ -1517,7 +1517,7 @@
   },
   {
     "key": "profile.email",
-    "value": "Correo electrónico"
+    "value": "Correo electr\u00f3nico"
   },
   {
     "key": "profile.environment_name",
@@ -1525,7 +1525,7 @@
   },
   {
     "key": "profile.legal_name",
-    "value": "Razón social"
+    "value": "Raz\u00f3n social"
   },
   {
     "key": "profile.trade_name",
@@ -1573,15 +1573,15 @@
   },
   {
     "key": "backoffice.dropdown.logout",
-    "value": "Cerrar Sesión"
+    "value": "Cerrar Sesi\u00f3n"
   },
   {
     "key": "backoffice.dashboard.title",
-    "value": "Panel de Administración"
+    "value": "Panel de Administraci\u00f3n"
   },
   {
     "key": "backoffice.dashboard.stat.total_companies",
-    "value": "Total de Clínicas"
+    "value": "Total de Cl\u00ednicas"
   },
   {
     "key": "backoffice.dashboard.stat.total_users",
@@ -1601,19 +1601,19 @@
   },
   {
     "key": "backoffice.dashboard.expiring.description",
-    "value": "Suscripciones activas que vencen en los próximos 30 días"
+    "value": "Suscripciones activas que vencen en los pr\u00f3ximos 30 d\u00edas"
   },
   {
     "key": "backoffice.dashboard.expiring.days_left",
-    "value": "Días restantes"
+    "value": "D\u00edas restantes"
   },
   {
     "key": "backoffice.dashboard.expiring.days",
-    "value": "días"
+    "value": "d\u00edas"
   },
   {
     "key": "backoffice.dashboard.recent.description",
-    "value": "Últimas acciones realizadas en la plataforma"
+    "value": "\u00daltimas acciones realizadas en la plataforma"
   },
   {
     "key": "backoffice.dashboard.recent.empty",
@@ -1625,7 +1625,7 @@
   },
   {
     "key": "backoffice.login.subtitle",
-    "value": "Área de administración exclusiva para operadores de Pengi Med."
+    "value": "\u00c1rea de administraci\u00f3n exclusiva para operadores de Pengi Med."
   },
   {
     "key": "backoffice.login.username",
@@ -1637,15 +1637,15 @@
   },
   {
     "key": "backoffice.login.password",
-    "value": "Contraseña"
+    "value": "Contrase\u00f1a"
   },
   {
     "key": "backoffice.login.password.placeholder",
-    "value": "••••••••"
+    "value": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
   },
   {
     "key": "backoffice.login.button",
-    "value": "Iniciar Sesión Segura"
+    "value": "Iniciar Sesi\u00f3n Segura"
   },
   {
     "key": "backoffice_user.list.success",
@@ -1685,15 +1685,15 @@
   },
   {
     "key": "backoffice.companies.col.trade_name.placeholder",
-    "value": "Ej: Mi Clínica"
+    "value": "Ej: Mi Cl\u00ednica"
   },
   {
     "key": "backoffice.companies.col.legal_name",
-    "value": "Razón Social"
+    "value": "Raz\u00f3n Social"
   },
   {
     "key": "backoffice.companies.col.legal_name.placeholder",
-    "value": "Ej: Mi Clínica S.A."
+    "value": "Ej: Mi Cl\u00ednica S.A."
   },
   {
     "key": "backoffice.companies.col.plan",
@@ -1717,7 +1717,7 @@
   },
   {
     "key": "backoffice.onboarding.step.subscription",
-    "value": "Suscripción"
+    "value": "Suscripci\u00f3n"
   },
   {
     "key": "backoffice.onboarding.step.access",
@@ -1729,7 +1729,7 @@
   },
   {
     "key": "backoffice.onboarding.back",
-    "value": "Atrás"
+    "value": "Atr\u00e1s"
   },
   {
     "key": "backoffice.onboarding.finish",
@@ -1741,7 +1741,7 @@
   },
   {
     "key": "backoffice.onboarding.company.description",
-    "value": "Ingresa el nombre comercial y razón social de la nueva empresa."
+    "value": "Ingresa el nombre comercial y raz\u00f3n social de la nueva empresa."
   },
   {
     "key": "backoffice.onboarding.subscription.title",
@@ -1749,7 +1749,7 @@
   },
   {
     "key": "backoffice.onboarding.subscription.description",
-    "value": "Selecciona el plan y la fecha de vencimiento de la suscripción."
+    "value": "Selecciona el plan y la fecha de vencimiento de la suscripci\u00f3n."
   },
   {
     "key": "backoffice.onboarding.subscription.plan_placeholder",
@@ -1757,7 +1757,7 @@
   },
   {
     "key": "backoffice.onboarding.access.title",
-    "value": "¡Empresa creada!"
+    "value": "\u00a1Empresa creada!"
   },
   {
     "key": "backoffice.onboarding.access.description",
@@ -1837,7 +1837,7 @@
   },
   {
     "key": "backoffice.features.col.code",
-    "value": "Código"
+    "value": "C\u00f3digo"
   },
   {
     "key": "backoffice.features.col.name",
@@ -1845,7 +1845,7 @@
   },
   {
     "key": "backoffice.features.col.name.placeholder",
-    "value": "Ej: Bitácora Clínica"
+    "value": "Ej: Bit\u00e1cora Cl\u00ednica"
   },
   {
     "key": "backoffice.features.col.permissions",
@@ -1857,7 +1857,7 @@
   },
   {
     "key": "backoffice.features.create.description",
-    "value": "Registra una nueva funcionalidad con código y nombre."
+    "value": "Registra una nueva funcionalidad con c\u00f3digo y nombre."
   },
   {
     "key": "backoffice.features.edit.title",
@@ -1917,7 +1917,7 @@
   },
   {
     "key": "backoffice.plans.col.code",
-    "value": "Código"
+    "value": "C\u00f3digo"
   },
   {
     "key": "backoffice.plans.col.price",
@@ -1933,7 +1933,7 @@
   },
   {
     "key": "backoffice.plans.enabled_features.description",
-    "value": "Selecciona cuáles módulos estarán disponibles para los tenants con este plan."
+    "value": "Selecciona cu\u00e1les m\u00f3dulos estar\u00e1n disponibles para los tenants con este plan."
   },
   {
     "key": "backoffice.plans.create.title",
@@ -1941,7 +1941,7 @@
   },
   {
     "key": "backoffice.plans.create.description",
-    "value": "Registra un nuevo plan con precio y código."
+    "value": "Registra un nuevo plan con precio y c\u00f3digo."
   },
   {
     "key": "backoffice.plans.edit.title",
@@ -1953,7 +1953,7 @@
   },
   {
     "key": "backoffice.plans.limits.title",
-    "value": "Límites del plan"
+    "value": "L\u00edmites del plan"
   },
   {
     "key": "backoffice.plans.limits.max_users",
@@ -1961,7 +1961,7 @@
   },
   {
     "key": "backoffice.plans.limits.max_users.desc",
-    "value": "Número máximo de usuarios que pueden acceder"
+    "value": "N\u00famero m\u00e1ximo de usuarios que pueden acceder"
   },
   {
     "key": "backoffice.plans.limits.max_patients",
@@ -1969,7 +1969,7 @@
   },
   {
     "key": "backoffice.plans.limits.max_patients.desc",
-    "value": "Número máximo de pacientes registrados"
+    "value": "N\u00famero m\u00e1ximo de pacientes registrados"
   },
   {
     "key": "backoffice.plans.limits.max_offices",
@@ -1977,19 +1977,19 @@
   },
   {
     "key": "backoffice.plans.limits.max_offices.desc",
-    "value": "Número máximo de consultorios activos"
+    "value": "N\u00famero m\u00e1ximo de consultorios activos"
   },
   {
     "key": "backoffice.plans.limits.unlimited",
-    "value": "Sin límite"
+    "value": "Sin l\u00edmite"
   },
   {
     "key": "plan.limit.users",
-    "value": "Has alcanzado el límite de usuarios permitidos en tu plan."
+    "value": "Has alcanzado el l\u00edmite de usuarios permitidos en tu plan."
   },
   {
     "key": "plan.limit.patients",
-    "value": "Has alcanzado el límite de pacientes permitidos en tu plan."
+    "value": "Has alcanzado el l\u00edmite de pacientes permitidos en tu plan."
   },
   {
     "key": "backoffice.plan.list.success",
@@ -2017,7 +2017,7 @@
   },
   {
     "key": "backoffice.subscriptions.create",
-    "value": "Nueva Suscripción"
+    "value": "Nueva Suscripci\u00f3n"
   },
   {
     "key": "backoffice.subscriptions.list.title",
@@ -2057,7 +2057,7 @@
   },
   {
     "key": "backoffice.subscriptions.create.title",
-    "value": "Crear Suscripción"
+    "value": "Crear Suscripci\u00f3n"
   },
   {
     "key": "backoffice.subscriptions.create.description",
@@ -2065,11 +2065,11 @@
   },
   {
     "key": "backoffice.subscriptions.edit.title",
-    "value": "Editar Suscripción"
+    "value": "Editar Suscripci\u00f3n"
   },
   {
     "key": "backoffice.subscriptions.edit.description",
-    "value": "Modifica los datos de la suscripción."
+    "value": "Modifica los datos de la suscripci\u00f3n."
   },
   {
     "key": "backoffice.subscription.list.success",
@@ -2077,15 +2077,15 @@
   },
   {
     "key": "backoffice.subscription.create.success",
-    "value": "Suscripción creada exitosamente"
+    "value": "Suscripci\u00f3n creada exitosamente"
   },
   {
     "key": "backoffice.subscription.update.success",
-    "value": "Suscripción actualizada exitosamente"
+    "value": "Suscripci\u00f3n actualizada exitosamente"
   },
   {
     "key": "backoffice.subscription.delete.success",
-    "value": "Suscripción eliminada exitosamente"
+    "value": "Suscripci\u00f3n eliminada exitosamente"
   },
   {
     "key": "backoffice.linking.selected",
@@ -2137,7 +2137,7 @@
   },
   {
     "key": "backoffice.users.col.name.placeholder",
-    "value": "Ej: Juan Pérez"
+    "value": "Ej: Juan P\u00e9rez"
   },
   {
     "key": "backoffice.users.col.user_name",
@@ -2149,15 +2149,15 @@
   },
   {
     "key": "backoffice.users.col.password",
-    "value": "Contraseña"
+    "value": "Contrase\u00f1a"
   },
   {
     "key": "backoffice.users.col.password_new",
-    "value": "Nueva Contraseña"
+    "value": "Nueva Contrase\u00f1a"
   },
   {
     "key": "backoffice.users.col.password_new.placeholder",
-    "value": "Dejar vacío para no cambiar"
+    "value": "Dejar vac\u00edo para no cambiar"
   },
   {
     "key": "backoffice.users.create.title",
@@ -2201,7 +2201,7 @@
   },
   {
     "key": "backoffice.dashboard.stats.success",
-    "value": "Estadísticas obtenidas exitosamente"
+    "value": "Estad\u00edsticas obtenidas exitosamente"
   },
   {
     "key": "signup.title",
@@ -2213,55 +2213,55 @@
   },
   {
     "key": "signup.invalid_link.title",
-    "value": "Enlace inválido"
+    "value": "Enlace inv\u00e1lido"
   },
   {
     "key": "signup.invalid_link.description",
-    "value": "El enlace de registro no es válido o ha expirado. Solicita un nuevo enlace."
+    "value": "El enlace de registro no es v\u00e1lido o ha expirado. Solicita un nuevo enlace."
   },
   {
     "key": "signup.go_to_login",
-    "value": "Volver al inicio de sesión"
+    "value": "Volver al inicio de sesi\u00f3n"
   },
   {
     "key": "reset_password.title",
-    "value": "Cambiar contraseña"
+    "value": "Cambiar contrase\u00f1a"
   },
   {
     "key": "reset_password.description",
-    "value": "Ingresa tu nueva contraseña."
+    "value": "Ingresa tu nueva contrase\u00f1a."
   },
   {
     "key": "reset_password.new_password",
-    "value": "Nueva contraseña"
+    "value": "Nueva contrase\u00f1a"
   },
   {
     "key": "reset_password.new_password.placeholder",
-    "value": "Mínimo 6 caracteres"
+    "value": "M\u00ednimo 6 caracteres"
   },
   {
     "key": "reset_password.confirm_password",
-    "value": "Confirmar contraseña"
+    "value": "Confirmar contrase\u00f1a"
   },
   {
     "key": "reset_password.confirm_password.placeholder",
-    "value": "Repite la nueva contraseña"
+    "value": "Repite la nueva contrase\u00f1a"
   },
   {
     "key": "reset_password.submit",
-    "value": "Cambiar contraseña"
+    "value": "Cambiar contrase\u00f1a"
   },
   {
     "key": "reset_password.invalid_link.title",
-    "value": "Link inválido o expirado"
+    "value": "Link inv\u00e1lido o expirado"
   },
   {
     "key": "reset_password.invalid_link.description",
-    "value": "Este link de cambio de contraseña no es válido o ya expiró. Solicita uno nuevo."
+    "value": "Este link de cambio de contrase\u00f1a no es v\u00e1lido o ya expir\u00f3. Solicita uno nuevo."
   },
   {
     "key": "auth.reset_password.success",
-    "value": "Contraseña actualizada exitosamente"
+    "value": "Contrase\u00f1a actualizada exitosamente"
   },
   {
     "key": "signup.name",
@@ -2285,7 +2285,7 @@
   },
   {
     "key": "signup.email",
-    "value": "Correo electrónico"
+    "value": "Correo electr\u00f3nico"
   },
   {
     "key": "signup.email.placeholder",
@@ -2293,19 +2293,19 @@
   },
   {
     "key": "signup.password",
-    "value": "Contraseña"
+    "value": "Contrase\u00f1a"
   },
   {
     "key": "signup.password.placeholder",
-    "value": "Crea una contraseña segura"
+    "value": "Crea una contrase\u00f1a segura"
   },
   {
     "key": "signup.confirm_password",
-    "value": "Confirmar contraseña"
+    "value": "Confirmar contrase\u00f1a"
   },
   {
     "key": "signup.confirm_password.placeholder",
-    "value": "Escribe tu contraseña de nuevo"
+    "value": "Escribe tu contrase\u00f1a de nuevo"
   },
   {
     "key": "signup.submit_button",
@@ -2313,7 +2313,7 @@
   },
   {
     "key": "signup.validation.password_mismatch",
-    "value": "Las contraseñas no coinciden"
+    "value": "Las contrase\u00f1as no coinciden"
   },
   {
     "key": "signup.success",
@@ -2321,7 +2321,7 @@
   },
   {
     "key": "E-AUTH-007",
-    "value": "El enlace de registro es inválido o ha expirado."
+    "value": "El enlace de registro es inv\u00e1lido o ha expirado."
   },
   {
     "key": "backoffice.companies.generate_signup_link",
@@ -2353,7 +2353,7 @@
   },
   {
     "key": "backoffice.user.password_reset_link.success",
-    "value": "Link de cambio de contraseña generado exitosamente"
+    "value": "Link de cambio de contrase\u00f1a generado exitosamente"
   },
   {
     "key": "backoffice.company_users.title",
@@ -2421,11 +2421,11 @@
   },
   {
     "key": "backoffice.company_users.delete.confirm_title",
-    "value": "¿Eliminar usuario?"
+    "value": "\u00bfEliminar usuario?"
   },
   {
     "key": "backoffice.company_users.delete.confirm_description",
-    "value": "Esta acción es irreversible. Se eliminará el usuario y todos sus accesos."
+    "value": "Esta acci\u00f3n es irreversible. Se eliminar\u00e1 el usuario y todos sus accesos."
   },
   {
     "key": "backoffice.company_users.delete.confirm",
@@ -2433,15 +2433,15 @@
   },
   {
     "key": "backoffice.company_users.password_reset.button_title",
-    "value": "Generar link de cambio de contraseña"
+    "value": "Generar link de cambio de contrase\u00f1a"
   },
   {
     "key": "backoffice.company_users.password_reset.dialog_title",
-    "value": "Link de cambio de contraseña"
+    "value": "Link de cambio de contrase\u00f1a"
   },
   {
     "key": "backoffice.company_users.password_reset.dialog_description",
-    "value": "Copia el link y envíalo al usuario. Expira en 24 horas."
+    "value": "Copia el link y env\u00edalo al usuario. Expira en 24 horas."
   },
   {
     "key": "backoffice.company_users.password_reset.copied",
@@ -2545,11 +2545,11 @@
   },
   {
     "key": "billing.invoice.item.description",
-    "value": "Descripción"
+    "value": "Descripci\u00f3n"
   },
   {
     "key": "billing.invoice.item.description.placeholder",
-    "value": "Descripción del ítem..."
+    "value": "Descripci\u00f3n del \u00edtem..."
   },
   {
     "key": "billing.invoice.item.qty",
@@ -2593,11 +2593,11 @@
   },
   {
     "key": "billing.invoice.delete.description",
-    "value": "¿Estás seguro de que deseas eliminar las facturas seleccionadas? Esta acción no se puede deshacer."
+    "value": "\u00bfEst\u00e1s seguro de que deseas eliminar las facturas seleccionadas? Esta acci\u00f3n no se puede deshacer."
   },
   {
     "key": "billing.invoice.delete.success",
-    "value": "Factura(s) eliminada(s) con éxito"
+    "value": "Factura(s) eliminada(s) con \u00e9xito"
   },
   {
     "key": "billing.invoice.process.selected",
@@ -2609,11 +2609,11 @@
   },
   {
     "key": "billing.sri.button.save",
-    "value": "Guardar Configuración SRI"
+    "value": "Guardar Configuraci\u00f3n SRI"
   },
   {
     "key": "billing.sri.file.description",
-    "value": "Sube el archivo .p12 de tu firma electrónica."
+    "value": "Sube el archivo .p12 de tu firma electr\u00f3nica."
   },
   {
     "key": "billing.sri.file.label",
@@ -2621,39 +2621,39 @@
   },
   {
     "key": "billing.sri.info.description",
-    "value": "Configura tus credenciales para la facturación electrónica"
+    "value": "Configura tus credenciales para la facturaci\u00f3n electr\u00f3nica"
   },
   {
     "key": "billing.sri.info.p1",
-    "value": "Tu firma y contraseña se almacenan de forma encriptada."
+    "value": "Tu firma y contrase\u00f1a se almacenan de forma encriptada."
   },
   {
     "key": "billing.sri.info.p2",
-    "value": "Asegúrate de que tu firma esté vigente."
+    "value": "Aseg\u00farate de que tu firma est\u00e9 vigente."
   },
   {
     "key": "billing.sri.info.title",
-    "value": "Información Importante"
+    "value": "Informaci\u00f3n Importante"
   },
   {
     "key": "billing.sri.password.description",
-    "value": "La contraseña de tu firma electrónica."
+    "value": "La contrase\u00f1a de tu firma electr\u00f3nica."
   },
   {
     "key": "billing.sri.password.label",
-    "value": "Contraseña de la Firma"
+    "value": "Contrase\u00f1a de la Firma"
   },
   {
     "key": "billing.sri.settings.title",
-    "value": "Configuración SRI"
+    "value": "Configuraci\u00f3n SRI"
   },
   {
     "key": "billing.sri.signature.description",
-    "value": "Configura tu firma electrónica para poder emitir comprobantes autorizados."
+    "value": "Configura tu firma electr\u00f3nica para poder emitir comprobantes autorizados."
   },
   {
     "key": "billing.sri.signature.title",
-    "value": "Firma Electrónica"
+    "value": "Firma Electr\u00f3nica"
   },
   {
     "key": "billing.status.authorized",
@@ -2673,7 +2673,7 @@
   },
   {
     "key": "dashboard.billing.settings",
-    "value": "Configuración SRI"
+    "value": "Configuraci\u00f3n SRI"
   },
   {
     "key": "dashboard.billing",
@@ -2685,11 +2685,11 @@
   },
   {
     "key": "tenant.signature.upload.success",
-    "value": "Firma electrónica subida y configurada correctamente"
+    "value": "Firma electr\u00f3nica subida y configurada correctamente"
   },
   {
     "key": "E-BILL-001",
-    "value": "Solicitud de facturación inválida"
+    "value": "Solicitud de facturaci\u00f3n inv\u00e1lida"
   },
   {
     "key": "E-BILL-002",
@@ -2705,23 +2705,23 @@
   },
   {
     "key": "E-BILL-005",
-    "value": "Contraseña incorrecta o archivo de firma inválido"
+    "value": "Contrase\u00f1a incorrecta o archivo de firma inv\u00e1lido"
   },
   {
     "key": "billing.sri.invalid_file",
-    "value": "Contraseña incorrecta o archivo de firma inválido"
+    "value": "Contrase\u00f1a incorrecta o archivo de firma inv\u00e1lido"
   },
   {
     "key": "billing.sri.status.configured",
-    "value": "Firma electrónica configurada y activa"
+    "value": "Firma electr\u00f3nica configurada y activa"
   },
   {
     "key": "billing.sri.status.valid_until",
-    "value": "Válida hasta:"
+    "value": "V\u00e1lida hasta:"
   },
   {
     "key": "billing.sri.status.unconfigured",
-    "value": "No hay firma electrónica configurada"
+    "value": "No hay firma electr\u00f3nica configurada"
   },
   {
     "key": "billing.sri.status.unconfigured_desc",
@@ -2757,11 +2757,11 @@
   },
   {
     "key": "billing.invoice.establishment.title",
-    "value": "Establecimiento y Punto de Emisión"
+    "value": "Establecimiento y Punto de Emisi\u00f3n"
   },
   {
     "key": "billing.invoice.establishment.desc",
-    "value": "Configure los datos de emisión para el SRI."
+    "value": "Configure los datos de emisi\u00f3n para el SRI."
   },
   {
     "key": "billing.invoice.client.title",
@@ -2769,7 +2769,7 @@
   },
   {
     "key": "billing.invoice.client.desc",
-    "value": "Seleccione el paciente y las condiciones de crédito."
+    "value": "Seleccione el paciente y las condiciones de cr\u00e9dito."
   },
   {
     "key": "billing.invoice.final_consumer",
@@ -2785,11 +2785,11 @@
   },
   {
     "key": "billing.invoice.payment.method",
-    "value": "Método de Pago"
+    "value": "M\u00e9todo de Pago"
   },
   {
     "key": "billing.invoice.payment.method.placeholder",
-    "value": "Seleccionar método..."
+    "value": "Seleccionar m\u00e9todo..."
   },
   {
     "key": "billing.invoice.time.unit",
@@ -2817,7 +2817,7 @@
   },
   {
     "key": "billing.invoice.summary.desc",
-    "value": "Totales calculados automáticamente."
+    "value": "Totales calculados autom\u00e1ticamente."
   },
   {
     "key": "billing.invoice.discount",
@@ -2837,7 +2837,7 @@
   },
   {
     "key": "billing.catalog-item.column.date",
-    "value": "Fecha de Creación"
+    "value": "Fecha de Creaci\u00f3n"
   },
   {
     "key": "billing.catalog-item.create.button",
@@ -2845,7 +2845,7 @@
   },
   {
     "key": "billing.catalog-item.delete.description",
-    "value": "¿Estás seguro de que deseas eliminar los productos y servicios seleccionados? Esta acción no se puede deshacer."
+    "value": "\u00bfEst\u00e1s seguro de que deseas eliminar los productos y servicios seleccionados? Esta acci\u00f3n no se puede deshacer."
   },
   {
     "key": "billing.catalog-item.search.placeholder",
@@ -2869,11 +2869,11 @@
   },
   {
     "key": "billing.catalog-item.form.sku",
-    "value": "SKU o Código"
+    "value": "SKU o C\u00f3digo"
   },
   {
     "key": "billing.catalog-item.form.description",
-    "value": "Descripción"
+    "value": "Descripci\u00f3n"
   },
   {
     "key": "billing.catalog-item.form.unit_price",
@@ -2893,7 +2893,7 @@
   },
   {
     "key": "billing.catalog-item.form.create.description",
-    "value": "Llene los campos para registrar un nuevo producto o servicio en el catálogo."
+    "value": "Llene los campos para registrar un nuevo producto o servicio en el cat\u00e1logo."
   },
   {
     "key": "billing.catalog-item.form.edit.title",
@@ -2941,11 +2941,11 @@
   },
   {
     "key": "billing.catalog-item.form.ice.tax.code",
-    "value": "Código ICE"
+    "value": "C\u00f3digo ICE"
   },
   {
     "key": "billing.catalog-item.form.ice.tax.code.placeholder",
-    "value": "Seleccione código"
+    "value": "Seleccione c\u00f3digo"
   },
   {
     "key": "billing.catalog-item.form.ice.tax.percentage",
@@ -2957,7 +2957,7 @@
   },
   {
     "key": "tax.ice.search.placeholder",
-    "value": "Buscar código ICE..."
+    "value": "Buscar c\u00f3digo ICE..."
   },
   {
     "key": "form.continue",
@@ -2981,11 +2981,11 @@
   },
   {
     "key": "billing.sri.info.corporate_name.label",
-    "value": "Razón Social"
+    "value": "Raz\u00f3n Social"
   },
   {
     "key": "billing.sri.info.address.label",
-    "value": "Dirección Matriz"
+    "value": "Direcci\u00f3n Matriz"
   },
   {
     "key": "billing.sri.info.accounting_obliged.label",
@@ -2993,15 +2993,15 @@
   },
   {
     "key": "billing.sri.company_info.title",
-    "value": "Información Empresarial"
+    "value": "Informaci\u00f3n Empresarial"
   },
   {
     "key": "billing.sri.company_info.description",
-    "value": "Configure los detalles de facturación como RUC y razón social."
+    "value": "Configure los detalles de facturaci\u00f3n como RUC y raz\u00f3n social."
   },
   {
     "key": "tenant.sri_info.update.success",
-    "value": "Información SRI actualizada"
+    "value": "Informaci\u00f3n SRI actualizada"
   },
   {
     "key": "billing.status.signed",
@@ -3009,11 +3009,11 @@
   },
   {
     "key": "tenant.sri.status.fetch.success",
-    "value": "Tu configuración SRI está al día"
+    "value": "Tu configuraci\u00f3n SRI est\u00e1 al d\u00eda"
   },
   {
     "key": "billing.invoice.establishment.code",
-    "value": "Código de Establecimiento"
+    "value": "C\u00f3digo de Establecimiento"
   },
   {
     "key": "billing.invoice.establishment.code.placeholder",
@@ -3021,7 +3021,7 @@
   },
   {
     "key": "billing.invoice.emission.point",
-    "value": "Punto de Emisión"
+    "value": "Punto de Emisi\u00f3n"
   },
   {
     "key": "billing.invoice.emission.point.placeholder",
@@ -3033,7 +3033,7 @@
   },
   {
     "key": "billing.invoice.item.default.description",
-    "value": "Consulta Médica"
+    "value": "Consulta M\u00e9dica"
   },
   {
     "key": "billing.catalog_item.load.error",
@@ -3061,11 +3061,11 @@
   },
   {
     "key": "billing.invoice.error.tenant_not_found",
-    "value": "No se encontró el contexto del tenant."
+    "value": "No se encontr\u00f3 el contexto del tenant."
   },
   {
     "key": "billing.invoice.error.invalid_payload",
-    "value": "Datos de solicitud inválidos."
+    "value": "Datos de solicitud inv\u00e1lidos."
   },
   {
     "key": "billing.invoice.error.product_not_found",
@@ -3081,7 +3081,7 @@
   },
   {
     "key": "billing.invoice.error.invalid_id",
-    "value": "ID de factura inválido."
+    "value": "ID de factura inv\u00e1lido."
   },
   {
     "key": "billing.invoice.error.not_found",
@@ -3093,7 +3093,7 @@
   },
   {
     "key": "billing.invoice.error.rabbitmq_failed",
-    "value": "Error de conexión con el broker de mensajes."
+    "value": "Error de conexi\u00f3n con el broker de mensajes."
   },
   {
     "key": "billing.invoice.error.encode_failed",
@@ -3117,11 +3117,11 @@
   },
   {
     "key": "clinical.vital_signs.error.invalid_id",
-    "value": "ID de registro médico inválido."
+    "value": "ID de registro m\u00e9dico inv\u00e1lido."
   },
   {
     "key": "clinical.vital_signs.error.invalid_payload",
-    "value": "Datos de signos vitales inválidos."
+    "value": "Datos de signos vitales inv\u00e1lidos."
   },
   {
     "key": "clinical.vital_signs.error.fetch_failed",
@@ -3149,7 +3149,7 @@
   },
   {
     "key": "form.create_medical_record.vital_signs.blood_pressure",
-    "value": "Presión Arterial"
+    "value": "Presi\u00f3n Arterial"
   },
   {
     "key": "form.create_medical_record.vital_signs.temperature",
@@ -3157,11 +3157,11 @@
   },
   {
     "key": "form.create_medical_record.vital_signs.heart_rate",
-    "value": "Frecuencia Cardíaca"
+    "value": "Frecuencia Card\u00edaca"
   },
   {
     "key": "form.create_medical_record.vital_signs.o2_saturation",
-    "value": "Saturación O2"
+    "value": "Saturaci\u00f3n O2"
   },
   {
     "key": "form.create_medical_record.prescription.add_item",
@@ -3185,7 +3185,7 @@
   },
   {
     "key": "form.create_medical_record.prescription.item.duration",
-    "value": "Duración"
+    "value": "Duraci\u00f3n"
   },
   {
     "key": "form.create_medical_record.prescription.item.notes",
@@ -3229,7 +3229,7 @@
   },
   {
     "key": "view.medical_record.vital_signs.blood_pressure",
-    "value": "Presión Arterial"
+    "value": "Presi\u00f3n Arterial"
   },
   {
     "key": "view.medical_record.vital_signs.temperature",
@@ -3237,11 +3237,11 @@
   },
   {
     "key": "view.medical_record.vital_signs.heart_rate",
-    "value": "Frecuencia Cardíaca"
+    "value": "Frecuencia Card\u00edaca"
   },
   {
     "key": "view.medical_record.vital_signs.o2_saturation",
-    "value": "Saturación O2"
+    "value": "Saturaci\u00f3n O2"
   },
   {
     "key": "view.medical_record.prescription.items",
@@ -3261,7 +3261,7 @@
   },
   {
     "key": "view.medical_record.prescription.item.duration",
-    "value": "Duración"
+    "value": "Duraci\u00f3n"
   },
   {
     "key": "view.medical_record.prescription.item.notes",
@@ -3289,19 +3289,19 @@
   },
   {
     "key": "clinical.icd11.search.success",
-    "value": "Búsqueda completada"
+    "value": "B\u00fasqueda completada"
   },
   {
     "key": "clinical.medical_record.diagnoses",
-    "value": "Diagnósticos"
+    "value": "Diagn\u00f3sticos"
   },
   {
     "key": "form.create_medical_record.diagnoses",
-    "value": "Diagnósticos"
+    "value": "Diagn\u00f3sticos"
   },
   {
     "key": "form.create_medical_record.diagnoses.placeholder",
-    "value": "Buscar diagnóstico..."
+    "value": "Buscar diagn\u00f3stico..."
   },
   {
     "key": "form.create_medical_record.diagnoses.empty",
@@ -3309,31 +3309,31 @@
   },
   {
     "key": "tenant.settings.fetch.success",
-    "value": "Configuración cargada"
+    "value": "Configuraci\u00f3n cargada"
   },
   {
     "key": "tenant.settings.update.success",
-    "value": "Configuración guardada"
+    "value": "Configuraci\u00f3n guardada"
   },
   {
     "key": "settings.title",
-    "value": "Configuración"
+    "value": "Configuraci\u00f3n"
   },
   {
     "key": "settings.clinical.title",
-    "value": "Módulo clínico"
+    "value": "M\u00f3dulo cl\u00ednico"
   },
   {
     "key": "settings.clinical.show_next_appointment",
-    "value": "Mostrar próxima cita"
+    "value": "Mostrar pr\u00f3xima cita"
   },
   {
     "key": "settings.clinical.show_diagnosis",
-    "value": "Mostrar diagnóstico"
+    "value": "Mostrar diagn\u00f3stico"
   },
   {
     "key": "settings.clinical.show_medic",
-    "value": "Mostrar médico"
+    "value": "Mostrar m\u00e9dico"
   },
   {
     "key": "settings.clinical.show_insurance",
@@ -3345,7 +3345,7 @@
   },
   {
     "key": "settings.clinical.show_diagnoses",
-    "value": "Mostrar diagnósticos (CIE)"
+    "value": "Mostrar diagn\u00f3sticos (CIE)"
   },
   {
     "key": "settings.clinical.patient_age_input",
@@ -3361,7 +3361,7 @@
   },
   {
     "key": "settings.clinical.diagnosis_system",
-    "value": "Sistema de codificación"
+    "value": "Sistema de codificaci\u00f3n"
   },
   {
     "key": "settings.clinical.section.table",
@@ -3373,15 +3373,15 @@
   },
   {
     "key": "settings.clinical.cie10_lang_warning",
-    "value": "Los códigos CIE-10 solo están disponibles en español"
+    "value": "Los c\u00f3digos CIE-10 solo est\u00e1n disponibles en espa\u00f1ol"
   },
   {
     "key": "form.create_medical_record.preview_last",
-    "value": "Ver última consulta"
+    "value": "Ver \u00faltima consulta"
   },
   {
     "key": "form.create_medical_record.preview_last.title",
-    "value": "Última consulta"
+    "value": "\u00daltima consulta"
   },
   {
     "key": "appointments.overlap.error",
@@ -3397,7 +3397,7 @@
   },
   {
     "key": "settings.prescription_template.description",
-    "value": "Sube un archivo HTML personalizado para el formato de tus recetas médicas."
+    "value": "Sube un archivo HTML personalizado para el formato de tus recetas m\u00e9dicas."
   },
   {
     "key": "settings.prescription_template.status.custom",
@@ -3461,11 +3461,11 @@
   },
   {
     "key": "team.members.empty",
-    "value": "No hay miembros en este equipo todavía."
+    "value": "No hay miembros en este equipo todav\u00eda."
   },
   {
     "key": "team.invite_dialog.title",
-    "value": "Enlace de invitación"
+    "value": "Enlace de invitaci\u00f3n"
   },
   {
     "key": "team.invite_dialog.description",
@@ -3477,11 +3477,11 @@
   },
   {
     "key": "team.invite_dialog.copied",
-    "value": "¡Enlace copiado al portapapeles!"
+    "value": "\u00a1Enlace copiado al portapapeles!"
   },
   {
     "key": "team.invite_dialog.role_for",
-    "value": "Este enlace asignará el rol"
+    "value": "Este enlace asignar\u00e1 el rol"
   },
   {
     "key": "team.invite_dialog.warning",
@@ -3493,7 +3493,7 @@
   },
   {
     "key": "team.role_dialog.description",
-    "value": "Elige qué rol tendrá la persona que se registre con este enlace."
+    "value": "Elige qu\u00e9 rol tendr\u00e1 la persona que se registre con este enlace."
   },
   {
     "key": "team.role_dialog.role_label",
@@ -3513,7 +3513,7 @@
   },
   {
     "key": "auth.invalid_credentials",
-    "value": "Usuario o contraseña incorrectos"
+    "value": "Usuario o contrase\u00f1a incorrectos"
   },
   {
     "key": "company.team.list.success",
@@ -3521,15 +3521,15 @@
   },
   {
     "key": "company.invite_link.success",
-    "value": "Enlace de invitación generado"
+    "value": "Enlace de invitaci\u00f3n generado"
   },
   {
     "key": "integrations.google.auth.url.success",
-    "value": "URL de autenticación generada"
+    "value": "URL de autenticaci\u00f3n generada"
   },
   {
     "key": "integrations.google.status.success",
-    "value": "Estado de integración obtenido"
+    "value": "Estado de integraci\u00f3n obtenido"
   },
   {
     "key": "integrations.google.disconnect.success",
@@ -3545,7 +3545,7 @@
   },
   {
     "key": "settings.integrations.google.description",
-    "value": "Sincroniza tus citas automáticamente con Google Calendar."
+    "value": "Sincroniza tus citas autom\u00e1ticamente con Google Calendar."
   },
   {
     "key": "settings.integrations.google.connect",
@@ -3565,11 +3565,11 @@
   },
   {
     "key": "settings.integrations.google.tutorial.title",
-    "value": "Cómo conectar"
+    "value": "C\u00f3mo conectar"
   },
   {
     "key": "settings.integrations.google.tutorial.step1",
-    "value": "Haz clic en \"Conectar Google Calendar\" — serás redirigido a Google para autorizar el acceso."
+    "value": "Haz clic en \"Conectar Google Calendar\" \u2014 ser\u00e1s redirigido a Google para autorizar el acceso."
   },
   {
     "key": "settings.integrations.google.tutorial.step2",
@@ -3577,7 +3577,7 @@
   },
   {
     "key": "settings.integrations.google.tutorial.step3",
-    "value": "Listo. Desde ahora cada cita que crees, edites o canceles se reflejará automáticamente en tu Google Calendar."
+    "value": "Listo. Desde ahora cada cita que crees, edites o canceles se reflejar\u00e1 autom\u00e1ticamente en tu Google Calendar."
   },
   {
     "key": "tasks.title",
@@ -3633,11 +3633,11 @@
   },
   {
     "key": "tasks.task.invalid.request",
-    "value": "Solicitud inválida"
+    "value": "Solicitud inv\u00e1lida"
   },
   {
     "key": "tasks.task.invalid.id",
-    "value": "ID de tarea inválido"
+    "value": "ID de tarea inv\u00e1lido"
   },
   {
     "key": "tasks.task.not.found",
@@ -3677,19 +3677,19 @@
   },
   {
     "key": "tasks.task.title",
-    "value": "Título de la Tarea"
+    "value": "T\u00edtulo de la Tarea"
   },
   {
     "key": "tasks.task.title.placeholder",
-    "value": "Ingresa el título de la tarea"
+    "value": "Ingresa el t\u00edtulo de la tarea"
   },
   {
     "key": "tasks.task.description",
-    "value": "Descripción"
+    "value": "Descripci\u00f3n"
   },
   {
     "key": "tasks.task.description.placeholder",
-    "value": "Ingresa la descripción de la tarea"
+    "value": "Ingresa la descripci\u00f3n de la tarea"
   },
   {
     "key": "tasks.task.due_date",
@@ -3713,11 +3713,11 @@
   },
   {
     "key": "tasks.task.invalid.due_date",
-    "value": "Formato de fecha inválido. Use YYYY-MM-DD."
+    "value": "Formato de fecha inv\u00e1lido. Use YYYY-MM-DD."
   },
   {
     "key": "tasks.empty.todo.title",
-    "value": "Sin tareas aún"
+    "value": "Sin tareas a\u00fan"
   },
   {
     "key": "tasks.empty.todo.description",
@@ -3729,11 +3729,11 @@
   },
   {
     "key": "tasks.empty.in_progress.description",
-    "value": "Mueve tareas aquí para comenzar a trabajar"
+    "value": "Mueve tareas aqu\u00ed para comenzar a trabajar"
   },
   {
     "key": "tasks.empty.done.title",
-    "value": "¡Todo hecho!"
+    "value": "\u00a1Todo hecho!"
   },
   {
     "key": "tasks.empty.done.description",
@@ -3757,7 +3757,7 @@
   },
   {
     "key": "tasks.due_date.tomorrow",
-    "value": "Mañana"
+    "value": "Ma\u00f1ana"
   },
   {
     "key": "tasks.due_date.this_week",
@@ -3793,7 +3793,7 @@
   },
   {
     "key": "kanban.settings.archive_delay.label",
-    "value": "Archivar tareas completadas después de:"
+    "value": "Archivar tareas completadas despu\u00e9s de:"
   },
   {
     "key": "kanban.settings.archive_delay.never",
@@ -3801,7 +3801,7 @@
   },
   {
     "key": "kanban.settings.archive_delay.1_day",
-    "value": "1 día"
+    "value": "1 d\u00eda"
   },
   {
     "key": "kanban.settings.archive_delay.1_week",
@@ -3817,7 +3817,7 @@
   },
   {
     "key": "kanban.archive.success",
-    "value": "Configuración de archivo actualizada"
+    "value": "Configuraci\u00f3n de archivo actualizada"
   },
   {
     "key": "kanban.tasks.fetch.success",
@@ -3829,7 +3829,11 @@
   },
   {
     "key": "kanban.settings.title",
-    "value": "Configuración de Kanban"
+    "value": "Configuraci\u00f3n de Kanban"
+  },
+  {
+    "key": "i18n.messages.fetch.success",
+    "value": "Mensajes obtenidos exitosamente"
   },
   {
     "key": "common.loading",

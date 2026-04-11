@@ -1013,11 +1013,11 @@
   },
   {
     "key": "clinical.patient.sort.last_name_asc",
-    "value": "Last name A → Z"
+    "value": "Last name A \u2192 Z"
   },
   {
     "key": "clinical.patient.sort.last_name_desc",
-    "value": "Last name Z → A"
+    "value": "Last name Z \u2192 A"
   },
   {
     "key": "clinical.medical_record.list.success",
@@ -1641,7 +1641,7 @@
   },
   {
     "key": "backoffice.login.password.placeholder",
-    "value": "••••••••"
+    "value": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
   },
   {
     "key": "backoffice.login.button",
@@ -3569,7 +3569,7 @@
   },
   {
     "key": "settings.integrations.google.tutorial.step1",
-    "value": "Click \"Connect Google Calendar\" — you'll be redirected to Google to authorize access."
+    "value": "Click \"Connect Google Calendar\" \u2014 you'll be redirected to Google to authorize access."
   },
   {
     "key": "settings.integrations.google.tutorial.step2",
@@ -3830,6 +3830,10 @@
   {
     "key": "kanban.settings.title",
     "value": "Kanban Settings"
+  },
+  {
+    "key": "i18n.messages.fetch.success",
+    "value": "Messages obtained successfully"
   },
   {
     "key": "common.loading",
