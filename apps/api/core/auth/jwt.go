@@ -15,7 +15,7 @@ var (
 )
 
 func GenerateToken(username string, userId int64) (string, error) {
-	secretKey := config.GetEnv("AUTH_KEY")
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	exp, err := config.GetNumberEnv("AUTH_EXP")
 	if err != nil {
 		return "", err
@@ -31,7 +31,7 @@ func GenerateToken(username string, userId int64) (string, error) {
 }
 
 func GenerateExchangeToken(username string, userId int64) (string, error) {
-	secretKey := config.GetEnv("AUTH_KEY")
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"type":     "exchange_token",
 		"username": username,
@@ -59,7 +59,7 @@ func SetRefreshTokenCookie(refreshToken string, c *gin.Context) {
 }
 
 func GenerateRefreshToken(username string, userId int64) (string, error) {
-	secretKey := config.GetEnv("AUTH_KEY")
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	claims := jwt.MapClaims{
 		"username": username,
 		"userId":   userId,
@@ -70,7 +70,7 @@ func GenerateRefreshToken(username string, userId int64) (string, error) {
 }
 
 func ValidateRefreshToken(refreshToken string) (uint, string, error) {
-	secretKey := config.GetEnv("AUTH_KEY")
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
@@ -128,7 +128,7 @@ func DecryptToken(c *gin.Context) (jwt.MapClaims, error) {
 }
 
 func ParseToken(token string) (jwt.MapClaims, error) {
-	secretKey := config.GetEnv("AUTH_KEY")
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
@@ -170,7 +170,7 @@ func ParseExchangeToken(token string) (jwt.MapClaims, error) {
 // GeneratePasswordResetToken creates a JWT for password reset. It expires in
 // 24 hours and encodes the user_id of the tenant user that needs to reset.
 func GeneratePasswordResetToken(userID uint) (string, error) {
-	secretKey := config.GetEnv("AUTH_KEY")
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"type":    "password_reset",
 		"user_id": userID,
@@ -203,7 +203,7 @@ func ParsePasswordResetToken(tokenStr string) (uint, error) {
 // optional role_id. It expires in 72 hours and is used to let new users
 // self-register under a specific company with a pre-assigned role.
 func GenerateCompanySignupToken(companyID uint, roleID uint) (string, error) {
-	secretKey := config.GetEnv("AUTH_KEY")
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"type":       "company_signup",
 		"company_id": companyID,
