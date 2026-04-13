@@ -39,7 +39,7 @@ import {
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useSessionStore } from "@/store/session-store";
+import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
 const ROLE_COLORS: Record<string, string> = {
 	admin: "bg-primary/10 text-primary border-primary/20",
@@ -111,7 +111,7 @@ function SkeletonCard() {
 
 const TeamPage = () => {
 	const { textGet } = useText();
-	const { environment } = useSessionStore();
+	const environment = useSessionStore(selectEnvironment);
 	const isAdmin = environment?.role === "admin";
 
 	const [members, setMembers] = React.useState<TeamMember[]>([]);

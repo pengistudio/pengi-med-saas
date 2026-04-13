@@ -10,15 +10,22 @@ type PatientState = {
 	setPatientList: (patientList: Patient[]) => void;
 };
 
-const persistPatient = persist<PatientState>(
-	(set) => ({
-		patient: undefined,
-		patientList: [],
-		cleanPatient: () => set({ patient: undefined }),
-		setPatient: (patient?: Patient) => set({ patient }),
-		setPatientList: (patientList: Patient[]) => set({ patientList }),
-	}),
-	{ name: "patient", storage: createJSONStorage(() => sessionStorage) },
+export const usePatientStore = create<PatientState>()(
+	persist(
+		(set) => ({
+			patient: undefined,
+			patientList: [],
+			cleanPatient: () => set({ patient: undefined }),
+			setPatient: (patient?: Patient) => set({ patient }),
+			setPatientList: (patientList: Patient[]) => set({ patientList }),
+		}),
+		{ name: "patient", storage: createJSONStorage(() => sessionStorage) },
+	),
 );
 
-export const usePatientStore = create(persistPatient);
+// Selectors — pass to usePatientStore(selector) in components
+export const selectPatient = (s: PatientState) => s.patient;
+export const selectPatientList = (s: PatientState) => s.patientList;
+export const selectSetPatient = (s: PatientState) => s.setPatient;
+export const selectSetPatientList = (s: PatientState) => s.setPatientList;
+export const selectCleanPatient = (s: PatientState) => s.cleanPatient;

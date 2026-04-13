@@ -45,7 +45,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
-import { usePatientStore } from "@/store/patient-store";
+import { selectPatient, usePatientStore } from "@/store/patient-store";
 
 type PrescriptionMode = "text" | "structured";
 
@@ -118,7 +118,7 @@ const CreateMedicalRecordForm = () => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const patientId = searchParams.get("patient_id");
-	const { patient } = usePatientStore();
+	const patient = usePatientStore(selectPatient);
 	const allergies = parseAllergies(patient?.allergies);
 
 	React.useEffect(() => {

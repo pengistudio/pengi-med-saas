@@ -34,7 +34,7 @@ import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { usePatientStore } from "@/store/patient-store";
+import { selectSetPatient, usePatientStore } from "@/store/patient-store";
 
 function getInitials(patient: Patient): string {
 	const first = patient.first_name?.[0] ?? "";
@@ -44,7 +44,7 @@ function getInitials(patient: Patient): string {
 
 function renderActions({ row }: CellContext<Patient, unknown>) {
 	const navigate = useNavigate();
-	const { setPatient } = usePatientStore();
+	const setPatient = usePatientStore(selectSetPatient);
 	const { token } = useAuth();
 	const params = new URLSearchParams({
 		patient_id: String(row.original.ID),

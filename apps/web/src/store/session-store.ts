@@ -24,33 +24,47 @@ type SessionState = {
 	setEnvironment: (env: EnvironmentWithCompany) => void;
 };
 
-const persistSession = persist<SessionState>(
-	(set) => ({
-		environment: undefined,
-		subscriptionExpired: false,
-		setSubscriptionExpired: (value: boolean) =>
-			set({ subscriptionExpired: value }),
-		clean: () => set({ environment: undefined, subscriptionExpired: false }),
-		setEnvironment: (env: EnvironmentWithCompany) =>
-			set({
-				environment: {
-					id: env.ID,
-					name: env.name,
-					role: env.role.role,
-					role_id: env.role_id,
-					company_id: env.company_id,
-					legal_name: env.company.legal_name,
-					trade_name: env.company.trade_name,
-					plan_code: env.company.plan_code,
-					tenant_id: env.company.tenant_id,
-					tenant_name: env.company.tenant.name,
-					tenant_slug: env.company.tenant.slug,
-					permissions: env.role.permissions?.map((p) => p.ID) || [],
-					enabled_features: env.company.tenant.enabled_features,
-				},
-			}),
-	}),
-	{ name: "session", storage: createJSONStorage(() => localStorage) },
+export const useSessionStore = create<SessionState>()(
+	persist(
+		(set) => ({
+			environment: undefined,
+			subscriptionExpired: false,
+			setSubscriptionExpired: (value: boolean) =>
+				set({ subscriptionExpired: value }),
+			clean: () => set({ environment: undefined, subscriptionExpired: false }),
+			setEnvironment: (env: EnvironmentWithCompany) =>
+				set({
+					environment: {
+						id: env.ID,
+						name: env.name,
+						role: env.role.role,
+						role_id: env.role_id,
+						company_id: env.company_id,
+						legal_name: env.company.legal_name,
+						trade_name: env.company.trade_name,
+						plan_code: env.company.plan_code,
+						tenant_id: env.company.tenant_id,
+						tenant_name: env.company.tenant.name,
+						tenant_slug: env.company.tenant.slug,
+						permissions: env.role.permissions?.map((p) => p.ID) || [],
+						enabled_features: env.company.tenant.enabled_features,
+					},
+				}),
+		}),
+		{ name: "session", storage: createJSONStorage(() => localStorage) },
+	),
 );
 
-export const useSessionStore = create(persistSession);
+// Selectors — pass to useSessionStore(selector) in components
+export const selectEnvironment = (s: SessionState) => s.environment;
+export const selectSubscriptionExpired = (s: SessionState) =>
+	s.subscriptionExpired;
+export const selectTenantSlug = (s: SessionState) => s.environment?.tenant_slug;
+export const selectPermissions = (s: SessionState) =>
+	s.environment?.permissions ?? [];
+export const selectEnabledFeatures = (s: SessionState) =>
+	s.environment?.enabled_features;
+export const selectSetSubscriptionExpired = (s: SessionState) =>
+	s.setSubscriptionExpired;
+export const selectCleanSession = (s: SessionState) => s.clean;
+export const selectSetEnvironment = (s: SessionState) => s.setEnvironment;

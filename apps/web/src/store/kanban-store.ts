@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { Task } from "@/types/kanban-type";
+import type { Task, TaskStatus } from "@/types/kanban-type";
 
 interface KanbanStore {
 	tasks: Task[];
@@ -10,6 +10,7 @@ interface KanbanStore {
 	updateTask: (task: Task) => void;
 	removeTask: (id: number) => void;
 	setActiveTask: (task: Task | undefined) => void;
+	moveTaskToColumn: (id: number, status: TaskStatus) => void;
 }
 
 export const useKanbanStore = create<KanbanStore>((set) => ({
@@ -29,4 +30,8 @@ export const useKanbanStore = create<KanbanStore>((set) => ({
 			tasks: state.tasks.filter((t) => t.id !== id),
 		})),
 	setActiveTask: (task) => set({ activeTask: task }),
+	moveTaskToColumn: (id, status) =>
+		set((state) => ({
+			tasks: state.tasks.map((t) => (t.id === id ? { ...t, status } : t)),
+		})),
 }));

@@ -11,14 +11,14 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useText } from "@/hooks/use-text";
-import { useSessionStore } from "@/store/session-store";
+import { selectSetEnvironment, useSessionStore } from "@/store/session-store";
 import type { EnvironmentWithCompany } from "@/types/user-type";
 
 export default function LoginEnvironments() {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const { textGet } = useText();
-	const setEnvironment = useSessionStore((state) => state.setEnvironment);
+	const setEnvironment = useSessionStore(selectSetEnvironment);
 	const exchangeToken = searchParams.get("exchange_token");
 	const [environments, setEnvironments] = React.useState<
 		EnvironmentWithCompany[]

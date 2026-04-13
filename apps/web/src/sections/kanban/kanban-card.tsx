@@ -62,6 +62,25 @@ export default function KanbanCard({ task }: KanbanCardProps) {
 		}
 	};
 
+	const placeholderColor = {
+		todo: "border-blue-300 bg-blue-50/40",
+		in_progress: "border-amber-300 bg-amber-50/40",
+		done: "border-emerald-300 bg-emerald-50/40",
+	}[task.status];
+
+	if (isDragging) {
+		return (
+			<div
+				ref={setNodeRef}
+				style={style}
+				className={cn(
+					"w-full rounded-xl border-2 border-dashed min-h-[88px]",
+					placeholderColor,
+				)}
+			/>
+		);
+	}
+
 	return (
 		<>
 			<button
@@ -70,7 +89,6 @@ export default function KanbanCard({ task }: KanbanCardProps) {
 				className={cn(
 					"w-full text-left group cursor-grab active:cursor-grabbing transition-all duration-300",
 					"appearance-none bg-transparent border-none padding-0 font-inherit",
-					isDragging && "shadow-2xl scale-105 opacity-40",
 					isOver && "ring-2 ring-blue-400/50 ring-offset-2 rounded-xl",
 				)}
 				{...attributes}
@@ -78,7 +96,7 @@ export default function KanbanCard({ task }: KanbanCardProps) {
 				onClick={handleCardClick}
 				onKeyDown={handleKeyDown}
 			>
-				<TaskCardContent task={task} isDragging={isDragging} />
+				<TaskCardContent task={task} />
 			</button>
 
 			<TaskDetailsPanel

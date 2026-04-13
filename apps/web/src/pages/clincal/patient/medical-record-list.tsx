@@ -35,10 +35,15 @@ import {
 } from "@/lib/utils";
 import { getMedicalRecordColumns } from "@/sections/columns/clinical/medical-record-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { usePatientStore } from "@/store/patient-store";
+import {
+	selectPatient,
+	selectSetPatient,
+	usePatientStore,
+} from "@/store/patient-store";
 
 const MedicalRecords = () => {
-	const { patient, setPatient } = usePatientStore();
+	const patient = usePatientStore(selectPatient);
+	const setPatient = usePatientStore(selectSetPatient);
 	const { patientId } = useParams<{ patientId: string }>();
 	const navigate = useNavigate();
 

@@ -33,7 +33,11 @@ import {
 import useAuth from "@/hooks/use-auth";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
-import { useSessionStore } from "@/store/session-store";
+import {
+	selectEnvironment,
+	selectSubscriptionExpired,
+	useSessionStore,
+} from "@/store/session-store";
 import { useSidebarStore } from "@/store/sidebar-store";
 
 interface DashboardLayoutProps {
@@ -49,7 +53,8 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
 	const { checkPermission } = usePermission();
 
-	const { environment, subscriptionExpired } = useSessionStore();
+	const environment = useSessionStore(selectEnvironment);
+	const subscriptionExpired = useSessionStore(selectSubscriptionExpired);
 
 	const handleAvatarFallbackText = useCallback(() => {
 		return environment?.name

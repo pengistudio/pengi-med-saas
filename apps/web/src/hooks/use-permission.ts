@@ -1,12 +1,12 @@
 import React from "react";
-import { useSessionStore } from "@/store/session-store";
+import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
 /**
  * @returns `checkPermission` - Function to check if the user has the required permissions.
  * @returns `permissions` - Array of permissions the user has.
  */
 const usePermission = () => {
-	const { environment } = useSessionStore();
+	const environment = useSessionStore(selectEnvironment);
 
 	/**
 	 * @param featurePermissions - Array of permissions to check.

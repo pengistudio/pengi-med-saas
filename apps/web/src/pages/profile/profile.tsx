@@ -19,7 +19,7 @@ import {
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useSessionStore } from "@/store/session-store";
+import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
 const profileSchema = z.object({
 	email: z.email(),
@@ -30,7 +30,7 @@ const Profile = () => {
 	const [profile, setProfile] = React.useState<ProfileData | null>(null);
 	const [loading, setLoading] = React.useState(false);
 	const { textGet } = useText();
-	const { environment } = useSessionStore();
+	const environment = useSessionStore(selectEnvironment);
 
 	React.useEffect(() => {
 		if (!environment?.id) return;

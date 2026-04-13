@@ -26,7 +26,7 @@ import {
 import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
-import { usePatientStore } from "@/store/patient-store";
+import { selectSetPatient, usePatientStore } from "@/store/patient-store";
 
 const STATIC_INSTITUTIONS = [
 	{ label: "Solca", value: "Solca" },
@@ -65,7 +65,7 @@ const EditPatientForm = () => {
 	const [patient, setPatientState] = React.useState<Patient | null>(null);
 	const { textGet } = useText();
 	const { settings } = useTenantSettings();
-	const { setPatient } = usePatientStore();
+	const setPatient = usePatientStore(selectSetPatient);
 	const navigate = useNavigate();
 	const useAgeInput = settings.clinical.patient_age_input;
 

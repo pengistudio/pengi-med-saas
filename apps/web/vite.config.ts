@@ -14,4 +14,36 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks(id) {
+					if (
+						id.includes("react-dom") ||
+						id.includes("react-router") ||
+						(id.includes("react") && !id.includes("react-hook-form"))
+					) {
+						return "vendor-react";
+					}
+					if (
+						id.includes("@base-ui") ||
+						id.includes("lucide-react") ||
+						id.includes("recharts")
+					) {
+						return "vendor-ui";
+					}
+					if (
+						id.includes("react-hook-form") ||
+						id.includes("@hookform") ||
+						id.includes("/zod/")
+					) {
+						return "vendor-forms";
+					}
+					if (id.includes("@dnd-kit")) {
+						return "vendor-dnd";
+					}
+				},
+			},
+		},
+	},
 });

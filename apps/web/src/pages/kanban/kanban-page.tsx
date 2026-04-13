@@ -2,6 +2,7 @@ import {
 	closestCenter,
 	DndContext,
 	type DragEndEvent,
+	type DragOverEvent,
 	DragOverlay,
 	type DragStartEvent,
 	PointerSensor,
@@ -24,8 +25,12 @@ const STATUSES: TaskStatus[] = ["todo", "in_progress", "done"];
 
 export default function KanbanPage() {
 	const { textGet } = useText();
-	const { tasks, setTasks, activeTask, setActiveTask } = useKanbanStore();
+	const { tasks, setTasks, activeTask, setActiveTask, moveTaskToColumn } =
+		useKanbanStore();
 	const [loading, setLoading] = useState(true);
+	const [taskSnapshot, setTaskSnapshot] = useState<
+		ReturnType<typeof useKanbanStore.getState>["tasks"]
+	>([]);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<TaskStatus>("todo");
 
@@ -64,6 +69,32 @@ export default function KanbanPage() {
 		const task = tasks.find((t) => t.id === taskId);
 		if (task) {
 			setActiveTask(task);
+			setTaskSnapshot([...tasks]);
+		}
+	};
+
+	const handleDragOver = (event: DragOverEvent) => {
+		const { active, over } = event;
+		if (!over) return;
+
+		const taskId = active.id as number;
+		const task = tasks.find((t) => t.id === taskId);
+		if (!task) return;
+
+		let newStatus: TaskStatus = task.status;
+
+		if (
+			typeof over.id === "string" &&
+			STATUSES.includes(over.id as TaskStatus)
+		) {
+			newStatus = over.id as TaskStatus;
+		} else if (typeof over.id === "number") {
+			const overTask = tasks.find((t) => t.id === over.id);
+			if (overTask) newStatus = overTask.status;
+		}
+
+		if (newStatus !== task.status) {
+			moveTaskToColumn(taskId, newStatus);
 		}
 	};
 
@@ -71,52 +102,58 @@ export default function KanbanPage() {
 		const { active, over } = event;
 		setActiveTask(undefined);
 
-		if (!over) return;
+		if (!over) {
+			setTasks(taskSnapshot);
+			return;
+		}
 
 		const taskId = active.id as number;
-		const task = tasks.find((t) => t.id === taskId);
-		if (!task) return;
+		const originalTask = taskSnapshot.find((t) => t.id === taskId);
+		if (!originalTask) return;
 
-		// Determine if over.id is a status (column) or a task
-		let newStatus: TaskStatus = task.status;
+		const currentTask = tasks.find((t) => t.id === taskId);
+		if (!currentTask) return;
+
+		let newStatus: TaskStatus = currentTask.status;
 		let newPosition = 0;
 
 		if (
 			typeof over.id === "string" &&
 			STATUSES.includes(over.id as TaskStatus)
 		) {
-			// Dropped on a column (empty drop zone)
 			newStatus = over.id as TaskStatus;
-			const statusTasks = getTasksByStatus(newStatus).sort(
-				(a, b) => a.position - b.position,
-			);
+			const statusTasks = tasks
+				.filter((t) => t.status === newStatus && t.id !== taskId)
+				.sort((a, b) => a.position - b.position);
 			newPosition =
 				statusTasks.length > 0
 					? statusTasks[statusTasks.length - 1].position + 1
 					: 1;
 		} else if (typeof over.id === "number") {
-			// Dropped on another task
 			const overTask = tasks.find((t) => t.id === over.id);
-			if (!overTask) return;
+			if (!overTask) {
+				setTasks(taskSnapshot);
+				return;
+			}
 			newStatus = overTask.status;
-
-			// Use the actual position property of the over task
 			newPosition = overTask.position;
 		} else {
+			setTasks(taskSnapshot);
 			return;
 		}
 
-		// No change needed
-		if (newStatus === task.status && newPosition === task.position) return;
+		if (
+			newStatus === originalTask.status &&
+			newPosition === originalTask.position
+		)
+			return;
 
-		// API call
 		const res = await moveTask(taskId, {
 			status: newStatus,
 			position: newPosition,
 		});
 
 		if (res.success) {
-			// Refresh all tasks after successful move to ensure consistency
 			const refreshRes = await getTasks();
 			if (refreshRes.success) {
 				const allTasks = [
@@ -126,6 +163,8 @@ export default function KanbanPage() {
 				];
 				setTasks(allTasks);
 			}
+		} else {
+			setTasks(taskSnapshot);
 		}
 	};
 
@@ -176,6 +215,7 @@ export default function KanbanPage() {
 				<DndContext
 					collisionDetection={closestCenter}
 					onDragStart={handleDragStart}
+					onDragOver={handleDragOver}
 					onDragEnd={handleDragEnd}
 					sensors={sensors}
 				>
@@ -195,8 +235,8 @@ export default function KanbanPage() {
 					{/* Drag Overlay */}
 					<DragOverlay dropAnimation={null}>
 						{activeTask ? (
-							<div className="w-80">
-								<TaskCardContent task={activeTask} isDragging={true} />
+							<div className="w-80 rotate-2 shadow-2xl">
+								<TaskCardContent task={activeTask} />
 							</div>
 						) : null}
 					</DragOverlay>
