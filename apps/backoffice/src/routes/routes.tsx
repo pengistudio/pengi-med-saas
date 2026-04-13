@@ -1,26 +1,34 @@
+import { lazy } from "react";
 import { createBrowserRouter, Outlet } from "react-router";
 import CheckAuth from "@/contexts/check-auth";
-import CompanyList from "@/pages/companies/company-list";
-import CompanyUsers from "@/pages/companies/company-users";
-import CreateCompany from "@/pages/companies/create-company";
-import EditCompany from "@/pages/companies/edit-company";
-import CreateFeature from "@/pages/features/create-feature";
-import EditFeature from "@/pages/features/edit-feature";
-import FeatureList from "@/pages/features/feature-list";
-import Home from "@/pages/home/home";
-import Login from "@/pages/login/login-page";
-import CreatePlan from "@/pages/plans/create-plan";
-import EditPlan from "@/pages/plans/edit-plan";
-import PlanList from "@/pages/plans/plan-list";
-import CreateRole from "@/pages/roles/create-role";
-import EditRole from "@/pages/roles/edit-role";
-import RoleList from "@/pages/roles/role-list";
-import CreateSubscription from "@/pages/subscriptions/create-subscription";
-import EditSubscription from "@/pages/subscriptions/edit-subscription";
-import SubscriptionList from "@/pages/subscriptions/subscription-list";
-import CreateUser from "@/pages/users/create-user";
-import EditUser from "@/pages/users/edit-user";
-import UserList from "@/pages/users/user-list";
+
+const CompanyList = lazy(() => import("@/pages/companies/company-list"));
+const CompanyUsers = lazy(() => import("@/pages/companies/company-users"));
+const CreateCompany = lazy(() => import("@/pages/companies/create-company"));
+const EditCompany = lazy(() => import("@/pages/companies/edit-company"));
+const CreateFeature = lazy(() => import("@/pages/features/create-feature"));
+const EditFeature = lazy(() => import("@/pages/features/edit-feature"));
+const FeatureList = lazy(() => import("@/pages/features/feature-list"));
+const Home = lazy(() => import("@/pages/home/home"));
+const Login = lazy(() => import("@/pages/login/login-page"));
+const CreatePlan = lazy(() => import("@/pages/plans/create-plan"));
+const EditPlan = lazy(() => import("@/pages/plans/edit-plan"));
+const PlanList = lazy(() => import("@/pages/plans/plan-list"));
+const CreateRole = lazy(() => import("@/pages/roles/create-role"));
+const EditRole = lazy(() => import("@/pages/roles/edit-role"));
+const RoleList = lazy(() => import("@/pages/roles/role-list"));
+const CreateSubscription = lazy(
+	() => import("@/pages/subscriptions/create-subscription"),
+);
+const EditSubscription = lazy(
+	() => import("@/pages/subscriptions/edit-subscription"),
+);
+const SubscriptionList = lazy(
+	() => import("@/pages/subscriptions/subscription-list"),
+);
+const CreateUser = lazy(() => import("@/pages/users/create-user"));
+const EditUser = lazy(() => import("@/pages/users/edit-user"));
+const UserList = lazy(() => import("@/pages/users/user-list"));
 
 const router = createBrowserRouter([
 	{

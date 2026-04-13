@@ -1,34 +1,61 @@
+import { lazy } from "react";
 import { createBrowserRouter, Outlet, type RouteObject } from "react-router";
 import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
 import { PERMISSIONS } from "@/lib/constants";
-import CatalogItemList from "@/pages/billing/catalog-item-list";
-import CreateCatalogItemPage from "@/pages/billing/create-catalog-item";
-import CreateInvoicePage from "@/pages/billing/create-invoice";
-import EditCatalogItemPage from "@/pages/billing/edit-catalog-item";
-// Billing Module
-import InvoiceListPage from "@/pages/billing/invoice-list";
-import SriSettingsPage from "@/pages/billing/sri-settings";
-import AppointmentsPage from "@/pages/clincal/appointments/appointments";
-import CreateMedicalRecordPage from "@/pages/clincal/patient/create-medical-record";
-import CreatePatientPage from "@/pages/clincal/patient/create-patient";
-import EditPatientPage from "@/pages/clincal/patient/edit-patient";
-import MedicalRecords from "@/pages/clincal/patient/medical-record-list";
-import Clinical from "@/pages/clincal/patient/patient-list";
-import UpdateMedicalRecordPage from "@/pages/clincal/patient/update-medical-record";
-import ViewMedicalRecordPage from "@/pages/clincal/patient/view-medical-record";
-import WaitingRoomPage from "@/pages/clincal/waiting-room/waiting-room";
-import WaitingRoomDisplayPage from "@/pages/clincal/waiting-room/waiting-room-display";
-import PairDisplayPage from "@/pages/display/pair";
-import Home from "@/pages/home/home";
-import KanbanPage from "@/pages/kanban/kanban-page";
-import LoginEnvironments from "@/pages/login/login-environments";
-import Login from "@/pages/login/login-page";
-import Profile from "@/pages/profile/profile";
-import ResetPasswordPage from "@/pages/reset-password/reset-password-page";
-import SettingsPage from "@/pages/settings/settings-page";
-import Signup from "@/pages/signup/signup-page";
-import TeamPage from "@/pages/team/team-page";
+
+const CatalogItemList = lazy(() => import("@/pages/billing/catalog-item-list"));
+const CreateCatalogItemPage = lazy(
+	() => import("@/pages/billing/create-catalog-item"),
+);
+const CreateInvoicePage = lazy(() => import("@/pages/billing/create-invoice"));
+const EditCatalogItemPage = lazy(
+	() => import("@/pages/billing/edit-catalog-item"),
+);
+const InvoiceListPage = lazy(() => import("@/pages/billing/invoice-list"));
+const SriSettingsPage = lazy(() => import("@/pages/billing/sri-settings"));
+const AppointmentsPage = lazy(
+	() => import("@/pages/clincal/appointments/appointments"),
+);
+const CreateMedicalRecordPage = lazy(
+	() => import("@/pages/clincal/patient/create-medical-record"),
+);
+const CreatePatientPage = lazy(
+	() => import("@/pages/clincal/patient/create-patient"),
+);
+const EditPatientPage = lazy(
+	() => import("@/pages/clincal/patient/edit-patient"),
+);
+const MedicalRecords = lazy(
+	() => import("@/pages/clincal/patient/medical-record-list"),
+);
+const Clinical = lazy(() => import("@/pages/clincal/patient/patient-list"));
+const UpdateMedicalRecordPage = lazy(
+	() => import("@/pages/clincal/patient/update-medical-record"),
+);
+const ViewMedicalRecordPage = lazy(
+	() => import("@/pages/clincal/patient/view-medical-record"),
+);
+const WaitingRoomPage = lazy(
+	() => import("@/pages/clincal/waiting-room/waiting-room"),
+);
+const WaitingRoomDisplayPage = lazy(
+	() => import("@/pages/clincal/waiting-room/waiting-room-display"),
+);
+const PairDisplayPage = lazy(() => import("@/pages/display/pair"));
+const Home = lazy(() => import("@/pages/home/home"));
+const KanbanPage = lazy(() => import("@/pages/kanban/kanban-page"));
+const LoginEnvironments = lazy(
+	() => import("@/pages/login/login-environments"),
+);
+const Login = lazy(() => import("@/pages/login/login-page"));
+const Profile = lazy(() => import("@/pages/profile/profile"));
+const ResetPasswordPage = lazy(
+	() => import("@/pages/reset-password/reset-password-page"),
+);
+const SettingsPage = lazy(() => import("@/pages/settings/settings-page"));
+const Signup = lazy(() => import("@/pages/signup/signup-page"));
+const TeamPage = lazy(() => import("@/pages/team/team-page"));
 
 const clinicalRoutes: RouteObject = {
 	path: "/clinical",

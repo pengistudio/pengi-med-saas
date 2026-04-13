@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { RouterProvider } from "react-router";
 import { toast } from "sonner";
 import { useLanguage } from "./contexts/language-context";
@@ -28,7 +28,11 @@ export function App() {
 		}
 	}, [messageLength, fetchMessages, currentLanguage, setLang]);
 
-	return <RouterProvider router={router} />;
+	return (
+		<Suspense fallback={null}>
+			<RouterProvider router={router} />
+		</Suspense>
+	);
 }
 
 export default App;

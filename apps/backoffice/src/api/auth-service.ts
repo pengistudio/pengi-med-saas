@@ -1,6 +1,6 @@
 import type { LoginRequest, LoginResponse } from "@/types/backoffice-user-type";
-import { api, noAuthApi } from ".";
 import { createHttpService, type ServiceResponse } from "./fetch";
+import { api, noAuthApi } from "./http-clients";
 
 const loginService = createHttpService(noAuthApi);
 const httpService = createHttpService(api);

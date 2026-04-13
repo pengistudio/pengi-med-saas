@@ -1,26 +1,18 @@
-import axios from "axios";
+import { refreshToken } from "@/api/auth-service";
 import { useTokenStore } from "@/store/token-store";
+import { api, noAuthApi } from "./http-clients";
 
-export const api = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
-	timeout: 10000,
-	headers: {
-		"Content-Type": "application/json",
-	},
-});
+export { api, noAuthApi };
 
 api.interceptors.request.use(
 	(config) => {
 		const token = useTokenStore.getState().token;
-
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
 		return config;
 	},
-	(error) => {
-		return Promise.reject(error);
-	},
+	(error) => Promise.reject(error),
 );
 
 api.interceptors.response.use(
@@ -32,7 +24,6 @@ api.interceptors.response.use(
 			originalRequest._retry = true;
 
 			try {
-				const { refreshToken } = await import("@/api/auth-service");
 				const result = await refreshToken();
 				if (result.success) {
 					useTokenStore.getState().setToken(result.data.token);
@@ -49,19 +40,7 @@ api.interceptors.response.use(
 	},
 );
 
-export const noAuthApi = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
-	timeout: 10000,
-	headers: {
-		"Content-Type": "application/json",
-	},
-});
-
 noAuthApi.interceptors.request.use(
-	(config) => {
-		return config;
-	},
-	(error) => {
-		return Promise.reject(error);
-	},
+	(config) => config,
+	(error) => Promise.reject(error),
 );
