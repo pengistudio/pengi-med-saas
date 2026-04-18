@@ -3842,5 +3842,13 @@
   {
     "key": "i18n.reload.success",
     "value": "Messages reloaded successfully"
+  },
+  {
+    "key": "form.create_medical_record.draft.saved",
+    "value": "Draft saved"
+  },
+  {
+    "key": "form.create_medical_record.draft.discard",
+    "value": "Discard"
   }
 ]

@@ -8,6 +8,7 @@ import {
 	Eye,
 	Pill,
 	Plus,
+	Save,
 	Stethoscope,
 	Trash,
 } from "lucide-react";
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
+import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 import { selectPatient, usePatientStore } from "@/store/patient-store";
@@ -120,6 +122,7 @@ const CreateMedicalRecordForm = () => {
 	const patientId = searchParams.get("patient_id");
 	const patient = usePatientStore(selectPatient);
 	const allergies = parseAllergies(patient?.allergies);
+	const clearDraftRef = React.useRef<() => void>(() => {});
 
 	React.useEffect(() => {
 		if (!patientId) return;
@@ -141,8 +144,9 @@ const CreateMedicalRecordForm = () => {
 				}}
 			>
 				{(field) => (
-					<FormInner
+					<FormWithDraft
 						field={field}
+						patientId={patientId}
 						loading={loading}
 						textGet={textGet}
 						prescriptionMode={prescriptionMode}
@@ -150,6 +154,9 @@ const CreateMedicalRecordForm = () => {
 						allergies={allergies}
 						lastRecord={lastRecord}
 						onPreviewLastRecord={() => setPreviewOpen(true)}
+						onClearDraftReady={(fn) => {
+							clearDraftRef.current = fn;
+						}}
 					/>
 				)}
 			</Form>
@@ -221,6 +228,7 @@ const CreateMedicalRecordForm = () => {
 		try {
 			const res = await createMedicalRecord(payload);
 			if (res.success) {
+				clearDraftRef.current();
 				navigate(`/clinical/medical-records/${patientId}`);
 			}
 		} finally {
@@ -228,6 +236,60 @@ const CreateMedicalRecordForm = () => {
 		}
 	}
 };
+
+function FormWithDraft({
+	field,
+	patientId,
+	loading,
+	textGet,
+	prescriptionMode,
+	onPrescriptionModeChange,
+	allergies,
+	lastRecord,
+	onPreviewLastRecord,
+	onClearDraftReady,
+}: {
+	field: UseFormReturn<
+		z.input<typeof formSchema>,
+		unknown,
+		z.infer<typeof formSchema>
+	>;
+	patientId: string | null;
+	loading: boolean;
+	textGet: (key: string) => string;
+	prescriptionMode: PrescriptionMode;
+	onPrescriptionModeChange: (mode: PrescriptionMode) => void;
+	allergies: string[];
+	lastRecord: MedicalRecord | null;
+	onPreviewLastRecord: () => void;
+	onClearDraftReady: (fn: () => void) => void;
+}) {
+	const { hasDraft, lastSaved, clearDraft } = useSoapDraft(patientId, field);
+
+	React.useEffect(() => {
+		onClearDraftReady(clearDraft);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [clearDraft, onClearDraftReady]);
+
+	return (
+		<FormInner
+			field={field}
+			loading={loading}
+			textGet={textGet}
+			prescriptionMode={prescriptionMode}
+			onPrescriptionModeChange={onPrescriptionModeChange}
+			allergies={allergies}
+			lastRecord={lastRecord}
+			onPreviewLastRecord={onPreviewLastRecord}
+			hasDraft={hasDraft}
+			lastSaved={lastSaved}
+			onDiscardDraft={() => {
+				clearDraft();
+				field.reset({ date: new Date(), prescription: { items: [] } });
+			}}
+		/>
+	);
+}
 
 function parseAllergies(allergies?: string): string[] {
 	if (!allergies?.trim()) return [];
@@ -246,6 +308,9 @@ function FormInner({
 	allergies,
 	lastRecord,
 	onPreviewLastRecord,
+	hasDraft,
+	lastSaved,
+	onDiscardDraft,
 }: {
 	field: UseFormReturn<
 		z.input<typeof formSchema>,
@@ -259,6 +324,9 @@ function FormInner({
 	allergies: string[];
 	lastRecord: MedicalRecord | null;
 	onPreviewLastRecord: () => void;
+	hasDraft: boolean;
+	lastSaved: Date | null;
+	onDiscardDraft: () => void;
 }) {
 	const [activeTab, setActiveTab] = React.useState<TabId>("consulta");
 	const [footerStuck, setFooterStuck] = React.useState(false);
@@ -946,7 +1014,7 @@ function FormInner({
 				}`}
 			>
 				<div className="flex items-center justify-between gap-3">
-					{/* Left: last record preview */}
+					{/* Left: last record preview + draft status */}
 					<div className="flex items-center gap-2 shrink-0">
 						{lastRecord && (
 							<Button
@@ -961,6 +1029,26 @@ function FormInner({
 									<Text uuid="form.create_medical_record.preview_last" />
 								</span>
 							</Button>
+						)}
+						{hasDraft && lastSaved && (
+							<div className="flex items-center gap-1.5">
+								<Badge
+									variant="outline"
+									className="text-xs text-muted-foreground gap-1 hidden sm:flex"
+								>
+									<Save className="h-3 w-3" />
+									{textGet("form.create_medical_record.draft.saved")}
+								</Badge>
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									className="text-muted-foreground text-xs h-7 px-2"
+									onClick={onDiscardDraft}
+								>
+									{textGet("form.create_medical_record.draft.discard")}
+								</Button>
+							</div>
 						)}
 					</div>
 
