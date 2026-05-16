@@ -29,7 +29,7 @@ router.post(
 router.post("/validate/:env", asyncHandler(validateHandler));
 router.post("/authorization/:env", asyncHandler(authorizeHandler));
 
-router.all("*", (_req, res) => {
+router.all("/{*splat}", (_req, res) => {
 	res.status(404).json({
 		status: "NOT_FOUND",
 		message: "Ruta no encontrada",

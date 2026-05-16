@@ -83,7 +83,7 @@ services:
       - gentoo_network
 
   sri-xml-signer:
-    image: node:20-alpine
+    image: node:24-alpine
     container_name: sri-xml-signer
     working_dir: /app
     ports:
@@ -99,7 +99,7 @@ services:
       - gentoo_network
 
   web:
-    image: node:20-alpine
+    image: node:24-alpine
     container_name: pengi-web-dev
     working_dir: /app
     ports:
@@ -115,7 +115,7 @@ services:
       - gentoo_network
 
   backoffice:
-    image: node:20-alpine
+    image: node:24-alpine
     container_name: pengi-backoffice-dev
     working_dir: /app
     ports:
@@ -131,7 +131,7 @@ services:
       - gentoo_network
 
   landing:
-    image: node:20-alpine
+    image: node:24-alpine
     container_name: pengi-landing-dev
     working_dir: /app
     ports:
