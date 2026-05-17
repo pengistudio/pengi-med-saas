@@ -1,0 +1,98 @@
+---
+const faqs = [
+    {
+        question: "¿Las facturas son válidas ante el SRI de Ecuador?",
+        answer: "Sí. Gentoo emite facturas electrónicas con firma digital que cumplen con todos los requisitos del SRI de Ecuador. Cada factura pasa por el proceso de autorización oficial y queda registrada automáticamente.",
+    },
+    {
+        question: "¿Puedo migrar mis datos existentes?",
+        answer: "Sí. Nuestro equipo te acompaña en el proceso de migración sin costo adicional. Importamos pacientes, historial clínico y datos desde cualquier formato (Excel, CSV, exportaciones de otros sistemas).",
+    },
+    {
+        question: "¿Necesito instalar algo en mi computadora?",
+        answer: "No. Gentoo es 100% web — funciona en cualquier navegador moderno desde tu computadora, tablet o smartphone. Siempre tienes la última versión disponible, sin actualizaciones manuales.",
+    },
+    {
+        question: "¿Qué pasa si quiero cancelar mi suscripción?",
+        answer: "Cancela en cualquier momento, sin penalizaciones. Tus datos siempre son tuyos: antes de cancelar puedes exportar toda tu información en formatos estándar. No hay letra pequeña.",
+    },
+    {
+        question: "¿Tienen soporte técnico en Ecuador?",
+        answer: "Sí. Nuestro equipo está basado en Ecuador y responde en menos de 2 horas en horario laboral. También atendemos por WhatsApp para consultas rápidas.",
+    },
+    {
+        question: "¿Es segura la información de mis pacientes?",
+        answer: "Absolutamente. Los datos se almacenan con cifrado en reposo y en tránsito. Cumplimos con las normativas de protección de datos aplicables en Ecuador. Cada clínica tiene su espacio completamente aislado.",
+    },
+];
+---
+
+<section id="faq" class="py-24 lg:py-32">
+    <div class="max-w-3xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <div class="glass inline-flex items-center gap-2 px-4 py-2 rounded-full text-primary text-sm font-semibold mb-6">
+                Preguntas frecuentes
+            </div>
+            <h2 class="font-display text-4xl sm:text-5xl font-bold tracking-tight text-text mb-4">
+                Resolvemos tus dudas
+            </h2>
+            <p class="text-lg text-text-muted">
+                ¿No encuentras tu respuesta?
+                <a href="mailto:pengiservicios@gmail.com" class="text-primary hover:underline font-medium">Escríbenos.</a>
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-3" id="faq-list">
+            {faqs.map((faq, i) => (
+                <div class="faq-item glass-card rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg" data-index={i}>
+                    <button
+                        class="faq-trigger w-full text-left px-6 py-5 flex items-center justify-between gap-4 font-semibold text-text hover:text-primary transition-colors duration-200"
+                        aria-expanded="false"
+                    >
+                        <span class="font-display">{faq.question}</span>
+                        <div class="faq-icon w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all duration-300"
+                            style="background: oklch(59.929% 0.0998 185.282 / 10%); color: oklch(59.929% 0.0998 185.282);">
+                            <svg class="w-4 h-4 transition-transform duration-300 faq-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </div>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-6">
+                        <p class="text-text-muted leading-relaxed">{faq.answer}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<script>
+    document.querySelectorAll<HTMLElement>(".faq-trigger").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const item = btn.closest<HTMLElement>(".faq-item")!;
+            const content = item.querySelector<HTMLElement>(".faq-content")!;
+            const chevron = btn.querySelector<SVGElement>(".faq-chevron")!;
+            const iconWrap = btn.querySelector<HTMLElement>(".faq-icon")!;
+            const isOpen = btn.getAttribute("aria-expanded") === "true";
+
+            document.querySelectorAll<HTMLElement>(".faq-item").forEach((other) => {
+                if (other !== item) {
+                    other.querySelector<HTMLElement>(".faq-content")!.classList.add("hidden");
+                    other.querySelector<HTMLButtonElement>(".faq-trigger")!.setAttribute("aria-expanded", "false");
+                    const otherChevron = other.querySelector<SVGElement>(".faq-chevron")!;
+                    otherChevron.style.transform = "";
+                }
+            });
+
+            if (isOpen) {
+                content.classList.add("hidden");
+                btn.setAttribute("aria-expanded", "false");
+                chevron.style.transform = "";
+            } else {
+                content.classList.remove("hidden");
+                btn.setAttribute("aria-expanded", "true");
+                chevron.style.transform = "rotate(45deg)";
+            }
+        });
+    });
+</script>

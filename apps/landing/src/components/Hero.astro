@@ -2,150 +2,131 @@
 
 ---
 
-<section
-    id="hero"
-    class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden"
->
-    <!-- Background gradient orbs -->
-    <div
-        class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none"
-    >
+<section id="hero" class="relative pt-36 pb-24 lg:pt-44 lg:pb-36 overflow-hidden">
+    <!-- Decorative orbs -->
+    <div class="absolute top-20 -left-32 w-[500px] h-[500px] rounded-full blur-3xl pointer-events-none animate-pulse-slow"
+        style="background: oklch(85% 0.1 185 / 40%);">
     </div>
-    <div
-        class="absolute top-40 right-0 w-[400px] h-[400px] bg-primary/8 rounded-full blur-3xl pointer-events-none"
-    >
+    <div class="absolute top-40 -right-24 w-[400px] h-[400px] rounded-full blur-3xl pointer-events-none animate-pulse-slow delay-300"
+        style="background: oklch(82% 0.1 280 / 30%);">
+    </div>
+    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-3xl pointer-events-none"
+        style="background: oklch(88% 0.07 160 / 25%);">
     </div>
 
     <div class="max-w-7xl mx-auto px-6">
         <div class="grid lg:grid-cols-2 gap-16 items-center">
             <!-- Text content -->
-            <div class="flex flex-col gap-8">
-                <div
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold w-fit"
-                >
-                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse"
-                    ></span>
-                    Software Médico para Ecuador
+            <div class="flex flex-col gap-7">
+                <!-- Badges -->
+                <div class="flex flex-wrap gap-2 animate-fade-up">
+                    <div class="glass inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-primary text-sm font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        Software Médico para Ecuador
+                    </div>
+                    <div class="glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold" style="color: oklch(55% 0.12 55);">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                        </svg>
+                        14 días gratis · Sin tarjeta
+                    </div>
                 </div>
 
-                <h1
-                    class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-text"
-                >
+                <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-text animate-fade-up delay-100">
                     Gestión clínica y
-                    <span
-                        class="text-transparent bg-clip-text"
-                        style="background-image: linear-gradient(to right, oklch(59.929% 0.0998 185.282), oklch(72% 0.10 183));"
-                    >
-                        facturación SRI
-                    </span>
-                    en una sola plataforma
+                    <span class="gradient-text block">facturación SRI</span>
+                    en una plataforma
                 </h1>
 
-                <p class="text-lg text-text-muted max-w-xl leading-relaxed">
+                <p class="text-lg text-text-muted max-w-lg leading-relaxed animate-fade-up delay-200">
                     Administra pacientes, expedientes clínicos con ICD-11, citas,
-                    recetas médicas y emite facturas electrónicas válidas ante el
-                    SRI — todo desde un solo lugar.
+                    recetas médicas y emite facturas electrónicas válidas ante el SRI —
+                    todo desde un solo lugar.
                 </p>
 
-                <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex flex-col sm:flex-row gap-3 animate-fade-up delay-300">
                     <a
                         href="#pricing"
-                        id="hero-cta-primary"
-                        class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold bg-primary text-primary-foreground hover:bg-primary-dark transition-all duration-300 shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1"
+                        class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-base font-bold text-primary-foreground transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                        style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280)); box-shadow: 0 8px 24px oklch(59.929% 0.0998 185.282 / 35%);"
                     >
                         Ver planes
-                        <svg
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                         </svg>
                     </a>
                     <a
                         href="#features"
-                        id="hero-cta-secondary"
-                        class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-semibold text-text border-2 border-border hover:border-primary/30 hover:bg-primary/5 transition-all duration-300"
+                        class="glass inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-base font-semibold text-text hover:bg-white/80 transition-all duration-300"
                     >
                         Ver funcionalidades
                     </a>
                 </div>
 
+                <!-- Social proof -->
+                <div class="flex flex-wrap items-center gap-5 animate-fade-up delay-400">
+                    <p class="text-sm text-text-muted">
+                        <span class="font-bold text-text">+500 médicos</span> en Ecuador confían en Gentoo
+                    </p>
+                    <div class="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map(() => (
+                            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        ))}
+                        <span class="text-sm text-text-muted ml-1">4.9/5</span>
+                    </div>
+                </div>
+
                 <!-- Trust badges -->
-                <div class="flex flex-wrap items-center gap-6 pt-4">
-                    <div
-                        class="flex items-center gap-2 text-sm text-text-muted"
-                    >
-                        <svg
-                            class="w-5 h-5 text-primary"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Facturación electrónica SRI
-                    </div>
-                    <div
-                        class="flex items-center gap-2 text-sm text-text-muted"
-                    >
-                        <svg
-                            class="w-5 h-5 text-primary"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Diagnósticos con ICD-11
-                    </div>
-                    <div
-                        class="flex items-center gap-2 text-sm text-text-muted"
-                    >
-                        <svg
-                            class="w-5 h-5 text-primary"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Configuración en minutos
-                    </div>
+                <div class="flex flex-wrap gap-3 animate-fade-up delay-500">
+                    {[
+                        "Facturación SRI",
+                        "ICD-11",
+                        "Configuración en minutos",
+                    ].map((badge) => (
+                        <div class="flex items-center gap-1.5 text-sm text-text-muted">
+                            <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            {badge}
+                        </div>
+                    ))}
                 </div>
             </div>
 
             <!-- Dashboard preview -->
-            <div class="relative hidden lg:block">
-                <div
-                    class="relative z-10 rounded-2xl overflow-hidden shadow-2xl shadow-primary/10 border border-border/50 transform perspective-1200 rotate-y-2 hover:rotate-y-0 transition-transform duration-700"
-                >
-                    <img
-                        src="/hero-dashboard.png"
-                        alt="Gentoo Dashboard — Gestión de pacientes y citas"
-                        class="w-full h-auto"
-                        loading="eager"
-                    />
+            <div class="relative hidden lg:block animate-fade-up delay-400">
+                <!-- Floating glass frame -->
+                <div class="relative animate-float">
+                    <div
+                        class="relative z-10 rounded-3xl overflow-hidden"
+                        style="box-shadow: 0 32px 80px oklch(0% 0 0 / 20%), 0 0 0 1px oklch(100% 0 0 / 50%); background: oklch(100% 0 0 / 30%); backdrop-filter: blur(2px);"
+                    >
+                        <div class="p-1.5 rounded-3xl" style="background: oklch(100% 0 0 / 20%);">
+                            <img
+                                src="/hero-dashboard2.png"
+                                alt="Gentoo — Plataforma de gestión clínica y facturación SRI"
+                                class="w-full h-auto rounded-2xl"
+                                loading="eager"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Floating stat pills -->
+                    <div class="absolute -top-4 -right-6 glass rounded-2xl px-4 py-3 shadow-xl">
+                        <p class="text-xs text-text-muted font-medium">Facturas hoy</p>
+                        <p class="font-display text-2xl font-bold text-primary">+24</p>
+                    </div>
+                    <div class="absolute -bottom-4 -left-6 glass rounded-2xl px-4 py-3 shadow-xl">
+                        <p class="text-xs text-text-muted font-medium">Pacientes activos</p>
+                        <p class="font-display text-2xl font-bold text-text">318</p>
+                    </div>
                 </div>
-                <!-- Floating decorative elements -->
-                <div
-                    class="absolute -bottom-6 -left-6 w-24 h-24 bg-primary/10 rounded-2xl -z-1 animate-pulse"
-                >
-                </div>
-                <div
-                    class="absolute -top-4 -right-4 w-16 h-16 bg-primary/15 rounded-xl -z-1 animate-pulse delay-1000"
-                >
+
+                <!-- Background glow -->
+                <div class="absolute inset-0 -z-10 blur-3xl scale-110 rounded-full"
+                    style="background: linear-gradient(135deg, oklch(88% 0.1 185 / 40%), oklch(85% 0.1 280 / 30%));">
                 </div>
             </div>
         </div>

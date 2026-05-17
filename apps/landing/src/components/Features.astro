@@ -1,108 +1,122 @@
 ---
+// Main bento features (5) — clinical focus
 const features = [
-	{
-		icon: "patients",
-		title: "Gestión de Pacientes",
-		description:
-			"Registro completo con historial médico, datos demográficos, clasificación por criticidad y sala de espera digital en tiempo real.",
-	},
-	{
-		icon: "calendar",
-		title: "Agenda de Citas",
-		description:
-			"Calendario para programar, reprogramar y gestionar citas. Visualización diaria y semanal con estados por consulta.",
-	},
-	{
-		icon: "records",
-		title: "Expedientes Clínicos",
-		description:
-			"Expedientes digitales con diagnósticos codificados en ICD-11, evoluciones, antecedentes y archivos adjuntos.",
-	},
-	{
-		icon: "prescription",
-		title: "Recetas Médicas",
-		description:
-			"Genera recetas en PDF con tu membrete personalizado. Sube tu propio template HTML y descárgalas desde cualquier dispositivo.",
-	},
-	{
-		icon: "billing",
-		title: "Facturación Electrónica SRI",
-		description:
-			"Emite facturas electrónicas válidas ante el SRI de Ecuador. Firma digital, autorización automática y envío al cliente.",
-	},
-	{
-		icon: "multi",
-		title: "Multi-Consultorio y Roles",
-		description:
-			"Gestiona múltiples consultorios con usuarios, roles y permisos diferenciados por perfil desde una sola cuenta.",
-	},
+    {
+        icon: "patients",
+        title: "Gestión de Pacientes",
+        description: "El centro de Gentoo. Registro completo con historial médico, datos demográficos, clasificación por criticidad, evoluciones clínicas y sala de espera digital en tiempo real.",
+        span: "col-span-2",
+        accent: "oklch(59.929% 0.0998 185.282)",
+        accentBg: "oklch(88% 0.08 185 / 35%)",
+        featured: true,
+    },
+    {
+        icon: "calendar",
+        title: "Agenda de Citas",
+        description: "Calendario con visualización diaria y semanal. Gestiona estados y reprogramaciones en segundos.",
+        span: "col-span-1",
+        accent: "oklch(62% 0.14 280)",
+        accentBg: "oklch(85% 0.08 280 / 30%)",
+    },
+    {
+        icon: "records",
+        title: "Expedientes Clínicos",
+        description: "Expedientes digitales con diagnósticos ICD-11, evoluciones y adjuntos.",
+        span: "col-span-1",
+        accent: "oklch(65% 0.12 160)",
+        accentBg: "oklch(88% 0.07 160 / 30%)",
+    },
+    {
+        icon: "prescription",
+        title: "Recetas Médicas",
+        description: "Genera recetas en PDF con tu membrete. Sube tu template y descárgalas desde cualquier dispositivo.",
+        span: "col-span-1",
+        accent: "oklch(70% 0.12 55)",
+        accentBg: "oklch(90% 0.08 55 / 30%)",
+    },
+    {
+        icon: "multi",
+        title: "Multi-Consultorio y Roles",
+        description: "Gestiona múltiples consultorios con usuarios, roles y permisos diferenciados desde una sola cuenta.",
+        span: "col-span-1",
+        accent: "oklch(62% 0.14 280)",
+        accentBg: "oklch(85% 0.08 280 / 30%)",
+    },
 ];
 
 const iconPaths: Record<string, string> = {
-	patients:
-		"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-	calendar:
-		"M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-	records:
-		"M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-	prescription:
-		"M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z",
-	billing:
-		"M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z",
-	multi:
-		"M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
+    patients: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+    calendar: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+    records: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    prescription: "M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z",
+    billing: "M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z",
+    multi: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
 };
 ---
 
-<section id="features" class="py-24 lg:py-32 bg-surface-alt">
+<section id="features" class="py-24 lg:py-32">
     <div class="max-w-7xl mx-auto px-6">
-        <!-- Section header -->
         <div class="text-center max-w-2xl mx-auto mb-16">
-            <div
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6"
-            >
+            <div class="glass inline-flex items-center gap-2 px-4 py-2 rounded-full text-primary text-sm font-semibold mb-6">
                 Funcionalidades
             </div>
-            <h2
-                class="text-3xl sm:text-4xl font-extrabold tracking-tight text-text mb-4"
-            >
+            <h2 class="font-display text-4xl sm:text-5xl font-bold tracking-tight text-text mb-4">
                 Todo lo que necesitas para tu consulta
             </h2>
             <p class="text-lg text-text-muted">
-                Herramientas diseñadas específicamente para profesionales de la
-                salud en Ecuador que buscan eficiencia y cumplimiento normativo.
+                Herramientas diseñadas para profesionales de la salud en Ecuador que buscan eficiencia y cumplimiento normativo.
             </p>
         </div>
 
-        <!-- Feature cards grid -->
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {
-                features.map((feature) => (
-                    <div class="group relative bg-surface rounded-2xl p-8 border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
-                        <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors duration-300">
-                            <svg
-                                class="w-6 h-6 text-primary"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.5"
-                                    d={iconPaths[feature.icon]}
-                                />
+        <!-- Bento grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {features.map((feature) => (
+                <div
+                    class:list={[
+                        "group relative glass-card rounded-3xl p-8 transition-all duration-300 hover:scale-[1.02] cursor-default overflow-hidden",
+                        feature.span === "col-span-2" ? "sm:col-span-2 lg:col-span-2" : "",
+                    ]}
+                    style={feature.featured ? `box-shadow: 0 8px 32px oklch(59.929% 0.0998 185.282 / 15%), inset 0 1px 0 oklch(100% 0 0 / 90%);` : ""}
+                >
+                    <div class="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                        style={`background: ${feature.accentBg};`}></div>
+
+                    {feature.featured && (
+                        <div class="absolute top-4 right-4 px-2.5 py-1 rounded-full text-xs font-bold text-primary-foreground"
+                            style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));">
+                            ✦ Core Feature
+                        </div>
+                    )}
+
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                            style={`background: ${feature.accentBg}; border: 1px solid ${feature.accent}30;`}>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style={`color: ${feature.accent};`}>
+                                <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[feature.icon]}/>
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-text mb-2">
-                            {feature.title}
-                        </h3>
-                        <p class="text-sm text-text-muted leading-relaxed">
-                            {feature.description}
-                        </p>
+                        <h3 class="font-display text-xl font-bold text-text mb-2">{feature.title}</h3>
+                        <p class="text-sm text-text-muted leading-relaxed">{feature.description}</p>
                     </div>
-                ))
-            }
+                </div>
+            ))}
+        </div>
+
+        <!-- Billing: secondary row, full-width, compact horizontal -->
+        <div class="mt-4 glass-card rounded-2xl px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-80 hover:opacity-100 transition-opacity duration-200">
+            <div class="flex items-center gap-4 flex-1">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style="background: oklch(85% 0.06 260 / 40%); border: 1px solid oklch(70% 0.06 260 / 30%);">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color: oklch(55% 0.08 260);">
+                        <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths["billing"]}/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-display font-semibold text-sm text-text">Facturación Electrónica SRI</span>
+                    <span class="text-sm text-text-muted ml-2">— Facturas válidas ante el SRI con firma digital y autorización automática.</span>
+                </div>
+            </div>
+            <span class="text-xs text-text-muted px-3 py-1 rounded-full shrink-0" style="background: oklch(92% 0.004 260 / 60%);">Plan Profesional y Empresarial</span>
         </div>
     </div>
 </section>

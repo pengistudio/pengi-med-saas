@@ -2,94 +2,58 @@
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="bg-surface-alt border-t border-border">
-    <div class="max-w-7xl mx-auto px-6 py-16">
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
-            <!-- Brand -->
-            <div class="lg:col-span-2">
-                <a href="/" class="flex items-center gap-2 mb-4">
-                    <img src="/gentoo.png" alt="Gentoo" class="w-8 h-8" />
-                    <span class="text-lg font-bold text-text">Gentoo</span>
-                </a>
-                <p class="text-sm text-text-muted max-w-sm leading-relaxed">
-                    Software médico moderno diseñado para profesionales de la
-                    salud. Gestiona tu consulta de forma simple, segura y
-                    eficiente.
-                </p>
+<footer class="py-16">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="glass rounded-3xl px-8 py-12 sm:px-12">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                <!-- Brand -->
+                <div class="lg:col-span-2">
+                    <a href="/" class="flex items-center gap-2.5 mb-4">
+                        <img src="/gentoo.png" alt="Gentoo" class="w-8 h-8" />
+                        <span class="font-display text-lg font-bold text-text">Gentoo</span>
+                    </a>
+                    <p class="text-sm text-text-muted max-w-xs leading-relaxed">
+                        Software médico moderno diseñado para profesionales de la salud. Gestiona tu consulta de forma simple, segura y eficiente.
+                    </p>
+                    <div class="flex gap-3 mt-5">
+                        <a href="mailto:pengiservicios@gmail.com"
+                            class="w-9 h-9 rounded-xl flex items-center justify-center text-text-muted hover:text-primary hover:bg-primary/10 transition-all duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product -->
+                <div>
+                    <h4 class="font-display text-xs font-bold text-text uppercase tracking-wider mb-4">Producto</h4>
+                    <ul class="flex flex-col gap-3">
+                        <li><a href="#features" class="text-sm text-text-muted hover:text-primary transition-colors duration-200">Funcionalidades</a></li>
+                        <li><a href="#pricing" class="text-sm text-text-muted hover:text-primary transition-colors duration-200">Planes</a></li>
+                        <li><a href="#" class="text-sm text-text-muted hover:text-primary transition-colors duration-200">Seguridad</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-display text-xs font-bold text-text uppercase tracking-wider mb-4">Empresa</h4>
+                    <ul class="flex flex-col gap-3">
+                        <li><a href="#" class="text-sm text-text-muted hover:text-primary transition-colors duration-200">Sobre nosotros</a></li>
+                        <li><a href="mailto:pengiservicios@gmail.com" class="text-sm text-text-muted hover:text-primary transition-colors duration-200">Contacto</a></li>
+                        <li><a href="/terms-of-service" class="text-sm text-text-muted hover:text-primary transition-colors duration-200">Términos y condiciones</a></li>
+                        <li><a href="/privacy-policy" class="text-sm text-text-muted hover:text-primary transition-colors duration-200">Política de privacidad</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <!-- Product -->
-            <div>
-                <h4
-                    class="text-sm font-bold text-text uppercase tracking-wider mb-4"
-                >
-                    Producto
-                </h4>
-                <ul class="flex flex-col gap-3">
-                    <li>
-                        <a
-                            href="#features"
-                            class="text-sm text-text-muted hover:text-primary transition-colors"
-                            >Funcionalidades</a>
-                    </li>
-                    <li>
-                        <a
-                            href="#pricing"
-                            class="text-sm text-text-muted hover:text-primary transition-colors"
-                            >Planes</a>
-                    </li>
-                    <li>
-                        <a
-                            href="#"
-                            class="text-sm text-text-muted hover:text-primary transition-colors"
-                            >Seguridad</a>
-                    </li>
-                </ul>
+            <div class="mt-10 pt-8 border-t border-white/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-text-muted">&copy; {currentYear} Gentoo. Todos los derechos reservados.</p>
+                <div class="flex items-center gap-1.5 text-xs text-text-muted">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    Todos los sistemas operativos
+                </div>
             </div>
-
-            <!-- Company -->
-            <div>
-                <h4
-                    class="text-sm font-bold text-text uppercase tracking-wider mb-4"
-                >
-                    Empresa
-                </h4>
-                <ul class="flex flex-col gap-3">
-                    <li>
-                        <a
-                            href="#"
-                            class="text-sm text-text-muted hover:text-primary transition-colors"
-                            >Sobre nosotros</a>
-                    </li>
-                    <li>
-                        <a
-                            href="mailto:pengiservicios@gmail.com"
-                            class="text-sm text-text-muted hover:text-primary transition-colors"
-                            >Contacto</a>
-                    </li>
-                    <li>
-                        <a
-                            href="/terms-of-service"
-                            class="text-sm text-text-muted hover:text-primary transition-colors"
-                            >Términos y condiciones</a>
-                    </li>
-                    <li>
-                        <a
-                            href="/privacy-policy"
-                            class="text-sm text-text-muted hover:text-primary transition-colors"
-                            >Política de privacidad</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Bottom bar -->
-        <div
-            class="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4"
-        >
-            <p class="text-sm text-text-muted">
-                &copy; {currentYear} Gentoo. Todos los derechos reservados.
-            </p>
         </div>
     </div>
 </footer>

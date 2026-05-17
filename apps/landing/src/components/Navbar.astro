@@ -5,134 +5,75 @@ const loginUrl = `${appUrl}/login`;
 
 <nav
     id="navbar"
-    class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+    class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 pt-4"
 >
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-2 group" id="logo-link">
-            <img
-                src="/gentoo.png"
-                alt="Gentoo"
-                class="w-9 h-9 transition-transform duration-300 group-hover:scale-110"
-            />
-            <span class="text-xl font-bold tracking-tight text-text"
-                >Gentoo</span
-            >
-        </a>
-
-        <div class="hidden md:flex items-center gap-8">
-            <a
-                href="#features"
-                class="text-sm font-medium text-text-muted hover:text-primary transition-colors duration-200"
-                >Funcionalidades</a
-            >
-            <a
-                href="#pricing"
-                class="text-sm font-medium text-text-muted hover:text-primary transition-colors duration-200"
-                >Planes</a
-            >
-            <a
-                href="#cta"
-                class="text-sm font-medium text-text-muted hover:text-primary transition-colors duration-200"
-                >Contacto</a
-            >
-        </div>
-
-        <div class="flex items-center gap-3">
-            <a
-                href={loginUrl}
-                class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border border-border text-text hover:bg-surface-alt transition-all duration-200"
-            >
-                Iniciar sesión
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="glass rounded-2xl px-5 py-3 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2.5 group" id="logo-link">
+                <img
+                    src="/gentoo.png"
+                    alt="Gentoo"
+                    class="w-8 h-8 transition-transform duration-300 group-hover:scale-110"
+                />
+                <span class="font-display text-lg font-bold tracking-tight text-text">Gentoo</span>
             </a>
-            <a
-                href="#cta"
-                id="nav-cta"
-                class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary-dark transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5"
-            >
-                Comenzar gratis
-            </a>
-            <button
-                id="mobile-menu-btn"
-                class="md:hidden p-2 rounded-lg hover:bg-surface-alt transition-colors"
-                aria-label="Abrir menú"
-            >
-                <svg
-                    class="w-6 h-6 text-text"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="#features" class="px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200">Funcionalidades</a>
+                <a href="#pricing" class="px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200">Planes</a>
+                <a href="#cta" class="px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200">Contacto</a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a
+                    href={loginUrl}
+                    class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200"
                 >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
+                    Iniciar sesión
+                </a>
+                <a
+                    href="#cta"
+                    id="nav-cta"
+                    class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 hover:-translate-y-0.5"
+                    style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280)); box-shadow: 0 4px 16px oklch(59.929% 0.0998 185.282 / 30%);"
+                >
+                    Comenzar gratis
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
+                <button
+                    id="mobile-menu-btn"
+                    class="md:hidden p-2 rounded-xl hover:bg-white/60 transition-colors"
+                    aria-label="Abrir menú"
+                >
+                    <svg class="w-5 h-5 text-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-    </div>
 
-    <!-- Mobile menu -->
-    <div
-        id="mobile-menu"
-        class="md:hidden hidden bg-surface/95 backdrop-blur-xl border-t border-border"
-    >
-        <div class="px-6 py-4 flex flex-col gap-3">
-            <a
-                href="#features"
-                class="mobile-link py-2 text-sm font-medium text-text-muted hover:text-primary transition-colors"
-                >Funcionalidades</a
-            >
-            <a
-                href="#pricing"
-                class="mobile-link py-2 text-sm font-medium text-text-muted hover:text-primary transition-colors"
-                >Planes</a
-            >
-            <a
-                href="#cta"
-                class="mobile-link py-2 text-sm font-medium text-text-muted hover:text-primary transition-colors"
-                >Contacto</a
-            >
-            <a
-                href={loginUrl}
-                class="mt-1 inline-flex justify-center items-center px-5 py-2.5 rounded-xl text-sm font-semibold border border-border text-text hover:bg-surface-alt transition-colors"
-                >Iniciar sesión</a
-            >
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden mt-2">
+            <div class="glass rounded-2xl px-4 py-4 flex flex-col gap-1">
+                <a href="#features" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Funcionalidades</a>
+                <a href="#pricing" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Planes</a>
+                <a href="#cta" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Contacto</a>
+                <div class="h-px bg-border/50 my-1"></div>
+                <a href={loginUrl} class="px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Iniciar sesión</a>
+                <a href="#cta" class="mt-1 flex justify-center items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-primary-foreground" style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));">Comenzar gratis</a>
+            </div>
         </div>
     </div>
 </nav>
 
 <script>
-    // Navbar scroll effect
-    const navbar = document.getElementById("navbar");
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 20) {
-            navbar?.classList.add(
-                "bg-surface/80",
-                "backdrop-blur-xl",
-                "shadow-sm",
-                "border-b",
-                "border-border",
-            );
-        } else {
-            navbar?.classList.remove(
-                "bg-surface/80",
-                "backdrop-blur-xl",
-                "shadow-sm",
-                "border-b",
-                "border-border",
-            );
-        }
-    });
-
-    // Mobile menu toggle
     const menuBtn = document.getElementById("mobile-menu-btn");
     const mobileMenu = document.getElementById("mobile-menu");
     menuBtn?.addEventListener("click", () => {
         mobileMenu?.classList.toggle("hidden");
     });
-
-    // Close mobile menu on link click
     document.querySelectorAll(".mobile-link").forEach((link) => {
         link.addEventListener("click", () => {
             mobileMenu?.classList.add("hidden");

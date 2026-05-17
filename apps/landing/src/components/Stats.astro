@@ -1,0 +1,68 @@
+---
+const stats = [
+    { value: 500, suffix: "+", label: "Clínicas activas", icon: "🏥" },
+    { value: 2, suffix: "M+", label: "Facturas SRI emitidas", icon: "📄" },
+    { value: 99.9, suffix: "%", label: "Uptime garantizado", isFloat: true, icon: "⚡" },
+    { value: 2, suffix: "h", label: "Tiempo de respuesta", icon: "💬" },
+];
+---
+
+<section class="py-10">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="glass rounded-3xl p-6 sm:p-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 lg:divide-x lg:divide-white/40">
+                {stats.map((stat) => (
+                    <div class="flex flex-col items-center text-center lg:px-8">
+                        <div
+                            class="font-display text-3xl sm:text-4xl font-bold mb-1 stat-counter gradient-text"
+                            data-target={stat.value}
+                            data-suffix={stat.suffix}
+                            data-float={stat.isFloat ? "true" : "false"}
+                        >
+                            {stat.isFloat ? `${stat.value}${stat.suffix}` : `0${stat.suffix}`}
+                        </div>
+                        <p class="text-sm text-text-muted font-medium">{stat.label}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const counters = document.querySelectorAll<HTMLElement>(".stat-counter");
+
+    const animateCounter = (el: HTMLElement) => {
+        const target = parseFloat(el.dataset.target || "0");
+        const suffix = el.dataset.suffix || "";
+        const isFloat = el.dataset.float === "true";
+        const duration = 1800;
+        const start = performance.now();
+
+        const step = (now: number) => {
+            const progress = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            const current = target * ease;
+            el.textContent = isFloat
+                ? `${current.toFixed(1)}${suffix}`
+                : `${Math.floor(current)}${suffix}`;
+            if (progress < 1) requestAnimationFrame(step);
+        };
+
+        requestAnimationFrame(step);
+    };
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target as HTMLElement);
+                    observer.unobserve(entry.target);
+                }
+            });
+        },
+        { threshold: 0.3 }
+    );
+
+    counters.forEach((counter) => observer.observe(counter));
+</script>

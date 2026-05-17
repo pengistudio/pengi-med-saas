@@ -1,12 +1,16 @@
 @import "tailwindcss";
 
 @theme inline {
-	--font-sans: "Inter", system-ui, -apple-system, sans-serif;
+	--font-display: "Manrope", system-ui, sans-serif;
+	--font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
 
 	--color-primary: oklch(59.929% 0.0998 185.282);
 	--color-primary-light: oklch(72% 0.1 183);
 	--color-primary-dark: oklch(48% 0.09 186);
 	--color-primary-foreground: oklch(0.98 0.01 181);
+
+	--color-accent: oklch(62% 0.14 280);
+	--color-accent-warm: oklch(70% 0.12 55);
 
 	--color-surface: oklch(0.985 0 0);
 	--color-surface-alt: oklch(0.97 0.002 260);
@@ -37,11 +41,140 @@
 	body {
 		font-family: var(--font-sans);
 		color: var(--color-text);
-		background: var(--color-surface);
 		line-height: 1.6;
+		background:
+			radial-gradient(ellipse 80% 50% at 0% 0%, oklch(88% 0.08 185 / 55%) 0%, transparent 60%),
+			radial-gradient(ellipse 60% 40% at 100% 5%, oklch(82% 0.07 260 / 35%) 0%, transparent 55%),
+			radial-gradient(ellipse 70% 50% at 50% 100%, oklch(88% 0.07 165 / 45%) 0%, transparent 60%),
+			radial-gradient(ellipse 50% 40% at 80% 60%, oklch(85% 0.06 55 / 20%) 0%, transparent 50%),
+			oklch(0.97 0.003 260);
+		background-attachment: fixed;
 	}
 
 	::selection {
 		background: oklch(59.929% 0.0998 185.282 / 25%);
 	}
 }
+
+@layer utilities {
+	.glass {
+		background: oklch(100% 0 0 / 65%);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid oklch(100% 0 0 / 50%);
+		box-shadow: 0 8px 32px oklch(0% 0 0 / 6%), inset 0 1px 0 oklch(100% 0 0 / 80%);
+	}
+
+	.glass-card {
+		background: oklch(100% 0 0 / 70%);
+		backdrop-filter: blur(24px);
+		-webkit-backdrop-filter: blur(24px);
+		border: 1px solid oklch(100% 0 0 / 55%);
+		box-shadow: 0 4px 24px oklch(0% 0 0 / 5%), inset 0 1px 0 oklch(100% 0 0 / 90%);
+	}
+
+	.glass-strong {
+		background: oklch(100% 0 0 / 85%);
+		backdrop-filter: blur(32px);
+		-webkit-backdrop-filter: blur(32px);
+		border: 1px solid oklch(100% 0 0 / 60%);
+		box-shadow: 0 16px 48px oklch(0% 0 0 / 8%), inset 0 1px 0 oklch(100% 0 0 / 100%);
+	}
+
+	.font-display {
+		font-family: var(--font-display);
+	}
+
+	.gradient-text {
+		background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.gradient-border {
+		position: relative;
+		background: oklch(100% 0 0 / 70%);
+		backdrop-filter: blur(24px);
+		-webkit-backdrop-filter: blur(24px);
+	}
+
+	.gradient-border::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		padding: 1px;
+		background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));
+		-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+		-webkit-mask-composite: xor;
+		mask-composite: exclude;
+		pointer-events: none;
+	}
+}
+
+@keyframes fadeUp {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes float {
+	0%, 100% { transform: translateY(0px) rotate(0deg); }
+	33% { transform: translateY(-8px) rotate(1deg); }
+	66% { transform: translateY(-4px) rotate(-1deg); }
+}
+
+@keyframes pulse-slow {
+	0%, 100% { opacity: 0.4; transform: scale(1); }
+	50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.animate-fade-up {
+	animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in {
+	animation: fadeIn 0.6s ease both;
+}
+
+.animate-scale-in {
+	animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-float {
+	animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+	animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
