@@ -154,6 +154,7 @@ function SubscriptionCard({
 	return (
 		<Card
 			className={cn(
+				"flex flex-col h-full",
 				isUrgent
 					? "border-red-500/40"
 					: isExpiringSoon
@@ -176,36 +177,39 @@ function SubscriptionCard({
 					)}
 				/>
 			</CardHeader>
-			<CardContent className="space-y-2">
-				<p className="text-xl font-bold tracking-tight">
-					{subscription.plan_name}
-				</p>
-				<p
-					className={cn(
-						"text-xs",
-						isUrgent ? "text-red-500 font-medium" : "text-muted-foreground",
-					)}
-				>
-					{textGet("dashboard.subscription.expires")}{" "}
-					{new Date(subscription.expires_at).toLocaleDateString()} {"·"}{" "}
-					{subscription.days_left} {textGet("dashboard.subscription.days_left")}
-				</p>
-				{isExpiringSoon && (
-					<Button
-						size="sm"
-						variant={isUrgent ? "default" : "outline"}
-						className="w-full mt-1"
-						onClick={handlePay}
-						disabled={paying}
+			<CardContent className="flex flex-col justify-between flex-1 gap-2">
+				<div className="space-y-2">
+					<p className="text-xl font-bold tracking-tight">
+						{subscription.plan_name}
+					</p>
+					<p
+						className={cn(
+							"text-xs",
+							isUrgent ? "text-red-500 font-medium" : "text-muted-foreground",
+						)}
 					>
-						<CreditCard className="h-3.5 w-3.5 mr-1.5" />
-						{textGet("dashboard.subscription.pay_now")}
-					</Button>
-				)}
+						{textGet("dashboard.subscription.expires")}{" "}
+						{new Date(subscription.expires_at).toLocaleDateString()} {"·"}{" "}
+						{subscription.days_left}{" "}
+						{textGet("dashboard.subscription.days_left")}
+					</p>
+					{isExpiringSoon && (
+						<Button
+							size="sm"
+							variant={isUrgent ? "default" : "outline"}
+							className="w-full mt-1"
+							onClick={handlePay}
+							disabled={paying}
+						>
+							<CreditCard className="h-3.5 w-3.5 mr-1.5" />
+							{textGet("dashboard.subscription.pay_now")}
+						</Button>
+					)}
+				</div>
 				<button
 					type="button"
 					onClick={() => navigate("/subscription")}
-					className="text-xs font-medium text-primary hover:underline flex items-center gap-1 mt-1"
+					className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
 				>
 					{textGet("dashboard.subscription.view_details")}
 					<ArrowRight className="h-3 w-3" />
