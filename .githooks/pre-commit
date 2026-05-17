@@ -13,9 +13,9 @@ if [ -n "$STAGED" ]; then
 fi
 
 echo "▶ TypeScript (apps/web)..."
-cd "$REPO_ROOT/apps/web" && pnpm run typecheck
+cd "$REPO_ROOT/apps/web" && CI=true pnpm run typecheck
 
 echo "▶ TypeScript (apps/backoffice)..."
-cd "$REPO_ROOT/apps/backoffice" && pnpm run typecheck
+cd "$REPO_ROOT/apps/backoffice" && CI=true pnpm run typecheck
 
 echo "✓ All checks passed."
