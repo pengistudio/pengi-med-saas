@@ -1456,6 +1456,26 @@
     "value": "d\u00edas restantes"
   },
   {
+    "key": "dashboard.subscription.pay_now",
+    "value": "Pagar ahora"
+  },
+  {
+    "key": "dashboard.subscription.view_details",
+    "value": "Ver detalles"
+  },
+  {
+    "key": "dashboard.recent_invoices.title",
+    "value": "Facturas Recientes"
+  },
+  {
+    "key": "dashboard.recent_invoices.view_all",
+    "value": "Ver todas"
+  },
+  {
+    "key": "dashboard.recent_invoices.empty",
+    "value": "No hay facturas recientes"
+  },
+  {
     "key": "dashboard.chart.weekly_title",
     "value": "Citas de la Semana"
   },

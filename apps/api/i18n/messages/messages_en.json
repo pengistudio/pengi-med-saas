@@ -1456,6 +1456,26 @@
     "value": "days left"
   },
   {
+    "key": "dashboard.subscription.pay_now",
+    "value": "Pay now"
+  },
+  {
+    "key": "dashboard.subscription.view_details",
+    "value": "View details"
+  },
+  {
+    "key": "dashboard.recent_invoices.title",
+    "value": "Recent Invoices"
+  },
+  {
+    "key": "dashboard.recent_invoices.view_all",
+    "value": "View all"
+  },
+  {
+    "key": "dashboard.recent_invoices.empty",
+    "value": "No recent invoices"
+  },
+  {
     "key": "dashboard.chart.weekly_title",
     "value": "Weekly Appointments"
   },
