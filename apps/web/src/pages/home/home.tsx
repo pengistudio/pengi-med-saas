@@ -129,13 +129,11 @@ function StatCard({
 
 function SubscriptionCard({
 	subscription,
-	textGet,
-	navigate,
 }: {
 	subscription: SubscriptionInfo;
-	textGet: (k: string) => string;
-	navigate: (path: string) => void;
 }) {
+	const { textGet } = useText();
+	const navigate = useNavigate();
 	const isExpiringSoon = subscription.days_left <= 30;
 	const isUrgent = subscription.days_left <= 7;
 	const [paying, setPaying] = React.useState(false);
@@ -219,35 +217,17 @@ function SubscriptionCard({
 
 // ─── Invoice Status Badge ────────────────────────────────────────────────────
 
-const INVOICE_STATUS_STYLES: Record<
-	string,
-	{ label: string; className: string }
-> = {
-	authorized: {
-		label: "Autorizada",
-		className: "bg-emerald-500/10 text-emerald-600",
-	},
-	validated: {
-		label: "Validada",
-		className: "bg-emerald-500/10 text-emerald-600",
-	},
-	pending: {
-		label: "Pendiente",
-		className: "bg-amber-500/10 text-amber-600",
-	},
-	processing: {
-		label: "Procesando",
-		className: "bg-blue-500/10 text-blue-600",
-	},
-	signed: {
-		label: "Firmada",
-		className: "bg-blue-500/10 text-blue-600",
-	},
+const INVOICE_STATUS_STYLES: Record<string, { className: string }> = {
+	authorized: { className: "bg-emerald-500/10 text-emerald-600" },
+	validated: { className: "bg-emerald-500/10 text-emerald-600" },
+	pending: { className: "bg-amber-500/10 text-amber-600" },
+	processing: { className: "bg-blue-500/10 text-blue-600" },
+	signed: { className: "bg-blue-500/10 text-blue-600" },
 };
 
 function InvoiceStatusBadge({ status }: { status: string }) {
+	const { textGet } = useText();
 	const style = INVOICE_STATUS_STYLES[status] ?? {
-		label: status,
 		className: "bg-muted text-muted-foreground",
 	};
 	return (
@@ -257,7 +237,7 @@ function InvoiceStatusBadge({ status }: { status: string }) {
 				style.className,
 			)}
 		>
-			{style.label}
+			{textGet(`billing.status.${status}`)}
 		</span>
 	);
 }
@@ -266,13 +246,12 @@ function InvoiceStatusBadge({ status }: { status: string }) {
 
 function RecentInvoicesCard({
 	invoices,
-	textGet,
 	onViewAll,
 }: {
 	invoices: Invoice[];
-	textGet: (k: string) => string;
 	onViewAll: () => void;
 }) {
+	const { textGet } = useText();
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -337,7 +316,7 @@ const Home = () => {
 		});
 		getAllInvoices({ limit: 5 }).then((res) => {
 			if (res.success && res.data) {
-				setRecentInvoices(res.data.items.slice(0, 5));
+				setRecentInvoices(res.data.items);
 			}
 		});
 	}, []);
@@ -502,16 +481,11 @@ const Home = () => {
 				{/* Bottom Row — Subscription + Recent Invoices */}
 				{stats.subscription && (
 					<div className="grid gap-4 xl:grid-cols-3">
-						<SubscriptionCard
-							subscription={stats.subscription}
-							textGet={textGet}
-							navigate={navigate}
-						/>
+						<SubscriptionCard subscription={stats.subscription} />
 						<div className="xl:col-span-2">
 							<RecentInvoicesCard
 								invoices={recentInvoices}
-								textGet={textGet}
-								onViewAll={() => navigate("/billing/invoices")}
+								onViewAll={() => navigate("/billing")}
 							/>
 						</div>
 					</div>

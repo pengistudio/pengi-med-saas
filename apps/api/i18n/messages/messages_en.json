@@ -2684,6 +2684,10 @@
     "value": "Draft"
   },
   {
+    "key": "billing.status.pending",
+    "value": "Pending"
+  },
+  {
     "key": "billing.status.processing",
     "value": "Processing"
   },

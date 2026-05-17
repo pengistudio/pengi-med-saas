@@ -2684,6 +2684,10 @@
     "value": "Borrador"
   },
   {
+    "key": "billing.status.pending",
+    "value": "Pendiente"
+  },
+  {
     "key": "billing.status.processing",
     "value": "Procesando"
   },
