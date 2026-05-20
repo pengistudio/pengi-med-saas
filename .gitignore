@@ -5,6 +5,9 @@ Thumbs.db
 # IDEs
 .idea/
 .vscode/
+
+# Superpowers (AI tooling artifacts)
+.superpowers/
 *.swp
 *.swo
 
@@ -35,6 +38,7 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+deploy/.env.prod
 
 # Docker
 docker-compose.override.yml
