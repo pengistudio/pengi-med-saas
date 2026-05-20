@@ -3,6 +3,7 @@ package contact_handlers
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -15,10 +16,14 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	maxRequestsPerHour = 3
-	rateLimitWindow    = time.Hour
-)
+const rateLimitWindow = time.Hour
+
+func maxRequests() int {
+	if v, err := strconv.Atoi(os.Getenv("CONTACT_RATE_LIMIT")); err == nil && v > 0 {
+		return v
+	}
+	return 3
+}
 
 type ContactHandler struct {
 	logger *zap.Logger
@@ -28,10 +33,35 @@ type ContactHandler struct {
 }
 
 func NewContactHandler(logger *zap.Logger) *ContactHandler {
-	return &ContactHandler{
+	h := &ContactHandler{
 		logger: logger,
 		mailer: mailer.NewMailer(),
 		limits: make(map[string][]time.Time),
+	}
+	go h.cleanupLoop()
+	return h
+}
+
+func (h *ContactHandler) cleanupLoop() {
+	ticker := time.NewTicker(30 * time.Minute)
+	defer ticker.Stop()
+	for range ticker.C {
+		cutoff := time.Now().Add(-rateLimitWindow)
+		h.mu.Lock()
+		for ip, timestamps := range h.limits {
+			valid := timestamps[:0]
+			for _, t := range timestamps {
+				if t.After(cutoff) {
+					valid = append(valid, t)
+				}
+			}
+			if len(valid) == 0 {
+				delete(h.limits, ip)
+			} else {
+				h.limits[ip] = valid
+			}
+		}
+		h.mu.Unlock()
 	}
 }
 
@@ -49,7 +79,7 @@ func (h *ContactHandler) isRateLimited(ip string) bool {
 	}
 	h.limits[ip] = valid
 
-	if len(h.limits[ip]) >= maxRequestsPerHour {
+	if len(h.limits[ip]) >= maxRequests() {
 		return true
 	}
 	h.limits[ip] = append(h.limits[ip], time.Now())
@@ -79,4 +109,3 @@ func (h *ContactHandler) SendContact(c *gin.Context) envelope.Response {
 	h.logger.Info("contact message sent", zap.String("from", dto.Email), zap.String("ip", c.ClientIP()))
 	return envelope.SuccessResponse(nil, "contact.send.success")
 }
-
