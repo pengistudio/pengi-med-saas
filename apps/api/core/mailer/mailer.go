@@ -74,3 +74,37 @@ func (m *Mailer) SendEmailVerification(toEmail string, verificationURL string) e
 	smtpAuth := smtp.PlainAuth("", m.user, m.password, m.host)
 	return smtp.SendMail(addr, smtpAuth, m.from, []string{toEmail}, []byte(msg))
 }
+
+func (m *Mailer) SendContactMessage(toEmail, name, fromEmail, message string) error {
+	if m.host == "" {
+		return fmt.Errorf("SMTP not configured: SMTP_HOST is empty")
+	}
+
+	subject := fmt.Sprintf("Nuevo contacto de %s — Gentoo", name)
+	body := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color: #0d9488;">Nuevo mensaje de contacto — Gentoo</h2>
+  <table style="width:100%%; border-collapse: collapse; margin-top: 16px;">
+    <tr><td style="padding: 8px; font-weight: bold; width: 80px;">Nombre:</td><td style="padding: 8px;">%s</td></tr>
+    <tr style="background:#f9f9f9;"><td style="padding: 8px; font-weight: bold;">Email:</td><td style="padding: 8px;"><a href="mailto:%s">%s</a></td></tr>
+    <tr><td style="padding: 8px; font-weight: bold; vertical-align: top;">Mensaje:</td><td style="padding: 8px; white-space: pre-wrap;">%s</td></tr>
+  </table>
+</body>
+</html>`, name, fromEmail, fromEmail, message)
+
+	fromHeader := fmt.Sprintf("%s <%s>", m.fromName, m.from)
+	msg := strings.Join([]string{
+		fmt.Sprintf("From: %s", fromHeader),
+		fmt.Sprintf("To: %s", toEmail),
+		fmt.Sprintf("Subject: %s", subject),
+		"MIME-Version: 1.0",
+		"Content-Type: text/html; charset=UTF-8",
+		"",
+		body,
+	}, "\r\n")
+
+	addr := fmt.Sprintf("%s:%d", m.host, m.port)
+	smtpAuth := smtp.PlainAuth("", m.user, m.password, m.host)
+	return smtp.SendMail(addr, smtpAuth, m.from, []string{toEmail}, []byte(msg))
+}

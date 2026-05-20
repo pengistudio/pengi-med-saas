@@ -21,6 +21,7 @@ func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	RegisterTenantRoutes(router, db)
 	RegisterIntegrationRoutes(router, db)
 	RegisterKanbanRoutes(router, db)
+	RegisterContactRoutes(router, db)
 
 	webhookHandler := backoffice_handlers.NewBackofficePaymentHandler(db, logger.Log)
 	router.POST("/webhooks/dlocal", envelope.Handle(webhookHandler.HandleDlocalWebhook))

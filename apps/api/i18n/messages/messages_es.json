@@ -4422,5 +4422,17 @@
     {
         "key": "company.subscription.payments.fetch.error",
         "value": "Error al obtener los pagos de la suscripción"
+    },
+    {
+        "key": "contact.send.success",
+        "value": "Mensaje enviado correctamente. Te responderemos pronto."
+    },
+    {
+        "key": "contact.rate_limit",
+        "value": "Demasiados mensajes enviados. Intenta de nuevo en una hora."
+    },
+    {
+        "key": "contact.send_error",
+        "value": "No se pudo enviar el mensaje. Intenta más tarde."
     }
 ]

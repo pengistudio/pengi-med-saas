@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import Layout from "../layouts/main.astro";
 
-const lastUpdated = "27 de marzo de 2026";
+const lastUpdated = "20 de mayo de 2026";
 ---
 
 <Layout
@@ -32,32 +32,102 @@ const lastUpdated = "27 de marzo de 2026";
 			<section>
 				<h2 class="text-xl font-semibold text-gray-900 mb-3">2. Descripción del Servicio</h2>
 				<p>
-					Gentoo es una plataforma SaaS (Software como Servicio) de gestión médica que permite:
+					Gentoo es una plataforma SaaS (Software como Servicio) de gestión médica diseñada
+					específicamente para clínicas y consultorios en Ecuador. El Servicio permite:
 				</p>
 				<ul class="list-disc pl-6 mt-3 space-y-2">
 					<li>Gestión de pacientes y expedientes clínicos.</li>
 					<li>Programación y seguimiento de citas médicas.</li>
-					<li>Emisión de recetas médicas.</li>
-					<li>Facturación electrónica conforme al SRI de Ecuador.</li>
+					<li>Emisión de recetas médicas digitales.</li>
+					<li>Facturación electrónica conforme a los requisitos del SRI de Ecuador.</li>
+					<li>Gestión de equipo médico y personal del consultorio.</li>
 					<li>Integración opcional con servicios de terceros como Google Calendar.</li>
 				</ul>
+				<p class="mt-3">
+					El Servicio es personalizado y adaptado a las necesidades de cada consultorio o clínica.
+					Cada cuenta representa un consultorio independiente con su propio entorno de datos aislado.
+				</p>
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">3. Cuentas de usuario</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">3. Contratación del Servicio</h2>
+				<p>Para acceder a Gentoo, el proceso es el siguiente:</p>
+				<ol class="list-decimal pl-6 mt-3 space-y-2">
+					<li>
+						<strong>Registro:</strong> El administrador del consultorio crea una cuenta en
+						<a href="https://app.gentoo.pengistudio.com" class="text-blue-600 underline">app.gentoo.pengistudio.com</a>
+						proporcionando el nombre del consultorio, correo electrónico y contraseña.
+					</li>
+					<li>
+						<strong>Verificación:</strong> Se envía un correo de verificación a la dirección registrada.
+						La cuenta se activa al confirmar el correo.
+					</li>
+					<li>
+						<strong>Selección de plan:</strong> El administrador elige entre los planes disponibles
+						(Basic o Pro) según las funcionalidades requeridas.
+					</li>
+					<li>
+						<strong>Pago:</strong> Se completa el pago de la suscripción mensual a través de los
+						métodos de pago habilitados en la plataforma.
+					</li>
+					<li>
+						<strong>Activación:</strong> Una vez confirmado el pago, el consultorio tiene acceso
+						completo a las funcionalidades del plan contratado.
+					</li>
+				</ol>
+				<p class="mt-3">
+					Para consultas sobre el proceso de contratación, puedes escribirnos a
+					<a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>
+					o contactarnos por WhatsApp al <a href="https://wa.me/5935136947" class="text-blue-600 underline">+593 513 6947</a>.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">4. Planes y Precios</h2>
+				<p>
+					Gentoo ofrece planes de suscripción mensual en dólares americanos (USD), con precios
+					desde $30/mes según las funcionalidades requeridas. Los planes vigentes y sus precios
+					están disponibles en la página de inicio del sitio web.
+				</p>
+				<p class="mt-3">
+					Gentoo se reserva el derecho de modificar los precios con previo aviso de 30 días.
+					El precio del plan contratado se mantiene hasta el vencimiento del período en curso.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">5. Pagos y Facturación</h2>
+				<p>
+					Las suscripciones se cobran de forma mensual. El pago se procesa a través de
+					dLocal Go, plataforma de pagos segura. Se aceptan tarjetas de crédito y débito
+					habilitadas para pagos en línea.
+				</p>
+				<p class="mt-3">
+					En caso de fallo en el pago, el acceso a la plataforma puede ser suspendido hasta
+					regularizar la situación. Los pagos no son reembolsables una vez procesados, salvo
+					en casos de error técnico comprobado imputable a Gentoo.
+				</p>
+				<p class="mt-3">
+					Para consultas sobre facturación, escríbenos a
+					<a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>.
+				</p>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">6. Cuentas de usuario</h2>
 				<p>
 					Eres responsable de mantener la confidencialidad de tus credenciales de acceso y de todas
 					las actividades que ocurran bajo tu cuenta. Debes notificarnos de inmediato ante cualquier
 					uso no autorizado.
 				</p>
 				<p class="mt-3">
-					Cada cuenta está asociada a un consultorio o clínica (tenant). El administrador de la cuenta
+					Cada cuenta está asociada a un consultorio o clínica. El administrador de la cuenta
 					es responsable de gestionar los accesos de su equipo.
 				</p>
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">4. Uso aceptable</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">7. Uso aceptable</h2>
 				<p>Te comprometes a usar Gentoo únicamente para fines legítimos de gestión médica. Está prohibido:</p>
 				<ul class="list-disc pl-6 mt-3 space-y-2">
 					<li>Usar el Servicio para actividades ilegales o fraudulentas.</li>
@@ -69,20 +139,16 @@ const lastUpdated = "27 de marzo de 2026";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">5. Integraciones de terceros</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">8. Integraciones de terceros</h2>
 				<p>
 					Gentoo puede conectarse con servicios de terceros (como Google Calendar). El uso de estas
 					integraciones está sujeto a los términos y condiciones de dichos servicios. Gentoo no se
 					hace responsable por interrupciones, cambios o problemas en servicios de terceros.
 				</p>
-				<p class="mt-3">
-					Puedes activar o desactivar integraciones en cualquier momento desde la configuración de
-					tu cuenta.
-				</p>
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">6. Propiedad de los datos</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">9. Propiedad de los datos</h2>
 				<p>
 					Los datos clínicos y de pacientes ingresados en Gentoo son de exclusiva propiedad del
 					consultorio o clínica. Gentoo actúa como procesador de datos y no reclama ningún derecho
@@ -95,7 +161,7 @@ const lastUpdated = "27 de marzo de 2026";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">7. Disponibilidad del Servicio</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">10. Disponibilidad del Servicio</h2>
 				<p>
 					Nos esforzamos por mantener el Servicio disponible de forma continua, pero no garantizamos
 					disponibilidad ininterrumpida. Pueden ocurrir interrupciones por mantenimiento, actualizaciones
@@ -104,7 +170,7 @@ const lastUpdated = "27 de marzo de 2026";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">8. Limitación de responsabilidad</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">11. Limitación de responsabilidad</h2>
 				<p>
 					Gentoo no será responsable por daños indirectos, incidentales o consecuentes derivados del
 					uso o la imposibilidad de usar el Servicio. La responsabilidad total de Gentoo no excederá
@@ -113,19 +179,25 @@ const lastUpdated = "27 de marzo de 2026";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">9. Cancelación</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">12. Cancelación</h2>
 				<p>
-					Puedes cancelar tu suscripción en cualquier momento. Tras la cancelación, tus datos serán
-					conservados por 30 días antes de ser eliminados definitivamente, salvo que solicites
-					eliminación inmediata.
+					Puedes cancelar tu suscripción en cualquier momento desde la sección "Mi Suscripción"
+					dentro de la plataforma, o escribiéndonos a
+					<a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>.
 				</p>
 				<p class="mt-3">
-					Nos reservamos el derecho de suspender cuentas que violen estas condiciones.
+					Tras la cancelación, el acceso al Servicio se mantiene activo hasta el fin del período
+					pagado. Los datos del consultorio serán conservados por 30 días adicionales antes de ser
+					eliminados definitivamente, salvo que se solicite eliminación inmediata.
+				</p>
+				<p class="mt-3">
+					Gentoo se reserva el derecho de suspender o cancelar cuentas que violen estas condiciones,
+					sin derecho a reembolso.
 				</p>
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">10. Legislación aplicable</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">13. Legislación aplicable</h2>
 				<p>
 					Estas condiciones se rigen por las leyes de la República del Ecuador. Cualquier disputa
 					será sometida a la jurisdicción de los tribunales competentes de la ciudad de Quito, Ecuador.
@@ -133,10 +205,11 @@ const lastUpdated = "27 de marzo de 2026";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">11. Contacto</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">14. Contacto</h2>
 				<p>
 					Para cualquier consulta sobre estas Condiciones de Servicio:<br />
-					<a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a>
+					<a href="mailto:pengiservicios@gmail.com" class="text-blue-600 underline">pengiservicios@gmail.com</a><br />
+					WhatsApp: <a href="https://wa.me/5935136947" class="text-blue-600 underline">+593 513 6947</a>
 				</p>
 			</section>
 
