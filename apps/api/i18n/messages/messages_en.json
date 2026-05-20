@@ -204,6 +204,10 @@
         "value": "Payment successful. Your subscription has been renewed."
     },
     {
+        "key": "subscription.nav.title",
+        "value": "Subscription"
+    },
+    {
         "key": "subscription.page.title",
         "value": "My Subscription"
     },

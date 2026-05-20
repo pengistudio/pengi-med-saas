@@ -204,6 +204,10 @@
         "value": "Pago realizado exitosamente. Tu suscripción ha sido renovada."
     },
     {
+        "key": "subscription.nav.title",
+        "value": "Suscripción"
+    },
+    {
         "key": "subscription.page.title",
         "value": "Mi Suscripción"
     },
