@@ -1,52 +1,86 @@
 package mailer
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-	"net/smtp"
+	"net/http"
 	"os"
-	"strconv"
-	"strings"
 )
 
+const resendURL = "https://api.resend.com/emails"
+
 type Mailer struct {
-	host     string
-	port     int
-	user     string
-	password string
+	apiKey   string
 	from     string
 	fromName string
 }
 
 func NewMailer() *Mailer {
-	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	if port == 0 {
-		port = 587
-	}
 	fromName := os.Getenv("SMTP_FROM_NAME")
 	if fromName == "" {
-		fromName = "Pengi"
+		fromName = "Gentoo"
+	}
+	from := os.Getenv("SMTP_FROM")
+	if from == "" {
+		from = "noreply@pengistudio.com"
 	}
 	return &Mailer{
-		host:     os.Getenv("SMTP_HOST"),
-		port:     port,
-		user:     os.Getenv("SMTP_USER"),
-		password: os.Getenv("SMTP_PASSWORD"),
-		from:     os.Getenv("SMTP_FROM"),
+		apiKey:   os.Getenv("RESEND_API_KEY"),
+		from:     from,
 		fromName: fromName,
 	}
 }
 
-func (m *Mailer) SendEmailVerification(toEmail string, verificationURL string) error {
-	if m.host == "" {
-		return fmt.Errorf("SMTP not configured: SMTP_HOST is empty")
+type resendPayload struct {
+	From    string   `json:"from"`
+	To      []string `json:"to"`
+	Subject string   `json:"subject"`
+	HTML    string   `json:"html"`
+}
+
+func (m *Mailer) send(to, subject, html string) error {
+	if m.apiKey == "" {
+		return fmt.Errorf("Resend not configured: RESEND_API_KEY is empty")
 	}
 
-	subject := "Verifica tu email - Pengi"
-	body := fmt.Sprintf(`<!DOCTYPE html>
+	payload := resendPayload{
+		From:    fmt.Sprintf("%s <%s>", m.fromName, m.from),
+		To:      []string{to},
+		Subject: subject,
+		HTML:    html,
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, resendURL, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+m.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("resend API error: status %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (m *Mailer) SendEmailVerification(toEmail string, verificationURL string) error {
+	html := fmt.Sprintf(`<!DOCTYPE html>
 <html>
 <body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
   <h2 style="color: #0d9488;">Verifica tu email</h2>
-  <p>Gracias por registrarte en Pengi. Haz clic en el siguiente enlace para verificar tu email y activar tu cuenta:</p>
+  <p>Gracias por registrarte en Gentoo. Haz clic en el siguiente enlace para verificar tu email y activar tu cuenta:</p>
   <p style="margin: 24px 0;">
     <a href="%s" style="display: inline-block; padding: 12px 24px; background: #0d9488; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
       Verificar email
@@ -59,29 +93,11 @@ func (m *Mailer) SendEmailVerification(toEmail string, verificationURL string) e
 </body>
 </html>`, verificationURL, verificationURL)
 
-	fromHeader := fmt.Sprintf("%s <%s>", m.fromName, m.from)
-	msg := strings.Join([]string{
-		fmt.Sprintf("From: %s", fromHeader),
-		fmt.Sprintf("To: %s", toEmail),
-		fmt.Sprintf("Subject: %s", subject),
-		"MIME-Version: 1.0",
-		"Content-Type: text/html; charset=UTF-8",
-		"",
-		body,
-	}, "\r\n")
-
-	addr := fmt.Sprintf("%s:%d", m.host, m.port)
-	smtpAuth := smtp.PlainAuth("", m.user, m.password, m.host)
-	return smtp.SendMail(addr, smtpAuth, m.from, []string{toEmail}, []byte(msg))
+	return m.send(toEmail, "Verifica tu email - Gentoo", html)
 }
 
 func (m *Mailer) SendContactMessage(toEmail, name, fromEmail, message string) error {
-	if m.host == "" {
-		return fmt.Errorf("SMTP not configured: SMTP_HOST is empty")
-	}
-
-	subject := fmt.Sprintf("Nuevo contacto de %s — Gentoo", name)
-	body := fmt.Sprintf(`<!DOCTYPE html>
+	html := fmt.Sprintf(`<!DOCTYPE html>
 <html>
 <body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
   <h2 style="color: #0d9488;">Nuevo mensaje de contacto — Gentoo</h2>
@@ -93,18 +109,6 @@ func (m *Mailer) SendContactMessage(toEmail, name, fromEmail, message string) er
 </body>
 </html>`, name, fromEmail, fromEmail, message)
 
-	fromHeader := fmt.Sprintf("%s <%s>", m.fromName, m.from)
-	msg := strings.Join([]string{
-		fmt.Sprintf("From: %s", fromHeader),
-		fmt.Sprintf("To: %s", toEmail),
-		fmt.Sprintf("Subject: %s", subject),
-		"MIME-Version: 1.0",
-		"Content-Type: text/html; charset=UTF-8",
-		"",
-		body,
-	}, "\r\n")
-
-	addr := fmt.Sprintf("%s:%d", m.host, m.port)
-	smtpAuth := smtp.PlainAuth("", m.user, m.password, m.host)
-	return smtp.SendMail(addr, smtpAuth, m.from, []string{toEmail}, []byte(msg))
+	subject := fmt.Sprintf("Nuevo contacto de %s — Gentoo", name)
+	return m.send(toEmail, subject, html)
 }
