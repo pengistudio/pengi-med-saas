@@ -23,9 +23,10 @@ func TestLogin_Success(t *testing.T) {
 		t.Fatalf("failed to hash password: %v", err)
 	}
 	testUser := user_models.User{
-		UserName: "testuser",
-		Email:    "test@example.com",
-		Password: hashedPassword,
+		UserName:      "testuser",
+		Email:         "test@example.com",
+		Password:      hashedPassword,
+		EmailVerified: true,
 	}
 	if err := db.Create(&testUser).Error; err != nil {
 		t.Fatalf("failed to create test user: %v", err)
