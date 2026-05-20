@@ -1,6 +1,7 @@
-package clinical_handlers
+package company_handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
+	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -42,27 +44,33 @@ type UpcomingAppointment struct {
 	Status      string `json:"status"`
 }
 
-type SubscriptionInfo struct {
-	PlanName  string    `json:"plan_name"`
-	PlanCode  string    `json:"plan_code"`
-	ExpiresAt time.Time `json:"expires_at"`
-	DaysLeft  int       `json:"days_left"`
+type DashboardSubscriptionInfo struct {
+	PlanName          string          `json:"plan_name"`
+	PlanCode          string          `json:"plan_code"`
+	Status            string          `json:"status"`
+	ExpiresAt         time.Time       `json:"expires_at"`
+	DaysLeft          int             `json:"days_left"`
+	Amount            float64         `json:"amount"`
+	LastPaymentAmount float64         `json:"last_payment_amount"`
+	LastPaymentMonths int             `json:"last_payment_months"`
+	LastPaymentDate   *string         `json:"last_payment_date"`
+	EnabledFeatures   map[string]bool `json:"enabled_features"`
 }
 
 type DashboardStats struct {
-	TotalPatients         int64                 `json:"total_patients"`
-	NewPatientsThisMonth  int64                 `json:"new_patients_this_month"`
-	CriticalPatients      int64                 `json:"critical_patients"`
-	TodayAppointments     int64                 `json:"today_appointments"`
-	YesterdayAppointments int64                 `json:"yesterday_appointments"`
-	MonthlyCompleted      int64                 `json:"monthly_completed"`
-	PrevMonthCompleted    int64                 `json:"prev_month_completed"`
-	WeeklyAppointments    []WeekDayStat         `json:"weekly_appointments"`
-	UpcomingAppointments  []UpcomingAppointment `json:"upcoming_appointments"`
-	Subscription          *SubscriptionInfo     `json:"subscription"`
+	TotalPatients         int64                      `json:"total_patients"`
+	NewPatientsThisMonth  int64                      `json:"new_patients_this_month"`
+	CriticalPatients      int64                      `json:"critical_patients"`
+	TodayAppointments     int64                      `json:"today_appointments"`
+	YesterdayAppointments int64                      `json:"yesterday_appointments"`
+	MonthlyCompleted      int64                      `json:"monthly_completed"`
+	PrevMonthCompleted    int64                      `json:"prev_month_completed"`
+	WeeklyAppointments    []WeekDayStat              `json:"weekly_appointments"`
+	UpcomingAppointments  []UpcomingAppointment      `json:"upcoming_appointments"`
+	Subscription          *DashboardSubscriptionInfo `json:"subscription"`
 }
 
-// GetDashboardStats returns aggregated statistics for the dashboard
+// GetDashboardStats returns aggregated statistics for the dashboard.
 func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 	scope := tenant_middleware.TenantScope(c)
 
@@ -172,21 +180,54 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		})
 	}
 
-	// 7. Active subscription for this tenant's company
-	var subscriptionInfo *SubscriptionInfo
+	// 7. Subscription + enabled features for this tenant's company
+	var subscriptionInfo *DashboardSubscriptionInfo
 	tenantID := c.GetUint("tenant_id")
 	var company company_models.Company
 	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err == nil {
 		var sub company_models.Subscription
 		if err := h.db.Preload("Plan").
-			Where("company_id = ? AND status = ? AND expires_at > ?", company.ID, "active", now).
+			Where("company_id = ?", company.ID).
+			Order("expires_at DESC").
 			First(&sub).Error; err == nil {
 			daysLeft := int(time.Until(sub.ExpiresAt).Hours() / 24)
-			subscriptionInfo = &SubscriptionInfo{
+			if daysLeft < 0 {
+				daysLeft = 0
+			}
+			if checkAndApplyPendingPlanChange(h.db, h.logger, &sub, &company) {
+				h.db.Preload("Plan").First(&sub, sub.ID)
+			}
+
+			subscriptionInfo = &DashboardSubscriptionInfo{
 				PlanName:  sub.Plan.Name,
 				PlanCode:  sub.PlanCode,
+				Status:    sub.Status,
 				ExpiresAt: sub.ExpiresAt,
 				DaysLeft:  daysLeft,
+				Amount:    sub.Plan.Price,
+			}
+
+			var lastPayment company_models.SubscriptionPayment
+			if err := h.db.Where("company_id = ? AND status = ?", company.ID, "paid").
+				Order("created_at DESC").First(&lastPayment).Error; err == nil {
+				subscriptionInfo.LastPaymentAmount = lastPayment.Amount
+				subscriptionInfo.LastPaymentMonths = lastPayment.Months
+				paidDate := lastPayment.CreatedAt.Format("2006-01-02")
+				subscriptionInfo.LastPaymentDate = &paidDate
+			}
+
+			var tenant tenant_models.Tenant
+			if err := h.db.First(&tenant, tenantID).Error; err == nil {
+				ef := tenant_models.DefaultEnabledFeatures()
+				if tenant.EnabledFeatures != "" {
+					json.Unmarshal([]byte(tenant.EnabledFeatures), &ef)
+				}
+				subscriptionInfo.EnabledFeatures = map[string]bool{
+					"clinical": ef.Clinical,
+					"billing":  ef.Billing,
+					"team":     ef.Team,
+					"kanban":   ef.Kanban,
+				}
 			}
 		}
 	}

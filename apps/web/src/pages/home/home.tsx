@@ -5,7 +5,6 @@ import {
 	CalendarPlus,
 	CheckCircle,
 	Clock,
-	CreditCard,
 	Users,
 } from "lucide-react";
 import React from "react";
@@ -17,7 +16,6 @@ import {
 	getDashboardStats,
 	type SubscriptionInfo,
 } from "@/api/clinical-service";
-import { initiatePayment } from "@/api/subscription-service";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -134,85 +132,95 @@ function SubscriptionCard({
 }) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
+	const isActive = subscription.status === "active";
 	const isExpiringSoon = subscription.days_left <= 30;
 	const isUrgent = subscription.days_left <= 7;
-	const [paying, setPaying] = React.useState(false);
 
-	const handlePay = async () => {
-		setPaying(true);
-		const win = window.open("", "_blank");
-		const res = await initiatePayment();
-		setPaying(false);
-		if (res.success && res.data.checkout_url) {
-			if (win) win.location.href = res.data.checkout_url;
-			else window.location.href = res.data.checkout_url;
-		} else {
-			win?.close();
-		}
-	};
+	const progressPct = Math.min(
+		100,
+		Math.round((subscription.days_left / 365) * 100),
+	);
+	const progressColor = isUrgent
+		? "bg-red-500"
+		: isExpiringSoon
+			? "bg-amber-400"
+			: "bg-emerald-500";
+
+	const headerGradient = !isActive
+		? "from-zinc-600 to-zinc-500"
+		: isUrgent
+			? "from-red-600 to-rose-500"
+			: isExpiringSoon
+				? "from-amber-500 to-orange-400"
+				: "from-teal-600 to-emerald-500";
+
+	// Build subtitle: prefer last payment info, fall back to plan.Price
+	const hasLastPayment = subscription.last_payment_amount > 0;
+	const subtitleParts: string[] = [textGet("dashboard.subscription.title")];
+	if (hasLastPayment) {
+		const months = subscription.last_payment_months || 1;
+		subtitleParts.push(
+			` · $${subscription.last_payment_amount.toFixed(0)} · ${textGet(`subscription.plans.period.${months}`)}`,
+		);
+	} else if (subscription.amount > 0) {
+		subtitleParts.push(` · $${subscription.amount.toFixed(0)} /mes`);
+	}
 
 	return (
-		<Card
-			className={cn(
-				"flex flex-col h-full",
-				isUrgent
-					? "border-red-500/40"
-					: isExpiringSoon
-						? "border-amber-500/40"
-						: "border-t-primary border-t-2",
-			)}
-		>
-			<CardHeader className="flex flex-row items-center justify-between pb-2">
-				<CardDescription className="text-sm font-medium">
-					{textGet("dashboard.subscription.title")}
-				</CardDescription>
-				<CreditCard
-					className={cn(
-						"h-5 w-5",
-						isUrgent
-							? "text-red-500"
-							: isExpiringSoon
-								? "text-amber-500"
-								: "text-muted-foreground",
-					)}
-				/>
-			</CardHeader>
-			<CardContent className="flex flex-col justify-between flex-1 gap-2">
-				<div className="space-y-2">
-					<p className="text-xl font-bold tracking-tight">
+		<Card className="overflow-hidden flex flex-col h-full py-0">
+			{/* Gradient header */}
+			<div className={cn("bg-linear-to-r px-5 py-4", headerGradient)}>
+				<div className="flex items-start justify-between gap-2">
+					<p className="text-xl font-bold text-white leading-tight">
 						{subscription.plan_name}
 					</p>
-					<p
-						className={cn(
-							"text-xs",
-							isUrgent ? "text-red-500 font-medium" : "text-muted-foreground",
-						)}
-					>
-						{textGet("dashboard.subscription.expires")}{" "}
-						{new Date(subscription.expires_at).toLocaleDateString()} {"·"}{" "}
-						{subscription.days_left}{" "}
-						{textGet("dashboard.subscription.days_left")}
-					</p>
-					{isExpiringSoon && (
-						<Button
-							size="sm"
-							variant={isUrgent ? "default" : "outline"}
-							className="w-full mt-1"
-							onClick={handlePay}
-							disabled={paying}
-						>
-							<CreditCard className="h-3.5 w-3.5 mr-1.5" />
-							{textGet("dashboard.subscription.pay_now")}
-						</Button>
-					)}
+					<span className="shrink-0 rounded-full bg-white/20 px-3 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+						{textGet(`subscription.status.${subscription.status}`)}
+					</span>
 				</div>
+				<p className="mt-1 text-sm text-white/80">{subtitleParts.join("")}</p>
+			</div>
+
+			{/* Body */}
+			<CardContent className="flex flex-col flex-1 gap-3 pt-3 pb-4">
+				<div className="flex items-start justify-between">
+					<div>
+						<p className="text-3xl font-bold leading-none">
+							{subscription.days_left}
+						</p>
+						<p className="text-sm text-muted-foreground mt-0.5">
+							{textGet("dashboard.subscription.days_left")}
+						</p>
+					</div>
+					<div className="text-right">
+						<p className="text-xs text-muted-foreground">
+							{textGet("dashboard.subscription.expires")}
+						</p>
+						<p className="text-sm font-bold">
+							{new Date(subscription.expires_at).toLocaleDateString(undefined, {
+								day: "numeric",
+								month: "short",
+								year: "numeric",
+							})}
+						</p>
+					</div>
+				</div>
+
+				{/* Progress bar */}
+				<div className="h-1.5 rounded-full bg-muted overflow-hidden">
+					<div
+						className={cn("h-full rounded-full transition-all", progressColor)}
+						style={{ width: `${progressPct}%` }}
+					/>
+				</div>
+
 				<button
 					type="button"
 					onClick={() => navigate("/subscription")}
-					className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+					className="text-sm font-medium text-primary hover:underline flex items-center gap-1 mt-auto"
 				>
 					{textGet("dashboard.subscription.view_details")}
-					<ArrowRight className="h-3 w-3" />
+					<ArrowRight className="h-3.5 w-3.5" />
 				</button>
 			</CardContent>
 		</Card>
@@ -315,12 +323,13 @@ const Home = () => {
 	React.useEffect(() => {
 		getDashboardStats().then((res) => {
 			if (res.success && res.data) {
-				setStats(res.data as DashboardStats);
-			}
-		});
-		getAllInvoices({ limit: 5 }).then((res) => {
-			if (res.success && res.data) {
-				setRecentInvoices(res.data.items);
+				const data = res.data as DashboardStats;
+				setStats(data);
+				if (data.subscription?.enabled_features?.billing !== false) {
+					getAllInvoices({ limit: 5 }).then((inv) => {
+						if (inv.success && inv.data) setRecentInvoices(inv.data.items);
+					});
+				}
 			}
 		});
 	}, []);
@@ -484,14 +493,22 @@ const Home = () => {
 
 				{/* Bottom Row — Subscription + Recent Invoices */}
 				{stats.subscription && (
-					<div className="grid gap-4 xl:grid-cols-3">
+					<div
+						className={
+							stats.subscription.enabled_features?.billing !== false
+								? "grid gap-4 xl:grid-cols-3"
+								: ""
+						}
+					>
 						<SubscriptionCard subscription={stats.subscription} />
-						<div className="xl:col-span-2">
-							<RecentInvoicesCard
-								invoices={recentInvoices}
-								onViewAll={() => navigate("/billing")}
-							/>
-						</div>
+						{stats.subscription.enabled_features?.billing !== false && (
+							<div className="xl:col-span-2">
+								<RecentInvoicesCard
+									invoices={recentInvoices}
+									onViewAll={() => navigate("/billing")}
+								/>
+							</div>
+						)}
 					</div>
 				)}
 			</div>

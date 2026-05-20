@@ -2,6 +2,7 @@
 	"name": "landing",
 	"type": "module",
 	"version": "0.0.1",
+	"packageManager": "pnpm@11.1.2",
 	"scripts": {
 		"dev": "astro dev",
 		"build": "astro build",
@@ -11,6 +12,7 @@
 	"dependencies": {
 		"@astrojs/mdx": "^4.3.13",
 		"@astrojs/react": "^4.4.2",
+		"@lucide/astro": "^1.16.0",
 		"@tailwindcss/vite": "^4.1.18",
 		"@types/canvas-confetti": "^1.9.0",
 		"@types/react": "^19.2.14",

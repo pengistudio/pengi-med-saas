@@ -85,6 +85,13 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficePlanRoutes.DELETE("/:id", envelope.Handle(backofficePlanHandler.DeletePlan))
 	}
 
+	backofficePaymentHandler := backoffice_handlers.NewBackofficePaymentHandler(db, logger.Log)
+	backofficePaymentRoutes := router.Group("/backoffice/payments", auth_middleware.AuthMiddleware())
+	{
+		backofficePaymentRoutes.POST("/generate", envelope.Handle(backofficePaymentHandler.GeneratePayments))
+		backofficePaymentRoutes.GET("", envelope.Handle(backofficePaymentHandler.GetPayments))
+	}
+
 	backofficeSubscriptionRoutes := router.Group("/backoffice/subscriptions", auth_middleware.AuthMiddleware())
 	{
 		backofficeSubscriptionRoutes.GET("", envelope.Handle(backofficeSubscriptionHandler.GetSubscriptions))

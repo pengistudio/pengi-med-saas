@@ -14,10 +14,27 @@ import (
 
 func RegisterCompanyRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	companyHandler := company_handlers.NewCompanyHandler(db, logger.Log)
+	companyPaymentHandler := company_handlers.NewCompanyPaymentHandler(db, logger.Log)
+	dashboardHandler := company_handlers.NewDashboardHandler(db, logger.Log)
 
 	group := router.Group("/companies")
 	{
 		group.GET("", envelope.Handle(companyHandler.GetCompanies))
+	}
+
+	// Auth + tenant only (no subscription middleware — accessible even with expired subscription)
+	authedGroup := router.Group("/companies",
+		auth_middleware.AuthMiddleware(),
+		tenant_middleware.TenantMiddleware(db),
+	)
+	{
+		authedGroup.GET("/dashboard/stats", envelope.Handle(dashboardHandler.GetDashboardStats))
+		authedGroup.GET("/subscriptions/plans", envelope.Handle(companyPaymentHandler.GetAvailablePlans))
+		authedGroup.POST("/subscriptions/pay", envelope.Handle(companyPaymentHandler.PaySubscription))
+		authedGroup.POST("/subscriptions/confirm-payment", envelope.Handle(companyPaymentHandler.ConfirmPayment))
+		authedGroup.GET("/subscriptions/me", envelope.Handle(companyPaymentHandler.GetMySubscription))
+		authedGroup.GET("/subscriptions/payments", envelope.Handle(companyPaymentHandler.GetSubscriptionPayments))
+		authedGroup.DELETE("/subscriptions/plan-change", envelope.Handle(companyPaymentHandler.CancelPlanChange))
 	}
 
 	// Team management — requires auth + tenant + active subscription

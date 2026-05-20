@@ -1,16 +1,27 @@
 package user_handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"os"
+	"regexp"
+	"strings"
+	"time"
+
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
-	company_models "pengi-med-saas/features/companies/models"
+	"pengi-med-saas/core/mailer"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
+	company_models "pengi-med-saas/features/companies/models"
+	permission_models "pengi-med-saas/features/permissions/models"
+	tenant_models "pengi-med-saas/features/tenants/models"
 	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -74,6 +85,11 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	if err := foundUser.ValidateCredentials(h.db); err != nil {
 		h.logger.Warn("Failed login attempt", zap.String("username", user.UserName), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
+	}
+
+	// 2.5) Verificar email
+	if !foundUser.EmailVerified {
+		return envelope.ErrorResponse(http.StatusForbidden, "auth.login.email_not_verified", core_errors.ErrAuthEmailNotVerified)
 	}
 
 	// 3) Generar tokens
@@ -297,6 +313,200 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 		"username": newUser.UserName,
 		"email":    newUser.Email,
 	}, "user.company_signup.success")
+}
+
+// generateSlug converts a company name into a URL-safe slug.
+func generateSlug(name string) string {
+	slug := strings.ToLower(name)
+	slug = regexp.MustCompile(`[^a-z0-9]+`).ReplaceAllString(slug, "-")
+	slug = strings.Trim(slug, "-")
+	if len(slug) > 50 {
+		slug = slug[:50]
+	}
+	if slug == "" {
+		slug = "empresa"
+	}
+	return slug
+}
+
+// Register creates a new company account atomically: Tenant + Company + Role + User + Environment + Subscription.
+// The account is inactive until the user verifies their email.
+func (h *UserHandler) Register(c *gin.Context) envelope.Response {
+	var req user_dto.SelfRegisterDTO
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+	}
+
+	// Check uniqueness before transaction
+	var emailCheck user_models.User
+	if err := h.db.Where("email = ?", req.Email).First(&emailCheck).Error; err == nil {
+		return envelope.ErrorResponse(http.StatusConflict, "auth.register.email_taken", core_errors.ErrAuthEmailTaken)
+	}
+	var usernameCheck user_models.User
+	if err := h.db.Where("user_name = ?", req.Username).First(&usernameCheck).Error; err == nil {
+		return envelope.ErrorResponse(http.StatusConflict, "auth.register.username_taken", core_errors.ErrAuthUsernameTaken)
+	}
+
+	// Generate unique slug
+	baseSlug := generateSlug(req.CompanyName)
+	slug := baseSlug
+	for i := 1; ; i++ {
+		var existing tenant_models.Tenant
+		if err := h.db.Where("slug = ?", slug).First(&existing).Error; err != nil {
+			break
+		}
+		slug = fmt.Sprintf("%s-%d", baseSlug, i)
+	}
+
+	var newUser user_models.User
+	txErr := h.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Tenant
+		newTenant := tenant_models.Tenant{
+			Name:         req.CompanyName,
+			Slug:         slug,
+			TradeName:    req.CompanyName,
+			DisplayToken: func() string {
+				b := make([]byte, 16)
+				rand.Read(b)
+				return hex.EncodeToString(b)
+			}(),
+		}
+		if err := tx.Create(&newTenant).Error; err != nil {
+			return fmt.Errorf("tenant: %w", err)
+		}
+
+		// 2. Company
+		newCompany := company_models.Company{
+			LegalName: req.CompanyName,
+			TradeName: req.CompanyName,
+			PlanCode:  "TRIAL",
+			TenantID:  newTenant.ID,
+		}
+		if err := tx.Create(&newCompany).Error; err != nil {
+			return fmt.Errorf("company: %w", err)
+		}
+
+		// 3. Admin role for this company
+		adminRole := user_models.Role{Role: "admin"}
+		if err := tx.Create(&adminRole).Error; err != nil {
+			return fmt.Errorf("role: %w", err)
+		}
+
+		// 4. Assign all permissions to admin role
+		var allPerms []permission_models.Permission
+		tx.Find(&allPerms)
+		if len(allPerms) > 0 {
+			if err := tx.Model(&adminRole).Association("Permissions").Append(allPerms); err != nil {
+				return fmt.Errorf("permissions: %w", err)
+			}
+		}
+
+		// 5. User
+		newUser = user_models.User{
+			UserName:      req.Username,
+			Email:         req.Email,
+			Password:      req.Password,
+			EmailVerified: false,
+		}
+		if err := newUser.Save(tx); err != nil {
+			return fmt.Errorf("user: %w", err)
+		}
+
+		// 6. Environment (link user → company)
+		env := user_models.Environment{
+			UserID:    newUser.ID,
+			Name:      req.CompanyName,
+			RoleID:    adminRole.ID,
+			CompanyID: newCompany.ID,
+		}
+		if err := tx.Create(&env).Error; err != nil {
+			return fmt.Errorf("environment: %w", err)
+		}
+
+		// 7. TRIAL subscription (14 days)
+		subscription := company_models.Subscription{
+			Status:    "active",
+			PlanCode:  "TRIAL",
+			ExpiresAt: time.Now().Add(14 * 24 * time.Hour),
+			CompanyID: newCompany.ID,
+		}
+		if err := tx.Create(&subscription).Error; err != nil {
+			return fmt.Errorf("subscription: %w", err)
+		}
+
+		// 8. Apply TRIAL plan features to tenant
+		var trialPlan company_models.Plan
+		if err := tx.Where("code = ?", "TRIAL").First(&trialPlan).Error; err == nil {
+			if trialPlan.Properties != nil {
+				if featuresData, ok := trialPlan.Properties["enabled_features"]; ok {
+					if featuresJSON, err := json.Marshal(featuresData); err == nil {
+						tx.Model(&newTenant).Update("enabled_features", string(featuresJSON))
+					}
+				}
+			}
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		h.logger.Error("Registration transaction failed", zap.Error(txErr))
+		return envelope.ErrorResponse(http.StatusInternalServerError, txErr.Error(), core_errors.ErrInternal)
+	}
+
+	// Send verification email (non-blocking)
+	verificationToken, tokenErr := auth.GenerateEmailVerificationToken(newUser.ID)
+	if tokenErr != nil {
+		h.logger.Error("Failed to generate verification token", zap.Error(tokenErr))
+	} else {
+		frontendURL := os.Getenv("FRONTEND_URL")
+		verificationURL := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, verificationToken)
+		go func() {
+			m := mailer.NewMailer()
+			if err := m.SendEmailVerification(newUser.Email, verificationURL); err != nil {
+				h.logger.Error("Failed to send verification email",
+					zap.String("email", newUser.Email),
+					zap.Error(err))
+			}
+		}()
+	}
+
+	h.logger.Info("New company registered",
+		zap.String("company", req.CompanyName),
+		zap.String("username", req.Username),
+		zap.String("slug", slug))
+
+	return envelope.New(http.StatusCreated, "auth.register.success", gin.H{
+		"user_id":  newUser.ID,
+		"username": newUser.UserName,
+		"email":    newUser.Email,
+	})
+}
+
+// VerifyEmail activates the user's account after clicking the email verification link.
+func (h *UserHandler) VerifyEmail(c *gin.Context) envelope.Response {
+	token := c.Query("token")
+	if token == "" {
+		return envelope.ErrorResponse(http.StatusBadRequest, "auth.verify_email.invalid_token", core_errors.ErrAuthInvalidVerificationToken)
+	}
+
+	userID, err := auth.ParseEmailVerificationToken(token)
+	if err != nil {
+		h.logger.Warn("Invalid email verification token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.verify_email.invalid_token", core_errors.ErrAuthInvalidVerificationToken)
+	}
+
+	now := time.Now()
+	if err := h.db.Model(&user_models.User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+		"email_verified":    true,
+		"email_verified_at": now,
+	}).Error; err != nil {
+		h.logger.Error("Failed to verify email", zap.Uint("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "auth.verify_email.invalid_token", core_errors.ErrInternal)
+	}
+
+	h.logger.Info("Email verified", zap.Uint("user_id", userID))
+	return envelope.SuccessResponse(nil, "auth.verify_email.success")
 }
 
 func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {

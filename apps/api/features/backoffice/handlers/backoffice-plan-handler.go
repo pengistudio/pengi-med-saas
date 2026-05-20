@@ -23,19 +23,28 @@ func NewBackofficePlanHandler(db *gorm.DB, logger *zap.Logger) *BackofficePlanHa
 
 // ── DTOs ────────────────────────────────────────────────────────────────────
 
+type PricingInput struct {
+	Months int     `json:"months" binding:"required,oneof=1 3 6 9 12"`
+	Price  float64 `json:"price" binding:"required,gt=0"`
+}
+
 type CreatePlanRequest struct {
 	Name         string                 `json:"name" binding:"required"`
 	Code         string                 `json:"code" binding:"required"`
-	Price        float64                `json:"price" binding:"required"`
+	Tier         int                    `json:"tier" binding:"required,min=0,max=10"`
+	CanRenew     *bool                  `json:"can_renew"`
 	Properties   map[string]interface{} `json:"properties"`
 	FeatureCodes []string               `json:"feature_codes"`
+	Pricings     []PricingInput         `json:"pricings"`
 }
 
 type UpdatePlanRequest struct {
 	Name         string                 `json:"name"`
-	Price        *float64               `json:"price"`
+	Tier         int                    `json:"tier"`
+	CanRenew     *bool                  `json:"can_renew"`
 	Properties   map[string]interface{} `json:"properties"`
 	FeatureCodes []string               `json:"feature_codes"`
+	Pricings     []PricingInput         `json:"pricings"`
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -57,22 +66,18 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 		}, nil
 	}
 
-	// Get features and their permissions
 	var features []company_models.Feature
 	if err := h.db.Preload("Permissions").Where("code IN ?", featureCodes).Find(&features).Error; err != nil {
 		return nil, err
 	}
 
-	// Track which categories have at least one permission
 	categoriesFound := make(map[string]bool)
-
 	for _, feature := range features {
 		for _, perm := range feature.Permissions {
 			categoriesFound[perm.Category] = true
 		}
 	}
 
-	// Set enabled features based on found categories
 	if categoriesFound["CLINICAL"] {
 		enabledFeatures.Clinical = true
 	}
@@ -94,11 +99,49 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 	}, nil
 }
 
+// basePriceFromPricings returns the monthly price from pricings, or 0 if not found.
+func basePriceFromPricings(pricings []PricingInput) float64 {
+	for _, p := range pricings {
+		if p.Months == 1 {
+			return p.Price
+		}
+	}
+	// Fall back to the cheapest per-month rate
+	var best float64
+	for _, p := range pricings {
+		perMonth := p.Price / float64(p.Months)
+		if best == 0 || perMonth < best {
+			best = perMonth
+		}
+	}
+	return best
+}
+
+func (h *BackofficePlanHandler) syncPricings(planID uint, pricings []PricingInput) {
+	if len(pricings) == 0 {
+		return
+	}
+	// Hard-delete existing pricings to avoid unique index conflicts on re-create
+	if err := h.db.Unscoped().Where("plan_id = ?", planID).Delete(&company_models.PlanPricing{}).Error; err != nil {
+		h.logger.Error("Failed to delete plan pricings", zap.Uint("plan_id", planID), zap.Error(err))
+		return
+	}
+	for _, p := range pricings {
+		if err := h.db.Create(&company_models.PlanPricing{
+			PlanID: planID,
+			Months: p.Months,
+			Price:  p.Price,
+		}).Error; err != nil {
+			h.logger.Error("Failed to create plan pricing", zap.Uint("plan_id", planID), zap.Int("months", p.Months), zap.Error(err))
+		}
+	}
+}
+
 // ── Handlers ────────────────────────────────────────────────────────────────
 
 func (h *BackofficePlanHandler) GetPlans(c *gin.Context) envelope.Response {
 	var plans []company_models.Plan
-	if err := h.db.Preload("Features").Find(&plans).Error; err != nil {
+	if err := h.db.Preload("Features").Preload("Pricings").Find(&plans).Error; err != nil {
 		h.logger.Error("Failed to fetch plans", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining plans", core_errors.ErrInternal)
 	}
@@ -108,7 +151,7 @@ func (h *BackofficePlanHandler) GetPlans(c *gin.Context) envelope.Response {
 func (h *BackofficePlanHandler) GetPlanByID(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var plan company_models.Plan
-	if err := h.db.Preload("Features.Permissions").First(&plan, id).Error; err != nil {
+	if err := h.db.Preload("Features.Permissions").Preload("Pricings").First(&plan, id).Error; err != nil {
 		h.logger.Error("Plan not found", zap.String("id", id), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "Plan not found", core_errors.ErrBackofficePlanNotFound)
 	}
@@ -121,23 +164,27 @@ func (h *BackofficePlanHandler) CreatePlan(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
-	// Calculate enabled features based on selected features
 	enabledFeatures, err := h.calculateEnabledFeatures(req.FeatureCodes)
 	if err != nil {
 		h.logger.Error("Failed to calculate enabled features", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating plan", core_errors.ErrInternal)
 	}
 
-	// Merge enabled_features into properties
 	if req.Properties == nil {
 		req.Properties = make(map[string]interface{})
 	}
 	req.Properties["enabled_features"] = enabledFeatures
 
+	canRenew := true
+	if req.CanRenew != nil {
+		canRenew = *req.CanRenew
+	}
 	plan := company_models.Plan{
 		Name:       req.Name,
 		Code:       req.Code,
-		Price:      req.Price,
+		Tier:       req.Tier,
+		CanRenew:   canRenew,
+		Price:      basePriceFromPricings(req.Pricings),
 		Properties: req.Properties,
 	}
 
@@ -146,7 +193,6 @@ func (h *BackofficePlanHandler) CreatePlan(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating plan", core_errors.ErrInternal)
 	}
 
-	// Attach features by code
 	if len(req.FeatureCodes) > 0 {
 		var features []company_models.Feature
 		h.db.Where("code IN ?", req.FeatureCodes).Find(&features)
@@ -155,7 +201,9 @@ func (h *BackofficePlanHandler) CreatePlan(c *gin.Context) envelope.Response {
 		}
 	}
 
-	h.db.Preload("Features").First(&plan, plan.ID)
+	h.syncPricings(plan.ID, req.Pricings)
+
+	h.db.Preload("Features").Preload("Pricings").First(&plan, plan.ID)
 	h.logger.Info("Plan created", zap.String("code", req.Code))
 	return envelope.New(http.StatusCreated, "backoffice.plan.create.success", plan)
 }
@@ -176,19 +224,22 @@ func (h *BackofficePlanHandler) UpdatePlan(c *gin.Context) envelope.Response {
 	if req.Name != "" {
 		updates["name"] = req.Name
 	}
-	if req.Price != nil {
-		updates["price"] = *req.Price
+	if req.Tier > 0 {
+		updates["tier"] = req.Tier
+	}
+	if req.CanRenew != nil {
+		updates["can_renew"] = *req.CanRenew
+	}
+	if req.Pricings != nil {
+		updates["price"] = basePriceFromPricings(req.Pricings)
 	}
 
-	// Handle features update with automatic enabled_features calculation
 	if req.FeatureCodes != nil {
 		enabledFeatures, err := h.calculateEnabledFeatures(req.FeatureCodes)
 		if err != nil {
 			h.logger.Error("Failed to calculate enabled features", zap.Error(err))
 			return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating plan", core_errors.ErrInternal)
 		}
-
-		// Merge properties with enabled_features
 		if req.Properties == nil {
 			req.Properties = make(map[string]interface{})
 		}
@@ -211,7 +262,11 @@ func (h *BackofficePlanHandler) UpdatePlan(c *gin.Context) envelope.Response {
 		}
 	}
 
-	h.db.Preload("Features").First(&plan, plan.ID)
+	if req.Pricings != nil {
+		h.syncPricings(plan.ID, req.Pricings)
+	}
+
+	h.db.Preload("Features").Preload("Pricings").First(&plan, plan.ID)
 	return envelope.SuccessResponse(plan, "backoffice.plan.update.success")
 }
 
@@ -223,6 +278,7 @@ func (h *BackofficePlanHandler) DeletePlan(c *gin.Context) envelope.Response {
 	}
 
 	h.db.Model(&plan).Association("Features").Clear()
+	h.db.Unscoped().Where("plan_id = ?", plan.ID).Delete(&company_models.PlanPricing{})
 
 	if err := h.db.Delete(&plan).Error; err != nil {
 		h.logger.Error("Failed to delete plan", zap.Error(err))

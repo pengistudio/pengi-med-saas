@@ -18,16 +18,25 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useText } from "@/hooks/use-text";
+import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
+
+const TIERS = [1, 2, 3] as const;
+
 import {
 	PLAN_LIMIT_KEYS,
 	type PlanLimits,
 	PlanLimitsEditor,
 } from "./plan-limits-editor";
+import {
+	arrayToPricingsState,
+	PlanPricingsEditor,
+	type PricingsState,
+	pricingsStateToArray,
+} from "./plan-pricings-editor";
 
 const formSchema = z.object({
 	name: z.string().min(2),
-	price: z.coerce.number().min(0),
 });
 
 const EditPlan = () => {
@@ -39,7 +48,6 @@ const EditPlan = () => {
 	const [code, setCode] = React.useState("");
 	const [defaultValues, setDefaultValues] = React.useState({
 		name: "",
-		price: 0,
 	});
 	const [features, setFeatures] = React.useState<Feature[]>([]);
 	const [selectedFeatures, setSelectedFeatures] = React.useState<string[]>([]);
@@ -48,6 +56,8 @@ const EditPlan = () => {
 		max_patients: -1,
 		max_offices: -1,
 	});
+	const [tier, setTier] = React.useState<1 | 2 | 3>(1);
+	const [pricings, setPricings] = React.useState<PricingsState>({});
 
 	React.useEffect(() => {
 		getFeatures().then((res) => {
@@ -59,11 +69,14 @@ const EditPlan = () => {
 		if (!id) return;
 		getPlanByID(id).then((res) => {
 			if (res.success && res.data) {
-				setDefaultValues({ name: res.data.name, price: res.data.price });
+				setDefaultValues({ name: res.data.name });
 				setCode(res.data.code);
+				const loadedTier = res.data.tier ?? 1;
+				setTier(
+					(loadedTier >= 1 && loadedTier <= 3 ? loadedTier : 1) as 1 | 2 | 3,
+				);
 				setSelectedFeatures(res.data.Features?.map((f) => f.code) ?? []);
 
-				// Load limits from Properties
 				const props = res.data.Properties ?? {};
 				const loaded: PlanLimits = {};
 				for (const key of PLAN_LIMIT_KEYS) {
@@ -71,6 +84,15 @@ const EditPlan = () => {
 					loaded[key] = val === undefined || val === null ? -1 : Number(val);
 				}
 				setLimits(loaded);
+
+				const existingPricings = res.data.pricings ?? [];
+				if (existingPricings.length === 0 && res.data.price > 0) {
+					setPricings(
+						arrayToPricingsState([{ months: 1, price: res.data.price }]),
+					);
+				} else {
+					setPricings(arrayToPricingsState(existingPricings));
+				}
 			}
 			setInitialLoading(false);
 		});
@@ -88,11 +110,11 @@ const EditPlan = () => {
 		if (!id) return;
 		setLoading(true);
 		const res = await updatePlan(id, {
-			...values,
+			name: values.name,
+			tier,
 			feature_codes: selectedFeatures,
-			properties: {
-				...limits,
-			} as Record<string, unknown>,
+			properties: { ...limits } as Record<string, unknown>,
+			pricings: pricingsStateToArray(pricings),
 		});
 		setLoading(false);
 		if (res.success) navigate("/plans");
@@ -142,15 +164,37 @@ const EditPlan = () => {
 									label={textGet("backoffice.plans.col.name")}
 									placeholder={textGet("backoffice.plans.col.name.placeholder")}
 								/>
-								<FormInput
-									field={field}
-									name="price"
-									type="number"
-									label={textGet("backoffice.plans.col.price")}
-									placeholder="99.99"
-								/>
+
+								<div className="space-y-2">
+									<Label>{textGet("backoffice.plans.col.tier")}</Label>
+									<div className="flex gap-2">
+										{TIERS.map((t) => (
+											<button
+												key={t}
+												type="button"
+												onClick={() => setTier(t)}
+												className={cn(
+													"w-12 h-10 rounded-md border text-sm font-semibold transition-colors",
+													tier === t
+														? "bg-primary text-primary-foreground border-primary"
+														: "bg-background text-muted-foreground border-border hover:bg-muted",
+												)}
+											>
+												{t}
+											</button>
+										))}
+									</div>
+									<p className="text-xs text-muted-foreground">
+										{textGet("backoffice.plans.tier.hint")}
+									</p>
+								</div>
 
 								<PlanLimitsEditor limits={limits} onChange={setLimits} />
+
+								<PlanPricingsEditor
+									pricings={pricings}
+									onChange={setPricings}
+								/>
 
 								{features.length > 0 && (
 									<div className="space-y-3 border-t pt-4">

@@ -59,6 +59,38 @@ export const resetPassword = async (
 	);
 };
 
+export interface RegisterRequest extends Record<string, unknown> {
+	company_name: string;
+	username: string;
+	email: string;
+	password: string;
+}
+
+export interface RegisterResponse {
+	user_id: number;
+	username: string;
+	email: string;
+}
+
+export const register = async (
+	data: RegisterRequest,
+): Promise<ServiceResponse<RegisterResponse>> => {
+	return loginService.post<RegisterResponse>("/auth/register", data, {
+		notifyError: true,
+	});
+};
+
+export const verifyEmail = async (
+	token: string,
+): Promise<ServiceResponse<null>> => {
+	return loginService.get<null>(
+		`/auth/verify-email?token=${encodeURIComponent(token)}`,
+		{
+			notifyError: false,
+		},
+	);
+};
+
 export const companySignup = async (
 	data: CompanySignupRequest,
 ): Promise<ServiceResponse<CompanySignupResponse>> => {

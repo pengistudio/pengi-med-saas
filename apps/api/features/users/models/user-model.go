@@ -12,11 +12,13 @@ import (
 
 type User struct {
 	gorm.Model
-	UserName     string        `json:"user_name"`
-	Password     string        `json:"password"`
-	Email        string        `json:"email"`
-	Environments []Environment `json:"environments"`
-	RefreshToken string        `json:"refresh_token"`
+	UserName        string        `json:"user_name"`
+	Password        string        `json:"password"`
+	Email           string        `json:"email"`
+	Environments    []Environment `json:"environments"`
+	RefreshToken    string        `json:"refresh_token"`
+	EmailVerified   bool          `gorm:"not null;default:false" json:"email_verified"`
+	EmailVerifiedAt *time.Time    `json:"email_verified_at"`
 }
 
 type Environment struct {

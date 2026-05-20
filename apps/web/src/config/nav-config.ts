@@ -1,5 +1,6 @@
 import {
 	Calendar,
+	CreditCard,
 	FileKey,
 	Hospital,
 	Layers,
@@ -79,6 +80,12 @@ export const createNavItems = (
 		label: textGet("team.title"),
 		href: "/team",
 		feature: "team",
+	},
+	{
+		icon: CreditCard,
+		label: textGet("subscription.nav.title"),
+		href: "/subscription",
+		isBottom: true,
 	},
 	{
 		icon: Settings,

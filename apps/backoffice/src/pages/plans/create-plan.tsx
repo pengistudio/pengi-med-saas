@@ -18,13 +18,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useText } from "@/hooks/use-text";
+import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { type PlanLimits, PlanLimitsEditor } from "./plan-limits-editor";
+import {
+	PlanPricingsEditor,
+	type PricingsState,
+	pricingsStateToArray,
+} from "./plan-pricings-editor";
+
+const TIERS = [1, 2, 3] as const;
 
 const formSchema = z.object({
 	name: z.string().min(2),
 	code: z.string().min(2),
-	price: z.coerce.number().min(0),
 });
 
 const CreatePlan = () => {
@@ -38,6 +45,8 @@ const CreatePlan = () => {
 		max_patients: -1,
 		max_offices: -1,
 	});
+	const [tier, setTier] = React.useState<1 | 2 | 3>(1);
+	const [pricings, setPricings] = React.useState<PricingsState>({});
 
 	React.useEffect(() => {
 		getFeatures().then((res) => {
@@ -54,11 +63,13 @@ const CreatePlan = () => {
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoading(true);
 		const res = await createPlan({
-			...values,
+			name: values.name,
+			code: values.code,
+			tier,
+			price: 0,
 			feature_codes: selectedFeatures,
-			properties: {
-				...limits,
-			} as Record<string, unknown>,
+			properties: { ...limits } as Record<string, unknown>,
+			pricings: pricingsStateToArray(pricings),
 		});
 		setLoading(false);
 		if (res.success) navigate("/plans");
@@ -70,7 +81,7 @@ const CreatePlan = () => {
 				<Form<typeof formSchema>
 					schema={formSchema}
 					onSubmit={onSubmit}
-					defaultValues={{ name: "", code: "", price: 0 }}
+					defaultValues={{ name: "", code: "" }}
 				>
 					{(field) => (
 						<Card>
@@ -97,15 +108,37 @@ const CreatePlan = () => {
 									label={textGet("backoffice.plans.col.code")}
 									placeholder="ENT, PRO, BASIC..."
 								/>
-								<FormInput
-									field={field}
-									name="price"
-									type="number"
-									label={textGet("backoffice.plans.col.price")}
-									placeholder="99.99"
-								/>
+
+								<div className="space-y-2">
+									<Label>{textGet("backoffice.plans.col.tier")}</Label>
+									<div className="flex gap-2">
+										{TIERS.map((t) => (
+											<button
+												key={t}
+												type="button"
+												onClick={() => setTier(t)}
+												className={cn(
+													"w-12 h-10 rounded-md border text-sm font-semibold transition-colors",
+													tier === t
+														? "bg-primary text-primary-foreground border-primary"
+														: "bg-background text-muted-foreground border-border hover:bg-muted",
+												)}
+											>
+												{t}
+											</button>
+										))}
+									</div>
+									<p className="text-xs text-muted-foreground">
+										{textGet("backoffice.plans.tier.hint")}
+									</p>
+								</div>
 
 								<PlanLimitsEditor limits={limits} onChange={setLimits} />
+
+								<PlanPricingsEditor
+									pricings={pricings}
+									onChange={setPricings}
+								/>
 
 								{features.length > 0 && (
 									<div className="space-y-3 border-t pt-4">

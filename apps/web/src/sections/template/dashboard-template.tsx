@@ -1,6 +1,7 @@
 import {
 	AlertTriangle,
 	Building2,
+	CreditCard,
 	HelpCircle,
 	Menu,
 	PanelLeft,
@@ -8,7 +9,8 @@ import {
 	Power,
 } from "lucide-react";
 import type React from "react";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
+import { initiatePayment } from "@/api/subscription-service";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
 import SelectLanguage from "@/components/custom/select-language";
@@ -51,6 +53,16 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const { logout } = useAuth();
 	const { textGet } = useText();
 	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
+	const [paying, setPaying] = useState(false);
+
+	const handlePay = useCallback(async () => {
+		setPaying(true);
+		const res = await initiatePayment();
+		setPaying(false);
+		if (res.success) {
+			window.open(res.data.checkout_url, "_blank");
+		}
+	}, []);
 	const { checkPermission } = usePermission();
 
 	const environment = useSessionStore(selectEnvironment);
@@ -269,13 +281,21 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 										{textGet("subscription.expired.description")}
 									</CardDescription>
 								</CardHeader>
-								<CardContent className="text-center">
+								<CardContent className="text-center space-y-2">
 									<p className="text-sm text-muted-foreground">
 										{textGet("subscription.expired.contact")}
 									</p>
 									<Button
+										className="w-full"
+										onClick={handlePay}
+										disabled={paying}
+									>
+										<CreditCard className="w-4 h-4 mr-2" />
+										{textGet("dashboard.subscription.pay_now")}
+									</Button>
+									<Button
 										variant="outline"
-										className="mt-4"
+										className="w-full"
 										onClick={handleLogout}
 									>
 										<Power className="w-4 h-4 mr-2" />

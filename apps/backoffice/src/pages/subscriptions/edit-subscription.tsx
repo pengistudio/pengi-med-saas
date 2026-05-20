@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
-import { getPlans, type Plan } from "@/api/plan-service";
+import { getPlans, type Plan, type PricingOption } from "@/api/plan-service";
 import {
 	getSubscriptions,
 	updateSubscription,
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useText } from "@/hooks/use-text";
+import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const formSchema = z.object({ expires_at: z.string().min(1) });
@@ -69,6 +70,12 @@ const EditSubscription = () => {
 			setInitialLoading(false);
 		});
 	}, [id]);
+
+	const currentPlan = plans.find((p) => p.code === selectedPlan);
+	const sortedPricings: PricingOption[] = React.useMemo(() => {
+		if (!currentPlan?.pricings?.length) return [];
+		return [...currentPlan.pricings].sort((a, b) => a.months - b.months);
+	}, [currentPlan]);
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		if (!id) return;
@@ -125,12 +132,34 @@ const EditSubscription = () => {
 										<SelectContent>
 											{plans.map((p) => (
 												<SelectItem key={p.ID} value={p.code}>
-													{p.name} — ${p.price.toFixed(2)}
+													{p.name}
 												</SelectItem>
 											))}
 										</SelectContent>
 									</Select>
 								</div>
+
+								{/* Plan pricing summary — informational only */}
+								{sortedPricings.length > 0 && (
+									<div className="space-y-2">
+										<Label>{textGet("backoffice.plans.pricings.title")}</Label>
+										<div className="flex flex-wrap gap-2">
+											{sortedPricings.map((p) => (
+												<span
+													key={p.months}
+													className={cn(
+														"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-mono",
+														"bg-muted text-muted-foreground",
+													)}
+												>
+													{textGet(`subscription.plans.period.${p.months}`)} · $
+													{p.price.toFixed(0)}
+												</span>
+											))}
+										</div>
+									</div>
+								)}
+
 								<div className="space-y-2">
 									<Label>
 										{textGet("backoffice.subscriptions.col.status")}

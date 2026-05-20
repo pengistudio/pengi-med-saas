@@ -45,6 +45,9 @@ var (
 	ErrBackofficeFeatureNotFound      AppError = NewAppError("E-BO-005", "Feature not found.")
 	ErrBackofficePlanNotFound         AppError = NewAppError("E-BO-006", "Plan not found.")
 	ErrBackofficeSubscriptionNotFound AppError = NewAppError("E-BO-007", "Subscription not found.")
+	ErrBackofficePaymentCreateFailed  AppError = NewAppError("E-BO-008", "Payment creation failed.")
+	ErrBackofficePaymentNotFound      AppError = NewAppError("E-BO-009", "Payment not found.")
+	ErrBackofficeWebhookInvalidSig    AppError = NewAppError("E-BO-010", "Invalid webhook signature.")
 	ErrPlanLimitUsers                 AppError = NewAppError("E-PLAN-001", "User limit reached for this plan.")
 	ErrPlanLimitPatients              AppError = NewAppError("E-PLAN-002", "Patient limit reached for this plan.")
 
@@ -57,6 +60,10 @@ var (
 
 	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")
+	ErrAuthEmailTaken                AppError = NewAppError("E-AUTH-009", "Email already in use.")
+	ErrAuthUsernameTaken             AppError = NewAppError("E-AUTH-010", "Username already in use.")
+	ErrAuthEmailNotVerified          AppError = NewAppError("E-AUTH-011", "Email not verified.")
+	ErrAuthInvalidVerificationToken  AppError = NewAppError("E-AUTH-012", "Invalid or expired verification token.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

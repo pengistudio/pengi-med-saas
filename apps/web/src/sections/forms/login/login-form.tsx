@@ -5,6 +5,7 @@ import { userLogin } from "@/api/auth-service";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormPasswordInput } from "@/components/forms/form-input-password";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -33,6 +34,7 @@ const formSchema = z.object({
 const LoginForm = () => {
 	const { textGet } = useText();
 	const [load, setLoad] = React.useState(false);
+	const [emailNotVerified, setEmailNotVerified] = React.useState(false);
 	const { setToken } = useTokenStore();
 	const navigate = useNavigate();
 
@@ -58,6 +60,16 @@ const LoginForm = () => {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
+							{emailNotVerified && (
+								<Alert variant="destructive">
+									<AlertTitle>
+										<Text uuid="login.email_not_verified.title" />
+									</AlertTitle>
+									<AlertDescription>
+										<Text uuid="login.email_not_verified.description" />
+									</AlertDescription>
+								</Alert>
+							)}
 							<FormInput
 								field={field}
 								name="user_name"
@@ -78,6 +90,14 @@ const LoginForm = () => {
 								{load && <Spinner />}
 								<Text uuid="login.login_button" />
 							</Button>
+							<Button
+								variant="outline"
+								className="w-full"
+								type="button"
+								onClick={() => navigate("/register")}
+							>
+								<Text uuid="session.register.button" />
+							</Button>
 						</CardFooter>
 					</Card>
 				);
@@ -87,9 +107,13 @@ const LoginForm = () => {
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoad(true);
+		setEmailNotVerified(false);
 		const response = await userLogin(values);
 		if (!response.success) {
 			setLoad(false);
+			if (response.data?.error_code === "E-AUTH-011") {
+				setEmailNotVerified(true);
+			}
 			return;
 		}
 		setToken(response.data.token);

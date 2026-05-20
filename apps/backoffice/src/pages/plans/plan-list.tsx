@@ -82,7 +82,10 @@ const PlanList = () => {
 											{textGet("backoffice.plans.col.code")}
 										</TableHead>
 										<TableHead>
-											{textGet("backoffice.plans.col.price")}
+											{textGet("backoffice.plans.col.tier")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.plans.pricings.title")}
 										</TableHead>
 										<TableHead>
 											{textGet("backoffice.plans.col.features")}
@@ -99,7 +102,31 @@ const PlanList = () => {
 											<TableCell className="font-mono text-sm">
 												{p.code}
 											</TableCell>
-											<TableCell>${p.price.toFixed(2)}</TableCell>
+											<TableCell>
+												<span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted text-xs font-bold">
+													{p.tier ?? 1}
+												</span>
+											</TableCell>
+											<TableCell>
+												{p.pricings && p.pricings.length > 0 ? (
+													<div className="flex flex-wrap gap-1">
+														{[...p.pricings]
+															.sort((a, b) => a.months - b.months)
+															.map((pr) => (
+																<span
+																	key={pr.months}
+																	className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-mono"
+																>
+																	{pr.months}m · ${pr.price.toFixed(0)}
+																</span>
+															))}
+													</div>
+												) : (
+													<span className="text-sm text-muted-foreground">
+														${p.price.toFixed(2)}/mes
+													</span>
+												)}
+											</TableCell>
 											<TableCell>
 												<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
 													{p.Features?.length ?? 0}

@@ -56,6 +56,43 @@
 	}
 }
 
+@layer base {
+	.prose-content {
+		color: oklch(0.35 0.01 260);
+		line-height: 1.75;
+		font-size: 1rem;
+	}
+
+	.prose-content h2 {
+		font-size: 1.2rem;
+		font-weight: 600;
+		color: oklch(0.18 0.01 260);
+		margin-bottom: 0.75rem;
+	}
+
+	.prose-content p {
+		margin-bottom: 0.75rem;
+	}
+
+	.prose-content ul {
+		list-style-type: disc;
+		padding-left: 1.5rem;
+		margin-top: 0.75rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.prose-content a {
+		color: oklch(59.929% 0.0998 185.282);
+		text-decoration: underline;
+	}
+
+	.prose-content a:hover {
+		color: oklch(48% 0.09 186);
+	}
+}
+
 @layer utilities {
 	.glass {
 		background: oklch(100% 0 0 / 65%);

@@ -1,6 +1,7 @@
 ---
 const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:5173";
 const loginUrl = `${appUrl}/login`;
+const registerUrl = `${appUrl}/register`;
 ---
 
 <nav
@@ -8,7 +9,7 @@ const loginUrl = `${appUrl}/login`;
     class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 pt-4"
 >
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="glass rounded-2xl px-5 py-3 flex items-center justify-between">
+        <div class="rounded-2xl px-5 py-3 flex items-center justify-between" style="background: oklch(100% 0 0 / 40%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid oklch(100% 0 0 / 35%); box-shadow: 0 4px 24px oklch(0% 0 0 / 5%), inset 0 1px 0 oklch(100% 0 0 / 60%);">
             <a href="/" class="flex items-center gap-2.5 group" id="logo-link">
                 <img
                     src="/gentoo.png"
@@ -32,7 +33,7 @@ const loginUrl = `${appUrl}/login`;
                     Iniciar sesión
                 </a>
                 <a
-                    href="#cta"
+                    href={registerUrl}
                     id="nav-cta"
                     class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 hover:-translate-y-0.5"
                     style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280)); box-shadow: 0 4px 16px oklch(59.929% 0.0998 185.282 / 30%);"
@@ -62,7 +63,7 @@ const loginUrl = `${appUrl}/login`;
                 <a href="#cta" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Contacto</a>
                 <div class="h-px bg-border/50 my-1"></div>
                 <a href={loginUrl} class="px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Iniciar sesión</a>
-                <a href="#cta" class="mt-1 flex justify-center items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-primary-foreground" style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));">Comenzar gratis</a>
+                <a href={registerUrl} class="mt-1 flex justify-center items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-primary-foreground" style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));">Comenzar gratis</a>
             </div>
         </div>
     </div>

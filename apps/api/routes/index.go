@@ -1,6 +1,10 @@
 package routes
 
 import (
+	"pengi-med-saas/core/envelope"
+	"pengi-med-saas/core/logger"
+	backoffice_handlers "pengi-med-saas/features/backoffice/handlers"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -17,4 +21,7 @@ func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	RegisterTenantRoutes(router, db)
 	RegisterIntegrationRoutes(router, db)
 	RegisterKanbanRoutes(router, db)
+
+	webhookHandler := backoffice_handlers.NewBackofficePaymentHandler(db, logger.Log)
+	router.POST("/webhooks/dlocal", envelope.Handle(webhookHandler.HandleDlocalWebhook))
 }

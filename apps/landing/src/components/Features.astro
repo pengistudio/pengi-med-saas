@@ -1,8 +1,15 @@
 ---
-// Main bento features (5) — clinical focus
+import UsersRound from '@lucide/astro/icons/users-round';
+import CalendarDays from '@lucide/astro/icons/calendar-days';
+import ScrollText from '@lucide/astro/icons/scroll-text';
+import ClipboardList from '@lucide/astro/icons/clipboard-list';
+import Building2 from '@lucide/astro/icons/building-2';
+import ReceiptText from '@lucide/astro/icons/receipt-text';
+import Zap from '@lucide/astro/icons/zap';
+
 const features = [
     {
-        icon: "patients",
+        icon: UsersRound,
         title: "Gestión de Pacientes",
         description: "El centro de Gentoo. Registro completo con historial médico, datos demográficos, clasificación por criticidad, evoluciones clínicas y sala de espera digital en tiempo real.",
         span: "col-span-2",
@@ -11,7 +18,7 @@ const features = [
         featured: true,
     },
     {
-        icon: "calendar",
+        icon: CalendarDays,
         title: "Agenda de Citas",
         description: "Calendario con visualización diaria y semanal. Gestiona estados y reprogramaciones en segundos.",
         span: "col-span-1",
@@ -19,7 +26,7 @@ const features = [
         accentBg: "oklch(85% 0.08 280 / 30%)",
     },
     {
-        icon: "records",
+        icon: ScrollText,
         title: "Expedientes Clínicos",
         description: "Expedientes digitales con diagnósticos ICD-11, evoluciones y adjuntos.",
         span: "col-span-1",
@@ -27,7 +34,7 @@ const features = [
         accentBg: "oklch(88% 0.07 160 / 30%)",
     },
     {
-        icon: "prescription",
+        icon: ClipboardList,
         title: "Recetas Médicas",
         description: "Genera recetas en PDF con tu membrete. Sube tu template y descárgalas desde cualquier dispositivo.",
         span: "col-span-1",
@@ -35,7 +42,7 @@ const features = [
         accentBg: "oklch(90% 0.08 55 / 30%)",
     },
     {
-        icon: "multi",
+        icon: Building2,
         title: "Multi-Consultorio y Roles",
         description: "Gestiona múltiples consultorios con usuarios, roles y permisos diferenciados desde una sola cuenta.",
         span: "col-span-1",
@@ -43,15 +50,6 @@ const features = [
         accentBg: "oklch(85% 0.08 280 / 30%)",
     },
 ];
-
-const iconPaths: Record<string, string> = {
-    patients: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-    calendar: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-    records: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-    prescription: "M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z",
-    billing: "M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z",
-    multi: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
-};
 ---
 
 <section id="features" class="py-24 lg:py-32">
@@ -91,9 +89,7 @@ const iconPaths: Record<string, string> = {
                     <div class="relative z-10">
                         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
                             style={`background: ${feature.accentBg}; border: 1px solid ${feature.accent}30;`}>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style={`color: ${feature.accent};`}>
-                                <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[feature.icon]}/>
-                            </svg>
+                            <feature.icon size={28} color={feature.accent} stroke-width={1.5} />
                         </div>
                         <h3 class="font-display text-xl font-bold text-text mb-2">{feature.title}</h3>
                         <p class="text-sm text-text-muted leading-relaxed">{feature.description}</p>
@@ -107,13 +103,15 @@ const iconPaths: Record<string, string> = {
             <div class="flex items-center gap-4 flex-1">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                     style="background: oklch(85% 0.06 260 / 40%); border: 1px solid oklch(70% 0.06 260 / 30%);">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color: oklch(55% 0.08 260);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths["billing"]}/>
-                    </svg>
+                    <ReceiptText size={20} color="oklch(55% 0.08 260)" stroke-width={1.5} />
                 </div>
-                <div>
+                <div class="flex flex-wrap items-center gap-2">
                     <span class="font-display font-semibold text-sm text-text">Facturación Electrónica SRI</span>
-                    <span class="text-sm text-text-muted ml-2">— Facturas válidas ante el SRI con firma digital y autorización automática.</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white" style="background: linear-gradient(135deg, oklch(70% 0.18 55), oklch(65% 0.20 30));">
+                        <Zap size={11} color="white" stroke-width={2.5} />
+                        Beta
+                    </span>
+                    <span class="text-sm text-text-muted">— Facturas válidas ante el SRI con firma digital y autorización automática.</span>
                 </div>
             </div>
             <span class="text-xs text-text-muted px-3 py-1 rounded-full shrink-0" style="background: oklch(92% 0.004 260 / 60%);">Plan Profesional y Empresarial</span>

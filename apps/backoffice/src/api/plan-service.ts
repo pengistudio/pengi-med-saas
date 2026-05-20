@@ -3,30 +3,41 @@ import { createHttpService, type ServiceResponse } from "./fetch";
 
 const httpService = createHttpService(api);
 
+export interface PricingOption {
+	months: number;
+	price: number;
+}
+
 export interface Plan {
 	ID: number;
 	createdAt: string;
 	updatedAt: string;
 	name: string;
 	code: string;
+	tier: number;
 	price: number;
 	Properties: Record<string, unknown>;
 	Features: { ID: number; code: string; name: string }[];
+	pricings: PricingOption[];
 }
 
 export interface CreatePlanRequest extends Record<string, unknown> {
 	name: string;
 	code: string;
+	tier: number;
 	price: number;
 	properties?: Record<string, unknown>;
 	feature_codes?: string[];
+	pricings?: PricingOption[];
 }
 
 export interface UpdatePlanRequest extends Record<string, unknown> {
 	name?: string;
+	tier?: number;
 	price?: number;
 	properties?: Record<string, unknown>;
 	feature_codes?: string[];
+	pricings?: PricingOption[];
 }
 
 export const getPlans = (): Promise<ServiceResponse<Plan[]>> =>

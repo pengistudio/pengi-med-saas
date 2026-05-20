@@ -545,8 +545,14 @@ export interface UpcomingAppointment {
 export interface SubscriptionInfo {
 	plan_name: string;
 	plan_code: string;
+	status: string;
 	expires_at: string;
 	days_left: number;
+	amount: number;
+	last_payment_amount: number;
+	last_payment_months: number;
+	last_payment_date: string | null;
+	enabled_features: Record<string, boolean>;
 }
 
 export interface DashboardStats {
@@ -565,7 +571,7 @@ export interface DashboardStats {
 export const getDashboardStats = async (): Promise<
 	ServiceResponse<DashboardStats>
 > => {
-	return clinicalService.get<DashboardStats>("/clinical/dashboard/stats", {
+	return clinicalService.get<DashboardStats>("/companies/dashboard/stats", {
 		notifyError: true,
 	});
 };

@@ -56,6 +56,14 @@ const ResetPasswordPage = lazy(
 const SettingsPage = lazy(() => import("@/pages/settings/settings-page"));
 const Signup = lazy(() => import("@/pages/signup/signup-page"));
 const TeamPage = lazy(() => import("@/pages/team/team-page"));
+const MySubscriptionPage = lazy(
+	() => import("@/pages/subscription/my-subscription-page"),
+);
+const PrivacyPage = lazy(() => import("@/pages/privacy/privacy-page"));
+const RegisterPage = lazy(() => import("@/pages/register/register-page"));
+const VerifyEmailPage = lazy(
+	() => import("@/pages/verify-email/verify-email-page"),
+);
 
 const clinicalRoutes: RouteObject = {
 	path: "/clinical",
@@ -223,6 +231,14 @@ const router = createBrowserRouter([
 		element: <Signup />,
 	},
 	{
+		path: "/register",
+		element: <RegisterPage />,
+	},
+	{
+		path: "/verify-email",
+		element: <VerifyEmailPage />,
+	},
+	{
 		path: "/reset-password",
 		element: <ResetPasswordPage />,
 	},
@@ -259,6 +275,14 @@ const router = createBrowserRouter([
 						<KanbanPage />
 					</CheckPermission>
 				),
+			},
+			{
+				path: "/subscription",
+				element: <MySubscriptionPage />,
+			},
+			{
+				path: "/privacy",
+				element: <PrivacyPage />,
 			},
 			...routes,
 		],

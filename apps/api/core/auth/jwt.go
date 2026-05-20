@@ -199,6 +199,37 @@ func ParsePasswordResetToken(tokenStr string) (uint, error) {
 	return uint(userIDFloat), nil
 }
 
+// GenerateEmailVerificationToken creates a JWT for email verification. Expires in 24h.
+func GenerateEmailVerificationToken(userID uint) (string, error) {
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"type":    "email_verification",
+		"user_id": userID,
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+	})
+	return token.SignedString([]byte(secretKey))
+}
+
+// ParseEmailVerificationToken validates the token and returns the user_id.
+func ParseEmailVerificationToken(tokenStr string) (uint, error) {
+	claims, err := ParseToken(tokenStr)
+	if err != nil {
+		return 0, err
+	}
+
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "email_verification" {
+		return 0, errors.New("invalid token type, expected email_verification")
+	}
+
+	userIDFloat, ok := claims["user_id"].(float64)
+	if !ok {
+		return 0, errors.New("invalid user_id in token")
+	}
+
+	return uint(userIDFloat), nil
+}
+
 // GenerateCompanySignupToken creates a JWT that encodes a company_id and an
 // optional role_id. It expires in 72 hours and is used to let new users
 // self-register under a specific company with a pre-assigned role.
