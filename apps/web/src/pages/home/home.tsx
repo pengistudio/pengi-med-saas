@@ -132,7 +132,9 @@ function SubscriptionCard({
 }) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const isActive = subscription.status === "active";
+	const effectiveStatus =
+		subscription.days_left <= 0 ? "expired" : subscription.status;
+	const isActive = effectiveStatus === "active";
 	const isExpiringSoon = subscription.days_left <= 30;
 	const isUrgent = subscription.days_left <= 7;
 
@@ -156,7 +158,9 @@ function SubscriptionCard({
 
 	// Build subtitle: prefer last payment info, fall back to plan.Price
 	const hasLastPayment = subscription.last_payment_amount > 0;
-	const subtitleParts: string[] = [textGet("dashboard.subscription.title")];
+	const subtitleParts: string[] = [
+		textGet(`subscription.status.${effectiveStatus}`),
+	];
 	if (hasLastPayment) {
 		const months = subscription.last_payment_months || 1;
 		subtitleParts.push(
@@ -175,7 +179,7 @@ function SubscriptionCard({
 						{subscription.plan_name}
 					</p>
 					<span className="shrink-0 rounded-full bg-white/20 px-3 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
-						{textGet(`subscription.status.${subscription.status}`)}
+						{textGet(`subscription.status.${effectiveStatus}`)}
 					</span>
 				</div>
 				<p className="mt-1 text-sm text-white/80">{subtitleParts.join("")}</p>

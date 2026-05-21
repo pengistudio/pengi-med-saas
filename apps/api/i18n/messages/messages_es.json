@@ -172,6 +172,18 @@
         "value": "Tu sesión ha expirado, por favor inicia sesión de nuevo."
     },
     {
+        "key": "subscription.grace.banner",
+        "value": "Tu suscripción ha vencido. Período de gracia:"
+    },
+    {
+        "key": "subscription.grace.days_remaining",
+        "value": "días restantes."
+    },
+    {
+        "key": "subscription.grace.cta",
+        "value": "Renovar ahora"
+    },
+    {
         "key": "subscription.expired.title",
         "value": "Suscripción inactiva"
     },

@@ -544,7 +544,9 @@ const MySubscriptionPage = () => {
 											daysColor(sub.days_left),
 										)}
 									>
-										{sub.days_left} {textGet("subscription.card.days_left")}
+										{sub.days_left <= 0
+											? textGet("subscription.status.expired")
+											: `${sub.days_left} ${textGet("subscription.card.days_left")}`}
 									</p>
 									{sub.last_payment_amount > 0 && (
 										<p className="text-xs text-muted-foreground mt-0.5">

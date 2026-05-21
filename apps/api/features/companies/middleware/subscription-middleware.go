@@ -38,10 +38,12 @@ func SubscriptionMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// 2. Find active, non-expired subscription
+		// 2. Find active subscription within grace period (3 days after expiry)
+		const gracePeriodDays = 3
+		graceDeadline := time.Now().Add(-gracePeriodDays * 24 * time.Hour)
 		var subscription company_models.Subscription
 		err := db.
-			Where("company_id = ? AND status = ? AND expires_at > ?", company.ID, "active", time.Now()).
+			Where("company_id = ? AND status = ? AND expires_at > ?", company.ID, "active", graceDeadline).
 			Preload("Plan.Features.Permissions").
 			First(&subscription).Error
 

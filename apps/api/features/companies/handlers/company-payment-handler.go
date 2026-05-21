@@ -477,9 +477,6 @@ func (h *CompanyPaymentHandler) GetMySubscription(c *gin.Context) envelope.Respo
 	}
 
 	daysLeft := int(time.Until(sub.ExpiresAt).Hours() / 24)
-	if daysLeft < 0 {
-		daysLeft = 0
-	}
 
 	lastPaymentAmount := sub.Plan.Price
 	lastPaymentMonths := 1

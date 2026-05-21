@@ -20,6 +20,8 @@ type SessionState = {
 	};
 	subscriptionExpired: boolean;
 	setSubscriptionExpired: (value: boolean) => void;
+	subscriptionGraceDaysLeft: number;
+	setSubscriptionGraceDaysLeft: (value: number) => void;
 	clean: () => void;
 	setEnvironment: (env: EnvironmentWithCompany) => void;
 };
@@ -31,7 +33,15 @@ export const useSessionStore = create<SessionState>()(
 			subscriptionExpired: false,
 			setSubscriptionExpired: (value: boolean) =>
 				set({ subscriptionExpired: value }),
-			clean: () => set({ environment: undefined, subscriptionExpired: false }),
+			subscriptionGraceDaysLeft: 0,
+			setSubscriptionGraceDaysLeft: (value: number) =>
+				set({ subscriptionGraceDaysLeft: value }),
+			clean: () =>
+				set({
+					environment: undefined,
+					subscriptionExpired: false,
+					subscriptionGraceDaysLeft: 0,
+				}),
 			setEnvironment: (env: EnvironmentWithCompany) =>
 				set({
 					environment: {
@@ -66,5 +76,9 @@ export const selectEnabledFeatures = (s: SessionState) =>
 	s.environment?.enabled_features;
 export const selectSetSubscriptionExpired = (s: SessionState) =>
 	s.setSubscriptionExpired;
+export const selectSubscriptionGraceDaysLeft = (s: SessionState) =>
+	s.subscriptionGraceDaysLeft;
+export const selectSetSubscriptionGraceDaysLeft = (s: SessionState) =>
+	s.setSubscriptionGraceDaysLeft;
 export const selectCleanSession = (s: SessionState) => s.clean;
 export const selectSetEnvironment = (s: SessionState) => s.setEnvironment;

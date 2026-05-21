@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { memo, useCallback, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { initiatePayment } from "@/api/subscription-service";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
@@ -38,6 +39,7 @@ import { cn } from "@/lib/utils";
 import {
 	selectEnvironment,
 	selectSubscriptionExpired,
+	selectSubscriptionGraceDaysLeft,
 	useSessionStore,
 } from "@/store/session-store";
 import { useSidebarStore } from "@/store/sidebar-store";
@@ -65,8 +67,12 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	}, []);
 	const { checkPermission } = usePermission();
 
+	const { pathname } = useLocation();
+	const isSubscriptionPage = pathname === "/subscription";
+
 	const environment = useSessionStore(selectEnvironment);
 	const subscriptionExpired = useSessionStore(selectSubscriptionExpired);
+	const graceDaysLeft = useSessionStore(selectSubscriptionGraceDaysLeft);
 
 	const handleAvatarFallbackText = useCallback(() => {
 		return environment?.name
@@ -265,9 +271,33 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 					</div>
 				</header>
 
+				{/* Grace period warning banner */}
+				{graceDaysLeft < 0 && !isSubscriptionPage && (
+					<div className="flex items-center justify-between gap-3 bg-amber-500/10 border-b border-amber-500/30 px-4 py-2.5 shrink-0">
+						<div className="flex items-center gap-2">
+							<AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+							<p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+								{textGet("subscription.grace.banner")}{" "}
+								<span className="font-bold">
+									{3 + graceDaysLeft}{" "}
+									{textGet("subscription.grace.days_remaining")}
+								</span>
+							</p>
+						</div>
+						<Button
+							size="sm"
+							variant="outline"
+							className="border-amber-500/50 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400 shrink-0"
+							onClick={() => (window.location.href = "/subscription")}
+						>
+							{textGet("subscription.grace.cta")}
+						</Button>
+					</div>
+				)}
+
 				{/* Page Content */}
 				<main className="flex-1 overflow-auto p-4 md:p-6 relative">
-					{subscriptionExpired ? (
+					{subscriptionExpired && !isSubscriptionPage && graceDaysLeft === 0 ? (
 						<div className="flex items-center justify-center h-full">
 							<Card className="max-w-md w-full border-destructive/50">
 								<CardHeader className="text-center">

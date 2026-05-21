@@ -1,11 +1,16 @@
 import { type JwtPayload, jwtDecode } from "jwt-decode";
 import React from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { refreshToken } from "@/api/auth-service";
+import { getMySubscription } from "@/api/subscription-service";
 import useAuth from "@/hooks/use-auth";
 import { useText } from "@/hooks/use-text";
 import useToast from "@/hooks/use-toast";
 import { ONE_SECOND } from "@/lib/constants";
+import {
+	selectSetSubscriptionGraceDaysLeft,
+	useSessionStore,
+} from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
 
 type Props = {
@@ -21,6 +26,8 @@ const CheckAuth = (props: Props) => {
 	const { setToken } = useTokenStore();
 	const { infoToast } = useToast();
 	const navigate = useNavigate();
+	const { pathname } = useLocation();
+	const setGraceDaysLeft = useSessionStore(selectSetSubscriptionGraceDaysLeft);
 
 	const decoded = React.useMemo(() => {
 		return token ? jwtDecode<JwtPayload>(token) : undefined;
@@ -70,6 +77,25 @@ const CheckAuth = (props: Props) => {
 			navigate("/login");
 		}
 	}, [navigate, token]);
+
+	const GRACE_PERIOD_DAYS = 3;
+
+	// Check subscription grace period on load
+	React.useEffect(() => {
+		if (!token) return;
+		getMySubscription().then((res) => {
+			if (!res.success) return;
+			const { days_left } = res.data;
+			if (days_left < -GRACE_PERIOD_DAYS && pathname !== "/subscription") {
+				navigate("/subscription");
+				return;
+			}
+			// Only store grace days when within the grace window (-3 to 0)
+			setGraceDaysLeft(
+				days_left < 0 && days_left >= -GRACE_PERIOD_DAYS ? days_left : 0,
+			);
+		});
+	}, [token, navigate, pathname, setGraceDaysLeft]);
 
 	return <>{children}</>;
 };
