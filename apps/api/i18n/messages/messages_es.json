@@ -4388,6 +4388,14 @@
         "value": "Si tenés preguntas sobre el manejo de tus datos, podés contactarnos en soporte@pengimed.com."
     },
     {
+        "key": "privacy.section.legal.title",
+        "value": "Responsable del Sitio"
+    },
+    {
+        "key": "privacy.section.legal.desc",
+        "value": "Este sitio web es administrado por Walter Santacruz, identificado con cédula N.° 0951253269. Para consultas legales o relacionadas con pagos, puede contactarnos a pengiservicios@gmail.com."
+    },
+    {
         "key": "backoffice.payment.request.invalid",
         "value": "Solicitud inválida"
     },

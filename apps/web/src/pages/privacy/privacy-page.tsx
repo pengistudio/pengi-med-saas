@@ -1,4 +1,4 @@
-import { CreditCard, Database, Lock, Mail, Shield } from "lucide-react";
+import { CreditCard, Database, Lock, Mail, Shield, User } from "lucide-react";
 import { Link } from "react-router";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
@@ -28,6 +28,11 @@ const SECTIONS = [
 		icon: Mail,
 		titleKey: "privacy.section.contact.title",
 		descKey: "privacy.section.contact.desc",
+	},
+	{
+		icon: User,
+		titleKey: "privacy.section.legal.title",
+		descKey: "privacy.section.legal.desc",
 	},
 ] as const;
 

@@ -4388,6 +4388,14 @@
         "value": "If you have questions about how your data is handled, you can contact us at soporte@pengimed.com."
     },
     {
+        "key": "privacy.section.legal.title",
+        "value": "Site Administrator"
+    },
+    {
+        "key": "privacy.section.legal.desc",
+        "value": "This website is administered by Walter Santacruz, identified with ID N.° 0951253269. For legal or payment-related inquiries, contact us at pengiservicios@gmail.com."
+    },
+    {
         "key": "backoffice.payment.request.invalid",
         "value": "Invalid request"
     },
