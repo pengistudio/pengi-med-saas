@@ -4,8 +4,10 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
@@ -86,6 +88,22 @@ func (h *ContactHandler) isRateLimited(ip string) bool {
 	return false
 }
 
+// isBotName detects random-string names: long, no spaces, all alphanumeric.
+func isBotName(name string) bool {
+	if strings.ContainsAny(name, " \t") {
+		return false
+	}
+	if len(name) < 15 {
+		return false
+	}
+	for _, r := range name {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return true
+}
+
 func (h *ContactHandler) SendContact(c *gin.Context) envelope.Response {
 	if h.isRateLimited(c.ClientIP()) {
 		return envelope.ErrorResponse(http.StatusTooManyRequests, "contact.rate_limit", core_errors.ErrRateLimitExceeded)
@@ -94,6 +112,18 @@ func (h *ContactHandler) SendContact(c *gin.Context) envelope.Response {
 	var dto contact_dto.ContactDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
+	}
+
+	// Honeypot: bots fill hidden fields, humans don't.
+	if dto.Website != "" {
+		h.logger.Info("honeypot triggered", zap.String("ip", c.ClientIP()))
+		return envelope.SuccessResponse(nil, "contact.send.success")
+	}
+
+	// Reject bot-generated names silently.
+	if isBotName(dto.Name) {
+		h.logger.Info("bot name rejected", zap.String("ip", c.ClientIP()), zap.String("name", dto.Name))
+		return envelope.SuccessResponse(nil, "contact.send.success")
 	}
 
 	recipient := os.Getenv("CONTACT_EMAIL")
