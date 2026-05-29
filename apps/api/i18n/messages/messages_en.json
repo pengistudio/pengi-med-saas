@@ -4454,5 +4454,21 @@
     {
         "key": "contact.send_error",
         "value": "Could not send the message. Please try again later."
+    },
+    {
+        "key": "error.invalid_request",
+        "value": "Invalid request."
+    },
+    {
+        "key": "error.internal",
+        "value": "Internal server error."
+    },
+    {
+        "key": "error.unauthorized",
+        "value": "Unauthorized."
+    },
+    {
+        "key": "error.not_found",
+        "value": "Resource not found."
     }
 ]

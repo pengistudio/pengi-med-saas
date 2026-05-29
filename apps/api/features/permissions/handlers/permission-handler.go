@@ -27,7 +27,7 @@ func (h *PermissionHandler) GetAllPermissions(c *gin.Context) envelope.Response 
 	var permissions []permission_models.Permission
 	if err := h.db.Find(&permissions).Error; err != nil {
 		h.logger.Error("Failed to fetch permissions", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrPermissionGetError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrPermissionGetError)
 	}
 	return envelope.SuccessResponse(permissions, "permission.list.success")
 }
@@ -41,7 +41,7 @@ func (h *PermissionHandler) GetAllPermissionWithCategory(c *gin.Context) envelop
 	var permissions []permission_models.Permission
 	if err := h.db.Find(&permissions).Error; err != nil {
 		h.logger.Error("Failed to fetch permissions for categories", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrPermissionGetError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrPermissionGetError)
 	}
 
 	categoryMap := make(map[string][]permission_models.Permission)

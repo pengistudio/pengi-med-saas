@@ -353,7 +353,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 	// 3. Generate PDF
 	pdfBytes, err := generatePrescriptionPDF(h.db, c, &record, &patient)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "Error generating PDF: "+err.Error(), core_errors.ErrClinicalReportGenerateError))
+		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalReportGenerateError))
 		return
 	}
 

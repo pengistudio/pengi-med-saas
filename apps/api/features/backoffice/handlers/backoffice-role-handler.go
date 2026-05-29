@@ -52,7 +52,7 @@ func (h *BackofficeRoleHandler) GetRoleByID(c *gin.Context) envelope.Response {
 func (h *BackofficeRoleHandler) CreateRole(c *gin.Context) envelope.Response {
 	var req createRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	role := user_models.Role{
@@ -71,7 +71,7 @@ func (h *BackofficeRoleHandler) UpdateRole(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var req updateRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	var role user_models.Role

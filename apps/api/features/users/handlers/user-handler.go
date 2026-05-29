@@ -55,11 +55,11 @@ func (h *UserHandler) SignUp(c *gin.Context) envelope.Response {
 	var user user_models.User
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid signup request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 	if err := user.Save(h.db); err != nil {
 		h.logger.Error("Failed to create user", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthUserCreateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthUserCreateError)
 	}
 	return envelope.SuccessResponse(user, "user.create.success")
 }
@@ -69,7 +69,7 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	var user user_dto.LoginDTO
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid login request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	// 1) Buscar usuario
@@ -95,23 +95,23 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	// 3) Generar tokens
 	token, err := auth.GenerateToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	refreshToken, err := auth.GenerateRefreshToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate refresh token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	// 4) Guardar refresh token (chequear error)
 	if err := foundUser.UpdateRefreshToken(h.db, refreshToken); err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	exchangeToken, err := auth.GenerateExchangeToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	// 5) Setear cookie y responder 200 una sola vez
@@ -128,16 +128,16 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 func (h *UserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRefreshToken)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
 	}
 	userID, username, err := auth.ValidateRefreshToken(refreshToken)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRefreshToken)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
 	}
 	token, err := auth.GenerateToken(username, int64(userID))
 	if err != nil {
 		h.logger.Error("Failed to generate token during refresh", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 	h.logger.Info("Token refreshed successfully", zap.String("username", username))
 	return envelope.SuccessResponse(gin.H{"token": token, "user_id": userID}, "auth.token.refresh.success")
@@ -149,12 +149,12 @@ func (h *UserHandler) ExtendSession(c *gin.Context) envelope.Response {
 	// Assuming logic matches user snippet: finding user by ID
 	if err := h.db.Model(&user_models.User{}).First(&user, userId).Error; err != nil {
 		h.logger.Error("Failed to find user for session extension", zap.Int64("userId", userId), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthUserInvalidID)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthUserInvalidID)
 	}
 	token, err := auth.GenerateToken(user.UserName, int64(user.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate token for session extension", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	h.logger.Info("Session extended successfully", zap.String("username", user.UserName))
@@ -167,7 +167,7 @@ func (h *UserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {
 	if err != nil {
 		// ExtractAndValidateBearerToken returns error which we map
 		h.logger.Warn("Bearer token validation failed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrInvalidRequest)
 	}
 
 	// Extraer información del token
@@ -227,7 +227,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	var req user_dto.CompanySignupDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Error("Invalid company signup request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	// 1) Validate the signup token
@@ -301,7 +301,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 
 	if txErr != nil {
 		h.logger.Error("Failed to create user with company token", zap.Error(txErr))
-		return envelope.ErrorResponse(http.StatusInternalServerError, txErr.Error(), core_errors.ErrAuthUserCreateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthUserCreateError)
 	}
 
 	h.logger.Info("User registered via company signup token",
@@ -334,7 +334,7 @@ func generateSlug(name string) string {
 func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 	var req user_dto.SelfRegisterDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRequest)
 	}
 
 	// Check uniqueness before transaction
@@ -451,7 +451,7 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 
 	if txErr != nil {
 		h.logger.Error("Registration transaction failed", zap.Error(txErr))
-		return envelope.ErrorResponse(http.StatusInternalServerError, txErr.Error(), core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// Send verification email (non-blocking)
@@ -515,7 +515,7 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 		NewPassword string `json:"new_password" binding:"required,min=6"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRequest)
 	}
 
 	userID, err := auth.ParsePasswordResetToken(req.Token)

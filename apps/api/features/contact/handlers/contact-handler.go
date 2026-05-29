@@ -111,7 +111,7 @@ func (h *ContactHandler) SendContact(c *gin.Context) envelope.Response {
 
 	var dto contact_dto.ContactDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	// Honeypot: bots fill hidden fields, humans don't.

@@ -40,7 +40,7 @@ func (h *GoogleIntegrationHandler) GetAuthURL(c *gin.Context) envelope.Response 
 		Slug string
 	}
 	if err := h.db.Table("tenants").Where("id = ? AND deleted_at IS NULL", tenantID).Select("slug").First(&tenant).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	authURL := h.googleSvc.GetAuthURL(google_calendar.EncodeState(tenant.Slug))
@@ -148,7 +148,7 @@ func (h *GoogleIntegrationHandler) Disconnect(c *gin.Context) envelope.Response 
 		"google_connected":     false,
 	}).Error; err != nil {
 		h.logger.Error("Failed to disconnect Google integration", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Google Calendar disconnected", zap.Uint("tenant_id", tenantID.(uint)))

@@ -48,13 +48,13 @@ func (h *MedicalRecordHandler) GetMedicalRecords(c *gin.Context) envelope.Respon
 	var total int64
 	if err := baseQuery.Count(&total).Error; err != nil {
 		h.logger.Error("Failed to count medical records", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
 
 	var records []clinical_models.MedicalRecord
 	if err := baseQuery.Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").Order("created_at desc").Limit(limit).Offset(offset).Find(&records).Error; err != nil {
 		h.logger.Error("Failed to fetch medical records", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
 
 	return envelope.PagedSuccessResponse(records, int(total), page, limit, "clinical.medical_record.list.success")
@@ -71,7 +71,7 @@ func (h *MedicalRecordHandler) GetMedicalRecord(c *gin.Context) envelope.Respons
 	var record clinical_models.MedicalRecord
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").Preload("Prescription.Items").Preload("VitalSigns").Preload("Patient").First(&record, id).Error; err != nil {
 		h.logger.Error("Failed to fetch medical record", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
 
 	return envelope.SuccessResponse(record, "clinical.medical_record.found")
@@ -81,7 +81,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	var newRecord clinical_dto.CreateMedicalRecordDTO
 	if err := c.ShouldBind(&newRecord); err != nil {
 		h.logger.Error("Invalid create medical record request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	nextAppointmentDate := (*time.Time)(nil)
@@ -113,7 +113,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(record).Error; err != nil {
 		h.logger.Error("Failed to create medical record", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordCreateError)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordCreateError)
 	}
 
 	// Create vital signs if provided
@@ -142,13 +142,13 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	var medicalRecord clinical_models.MedicalRecord
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").First(&medicalRecord, id).Error; err != nil {
 		h.logger.Error("Failed to fetch medical record", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
 
 	var updatedRecord clinical_dto.UpdateMedicalRecordDTO
 	if err := c.ShouldBind(&updatedRecord); err != nil {
 		h.logger.Error("Invalid update medical record request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// Build update map only with provided fields for MedicalRecord
@@ -178,7 +178,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	if len(record) > 0 {
 		if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&medicalRecord).Updates(record).Error; err != nil {
 			h.logger.Error("Failed to update medical record fields", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+			return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
 		}
 	}
 
@@ -189,12 +189,12 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 			newSOAP := *updatedRecord.SOAPRecord
 			if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(&newSOAP).Error; err != nil {
 				h.logger.Error("Failed to create SOAP record during update", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+				return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
 			}
 			medicalRecord.SOAPRecordID = newSOAP.ID
 			if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Save(&medicalRecord).Error; err != nil {
 				h.logger.Error("Failed to link new SOAP record to medical record", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+				return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
 			}
 		} else {
 			// Update existing SOAP record
@@ -215,7 +215,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 			if len(soapUpdates) > 0 {
 				if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&clinical_models.SOAPRecord{}).Where("id = ?", medicalRecord.SOAPRecordID).Updates(soapUpdates).Error; err != nil {
 					h.logger.Error("Failed to update SOAP record", zap.Error(err))
-					return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+					return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
 				}
 			}
 		}
@@ -228,12 +228,12 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 			newPrescription := *updatedRecord.Prescription
 			if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(&newPrescription).Error; err != nil {
 				h.logger.Error("Failed to create prescription during update", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+				return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
 			}
 			medicalRecord.PrescriptionID = &newPrescription.ID
 			if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Save(&medicalRecord).Error; err != nil {
 				h.logger.Error("Failed to link new prescription to medical record", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+				return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
 			}
 		} else {
 			// Update existing prescription
@@ -248,7 +248,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 			if len(prescriptionUpdates) > 0 {
 				if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&clinical_models.Prescription{}).Where("id = ?", *medicalRecord.PrescriptionID).Updates(prescriptionUpdates).Error; err != nil {
 					h.logger.Error("Failed to update prescription", zap.Error(err))
-					return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+					return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
 				}
 			}
 		}
@@ -257,7 +257,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	// Reload the medical record with updated SOAP and Prescription data
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").First(&medicalRecord, id).Error; err != nil {
 		h.logger.Error("Failed to fetch updated medical record", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
 
 	h.logger.Info("Medical record updated successfully", zap.Uint("id", medicalRecord.ID))
@@ -282,7 +282,7 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 	var medicalRecord clinical_models.MedicalRecord
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("Prescription").First(&medicalRecord, id).Error; err != nil {
 		h.logger.Error("Medical record not found", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
 
 	// Update or create prescription
@@ -294,13 +294,13 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 		}
 		if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(&newPrescription).Error; err != nil {
 			h.logger.Error("Failed to create prescription", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordUpdateError)
 		}
 		// Link prescription to medical record
 		medicalRecord.PrescriptionID = &newPrescription.ID
 		if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Save(&medicalRecord).Error; err != nil {
 			h.logger.Error("Failed to link new prescription", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordUpdateError)
 		}
 	} else {
 		// Update existing prescription
@@ -309,14 +309,14 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 			"indications": prescriptionData.Indications,
 		}).Error; err != nil {
 			h.logger.Error("Failed to update prescription", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordUpdateError)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordUpdateError)
 		}
 	}
 
 	// Reload medical record with updated prescription
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("SOAPRecord").Preload("Prescription").First(&medicalRecord, id).Error; err != nil {
 		h.logger.Error("Failed to fetch updated medical record after prescription update", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
 
 	h.logger.Info("Prescription updated successfully", zap.Uint("record_id", medicalRecord.ID))

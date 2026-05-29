@@ -110,11 +110,11 @@ func (h *BackofficeUserHandler) SignUp(c *gin.Context) envelope.Response {
 	var user backoffice_models.BackofficeUser
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid signup request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 	if err := user.Save(h.db); err != nil {
 		h.logger.Error("Failed to create backoffice user", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthUserCreateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthUserCreateError)
 	}
 	return envelope.SuccessResponse(user, "backoffice_user.create.success")
 }
@@ -123,40 +123,40 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 	var user backoffice_dto.LoginDTO
 	if err := c.ShouldBind(&user); err != nil {
 		h.logger.Error("Invalid login request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	var foundUser backoffice_models.BackofficeUser
 	if err := h.db.Omit("password").Where("user_name = ?", user.UserName).First(&foundUser).Error; err != nil {
 		h.logger.Error("Failed to find backoffice user", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidCredentials)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidCredentials)
 	}
 
 	foundUser.Password = user.Password
 
 	if err := foundUser.ValidateCredentials(h.db); err != nil {
 		h.logger.Warn("Failed login attempt", zap.String("username", user.UserName), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrAuthInvalidCredentials)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidCredentials)
 	}
 
 	token, err := auth.GenerateToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	refreshToken, err := auth.GenerateRefreshToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate refresh token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	if err := foundUser.UpdateRefreshToken(h.db, refreshToken); err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	exchangeToken, err := auth.GenerateExchangeToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	auth.SetRefreshTokenCookie(refreshToken, c)
@@ -172,16 +172,16 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRefreshToken)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
 	}
 	userID, username, err := auth.ValidateRefreshToken(refreshToken)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthInvalidRefreshToken)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
 	}
 	token, err := auth.GenerateToken(username, int64(userID))
 	if err != nil {
 		h.logger.Error("Failed to generate token during refresh", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 	h.logger.Info("Token refreshed successfully", zap.String("username", username))
 	return envelope.SuccessResponse(gin.H{"token": token, "user_id": userID}, "auth.token.refresh.success")
@@ -192,12 +192,12 @@ func (h *BackofficeUserHandler) ExtendSession(c *gin.Context) envelope.Response 
 	var user backoffice_models.BackofficeUser
 	if err := h.db.Model(&backoffice_models.BackofficeUser{}).First(&user, userId).Error; err != nil {
 		h.logger.Error("Failed to find backoffice user for session extension", zap.Int64("userId", userId), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrAuthUserInvalidID)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthUserInvalidID)
 	}
 	token, err := auth.GenerateToken(user.UserName, int64(user.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate token for session extension", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	h.logger.Info("Session extended successfully", zap.String("username", user.UserName))
@@ -208,7 +208,7 @@ func (h *BackofficeUserHandler) ValidateBearerToken(c *gin.Context) envelope.Res
 	claims, token, err := ExtractAndValidateBearerToken(c)
 	if err != nil {
 		h.logger.Warn("Bearer token validation failed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, err.Error(), core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	userID, ok := claims["userId"].(float64)

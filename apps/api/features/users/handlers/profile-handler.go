@@ -90,7 +90,7 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) envelope.Response {
 
 	var payload UpdateProfileDTO
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	envIDParam := c.Query("environment_id")
@@ -103,7 +103,7 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) envelope.Response {
 	if payload.Email != nil {
 		if err := h.db.Model(&user_models.User{}).Where("id = ?", userID).Update("email", *payload.Email).Error; err != nil {
 			h.logger.Error("Profile: failed to update email", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrInvalidRequest)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInvalidRequest)
 		}
 	}
 
@@ -111,7 +111,7 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) envelope.Response {
 	if payload.EnvName != nil {
 		if err := h.db.Model(&user_models.Environment{}).Where("id = ? AND user_id = ?", envID, userID).Update("name", *payload.EnvName).Error; err != nil {
 			h.logger.Error("Profile: failed to update environment name", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrInvalidRequest)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInvalidRequest)
 		}
 	}
 

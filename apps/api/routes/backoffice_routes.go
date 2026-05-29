@@ -1,12 +1,16 @@
 package routes
 
 import (
+	"time"
+
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
+	core_middleware "pengi-med-saas/core/middleware"
 	backoffice_handlers "pengi-med-saas/features/backoffice/handlers"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 )
 
@@ -35,7 +39,8 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeUserRoutes.DELETE("/:id", envelope.Handle(backofficeUserHandler.DeleteUser))
 	}
 
-	backofficeAuthRoutes := router.Group("/backoffice/auth")
+	authLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/15), 15)
+	backofficeAuthRoutes := router.Group("/backoffice/auth", authLimiter.Middleware())
 	{
 		backofficeAuthRoutes.POST("/signup", envelope.Handle(backofficeUserHandler.SignUp))
 		backofficeAuthRoutes.POST("/login", envelope.Handle(backofficeUserHandler.Login))

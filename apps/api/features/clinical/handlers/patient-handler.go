@@ -31,7 +31,7 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 	var newPatient clinical_dto.CreatePatientDTO
 	if err := c.ShouldBind(&newPatient); err != nil {
 		h.logger.Error("Invalid create patient request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	tenantID, _ := c.Get("tenant_id")
@@ -77,7 +77,7 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 
 	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(patient).Error; err != nil {
 		h.logger.Error("Failed to create patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientCreateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientCreateError)
 	}
 
 	h.logger.Info("Patient created successfully", zap.Uint("id", patient.ID))
@@ -95,13 +95,13 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	var updateData clinical_dto.UpdatePatientDTO
 	if err := c.ShouldBind(&updateData); err != nil {
 		h.logger.Error("Invalid update patient request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var patient clinical_models.Patient
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, id).Error; err != nil {
 		h.logger.Error("Failed to find patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	// Build update map
@@ -170,13 +170,13 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&patient).Updates(updates).Error; err != nil {
 		h.logger.Error("Failed to update patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientUpdateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientUpdateError)
 	}
 
 	// Reload patient
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, id).Error; err != nil {
 		h.logger.Error("Failed to fetch updated patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	h.logger.Info("Patient updated successfully", zap.Uint("id", patient.ID))
@@ -187,7 +187,7 @@ func (h *PatientHandler) GetAllPatients(c *gin.Context) envelope.Response {
 	var patients []clinical_models.Patient
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Find(&patients).Error; err != nil {
 		h.logger.Error("Failed to fetch patients", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientNotFound)
 	}
 	return envelope.SuccessResponse(patients, "clinical.patient.list.success")
 }
@@ -231,7 +231,7 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 	var total int64
 	if err := baseQuery.Count(&total).Error; err != nil {
 		h.logger.Error("Failed to count patients", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	var patients []clinical_models.Patient
@@ -249,7 +249,7 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 
 	if err != nil {
 		h.logger.Error("Failed to fetch patients with followup", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	return envelope.PagedSuccessResponse(patients, int(total), page, limit, "clinical.patient.followup.success")
@@ -259,12 +259,12 @@ func (h *PatientHandler) DeleteMultiplePatients(c *gin.Context) envelope.Respons
 	var deleteJSON clinical_dto.DeletePatientsDTO
 	if err := c.ShouldBind(&deleteJSON); err != nil {
 		h.logger.Error("Invalid delete multiple request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.Patient{}).Where("id IN (?)", deleteJSON.IdList).Delete(&clinical_models.Patient{}).Error; err != nil {
 		h.logger.Error("Failed to delete patients", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientDeleteError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientDeleteError)
 	}
 
 	// Returning the remaining list like the original logic did
@@ -281,7 +281,7 @@ func (h *PatientHandler) DeleteOnePatient(c *gin.Context) envelope.Response {
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Where("id = ?", id).Delete(&clinical_models.Patient{}).Error; err != nil {
 		h.logger.Error("Failed to delete patient", zap.Uint64("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientDeleteError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientDeleteError)
 	}
 
 	return h.GetAllPatientsWithLastFollowUp(c)
@@ -298,7 +298,7 @@ func (h *PatientHandler) GetPatientByID(c *gin.Context) envelope.Response {
 	var patient clinical_models.Patient
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, id).Error; err != nil {
 		h.logger.Error("Failed to find patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	return envelope.SuccessResponse(patient, "clinical.patient.found")
@@ -315,17 +315,17 @@ func (h *PatientHandler) UpdatePatientCritical(c *gin.Context) envelope.Response
 	var patient clinical_models.Patient
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, id).Error; err != nil {
 		h.logger.Error("Failed to find patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&patient).Update("critical", true).Error; err != nil {
 		h.logger.Error("Failed to update patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientUpdateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientUpdateError)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, id).Error; err != nil {
 		h.logger.Error("Failed to fetch updated patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	h.logger.Info("Patient marked as critical",
@@ -347,17 +347,17 @@ func (h *PatientHandler) UpdatePatientCriticalRevert(c *gin.Context) envelope.Re
 	var patient clinical_models.Patient
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, id).Error; err != nil {
 		h.logger.Error("Failed to find patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&patient).Update("critical", false).Error; err != nil {
 		h.logger.Error("Failed to update patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientUpdateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientUpdateError)
 	}
 
 	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, id).Error; err != nil {
 		h.logger.Error("Failed to fetch updated patient", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrClinicalPatientNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	h.logger.Info("Patient critical status reverted",

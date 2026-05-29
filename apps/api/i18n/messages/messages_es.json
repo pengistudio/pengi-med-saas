@@ -4454,5 +4454,21 @@
     {
         "key": "contact.send_error",
         "value": "No se pudo enviar el mensaje. Intenta más tarde."
+    },
+    {
+        "key": "error.invalid_request",
+        "value": "Solicitud inválida."
+    },
+    {
+        "key": "error.internal",
+        "value": "Error interno del servidor."
+    },
+    {
+        "key": "error.unauthorized",
+        "value": "No autorizado."
+    },
+    {
+        "key": "error.not_found",
+        "value": "Recurso no encontrado."
     }
 ]

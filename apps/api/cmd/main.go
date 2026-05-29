@@ -2,17 +2,20 @@ package main
 
 import (
 	"os"
+	"strings"
+	"time"
+
 	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/logger"
 	billing_workers "pengi-med-saas/features/billing/workers"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
 	"pengi-med-saas/features/health"
+	settings_models "pengi-med-saas/features/settings/models"
 	message_cache "pengi-med-saas/i18n/cache"
 	i18n_middleware "pengi-med-saas/i18n/middleware"
 	"pengi-med-saas/migrations"
 	"pengi-med-saas/routes"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -67,16 +70,33 @@ func main() {
 
 	r := gin.Default()
 
-	r.Use(cors.New(cors.Config{
-		AllowOriginFunc: func(origin string) bool {
-			return true
-		},
+	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "X-tenant-Slug"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Disposition"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-	}))
+	}
+
+	if mode == "production" {
+		var corsSetting settings_models.SystemSetting
+		allowedOrigins := []string{}
+		if err := DB_CONNECTION.Where("key = ?", "allowed_origins").First(&corsSetting).Error; err == nil {
+			for _, o := range strings.Split(corsSetting.Value, ",") {
+				if trimmed := strings.TrimSpace(o); trimmed != "" {
+					allowedOrigins = append(allowedOrigins, trimmed)
+				}
+			}
+		}
+		if len(allowedOrigins) == 0 {
+			logger.Log.Warn("no allowed_origins configured — CORS will deny all cross-origin requests")
+		}
+		corsConfig.AllowOrigins = allowedOrigins
+	} else {
+		corsConfig.AllowOriginFunc = func(origin string) bool { return true }
+	}
+
+	r.Use(cors.New(corsConfig))
 
 	r.Use(i18n_middleware.I18nMiddleware(DB_CONNECTION))
 
