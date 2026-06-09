@@ -652,6 +652,18 @@
         "value": "Passwords do not match"
     },
     {
+        "key": "form.validation.username_invalid",
+        "value": "Only letters, numbers, underscores, dots, and hyphens"
+    },
+    {
+        "key": "form.validation.password_uppercase",
+        "value": "Must contain at least one uppercase letter"
+    },
+    {
+        "key": "form.validation.password_number",
+        "value": "Must contain at least one number"
+    },
+    {
         "key": "table.column.last_name",
         "value": "Last Name"
     },

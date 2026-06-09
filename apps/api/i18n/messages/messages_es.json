@@ -652,6 +652,18 @@
         "value": "Las contraseñas no coinciden"
     },
     {
+        "key": "form.validation.username_invalid",
+        "value": "Solo letras, números, guiones bajos, puntos y guiones"
+    },
+    {
+        "key": "form.validation.password_uppercase",
+        "value": "Debe contener al menos una letra mayúscula"
+    },
+    {
+        "key": "form.validation.password_number",
+        "value": "Debe contener al menos un número"
+    },
+    {
         "key": "table.column.last_name",
         "value": "Apellidos"
     },

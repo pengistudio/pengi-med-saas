@@ -20,15 +20,21 @@ import { useText } from "@/hooks/use-text";
 
 const formSchema = z
 	.object({
-		name: z.string().min(2),
-		user_name: z.string().min(3).regex(/^\S+$/, {
-			message: "form.validation.no_spaces",
-		}),
+		name: z.string().min(2).max(100),
+		user_name: z
+			.string()
+			.min(3)
+			.max(50)
+			.regex(/^[a-zA-Z0-9_.-]+$/, {
+				message: "form.validation.username_invalid",
+			}),
 		email: z.email(),
 		password: z
 			.string()
 			.min(6)
-			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
+			.regex(/^\S+$/, { message: "form.validation.no_spaces" })
+			.regex(/[A-Z]/, { message: "form.validation.password_uppercase" })
+			.regex(/[0-9]/, { message: "form.validation.password_number" }),
 		confirm_password: z
 			.string()
 			.min(6)
@@ -45,6 +51,7 @@ const SignupForm = () => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get("token");
+	const honeypotRef = React.useRef<HTMLInputElement>(null);
 
 	if (!token) {
 		return (
@@ -127,6 +134,23 @@ const SignupForm = () => {
 								placeholder={textGet("signup.confirm_password.placeholder")}
 								label={textGet("signup.confirm_password")}
 							/>
+							{/* honeypot: bots fill this, humans don't see it */}
+							<input
+								ref={honeypotRef}
+								type="text"
+								name="website"
+								autoComplete="off"
+								tabIndex={-1}
+								aria-hidden="true"
+								style={{
+									position: "absolute",
+									left: "-9999px",
+									opacity: 0,
+									height: 0,
+									width: 0,
+									overflow: "hidden",
+								}}
+							/>
 						</CardContent>
 						<CardFooter className="flex flex-col gap-4">
 							<Button type="submit" className="w-full" disabled={load}>
@@ -150,6 +174,10 @@ const SignupForm = () => {
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		if (!token) return;
+		if (honeypotRef.current?.value) {
+			navigate("/login");
+			return;
+		}
 		setLoad(true);
 		const response = await companySignup({
 			token,
