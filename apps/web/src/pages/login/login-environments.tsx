@@ -2,7 +2,7 @@ import { Building2, ChevronRight, LogOut } from "lucide-react";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { getEnvironmentsFromUser } from "@/api/user-service";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Card,
 	CardContent,

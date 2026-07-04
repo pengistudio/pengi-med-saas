@@ -4,7 +4,7 @@ import * as z from "zod";
 import { type SriStatus, updateSriInfo } from "@/api/tenant-service";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";

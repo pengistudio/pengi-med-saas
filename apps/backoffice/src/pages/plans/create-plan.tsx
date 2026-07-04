@@ -5,7 +5,7 @@ import { type Feature, getFeatures } from "@/api/feature-service";
 import { createPlan } from "@/api/plan-service";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Card,
 	CardContent,

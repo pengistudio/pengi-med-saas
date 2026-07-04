@@ -12,7 +12,7 @@ import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
 import { type Appointment, getAppointments } from "@/api/clinical-service";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";

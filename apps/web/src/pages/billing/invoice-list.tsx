@@ -20,7 +20,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Text } from "@/components/ui/text";
 import usePermission from "@/hooks/use-permission";
 import { useText } from "@/hooks/use-text";

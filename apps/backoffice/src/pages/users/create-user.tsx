@@ -4,7 +4,7 @@ import z from "zod";
 import { createUser } from "@/api/user-service";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Card,
 	CardContent,

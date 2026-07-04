@@ -4,7 +4,7 @@ import { z } from "zod";
 import { updatePrescription } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
 import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Dialog,
 	DialogContent,

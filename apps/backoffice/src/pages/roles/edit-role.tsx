@@ -5,7 +5,7 @@ import { getPermissions, type Permission } from "@/api/permission-service";
 import { getRoleByID, updateRole } from "@/api/role-service";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Card,
 	CardContent,

@@ -7,7 +7,7 @@ declare module "@tanstack/react-table" {
 	}
 }
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,

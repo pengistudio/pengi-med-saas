@@ -16,7 +16,7 @@ import {
 import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Card,
 	CardContent,

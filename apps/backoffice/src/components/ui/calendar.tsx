@@ -12,7 +12,7 @@ import {
 	getDefaultClassNames,
 	type Locale,
 } from "react-day-picker";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@pengi/ui";
 import { cn } from "@/lib/utils";
 
 function Calendar({

@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { CatalogItem } from "@/api/billing-service";
 import { DataTableColumnHeader } from "@/components/custom/table/data-table-column-header";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,

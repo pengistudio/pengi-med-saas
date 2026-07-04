@@ -33,7 +33,7 @@ import {
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Popover,

@@ -13,7 +13,7 @@ import {
 	Plus,
 } from "lucide-react";
 import type { MedicalRecord } from "@/api/clinical-service";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,

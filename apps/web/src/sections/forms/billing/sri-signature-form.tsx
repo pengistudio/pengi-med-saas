@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { uploadSriSignature } from "@/api/tenant-service";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";

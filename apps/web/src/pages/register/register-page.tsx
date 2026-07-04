@@ -15,7 +15,7 @@ import SelectLanguage from "@/components/custom/select-language";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormPasswordInput } from "@/components/forms/form-input-password";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";

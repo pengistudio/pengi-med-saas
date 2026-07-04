@@ -10,7 +10,7 @@ import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormTagInput } from "@/components/forms/form-tag-input";
 import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Card,
 	CardContent,

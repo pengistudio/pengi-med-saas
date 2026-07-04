@@ -7,7 +7,7 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Field,
 	FieldDescription,

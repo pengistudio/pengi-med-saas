@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock, Edit2, Trash2, Zap } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useText } from "@/hooks/use-text";
 import { generateTaskId } from "@/lib/task-id-generator";

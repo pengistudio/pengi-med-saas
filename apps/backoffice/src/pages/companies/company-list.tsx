@@ -7,7 +7,7 @@ import {
 	getCompanies,
 	getCompanySignupToken,
 } from "@/api/company-service";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Card,
 	CardContent,

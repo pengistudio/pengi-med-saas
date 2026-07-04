@@ -15,7 +15,7 @@ import {
 	getPrescriptionTemplateStatus,
 	uploadPrescriptionTemplate,
 } from "@/api/settings-service";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";

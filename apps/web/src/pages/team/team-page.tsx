@@ -17,7 +17,7 @@ import {
 } from "@/api/team-service";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import {
 	Dialog,

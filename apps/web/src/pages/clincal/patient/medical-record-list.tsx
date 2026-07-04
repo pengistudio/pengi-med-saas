@@ -21,7 +21,7 @@ import PatientCard from "@/components/custom/patient-card";
 import { DataTable } from "@/components/custom/table/data-table";
 import EditPrescriptionDialog from "@/components/features/patient/edit-prescription-dialog";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import usePermission from "@/hooks/use-permission";

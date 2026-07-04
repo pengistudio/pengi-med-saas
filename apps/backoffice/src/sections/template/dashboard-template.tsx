@@ -11,7 +11,7 @@ import { memo, useCallback, useMemo } from "react";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	DropdownMenu,
 	DropdownMenuContent,

@@ -14,7 +14,7 @@ import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextArea } from "@/components/forms/form-textarea";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Dialog,
 	DialogContent,

@@ -6,7 +6,7 @@ import {
 	type Path,
 	type UseFormReturn,
 } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import { Calendar } from "@/components/ui/calendar";
 import {
 	Field,

@@ -4,7 +4,7 @@ import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Sheet,
 	SheetBody,

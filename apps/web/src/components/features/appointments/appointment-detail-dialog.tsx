@@ -8,7 +8,7 @@ import {
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@pengi/ui";
 import {
 	Dialog,
 	DialogContent,
