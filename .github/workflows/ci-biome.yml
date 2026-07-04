@@ -19,7 +19,7 @@ jobs:
           node-version: 24
 
       - name: "Ejecutar Biome en Aplicaciones Frontend"
-        run: npx @biomejs/biome ci ./apps/web ./apps/backoffice
+        run: npx @biomejs/biome ci ./apps/web ./apps/backoffice ./packages/ui
 
   typecheck:
     name: "TypeScript (web + backoffice)"
@@ -38,21 +38,14 @@ jobs:
         with:
           version: latest
 
-      - name: Instalar dependencias (web)
-        working-directory: ./apps/web
+      - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
 
       - name: TypeScript check (web)
-        working-directory: ./apps/web
-        run: pnpm typecheck
-
-      - name: Instalar dependencias (backoffice)
-        working-directory: ./apps/backoffice
-        run: pnpm install --frozen-lockfile
+        run: pnpm --filter web typecheck
 
       - name: TypeScript check (backoffice)
-        working-directory: ./apps/backoffice
-        run: pnpm typecheck
+        run: pnpm --filter backoffice typecheck
 
   backend-go:
     name: "Validar Código Backend (Go)"
