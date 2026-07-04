@@ -165,9 +165,9 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 				<nav className="flex-1 space-y-1 p-2 overflow-hidden">
 					{navItems.map((items) => {
 						if (items.accordionItems) {
-							return <NavAccordion key={items.label} {...items} />;
+							return <NavAccordion {...items} key={items.label} />;
 						}
-						return <NavItem key={items.label} {...items} />;
+						return <NavItem {...items} key={items.label} />;
 					})}
 				</nav>
 
@@ -175,11 +175,11 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 				<div className="border-t border-sidebar-border p-2 py-4 overflow-hidden space-y-1">
 					{bottomNavItems.map((item) =>
 						"accordionItems" in item && item.accordionItems ? (
-							<NavAccordion key={item.label} {...item} />
+							<NavAccordion {...item} key={item.label} />
 						) : (
 							<NavItem
-								key={item.label}
 								{...(item as Parameters<typeof NavItem>[0])}
+								key={item.label}
 							/>
 						),
 					)}

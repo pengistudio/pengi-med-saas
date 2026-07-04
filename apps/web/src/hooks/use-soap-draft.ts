@@ -104,14 +104,18 @@ export function useSoapDraft<TValues>(
 	const [hasDraft, setHasDraft] = React.useState(false);
 	const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
 	const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-	const restoredRef = React.useRef(false);
+	const restoredForPatientRef = React.useRef<string | null>(null);
 
-	// Restore draft on mount
+	// Restore draft whenever we switch to a patient we haven't restored yet
 	React.useEffect(() => {
-		if (!patientId || restoredRef.current) return;
-		restoredRef.current = true;
+		if (!patientId || restoredForPatientRef.current === patientId) return;
+		restoredForPatientRef.current = patientId;
 		const raw = localStorage.getItem(draftKey(patientId));
-		if (!raw) return;
+		if (!raw) {
+			setHasDraft(false);
+			setLastSaved(null);
+			return;
+		}
 		const values = deserialize(raw);
 		if (!values) return;
 		form.reset(values as unknown as Partial<TValues>);
