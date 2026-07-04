@@ -16,8 +16,8 @@ import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormPasswordInput } from "@/components/forms/form-input-password";
 import { Button } from "@pengi/ui";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
+import { Spinner } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 const formSchema = z

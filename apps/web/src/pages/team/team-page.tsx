@@ -15,10 +15,10 @@ import {
 	type TeamMember,
 	type TeamRole,
 } from "@/api/team-service";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@pengi/ui";
+import { Badge } from "@pengi/ui";
 import { Button } from "@pengi/ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@pengi/ui";
 import {
 	Dialog,
 	DialogContent,
@@ -26,16 +26,16 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@pengi/ui";
+import { Input } from "@pengi/ui";
+import { Label } from "@pengi/ui";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

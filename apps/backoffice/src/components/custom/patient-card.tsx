@@ -15,8 +15,8 @@ import {
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
+} from "@pengi/ui";
+import { Badge } from "@pengi/ui";
 import { Button } from "@pengi/ui";
 import {
 	Card,
@@ -24,9 +24,9 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Separator } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 

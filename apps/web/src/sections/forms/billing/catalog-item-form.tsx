@@ -15,10 +15,10 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Checkbox } from "@pengi/ui";
+import { Label } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import {
 	IVA_PERCENTAGE_CODES,

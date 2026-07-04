@@ -19,9 +19,9 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@pengi/ui";
 import { Button } from "@pengi/ui";
-import { Text } from "@/components/ui/text";
+import { Text } from "@pengi/ui";
 import usePermission from "@/hooks/use-permission";
 import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";

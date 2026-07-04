@@ -27,7 +27,7 @@ import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextArea } from "@/components/forms/form-textarea";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@pengi/ui";
 import { Button } from "@pengi/ui";
 import {
 	Card,
@@ -35,15 +35,15 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from "@pengi/ui";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";

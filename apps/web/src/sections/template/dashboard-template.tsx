@@ -15,7 +15,7 @@ import { initiatePayment } from "@/api/subscription-service";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
 import SelectLanguage from "@/components/custom/select-language";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@pengi/ui";
 import { Button } from "@pengi/ui";
 import {
 	Card,
@@ -23,7 +23,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from "@pengi/ui";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -32,7 +32,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@pengi/ui";
 import useAuth from "@/hooks/use-auth";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";

@@ -7,8 +7,8 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

@@ -8,7 +8,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "../ui/select";
+} from "@pengi/ui";
 
 const SelectLanguage = () => {
 	const { changeLanguage } = useLanguage();

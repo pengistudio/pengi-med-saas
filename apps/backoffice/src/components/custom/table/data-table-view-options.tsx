@@ -16,8 +16,8 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Text } from "@pengi/ui";
 
 interface DataTableViewOptionsProps<TData> {
 	table: Table<TData>;

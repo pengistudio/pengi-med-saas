@@ -5,9 +5,9 @@ import { type SriStatus, updateSriInfo } from "@/api/tenant-service";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@pengi/ui";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Text } from "@/components/ui/text";
+import { Checkbox } from "@pengi/ui";
+import { Label } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 export const sriInfoSchema = z.object({

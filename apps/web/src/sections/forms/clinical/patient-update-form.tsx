@@ -22,8 +22,8 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 import { selectSetPatient, usePatientStore } from "@/store/patient-store";

@@ -21,13 +21,13 @@ import {
 	ComboboxItem,
 	ComboboxList,
 	useComboboxAnchor,
-} from "@/components/ui/combobox";
+} from "@pengi/ui";
 import {
 	Field,
 	FieldDescription,
 	FieldError,
 	FieldLabel,
-} from "@/components/ui/field";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 type FormIcd11SelectProps<

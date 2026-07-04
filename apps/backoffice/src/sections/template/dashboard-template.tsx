@@ -10,7 +10,7 @@ import type React from "react";
 import { memo, useCallback, useMemo } from "react";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@pengi/ui";
 import { Button } from "@pengi/ui";
 import {
 	DropdownMenu,
@@ -20,7 +20,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@pengi/ui";
 import useAuth from "@/hooks/use-auth";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";

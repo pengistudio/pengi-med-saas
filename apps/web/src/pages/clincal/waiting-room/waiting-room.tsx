@@ -32,16 +32,16 @@ import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@pengi/ui";
 import { Button } from "@pengi/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@pengi/ui";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui/popover";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Spinner } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

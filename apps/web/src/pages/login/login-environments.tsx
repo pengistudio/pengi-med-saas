@@ -9,7 +9,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { selectSetEnvironment, useSessionStore } from "@/store/session-store";
 import type { EnvironmentWithCompany } from "@/types/user-type";

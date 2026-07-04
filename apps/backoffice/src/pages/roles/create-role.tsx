@@ -13,10 +13,10 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
+} from "@pengi/ui";
+import { Checkbox } from "@pengi/ui";
+import { Label } from "@pengi/ui";
+import { Spinner } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

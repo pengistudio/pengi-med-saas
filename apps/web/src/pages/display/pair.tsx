@@ -2,7 +2,7 @@ import { Monitor } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import { Button } from "@pengi/ui";
-import { Input } from "@/components/ui/input";
+import { Input } from "@pengi/ui";
 
 const PairDisplayPage = () => {
 	const navigate = useNavigate();

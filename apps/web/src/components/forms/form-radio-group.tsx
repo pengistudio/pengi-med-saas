@@ -11,8 +11,8 @@ import {
 	FieldDescription,
 	FieldError,
 	FieldLabel,
-} from "@/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@pengi/ui";
+import { RadioGroup, RadioGroupItem } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 

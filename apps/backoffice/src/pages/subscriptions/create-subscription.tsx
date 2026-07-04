@@ -11,17 +11,17 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@pengi/ui";
+import { Input } from "@pengi/ui";
+import { Label } from "@pengi/ui";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
+} from "@pengi/ui";
+import { Spinner } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

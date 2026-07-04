@@ -2,8 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { Toaster } from "./components/ui/sonner.tsx";
-import { TooltipProvider } from "./components/ui/tooltip.tsx";
+import { Toaster, TooltipProvider } from "@pengi/ui";
 import { LanguageProvider } from "./contexts/language-context.tsx";
 
 const root = document.getElementById("root");

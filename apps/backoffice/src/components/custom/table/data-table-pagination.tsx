@@ -13,7 +13,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 interface DataTablePaginationProps<TData> {

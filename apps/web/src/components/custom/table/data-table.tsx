@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import * as React from "react";
 import { useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@pengi/ui";
 import {
 	Table,
 	TableBody,
@@ -21,7 +21,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { useRowStore } from "@/store/row-store";
 import { DataTablePagination } from "./data-table-pagination";

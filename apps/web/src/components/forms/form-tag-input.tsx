@@ -11,8 +11,8 @@ import {
 	FieldDescription,
 	FieldError,
 	FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@pengi/ui";
+import { Input } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 type FormTagInputProps<

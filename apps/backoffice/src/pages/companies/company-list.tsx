@@ -14,7 +14,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from "@pengi/ui";
 import {
 	Dialog,
 	DialogContent,
@@ -22,8 +22,8 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from "@pengi/ui";
+import { Input } from "@pengi/ui";
 import {
 	Table,
 	TableBody,
@@ -31,7 +31,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

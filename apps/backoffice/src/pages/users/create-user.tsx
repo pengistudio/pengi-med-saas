@@ -12,8 +12,8 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
+} from "@pengi/ui";
+import { Spinner } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

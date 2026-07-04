@@ -5,9 +5,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { uploadSriSignature } from "@/api/tenant-service";
 import { Button } from "@pengi/ui";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Text } from "@/components/ui/text";
+import { Input } from "@pengi/ui";
+import { Label } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 const sriSchema = z.object({

@@ -7,8 +7,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { cn } from "@/lib/utils";
 
 interface DataTableColumnHeaderProps<TData, TValue>

@@ -11,7 +11,7 @@ import {
 	type VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@pengi/ui";
 import {
 	Table,
 	TableBody,
@@ -19,7 +19,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";

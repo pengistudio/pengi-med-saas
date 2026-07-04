@@ -11,9 +11,8 @@ window.addEventListener("unhandledrejection", (event) => {
 	}
 });
 
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster, TooltipProvider } from "@pengi/ui";
 import App from "./App.tsx";
-import { Toaster } from "./components/ui/sonner";
 import { LanguageProvider } from "./contexts/language-context.tsx";
 
 // biome-ignore lint/style/noNonNullAssertion: root element is always present

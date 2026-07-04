@@ -4,7 +4,7 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
+} from "@pengi/ui";
 
 export interface Prescription {
 	content: string;

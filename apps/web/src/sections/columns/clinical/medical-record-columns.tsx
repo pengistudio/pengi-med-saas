@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { MedicalRecord } from "@/api/clinical-service";
 import { Button } from "@pengi/ui";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@pengi/ui";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -23,8 +23,8 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { dateParser } from "@/lib/utils";

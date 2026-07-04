@@ -11,14 +11,14 @@ import {
 	FieldDescription,
 	FieldError,
 	FieldLabel,
-} from "@/components/ui/field";
+} from "@pengi/ui";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 

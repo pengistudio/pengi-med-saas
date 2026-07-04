@@ -7,7 +7,7 @@ import {
 	deleteAppointment,
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@pengi/ui";
 import { Button } from "@pengi/ui";
 import {
 	Dialog,
@@ -16,7 +16,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
+} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { getStatusColor, STATUS_I18N_KEYS } from "./appointment-utils";

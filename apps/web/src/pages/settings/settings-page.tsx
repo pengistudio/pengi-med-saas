@@ -17,7 +17,7 @@ import {
 } from "@/api/settings-service";
 import { Button } from "@pengi/ui";
 import { Switch } from "@/components/ui/switch";
-import { Text } from "@/components/ui/text";
+import { Text } from "@pengi/ui";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import useToast from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";

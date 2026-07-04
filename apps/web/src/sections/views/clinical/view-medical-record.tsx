@@ -18,7 +18,7 @@ import {
 	type MedicalRecord,
 } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@pengi/ui";
 import { Button } from "@pengi/ui";
 import {
 	Card,
@@ -26,10 +26,10 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
+} from "@pengi/ui";
+import { Separator } from "@pengi/ui";
+import { Spinner } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import {
 	buildPrescriptionWhatsAppMessage,

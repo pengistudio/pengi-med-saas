@@ -13,7 +13,7 @@ import {
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextArea } from "@/components/forms/form-textarea";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@pengi/ui";
 import { Button } from "@pengi/ui";
 import {
 	Dialog,
@@ -22,8 +22,8 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from "@pengi/ui";
+import { Input } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import useToast from "@/hooks/use-toast";
 import { appointmentSchema } from "./appointment-utils";

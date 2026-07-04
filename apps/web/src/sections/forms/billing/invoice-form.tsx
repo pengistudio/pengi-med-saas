@@ -22,7 +22,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from "@pengi/ui";
 import {
 	Combobox,
 	ComboboxContent,
@@ -30,10 +30,10 @@ import {
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxList,
-} from "@/components/ui/combobox";
-import { Field, FieldLabel } from "@/components/ui/field";
+} from "@pengi/ui";
+import { Field, FieldLabel } from "@pengi/ui";
 import { Switch } from "@/components/ui/switch";
-import { Text } from "@/components/ui/text";
+import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import {
 	IVA_PERCENTAGE_CODES_AS_NUMBER,

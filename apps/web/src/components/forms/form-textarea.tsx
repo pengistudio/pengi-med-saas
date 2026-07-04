@@ -11,8 +11,8 @@ import {
 	FieldDescription,
 	FieldError,
 	FieldLabel,
-} from "@/components/ui/field";
-import { Textarea } from "@/components/ui/textarea";
+} from "@pengi/ui";
+import { Textarea } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 type FormTextAreaProps<
