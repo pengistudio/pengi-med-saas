@@ -6,15 +6,10 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import {
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldLabel,
-} from "@pengi/ui";
-import { RadioGroup, RadioGroupItem } from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
-import { cn } from "@/lib/utils";
+import { useUiText } from "../../context/text-context";
+import { cn } from "../../lib/utils";
+import { Field, FieldDescription, FieldError, FieldLabel } from "../field";
+import { RadioGroup, RadioGroupItem } from "../radio-group";
 
 type FormRadioGroupProps<
 	T extends z.ZodType<Output, Input>,
@@ -45,7 +40,7 @@ function FormRadioGroup<
 	isRow,
 	className,
 }: FormRadioGroupProps<T, Output, Input>) {
-	const { textGet } = useText();
+	const { textGet } = useUiText();
 
 	return (
 		<Controller

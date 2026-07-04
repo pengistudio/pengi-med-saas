@@ -1,3 +1,4 @@
+import { Button, Text } from "@pengi/ui";
 import {
 	addWeeks,
 	eachDayOfInterval,
@@ -12,8 +13,6 @@ import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
 import { type Appointment, getAppointments } from "@/api/clinical-service";
-import { Button } from "@pengi/ui";
-import { Text } from "@pengi/ui";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
 import { AppointmentFormDialog } from "./appointment-form-dialog";

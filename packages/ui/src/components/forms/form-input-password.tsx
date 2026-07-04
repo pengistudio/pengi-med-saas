@@ -7,21 +7,11 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import { Button } from "@pengi/ui";
-import {
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldLabel,
-} from "@pengi/ui";
-
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-} from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
-import { cn } from "@/lib/utils";
+import { useUiText } from "../../context/text-context";
+import { cn } from "../../lib/utils";
+import { Button } from "../button";
+import { Field, FieldDescription, FieldError, FieldLabel } from "../field";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../input-group";
 
 const PasswordInput = forwardRef<
 	HTMLInputElement,
@@ -112,7 +102,7 @@ function FormPasswordInput<
 	className,
 	...props
 }: FormInputProps<T, Output, Input>) {
-	const { textGet } = useText();
+	const { textGet } = useUiText();
 
 	return (
 		<Controller

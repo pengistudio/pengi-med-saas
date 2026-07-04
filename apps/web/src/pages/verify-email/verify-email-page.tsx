@@ -1,16 +1,16 @@
-import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
-import { verifyEmail } from "@/api/auth-service";
-import { Button } from "@pengi/ui";
 import {
+	Button,
 	Card,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Spinner,
+	Text,
 } from "@pengi/ui";
-import { Spinner } from "@pengi/ui";
-import { Text } from "@pengi/ui";
+import React from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { verifyEmail } from "@/api/auth-service";
 
 type State = "loading" | "success" | "error";
 

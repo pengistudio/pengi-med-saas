@@ -5,16 +5,15 @@ import {
 	ChevronsLeft,
 	ChevronsRight,
 } from "lucide-react";
-
-import { Button } from "@pengi/ui";
+import { useUiText } from "../context/text-context";
+import { Button } from "./button";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
+} from "./select";
 
 interface DataTablePaginationProps<TData> {
 	table: Table<TData>;
@@ -25,7 +24,7 @@ export function DataTablePagination<TData>({
 	table,
 	serverSide,
 }: DataTablePaginationProps<TData>) {
-	const { textGet } = useText();
+	const { textGet } = useUiText();
 	return (
 		<div className="flex items-center justify-between px-2">
 			<div className="flex-1 text-sm text-muted-foreground">

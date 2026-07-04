@@ -1,8 +1,11 @@
+import {
+	Avatar,
+	AvatarFallback,
+	Button,
+	Dialog,
+	DialogContent,
+} from "@pengi/ui";
 import { CheckCircle2, Clock, Edit2, Trash2, Zap } from "lucide-react";
-
-import { Avatar, AvatarFallback } from "@pengi/ui";
-import { Button } from "@pengi/ui";
-import { Dialog, DialogContent } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { generateTaskId } from "@/lib/task-id-generator";
 import { cn } from "@/lib/utils";

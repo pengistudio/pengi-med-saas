@@ -1,3 +1,13 @@
+import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	FormInput,
+	Text,
+} from "@pengi/ui";
 import { Building2, Mail, Save, Shield, User } from "lucide-react";
 import React from "react";
 import { z } from "zod";
@@ -7,16 +17,6 @@ import {
 	updateProfile,
 } from "@/api/user-service";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@pengi/ui";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@pengi/ui";
-import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";

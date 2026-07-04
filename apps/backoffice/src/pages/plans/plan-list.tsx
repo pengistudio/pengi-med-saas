@@ -1,16 +1,10 @@
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import React from "react";
-import { useNavigate } from "react-router";
-import { deletePlan, getPlans, type Plan } from "@/api/plan-service";
-import { Button } from "@pengi/ui";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@pengi/ui";
-import {
 	Table,
 	TableBody,
 	TableCell,
@@ -18,6 +12,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@pengi/ui";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router";
+import { deletePlan, getPlans, type Plan } from "@/api/plan-service";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

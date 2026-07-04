@@ -1,4 +1,25 @@
 import {
+	Avatar,
+	AvatarFallback,
+	Badge,
+	Button,
+	Card,
+	CardContent,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	Input,
+	Label,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@pengi/ui";
+import {
 	Check,
 	Copy,
 	Link2,
@@ -15,27 +36,6 @@ import {
 	type TeamMember,
 	type TeamRole,
 } from "@/api/team-service";
-import { Avatar, AvatarFallback } from "@pengi/ui";
-import { Badge } from "@pengi/ui";
-import { Button } from "@pengi/ui";
-import { Card, CardContent } from "@pengi/ui";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@pengi/ui";
-import { Input } from "@pengi/ui";
-import { Label } from "@pengi/ui";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

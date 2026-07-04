@@ -3,9 +3,8 @@ import {
 	SortableContext,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CheckCircle2, Clock, Plus, Zap } from "lucide-react";
-
 import { Button } from "@pengi/ui";
+import { CheckCircle2, Clock, Plus, Zap } from "lucide-react";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import type { Task, TaskStatus } from "@/types/kanban-type";

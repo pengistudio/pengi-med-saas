@@ -1,19 +1,19 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router";
-import z from "zod";
-import { getUserByID, updateUser } from "@/api/user-service";
-import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@pengi/ui";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	FormInput,
+	Spinner,
 } from "@pengi/ui";
-import { Spinner } from "@pengi/ui";
+import React from "react";
+import { useNavigate, useParams } from "react-router";
+import z from "zod";
+import { getUserByID, updateUser } from "@/api/user-service";
+import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

@@ -1,15 +1,15 @@
-import { Building2, ChevronRight, LogOut } from "lucide-react";
-import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
-import { getEnvironmentsFromUser } from "@/api/user-service";
-import { Button } from "@pengi/ui";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@pengi/ui";
+import { Building2, ChevronRight, LogOut } from "lucide-react";
+import React from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { getEnvironmentsFromUser } from "@/api/user-service";
 import { useText } from "@/hooks/use-text";
 import { selectSetEnvironment, useSessionStore } from "@/store/session-store";
 import type { EnvironmentWithCompany } from "@/types/user-type";

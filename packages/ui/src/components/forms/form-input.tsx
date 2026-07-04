@@ -5,19 +5,10 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import {
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldLabel,
-} from "@pengi/ui";
-import { Input } from "@pengi/ui";
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-} from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
+import { useUiText } from "../../context/text-context";
+import { Field, FieldDescription, FieldError, FieldLabel } from "../field";
+import { Input } from "../input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../input-group";
 
 type FormInputProps<
 	T extends z.ZodType<Output, Input>,
@@ -51,7 +42,7 @@ function FormInput<
 	className,
 	...props
 }: FormInputProps<T, Output, Input>) {
-	const { textGet } = useText();
+	const { textGet } = useUiText();
 
 	return (
 		<Controller

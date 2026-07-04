@@ -1,3 +1,4 @@
+import { Button, FormInput, FormPasswordInput, Spinner, Text } from "@pengi/ui";
 import {
 	Building2,
 	CalendarDays,
@@ -13,11 +14,6 @@ import { register } from "@/api/auth-service";
 import GentooPenguin from "@/assets/gentoo.png";
 import SelectLanguage from "@/components/custom/select-language";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { FormPasswordInput } from "@/components/forms/form-input-password";
-import { Button } from "@pengi/ui";
-import { Spinner } from "@pengi/ui";
-import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 const formSchema = z

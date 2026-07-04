@@ -1,3 +1,10 @@
+import {
+	Field,
+	FieldDescription,
+	FieldError,
+	FieldLabel,
+	Input,
+} from "@pengi/ui";
 import { useState } from "react";
 import {
 	Controller,
@@ -6,13 +13,6 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import {
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldLabel,
-} from "@pengi/ui";
-import { Input } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 type FormTagInputProps<

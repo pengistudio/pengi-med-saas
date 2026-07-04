@@ -1,12 +1,3 @@
-import { Plus, Trash } from "lucide-react";
-import React from "react";
-import { useNavigate } from "react-router";
-import {
-	type CatalogItem,
-	deleteCatalogItem,
-	getAllCatalogItems,
-} from "@/api/billing-service";
-import { DataTable } from "@/components/custom/table/data-table";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -17,9 +8,18 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
+	Button,
+	Text,
 } from "@pengi/ui";
-import { Button } from "@pengi/ui";
-import { Text } from "@pengi/ui";
+import { Plus, Trash } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router";
+import {
+	type CatalogItem,
+	deleteCatalogItem,
+	getAllCatalogItems,
+} from "@/api/billing-service";
+import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";

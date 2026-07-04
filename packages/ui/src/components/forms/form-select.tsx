@@ -6,21 +6,16 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import {
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldLabel,
-} from "@pengi/ui";
+import { useUiText } from "../../context/text-context";
+import { cn } from "../../lib/utils";
+import { Field, FieldDescription, FieldError, FieldLabel } from "../field";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
-import { cn } from "@/lib/utils";
+} from "../select";
 
 type FormSelectProps<
 	T extends z.ZodType<Output, Input>,
@@ -53,7 +48,7 @@ function FormSelect<
 	className,
 	disabled,
 }: FormSelectProps<T, Output, Input>) {
-	const { textGet } = useText();
+	const { textGet } = useUiText();
 
 	return (
 		<Controller

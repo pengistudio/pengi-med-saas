@@ -1,3 +1,13 @@
+import {
+	Badge,
+	Button,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@pengi/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Ban, Check, Clock, Edit, MapPin, Trash2, User } from "lucide-react";
@@ -7,16 +17,6 @@ import {
 	deleteAppointment,
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
-import { Badge } from "@pengi/ui";
-import { Button } from "@pengi/ui";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { getStatusColor, STATUS_I18N_KEYS } from "./appointment-utils";

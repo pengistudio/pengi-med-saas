@@ -1,6 +1,5 @@
-import { Bookmark } from "lucide-react";
-
 import { Avatar, AvatarFallback } from "@pengi/ui";
+import { Bookmark } from "lucide-react";
 import { useText } from "@/hooks/use-text";
 import { generateTaskId } from "@/lib/task-id-generator";
 import { cn } from "@/lib/utils";

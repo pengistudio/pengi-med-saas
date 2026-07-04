@@ -7,7 +7,7 @@ declare module "@tanstack/react-table" {
 	}
 }
 
-import { Button } from "@pengi/ui";
+import { Button } from "./button";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -16,8 +16,8 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@pengi/ui";
-import { Text } from "@pengi/ui";
+} from "./dropdown-menu";
+import { Text } from "./text";
 
 interface DataTableViewOptionsProps<TData> {
 	table: Table<TData>;

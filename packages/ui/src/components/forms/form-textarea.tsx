@@ -6,14 +6,9 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import {
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldLabel,
-} from "@pengi/ui";
-import { Textarea } from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
+import { useUiText } from "../../context/text-context";
+import { Field, FieldDescription, FieldError, FieldLabel } from "../field";
+import { Textarea } from "../textarea";
 
 type FormTextAreaProps<
 	T extends z.ZodType<Output, Input>,
@@ -41,7 +36,7 @@ function FormTextArea<
 	className,
 	...props
 }: FormTextAreaProps<T, Output, Input>) {
-	const { textGet } = useText();
+	const { textGet } = useUiText();
 
 	return (
 		<Controller

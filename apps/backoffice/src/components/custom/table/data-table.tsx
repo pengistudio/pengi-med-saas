@@ -1,4 +1,15 @@
 import {
+	DataTablePagination,
+	DataTableViewOptions,
+	Input,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@pengi/ui";
+import {
 	type ColumnDef,
 	type ColumnFiltersState,
 	flexRender,
@@ -11,18 +22,7 @@ import {
 	type VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
-import { Input } from "@pengi/ui";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
-import { DataTablePagination } from "./data-table-pagination";
-import { DataTableViewOptions } from "./data-table-view-options";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];

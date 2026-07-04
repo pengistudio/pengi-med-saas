@@ -13,6 +13,7 @@ window.addEventListener("unhandledrejection", (event) => {
 
 import { Toaster, TooltipProvider } from "@pengi/ui";
 import App from "./App.tsx";
+import { AppTextBridge } from "./components/app-text-bridge.tsx";
 import { LanguageProvider } from "./contexts/language-context.tsx";
 
 // biome-ignore lint/style/noNonNullAssertion: root element is always present
@@ -20,8 +21,10 @@ createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<TooltipProvider>
 			<LanguageProvider>
-				<Toaster position="top-center" />
-				<App />
+				<AppTextBridge>
+					<Toaster position="top-center" />
+					<App />
+				</AppTextBridge>
 			</LanguageProvider>
 		</TooltipProvider>
 	</StrictMode>,

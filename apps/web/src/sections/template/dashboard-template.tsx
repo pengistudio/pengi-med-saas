@@ -1,4 +1,22 @@
 import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@pengi/ui";
+import {
 	AlertTriangle,
 	Building2,
 	CreditCard,
@@ -15,24 +33,6 @@ import { initiatePayment } from "@/api/subscription-service";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
 import SelectLanguage from "@/components/custom/select-language";
-import { Avatar, AvatarFallback, AvatarImage } from "@pengi/ui";
-import { Button } from "@pengi/ui";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@pengi/ui";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@pengi/ui";
 import useAuth from "@/hooks/use-auth";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";

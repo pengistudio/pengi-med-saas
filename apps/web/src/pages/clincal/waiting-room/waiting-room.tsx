@@ -9,6 +9,19 @@ import {
 	useSensors,
 } from "@dnd-kit/core";
 import {
+	Badge,
+	Button,
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+	Spinner,
+	Text,
+} from "@pengi/ui";
+import {
 	ArrowLeft,
 	ArrowRight,
 	Check,
@@ -32,16 +45,6 @@ import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
-import { Badge } from "@pengi/ui";
-import { Button } from "@pengi/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@pengi/ui";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@pengi/ui";
-import { Spinner } from "@pengi/ui";
-import { Text } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

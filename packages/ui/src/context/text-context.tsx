@@ -13,9 +13,7 @@ export function UiTextProvider({
 	value: TextApi;
 	children: ReactNode;
 }) {
-	return (
-		<TextContext.Provider value={value}>{children}</TextContext.Provider>
-	);
+	return <TextContext.Provider value={value}>{children}</TextContext.Provider>;
 }
 
 export function useUiText() {

@@ -1,3 +1,21 @@
+import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+	FormInput,
+	Input,
+	Label,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	Spinner,
+} from "@pengi/ui";
 import { Check, Copy, Link } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -10,26 +28,6 @@ import {
 import { getPlans, type Plan } from "@/api/plan-service";
 import { createSubscription } from "@/api/subscription-service";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@pengi/ui";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@pengi/ui";
-import { Input } from "@pengi/ui";
-import { Label } from "@pengi/ui";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@pengi/ui";
-import { Spinner } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

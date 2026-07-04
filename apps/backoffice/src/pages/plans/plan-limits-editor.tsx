@@ -1,6 +1,4 @@
-import { Checkbox } from "@pengi/ui";
-import { Input } from "@pengi/ui";
-import { Label } from "@pengi/ui";
+import { Checkbox, Input, Label } from "@pengi/ui";
 import { useText } from "@/hooks/use-text";
 
 export const PLAN_LIMIT_KEYS = [
