@@ -4300,6 +4300,26 @@
         "value": "Invalid or expired verification token."
     },
     {
+        "key": "E-AUTH-013",
+        "value": "Refresh token reuse detected; session revoked."
+    },
+    {
+        "key": "E-AUTH-014",
+        "value": "Session has been revoked. Please log in again."
+    },
+    {
+        "key": "auth.refresh.reused",
+        "value": "Refresh token reuse detected; session revoked."
+    },
+    {
+        "key": "auth.refresh.revoked",
+        "value": "Session has been revoked. Please log in again."
+    },
+    {
+        "key": "auth.logout.success",
+        "value": "Logged out successfully."
+    },
+    {
         "key": "register.title",
         "value": "Create account"
     },

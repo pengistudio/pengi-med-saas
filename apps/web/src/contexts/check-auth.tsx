@@ -41,9 +41,15 @@ const CheckAuth = (props: Props) => {
 			return;
 		}
 
-		infoToast(textGet("session.expired.title"), {
-			description: textGet("session.expired"),
-		});
+		const errorCode = result.data?.error_code;
+		const description =
+			errorCode === "E-AUTH-013"
+				? textGet("auth.refresh.reused")
+				: errorCode === "E-AUTH-014"
+					? textGet("auth.refresh.revoked")
+					: textGet("session.expired");
+
+		infoToast(textGet("session.expired.title"), { description });
 
 		logout();
 		navigate("/login");
@@ -96,6 +102,11 @@ const CheckAuth = (props: Props) => {
 			);
 		});
 	}, [token, navigate, pathname, setGraceDaysLeft]);
+
+	// Don't mount protected children at all without a token — otherwise
+	// they fire their own data-fetching effects (unauthenticated) in the
+	// same render pass, before the redirect-to-login effect above runs.
+	if (!token) return null;
 
 	return <>{children}</>;
 };

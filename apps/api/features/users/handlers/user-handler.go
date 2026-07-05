@@ -98,14 +98,9 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
-	refreshToken, err := auth.GenerateRefreshToken(foundUser.UserName, int64(foundUser.ID))
-	if err != nil {
-		h.logger.Error("Failed to generate refresh token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	// 4) Guardar refresh token (chequear error)
-	if err := foundUser.UpdateRefreshToken(h.db, refreshToken); err != nil {
+	// 4) Emitir familia de refresh token (rotación) — setea la cookie
+	if err := IssueRefreshFamily(h.db, foundUser.ID, foundUser.UserName, c); err != nil {
+		h.logger.Error("Failed to issue refresh token family", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
@@ -113,9 +108,6 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
-
-	// 5) Setear cookie y responder 200 una sola vez
-	auth.SetRefreshTokenCookie(refreshToken, c)
 
 	h.logger.Info("User logged in successfully", zap.String("username", foundUser.UserName))
 	return envelope.SuccessResponse(gin.H{
@@ -130,35 +122,41 @@ func (h *UserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
 	}
-	userID, username, err := auth.ValidateRefreshToken(refreshToken)
+
+	token, err := RotateRefreshToken(h.db, refreshToken, c, h.logger)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
+		switch {
+		case errors.Is(err, ErrRefreshTokenReused):
+			return envelope.ErrorResponse(http.StatusUnauthorized, "auth.refresh.reused", core_errors.ErrAuthRefreshTokenReused)
+		case errors.Is(err, ErrRefreshTokenRevoked):
+			return envelope.ErrorResponse(http.StatusUnauthorized, "auth.refresh.revoked", core_errors.ErrAuthSessionRevoked)
+		case errors.Is(err, ErrRefreshTokenInvalid):
+			return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
+		default:
+			h.logger.Error("Failed to rotate refresh token", zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+		}
 	}
-	token, err := auth.GenerateToken(username, int64(userID))
-	if err != nil {
-		h.logger.Error("Failed to generate token during refresh", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-	h.logger.Info("Token refreshed successfully", zap.String("username", username))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": userID}, "auth.token.refresh.success")
+
+	h.logger.Info("Token refreshed successfully")
+	return envelope.SuccessResponse(gin.H{"token": token}, "auth.token.refresh.success")
 }
 
-func (h *UserHandler) ExtendSession(c *gin.Context) envelope.Response {
-	userId := c.GetInt64("userId")
-	var user user_models.User
-	// Assuming logic matches user snippet: finding user by ID
-	if err := h.db.Model(&user_models.User{}).First(&user, userId).Error; err != nil {
-		h.logger.Error("Failed to find user for session extension", zap.Int64("userId", userId), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthUserInvalidID)
+// Logout revokes the current refresh-token family server-side and clears
+// the cookie. It never errors out to the caller — a missing/already-invalid
+// cookie still results in a clean logged-out state client-side.
+func (h *UserHandler) Logout(c *gin.Context) envelope.Response {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err == nil {
+		if claims, parseErr := auth.ValidateRefreshToken(refreshToken); parseErr == nil && claims.FamilyID != "" {
+			if revokeErr := RevokeFamily(h.db, claims.FamilyID); revokeErr != nil {
+				h.logger.Error("Failed to revoke refresh token family on logout", zap.Error(revokeErr))
+			}
+		}
 	}
-	token, err := auth.GenerateToken(user.UserName, int64(user.ID))
-	if err != nil {
-		h.logger.Error("Failed to generate token for session extension", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	h.logger.Info("Session extended successfully", zap.String("username", user.UserName))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "auth.session.extend.success")
+	auth.ClearRefreshTokenCookie(c)
+	h.logger.Info("User logged out")
+	return envelope.SuccessResponse(nil, "auth.logout.success")
 }
 
 func (h *UserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {

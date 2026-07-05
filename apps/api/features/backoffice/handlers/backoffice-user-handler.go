@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -144,7 +145,7 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
-	refreshToken, err := auth.GenerateRefreshToken(foundUser.UserName, int64(foundUser.ID))
+	refreshToken, _, err := auth.GenerateRefreshToken(foundUser.UserName, int64(foundUser.ID), uuid.NewString())
 	if err != nil {
 		h.logger.Error("Failed to generate refresh token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
@@ -174,17 +175,17 @@ func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Respon
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
 	}
-	userID, username, err := auth.ValidateRefreshToken(refreshToken)
+	claims, err := auth.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
 	}
-	token, err := auth.GenerateToken(username, int64(userID))
+	token, err := auth.GenerateToken(claims.Username, int64(claims.UserID))
 	if err != nil {
 		h.logger.Error("Failed to generate token during refresh", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
-	h.logger.Info("Token refreshed successfully", zap.String("username", username))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": userID}, "auth.token.refresh.success")
+	h.logger.Info("Token refreshed successfully", zap.String("username", claims.Username))
+	return envelope.SuccessResponse(gin.H{"token": token, "user_id": claims.UserID}, "auth.token.refresh.success")
 }
 
 func (h *BackofficeUserHandler) ExtendSession(c *gin.Context) envelope.Response {

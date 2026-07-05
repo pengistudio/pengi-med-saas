@@ -2,11 +2,13 @@ package auth
 
 import (
 	"errors"
+	"net/http"
 	"pengi-med-saas/core/config"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 var (
@@ -42,61 +44,121 @@ func GenerateExchangeToken(username string, userId int64) (string, error) {
 	return token.SignedString([]byte(secretKey))
 }
 
-func SetRefreshTokenCookie(refreshToken string, c *gin.Context) {
-	https_enabled, err := config.GetBoolEnv("HTTPS_ENABLED")
-	if err != nil {
-		return
+const refreshTokenCookieName = "refresh_token"
+
+// refreshTokenMaxAgeSeconds computes the sliding-window cookie lifetime from
+// AUTH_REFRESH_EXP (days), defaulting to 30 days if unset/invalid.
+func refreshTokenMaxAgeSeconds() int {
+	days, err := config.GetNumberEnv("AUTH_REFRESH_EXP")
+	if err != nil || days <= 0 {
+		days = 30
 	}
+	return int(days) * 24 * 60 * 60
+}
+
+// RefreshTokenTTL exposes the sliding-window duration (AUTH_REFRESH_EXP,
+// default 30 days) so callers issuing DB-tracked rotation rows can compute
+// the same ExpiresAt the JWT itself carries.
+func RefreshTokenTTL() time.Duration {
+	return time.Duration(refreshTokenMaxAgeSeconds()) * time.Second
+}
+
+// setRefreshTokenCookieAttrs applies the shared cookie attributes so that
+// setting and clearing the cookie always agree on Path/Domain/SameSite —
+// browsers only delete a cookie if every defining attribute matches.
+func setRefreshTokenCookieAttrs(c *gin.Context, value string, maxAge int) {
+	httpsEnabled, _ := config.GetBoolEnv("HTTPS_ENABLED")
+	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(
-		"refresh_token", // Nombre de la cookie
-		refreshToken,    // Valor de la cookie
-		604800,          // Tiempo de vida en segundos (1 hora)
-		"/",             // Path
-		"",              // Dominio
-		https_enabled,   // Habilitar Secure (solo HTTPS)
-		true,            // Habilitar HttpOnly
+		refreshTokenCookieName,
+		value,
+		maxAge,
+		"/",
+		"",
+		httpsEnabled,
+		true, // HttpOnly
 	)
 }
 
-func GenerateRefreshToken(username string, userId int64) (string, error) {
+// SetRefreshTokenCookie sets the refresh_token HttpOnly cookie with a
+// sliding expiry driven by AUTH_REFRESH_EXP (days).
+func SetRefreshTokenCookie(refreshToken string, c *gin.Context) {
+	setRefreshTokenCookieAttrs(c, refreshToken, refreshTokenMaxAgeSeconds())
+}
+
+// ClearRefreshTokenCookie deletes the refresh_token cookie using the same
+// attributes it was set with, on logout or revocation.
+func ClearRefreshTokenCookie(c *gin.Context) {
+	setRefreshTokenCookieAttrs(c, "", -1)
+}
+
+// GenerateRefreshToken creates a refresh-token JWT carrying a familyId
+// (stable session identity, survives rotation) and a jti (unique per
+// issued token, used to look up its DB row). Expiry is the sliding window
+// from AUTH_REFRESH_EXP, reset on every successful rotation.
+func GenerateRefreshToken(username string, userId int64, familyID string) (string, string, error) {
 	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
+	jti := uuid.NewString()
 	claims := jwt.MapClaims{
 		"username": username,
 		"userId":   userId,
-		"exp":      time.Now().Add(7 * 24 * time.Hour).Unix(), // Expira en 7 días.
+		"familyId": familyID,
+		"jti":      jti,
+		"exp":      time.Now().Add(time.Duration(refreshTokenMaxAgeSeconds()) * time.Second).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secretKey))
+	signed, err := token.SignedString([]byte(secretKey))
+	return signed, jti, err
 }
 
-func ValidateRefreshToken(refreshToken string) (uint, string, error) {
+// RefreshTokenClaims is what ValidateRefreshToken extracts from a presented
+// refresh-token JWT. FamilyID/JTI are empty for legacy (pre-rotation)
+// tokens issued before this claim existed.
+type RefreshTokenClaims struct {
+	UserID   uint
+	Username string
+	FamilyID string
+	JTI      string
+}
+
+func ValidateRefreshToken(refreshToken string) (RefreshTokenClaims, error) {
 	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
 	if err != nil || !token.Valid {
-		return 0, "", errors.New("invalid refresh token")
+		return RefreshTokenClaims{}, errors.New("invalid refresh token")
 	}
 
 	if exp, ok := claims["exp"].(float64); ok {
 		if time.Unix(int64(exp), 0).Before(time.Now()) {
-			return 0, "", errors.New("refresh token expired")
+			return RefreshTokenClaims{}, errors.New("refresh token expired")
 		}
 	} else {
-		return 0, "", errors.New("invalid expiration claim")
+		return RefreshTokenClaims{}, errors.New("invalid expiration claim")
 	}
 
 	userId, ok := claims["userId"].(float64)
 	if !ok {
-		return 0, "", errors.New("invalid user id")
+		return RefreshTokenClaims{}, errors.New("invalid user id")
 	}
 	username, ok := claims["username"].(string)
 	if !ok {
-		return 0, "", errors.New("invalid username")
+		return RefreshTokenClaims{}, errors.New("invalid username")
 	}
 
-	return uint(userId), username, nil
+	// familyId/jti are absent on legacy tokens issued before rotation
+	// existed; caller treats that as "upgrade to a new family".
+	familyID, _ := claims["familyId"].(string)
+	jti, _ := claims["jti"].(string)
+
+	return RefreshTokenClaims{
+		UserID:   uint(userId),
+		Username: username,
+		FamilyID: familyID,
+		JTI:      jti,
+	}, nil
 }
 
 func ValidateCredentials(c *gin.Context) (bool, int64, error) {
