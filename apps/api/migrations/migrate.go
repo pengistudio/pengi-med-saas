@@ -40,6 +40,7 @@ func RunMigrations(db *gorm.DB) error {
 		user_models.RefreshToken{},
 		clinical_models.Patient{},
 		clinical_models.MedicalRecord{},
+		clinical_models.MedicalRecordDraft{},
 		clinical_models.SOAPRecord{},
 		clinical_models.Prescription{},
 		clinical_models.PrescriptionItem{},

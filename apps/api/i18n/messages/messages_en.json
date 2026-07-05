@@ -3644,6 +3644,34 @@
         "value": "There is already an appointment in that time slot. Please choose a different time."
     },
     {
+        "key": "E-CLIN-011",
+        "value": "Error processing medical record draft."
+    },
+    {
+        "key": "clinical.medical_record.draft.saved",
+        "value": "Draft saved."
+    },
+    {
+        "key": "clinical.medical_record.draft.found",
+        "value": "Draft found."
+    },
+    {
+        "key": "clinical.medical_record.draft.not_found",
+        "value": "No saved draft."
+    },
+    {
+        "key": "clinical.medical_record.draft.discarded",
+        "value": "Draft discarded."
+    },
+    {
+        "key": "clinical.medical_record.draft.error",
+        "value": "Error processing draft."
+    },
+    {
+        "key": "clinical.medical_record.draft.invalid_patient",
+        "value": "Invalid patient ID."
+    },
+    {
         "key": "settings.prescription_template.title",
         "value": "Prescription template"
     },

@@ -3644,6 +3644,34 @@
         "value": "Ya existe una cita en ese horario. Por favor elige otro horario."
     },
     {
+        "key": "E-CLIN-011",
+        "value": "Error al procesar el borrador de la consulta médica."
+    },
+    {
+        "key": "clinical.medical_record.draft.saved",
+        "value": "Borrador guardado."
+    },
+    {
+        "key": "clinical.medical_record.draft.found",
+        "value": "Borrador encontrado."
+    },
+    {
+        "key": "clinical.medical_record.draft.not_found",
+        "value": "No hay borrador guardado."
+    },
+    {
+        "key": "clinical.medical_record.draft.discarded",
+        "value": "Borrador descartado."
+    },
+    {
+        "key": "clinical.medical_record.draft.error",
+        "value": "Error al procesar el borrador."
+    },
+    {
+        "key": "clinical.medical_record.draft.invalid_patient",
+        "value": "ID de paciente inválido."
+    },
+    {
         "key": "settings.prescription_template.title",
         "value": "Template de receta"
     },

@@ -1,4 +1,9 @@
 import React from "react";
+import {
+	deleteMedicalRecordDraft,
+	getMedicalRecordDraft,
+	saveMedicalRecordDraft,
+} from "@/api/clinical-service";
 
 type DraftValues = {
 	date?: string;
@@ -66,32 +71,22 @@ type FormValues = {
 	diagnoses?: Array<{ code: string; title: string }>;
 };
 
-function draftKey(patientId: string) {
-	return `soap-draft-${patientId}`;
-}
-
-function serialize(values: FormValues): string {
-	const draft: DraftValues = {
+function toDraftValues(values: FormValues): DraftValues {
+	return {
 		...values,
 		date: values.date?.toISOString(),
 		next_appointment_date: values.next_appointment_date?.toISOString(),
 	};
-	return JSON.stringify(draft);
 }
 
-function deserialize(raw: string): FormValues | null {
-	try {
-		const parsed: DraftValues = JSON.parse(raw);
-		return {
-			...parsed,
-			date: parsed.date ? new Date(parsed.date) : new Date(),
-			next_appointment_date: parsed.next_appointment_date
-				? new Date(parsed.next_appointment_date)
-				: undefined,
-		};
-	} catch {
-		return null;
-	}
+function fromDraftValues(parsed: DraftValues): FormValues {
+	return {
+		...parsed,
+		date: parsed.date ? new Date(parsed.date) : new Date(),
+		next_appointment_date: parsed.next_appointment_date
+			? new Date(parsed.next_appointment_date)
+			: undefined,
+	};
 }
 
 export function useSoapDraft<TValues>(
@@ -104,41 +99,51 @@ export function useSoapDraft<TValues>(
 	const [hasDraft, setHasDraft] = React.useState(false);
 	const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
 	const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-	const restoredForPatientRef = React.useRef<string | null>(null);
 
-	// Restore draft whenever we switch to a patient we haven't restored yet
+	// Restore draft whenever we switch patients. Deliberately no persistent
+	// "already restored" ref here: combined with the cancellation flag below,
+	// that pattern breaks under React StrictMode's dev-mode double-invoke
+	// (effect runs, cleanup marks the first run's fetch as cancelled, second
+	// run sees the ref already set and skips fetching entirely — so the
+	// draft is fetched but its result is always thrown away). Re-running the
+	// fetch per invocation and only guarding via the per-invocation `cancelled`
+	// flag is the standard StrictMode-safe pattern.
 	React.useEffect(() => {
-		if (!patientId || restoredForPatientRef.current === patientId) return;
-		restoredForPatientRef.current = patientId;
-		const raw = localStorage.getItem(draftKey(patientId));
-		if (!raw) {
-			setHasDraft(false);
-			setLastSaved(null);
-			return;
-		}
-		const values = deserialize(raw);
-		if (!values) return;
-		form.reset(values as unknown as Partial<TValues>);
-		setHasDraft(true);
-		setLastSaved(new Date());
+		if (!patientId) return;
+
+		let cancelled = false;
+		(async () => {
+			const result = await getMedicalRecordDraft(Number(patientId));
+			if (cancelled) return;
+			if (!result.success || !result.data) {
+				setHasDraft(false);
+				setLastSaved(null);
+				return;
+			}
+			const values = fromDraftValues(result.data.data as DraftValues);
+			form.reset(values as unknown as Partial<TValues>);
+			setHasDraft(true);
+			setLastSaved(new Date(result.data.UpdatedAt ?? result.data.CreatedAt));
+		})();
+
+		return () => {
+			cancelled = true;
+		};
 	}, [patientId, form]);
 
-	// Watch all values and debounce-save to localStorage
+	// Watch all values and debounce-save to the backend
 	React.useEffect(() => {
 		if (!patientId) return;
 		const subscription = form.watch((values) => {
 			if (debounceRef.current) clearTimeout(debounceRef.current);
-			debounceRef.current = setTimeout(() => {
-				try {
-					localStorage.setItem(
-						draftKey(patientId),
-						serialize(values as unknown as FormValues),
-					);
+			debounceRef.current = setTimeout(async () => {
+				const draft = toDraftValues(values as unknown as FormValues);
+				const result = await saveMedicalRecordDraft(Number(patientId), draft);
+				if (result.success) {
 					setHasDraft(true);
 					setLastSaved(new Date());
-				} catch {
-					// localStorage full or unavailable — silently ignore
 				}
+				// silent on failure — no toast spam while typing
 			}, 800);
 		});
 		return () => {
@@ -147,9 +152,9 @@ export function useSoapDraft<TValues>(
 		};
 	}, [patientId, form]);
 
-	function clearDraft() {
+	async function clearDraft() {
 		if (!patientId) return;
-		localStorage.removeItem(draftKey(patientId));
+		await deleteMedicalRecordDraft(Number(patientId));
 		setHasDraft(false);
 		setLastSaved(null);
 	}
