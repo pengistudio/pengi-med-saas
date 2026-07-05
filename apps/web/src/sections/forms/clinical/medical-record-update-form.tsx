@@ -1,4 +1,14 @@
 import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	FormTextArea,
+	Text,
+} from "@pengi/ui";
+import {
 	Calendar,
 	Check,
 	ClipboardList,
@@ -15,16 +25,6 @@ import {
 } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
-import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 
 const formSchema = z.object({

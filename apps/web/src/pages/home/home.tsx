@@ -1,4 +1,17 @@
 import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	type ChartConfig,
+	ChartContainer,
+	ChartTooltip,
+	ChartTooltipContent,
+	Text,
+} from "@pengi/ui";
+import {
 	AlertTriangle,
 	ArrowRight,
 	Calendar,
@@ -16,21 +29,6 @@ import {
 	getDashboardStats,
 	type SubscriptionInfo,
 } from "@/api/clinical-service";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import {
-	type ChartConfig,
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

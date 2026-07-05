@@ -1,10 +1,7 @@
+import { Button, FormInput, FormSelect, FormTextArea } from "@pengi/ui";
 import { z } from "zod";
 import { createTask, updateTask as updateTaskAPI } from "@/api/kanban-service";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { FormSelect } from "@/components/forms/form-select";
-import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
 import {
 	Sheet,
 	SheetBody,

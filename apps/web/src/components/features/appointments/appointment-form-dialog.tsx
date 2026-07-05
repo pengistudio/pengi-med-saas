@@ -1,3 +1,17 @@
+import {
+	Badge,
+	Button,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	FormInput,
+	FormTextArea,
+	Input,
+	useToast,
+} from "@pengi/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Edit, Plus, Search, User } from "lucide-react";
@@ -11,21 +25,7 @@ import {
 	updateAppointment,
 } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { FormTextArea } from "@/components/forms/form-textarea";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { useText } from "@/hooks/use-text";
-import useToast from "@/hooks/use-toast";
 import { appointmentSchema } from "./appointment-utils";
 
 // ─── Props ───────────────────────────────────────────────────────────────────

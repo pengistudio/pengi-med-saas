@@ -9,10 +9,10 @@ import {
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
+import { Button } from "@pengi/ui";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTasks, moveTask } from "@/api/kanban-service";
-import { Button } from "@/components/ui/button";
 import { useText } from "@/hooks/use-text";
 import KanbanColumn from "@/sections/kanban/kanban-column";
 import TaskCardContent from "@/sections/kanban/task-card-content";

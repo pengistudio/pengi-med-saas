@@ -1,3 +1,17 @@
+import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@pengi/ui";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -6,22 +20,6 @@ import {
 	type Feature,
 	getFeatures,
 } from "@/api/feature-service";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

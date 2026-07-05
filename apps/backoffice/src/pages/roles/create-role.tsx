@@ -1,22 +1,22 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import z from "zod";
-import { getPermissions, type Permission } from "@/api/permission-service";
-import { createRole } from "@/api/role-service";
-import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
+	Checkbox,
+	FormInput,
+	Label,
+	Spinner,
+} from "@pengi/ui";
+import React from "react";
+import { useNavigate } from "react-router";
+import z from "zod";
+import { getPermissions, type Permission } from "@/api/permission-service";
+import { createRole } from "@/api/role-service";
+import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

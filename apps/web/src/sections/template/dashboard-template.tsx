@@ -1,4 +1,22 @@
 import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@pengi/ui";
+import {
 	AlertTriangle,
 	Building2,
 	CreditCard,
@@ -15,24 +33,6 @@ import { initiatePayment } from "@/api/subscription-service";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
 import SelectLanguage from "@/components/custom/select-language";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import useAuth from "@/hooks/use-auth";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
@@ -165,9 +165,9 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 				<nav className="flex-1 space-y-1 p-2 overflow-hidden">
 					{navItems.map((items) => {
 						if (items.accordionItems) {
-							return <NavAccordion key={items.label} {...items} />;
+							return <NavAccordion {...items} key={items.label} />;
 						}
-						return <NavItem key={items.label} {...items} />;
+						return <NavItem {...items} key={items.label} />;
 					})}
 				</nav>
 
@@ -175,11 +175,11 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 				<div className="border-t border-sidebar-border p-2 py-4 overflow-hidden space-y-1">
 					{bottomNavItems.map((item) =>
 						"accordionItems" in item && item.accordionItems ? (
-							<NavAccordion key={item.label} {...item} />
+							<NavAccordion {...item} key={item.label} />
 						) : (
 							<NavItem
-								key={item.label}
 								{...(item as Parameters<typeof NavItem>[0])}
+								key={item.label}
 							/>
 						),
 					)}

@@ -1,0 +1,12 @@
+packages:
+  - "apps/web"
+  - "apps/backoffice"
+  - "packages/*"
+
+allowBuilds:
+  esbuild: true
+  msw: true
+
+minimumReleaseAge: "10080 minutes"
+trustPolicy: no-downgrade
+blockExoticSubdeps: true

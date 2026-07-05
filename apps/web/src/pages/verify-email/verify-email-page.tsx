@@ -1,16 +1,16 @@
-import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
-import { verifyEmail } from "@/api/auth-service";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Card,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
+	Spinner,
+	Text,
+} from "@pengi/ui";
+import React from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { verifyEmail } from "@/api/auth-service";
 
 type State = "loading" | "success" | "error";
 

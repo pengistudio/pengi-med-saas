@@ -1,13 +1,9 @@
+import { Button, Checkbox, FormInput, Label, Text } from "@pengi/ui";
 import { Loader2, Save } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 import { type SriStatus, updateSriInfo } from "@/api/tenant-service";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 
 export const sriInfoSchema = z.object({

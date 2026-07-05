@@ -1,9 +1,9 @@
+import { useToast } from "@pengi/ui";
 import { extendSessionWithToken, userLogin } from "@/api/auth-service";
 import type { ResponseError } from "@/api/fetch";
 import { resetSessionExpiredFlag } from "@/api/index";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
-import useToast from "./use-toast";
 
 type AuthResponse = { token: string | null; user_id: number | null };
 

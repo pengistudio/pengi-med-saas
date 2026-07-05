@@ -1,4 +1,20 @@
-/** biome-ignore-all lint/correctness/useHookAtTopLevel: Only used inside a component */
+import {
+	Avatar,
+	AvatarFallback,
+	Button,
+	Checkbox,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuTrigger,
+	Text,
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@pengi/ui";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
 	Download,
@@ -11,24 +27,6 @@ import {
 import { useNavigate } from "react-router";
 import type { Patient } from "@/api/clinical-service";
 import { downloadPatientReport } from "@/api/clinical-service";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Text } from "@/components/ui/text";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import useAuth from "@/hooks/use-auth";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
@@ -42,7 +40,7 @@ function getInitials(patient: Patient): string {
 	return (first + last).toUpperCase();
 }
 
-function renderActions({ row }: CellContext<Patient, unknown>) {
+function RenderActions({ row }: CellContext<Patient, unknown>) {
 	const navigate = useNavigate();
 	const setPatient = usePatientStore(selectSetPatient);
 	const { token } = useAuth();
@@ -337,7 +335,7 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		size: 120,
 	},
 	{
-		cell: renderActions,
+		cell: (props) => <RenderActions {...props} />,
 		id: "actions",
 		size: 50,
 	},
@@ -391,7 +389,7 @@ export const patientColumnsMobile: ColumnDef<Patient>[] = [
 		header: () => <Text uuid="clinical.patient.name" />,
 	},
 	{
-		cell: renderActions,
+		cell: (props) => <RenderActions {...props} />,
 		id: "actions",
 		size: 50,
 	},

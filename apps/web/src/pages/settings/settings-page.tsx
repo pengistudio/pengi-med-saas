@@ -1,3 +1,4 @@
+import { Button, Text, useToast } from "@pengi/ui";
 import React from "react";
 import { useSearchParams } from "react-router";
 import {
@@ -15,11 +16,8 @@ import {
 	getPrescriptionTemplateStatus,
 	uploadPrescriptionTemplate,
 } from "@/api/settings-service";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
-import useToast from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

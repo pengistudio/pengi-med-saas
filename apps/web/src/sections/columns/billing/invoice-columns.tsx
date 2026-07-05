@@ -1,10 +1,7 @@
+import { Badge, Checkbox, DataTableColumnHeader, Text } from "@pengi/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import type { Invoice } from "@/api/billing-service";
-import { DataTableColumnHeader } from "@/components/custom/table/data-table-column-header";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Text } from "@/components/ui/text";
 
 const getStatusBadge = (status: string) => {
 	switch (status) {

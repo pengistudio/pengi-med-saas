@@ -1,3 +1,15 @@
+import {
+	Button,
+	Checkbox,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+	Text,
+} from "@pengi/ui";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
 	Activity,
@@ -13,18 +25,6 @@ import {
 	Plus,
 } from "lucide-react";
 import type { MedicalRecord } from "@/api/clinical-service";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Text } from "@/components/ui/text";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { dateParser } from "@/lib/utils";

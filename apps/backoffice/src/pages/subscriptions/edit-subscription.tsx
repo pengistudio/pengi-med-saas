@@ -1,3 +1,20 @@
+import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+	FormInput,
+	Label,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	Spinner,
+} from "@pengi/ui";
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
@@ -7,25 +24,6 @@ import {
 	updateSubscription,
 } from "@/api/subscription-service";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

@@ -1,14 +1,14 @@
-import { CheckCircle2, Info, Loader2, XCircle } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { getSriStatus, type SriStatus } from "@/api/tenant-service";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
+	Text,
+} from "@pengi/ui";
+import { CheckCircle2, Info, Loader2, XCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { getSriStatus, type SriStatus } from "@/api/tenant-service";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

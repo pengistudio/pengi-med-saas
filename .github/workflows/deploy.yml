@@ -46,7 +46,7 @@ jobs:
       - name: Build & push Web
         uses: docker/build-push-action@v5
         with:
-          context: apps/web
+          context: .
           file: apps/web/Dockerfile
           push: true
           tags: ghcr.io/${{ env.ORG }}/pengi-web:latest
@@ -58,7 +58,7 @@ jobs:
       - name: Build & push Backoffice
         uses: docker/build-push-action@v5
         with:
-          context: apps/backoffice
+          context: .
           file: apps/backoffice/Dockerfile
           push: true
           tags: ghcr.io/${{ env.ORG }}/pengi-backoffice:latest

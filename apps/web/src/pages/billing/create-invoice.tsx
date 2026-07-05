@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
+import { Card, CardContent, CardHeader, CardTitle, Text } from "@pengi/ui";
 import { InvoiceForm } from "@/sections/forms/billing/invoice-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

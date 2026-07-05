@@ -1,6 +1,5 @@
+import { Label, RadioGroup, RadioGroupItem } from "@pengi/ui";
 import type { KanbanSettings as KanbanSettingsType } from "@/api/settings-service";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useText } from "@/hooks/use-text";
 import { useTenantSettingsStore } from "@/store/tenant-settings-store";
 

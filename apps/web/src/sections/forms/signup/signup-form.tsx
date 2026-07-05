@@ -1,21 +1,21 @@
-import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
-import z from "zod";
-import { companySignup } from "@/api/auth-service";
-import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { FormPasswordInput } from "@/components/forms/form-input-password";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
+	FormInput,
+	FormPasswordInput,
+	Spinner,
+	Text,
+} from "@pengi/ui";
+import React from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import z from "zod";
+import { companySignup } from "@/api/auth-service";
+import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
 
 const formSchema = z

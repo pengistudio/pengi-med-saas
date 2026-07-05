@@ -1,4 +1,19 @@
 import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+	Badge,
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	Separator,
+	Text,
+} from "@pengi/ui";
+import {
 	AlertCircle,
 	FileText,
 	Heart,
@@ -10,23 +25,6 @@ import {
 import React from "react";
 import type { Patient } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 

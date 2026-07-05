@@ -1,13 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Input, Label, Text } from "@pengi/ui";
 import { Loader2, UploadCloud } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { uploadSriSignature } from "@/api/tenant-service";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 
 const sriSchema = z.object({

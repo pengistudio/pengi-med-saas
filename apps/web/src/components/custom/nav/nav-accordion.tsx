@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@pengi/ui";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store/sidebar-store";
 import NavItem from "./nav-item";

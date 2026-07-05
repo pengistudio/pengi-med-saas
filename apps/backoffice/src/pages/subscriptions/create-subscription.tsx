@@ -1,27 +1,25 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import { type Company, getCompanies } from "@/api/company-service";
-import { getPlans, type Plan } from "@/api/plan-service";
-import { createSubscription } from "@/api/subscription-service";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
+	Input,
+	Label,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
+	Spinner,
+} from "@pengi/ui";
+import React from "react";
+import { useNavigate } from "react-router";
+import { type Company, getCompanies } from "@/api/company-service";
+import { getPlans, type Plan } from "@/api/plan-service";
+import { createSubscription } from "@/api/subscription-service";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

@@ -1,19 +1,19 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import type { CatalogItem } from "@/api/billing-service";
-import { DataTableColumnHeader } from "@/components/custom/table/data-table-column-header";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
+	Button,
+	Checkbox,
+	DataTableColumnHeader,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Text } from "@/components/ui/text";
+	Text,
+} from "@pengi/ui";
+import type { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import type { CatalogItem } from "@/api/billing-service";
 
 interface CatalogItemColumnProps {
 	onEdit: (id: number) => void;

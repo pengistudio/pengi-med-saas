@@ -1,4 +1,23 @@
 import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+	Badge,
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	Separator,
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+	Text,
+} from "@pengi/ui";
+import {
 	AlertCircle,
 	AlertTriangle,
 	FileText,
@@ -11,24 +30,6 @@ import {
 import React from "react";
 import type { Patient } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Text } from "@/components/ui/text";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";

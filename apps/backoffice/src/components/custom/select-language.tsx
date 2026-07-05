@@ -1,6 +1,3 @@
-import type { SupportedLocale } from "@/config/zod-i18n";
-import { useLanguage } from "@/contexts/language-context";
-import { useMessageStore } from "@/store/message-store";
 import {
 	Select,
 	SelectContent,
@@ -8,7 +5,10 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "../ui/select";
+} from "@pengi/ui";
+import type { SupportedLocale } from "@/config/zod-i18n";
+import { useLanguage } from "@/contexts/language-context";
+import { useMessageStore } from "@/store/message-store";
 
 const SelectLanguage = () => {
 	const { changeLanguage } = useLanguage();

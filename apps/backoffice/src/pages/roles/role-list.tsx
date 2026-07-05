@@ -1,23 +1,21 @@
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import React from "react";
-import { useNavigate } from "react-router";
-import { deleteRole, getRoles, type Role } from "@/api/role-service";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import {
 	Table,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
+} from "@pengi/ui";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router";
+import { deleteRole, getRoles, type Role } from "@/api/role-service";
 import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

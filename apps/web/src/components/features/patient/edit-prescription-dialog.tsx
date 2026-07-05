@@ -1,19 +1,19 @@
-import { Save } from "lucide-react";
-import React from "react";
-import { z } from "zod";
-import { updatePrescription } from "@/api/clinical-service";
-import { Form } from "@/components/forms/form";
-import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Text } from "@/components/ui/text";
+	FormTextArea,
+	Text,
+} from "@pengi/ui";
+import { Save } from "lucide-react";
+import React from "react";
+import { z } from "zod";
+import { updatePrescription } from "@/api/clinical-service";
+import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
 
 const prescriptionSchema = z.object({

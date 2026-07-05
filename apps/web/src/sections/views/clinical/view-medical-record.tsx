@@ -1,4 +1,16 @@
 import {
+	Badge,
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+	Separator,
+	Spinner,
+	Text,
+} from "@pengi/ui";
+import {
 	Activity,
 	ArrowLeft,
 	BookOpen,
@@ -18,18 +30,6 @@ import {
 	type MedicalRecord,
 } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
 import { useText } from "@/hooks/use-text";
 import {
 	buildPrescriptionWhatsAppMessage,

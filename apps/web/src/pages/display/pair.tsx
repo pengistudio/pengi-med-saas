@@ -1,8 +1,7 @@
+import { Button, Input } from "@pengi/ui";
 import { Monitor } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 const PairDisplayPage = () => {
 	const navigate = useNavigate();
