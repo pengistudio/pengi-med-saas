@@ -321,6 +321,42 @@ export const createMedicalRecord = async (
 	});
 };
 
+export interface MedicalRecordDraft extends BaseModel {
+	tenant_id: number;
+	user_id: number;
+	patient_id: number;
+	data: Record<string, unknown>;
+}
+
+export const getMedicalRecordDraft = async (
+	patientId: number,
+): Promise<ServiceResponse<MedicalRecordDraft | null>> => {
+	return clinicalService.get<MedicalRecordDraft | null>(
+		`/clinical/records/draft/${patientId}`,
+		{ notifyError: false },
+	);
+};
+
+export const saveMedicalRecordDraft = async (
+	patientId: number,
+	data: Record<string, unknown>,
+): Promise<ServiceResponse<MedicalRecordDraft>> => {
+	return clinicalService.put<MedicalRecordDraft>(
+		`/clinical/records/draft/${patientId}`,
+		{ data },
+		{ notifySuccess: false, notifyError: false },
+	);
+};
+
+export const deleteMedicalRecordDraft = async (
+	patientId: number,
+): Promise<ServiceResponse<null>> => {
+	return clinicalService.delete<null>(`/clinical/records/draft/${patientId}`, {
+		notifySuccess: true,
+		notifyError: false,
+	});
+};
+
 export type UpdateMedicalRecordPayload = {
 	date?: string;
 	motive?: string;

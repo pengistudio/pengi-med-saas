@@ -22,6 +22,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
 	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log)
+	draftHandler := clinical_handlers.NewMedicalRecordDraftHandler(db, logger.Log)
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 	{
@@ -58,6 +59,9 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.GET("/:id/prescription/download", rp(db, "UPDATE_PRESCRIPTION"), downloadHandler.DownloadPrescription)
 			recordGroup.PUT("/:id/vital-signs", rp(db, "UPDATE_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.UpsertVitalSigns))
 			recordGroup.GET("/:id/vital-signs", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.GetVitalSigns))
+			recordGroup.GET("/draft/:patient_id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(draftHandler.GetDraft))
+			recordGroup.PUT("/draft/:patient_id", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(draftHandler.SaveDraft))
+			recordGroup.DELETE("/draft/:patient_id", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(draftHandler.DeleteDraft))
 		}
 
 		// Prescription template routes
