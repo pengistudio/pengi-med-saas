@@ -127,6 +127,8 @@ func recordAudit(db *gorm.DB, action string, oldValues, newValues interface{}) {
 	// We use the table name as entity type if not specified by another interface
 	entityType := db.Statement.Table
 
+	patientID := getPatientID(db, entityType, entityID)
+
 	var oldJson, newJson datatypes.JSON
 
 	if oldValues != nil {
@@ -146,6 +148,7 @@ func recordAudit(db *gorm.DB, action string, oldValues, newValues interface{}) {
 		Action:     action,
 		EntityType: entityType,
 		EntityID:   entityID,
+		PatientID:  patientID,
 		OldValues:  oldJson,
 		NewValues:  newJson,
 		CreatedAt:  time.Now(),
@@ -155,6 +158,40 @@ func recordAudit(db *gorm.DB, action string, oldValues, newValues interface{}) {
 	// si AuditLog llegase a ser auditable en el futuro
 	newDB := db.Session(&gorm.Session{NewDB: true})
 	_ = newDB.Create(&log).Error
+}
+
+// getPatientID resolves the PatientID for AuditLog rows where it can be determined cheaply:
+// - the audited entity IS a Patient (its own ID)
+// - the audited entity has a PatientID field (e.g. MedicalRecord)
+// Other entity types (SOAPRecord, Prescription, PrescriptionItem, VitalSigns) return nil in v1 —
+// resolving those would require an extra join per write.
+func getPatientID(db *gorm.DB, entityType string, entityID uint) *uint {
+	if entityType == "patients" {
+		id := entityID
+		return &id
+	}
+
+	for _, src := range []interface{}{db.Statement.Dest, db.Statement.Model} {
+		if src == nil {
+			continue
+		}
+		val := reflect.ValueOf(src)
+		if val.Kind() == reflect.Ptr {
+			if val.IsNil() {
+				continue
+			}
+			val = val.Elem()
+		}
+		if val.Kind() != reflect.Struct {
+			continue
+		}
+		field := val.FieldByName("PatientID")
+		if field.IsValid() && field.Kind() == reflect.Uint {
+			id := uint(field.Uint())
+			return &id
+		}
+	}
+	return nil
 }
 
 func afterCreateCallback(db *gorm.DB) {

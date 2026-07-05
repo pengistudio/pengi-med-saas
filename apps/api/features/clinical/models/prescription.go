@@ -19,3 +19,6 @@ type PrescriptionItem struct {
 	Duration       string `json:"duration"`   // e.g. "7 días"
 	Notes          string `json:"notes"`
 }
+
+func (Prescription) IsAuditable() bool     { return true }
+func (PrescriptionItem) IsAuditable() bool { return true }

@@ -15,6 +15,7 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"gorm.io/gorm"
 
+	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/utils"
@@ -57,6 +58,8 @@ func (h *DownloadRecordHandler) DownloadPatientReport(c *gin.Context) {
 		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "Error obteniendo el paciente", core_errors.ErrClinicalPatientNotFound))
 		return
 	}
+
+	audit.RecordAccess(h.db, c, "patients", patient.ID, &patient.ID)
 
 	// Generate PDF
 	lang, _ := c.Get("lang")
@@ -349,6 +352,8 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "Error retrieving patient data", core_errors.ErrClinicalPatientNotFound))
 		return
 	}
+
+	audit.RecordAccess(h.db, c, "medical_records", record.ID, &record.PatientID)
 
 	// 3. Generate PDF
 	pdfBytes, err := generatePrescriptionPDF(h.db, c, &record, &patient)

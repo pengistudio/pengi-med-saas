@@ -1524,6 +1524,54 @@
         "value": "Select a patient"
     },
     {
+        "key": "appointments.form.color_label",
+        "value": "Color"
+    },
+    {
+        "key": "appointments.colors.lavender",
+        "value": "Lavender"
+    },
+    {
+        "key": "appointments.colors.sage",
+        "value": "Sage"
+    },
+    {
+        "key": "appointments.colors.grape",
+        "value": "Grape"
+    },
+    {
+        "key": "appointments.colors.flamingo",
+        "value": "Flamingo"
+    },
+    {
+        "key": "appointments.colors.banana",
+        "value": "Banana"
+    },
+    {
+        "key": "appointments.colors.tangerine",
+        "value": "Tangerine"
+    },
+    {
+        "key": "appointments.colors.peacock",
+        "value": "Peacock"
+    },
+    {
+        "key": "appointments.colors.graphite",
+        "value": "Graphite"
+    },
+    {
+        "key": "appointments.colors.blueberry",
+        "value": "Blueberry"
+    },
+    {
+        "key": "appointments.colors.basil",
+        "value": "Basil"
+    },
+    {
+        "key": "appointments.colors.tomato",
+        "value": "Tomato"
+    },
+    {
         "key": "appointments.status.scheduled",
         "value": "Incoming"
     },
@@ -2934,6 +2982,10 @@
     {
         "key": "form.cancel",
         "value": "Cancel"
+    },
+    {
+        "key": "form.save",
+        "value": "Save"
     },
     {
         "key": "tenant.signature.upload.success",
@@ -4530,5 +4582,25 @@
     {
         "key": "error.not_found",
         "value": "Resource not found."
+    },
+    {
+        "key": "audit.log.list.success",
+        "value": "Audit logs retrieved successfully"
+    },
+    {
+        "key": "audit.log.error.invalid_request",
+        "value": "Invalid audit log query parameters"
+    },
+    {
+        "key": "audit.log.error.fetch_failed",
+        "value": "Error retrieving audit logs"
+    },
+    {
+        "key": "E-AUDIT-001",
+        "value": "Invalid audit log query."
+    },
+    {
+        "key": "E-AUDIT-002",
+        "value": "Error fetching audit logs."
     }
 ]

@@ -27,6 +27,7 @@ import {
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
 import { appointmentSchema } from "./appointment-utils";
+import { ColorSwatchPicker } from "./color-swatch-picker";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,7 @@ export function AppointmentFormDialog({
 				end_time: values.end_time,
 				location: values.location || "",
 				notes: values.notes || "",
+				color_id: values.color_id || "",
 			});
 			if (res.success) {
 				onOpenChange(false);
@@ -121,6 +123,7 @@ export function AppointmentFormDialog({
 				end_time: values.end_time,
 				location: values.location || "",
 				notes: values.notes || "",
+				color_id: values.color_id || "",
 			});
 			if (res.success) {
 				onOpenChange(false);
@@ -221,6 +224,7 @@ export function AppointmentFormDialog({
 								: "10:00",
 						location: appointment?.location || "",
 						notes: appointment?.notes || "",
+						color_id: appointment?.color_id || "",
 					}}
 					onSubmit={onSubmit}
 				>
@@ -259,6 +263,11 @@ export function AppointmentFormDialog({
 								label={textGet("appointments.form.notes")}
 								placeholder={textGet("appointments.form.notes_placeholder")}
 								isOptional
+							/>
+							<ColorSwatchPicker
+								field={field}
+								name="color_id"
+								label={textGet("appointments.form.color_label")}
 							/>
 							<DialogFooter>
 								<Button type="submit" disabled={loading}>

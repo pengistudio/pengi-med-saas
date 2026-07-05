@@ -93,7 +93,7 @@ services:
       - ALLOWED_ORIGIN=http://pengi-api:8080
     volumes:
       - ./apps/sri-xml-signer:/app
-      - pnpm_store:/pnpm/store
+      - pnpm_store_sri:/pnpm/store
     command: sh -c "corepack enable && pnpm install && pnpm run dev"
     networks:
       - gentoo_network
@@ -109,7 +109,7 @@ services:
       - PNPM_HOME=/pnpm/store
     volumes:
       - ./:/workspace
-      - pnpm_store:/pnpm/store
+      - pnpm_store_web:/pnpm/store
     command: sh -c "corepack enable && pnpm install --dir /workspace && pnpm run dev --host"
     networks:
       - gentoo_network
@@ -125,7 +125,7 @@ services:
       - PNPM_HOME=/pnpm/store
     volumes:
       - ./:/workspace
-      - pnpm_store:/pnpm/store
+      - pnpm_store_backoffice:/pnpm/store
     command: sh -c "corepack enable && pnpm install --dir /workspace && pnpm run dev --host"
     networks:
       - gentoo_network
@@ -141,14 +141,17 @@ services:
       - PNPM_HOME=/pnpm/store
     volumes:
       - ./apps/landing:/app
-      - pnpm_store:/pnpm/store
+      - pnpm_store_landing:/pnpm/store
     command: sh -c "corepack enable && pnpm install && pnpm run dev --host"
     networks:
       - gentoo_network
 
 volumes:
   postgres_data:
-  pnpm_store:
+  pnpm_store_web:
+  pnpm_store_backoffice:
+  pnpm_store_sri:
+  pnpm_store_landing:
 
 networks:
   gentoo_network:

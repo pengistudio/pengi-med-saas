@@ -40,3 +40,4 @@ type SOAPRecord struct {
 }
 
 func (MedicalRecord) IsAuditable() bool { return true }
+func (SOAPRecord) IsAuditable() bool    { return true }

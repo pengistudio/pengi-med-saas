@@ -71,4 +71,8 @@ var (
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")
 	ErrIntegrationNotFound      AppError = NewAppError("E-INT-005", "Integration not found.")
+
+	// Audit Errors
+	ErrAuditInvalidRequest AppError = NewAppError("E-AUDIT-001", "Invalid audit log query.")
+	ErrAuditFetchError     AppError = NewAppError("E-AUDIT-002", "Error fetching audit logs.")
 )

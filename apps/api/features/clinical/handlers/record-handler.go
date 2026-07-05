@@ -2,6 +2,7 @@ package clinical_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
@@ -57,6 +58,9 @@ func (h *MedicalRecordHandler) GetMedicalRecords(c *gin.Context) envelope.Respon
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
 
+	patientID := uint(id)
+	audit.RecordAccess(h.db, c, "patients", patientID, &patientID)
+
 	return envelope.PagedSuccessResponse(records, int(total), page, limit, "clinical.medical_record.list.success")
 }
 
@@ -73,6 +77,8 @@ func (h *MedicalRecordHandler) GetMedicalRecord(c *gin.Context) envelope.Respons
 		h.logger.Error("Failed to fetch medical record", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordNotFound)
 	}
+
+	audit.RecordAccess(h.db, c, "medical_records", record.ID, &record.PatientID)
 
 	return envelope.SuccessResponse(record, "clinical.medical_record.found")
 }

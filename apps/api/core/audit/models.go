@@ -13,9 +13,10 @@ type AuditLog struct {
 	ID         uint           `gorm:"primaryKey"`
 	TenantID   uint           `json:"tenant_id" gorm:"index"`
 	UserID     uint           `json:"user_id" gorm:"index"`
-	Action     string         `json:"action"`                   // "CREATE", "UPDATE", "DELETE"
-	EntityType string         `json:"entity_type" gorm:"index"` // "Patient", "MedicalRecord", etc.
+	Action     string         `json:"action"`                   // "CREATE", "UPDATE", "DELETE", "READ"
+	EntityType string         `json:"entity_type" gorm:"index"` // table name, e.g. "patients", "medical_records"
 	EntityID   uint           `json:"entity_id" gorm:"index"`
+	PatientID  *uint          `json:"patient_id" gorm:"index"` // resolved for Patient/MedicalRecord only; nil otherwise
 	OldValues  datatypes.JSON `json:"old_values"`
 	NewValues  datatypes.JSON `json:"new_values"`
 	CreatedAt  time.Time      `json:"created_at"`

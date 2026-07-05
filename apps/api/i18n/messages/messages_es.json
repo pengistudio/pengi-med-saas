@@ -1524,6 +1524,54 @@
         "value": "Seleccione un paciente"
     },
     {
+        "key": "appointments.form.color_label",
+        "value": "Color"
+    },
+    {
+        "key": "appointments.colors.lavender",
+        "value": "Lavanda"
+    },
+    {
+        "key": "appointments.colors.sage",
+        "value": "Salvia"
+    },
+    {
+        "key": "appointments.colors.grape",
+        "value": "Uva"
+    },
+    {
+        "key": "appointments.colors.flamingo",
+        "value": "Flamenco"
+    },
+    {
+        "key": "appointments.colors.banana",
+        "value": "Banana"
+    },
+    {
+        "key": "appointments.colors.tangerine",
+        "value": "Mandarina"
+    },
+    {
+        "key": "appointments.colors.peacock",
+        "value": "Pavo real"
+    },
+    {
+        "key": "appointments.colors.graphite",
+        "value": "Grafito"
+    },
+    {
+        "key": "appointments.colors.blueberry",
+        "value": "Arándano"
+    },
+    {
+        "key": "appointments.colors.basil",
+        "value": "Albahaca"
+    },
+    {
+        "key": "appointments.colors.tomato",
+        "value": "Tomate"
+    },
+    {
         "key": "appointments.status.scheduled",
         "value": "Por llegar"
     },
@@ -2934,6 +2982,10 @@
     {
         "key": "form.cancel",
         "value": "Cancelar"
+    },
+    {
+        "key": "form.save",
+        "value": "Guardar"
     },
     {
         "key": "tenant.signature.upload.success",
@@ -4530,5 +4582,25 @@
     {
         "key": "error.not_found",
         "value": "Recurso no encontrado."
+    },
+    {
+        "key": "audit.log.list.success",
+        "value": "Registros de auditoría obtenidos correctamente"
+    },
+    {
+        "key": "audit.log.error.invalid_request",
+        "value": "Parámetros de búsqueda de auditoría inválidos"
+    },
+    {
+        "key": "audit.log.error.fetch_failed",
+        "value": "Error al obtener los registros de auditoría"
+    },
+    {
+        "key": "E-AUDIT-001",
+        "value": "Consulta de auditoría inválida."
+    },
+    {
+        "key": "E-AUDIT-002",
+        "value": "Error al obtener los registros de auditoría."
     }
 ]

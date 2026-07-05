@@ -10,6 +10,7 @@ type CreateAppointmentDTO struct {
 	EndTime   string    `json:"end_time" binding:"required"`
 	Location  string    `json:"location,omitempty"`
 	Notes     string    `json:"notes,omitempty"`
+	ColorID   string    `json:"color_id,omitempty" binding:"omitempty,oneof=1 2 3 4 5 6 7 8 9 10 11"`
 }
 
 type UpdateAppointmentDTO struct {
@@ -20,6 +21,7 @@ type UpdateAppointmentDTO struct {
 	EndTime   *string    `json:"end_time,omitempty"`
 	Location  *string    `json:"location,omitempty"`
 	Notes     *string    `json:"notes,omitempty"`
+	ColorID   *string    `json:"color_id,omitempty" binding:"omitempty,oneof=1 2 3 4 5 6 7 8 9 10 11"`
 }
 
 type UpdateAppointmentStatusDTO struct {
