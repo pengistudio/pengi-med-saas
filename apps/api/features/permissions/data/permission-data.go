@@ -128,6 +128,15 @@ var TeamPermissions = []permission_models.Permission{
 	},
 }
 
+var AuditPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_AUDIT_LOG"},
+		Name:         "Read Audit Log",
+		Category:     "AUDIT",
+		Description:  "View the compliance audit trail (access/modification history) for clinical records",
+	},
+}
+
 var KanbanPermissions = []permission_models.Permission{
 	{
 		BaseStringID: database.BaseStringID{ID: "READ_KANBAN"},

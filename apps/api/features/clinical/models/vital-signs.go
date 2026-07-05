@@ -12,3 +12,5 @@ type VitalSigns struct {
 	HeartRate       *uint    `json:"heart_rate"`     // bpm
 	O2Saturation    *uint    `json:"o2_saturation"`  // %
 }
+
+func (VitalSigns) IsAuditable() bool { return true }

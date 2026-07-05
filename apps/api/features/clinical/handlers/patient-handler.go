@@ -2,6 +2,7 @@ package clinical_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
@@ -300,6 +301,8 @@ func (h *PatientHandler) GetPatientByID(c *gin.Context) envelope.Response {
 		h.logger.Error("Failed to find patient", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
+
+	audit.RecordAccess(h.db, c, "patients", patient.ID, &patient.ID)
 
 	return envelope.SuccessResponse(patient, "clinical.patient.found")
 }

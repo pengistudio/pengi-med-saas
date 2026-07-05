@@ -2,6 +2,7 @@ package clinical_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	clinical_models "pengi-med-saas/features/clinical/models"
@@ -79,6 +80,8 @@ func (h *VitalSignsHandler) GetVitalSigns(c *gin.Context) envelope.Response {
 		h.logger.Error("failed to fetch vital signs", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.vital_signs.error.fetch_failed", core_errors.ErrInternal)
 	}
+
+	audit.RecordAccess(h.db, c, "vital_signs", vitalSigns.ID, nil)
 
 	return envelope.SuccessResponse(vitalSigns, "clinical.vital_signs.fetch.success")
 }
