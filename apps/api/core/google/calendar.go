@@ -109,6 +109,7 @@ type CalendarEvent struct {
 	Description string        `json:"description,omitempty"`
 	Start       EventDateTime `json:"start"`
 	End         EventDateTime `json:"end"`
+	ColorID     string        `json:"colorId,omitempty"`
 }
 
 type CalendarEventResponse struct {
@@ -118,7 +119,7 @@ type CalendarEventResponse struct {
 	} `json:"error,omitempty"`
 }
 
-func BuildEvent(title, location, notes, patientName string, date time.Time, startTime, endTime string) *CalendarEvent {
+func BuildEvent(title, location, notes, patientName, colorID string, date time.Time, startTime, endTime string) *CalendarEvent {
 	tz := os.Getenv("TZ")
 	if tz == "" {
 		tz = "UTC"
@@ -140,6 +141,7 @@ func BuildEvent(title, location, notes, patientName string, date time.Time, star
 		Description: description,
 		Start:       EventDateTime{DateTime: dateStr + "T" + startTime + ":00", TimeZone: tz},
 		End:         EventDateTime{DateTime: dateStr + "T" + endTime + ":00", TimeZone: tz},
+		ColorID:     colorID,
 	}
 }
 

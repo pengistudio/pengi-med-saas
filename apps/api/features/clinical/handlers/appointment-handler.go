@@ -43,7 +43,7 @@ func (h *AppointmentHandler) syncCreate(tenantID uint, appointment *clinical_mod
 		return
 	}
 	patientName := appointment.Patient.FirstName + " " + appointment.Patient.LastName
-	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.Date, appointment.StartTime, appointment.EndTime)
+	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.ColorID, appointment.Date, appointment.StartTime, appointment.EndTime)
 	eventID, err := h.googleSvc.CreateEvent(token, calendarID, event)
 	if err != nil {
 		h.logger.Warn("Google Calendar: failed to create event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
@@ -63,7 +63,7 @@ func (h *AppointmentHandler) syncUpdate(tenantID uint, appointment *clinical_mod
 		return
 	}
 	patientName := appointment.Patient.FirstName + " " + appointment.Patient.LastName
-	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.Date, appointment.StartTime, appointment.EndTime)
+	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.ColorID, appointment.Date, appointment.StartTime, appointment.EndTime)
 	if err := h.googleSvc.UpdateEvent(token, calendarID, appointment.GoogleEventID, event); err != nil {
 		h.logger.Warn("Google Calendar: failed to update event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
 	}
@@ -216,6 +216,7 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 		EndTime:   dto.EndTime,
 		Location:  dto.Location,
 		Notes:     dto.Notes,
+		ColorID:   dto.ColorID,
 		Status:    "scheduled",
 	}
 
@@ -280,6 +281,9 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 	}
 	if dto.Notes != nil {
 		updates["notes"] = *dto.Notes
+	}
+	if dto.ColorID != nil {
+		updates["color_id"] = *dto.ColorID
 	}
 
 	// Check for overlap only when time or date fields are being changed

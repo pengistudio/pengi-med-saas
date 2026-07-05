@@ -179,6 +179,7 @@ export interface Appointment extends BaseModel {
 		| "in_consultation"
 		| "completed"
 		| "cancelled";
+	color_id?: string;
 	patient?: Patient;
 }
 
@@ -417,6 +418,7 @@ export type CreateAppointmentPayload = {
 	end_time: string;
 	location?: string;
 	notes?: string;
+	color_id?: string;
 };
 
 export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload>;

@@ -17,6 +17,7 @@ type Appointment struct {
 	Location  string    `json:"location,omitempty"`
 	Notes     string    `json:"notes,omitempty"`
 	Status        string  `json:"status" gorm:"default:scheduled"`
+	ColorID       string  `json:"color_id,omitempty" gorm:"default:''"`
 	GoogleEventID string  `json:"google_event_id,omitempty"`
 	Patient       Patient `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 }

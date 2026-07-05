@@ -1,3 +1,11 @@
+import {
+	DndContext,
+	type DragEndEvent,
+	type DragMoveEvent,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
 import { Button, Text } from "@pengi/ui";
 import {
 	addWeeks,
@@ -12,18 +20,54 @@ import {
 import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
-import { type Appointment, getAppointments } from "@/api/clinical-service";
+import {
+	type Appointment,
+	getAppointments,
+	updateAppointment,
+} from "@/api/clinical-service";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
 import { AppointmentFormDialog } from "./appointment-form-dialog";
 import {
 	END_HOUR,
-	getEventPosition,
-	getStatusColor,
 	HOUR_HEIGHT,
+	minutesToTime,
 	START_HOUR,
+	timeToMinutes,
 } from "./appointment-utils";
-import { CurrentTimeLine } from "./current-time-line";
+import { DayColumn, type DragGhost } from "./day-column";
+
+// Given a dragged appointment and the current drop target, computes the
+// snapped (15-min) destination day/time — shared by the live ghost preview
+// and the final persisted update so both agree on the exact same slot.
+function computeSnappedTarget(
+	appt: Appointment,
+	over: { id: string | number } | null | undefined,
+	delta: { x: number; y: number },
+	weekDays: Date[],
+): { day: Date; startTime: string; endTime: string } | null {
+	if (!over) return null;
+	const targetDay = weekDays.find(
+		(d) => format(d, "yyyy-MM-dd") === String(over.id),
+	);
+	if (!targetDay) return null;
+
+	const duration =
+		timeToMinutes(appt.end_time) - timeToMinutes(appt.start_time);
+	const deltaMinutes = delta.y / (HOUR_HEIGHT / 60);
+	let newStartMinutes =
+		Math.round((timeToMinutes(appt.start_time) + deltaMinutes) / 15) * 15;
+	newStartMinutes = Math.min(
+		Math.max(newStartMinutes, START_HOUR * 60),
+		END_HOUR * 60 - duration,
+	);
+
+	return {
+		day: targetDay,
+		startTime: minutesToTime(newStartMinutes),
+		endTime: minutesToTime(newStartMinutes + duration),
+	};
+}
 
 export default function AppointmentCalendar() {
 	const [currentDate, setCurrentDate] = React.useState(new Date());
@@ -66,8 +110,95 @@ export default function AppointmentCalendar() {
 		fetchAppointments();
 	}, [fetchAppointments]);
 
+	const [dragGhost, setDragGhost] = React.useState<DragGhost | null>(null);
+
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+	);
+
 	function getAppointmentsForDay(day: Date) {
 		return appointments.filter((a) => isSameDay(new Date(a.date), day));
+	}
+
+	function handleDragMove(event: DragMoveEvent) {
+		const { active, over, delta } = event;
+		const appt = appointments.find((a) => a.ID === Number(active.id));
+		if (!appt) {
+			setDragGhost(null);
+			return;
+		}
+
+		const target = computeSnappedTarget(appt, over, delta, weekDays);
+		if (!target) {
+			setDragGhost(null);
+			return;
+		}
+
+		setDragGhost({
+			dayKey: format(target.day, "yyyy-MM-dd"),
+			appointment: appt,
+			startTime: target.startTime,
+			endTime: target.endTime,
+		});
+	}
+
+	function handleDragCancel() {
+		setDragGhost(null);
+	}
+
+	function handleDragEnd(event: DragEndEvent) {
+		setDragGhost(null);
+		const { active, over, delta } = event;
+		if (!over) return;
+
+		const apptId = Number(active.id);
+		const appt = appointments.find((a) => a.ID === apptId);
+		if (!appt) return;
+
+		const target = computeSnappedTarget(appt, over, delta, weekDays);
+		if (!target) return;
+		const {
+			day: targetDay,
+			startTime: newStartTime,
+			endTime: newEndTime,
+		} = target;
+		const newDate = targetDay.toISOString();
+
+		if (
+			isSameDay(new Date(appt.date), targetDay) &&
+			appt.start_time === newStartTime &&
+			appt.end_time === newEndTime
+		) {
+			return;
+		}
+
+		const previous = { ...appt };
+		setAppointments((prev) =>
+			prev.map((a) =>
+				a.ID === apptId
+					? {
+							...a,
+							date: newDate,
+							start_time: newStartTime,
+							end_time: newEndTime,
+						}
+					: a,
+			),
+		);
+
+		updateAppointment(apptId, {
+			date: newDate,
+			start_time: newStartTime,
+			end_time: newEndTime,
+		}).then((res) => {
+			if (!res.success) {
+				setAppointments((prev) =>
+					prev.map((a) => (a.ID === apptId ? previous : a)),
+				);
+			} else {
+				fetchAppointments();
+			}
+		});
 	}
 
 	function handleSlotClick(day: Date, hour: number) {
@@ -170,117 +301,55 @@ export default function AppointmentCalendar() {
 					</div>
 
 					{/* Time Grid */}
-					<div
-						className="grid grid-cols-[60px_repeat(7,1fr)] relative"
-						style={{
-							height: `${hours.length * HOUR_HEIGHT}px`,
-						}}
+					<DndContext
+						sensors={sensors}
+						onDragMove={handleDragMove}
+						onDragEnd={handleDragEnd}
+						onDragCancel={handleDragCancel}
 					>
-						{/* Time Labels */}
-						<div className="relative border-r">
-							{hours.map((hour) => (
-								<div
-									key={hour}
-									className="absolute w-full pr-2 text-right"
-									style={{
-										top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
-									}}
-								>
-									<span className="text-xs text-muted-foreground block">
-										{`${hour.toString().padStart(2, "0")}:00`}
-									</span>
-								</div>
-							))}
+						<div
+							className="grid grid-cols-[60px_repeat(7,1fr)] relative"
+							style={{
+								height: `${hours.length * HOUR_HEIGHT}px`,
+							}}
+						>
+							{/* Time Labels */}
+							<div className="relative border-r">
+								{hours.map((hour) => (
+									<div
+										key={hour}
+										className="absolute w-full pr-2 text-right"
+										style={{
+											top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
+										}}
+									>
+										<span className="text-xs text-muted-foreground block">
+											{`${hour.toString().padStart(2, "0")}:00`}
+										</span>
+									</div>
+								))}
+							</div>
+
+							{/* Day Columns */}
+							{weekDays.map((day) => {
+								const dayKey = format(day, "yyyy-MM-dd");
+								return (
+									<DayColumn
+										key={day.toISOString()}
+										day={day}
+										hours={hours}
+										appointments={getAppointmentsForDay(day)}
+										ghost={dragGhost?.dayKey === dayKey ? dragGhost : null}
+										onSlotClick={handleSlotClick}
+										onAppointmentClick={(appt) => {
+											setSelectedAppointment(appt);
+											setShowDetailDialog(true);
+										}}
+									/>
+								);
+							})}
 						</div>
-
-						{/* Day Columns */}
-						{weekDays.map((day) => {
-							const dayAppointments = getAppointmentsForDay(day);
-							return (
-								<div
-									key={day.toISOString()}
-									className={cn(
-										"relative border-r last:border-r-0",
-										isToday(day) && "bg-primary/2",
-									)}
-								>
-									{/* Hour lines (clickable slots) */}
-									{hours.map((hour) => (
-										<button
-											type="button"
-											key={hour}
-											className="absolute w-full border-t border-border/50 cursor-pointer hover:bg-primary/5 transition-colors"
-											style={{
-												top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
-												height: `${HOUR_HEIGHT}px`,
-											}}
-											onClick={() => handleSlotClick(day, hour)}
-										>
-											<div
-												className="absolute w-full border-t border-border/20"
-												style={{
-													top: `${HOUR_HEIGHT / 2}px`,
-												}}
-											/>
-										</button>
-									))}
-
-									{/* Events */}
-									{dayAppointments.map((appt) => {
-										const pos = getEventPosition(
-											appt.start_time,
-											appt.end_time,
-										);
-										const color = getStatusColor(appt.status);
-										const patientName = appt.patient
-											? appt.patient.full_name ||
-												`${appt.patient.first_name} ${appt.patient.last_name}`
-											: "";
-										return (
-											<button
-												type="button"
-												key={appt.ID}
-												className={cn(
-													"absolute left-1 right-1 rounded-md border-l-[3px] px-2 py-1 cursor-pointer transition-all hover:shadow-md hover:scale-[1.02] overflow-hidden text-left z-10",
-													color.bg,
-													color.border,
-													color.text,
-													appt.status === "cancelled" &&
-														"opacity-50 line-through",
-												)}
-												style={{
-													top: `${pos.top}px`,
-													height: `${pos.height}px`,
-												}}
-												onClick={(e) => {
-													e.stopPropagation();
-													setSelectedAppointment(appt);
-													setShowDetailDialog(true);
-												}}
-											>
-												<p className="text-xs font-semibold truncate leading-tight">
-													{appt.title}
-												</p>
-												{pos.height > 36 && (
-													<p className="text-[10px] opacity-80 truncate">
-														{appt.start_time} - {appt.end_time}
-													</p>
-												)}
-												{pos.height > 52 && (
-													<p className="text-[10px] opacity-70 truncate">
-														{patientName}
-													</p>
-												)}
-											</button>
-										);
-									})}
-
-									{/* Current time indicator */}
-									{isToday(day) && <CurrentTimeLine />}
-								</div>
-							);
-						})}
-					</div>
+					</DndContext>
 				</div>
 			</div>
 
