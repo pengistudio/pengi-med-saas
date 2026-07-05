@@ -96,9 +96,9 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 				<nav className="flex-1 space-y-1 p-2 overflow-hidden">
 					{navItems.map((items) => {
 						if (items.accordionItems) {
-							return <NavAccordion key={items.label} {...items} />;
+							return <NavAccordion {...items} key={items.label} />;
 						}
-						return <NavItem key={items.label} {...items} />;
+						return <NavItem {...items} key={items.label} />;
 					})}
 				</nav>
 
