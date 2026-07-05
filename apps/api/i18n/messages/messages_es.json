@@ -4300,6 +4300,26 @@
         "value": "Token de verificación inválido o expirado."
     },
     {
+        "key": "E-AUTH-013",
+        "value": "Se detectó reutilización del token de refresco; la sesión fue revocada."
+    },
+    {
+        "key": "E-AUTH-014",
+        "value": "La sesión ha sido revocada. Por favor inicia sesión nuevamente."
+    },
+    {
+        "key": "auth.refresh.reused",
+        "value": "Se detectó reutilización del token de refresco; la sesión fue revocada."
+    },
+    {
+        "key": "auth.refresh.revoked",
+        "value": "La sesión ha sido revocada. Por favor inicia sesión nuevamente."
+    },
+    {
+        "key": "auth.logout.success",
+        "value": "Sesión cerrada correctamente."
+    },
+    {
         "key": "register.title",
         "value": "Crear cuenta"
     },

@@ -1,9 +1,8 @@
 import type { LoginRequest, LoginResponse } from "@/types/user-type";
-import { api, noAuthApi } from ".";
+import { noAuthApi } from ".";
 import { createHttpService, type ServiceResponse } from "./fetch";
 
 const loginService = createHttpService(noAuthApi);
-const httpService = createHttpService(api);
 
 export const userLogin = async (
 	data: LoginRequest,
@@ -14,18 +13,24 @@ export const userLogin = async (
 	});
 };
 
-export const extendSessionWithToken = async (): Promise<
-	ServiceResponse<LoginResponse>
-> => {
-	// httpService automatically attaches the token via intercepts
-	// We no longer need to pass the header manually because it will be intercepted
-	return httpService.post<LoginResponse>("/auth/extend");
+export const logoutRequest = async (): Promise<ServiceResponse<null>> => {
+	return loginService.post<null>(
+		"/auth/logout",
+		{},
+		{
+			withCredentials: true, // sends the refresh_token cookie so the backend can revoke it
+		},
+	);
 };
 
+export interface RefreshTokenResponse {
+	token: string;
+}
+
 export const refreshToken = async (): Promise<
-	ServiceResponse<LoginResponse>
+	ServiceResponse<RefreshTokenResponse>
 > => {
-	return loginService.post<LoginResponse>(
+	return loginService.post<RefreshTokenResponse>(
 		"/auth/refresh",
 		{},
 		{

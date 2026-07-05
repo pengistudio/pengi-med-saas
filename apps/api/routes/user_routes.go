@@ -38,7 +38,7 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		authRoutes.POST("/signup/company", envelope.Handle(userHandler.SignUpWithCompanyToken))
 		authRoutes.POST("/login", envelope.Handle(userHandler.Login))
 		authRoutes.POST("/refresh", envelope.Handle(userHandler.RefreshAuthToken))
-		authRoutes.POST("/extend", auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.ExtendSession))
+		authRoutes.POST("/logout", envelope.Handle(userHandler.Logout))
 		authRoutes.POST("/validate", envelope.Handle(userHandler.ValidateBearerToken))
 		authRoutes.POST("/reset-password", envelope.Handle(userHandler.ResetPassword))
 	}

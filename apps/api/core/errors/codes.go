@@ -64,6 +64,8 @@ var (
 	ErrAuthUsernameTaken             AppError = NewAppError("E-AUTH-010", "Username already in use.")
 	ErrAuthEmailNotVerified          AppError = NewAppError("E-AUTH-011", "Email not verified.")
 	ErrAuthInvalidVerificationToken  AppError = NewAppError("E-AUTH-012", "Invalid or expired verification token.")
+	ErrAuthRefreshTokenReused        AppError = NewAppError("E-AUTH-013", "Refresh token reuse detected; session revoked.")
+	ErrAuthSessionRevoked            AppError = NewAppError("E-AUTH-014", "Session has been revoked. Please log in again.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

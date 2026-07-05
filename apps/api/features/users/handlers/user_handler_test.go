@@ -14,7 +14,7 @@ import (
 )
 
 func TestLogin_Success(t *testing.T) {
-	db := testutils.SetupTestDB(t, &user_models.User{})
+	db := testutils.SetupTestDB(t, &user_models.User{}, &user_models.RefreshToken{})
 	logger := zap.NewNop()
 
 	// Create a test user with hashed password
@@ -76,7 +76,7 @@ func TestLogin_Success(t *testing.T) {
 }
 
 func TestLogin_InvalidPassword(t *testing.T) {
-	db := testutils.SetupTestDB(t, &user_models.User{})
+	db := testutils.SetupTestDB(t, &user_models.User{}, &user_models.RefreshToken{})
 	logger := zap.NewNop()
 
 	// Create a test user with hashed password
@@ -114,7 +114,7 @@ func TestLogin_InvalidPassword(t *testing.T) {
 }
 
 func TestLogin_UserNotFound(t *testing.T) {
-	db := testutils.SetupTestDB(t, &user_models.User{})
+	db := testutils.SetupTestDB(t, &user_models.User{}, &user_models.RefreshToken{})
 	logger := zap.NewNop()
 
 	handler := NewUserHandler(db, logger)
@@ -138,7 +138,7 @@ func TestLogin_UserNotFound(t *testing.T) {
 }
 
 func TestLogin_MissingBody(t *testing.T) {
-	db := testutils.SetupTestDB(t, &user_models.User{})
+	db := testutils.SetupTestDB(t, &user_models.User{}, &user_models.RefreshToken{})
 	logger := zap.NewNop()
 
 	handler := NewUserHandler(db, logger)

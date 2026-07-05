@@ -27,6 +27,9 @@ func SetupTestDB(t *testing.T, models ...interface{}) *gorm.DB {
 	if os.Getenv("AUTH_EXP") == "" {
 		os.Setenv("AUTH_EXP", "60") // 60 minutes
 	}
+	if os.Getenv("AUTH_REFRESH_EXP") == "" {
+		os.Setenv("AUTH_REFRESH_EXP", "30") // 30 days
+	}
 
 	// Check if we're in CI environment
 	isCI := os.Getenv("CI") != "" || os.Getenv("GITHUB_ACTIONS") != ""

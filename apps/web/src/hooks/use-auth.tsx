@@ -1,5 +1,5 @@
 import { useToast } from "@pengi/ui";
-import { extendSessionWithToken, userLogin } from "@/api/auth-service";
+import { logoutRequest, userLogin } from "@/api/auth-service";
 import type { ResponseError } from "@/api/fetch";
 import { resetSessionExpiredFlag } from "@/api/index";
 import { useTokenStore } from "@/store/token-store";
@@ -33,6 +33,10 @@ const useAuth = () => {
 	};
 
 	const logout = () => {
+		// Best-effort server-side revocation, fired in the background —
+		// must not delay clearing local state, or other in-flight/refiring
+		// requests get a window to run against an already-invalid session.
+		logoutRequest().catch(() => {});
 		localStorage.clear();
 		sessionStorage.clear();
 		useTokenStore.getState().setToken(undefined);
@@ -40,25 +44,10 @@ const useAuth = () => {
 		window.location.href = "/login";
 	};
 
-	const refreshExtendToken = async (): Promise<AuthResponse> => {
-		if (!token) return { token: null, user_id: null };
-
-		const result = await extendSessionWithToken();
-
-		if (result.success) {
-			const refresh = result.data;
-			useTokenStore.getState().setToken(refresh.token);
-			return { token: refresh.token, user_id: refresh.user_id };
-		}
-
-		return handleApiError(result.data);
-	};
-
 	return {
 		token,
 		login,
 		logout,
-		refreshExtendToken,
 	};
 };
 
