@@ -24,7 +24,6 @@
 		"jwt-decode": "catalog:",
 		"lucide-react": "catalog:",
 		"next-themes": "catalog:",
-		"radix-ui": "^1.6.1",
 		"react": "catalog:",
 		"react-day-picker": "catalog:",
 		"react-dom": "catalog:",
