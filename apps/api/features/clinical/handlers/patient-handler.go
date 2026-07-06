@@ -198,6 +198,7 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	search := c.Query("search")
+	pendingFollowUp := c.Query("pending_follow_up") == "true"
 	if page < 1 {
 		page = 1
 	}
@@ -226,6 +227,38 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 			"full_name ILIKE ? OR document ILIKE ? OR phone ILIKE ?",
 			like, like, like,
 		)
+	}
+
+	// Pending follow-up mode: only patients whose latest medical record has a
+	// suggested next_appointment_date and who don't already have a scheduled
+	// appointment (same "any scheduled appointment hides the suggestion" rule
+	// used by the patients table's next_appointment column).
+	if pendingFollowUp {
+		baseQuery = baseQuery.
+			Where(`EXISTS (
+				SELECT 1 FROM medical_records mr
+				WHERE mr.patient_id = patients.id
+				AND mr.deleted_at IS NULL
+				AND mr.next_appointment_date IS NOT NULL
+				AND mr.date = (
+					SELECT MAX(mr2.date) FROM medical_records mr2
+					WHERE mr2.patient_id = patients.id AND mr2.deleted_at IS NULL
+				)
+			)`).
+			Where(`NOT EXISTS (
+				SELECT 1 FROM appointments a
+				WHERE a.patient_id = patients.id
+				AND a.deleted_at IS NULL
+				AND a.status = ?
+				AND a.date >= ?
+			)`, "scheduled", now)
+		orderClause = `(
+			SELECT mr.next_appointment_date FROM medical_records mr
+			WHERE mr.patient_id = patients.id AND mr.deleted_at IS NULL
+			ORDER BY mr.date DESC LIMIT 1
+		) ASC`
+		limit = 1000
+		offset = 0
 	}
 
 	// Count total (critical first, then paginate)

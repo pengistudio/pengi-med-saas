@@ -49,6 +49,7 @@ export type PatientListParams = {
 	search?: string;
 	sort_by?: PatientSortBy;
 	sort_order?: PatientSortOrder;
+	pending_follow_up?: boolean;
 };
 
 export const getAllPatientsWithLastFollowUp = async (
@@ -60,6 +61,7 @@ export const getAllPatientsWithLastFollowUp = async (
 	if (params.search) qs.set("search", params.search);
 	if (params.sort_by) qs.set("sort_by", params.sort_by);
 	if (params.sort_order) qs.set("sort_order", params.sort_order);
+	if (params.pending_follow_up) qs.set("pending_follow_up", "true");
 	const query = qs.toString() ? `?${qs.toString()}` : "";
 	return clinicalService.get<PaginatedResponse<Patient>>(
 		`/clinical/patients/follow-up${query}`,

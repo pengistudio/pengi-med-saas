@@ -1468,6 +1468,14 @@
         "value": "Editar Cita"
     },
     {
+        "key": "appointments.pending.title",
+        "value": "Pendientes de agendar"
+    },
+    {
+        "key": "appointments.pending.empty",
+        "value": "No hay fechas tentativas pendientes"
+    },
+    {
         "key": "appointments.patient",
         "value": "Paciente"
     },
@@ -1486,6 +1494,14 @@
     {
         "key": "appointments.form.title_placeholder",
         "value": "Consulta general, control, etc."
+    },
+    {
+        "key": "appointments.form.subtitle",
+        "value": "Completa los datos de la cita"
+    },
+    {
+        "key": "appointments.form.date",
+        "value": "Fecha"
     },
     {
         "key": "appointments.form.start_time",
