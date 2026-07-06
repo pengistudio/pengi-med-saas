@@ -30,7 +30,6 @@
 		"react-dom": "catalog:",
 		"react-hook-form": "catalog:",
 		"react-router": "catalog:",
-		"react-router-dom": "^7.18.1",
 		"recharts": "catalog:",
 		"sonner": "catalog:",
 		"tailwind-merge": "catalog:",
