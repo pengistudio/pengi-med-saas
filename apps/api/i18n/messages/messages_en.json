@@ -1468,6 +1468,14 @@
         "value": "Edit Appointment"
     },
     {
+        "key": "appointments.pending.title",
+        "value": "Pending to schedule"
+    },
+    {
+        "key": "appointments.pending.empty",
+        "value": "No pending tentative dates"
+    },
+    {
         "key": "appointments.patient",
         "value": "Patient"
     },
@@ -1486,6 +1494,14 @@
     {
         "key": "appointments.form.title_placeholder",
         "value": "General consultation, follow-up, etc."
+    },
+    {
+        "key": "appointments.form.subtitle",
+        "value": "Fill in the appointment details"
+    },
+    {
+        "key": "appointments.form.date",
+        "value": "Date"
     },
     {
         "key": "appointments.form.start_time",

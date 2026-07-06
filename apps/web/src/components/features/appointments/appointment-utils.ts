@@ -210,6 +210,7 @@ export function getEventPosition(startTime: string, endTime: string) {
 
 export const appointmentSchema = z.object({
 	title: z.string().min(1, "Requerido"),
+	date: z.date(),
 	start_time: z.string().min(1, "Requerido"),
 	end_time: z.string().min(1, "Requerido"),
 	location: z.string().optional(),

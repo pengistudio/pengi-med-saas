@@ -23,8 +23,10 @@ import React from "react";
 import {
 	type Appointment,
 	getAppointments,
+	type Patient,
 	updateAppointment,
 } from "@/api/clinical-service";
+import useTenantSettings from "@/hooks/use-tenant-settings";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
 import { AppointmentFormDialog } from "./appointment-form-dialog";
@@ -36,6 +38,7 @@ import {
 	timeToMinutes,
 } from "./appointment-utils";
 import { DayColumn, type DragGhost } from "./day-column";
+import { PendingFollowUpsPanel } from "./pending-follow-ups-panel";
 
 // Given a dragged appointment and the current drop target, computes the
 // snapped (15-min) destination day/time — shared by the live ghost preview
@@ -81,6 +84,10 @@ export default function AppointmentCalendar() {
 		date?: Date;
 		time?: string;
 	}>({});
+	const [suggestedPatient, setSuggestedPatient] =
+		React.useState<Patient | null>(null);
+	const [pendingRefreshKey, setPendingRefreshKey] = React.useState(0);
+	const { settings } = useTenantSettings();
 
 	const weekStart = React.useMemo(
 		() => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -207,19 +214,34 @@ export default function AppointmentCalendar() {
 			date: day,
 			time: `${hour.toString().padStart(2, "0")}:00`,
 		});
+		setSuggestedPatient(null);
 		setShowFormDialog(true);
 	}
 
 	function handleEditAppointment(appt: Appointment) {
 		setEditTarget(appt);
 		setCreateDefaults({});
+		setSuggestedPatient(null);
 		setShowFormDialog(true);
 	}
 
 	function handleNewAppointment() {
 		setEditTarget(null);
 		setCreateDefaults({ date: new Date() });
+		setSuggestedPatient(null);
 		setShowFormDialog(true);
+	}
+
+	function handleScheduleFromSuggestion(patient: Patient, date: Date) {
+		setEditTarget(null);
+		setCreateDefaults({ date });
+		setSuggestedPatient(patient);
+		setShowFormDialog(true);
+	}
+
+	function handleFormSuccess() {
+		fetchAppointments();
+		setPendingRefreshKey((k) => k + 1);
 	}
 
 	return (
@@ -266,91 +288,100 @@ export default function AppointmentCalendar() {
 				</div>
 			</div>
 
-			{/* ── Calendar Grid ──────────────────────────── */}
-			<div className="flex-1 border rounded-xl overflow-hidden bg-card">
-				{/* Scrollable area with headers inside */}
-				<div
-					className="overflow-auto flex-1 max-h-[calc(100vh-16rem)]"
-					style={{ scrollbarGutter: "stable" }}
-				>
-					{/* Day Headers (sticky) */}
-					<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20">
-						<div className="border-r" />
-						{weekDays.map((day) => (
-							<div
-								key={day.toISOString()}
-								className={cn(
-									"text-center py-3 border-r last:border-r-0",
-									isToday(day) && "bg-primary/5",
-								)}
-							>
-								<p className="text-xs font-medium text-muted-foreground uppercase">
-									{format(day, "EEE", { locale: es })}
-								</p>
-								<p
+			{/* ── Calendar Grid + Pending Panel ───────────── */}
+			<div className="flex-1 flex gap-4 min-h-0">
+				<div className="flex-1 min-w-0 border rounded-xl overflow-hidden bg-card">
+					{/* Scrollable area with headers inside */}
+					<div
+						className="overflow-auto flex-1 max-h-[calc(100vh-16rem)]"
+						style={{ scrollbarGutter: "stable" }}
+					>
+						{/* Day Headers (sticky) */}
+						<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20">
+							<div className="border-r" />
+							{weekDays.map((day) => (
+								<div
+									key={day.toISOString()}
 									className={cn(
-										"text-lg font-semibold mt-0.5 leading-none",
-										isToday(day) &&
-											"bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto",
+										"text-center py-3 border-r last:border-r-0",
+										isToday(day) && "bg-primary/5",
 									)}
 								>
-									{format(day, "d")}
-								</p>
-							</div>
-						))}
-					</div>
-
-					{/* Time Grid */}
-					<DndContext
-						sensors={sensors}
-						onDragMove={handleDragMove}
-						onDragEnd={handleDragEnd}
-						onDragCancel={handleDragCancel}
-					>
-						<div
-							className="grid grid-cols-[60px_repeat(7,1fr)] relative"
-							style={{
-								height: `${hours.length * HOUR_HEIGHT}px`,
-							}}
-						>
-							{/* Time Labels */}
-							<div className="relative border-r">
-								{hours.map((hour) => (
-									<div
-										key={hour}
-										className="absolute w-full pr-2 text-right"
-										style={{
-											top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
-										}}
+									<p className="text-xs font-medium text-muted-foreground uppercase">
+										{format(day, "EEE", { locale: es })}
+									</p>
+									<p
+										className={cn(
+											"text-lg font-semibold mt-0.5 leading-none",
+											isToday(day) &&
+												"bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto",
+										)}
 									>
-										<span className="text-xs text-muted-foreground block">
-											{`${hour.toString().padStart(2, "0")}:00`}
-										</span>
-									</div>
-								))}
-							</div>
-
-							{/* Day Columns */}
-							{weekDays.map((day) => {
-								const dayKey = format(day, "yyyy-MM-dd");
-								return (
-									<DayColumn
-										key={day.toISOString()}
-										day={day}
-										hours={hours}
-										appointments={getAppointmentsForDay(day)}
-										ghost={dragGhost?.dayKey === dayKey ? dragGhost : null}
-										onSlotClick={handleSlotClick}
-										onAppointmentClick={(appt) => {
-											setSelectedAppointment(appt);
-											setShowDetailDialog(true);
-										}}
-									/>
-								);
-							})}
+										{format(day, "d")}
+									</p>
+								</div>
+							))}
 						</div>
-					</DndContext>
+
+						{/* Time Grid */}
+						<DndContext
+							sensors={sensors}
+							onDragMove={handleDragMove}
+							onDragEnd={handleDragEnd}
+							onDragCancel={handleDragCancel}
+						>
+							<div
+								className="grid grid-cols-[60px_repeat(7,1fr)] relative"
+								style={{
+									height: `${hours.length * HOUR_HEIGHT}px`,
+								}}
+							>
+								{/* Time Labels */}
+								<div className="relative border-r">
+									{hours.map((hour) => (
+										<div
+											key={hour}
+											className="absolute w-full pr-2 text-right"
+											style={{
+												top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
+											}}
+										>
+											<span className="text-xs text-muted-foreground block">
+												{`${hour.toString().padStart(2, "0")}:00`}
+											</span>
+										</div>
+									))}
+								</div>
+
+								{/* Day Columns */}
+								{weekDays.map((day) => {
+									const dayKey = format(day, "yyyy-MM-dd");
+									return (
+										<DayColumn
+											key={day.toISOString()}
+											day={day}
+											hours={hours}
+											appointments={getAppointmentsForDay(day)}
+											ghost={dragGhost?.dayKey === dayKey ? dragGhost : null}
+											onSlotClick={handleSlotClick}
+											onAppointmentClick={(appt) => {
+												setSelectedAppointment(appt);
+												setShowDetailDialog(true);
+											}}
+										/>
+									);
+								})}
+							</div>
+						</DndContext>
+					</div>
 				</div>
+
+				{settings.clinical.show_next_appointment && (
+					<PendingFollowUpsPanel
+						refreshKey={pendingRefreshKey}
+						onSchedule={handleScheduleFromSuggestion}
+					/>
+				)}
 			</div>
 
 			{/* ── Dialogs ─────────────────────────────────── */}
@@ -368,7 +399,8 @@ export default function AppointmentCalendar() {
 				appointment={editTarget}
 				defaultDate={createDefaults.date}
 				defaultTime={createDefaults.time}
-				onSuccess={fetchAppointments}
+				defaultPatient={suggestedPatient}
+				onSuccess={handleFormSuccess}
 			/>
 		</div>
 	);

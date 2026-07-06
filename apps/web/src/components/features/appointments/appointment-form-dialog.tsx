@@ -12,8 +12,6 @@ import {
 	Input,
 	useToast,
 } from "@pengi/ui";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Edit, Plus, Search, User } from "lucide-react";
 import React from "react";
 import type { z } from "zod";
@@ -25,6 +23,7 @@ import {
 	updateAppointment,
 } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
+import { FormCalendar } from "@/components/forms/form-calendar";
 import { useText } from "@/hooks/use-text";
 import { appointmentSchema } from "./appointment-utils";
 import { ColorSwatchPicker } from "./color-swatch-picker";
@@ -37,6 +36,7 @@ export interface AppointmentFormDialogProps {
 	appointment?: Appointment | null;
 	defaultDate?: Date;
 	defaultTime?: string;
+	defaultPatient?: Patient | null;
 	onSuccess: () => void;
 }
 
@@ -48,6 +48,7 @@ export function AppointmentFormDialog({
 	appointment,
 	defaultDate,
 	defaultTime,
+	defaultPatient,
 	onSuccess,
 }: AppointmentFormDialogProps) {
 	const [loading, setLoading] = React.useState(false);
@@ -68,8 +69,13 @@ export function AppointmentFormDialog({
 					setPatients(res.data.items);
 				}
 			});
-			setSelectedPatient(null);
-			setPatientSearch("");
+			setSelectedPatient(defaultPatient ?? null);
+			setPatientSearch(
+				defaultPatient
+					? defaultPatient.full_name ||
+							`${defaultPatient.first_name} ${defaultPatient.last_name}`
+					: "",
+			);
 		}
 		if (open && isEdit && appointment?.patient) {
 			setSelectedPatient(appointment.patient);
@@ -78,7 +84,7 @@ export function AppointmentFormDialog({
 					`${appointment.patient.first_name} ${appointment.patient.last_name}`,
 			);
 		}
-	}, [open, isEdit, appointment]);
+	}, [open, isEdit, appointment, defaultPatient]);
 
 	const filteredPatients = patients.filter((p) => {
 		const name = (
@@ -104,6 +110,7 @@ export function AppointmentFormDialog({
 		if (isEdit && appointment) {
 			const res = await updateAppointment(appointment.ID, {
 				title: values.title,
+				date: values.date.toISOString(),
 				start_time: values.start_time,
 				end_time: values.end_time,
 				location: values.location || "",
@@ -118,7 +125,7 @@ export function AppointmentFormDialog({
 			const res = await createAppointment({
 				patient_id: selectedPatient.ID,
 				title: values.title,
-				date: formDate.toISOString(),
+				date: values.date.toISOString(),
 				start_time: values.start_time,
 				end_time: values.end_time,
 				location: values.location || "",
@@ -143,7 +150,7 @@ export function AppointmentFormDialog({
 							: textGet("appointments.new")}
 					</DialogTitle>
 					<DialogDescription>
-						{format(formDate, "EEEE, d MMMM yyyy", { locale: es })}
+						{textGet("appointments.form.subtitle")}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -216,6 +223,7 @@ export function AppointmentFormDialog({
 					schema={appointmentSchema}
 					defaultValues={{
 						title: appointment?.title || "",
+						date: formDate,
 						start_time: appointment?.start_time || defaultTime || "09:00",
 						end_time: appointment?.end_time
 							? appointment.end_time
@@ -235,6 +243,12 @@ export function AppointmentFormDialog({
 								name="title"
 								label={`${textGet("appointments.form.title_label")} *`}
 								placeholder={textGet("appointments.form.title_placeholder")}
+							/>
+							<FormCalendar
+								field={field}
+								name="date"
+								label={`${textGet("appointments.form.date")} *`}
+								showMonthYearDropdowns
 							/>
 							<div className="grid grid-cols-2 gap-4">
 								<FormInput
