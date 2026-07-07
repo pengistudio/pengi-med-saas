@@ -3628,6 +3628,70 @@
         "value": "No se encontraron resultados"
     },
     {
+        "key": "form.create_medical_record.visit_type.title",
+        "value": "Tipo de consulta"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.description",
+        "value": "Selecciona el tipo de consulta que vas a registrar"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.first",
+        "value": "Primera vez"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.first.description",
+        "value": "Registra la historia clínica inicial del paciente"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.followup",
+        "value": "Nueva Consulta"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.followup.description",
+        "value": "Continúa con el formulario de consulta habitual"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.select",
+        "value": "Seleccionar"
+    },
+    {
+        "key": "form.create_medical_record.tab.historia_clinica",
+        "value": "Antecedentes"
+    },
+    {
+        "key": "form.create_medical_record.app",
+        "value": "Antecedentes Personales Patológicos"
+    },
+    {
+        "key": "form.create_medical_record.app.placeholder",
+        "value": "APP..."
+    },
+    {
+        "key": "form.create_medical_record.apf",
+        "value": "Antecedentes Patológicos Familiares"
+    },
+    {
+        "key": "form.create_medical_record.apf.placeholder",
+        "value": "APF..."
+    },
+    {
+        "key": "form.create_medical_record.apqx",
+        "value": "Antecedentes Patológicos Quirúrgicos"
+    },
+    {
+        "key": "form.create_medical_record.apqx.placeholder",
+        "value": "APQX..."
+    },
+    {
+        "key": "form.create_medical_record.allergies",
+        "value": "Alergias"
+    },
+    {
+        "key": "form.create_medical_record.allergies.placeholder",
+        "value": "Lista las alergias conocidas..."
+    },
+    {
         "key": "tenant.settings.fetch.success",
         "value": "Configuración cargada"
     },

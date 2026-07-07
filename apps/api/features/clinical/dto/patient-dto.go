@@ -14,11 +14,6 @@ type CreatePatientDTO struct {
 	Notes       string     `json:"notes"`
 	Insurance   string     `json:"insurance"`
 	Medic       string     `json:"medic"`
-	Diagnosis   string     `json:"diagnosis"`
-	APP         string     `json:"app"`
-	APF         string     `json:"apf"`
-	APQX        string     `json:"apqx"`
-	Allergies   string     `json:"allergies"`
 }
 
 type UpdatePatientDTO struct {
@@ -33,11 +28,6 @@ type UpdatePatientDTO struct {
 	Notes       *string    `json:"notes"`
 	Insurance   *string    `json:"insurance"`
 	Medic       *string    `json:"medic"`
-	Diagnosis   *string    `json:"diagnosis"`
-	APP         *string    `json:"app"`
-	APF         *string    `json:"apf"`
-	APQX        *string    `json:"apqx"`
-	Allergies   *string    `json:"allergies"`
 }
 
 type DeletePatientsDTO struct {

@@ -3628,6 +3628,70 @@
         "value": "No results found"
     },
     {
+        "key": "form.create_medical_record.visit_type.title",
+        "value": "Consultation type"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.description",
+        "value": "Select the type of consultation you are recording"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.first",
+        "value": "First visit"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.first.description",
+        "value": "Record the patient's initial clinical history"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.followup",
+        "value": "Follow-up"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.followup.description",
+        "value": "Continue with the regular consultation form"
+    },
+    {
+        "key": "form.create_medical_record.visit_type.select",
+        "value": "Select"
+    },
+    {
+        "key": "form.create_medical_record.tab.historia_clinica",
+        "value": "Medical History"
+    },
+    {
+        "key": "form.create_medical_record.app",
+        "value": "Personal Medical History"
+    },
+    {
+        "key": "form.create_medical_record.app.placeholder",
+        "value": "APP..."
+    },
+    {
+        "key": "form.create_medical_record.apf",
+        "value": "Family Medical History"
+    },
+    {
+        "key": "form.create_medical_record.apf.placeholder",
+        "value": "APF..."
+    },
+    {
+        "key": "form.create_medical_record.apqx",
+        "value": "Surgical History"
+    },
+    {
+        "key": "form.create_medical_record.apqx.placeholder",
+        "value": "APQX..."
+    },
+    {
+        "key": "form.create_medical_record.allergies",
+        "value": "Allergies"
+    },
+    {
+        "key": "form.create_medical_record.allergies.placeholder",
+        "value": "List known allergies..."
+    },
+    {
         "key": "tenant.settings.fetch.success",
         "value": "Settings loaded"
     },

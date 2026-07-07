@@ -120,11 +120,6 @@ export type CreatePatientPayload = {
 	notes?: string;
 	insurance?: string;
 	medic: string;
-	diagnosis?: string;
-	app?: string;
-	apf?: string;
-	apqx?: string;
-	allergies?: string;
 };
 
 export const createPatient = async (
@@ -231,6 +226,11 @@ export interface MedicalRecord extends BaseModel {
 	} | null;
 	vital_signs?: VitalSigns | null;
 	diagnoses?: DiagnosisItem[];
+	visit_type: "first" | "followup";
+	app?: string;
+	apf?: string;
+	apqx?: string;
+	allergies?: string;
 }
 
 export type MedicalRecordListParams = {
@@ -313,6 +313,11 @@ export type CreateMedicalRecordPayload = {
 		o2_saturation?: number | null;
 	};
 	diagnoses?: DiagnosisItem[];
+	visit_type: "first" | "followup";
+	app?: string;
+	apf?: string;
+	apqx?: string;
+	allergies?: string;
 };
 
 export const createMedicalRecord = async (

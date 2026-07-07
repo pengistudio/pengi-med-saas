@@ -1,6 +1,7 @@
 package clinical_handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
@@ -8,10 +9,12 @@ import (
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
@@ -24,6 +27,70 @@ type MedicalRecordHandler struct {
 
 func NewMedicalRecordHandler(db *gorm.DB, logger *zap.Logger) *MedicalRecordHandler {
 	return &MedicalRecordHandler{db: db, logger: logger}
+}
+
+// syncPatientClinicalHistoryFromFirstVisit copies the first-visit clinical
+// fields (APP, APF, APQX, allergies, and the CIE-10/11 diagnosis) onto the
+// Patient record so they keep surfacing in patient-card/list/PDF exports
+// that read from Patient directly, even though secretaries no longer edit
+// them via the patient forms.
+func (h *MedicalRecordHandler) syncPatientClinicalHistoryFromFirstVisit(c *gin.Context, record *clinical_models.MedicalRecord) {
+	if record.VisitType != "first" {
+		return
+	}
+
+	updates := map[string]interface{}{}
+	if record.APP != "" {
+		updates["app"] = record.APP
+	}
+	if record.APF != "" {
+		updates["apf"] = record.APF
+	}
+	if record.APQX != "" {
+		updates["apqx"] = record.APQX
+	}
+	if record.Allergies != "" {
+		updates["allergies"] = record.Allergies
+	}
+	if diagnosis := firstVisitDiagnosisText(record.Diagnoses); diagnosis != "" {
+		updates["diagnosis"] = diagnosis
+	}
+
+	if len(updates) == 0 {
+		return
+	}
+
+	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).
+		Model(&clinical_models.Patient{}).
+		Where("id = ?", record.PatientID).
+		Updates(updates).Error; err != nil {
+		h.logger.Error("Failed to sync patient clinical history from first visit", zap.Error(err))
+	}
+}
+
+// stringOrEmpty dereferences an optional string pointer, defaulting to "".
+func stringOrEmpty(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+// firstVisitDiagnosisText renders the CIE-10/11 diagnoses selected on a
+// first-visit consultation into a human-readable string for Patient.Diagnosis.
+func firstVisitDiagnosisText(diagnoses datatypes.JSON) string {
+	if len(diagnoses) == 0 {
+		return ""
+	}
+	var items []clinical_models.DiagnosisItem
+	if err := json.Unmarshal(diagnoses, &items); err != nil || len(items) == 0 {
+		return ""
+	}
+	titles := make([]string, 0, len(items))
+	for _, item := range items {
+		titles = append(titles, item.Title)
+	}
+	return strings.Join(titles, ", ")
 }
 
 func (h *MedicalRecordHandler) GetMedicalRecords(c *gin.Context) envelope.Response {
@@ -105,6 +172,11 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		NextAppointmentDate: nextAppointmentDate,
 		SOAPRecord:          newRecord.SOAPRecord,
 		Diagnoses:           newRecord.Diagnoses,
+		VisitType:           newRecord.VisitType,
+		APP:                 stringOrEmpty(newRecord.APP),
+		APF:                 stringOrEmpty(newRecord.APF),
+		APQX:                stringOrEmpty(newRecord.APQX),
+		Allergies:           stringOrEmpty(newRecord.Allergies),
 	}
 
 	// Create prescription if provided
@@ -132,6 +204,8 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 			record.VitalSigns = newRecord.VitalSigns
 		}
 	}
+
+	h.syncPatientClinicalHistoryFromFirstVisit(c, record)
 
 	h.logger.Info("Medical record created successfully", zap.Uint("id", record.ID))
 	return envelope.SuccessResponse(record, "clinical.medical_record.create.success")
@@ -178,6 +252,18 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 	if updatedRecord.Diagnoses != nil {
 		record["diagnoses"] = updatedRecord.Diagnoses
+	}
+	if updatedRecord.APP != nil {
+		record["app"] = *updatedRecord.APP
+	}
+	if updatedRecord.APF != nil {
+		record["apf"] = *updatedRecord.APF
+	}
+	if updatedRecord.APQX != nil {
+		record["apqx"] = *updatedRecord.APQX
+	}
+	if updatedRecord.Allergies != nil {
+		record["allergies"] = *updatedRecord.Allergies
 	}
 
 	// Update MedicalRecord fields
