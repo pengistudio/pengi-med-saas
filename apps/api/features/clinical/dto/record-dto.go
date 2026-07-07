@@ -44,6 +44,11 @@ type CreateMedicalRecordDTO struct {
 	Prescription        *clinical_models.Prescription `json:"prescription,omitempty"`
 	VitalSigns          *clinical_models.VitalSigns   `json:"vital_signs,omitempty"`
 	Diagnoses           datatypes.JSON                `json:"diagnoses,omitempty"`
+	VisitType           string                        `json:"visit_type" binding:"required,oneof=first followup"`
+	APP                 *string                       `json:"app,omitempty"`
+	APF                 *string                       `json:"apf,omitempty"`
+	APQX                *string                       `json:"apqx,omitempty"`
+	Allergies           *string                       `json:"allergies,omitempty"`
 }
 
 type UpdateMedicalRecordDTO struct {
@@ -55,6 +60,10 @@ type UpdateMedicalRecordDTO struct {
 	SOAPRecord          *clinical_models.SOAPRecord   `json:"soap_record,omitempty"`
 	Prescription        *clinical_models.Prescription `json:"prescription,omitempty"`
 	Diagnoses           datatypes.JSON                `json:"diagnoses,omitempty"`
+	APP                 *string                       `json:"app,omitempty"`
+	APF                 *string                       `json:"apf,omitempty"`
+	APQX                *string                       `json:"apqx,omitempty"`
+	Allergies           *string                       `json:"allergies,omitempty"`
 }
 
 type UpdatePrescriptionDTO struct {

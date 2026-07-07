@@ -25,6 +25,7 @@ import {
 	Calendar,
 	ChevronLeft,
 	ChevronRight,
+	ClipboardList,
 	Eye,
 	Pill,
 	Plus,
@@ -45,10 +46,13 @@ import {
 import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormIcd11Select } from "@/components/forms/form-icd11-select";
+import { FormTagInput } from "@/components/forms/form-tag-input";
 import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 import { selectPatient, usePatientStore } from "@/store/patient-store";
+
+type VisitType = "first" | "followup";
 
 type PrescriptionMode = "text" | "structured";
 
@@ -104,12 +108,16 @@ const formSchema = z.object({
 	diagnoses: z
 		.array(z.object({ code: z.string(), title: z.string() }))
 		.optional(),
+	app: z.string().optional(),
+	apf: z.string().optional(),
+	apqx: z.string().optional(),
+	allergies: z.string().optional(),
 });
 
 const TABS = ["consulta", "soap", "complementario"] as const;
 type TabId = (typeof TABS)[number];
 
-const CreateMedicalRecordForm = () => {
+const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 	const [loading, setLoading] = React.useState(false);
 	const [prescriptionMode, setPrescriptionMode] =
 		React.useState<PrescriptionMode>("text");
@@ -148,6 +156,7 @@ const CreateMedicalRecordForm = () => {
 					<FormWithDraft
 						field={field}
 						patientId={patientId}
+						visitType={visitType}
 						loading={loading}
 						textGet={textGet}
 						prescriptionMode={prescriptionMode}
@@ -224,6 +233,12 @@ const CreateMedicalRecordForm = () => {
 						o2_saturation: values.vital_signs.o2_saturation ?? null,
 					}
 				: undefined,
+			visit_type: visitType,
+			app: visitType === "first" ? values.app || undefined : undefined,
+			apf: visitType === "first" ? values.apf || undefined : undefined,
+			apqx: visitType === "first" ? values.apqx || undefined : undefined,
+			allergies:
+				visitType === "first" ? values.allergies || undefined : undefined,
 		};
 
 		try {
@@ -241,6 +256,7 @@ const CreateMedicalRecordForm = () => {
 function FormWithDraft({
 	field,
 	patientId,
+	visitType,
 	loading,
 	textGet,
 	prescriptionMode,
@@ -256,6 +272,7 @@ function FormWithDraft({
 		z.infer<typeof formSchema>
 	>;
 	patientId: string | null;
+	visitType: VisitType;
 	loading: boolean;
 	textGet: (key: string) => string;
 	prescriptionMode: PrescriptionMode;
@@ -274,6 +291,7 @@ function FormWithDraft({
 	return (
 		<FormInner
 			field={field}
+			visitType={visitType}
 			loading={loading}
 			textGet={textGet}
 			prescriptionMode={prescriptionMode}
@@ -301,6 +319,7 @@ function parseAllergies(allergies?: string): string[] {
 
 function FormInner({
 	field,
+	visitType,
 	loading,
 	textGet,
 	prescriptionMode,
@@ -317,6 +336,7 @@ function FormInner({
 		unknown,
 		z.infer<typeof formSchema>
 	>;
+	visitType: VisitType;
 	loading: boolean;
 	textGet: (key: string) => string;
 	prescriptionMode: PrescriptionMode;
@@ -365,7 +385,6 @@ function FormInner({
 		control: field.control,
 		name: "diagnoses",
 	});
-
 	const tabDone: Record<TabId, boolean> = {
 		consulta: !!watchedMotive,
 		soap: !!(
@@ -445,7 +464,7 @@ function FormInner({
 					</TabsTrigger>
 				</TabsList>
 
-				{/* ── Tab 1: Consulta (General + Vitals) ── */}
+				{/* ── Tab 1: Consulta (General + Vitals + Antecedentes on first visit) ── */}
 				<TabsContent value="consulta" className="mt-4 space-y-4 pb-4">
 					<Card>
 						<CardHeader>
@@ -602,6 +621,61 @@ function FormInner({
 										isOptional
 									/>
 								</div>
+							</CardContent>
+						</Card>
+					)}
+
+					{visitType === "first" && (
+						<Card className="border-l-4 border-l-indigo-500">
+							<CardHeader>
+								<div className="flex items-center gap-3">
+									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500 text-white">
+										<ClipboardList className="h-4 w-4" />
+									</div>
+									<div>
+										<CardTitle className="text-base">
+											<Text uuid="form.create_medical_record.tab.historia_clinica" />
+										</CardTitle>
+									</div>
+								</div>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<FormTextArea
+									field={field}
+									name="app"
+									placeholder={textGet(
+										"form.create_medical_record.app.placeholder",
+									)}
+									label={<Text uuid="form.create_medical_record.app" />}
+									isOptional
+								/>
+								<FormTextArea
+									field={field}
+									name="apf"
+									placeholder={textGet(
+										"form.create_medical_record.apf.placeholder",
+									)}
+									label={<Text uuid="form.create_medical_record.apf" />}
+									isOptional
+								/>
+								<FormTextArea
+									field={field}
+									name="apqx"
+									placeholder={textGet(
+										"form.create_medical_record.apqx.placeholder",
+									)}
+									label={<Text uuid="form.create_medical_record.apqx" />}
+									isOptional
+								/>
+								<FormTagInput
+									field={field}
+									name="allergies"
+									placeholder={textGet(
+										"form.create_medical_record.allergies.placeholder",
+									)}
+									label={textGet("form.create_medical_record.allergies")}
+									isOptional
+								/>
 							</CardContent>
 						</Card>
 					)}

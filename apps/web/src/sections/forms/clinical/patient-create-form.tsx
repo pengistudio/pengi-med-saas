@@ -19,7 +19,6 @@ import { z } from "zod";
 import { createPatient } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
-import { FormTagInput } from "@/components/forms/form-tag-input";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { useText } from "@/hooks/use-text";
 
@@ -46,11 +45,6 @@ const formSchema = z.object({
 	medic: z.string().min(1, "No debe estar vacío"),
 	gender: z.string().optional(),
 	institution: z.string(),
-	app: z.string().optional(),
-	apf: z.string().optional(),
-	apqx: z.string().optional(),
-	diagnosis: z.string().optional(),
-	allergies: z.string().optional(),
 });
 
 function ageToDate(age: number): Date {
@@ -175,46 +169,6 @@ const CreatePatientForm = () => {
 								isOptional
 							/>
 						</div>
-
-						<FormTextArea
-							field={field}
-							name="diagnosis"
-							placeholder={textGet("form.edit_patient.diagnosis.placeholder")}
-							label={<Text uuid="form.edit_patient.diagnosis" />}
-							isOptional
-						/>
-
-						<FormTextArea
-							field={field}
-							name="app"
-							placeholder="APP..."
-							label={<Text uuid="form.edit_patient.app" />}
-							isOptional
-						/>
-
-						<FormTextArea
-							field={field}
-							name="apf"
-							placeholder="APF..."
-							label={<Text uuid="form.edit_patient.apf" />}
-							isOptional
-						/>
-
-						<FormTextArea
-							field={field}
-							name="apqx"
-							placeholder="APQX..."
-							label={<Text uuid="form.edit_patient.apqx" />}
-							isOptional
-						/>
-
-						<FormTagInput
-							field={field}
-							name="allergies"
-							placeholder={textGet("form.edit_patient.allergies.placeholder")}
-							label={textGet("form.edit_patient.allergies")}
-							isOptional
-						/>
 
 						<FormTextArea
 							field={field}
