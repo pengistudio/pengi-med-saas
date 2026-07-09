@@ -9,6 +9,7 @@ import (
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/logger"
 	billing_workers "pengi-med-saas/features/billing/workers"
+	clinical_workers "pengi-med-saas/features/clinical/workers"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
 	"pengi-med-saas/features/health"
 	settings_models "pengi-med-saas/features/settings/models"
@@ -67,6 +68,11 @@ func main() {
 	archiveScheduler := kanban_workers.NewArchiveScheduler(DB_CONNECTION, logger.Log)
 	go archiveScheduler.Start()
 	logger.Log.Info("archive scheduler started")
+
+	// Initialize stale draft scheduler
+	staleDraftScheduler := clinical_workers.NewStaleDraftScheduler(DB_CONNECTION, logger.Log)
+	go staleDraftScheduler.Start()
+	logger.Log.Info("stale draft scheduler started")
 
 	r := gin.Default()
 

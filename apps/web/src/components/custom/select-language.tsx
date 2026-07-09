@@ -23,12 +23,12 @@ const SelectLanguage = () => {
 			<SelectTrigger className="w-fit">
 				<SelectValue />
 			</SelectTrigger>
-			<SelectGroup>
-				<SelectContent>
+			<SelectContent>
+				<SelectGroup>
 					<SelectItem value="es">Español</SelectItem>
 					<SelectItem value="en">English</SelectItem>
-				</SelectContent>
-			</SelectGroup>
+				</SelectGroup>
+			</SelectContent>
 		</Select>
 	);
 };

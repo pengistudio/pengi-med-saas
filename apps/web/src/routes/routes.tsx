@@ -3,6 +3,7 @@ import { createBrowserRouter, Outlet, type RouteObject } from "react-router";
 import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
 import { PERMISSIONS } from "@/lib/constants";
+import ErrorPage from "@/pages/error/error-page";
 
 const CatalogItemList = lazy(() => import("@/pages/billing/catalog-item-list"));
 const CreateCatalogItemPage = lazy(
@@ -219,81 +220,86 @@ const routes: RouteObject[] = [clinicalRoutes, billingRoutes];
 
 const router = createBrowserRouter([
 	{
-		path: "/login",
-		element: <Login />,
-	},
-	{
-		path: "/login/environments",
-		element: <LoginEnvironments />,
-	},
-	{
-		path: "/signup",
-		element: <Signup />,
-	},
-	{
-		path: "/register",
-		element: <RegisterPage />,
-	},
-	{
-		path: "/verify-email",
-		element: <VerifyEmailPage />,
-	},
-	{
-		path: "/reset-password",
-		element: <ResetPasswordPage />,
-	},
-
-	{
-		element: (
-			<CheckAuth>
-				<Outlet />
-			</CheckAuth>
-		),
+		element: <Outlet />,
+		errorElement: <ErrorPage />,
 		children: [
 			{
-				path: "/",
-				element: <Home />,
+				path: "/login",
+				element: <Login />,
 			},
 			{
-				path: "/profile",
-				element: <Profile />,
+				path: "/login/environments",
+				element: <LoginEnvironments />,
 			},
 			{
-				path: "/settings",
-				element: <SettingsPage />,
+				path: "/signup",
+				element: <Signup />,
 			},
 			{
-				path: "/team",
-				element: <TeamPage />,
+				path: "/register",
+				element: <RegisterPage />,
 			},
 			{
-				path: "/tasks",
+				path: "/verify-email",
+				element: <VerifyEmailPage />,
+			},
+			{
+				path: "/reset-password",
+				element: <ResetPasswordPage />,
+			},
+			{
 				element: (
-					<CheckPermission
-						permissions={[PERMISSIONS.KANBAN.PERMISSION_READ_KANBAN]}
-					>
-						<KanbanPage />
-					</CheckPermission>
+					<CheckAuth>
+						<Outlet />
+					</CheckAuth>
 				),
+				children: [
+					{
+						path: "/",
+						element: <Home />,
+					},
+					{
+						path: "/profile",
+						element: <Profile />,
+					},
+					{
+						path: "/settings",
+						element: <SettingsPage />,
+					},
+					{
+						path: "/team",
+						element: <TeamPage />,
+					},
+					{
+						path: "/tasks",
+						element: (
+							<CheckPermission
+								permissions={[PERMISSIONS.KANBAN.PERMISSION_READ_KANBAN]}
+							>
+								<KanbanPage />
+							</CheckPermission>
+						),
+					},
+					{
+						path: "/subscription",
+						element: <MySubscriptionPage />,
+					},
+					{
+						path: "/privacy",
+						element: <PrivacyPage />,
+					},
+					...routes,
+				],
 			},
 			{
-				path: "/subscription",
-				element: <MySubscriptionPage />,
+				path: "/display/waiting-room",
+				element: <WaitingRoomDisplayPage />,
 			},
 			{
-				path: "/privacy",
-				element: <PrivacyPage />,
+				path: "/display/pair",
+				element: <PairDisplayPage />,
 			},
-			...routes,
 		],
-	},
-	{
-		path: "/display/waiting-room",
-		element: <WaitingRoomDisplayPage />,
-	},
-	{
-		path: "/display/pair",
-		element: <PairDisplayPage />,
 	},
 ]);
 

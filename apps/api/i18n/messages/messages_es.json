@@ -4682,5 +4682,81 @@
     {
         "key": "E-AUDIT-002",
         "value": "Error al obtener los registros de auditoría."
+    },
+    {
+        "key": "E-NOTIF-001",
+        "value": "Notificación no encontrada."
+    },
+    {
+        "key": "E-NOTIF-002",
+        "value": "Error al obtener las notificaciones."
+    },
+    {
+        "key": "E-NOTIF-003",
+        "value": "Error al actualizar la notificación."
+    },
+    {
+        "key": "notification.list.success",
+        "value": "Notificaciones obtenidas."
+    },
+    {
+        "key": "notification.mark_read.success",
+        "value": "Notificación marcada como leída."
+    },
+    {
+        "key": "notification.mark_all_read.success",
+        "value": "Todas las notificaciones marcadas como leídas."
+    },
+    {
+        "key": "notification.error.not_found",
+        "value": "Notificación no encontrada."
+    },
+    {
+        "key": "notification.error.fetch_failed",
+        "value": "Error al obtener las notificaciones."
+    },
+    {
+        "key": "notification.error.update_failed",
+        "value": "Error al actualizar la notificación."
+    },
+    {
+        "key": "notification.clinical.draft.stale",
+        "value": "Tienes una consulta sin guardar para {{patient_name}} desde hace {{minutes_elapsed}} minutos."
+    },
+    {
+        "key": "notification.bell.title",
+        "value": "Notificaciones"
+    },
+    {
+        "key": "notification.bell.empty",
+        "value": "No tienes notificaciones."
+    },
+    {
+        "key": "notification.bell.mark_all_read",
+        "value": "Marcar todas como leídas"
+    },
+    {
+        "key": "error_page.title",
+        "value": "Algo salió mal"
+    },
+    {
+        "key": "error_page.description",
+        "value": "Ocurrió un error inesperado. Intenta de nuevo o vuelve al inicio."
+    },
+    {
+        "key": "error_page.not_found.title",
+        "value": "Página no encontrada"
+    },
+    {
+        "key": "error_page.not_found.description",
+        "value": "La página que buscas no existe o fue movida."
+    },
+    {
+        "key": "error_page.retry_button",
+        "value": "Reintentar"
+    },
+    {
+        "key": "error_page.home_button",
+        "value": "Volver al inicio"
     }
 ]
