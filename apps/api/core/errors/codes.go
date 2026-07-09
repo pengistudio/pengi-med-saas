@@ -75,4 +75,9 @@ var (
 	// Audit Errors
 	ErrAuditInvalidRequest AppError = NewAppError("E-AUDIT-001", "Invalid audit log query.")
 	ErrAuditFetchError     AppError = NewAppError("E-AUDIT-002", "Error fetching audit logs.")
+
+	// Notification Errors
+	ErrNotificationNotFound    AppError = NewAppError("E-NOTIF-001", "Notification not found.")
+	ErrNotificationFetchError  AppError = NewAppError("E-NOTIF-002", "Error fetching notifications.")
+	ErrNotificationUpdateError AppError = NewAppError("E-NOTIF-003", "Error updating notification.")
 )

@@ -87,6 +87,14 @@ export class HttpService {
 		return this.request<T>(() => this.client.put(url, data, config), config);
 	}
 
+	async patch<T>(
+		url: string,
+		data?: Record<string, unknown> | FormData,
+		config?: CustomAxiosRequestConfig,
+	): Promise<ServiceResponse<T>> {
+		return this.request<T>(() => this.client.patch(url, data, config), config);
+	}
+
 	async postForm<T>(
 		url: string,
 		data: FormData,

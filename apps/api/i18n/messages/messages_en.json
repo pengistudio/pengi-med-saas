@@ -4682,5 +4682,81 @@
     {
         "key": "E-AUDIT-002",
         "value": "Error fetching audit logs."
+    },
+    {
+        "key": "E-NOTIF-001",
+        "value": "Notification not found."
+    },
+    {
+        "key": "E-NOTIF-002",
+        "value": "Error fetching notifications."
+    },
+    {
+        "key": "E-NOTIF-003",
+        "value": "Error updating notification."
+    },
+    {
+        "key": "notification.list.success",
+        "value": "Notifications fetched."
+    },
+    {
+        "key": "notification.mark_read.success",
+        "value": "Notification marked as read."
+    },
+    {
+        "key": "notification.mark_all_read.success",
+        "value": "All notifications marked as read."
+    },
+    {
+        "key": "notification.error.not_found",
+        "value": "Notification not found."
+    },
+    {
+        "key": "notification.error.fetch_failed",
+        "value": "Error fetching notifications."
+    },
+    {
+        "key": "notification.error.update_failed",
+        "value": "Error updating notification."
+    },
+    {
+        "key": "notification.clinical.draft.stale",
+        "value": "You have an unsaved consultation for {{patient_name}} from {{minutes_elapsed}} minutes ago."
+    },
+    {
+        "key": "notification.bell.title",
+        "value": "Notifications"
+    },
+    {
+        "key": "notification.bell.empty",
+        "value": "You have no notifications."
+    },
+    {
+        "key": "notification.bell.mark_all_read",
+        "value": "Mark all as read"
+    },
+    {
+        "key": "error_page.title",
+        "value": "Something went wrong"
+    },
+    {
+        "key": "error_page.description",
+        "value": "An unexpected error occurred. Try again or go back to the home page."
+    },
+    {
+        "key": "error_page.not_found.title",
+        "value": "Page not found"
+    },
+    {
+        "key": "error_page.not_found.description",
+        "value": "The page you're looking for doesn't exist or was moved."
+    },
+    {
+        "key": "error_page.retry_button",
+        "value": "Retry"
+    },
+    {
+        "key": "error_page.home_button",
+        "value": "Back to home"
     }
 ]

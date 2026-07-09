@@ -32,8 +32,10 @@ import { useLocation } from "react-router";
 import { initiatePayment } from "@/api/subscription-service";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
+import NotificationBell from "@/components/custom/notification-bell";
 import SelectLanguage from "@/components/custom/select-language";
 import useAuth from "@/hooks/use-auth";
+import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import {
@@ -56,6 +58,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const { textGet } = useText();
 	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
 	const [paying, setPaying] = useState(false);
+	useNotificationsPoll();
 
 	const handlePay = useCallback(async () => {
 		setPaying(true);
@@ -235,6 +238,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 
 					<div className="flex items-center gap-2">
 						<SelectLanguage />
+						<NotificationBell />
 						<DropdownMenu>
 							<DropdownMenuTrigger>
 								<div className="relative h-10 w-10 rounded-full cursor-pointer">

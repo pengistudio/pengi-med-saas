@@ -9,6 +9,7 @@ import (
 	kanban_models "pengi-med-saas/features/kanban/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	notifications_models "pengi-med-saas/features/notifications/models"
 	permission_models "pengi-med-saas/features/permissions/models"
 	settings_models "pengi-med-saas/features/settings/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -55,6 +56,7 @@ func RunMigrations(db *gorm.DB) error {
 		billing_models.CatalogItem{},
 		kanban_models.Task{},
 		settings_models.SystemSetting{},
+		notifications_models.Notification{},
 	)
 	if err != nil {
 		return err
