@@ -154,7 +154,7 @@ import [dominio]_models "pengi-med-saas/features/[dominio]/models"
 
 ## Reglas
 
-1. **IDs son ÚNICOS e INMUTABLES** — una vez creados, no cambiar el ID.
+1. **IDs son ÚNICOS e INMUTABLES** — una vez creados, no cambiar el ID. Un hook de Claude Code (`.claude/hooks/guard-migrations.mjs`) bloquea automáticamente editar un archivo de migration que ya está commiteado en `origin/main`. Para corregir algo ya mergeado, creá un archivo nuevo con un ID nuevo.
 2. **Idempotencia obligatoria** — la migration puede ejecutarse múltiples veces sin efectos adversos.
 3. **Múltiples migrations en un mismo archivo** — se pueden agregar varios `database.GlobalDBMap[...]` en el mismo `init()` o en archivos separados del mismo package.
 4. **Errores con `fmt.Errorf("...: %w", err)`** — wrapping obligatorio para trazabilidad.

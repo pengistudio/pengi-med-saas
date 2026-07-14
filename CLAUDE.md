@@ -168,6 +168,8 @@ When creating endpoints or features:
 
 To add a migration: create a file in `migrations/code-migrations/{year}/`, register it in `GlobalDBMap`.
 
+**Never edit a code-migration file that is already committed to `origin/main`** — IDs are immutable, editing one that already ran elsewhere is a silent no-op there (drift between environments). Always create a new file with a new ID instead. This is enforced automatically by `.claude/hooks/guard-migrations.mjs` (blocks Edit/Write on any migration file already in `origin/main`); see `docs/backend/api-code-migration.md` rule #1.
+
 ### Async invoice processing
 
 `POST /billing/invoices/:id/sri/process` publishes a message to RabbitMQ queue `invoice_tasks`. The worker in `features/billing/workers/invoice-worker.go` consumes it, calls the `sri-xml-signer` microservice, and updates the invoice status through these stages: `pending → processing → signed → validated → authorized`.
