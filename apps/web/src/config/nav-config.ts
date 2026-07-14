@@ -79,6 +79,7 @@ export const createNavItems = (
 		icon: Users,
 		label: textGet("team.title"),
 		href: "/team",
+		permission: PERMISSIONS.TEAM.PERMISSION_READ_TEAM,
 		feature: "team",
 	},
 	{

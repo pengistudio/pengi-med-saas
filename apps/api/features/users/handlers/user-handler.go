@@ -18,8 +18,8 @@ import (
 	"pengi-med-saas/core/mailer"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	company_models "pengi-med-saas/features/companies/models"
-	permission_models "pengi-med-saas/features/permissions/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
+	role_data "pengi-med-saas/features/users/data"
 	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
 
@@ -384,19 +384,11 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 			return fmt.Errorf("company: %w", err)
 		}
 
-		// 3. Admin role for this company
-		adminRole := user_models.Role{Role: "admin"}
-		if err := tx.Create(&adminRole).Error; err != nil {
-			return fmt.Errorf("role: %w", err)
-		}
-
-		// 4. Assign all permissions to admin role
-		var allPerms []permission_models.Permission
-		tx.Find(&allPerms)
-		if len(allPerms) > 0 {
-			if err := tx.Model(&adminRole).Association("Permissions").Append(allPerms); err != nil {
-				return fmt.Errorf("permissions: %w", err)
-			}
+		// 3. Look up the canonical global admin role (shared by all tenants —
+		// it already carries every permission via the role-seeding migration).
+		var adminRole user_models.Role
+		if err := tx.Where(user_models.Role{Role: role_data.RoleAdmin}).First(&adminRole).Error; err != nil {
+			return fmt.Errorf("canonical admin role not found: %w", err)
 		}
 
 		// 5. User

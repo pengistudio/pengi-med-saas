@@ -3936,6 +3936,22 @@
         "value": "Enlace de invitación generado"
     },
     {
+        "key": "company.team.role.update.success",
+        "value": "Rol actualizado exitosamente"
+    },
+    {
+        "key": "company.team.role.update.forbidden",
+        "value": "No tienes acceso a este miembro del equipo"
+    },
+    {
+        "key": "company.team.role.invalid",
+        "value": "Rol inválido o no disponible"
+    },
+    {
+        "key": "company.team.role.last_admin",
+        "value": "No puedes quitar el rol de administrador al único admin de la empresa"
+    },
+    {
         "key": "integrations.google.auth.url.success",
         "value": "URL de autenticación generada"
     },

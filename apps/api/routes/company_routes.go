@@ -44,8 +44,13 @@ func RegisterCompanyRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		subscription_middleware.SubscriptionMiddleware(db),
 	)
 	{
-		teamGroup.GET("", envelope.Handle(companyHandler.GetTeamMembers))
-		teamGroup.GET("/roles", envelope.Handle(companyHandler.GetTeamRoles))
-		teamGroup.POST("/invite-link", envelope.Handle(companyHandler.GenerateInviteLink))
+		// Team management is basic account administration, not a paid feature
+		// tier — RequireRolePermission checks the caller's role only, skipping
+		// the plan/feature gate that RequirePermission would otherwise apply.
+		rp := subscription_middleware.RequireRolePermission
+		teamGroup.GET("", rp(db, "READ_TEAM"), envelope.Handle(companyHandler.GetTeamMembers))
+		teamGroup.GET("/roles", rp(db, "READ_TEAM"), envelope.Handle(companyHandler.GetTeamRoles))
+		teamGroup.POST("/invite-link", rp(db, "MANAGE_TEAM_MEMBERS"), envelope.Handle(companyHandler.GenerateInviteLink))
+		teamGroup.PUT("/:environment_id/role", rp(db, "MANAGE_TEAM_MEMBERS"), envelope.Handle(companyHandler.UpdateTeamMemberRole))
 	}
 }

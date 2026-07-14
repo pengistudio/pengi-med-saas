@@ -13,7 +13,7 @@ type Plan struct {
 	CanRenew   bool              `gorm:"not null;default:true" json:"can_renew"`
 	Features   []Feature         `gorm:"many2many:plan_features;"`
 	Price      float64           `gorm:"not null" json:"price"`
-	Properties datatypes.JSONMap `gorm:"type:jsonb;default:'{}'::jsonb"`
+	Properties datatypes.JSONMap `gorm:"type:jsonb;default:'{}'"`
 	Pricings   []PlanPricing     `gorm:"foreignKey:PlanID" json:"pricings"`
 }
 

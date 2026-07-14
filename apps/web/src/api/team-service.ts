@@ -8,6 +8,7 @@ export interface TeamMember {
 	user_id: number;
 	user_name: string;
 	email: string;
+	role_id: number;
 	role_name: string;
 	environment_name: string;
 }
@@ -30,4 +31,14 @@ export const generateInviteLink = (
 		"/companies/team/invite-link",
 		{ role_id: roleId },
 		{ notifyError: true },
+	);
+
+export const updateTeamMemberRole = (
+	environmentId: number,
+	roleId: number,
+): Promise<ServiceResponse<{ environment_id: number; role_id: number }>> =>
+	httpService.put<{ environment_id: number; role_id: number }>(
+		`/companies/team/${environmentId}/role`,
+		{ role_id: roleId },
+		{ notifyError: true, notifySuccess: true },
 	);

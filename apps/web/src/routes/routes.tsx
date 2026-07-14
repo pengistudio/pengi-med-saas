@@ -268,7 +268,13 @@ const router = createBrowserRouter([
 					},
 					{
 						path: "/team",
-						element: <TeamPage />,
+						element: (
+							<CheckPermission
+								permissions={[PERMISSIONS.TEAM.PERMISSION_READ_TEAM]}
+							>
+								<TeamPage />
+							</CheckPermission>
+						),
 					},
 					{
 						path: "/tasks",

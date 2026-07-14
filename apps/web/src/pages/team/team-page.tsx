@@ -35,15 +35,19 @@ import {
 	getTeamRoles,
 	type TeamMember,
 	type TeamRole,
+	updateTeamMemberRole,
 } from "@/api/team-service";
+import usePermission from "@/hooks/use-permission";
 import { useText } from "@/hooks/use-text";
+import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
 const ROLE_COLORS: Record<string, string> = {
 	admin: "bg-primary/10 text-primary border-primary/20",
 	doctor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+	recepcionista: "bg-sky-500/10 text-sky-600 border-sky-500/20",
+	contador: "bg-amber-500/10 text-amber-600 border-amber-500/20",
 	user: "bg-muted text-muted-foreground border-border",
 };
 
@@ -60,7 +64,19 @@ function getInitials(name: string) {
 		.slice(0, 2);
 }
 
-function MemberCard({ member }: { member: TeamMember }) {
+function MemberCard({
+	member,
+	canManageTeam,
+	roles,
+	updating,
+	onRoleChange,
+}: {
+	member: TeamMember;
+	canManageTeam: boolean;
+	roles: TeamRole[];
+	updating: boolean;
+	onRoleChange: (environmentId: number, roleId: number) => void;
+}) {
 	const displayName = member.environment_name || member.user_name;
 	return (
 		<Card className="hover:shadow-md transition-shadow duration-200">
@@ -83,12 +99,43 @@ function MemberCard({ member }: { member: TeamMember }) {
 					)}
 				</div>
 
-				<Badge
-					variant="outline"
-					className={cn("text-xs capitalize", getRoleColor(member.role_name))}
-				>
-					{member.role_name}
-				</Badge>
+				{canManageTeam ? (
+					<Select
+						value={String(member.role_id)}
+						disabled={updating}
+						onValueChange={(val) =>
+							onRoleChange(member.environment_id, Number(val))
+						}
+					>
+						<SelectTrigger
+							size="sm"
+							className={cn(
+								"h-6 w-auto min-w-0 gap-1 rounded-full border px-2.5 text-xs capitalize [&_svg]:size-3",
+								getRoleColor(member.role_name),
+							)}
+						>
+							<SelectValue>{member.role_name}</SelectValue>
+						</SelectTrigger>
+						<SelectContent>
+							{roles.map((r) => (
+								<SelectItem
+									key={r.ID}
+									value={String(r.ID)}
+									className="capitalize"
+								>
+									{r.role}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				) : (
+					<Badge
+						variant="outline"
+						className={cn("text-xs capitalize", getRoleColor(member.role_name))}
+					>
+						{member.role_name}
+					</Badge>
+				)}
 			</CardContent>
 		</Card>
 	);
@@ -111,12 +158,17 @@ function SkeletonCard() {
 
 const TeamPage = () => {
 	const { textGet } = useText();
-	const environment = useSessionStore(selectEnvironment);
-	const isAdmin = environment?.role === "admin";
+	const { checkPermission } = usePermission();
+	const canManageTeam = checkPermission([
+		PERMISSIONS.TEAM.PERMISSION_MANAGE_TEAM_MEMBERS,
+	]);
 
 	const [members, setMembers] = React.useState<TeamMember[]>([]);
 	const [roles, setRoles] = React.useState<TeamRole[]>([]);
 	const [loading, setLoading] = React.useState(true);
+	const [updatingEnvironmentId, setUpdatingEnvironmentId] = React.useState<
+		number | null
+	>(null);
 
 	// Invite flow state
 	const [roleDialogOpen, setRoleDialogOpen] = React.useState(false);
@@ -126,10 +178,12 @@ const TeamPage = () => {
 	const [generating, setGenerating] = React.useState(false);
 	const [copied, setCopied] = React.useState(false);
 
-	React.useEffect(() => {
-		Promise.all([
+	const fetchTeam = React.useCallback(() => {
+		return Promise.all([
 			getTeamMembers(),
-			isAdmin ? getTeamRoles() : Promise.resolve({ success: true, data: [] }),
+			canManageTeam
+				? getTeamRoles()
+				: Promise.resolve({ success: true, data: [] }),
 		]).then(([membersRes, rolesRes]) => {
 			if (membersRes.success && membersRes.data)
 				setMembers(membersRes.data as TeamMember[]);
@@ -137,7 +191,11 @@ const TeamPage = () => {
 				setRoles(rolesRes.data as TeamRole[]);
 			setLoading(false);
 		});
-	}, [isAdmin]);
+	}, [canManageTeam]);
+
+	React.useEffect(() => {
+		fetchTeam();
+	}, [fetchTeam]);
 
 	const openRoleSelector = () => {
 		setSelectedRole(null);
@@ -163,6 +221,15 @@ const TeamPage = () => {
 		setTimeout(() => setCopied(false), 2000);
 	};
 
+	const handleRoleChange = async (environmentId: number, roleId: number) => {
+		setUpdatingEnvironmentId(environmentId);
+		const res = await updateTeamMemberRole(environmentId, roleId);
+		if (res.success) {
+			await fetchTeam();
+		}
+		setUpdatingEnvironmentId(null);
+	};
+
 	return (
 		<DashboardLayout>
 			<div className="space-y-6">
@@ -176,7 +243,7 @@ const TeamPage = () => {
 							{textGet("team.description")}
 						</p>
 					</div>
-					{isAdmin && (
+					{canManageTeam && (
 						<Button
 							onClick={openRoleSelector}
 							className="shrink-0 self-start sm:self-auto"
@@ -220,7 +287,7 @@ const TeamPage = () => {
 						<p className="text-sm text-muted-foreground">
 							{textGet("team.members.empty")}
 						</p>
-						{isAdmin && (
+						{canManageTeam && (
 							<Button variant="outline" size="sm" onClick={openRoleSelector}>
 								<UserPlus className="h-4 w-4 mr-2" />
 								{textGet("team.invite")}
@@ -230,7 +297,14 @@ const TeamPage = () => {
 				) : (
 					<div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 						{members.map((member) => (
-							<MemberCard key={member.environment_id} member={member} />
+							<MemberCard
+								key={member.environment_id}
+								member={member}
+								canManageTeam={canManageTeam}
+								roles={roles}
+								updating={updatingEnvironmentId === member.environment_id}
+								onRoleChange={handleRoleChange}
+							/>
 						))}
 					</div>
 				)}

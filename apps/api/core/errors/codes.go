@@ -80,4 +80,9 @@ var (
 	ErrNotificationNotFound    AppError = NewAppError("E-NOTIF-001", "Notification not found.")
 	ErrNotificationFetchError  AppError = NewAppError("E-NOTIF-002", "Error fetching notifications.")
 	ErrNotificationUpdateError AppError = NewAppError("E-NOTIF-003", "Error updating notification.")
+
+	// Team Errors
+	ErrTeamEnvironmentNotFound AppError = NewAppError("E-TEAM-001", "Team member not found in this company.")
+	ErrTeamInvalidRole         AppError = NewAppError("E-TEAM-002", "Invalid or unsupported role.")
+	ErrTeamLastAdmin           AppError = NewAppError("E-TEAM-003", "Cannot remove the last admin from this company.")
 )

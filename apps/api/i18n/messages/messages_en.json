@@ -3936,6 +3936,22 @@
         "value": "Invite link generated"
     },
     {
+        "key": "company.team.role.update.success",
+        "value": "Role updated successfully"
+    },
+    {
+        "key": "company.team.role.update.forbidden",
+        "value": "You don't have access to this team member"
+    },
+    {
+        "key": "company.team.role.invalid",
+        "value": "Invalid or unavailable role"
+    },
+    {
+        "key": "company.team.role.last_admin",
+        "value": "You can't remove the admin role from the company's only admin"
+    },
+    {
         "key": "integrations.google.auth.url.success",
         "value": "Auth URL generated"
     },

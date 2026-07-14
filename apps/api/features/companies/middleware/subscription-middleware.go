@@ -100,7 +100,25 @@ func RequirePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 			return
 		}
 
-		// 2. Find company for this tenant
+		checkRolePermission(db, permissionID)(c)
+	}
+}
+
+// RequireRolePermission returns a middleware that checks ONLY that the
+// authenticated user's role (for this company) has the given permission —
+// unlike RequirePermission, it does NOT gate on the tenant's subscription
+// plan. Use this for basic account administration (e.g. team management)
+// that should never be a paid-tier-gated feature.
+// Must run after AuthMiddleware and TenantMiddleware.
+func RequireRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
+	return checkRolePermission(db, permissionID)
+}
+
+// checkRolePermission is the shared role-permission lookup used by both
+// RequirePermission and RequireRolePermission.
+func checkRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Find company for this tenant
 		tenantID := c.GetUint("tenant_id")
 		var company company_models.Company
 		if err := db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
@@ -110,7 +128,7 @@ func RequirePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 			return
 		}
 
-		// 3. Find user's Environment for this company
+		// Find user's Environment for this company
 		userID, _, ok := auth_middleware.GetUserFromContext(c)
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(
@@ -130,7 +148,7 @@ func RequirePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 			return
 		}
 
-		// 4. Check role has the required permission
+		// Check role has the required permission
 		for _, perm := range env.Role.Permissions {
 			if perm.ID == permissionID {
 				c.Next()
