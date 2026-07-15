@@ -2,7 +2,6 @@ package clinical_workers
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	clinical_models "pengi-med-saas/features/clinical/models"
@@ -61,8 +60,6 @@ func (s *StaleDraftScheduler) checkStaleDrafts() {
 			continue
 		}
 
-		minutesElapsed := int(time.Since(draft.UpdatedAt).Minutes())
-
 		input := notifications_service.CreateNotificationInput{
 			TenantID:     draft.TenantID,
 			UserID:       draft.UserID,
@@ -71,8 +68,8 @@ func (s *StaleDraftScheduler) checkStaleDrafts() {
 			ResourceID:   draft.ID,
 			MessageKey:   "notification.clinical.draft.stale",
 			Params: map[string]string{
-				"patient_name":    fmt.Sprintf("%s %s", patient.FirstName, patient.LastName),
-				"minutes_elapsed": strconv.Itoa(minutesElapsed),
+				"patient_name":     fmt.Sprintf("%s %s", patient.FirstName, patient.LastName),
+				"draft_updated_at": draft.UpdatedAt.Format(time.RFC3339),
 			},
 			ActionURL: fmt.Sprintf("/clinical/medical-records/%d", draft.PatientID),
 		}

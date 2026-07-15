@@ -37,3 +37,20 @@ export function formatRelativeTime(
 		locale: lang === "en" ? enUS : es,
 	});
 }
+
+/**
+ * Same tolerant date handling as formatRelativeTime, but without the
+ * "ago"/"hace" suffix — for templates that already supply that wording
+ * around the placeholder (e.g. "...desde hace {{elapsed}}.").
+ */
+export function formatElapsedDuration(
+	dateValue: string | undefined | null,
+	lang: string | undefined,
+): string {
+	if (!dateValue) return "";
+	const date = new Date(dateValue);
+	if (Number.isNaN(date.getTime())) return "";
+	return formatDistanceToNow(date, {
+		locale: lang === "en" ? enUS : es,
+	});
+}

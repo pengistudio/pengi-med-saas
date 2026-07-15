@@ -17,6 +17,7 @@ import {
 } from "@/api/notification-service";
 import { useText } from "@/hooks/use-text";
 import {
+	formatElapsedDuration,
 	formatRelativeTime,
 	renderNotificationText,
 } from "@/lib/notification-text";
@@ -56,10 +57,10 @@ const NotificationBell = () => {
 					<Bell className="h-5 w-5" />
 					{unreadCount > 0 && (
 						<span className="absolute -top-1 -right-1 flex h-5 min-w-5">
-							<span className="absolute -top-0.5 -right-0.5 h-2 w-2 animate-ping rounded-full bg-destructive opacity-60" />
+							<span className="absolute inset-0.5 animate-ping rounded-full bg-destructive opacity-60" />
 							<Badge
 								variant="destructive"
-								className="relative h-5 min-w-5 justify-center rounded-full px-1 text-xs"
+								className="relative h-5 min-w-5 justify-center rounded-full bg-destructive px-1 text-xs text-white"
 							>
 								{unreadCount > UNREAD_BADGE_MAX
 									? `${UNREAD_BADGE_MAX}+`
@@ -90,27 +91,41 @@ const NotificationBell = () => {
 						{textGet("notification.bell.empty")}
 					</div>
 				) : (
-					notifications.map((notification) => (
-						<DropdownMenuItem
-							key={notification.ID}
-							className="flex flex-col items-start gap-1 whitespace-normal py-2"
-							onClick={() => handleSelect(notification)}
-						>
-							<span
-								className={
-									notification.read_at ? "text-muted-foreground" : "font-medium"
+					notifications.map((notification) => {
+						const params = notification.params.draft_updated_at
+							? {
+									...notification.params,
+									elapsed: formatElapsedDuration(
+										notification.params.draft_updated_at,
+										lang,
+									),
 								}
+							: notification.params;
+
+						return (
+							<DropdownMenuItem
+								key={notification.ID}
+								className="flex flex-col items-start gap-1 whitespace-normal py-2"
+								onClick={() => handleSelect(notification)}
 							>
-								{renderNotificationText(
-									textGet(notification.message_key),
-									notification.params,
-								)}
-							</span>
-							<span className="text-xs text-muted-foreground">
-								{formatRelativeTime(notification.CreatedAt, lang)}
-							</span>
-						</DropdownMenuItem>
-					))
+								<span
+									className={
+										notification.read_at
+											? "text-muted-foreground"
+											: "font-medium"
+									}
+								>
+									{renderNotificationText(
+										textGet(notification.message_key),
+										params,
+									)}
+								</span>
+								<span className="text-xs text-muted-foreground">
+									{formatRelativeTime(notification.CreatedAt, lang)}
+								</span>
+							</DropdownMenuItem>
+						);
+					})
 				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
