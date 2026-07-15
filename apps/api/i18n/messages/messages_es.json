@@ -3628,6 +3628,10 @@
         "value": "No se encontraron resultados"
     },
     {
+        "key": "form.create_medical_record.diagnoses.cie11_hint",
+        "value": "Escribe la palabra más completa posible (ej. 'neumonía') para mejores resultados."
+    },
+    {
         "key": "form.create_medical_record.visit_type.title",
         "value": "Tipo de consulta"
     },
@@ -4737,7 +4741,7 @@
     },
     {
         "key": "notification.clinical.draft.stale",
-        "value": "Tienes una consulta sin guardar para {{patient_name}} desde hace {{minutes_elapsed}} minutos."
+        "value": "Tienes una consulta sin guardar para {{patient_name}} desde hace {{elapsed}}."
     },
     {
         "key": "notification.bell.title",

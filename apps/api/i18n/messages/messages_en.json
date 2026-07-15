@@ -3628,6 +3628,10 @@
         "value": "No results found"
     },
     {
+        "key": "form.create_medical_record.diagnoses.cie11_hint",
+        "value": "Type the most complete word you can (e.g. 'pneumonia') for better results."
+    },
+    {
         "key": "form.create_medical_record.visit_type.title",
         "value": "Consultation type"
     },
@@ -4737,7 +4741,7 @@
     },
     {
         "key": "notification.clinical.draft.stale",
-        "value": "You have an unsaved consultation for {{patient_name}} from {{minutes_elapsed}} minutes ago."
+        "value": "You have an unsaved consultation for {{patient_name}} from {{elapsed}} ago."
     },
     {
         "key": "notification.bell.title",

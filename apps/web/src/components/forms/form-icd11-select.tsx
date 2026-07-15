@@ -59,11 +59,12 @@ function FormIcd11Select<
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const searchFn = system === "cie10" ? searchICD10 : searchICD11;
+	const minLength = system === "cie10" ? 2 : 4;
 
 	const handleInputChange = useCallback(
 		(value: string) => {
 			if (debounceRef.current) clearTimeout(debounceRef.current);
-			if (!value || value.length < 2) {
+			if (!value || value.length < minLength) {
 				setResults([]);
 				return;
 			}
@@ -74,7 +75,7 @@ function FormIcd11Select<
 				}
 			}, 350);
 		},
-		[searchFn],
+		[searchFn, minLength],
 	);
 
 	return (
@@ -85,6 +86,11 @@ function FormIcd11Select<
 				const selected: DiagnosisItem[] = Array.isArray(inputField.value)
 					? inputField.value
 					: [];
+				const fieldDescription =
+					description ??
+					(system === "cie11"
+						? textGet("form.create_medical_record.diagnoses.cie11_hint")
+						: undefined);
 
 				return (
 					<Field data-invalid={fieldState.invalid}>
@@ -157,7 +163,9 @@ function FormIcd11Select<
 							</ComboboxContent>
 						</Combobox>
 
-						{description && <FieldDescription>{description}</FieldDescription>}
+						{fieldDescription && (
+							<FieldDescription>{fieldDescription}</FieldDescription>
+						)}
 						{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 					</Field>
 				);
