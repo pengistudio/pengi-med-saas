@@ -53,11 +53,8 @@ const handleSubmit = async (data: FormData) => {
 import React from "react";
 import { useNavigate } from "react-router";
 import { z } from "zod";
+import { Button, FormInput, FormSelect, FormTextArea } from "@pengi/ui";
 import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { FormSelect } from "@/components/forms/form-select";
-import { FormTextArea } from "@/components/forms/form-textarea";
-import { Button } from "@/components/ui/button";
 import { useText } from "@/hooks/use-text";
 
 const formSchema = z.object({
@@ -166,15 +163,23 @@ export default function CreateForm() {
 - Enumerables con `.enum([...])`
 
 ### ✅ Componentes
-- Usar `Form` de `@/components/forms/form`
-- Usar componentes especializados:
+- Usar `Form` de `@/components/forms/form` (local a cada app — web y backoffice
+  tienen su propia copia, no está en `@pengi/ui`)
+- Usar componentes especializados, importados desde **`@pengi/ui`**:
   - `FormInput` — texto, email, número, fecha
+  - `FormInputPassword` — contraseña
   - `FormSelect` — dropdown (con `options` array)
   - `FormTextArea` — texto multiline
-  - `FormCheckbox` — checkbox
   - `FormRadioGroup` — radio buttons
-  - `FormTagInput` — tags
+- Componentes especializados que siguen siendo **locales a cada app** (no
+  están en `@pengi/ui`), en `@/components/forms/`:
+  - `FormCalendar` — fecha con selector visual
+  - `FormTagInput` — tags (solo existe en `apps/web`, no en `apps/backoffice`)
+  - `FormIcd11Select` — selector de diagnóstico ICD-11 (solo `apps/web`)
 - **NUNCA** usar HTML directo (`<input>`, `<select>`)
+- **`FormCheckbox` ya no existe** en el repo — si necesitas un checkbox,
+  compón uno con el primitivo `Checkbox` de `@pengi/ui` o crea uno nuevo
+  siguiendo el patrón de `form-input.tsx`; no asumas que ya está disponible.
 
 ### ✅ Layout
 - Estructura clara: header + fields + actions
@@ -206,14 +211,23 @@ export default function CreateForm() {
 
 ## Componentes Form Disponibles
 
+Desde `@pengi/ui` (compartidos entre web y backoffice):
+
 | Componente | Uso | Props |
 |-----------|-----|-------|
 | `FormInput` | Campos de texto, email, número, fecha | `field`, `name`, `label`, `placeholder`, `type`, `required`, `autoFocus`, `disabled` |
+| `FormInputPassword` | Contraseña | `field`, `name`, `label`, `placeholder`, `disabled` |
 | `FormSelect` | Dropdowns | `field`, `name`, `label`, `options: {label, value}[]`, `disabled` |
 | `FormTextArea` | Texto multiline | `field`, `name`, `label`, `placeholder`, `description`, `disabled` |
-| `FormCheckbox` | Checkbox single | `field`, `name`, `label`, `disabled` |
 | `FormRadioGroup` | Radio buttons | `field`, `name`, `label`, `options: {label, value}[]`, `disabled` |
-| `FormTagInput` | Tags | `field`, `name`, `label`, `placeholder`, `disabled` |
+
+Locales a cada app, en `@/components/forms/` (no están en `@pengi/ui`):
+
+| Componente | Uso | Disponible en |
+|-----------|-----|-------|
+| `FormCalendar` | Fecha con selector visual | web, backoffice |
+| `FormTagInput` | Tags | solo web |
+| `FormIcd11Select` | Selector de diagnóstico ICD-11 | solo web |
 
 ## Ejemplos por Tipo
 

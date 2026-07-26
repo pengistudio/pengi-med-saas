@@ -196,8 +196,9 @@ Recordatorios rápidos:
 Sigue la guía frontend para página/componentes. Para cualquier formulario,
 sigue [`docs/skills/form-creation-standard.md`](../../../docs/skills/form-creation-standard.md):
 Zod schema + `<Form schema={} onSubmit={}>` +
-`FormInput/FormSelect/FormTextArea/FormCheckbox/FormRadioGroup/FormTagInput`
-— nunca inputs HTML crudos.
+`FormInput/FormSelect/FormTextArea/FormRadioGroup` (de `@pengi/ui`) +
+`FormCalendar/FormTagInput` (locales a cada app; `FormTagInput` solo existe
+en `apps/web`) — nunca inputs HTML crudos. `FormCheckbox` ya no existe.
 
 ## 10. Frontend — Rutas y navegación
 
