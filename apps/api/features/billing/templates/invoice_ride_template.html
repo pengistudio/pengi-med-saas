@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura {{.Establishment}}-{{.EmissionPoint}}-{{.Sequential}}</title>
+    <style>
+        :root {
+            --primary-color: #0ea5e9;
+            --primary-light: #e0f2fe;
+            --text-color: #334155;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            line-height: 1.4;
+            color: var(--text-color);
+            background: white;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 12mm;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .issuer {
+            display: flex;
+            gap: 10px;
+        }
+
+        .issuer .logo {
+            max-width: 28mm;
+            max-height: 20mm;
+            object-fit: contain;
+        }
+
+        .issuer h1 {
+            font-size: 13pt;
+            color: var(--primary-color);
+        }
+
+        .issuer p {
+            margin-top: 2px;
+        }
+
+        .doc-box {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+            width: 65mm;
+            text-align: center;
+        }
+
+        .doc-box h2 {
+            font-size: 11pt;
+            color: var(--primary-color);
+        }
+
+        .doc-box .access-key {
+            font-size: 7pt;
+            word-break: break-all;
+            margin-top: 4px;
+        }
+
+        .doc-box .qr {
+            margin: 6px auto 0;
+            width: 25mm;
+            height: 25mm;
+        }
+
+        .section-title {
+            background: var(--primary-light);
+            padding: 4px 8px;
+            font-weight: bold;
+            margin: 10px 0 6px;
+        }
+
+        .buyer p {
+            margin-bottom: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 4px 6px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--primary-light);
+        }
+
+        td.num, th.num {
+            text-align: right;
+        }
+
+        .totals {
+            width: 60mm;
+            margin-left: auto;
+            margin-top: 10px;
+        }
+
+        .totals div {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+        }
+
+        .totals .grand-total {
+            font-weight: bold;
+            border-top: 1px solid var(--border-color);
+            margin-top: 4px;
+            padding-top: 4px;
+        }
+
+        .footer {
+            margin-top: 16px;
+            font-size: 7pt;
+            color: #64748b;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="issuer">
+                {{if .LogoDataURI}}<img class="logo" src="{{.LogoDataURI}}" alt="Logo" />{{end}}
+                <div>
+                    <h1>{{.TradeName}}</h1>
+                    <p>{{.CorporateName}}</p>
+                    <p>RUC: {{.TaxID}}</p>
+                    <p>Matriz: {{.MainAddress}}</p>
+                    <p>Establecimiento: {{.EstablishmentAddress}}</p>
+                    {{if .SpecialContributor}}<p>Contribuyente Especial No. {{.SpecialContributor}}</p>{{end}}
+                    <p>Obligado a llevar contabilidad</p>
+                </div>
+            </div>
+            <div class="doc-box">
+                <h2>FACTURA</h2>
+                <p>No. {{.Establishment}}-{{.EmissionPoint}}-{{.Sequential}}</p>
+                <p>Ambiente: {{.Environment}}</p>
+                <p>Fecha Autorización:<br>{{.AuthorizationDate}}</p>
+                <p class="access-key">Clave de Acceso:<br>{{.AccessKey}}</p>
+                <img class="qr" src="data:image/png;base64,{{.QRCodeBase64}}" alt="QR" />
+            </div>
+        </div>
+
+        <div class="section-title">Datos del Cliente</div>
+        <div class="buyer">
+            <p>Razón Social / Nombres: {{.BuyerName}}</p>
+            <p>Identificación: {{.BuyerIdentification}}</p>
+            <p>Fecha Emisión: {{.IssueDate}}</p>
+        </div>
+
+        <div class="section-title">Detalle</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th class="num">Cant.</th>
+                    <th class="num">P. Unitario</th>
+                    <th class="num">Descuento</th>
+                    <th class="num">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Items}}
+                <tr>
+                    <td>{{.Description}}</td>
+                    <td class="num">{{.Quantity}}</td>
+                    <td class="num">{{.UnitPrice}}</td>
+                    <td class="num">{{.Discount}}</td>
+                    <td class="num">{{.Total}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div><span>Subtotal</span><span>{{.Subtotal}}</span></div>
+            <div><span>Descuento</span><span>-{{.Discount}}</span></div>
+            {{range .TaxSummary}}
+            <div><span>{{.Label}}</span><span>{{.Value}}</span></div>
+            {{end}}
+            <div class="grand-total"><span>Total</span><span>{{.Total}}</span></div>
+        </div>
+
+        <div class="footer">
+            <p>Este documento es una representación impresa (RIDE) del comprobante electrónico autorizado por el SRI.</p>
+            <p>Forma de pago: {{.PaymentMethod}}</p>
+        </div>
+    </div>
+</body>
+
+</html>

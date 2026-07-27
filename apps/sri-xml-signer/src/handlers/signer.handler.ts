@@ -109,7 +109,7 @@ export const validateHandler = async (req: Request, res: Response) => {
 
 		res
 			.status(statusCode)
-			.json({ status: estado, message: result?.mensaje, statusCode });
+			.json({ data: { status: estado }, message: result?.mensaje, statusCode });
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 
@@ -118,12 +118,16 @@ export const validateHandler = async (req: Request, res: Response) => {
 			logger.info("SRI key already in processing, treating as RECIBIDA", {
 				env: sriEnv,
 			});
-			res.status(200).json({ status: "RECIBIDA", message, statusCode: 200 });
+			res
+				.status(200)
+				.json({ data: { status: "RECIBIDA" }, message, statusCode: 200 });
 			return;
 		}
 
 		logger.warn("SRI validation error", { message, env: sriEnv });
-		res.status(422).json({ status: "ERROR", message, statusCode: 422 });
+		res
+			.status(422)
+			.json({ data: { status: "ERROR" }, message, statusCode: 422 });
 	}
 };
 
@@ -145,19 +149,21 @@ export const authorizeHandler = async (req: Request, res: Response) => {
 			accessKey,
 			env: sriEnv,
 		});
-		const estado =
-			(authorization as unknown as Record<string, unknown>)?.estado ??
-			"UNKNOWN";
-		const isAuthorized =
-			typeof estado === "string" ? estado.toUpperCase() === "AUTORIZADO" : true;
+		// SriAuthorizationResponse uses `estadoAutorizacion`, not `estado` — a
+		// previous version of this handler read the wrong field and always
+		// reported failure (422) even on a successful SRI authorization.
+		const estado = authorization?.estadoAutorizacion ?? "UNKNOWN";
+		const isAuthorized = estado.toUpperCase() === "AUTORIZADO";
 		const statusCode = isAuthorized ? 200 : 422;
 
-		res
-			.status(statusCode)
-			.json({ ...authorization, status: estado, statusCode });
+		res.status(statusCode).json({
+			data: { ...authorization, status: estado },
+			message: estado,
+			statusCode,
+		});
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		logger.warn("SRI authorization error", { message, accessKey, env: sriEnv });
-		res.status(422).json({ status: "ERROR", message, statusCode: 422 });
+		res.status(422).json({ message, statusCode: 422 });
 	}
 };

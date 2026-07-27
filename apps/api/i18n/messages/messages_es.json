@@ -644,6 +644,10 @@
         "value": "opcional"
     },
     {
+        "key": "form.select.no_options",
+        "value": "No hay opciones disponibles"
+    },
+    {
         "key": "form.validation.no_spaces",
         "value": "No puede contener espacios"
     },
@@ -3008,6 +3012,38 @@
         "value": "Firma electrónica subida y configurada correctamente"
     },
     {
+        "key": "tenant.logo.upload.success",
+        "value": "Logo subido correctamente"
+    },
+    {
+        "key": "billing.sri.logo.invalid_file",
+        "value": "Archivo inválido. Solo se aceptan imágenes PNG o JPG"
+    },
+    {
+        "key": "billing.sri.logo.not_found",
+        "value": "No se ha subido un logo para esta empresa"
+    },
+    {
+        "key": "billing.sri.logo.title",
+        "value": "Logo de la Empresa"
+    },
+    {
+        "key": "billing.sri.logo.description",
+        "value": "Aparece en el encabezado del RIDE (representación impresa de la factura). No es obligatorio por el SRI, pero se ve más profesional."
+    },
+    {
+        "key": "billing.sri.logo.file.label",
+        "value": "Archivo de Logo (PNG o JPG)"
+    },
+    {
+        "key": "billing.sri.logo.current",
+        "value": "Logo actual"
+    },
+    {
+        "key": "billing.sri.logo.button.save",
+        "value": "Guardar Logo"
+    },
+    {
         "key": "E-BILL-001",
         "value": "Solicitud de facturación inválida"
     },
@@ -3026,6 +3062,230 @@
     {
         "key": "E-BILL-005",
         "value": "Contraseña incorrecta o archivo de firma inválido"
+    },
+    {
+        "key": "E-BILL-006",
+        "value": "Nota de crédito no encontrada"
+    },
+    {
+        "key": "E-BILL-007",
+        "value": "Error al crear la nota de crédito"
+    },
+    {
+        "key": "E-BILL-008",
+        "value": "La factura debe estar autorizada por el SRI antes de emitir una nota de crédito"
+    },
+    {
+        "key": "billing.credit_note.create.success",
+        "value": "Nota de crédito creada exitosamente"
+    },
+    {
+        "key": "billing.credit_note.error.invoice_not_authorized",
+        "value": "La factura debe estar autorizada por el SRI antes de emitir una nota de crédito"
+    },
+    {
+        "key": "billing.credit_note.error.create_failed",
+        "value": "Error al crear la nota de crédito"
+    },
+    {
+        "key": "billing.credit_notes.fetch.success",
+        "value": "Notas de crédito obtenidas exitosamente"
+    },
+    {
+        "key": "billing.credit_notes.error.fetch_failed",
+        "value": "Error al obtener las notas de crédito"
+    },
+    {
+        "key": "billing.credit_note.title",
+        "value": "Nota de Crédito"
+    },
+    {
+        "key": "billing.credit_note.list.title",
+        "value": "Notas de Crédito"
+    },
+    {
+        "key": "billing.credit_note.create.title",
+        "value": "Nueva Nota de Crédito"
+    },
+    {
+        "key": "billing.credit_note.create.description",
+        "value": "Selecciona la factura a corregir o anular y el motivo."
+    },
+    {
+        "key": "billing.credit_note.create.button",
+        "value": "Crear Nota de Crédito"
+    },
+    {
+        "key": "billing.credit_note.save",
+        "value": "Guardar Nota de Crédito"
+    },
+    {
+        "key": "billing.credit_note.invoice",
+        "value": "Factura a corregir/anular"
+    },
+    {
+        "key": "billing.credit_note.invoice.placeholder",
+        "value": "Seleccionar factura autorizada..."
+    },
+    {
+        "key": "billing.credit_note.invoice.empty",
+        "value": "No hay facturas autorizadas. Debes autorizar una factura ante el SRI antes de poder emitir una nota de crédito."
+    },
+    {
+        "key": "billing.credit_note.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "billing.credit_note.reason.placeholder",
+        "value": "Ej: Anulación por error en el servicio facturado"
+    },
+    {
+        "key": "billing.credit_note.column.sequential",
+        "value": "Secuencial"
+    },
+    {
+        "key": "billing.credit_note.column.invoice",
+        "value": "Factura"
+    },
+    {
+        "key": "billing.credit_note.column.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "billing.credit_note.search.placeholder",
+        "value": "Buscar por secuencial o estado..."
+    },
+    {
+        "key": "billing.credit_note.process.selected",
+        "value": "Procesar Seleccionadas al SRI"
+    },
+    {
+        "key": "E-BILL-009",
+        "value": "Nota de débito no encontrada"
+    },
+    {
+        "key": "E-BILL-010",
+        "value": "Error al crear la nota de débito"
+    },
+    {
+        "key": "E-BILL-011",
+        "value": "La factura debe estar autorizada para poder descargar el RIDE"
+    },
+    {
+        "key": "E-BILL-012",
+        "value": "Error al generar el PDF del RIDE"
+    },
+    {
+        "key": "billing.invoice.error.ride_not_authorized",
+        "value": "La factura debe estar autorizada para poder descargar el RIDE"
+    },
+    {
+        "key": "billing.invoice.error.ride_generate_failed",
+        "value": "Error al generar el PDF del RIDE"
+    },
+    {
+        "key": "billing.invoice.ride.download",
+        "value": "Descargar RIDE"
+    },
+    {
+        "key": "billing.debit_note.create.success",
+        "value": "Nota de débito creada exitosamente"
+    },
+    {
+        "key": "billing.debit_note.error.invoice_not_authorized",
+        "value": "La factura debe estar autorizada por el SRI antes de emitir una nota de débito"
+    },
+    {
+        "key": "billing.debit_note.error.create_failed",
+        "value": "Error al crear la nota de débito"
+    },
+    {
+        "key": "billing.debit_notes.fetch.success",
+        "value": "Notas de débito obtenidas exitosamente"
+    },
+    {
+        "key": "billing.debit_notes.error.fetch_failed",
+        "value": "Error al obtener las notas de débito"
+    },
+    {
+        "key": "billing.debit_note.list.title",
+        "value": "Notas de Débito"
+    },
+    {
+        "key": "billing.debit_note.create.title",
+        "value": "Nueva Nota de Débito"
+    },
+    {
+        "key": "billing.debit_note.create.description",
+        "value": "Selecciona la factura y los cargos adicionales a cobrar."
+    },
+    {
+        "key": "billing.debit_note.create.button",
+        "value": "Crear Nota de Débito"
+    },
+    {
+        "key": "billing.debit_note.save",
+        "value": "Guardar Nota de Débito"
+    },
+    {
+        "key": "billing.debit_note.invoice",
+        "value": "Factura relacionada"
+    },
+    {
+        "key": "billing.debit_note.invoice.placeholder",
+        "value": "Seleccionar factura autorizada..."
+    },
+    {
+        "key": "billing.debit_note.invoice.empty",
+        "value": "No hay facturas autorizadas. Debes autorizar una factura ante el SRI antes de poder emitir una nota de débito."
+    },
+    {
+        "key": "billing.debit_note.motives",
+        "value": "Cargos Adicionales"
+    },
+    {
+        "key": "billing.debit_note.motive.add",
+        "value": "Agregar Cargo"
+    },
+    {
+        "key": "billing.debit_note.motive.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "billing.debit_note.motive.reason.placeholder",
+        "value": "Ej: Interés por mora"
+    },
+    {
+        "key": "billing.debit_note.motive.value",
+        "value": "Valor"
+    },
+    {
+        "key": "billing.debit_note.motive.tax",
+        "value": "Impuesto"
+    },
+    {
+        "key": "billing.debit_note.column.sequential",
+        "value": "Secuencial"
+    },
+    {
+        "key": "billing.debit_note.column.invoice",
+        "value": "Factura"
+    },
+    {
+        "key": "billing.debit_note.search.placeholder",
+        "value": "Buscar por secuencial o estado..."
+    },
+    {
+        "key": "billing.debit_note.process.selected",
+        "value": "Procesar Seleccionadas al SRI"
+    },
+    {
+        "key": "dashboard.billing.debit-notes",
+        "value": "Notas de Débito"
+    },
+    {
+        "key": "dashboard.billing.credit-notes",
+        "value": "Notas de Crédito"
     },
     {
         "key": "billing.sri.invalid_file",
@@ -3310,6 +3570,30 @@
     {
         "key": "billing.sri.info.accounting_obliged.label",
         "value": "Obligado a llevar contabilidad"
+    },
+    {
+        "key": "billing.sri.info.tax_classification.title",
+        "value": "Clasificación Tributaria (opcional)"
+    },
+    {
+        "key": "billing.sri.info.tax_classification.desc",
+        "value": "Solo aplica si el SRI te asignó alguna de estas categorías. Déjalo vacío si no corresponde."
+    },
+    {
+        "key": "billing.sri.info.special_contributor_number.label",
+        "value": "Nº Resolución Contribuyente Especial"
+    },
+    {
+        "key": "billing.sri.info.withholding_agent.label",
+        "value": "Nº Resolución Agente de Retención"
+    },
+    {
+        "key": "billing.sri.info.rimpe_taxpayer.label",
+        "value": "Leyenda RIMPE"
+    },
+    {
+        "key": "billing.sri.info.microenterprise_regime.label",
+        "value": "Acogido al régimen de microempresas"
     },
     {
         "key": "billing.sri.company_info.title",

@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
+
 	"pengi-med-saas/core/brokers/rabbitmq"
-	"pengi-med-saas/core/utils"
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
 	sri_services "pengi-med-saas/features/billing/sri/services"
@@ -17,6 +16,31 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+// generateAndStoreInvoiceRide renders the RIDE PDF for an authorized invoice and
+// saves it next to the signed XML in tenant storage.
+func generateAndStoreInvoiceRide(invoice billing_models.Invoice, tenant tenant_models.Tenant, establishmentAddress string, sriEnv string) error {
+	if invoice.AccessKey == nil {
+		return fmt.Errorf("invoice %d has no access key", invoice.ID)
+	}
+
+	pdfBytes, err := sri_services.GenerateInvoiceRide(invoice, tenant, establishmentAddress, sriEnv)
+	if err != nil {
+		return fmt.Errorf("failed to render RIDE: %w", err)
+	}
+
+	destDir := filepath.Join("storage", "tenants", fmt.Sprint(tenant.ID), "invoices")
+	if err := os.MkdirAll(destDir, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create storage dir: %w", err)
+	}
+
+	pdfPath := filepath.Join(destDir, fmt.Sprintf("%s.pdf", *invoice.AccessKey))
+	if err := os.WriteFile(pdfPath, pdfBytes, 0644); err != nil {
+		return fmt.Errorf("failed to save RIDE PDF: %w", err)
+	}
+
+	return nil
+}
 
 func InitInvoiceBroker(ch *amqp.Channel, db *gorm.DB, logger *zap.Logger) {
 	q, err := rabbitmq.DeclareQueue(ch, "invoice_tasks")
@@ -92,7 +116,8 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		// 3. Generate XML
 		establishmentCode := invoice.EstablishmentCode
 		emissionCode := invoice.EmissionPointCode
-		sriInvoice, accessCode, err := sri_services.GenerateInvoice(invoice, products, tenant, establishmentCode, emissionCode, address)
+		sriEnv := sri_services.ResolveSriEnv()
+		sriInvoice, accessCode, err := sri_services.GenerateInvoice(invoice, products, tenant, establishmentCode, emissionCode, address, sriEnv)
 		if err != nil {
 			logger.Error("Failed to generate SRI parameters", zap.Error(err))
 			return err
@@ -110,70 +135,44 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 			return err
 		}
 
-		// 4. Sign XML
-		p12Buffer, err := os.ReadFile(tenant.SriP12Path)
-		if err != nil {
-			logger.Error("Failed to read P12 file", zap.String("path", tenant.SriP12Path), zap.Error(err))
-			return err
+		// 4. Sign, validate & authorize (shared pipeline, agnostic to document type)
+		statusByStep := map[string]string{
+			sri_services.StatusSigned:     billing_models.InvoiceStatusSigned,
+			sri_services.StatusValidated:  billing_models.InvoiceStatusValidated,
+			sri_services.StatusAuthorized: billing_models.InvoiceStatusAuthorized,
 		}
 
-		sriClient := utils.NewSriSignerClient()
-		responseClient, err := sriClient.SignXML(p12Buffer, tenant.SriPassword, []byte(sriXML))
-		if err != nil {
-			logger.Error("Failed to sign XML", zap.Error(err))
-			return err
-		}
+		err = sri_services.RunSriPipeline(
+			logger,
+			tenant.ID,
+			"invoices",
+			tenant.SriP12Path,
+			tenant.SriPassword,
+			sriXML,
+			accessCode,
+			sriEnv,
+			func(step string, auth *sri_services.SriAuthorization) error {
+				invoice.Status = statusByStep[step]
+				if auth != nil {
+					invoice.AuthorizedAt = &auth.AuthorizedAt
+				}
+				if err := db.Save(&invoice).Error; err != nil {
+					logger.Error("Failed to update invoice status", zap.Uint("invoice_id", invoice.ID), zap.String("status", statusByStep[step]), zap.Error(err))
+					return err
+				}
 
-		finalXML := responseClient.XML
-
-		// 5. Save Authorized XML to Tenant Storage
-		xmlDestDir := filepath.Join("storage", "tenants", fmt.Sprint(tenant.ID), "invoices")
-		os.MkdirAll(xmlDestDir, os.ModePerm)
-
-		xmlPath := filepath.Join(xmlDestDir, fmt.Sprintf("%s.xml", accessCode))
-		if err := os.WriteFile(xmlPath, []byte(finalXML), 0644); err != nil {
-			logger.Error("Failed to save final signed XML", zap.Error(err))
-			return err
-		}
-
-		invoice.Status = billing_models.InvoiceStatusSigned
-		if err := db.Save(&invoice).Error; err != nil {
-			logger.Error("Failed to update invoice status to signed", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
-			return err
-		}
-
-		// 6. Validate & Authorize SRI
-		sriEnv := os.Getenv("SRI_ENV") // Usually "1" (Pruebas) or "2" (Producción)
-		if sriEnv == "" {
-			sriEnv = "1"
-		}
-
-		if _, err := sriClient.ValidateXMLWithSRI([]byte(finalXML), sriEnv); err != nil {
-			logger.Error("Failed to Validate XML with SRI", zap.Error(err))
-			return err
-		}
-
-		invoice.Status = billing_models.InvoiceStatusValidated
-		if err := db.Save(&invoice).Error; err != nil {
-			logger.Error("Failed to update invoice status to validated", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
-			return err
-		}
-
-		authResp, err := sriClient.AuthorizeXMLWithSRI(*invoice.AccessKey, sriEnv)
-		if err != nil {
-			// SRI may still be processing; leave as validated so it can be retried
-			if strings.Contains(err.Error(), "autorizacion") || strings.Contains(err.Error(), "EN PROCESAMIENTO") {
-				logger.Warn("SRI authorization pending, invoice left as validated", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+				if step == sri_services.StatusAuthorized {
+					// The RIDE is a courtesy PDF, not the legal document (the XML is).
+					// Never fail the pipeline over a RIDE generation error.
+					if err := generateAndStoreInvoiceRide(invoice, tenant, address, sriEnv); err != nil {
+						logger.Error("Failed to generate RIDE for invoice", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+					}
+				}
 				return nil
-			}
-			logger.Error("Failed to Authorize XML with SRI", zap.Error(err))
-			return err
-		}
-		_ = authResp
-
-		invoice.Status = billing_models.InvoiceStatusAuthorized
-		if err := db.Save(&invoice).Error; err != nil {
-			logger.Error("Failed to update invoice status to authorized", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
+			},
+		)
+		if err != nil {
+			logger.Error("Failed to run SRI pipeline for invoice", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
 			return err
 		}
 

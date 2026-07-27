@@ -10,8 +10,8 @@ import (
 	"pengi-med-saas/core/logger"
 	billing_workers "pengi-med-saas/features/billing/workers"
 	clinical_workers "pengi-med-saas/features/clinical/workers"
-	kanban_workers "pengi-med-saas/features/kanban/workers"
 	"pengi-med-saas/features/health"
+	kanban_workers "pengi-med-saas/features/kanban/workers"
 	settings_models "pengi-med-saas/features/settings/models"
 	message_cache "pengi-med-saas/i18n/cache"
 	i18n_middleware "pengi-med-saas/i18n/middleware"
@@ -62,6 +62,8 @@ func main() {
 		defer rabbitConn.Close()
 		defer rabbitChannel.Close()
 		billing_workers.InitInvoiceBroker(rabbitChannel, DB_CONNECTION, logger.Log)
+		billing_workers.InitCreditNoteBroker(rabbitChannel, DB_CONNECTION, logger.Log)
+		billing_workers.InitDebitNoteBroker(rabbitChannel, DB_CONNECTION, logger.Log)
 	}
 
 	// Initialize archive scheduler

@@ -5,10 +5,10 @@ import (
 	"pengi-med-saas/core/database"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	billing_models "pengi-med-saas/features/billing/models"
-	integration_models "pengi-med-saas/features/integrations/models"
-	kanban_models "pengi-med-saas/features/kanban/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	integration_models "pengi-med-saas/features/integrations/models"
+	kanban_models "pengi-med-saas/features/kanban/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
 	permission_models "pengi-med-saas/features/permissions/models"
 	settings_models "pengi-med-saas/features/settings/models"
@@ -54,6 +54,10 @@ func RunMigrations(db *gorm.DB) error {
 		billing_models.InvoiceItem{},
 		billing_models.InvoiceCounter{},
 		billing_models.CatalogItem{},
+		billing_models.CreditNote{},
+		billing_models.CreditNoteItem{},
+		billing_models.DebitNote{},
+		billing_models.DebitNoteMotive{},
 		kanban_models.Task{},
 		settings_models.SystemSetting{},
 		notifications_models.Notification{},

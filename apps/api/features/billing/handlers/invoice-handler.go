@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -12,7 +14,9 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
+	sri_services "pengi-med-saas/features/billing/sri/services"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
+	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -263,4 +267,55 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 	}
 
 	return envelope.SuccessResponse(nil, "billing.invoices.processing.queued")
+}
+
+// DownloadInvoiceRide serves the RIDE (Representación Impresa del Documento
+// Electrónico) PDF for an authorized invoice. If it hasn't been generated yet
+// (e.g. the invoice was authorized before this feature existed), it is
+// generated on demand.
+func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
+	tenantScope := tenant_middleware.TenantScope(c)
+	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest))
+		return
+	}
+
+	var invoice billing_models.Invoice
+	if err := h.db.Scopes(tenantScope).Preload("Patient").Preload("Items").First(&invoice, invoiceID).Error; err != nil {
+		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound))
+		return
+	}
+
+	if invoice.Status != billing_models.InvoiceStatusAuthorized || invoice.AccessKey == nil {
+		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.ride_not_authorized", core_errors.ErrBillingInvoiceRideNotReady))
+		return
+	}
+
+	tenantIDVal, _ := c.Get("tenant_id")
+	pdfPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantIDVal), "invoices", fmt.Sprintf("%s.pdf", *invoice.AccessKey))
+
+	pdfBytes, err := os.ReadFile(pdfPath)
+	if err != nil {
+		var tenant tenant_models.Tenant
+		if err := h.db.First(&tenant, tenantIDVal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
+			return
+		}
+		address := tenant.Address
+		if address == "" {
+			address = "Dirección no provista"
+		}
+		pdfBytes, err = sri_services.GenerateInvoiceRide(invoice, tenant, address, sri_services.ResolveSriEnv())
+		if err != nil {
+			h.logger.Error("Failed to generate RIDE on demand", zap.Uint64("invoice_id", invoiceID), zap.Error(err))
+			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
+			return
+		}
+	}
+
+	fileName := fmt.Sprintf("factura_%s-%s-%s.pdf", invoice.EstablishmentCode, invoice.EmissionPointCode, invoice.Sequential)
+	c.Header("Content-Type", "application/pdf")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
+	c.Data(http.StatusOK, "application/pdf", pdfBytes)
 }

@@ -10,6 +10,16 @@ const CreateCatalogItemPage = lazy(
 	() => import("@/pages/billing/create-catalog-item"),
 );
 const CreateInvoicePage = lazy(() => import("@/pages/billing/create-invoice"));
+const CreateCreditNotePage = lazy(
+	() => import("@/pages/billing/create-credit-note"),
+);
+const CreditNoteListPage = lazy(
+	() => import("@/pages/billing/credit-note-list"),
+);
+const CreateDebitNotePage = lazy(
+	() => import("@/pages/billing/create-debit-note"),
+);
+const DebitNoteListPage = lazy(() => import("@/pages/billing/debit-note-list"));
 const EditCatalogItemPage = lazy(
 	() => import("@/pages/billing/edit-catalog-item"),
 );
@@ -180,6 +190,46 @@ const billingRoutes: RouteObject = {
 					permissions={[PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS]}
 				>
 					<SriSettingsPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "credit-notes",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_READ_BILLING]}
+				>
+					<CreditNoteListPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "credit-notes/create",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]}
+				>
+					<CreateCreditNotePage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "debit-notes",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_READ_BILLING]}
+				>
+					<DebitNoteListPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "debit-notes/create",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]}
+				>
+					<CreateDebitNotePage />
 				</CheckPermission>
 			),
 		},

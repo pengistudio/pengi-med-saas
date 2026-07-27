@@ -644,6 +644,10 @@
         "value": "optional"
     },
     {
+        "key": "form.select.no_options",
+        "value": "No options available"
+    },
+    {
         "key": "form.validation.no_spaces",
         "value": "Cannot contain spaces"
     },
@@ -3008,6 +3012,38 @@
         "value": "Electronic signature uploaded and configured successfully"
     },
     {
+        "key": "tenant.logo.upload.success",
+        "value": "Logo uploaded successfully"
+    },
+    {
+        "key": "billing.sri.logo.invalid_file",
+        "value": "Invalid file. Only PNG or JPG images are allowed"
+    },
+    {
+        "key": "billing.sri.logo.not_found",
+        "value": "No logo has been uploaded for this company"
+    },
+    {
+        "key": "billing.sri.logo.title",
+        "value": "Company Logo"
+    },
+    {
+        "key": "billing.sri.logo.description",
+        "value": "Shown on the RIDE (printed invoice representation) header. Not required by the SRI, but looks more professional."
+    },
+    {
+        "key": "billing.sri.logo.file.label",
+        "value": "Logo File (PNG or JPG)"
+    },
+    {
+        "key": "billing.sri.logo.current",
+        "value": "Current logo"
+    },
+    {
+        "key": "billing.sri.logo.button.save",
+        "value": "Save Logo"
+    },
+    {
         "key": "E-BILL-001",
         "value": "Invalid billing request"
     },
@@ -3026,6 +3062,230 @@
     {
         "key": "E-BILL-005",
         "value": "Incorrect password or invalid signature file"
+    },
+    {
+        "key": "E-BILL-006",
+        "value": "Credit note not found"
+    },
+    {
+        "key": "E-BILL-007",
+        "value": "Error creating credit note"
+    },
+    {
+        "key": "E-BILL-008",
+        "value": "Invoice must be authorized by the SRI before it can be credited"
+    },
+    {
+        "key": "billing.credit_note.create.success",
+        "value": "Credit note created successfully"
+    },
+    {
+        "key": "billing.credit_note.error.invoice_not_authorized",
+        "value": "Invoice must be authorized by the SRI before it can be credited"
+    },
+    {
+        "key": "billing.credit_note.error.create_failed",
+        "value": "Error creating credit note"
+    },
+    {
+        "key": "billing.credit_notes.fetch.success",
+        "value": "Credit notes fetched successfully"
+    },
+    {
+        "key": "billing.credit_notes.error.fetch_failed",
+        "value": "Error fetching credit notes"
+    },
+    {
+        "key": "billing.credit_note.title",
+        "value": "Credit Note"
+    },
+    {
+        "key": "billing.credit_note.list.title",
+        "value": "Credit Notes"
+    },
+    {
+        "key": "billing.credit_note.create.title",
+        "value": "New Credit Note"
+    },
+    {
+        "key": "billing.credit_note.create.description",
+        "value": "Select the invoice to correct or void and the reason."
+    },
+    {
+        "key": "billing.credit_note.create.button",
+        "value": "Create Credit Note"
+    },
+    {
+        "key": "billing.credit_note.save",
+        "value": "Save Credit Note"
+    },
+    {
+        "key": "billing.credit_note.invoice",
+        "value": "Invoice to correct/void"
+    },
+    {
+        "key": "billing.credit_note.invoice.placeholder",
+        "value": "Select an authorized invoice..."
+    },
+    {
+        "key": "billing.credit_note.invoice.empty",
+        "value": "No authorized invoices. You must authorize an invoice with the SRI before you can issue a credit note."
+    },
+    {
+        "key": "billing.credit_note.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "billing.credit_note.reason.placeholder",
+        "value": "E.g. Void due to an error in the billed service"
+    },
+    {
+        "key": "billing.credit_note.column.sequential",
+        "value": "Sequential"
+    },
+    {
+        "key": "billing.credit_note.column.invoice",
+        "value": "Invoice"
+    },
+    {
+        "key": "billing.credit_note.column.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "billing.credit_note.search.placeholder",
+        "value": "Search by sequential or status..."
+    },
+    {
+        "key": "billing.credit_note.process.selected",
+        "value": "Process Selected with SRI"
+    },
+    {
+        "key": "E-BILL-009",
+        "value": "Debit note not found"
+    },
+    {
+        "key": "E-BILL-010",
+        "value": "Error creating debit note"
+    },
+    {
+        "key": "E-BILL-011",
+        "value": "Invoice must be authorized before the RIDE can be downloaded"
+    },
+    {
+        "key": "E-BILL-012",
+        "value": "Error generating the RIDE PDF"
+    },
+    {
+        "key": "billing.invoice.error.ride_not_authorized",
+        "value": "Invoice must be authorized before the RIDE can be downloaded"
+    },
+    {
+        "key": "billing.invoice.error.ride_generate_failed",
+        "value": "Error generating the RIDE PDF"
+    },
+    {
+        "key": "billing.invoice.ride.download",
+        "value": "Download RIDE"
+    },
+    {
+        "key": "billing.debit_note.create.success",
+        "value": "Debit note created successfully"
+    },
+    {
+        "key": "billing.debit_note.error.invoice_not_authorized",
+        "value": "Invoice must be authorized by the SRI before it can be debited"
+    },
+    {
+        "key": "billing.debit_note.error.create_failed",
+        "value": "Error creating debit note"
+    },
+    {
+        "key": "billing.debit_notes.fetch.success",
+        "value": "Debit notes fetched successfully"
+    },
+    {
+        "key": "billing.debit_notes.error.fetch_failed",
+        "value": "Error fetching debit notes"
+    },
+    {
+        "key": "billing.debit_note.list.title",
+        "value": "Debit Notes"
+    },
+    {
+        "key": "billing.debit_note.create.title",
+        "value": "New Debit Note"
+    },
+    {
+        "key": "billing.debit_note.create.description",
+        "value": "Select the invoice and the additional charges to bill."
+    },
+    {
+        "key": "billing.debit_note.create.button",
+        "value": "Create Debit Note"
+    },
+    {
+        "key": "billing.debit_note.save",
+        "value": "Save Debit Note"
+    },
+    {
+        "key": "billing.debit_note.invoice",
+        "value": "Related invoice"
+    },
+    {
+        "key": "billing.debit_note.invoice.placeholder",
+        "value": "Select an authorized invoice..."
+    },
+    {
+        "key": "billing.debit_note.invoice.empty",
+        "value": "No authorized invoices. You must authorize an invoice with the SRI before you can issue a debit note."
+    },
+    {
+        "key": "billing.debit_note.motives",
+        "value": "Additional Charges"
+    },
+    {
+        "key": "billing.debit_note.motive.add",
+        "value": "Add Charge"
+    },
+    {
+        "key": "billing.debit_note.motive.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "billing.debit_note.motive.reason.placeholder",
+        "value": "E.g. Late payment interest"
+    },
+    {
+        "key": "billing.debit_note.motive.value",
+        "value": "Value"
+    },
+    {
+        "key": "billing.debit_note.motive.tax",
+        "value": "Tax"
+    },
+    {
+        "key": "billing.debit_note.column.sequential",
+        "value": "Sequential"
+    },
+    {
+        "key": "billing.debit_note.column.invoice",
+        "value": "Invoice"
+    },
+    {
+        "key": "billing.debit_note.search.placeholder",
+        "value": "Search by sequential or status..."
+    },
+    {
+        "key": "billing.debit_note.process.selected",
+        "value": "Process Selected with SRI"
+    },
+    {
+        "key": "dashboard.billing.debit-notes",
+        "value": "Debit Notes"
+    },
+    {
+        "key": "dashboard.billing.credit-notes",
+        "value": "Credit Notes"
     },
     {
         "key": "billing.sri.invalid_file",
@@ -3310,6 +3570,30 @@
     {
         "key": "billing.sri.info.accounting_obliged.label",
         "value": "Obliged to keep accounting"
+    },
+    {
+        "key": "billing.sri.info.tax_classification.title",
+        "value": "Tax Classification (optional)"
+    },
+    {
+        "key": "billing.sri.info.tax_classification.desc",
+        "value": "Only applies if the SRI assigned you one of these categories. Leave blank if it doesn't apply."
+    },
+    {
+        "key": "billing.sri.info.special_contributor_number.label",
+        "value": "Special Contributor Resolution No."
+    },
+    {
+        "key": "billing.sri.info.withholding_agent.label",
+        "value": "Withholding Agent Resolution No."
+    },
+    {
+        "key": "billing.sri.info.rimpe_taxpayer.label",
+        "value": "RIMPE Legend"
+    },
+    {
+        "key": "billing.sri.info.microenterprise_regime.label",
+        "value": "Enrolled in the microenterprise regime"
     },
     {
         "key": "billing.sri.company_info.title",

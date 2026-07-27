@@ -12,6 +12,10 @@ export const sriInfoSchema = z.object({
 	corporate_name: z.string().min(1, "form.validation.required"),
 	address: z.string().min(1, "form.validation.required"),
 	accounting_obliged: z.boolean().default(false),
+	special_contributor_number: z.string().default(""),
+	microenterprise_regime: z.boolean().default(false),
+	withholding_agent: z.string().default(""),
+	rimpe_taxpayer: z.string().default(""),
 });
 
 type FormValues = z.infer<typeof sriInfoSchema>;
@@ -31,6 +35,10 @@ export function SriInfoForm({ initialData, onSuccess }: SriInfoFormProps) {
 		corporate_name: initialData?.corporate_name || "",
 		address: initialData?.address || "",
 		accounting_obliged: initialData?.accounting_obliged || false,
+		special_contributor_number: initialData?.special_contributor_number || "",
+		microenterprise_regime: initialData?.microenterprise_regime || false,
+		withholding_agent: initialData?.withholding_agent || "",
+		rimpe_taxpayer: initialData?.rimpe_taxpayer || "",
 	};
 
 	const onSubmit = async (values: FormValues) => {
@@ -93,6 +101,54 @@ export function SriInfoForm({ initialData, onSuccess }: SriInfoFormProps) {
 						>
 							<Text uuid="billing.sri.info.accounting_obliged.label" />
 						</Label>
+					</div>
+
+					<div className="space-y-4 border-t pt-4">
+						<div>
+							<span className="block text-sm font-medium">
+								<Text uuid="billing.sri.info.tax_classification.title" />
+							</span>
+							<span className="text-muted-foreground block text-xs">
+								<Text uuid="billing.sri.info.tax_classification.desc" />
+							</span>
+						</div>
+						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+							<FormInput
+								field={field}
+								name="special_contributor_number"
+								label={textGet(
+									"billing.sri.info.special_contributor_number.label",
+								)}
+								placeholder="0000"
+							/>
+							<FormInput
+								field={field}
+								name="withholding_agent"
+								label={textGet("billing.sri.info.withholding_agent.label")}
+								placeholder="0000"
+							/>
+							<FormInput
+								field={field}
+								name="rimpe_taxpayer"
+								label={textGet("billing.sri.info.rimpe_taxpayer.label")}
+								placeholder="CONTRIBUYENTE RÉGIMEN RIMPE"
+							/>
+						</div>
+						<div className="flex items-center space-x-2">
+							<Checkbox
+								id="microenterprise_regime"
+								checked={field.watch("microenterprise_regime")}
+								onCheckedChange={(checked) =>
+									field.setValue("microenterprise_regime", checked as boolean)
+								}
+							/>
+							<Label
+								htmlFor="microenterprise_regime"
+								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							>
+								<Text uuid="billing.sri.info.microenterprise_regime.label" />
+							</Label>
+						</div>
 					</div>
 
 					<Button type="submit" disabled={loading} className="w-fit">

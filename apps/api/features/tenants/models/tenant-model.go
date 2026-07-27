@@ -67,19 +67,25 @@ func DefaultEnabledFeatures() EnabledFeatures {
 
 type Tenant struct {
 	gorm.Model
-	Name              string     `gorm:"not null" json:"name"`
-	Slug              string     `gorm:"not null;unique" json:"slug"`
-	TradeName         string     `json:"trade_name"`          // Nombre Comercial
-	CorporateName     string     `json:"corporate_name"`      // Razón Social
-	TaxID             string     `json:"tax_id"`              // RUC
-	Address           string     `json:"address"`             // Dirección Matriz
-	AccountingObliged bool       `json:"accounting_obliged"`  // Obligado a llevar contabilidad (SRI)
-	SriPassword       string     `json:"-"`                   // Hidden from API responses
-	SriP12Path        string     `json:"sri_p12_path"`        // Local storage path to the uploaded signature
-	SriCertExpiration *time.Time `json:"sri_cert_expiration"` // Date the certificate expires
-	UISettings        string     `gorm:"type:text;default:'{}'" json:"-"` // JSON-encoded UISettings
-	EnabledFeatures   string     `gorm:"type:text;default:'{}'" json:"enabled_features"` // JSON-encoded EnabledFeatures
-	DisplayToken      string     `gorm:"type:varchar(36);uniqueIndex" json:"-"` // Token for public TV display access
+	Name              string `gorm:"not null" json:"name"`
+	Slug              string `gorm:"not null;unique" json:"slug"`
+	TradeName         string `json:"trade_name"`         // Nombre Comercial
+	CorporateName     string `json:"corporate_name"`     // Razón Social
+	TaxID             string `json:"tax_id"`             // RUC
+	Address           string `json:"address"`            // Dirección Matriz
+	AccountingObliged bool   `json:"accounting_obliged"` // Obligado a llevar contabilidad (SRI)
+	// Clasificación tributaria opcional del SRI — se llenan en el XML solo si están seteados.
+	SpecialContributorNumber *string    `json:"special_contributor_number"`                     // Nº resolución contribuyente especial
+	MicroenterpriseRegime    *string    `json:"microenterprise_regime"`                         // "SI" si aplica régimen de microempresas
+	WithholdingAgent         *string    `json:"withholding_agent"`                              // Nº resolución agente de retención
+	RimpeTaxpayer            *string    `json:"rimpe_taxpayer"`                                 // Leyenda RIMPE (ej. "CONTRIBUYENTE RÉGIMEN RIMPE")
+	SriPassword              string     `json:"-"`                                              // Hidden from API responses
+	SriP12Path               string     `json:"sri_p12_path"`                                   // Local storage path to the uploaded signature
+	SriCertExpiration        *time.Time `json:"sri_cert_expiration"`                            // Date the certificate expires
+	LogoPath                 *string    `json:"-"`                                              // Local storage path to the uploaded company logo
+	UISettings               string     `gorm:"type:text;default:'{}'" json:"-"`                // JSON-encoded UISettings
+	EnabledFeatures          string     `gorm:"type:text;default:'{}'" json:"enabled_features"` // JSON-encoded EnabledFeatures
+	DisplayToken             string     `gorm:"type:varchar(36);uniqueIndex" json:"-"`          // Token for public TV display access
 }
 
 func NewTenant(name string) *Tenant {

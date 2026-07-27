@@ -30,6 +30,16 @@ type SriSignResponse struct {
 	XML string `json:"xml"`
 }
 
+// SriAuthorizationResponse mirrors osodreamer-sri-xml-signer's SriAuthorizationResponse.
+// Note there is no separate "authorization number" in the current SRI scheme — the
+// número de autorización shown on the RIDE is the same 49-digit claveAcceso.
+type SriAuthorizationResponse struct {
+	ClaveAcceso        string `json:"claveAcceso"`
+	EstadoAutorizacion string `json:"estadoAutorizacion"`
+	Ambiente           string `json:"ambiente"`
+	FechaAutorizacion  string `json:"fechaAutorizacion"`
+}
+
 func NewSriSignerClient() *SriSignerClient {
 	url := os.Getenv("SRI_SIGNER_SERVICE_URL")
 	if url == "" {
@@ -106,11 +116,11 @@ func (ssc *SriSignerClient) ValidateXMLWithSRI(xmlBuffer []byte, env string) (ma
 	return apiResp.Data, nil
 }
 
-func (ssc *SriSignerClient) AuthorizeXMLWithSRI(accessCode string, env string) (map[string]any, error) {
+func (ssc *SriSignerClient) AuthorizeXMLWithSRI(accessCode string, env string) (*SriAuthorizationResponse, error) {
 	payload := map[string]any{
 		"accessKey": accessCode,
 	}
-	var apiResp APIResponse[map[string]any]
+	var apiResp APIResponse[SriAuthorizationResponse]
 	resp, err := ssc.Post(fmt.Sprintf("authorization/%s", env), payload)
 	if err != nil {
 		return nil, err
@@ -127,7 +137,7 @@ func (ssc *SriSignerClient) AuthorizeXMLWithSRI(accessCode string, env string) (
 		return nil, err
 	}
 
-	return apiResp.Data, nil
+	return &apiResp.Data, nil
 }
 
 func (ssc *SriSignerClient) SignXMLMultipart(p12 []byte, password string, xml []byte) (*SriSignResponse, error) {

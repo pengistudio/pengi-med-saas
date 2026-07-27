@@ -53,6 +53,75 @@ export interface Invoice extends BaseModel {
 	items: InvoiceItem[];
 }
 
+export interface CreditNoteItem {
+	product_id: number;
+	description: string;
+	quantity: number;
+	unit_price: number;
+	tax_rate: string;
+	ice_tax: number;
+	total: number;
+}
+
+export interface CreditNote extends BaseModel {
+	tenant_id: number;
+	invoice_id: number;
+	invoice?: Invoice;
+	establishment_code: string;
+	emission_point_code: string;
+	sequential: string;
+	access_key?: string;
+	status: string;
+	reason: string;
+	subtotal: number;
+	tax_total: number;
+	total: number;
+	items: CreditNoteItem[];
+}
+
+export type CreateCreditNotePayload = {
+	invoice_id: number;
+	reason: string;
+	items: {
+		product_id: number;
+		quantity: number;
+	}[];
+};
+
+export interface DebitNoteMotive {
+	reason: string;
+	value: number;
+	tax_code: string;
+	tax_percentage_code: string;
+	tax_rate: number;
+}
+
+export interface DebitNote extends BaseModel {
+	tenant_id: number;
+	invoice_id: number;
+	invoice?: Invoice;
+	establishment_code: string;
+	emission_point_code: string;
+	sequential: string;
+	access_key?: string;
+	status: string;
+	subtotal: number;
+	tax_total: number;
+	total: number;
+	motives: DebitNoteMotive[];
+}
+
+export type CreateDebitNotePayload = {
+	invoice_id: number;
+	motives: {
+		reason: string;
+		value: number;
+		tax_code: string;
+		tax_percentage_code: string;
+		tax_rate: number;
+	}[];
+};
+
 export type CreateInvoicePayload = {
 	patient_id: number;
 	items: {
@@ -141,6 +210,99 @@ export const processMultipleInvoicesSRI = async (
 	return billingService.post<null>(
 		`/billing/invoices/sri/process-batch`,
 		{ id_list: ids },
+		{
+			notifySuccess: true,
+			notifyError: true,
+		},
+	);
+};
+
+export const downloadInvoiceRide = async (
+	id: number,
+): Promise<ServiceResponse<Blob>> => {
+	return billingService.get<Blob>(`/billing/invoices/${id}/ride`, {
+		responseType: "blob",
+		notifyError: true,
+	});
+};
+
+export type CreditNoteListParams = {
+	page?: number;
+	limit?: number;
+	search?: string;
+};
+
+export const getAllCreditNotes = async (
+	params: CreditNoteListParams = {},
+): Promise<ServiceResponse<PaginatedResponse<CreditNote>>> => {
+	const qs = new URLSearchParams();
+	if (params.page) qs.set("page", String(params.page));
+	if (params.limit) qs.set("limit", String(params.limit));
+	if (params.search) qs.set("search", params.search);
+	const query = qs.toString() ? `?${qs.toString()}` : "";
+	return billingService.get<PaginatedResponse<CreditNote>>(
+		`/billing/credit-notes${query}`,
+		{ notifyError: true },
+	);
+};
+
+export const createCreditNote = async (
+	payload: CreateCreditNotePayload,
+): Promise<ServiceResponse<CreditNote>> => {
+	return billingService.post<CreditNote>("/billing/credit-notes", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const processCreditNoteSRI = async (
+	id: number,
+): Promise<ServiceResponse<null>> => {
+	return billingService.post<null>(
+		`/billing/credit-notes/${id}/sri/process`,
+		undefined,
+		{
+			notifySuccess: true,
+			notifyError: true,
+		},
+	);
+};
+
+export type DebitNoteListParams = {
+	page?: number;
+	limit?: number;
+	search?: string;
+};
+
+export const getAllDebitNotes = async (
+	params: DebitNoteListParams = {},
+): Promise<ServiceResponse<PaginatedResponse<DebitNote>>> => {
+	const qs = new URLSearchParams();
+	if (params.page) qs.set("page", String(params.page));
+	if (params.limit) qs.set("limit", String(params.limit));
+	if (params.search) qs.set("search", params.search);
+	const query = qs.toString() ? `?${qs.toString()}` : "";
+	return billingService.get<PaginatedResponse<DebitNote>>(
+		`/billing/debit-notes${query}`,
+		{ notifyError: true },
+	);
+};
+
+export const createDebitNote = async (
+	payload: CreateDebitNotePayload,
+): Promise<ServiceResponse<DebitNote>> => {
+	return billingService.post<DebitNote>("/billing/debit-notes", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const processDebitNoteSRI = async (
+	id: number,
+): Promise<ServiceResponse<null>> => {
+	return billingService.post<null>(
+		`/billing/debit-notes/${id}/sri/process`,
+		undefined,
 		{
 			notifySuccess: true,
 			notifyError: true,

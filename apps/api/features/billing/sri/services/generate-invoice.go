@@ -57,26 +57,21 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// GenerateAccessKey genera la clave de acceso para el SRI
-func GenerateAccessKey(invoice Invoice, tenantObj tenant.Tenant, establishmentCode string, emissionCode string) (string, error) {
+// GenerateAccessKey genera la clave de acceso para el SRI. Es genérica a
+// cualquier tipo de comprobante (factura, nota de crédito, nota de débito, ...) —
+// solo depende del código de documento SRI, no de qué struct de Go lo representa.
+func GenerateAccessKey(issueDate time.Time, documentCode string, ruc string, establishmentCode string, emissionCode string, sequential string, emissionType string, sriEnv string) (string, error) {
 	max := big.NewInt(90000000) // Rango: 0 - 89999999
 	n, err := rand.Int(rand.Reader, max)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate random access key: %w", err)
 	}
 
-	result := int(n.Int64() + 10000000)          // Asegura que tenga 8 dígitos
-	date := invoice.IssueDate.Format("02012006") // ddmmaaaa
-	docType := invoice.DocumentCode              // "01"
-	ruc := tenantObj.TaxID                       // RUC de la empresa (13 dígitos)
-	environment := "1"                           // "1" = pruebas, "2" = producción
-	establishment := establishmentCode           // Ej: "001"
-	point := emissionCode                        // Ej: "001"
-	sequence := invoice.Sequential               // "000000123"
-	randomCode := strconv.Itoa(result)           // Puedes generar uno aleatorio de 8 dígitos
-	emissionType := invoice.EmissionType         // "1" = normal
+	result := int(n.Int64() + 10000000)  // Asegura que tenga 8 dígitos
+	date := issueDate.Format("02012006") // ddmmaaaa
+	randomCode := strconv.Itoa(result)   // Puedes generar uno aleatorio de 8 dígitos
 
-	base := date + docType + ruc + environment + establishment + point + sequence + randomCode + emissionType
+	base := date + documentCode + ruc + sriEnv + establishmentCode + emissionCode + sequential + randomCode + emissionType
 	verifier := Modulo11(base)
 
 	return base + verifier, nil // total: 49 caracteres
@@ -93,19 +88,22 @@ func ParseDateFromDDMMYYYY(dateString string) (time.Time, error) {
 }
 
 // ReorderTaxInfo function to reorder fields as per Go struct
-func reorderTaxInfo(invoice Invoice, accessKey string, tenantObj tenant.Tenant, establishmentCode string, emissionCode string) invoiceSRI.TaxInfo {
+func reorderTaxInfo(invoice Invoice, accessKey string, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, sriEnv string) invoiceSRI.TaxInfo {
 	return invoiceSRI.TaxInfo{
-		Environment:         "1", //Pruebas
-		EmissionType:        invoice.EmissionType,
-		CorporateName:       tenantObj.CorporateName,
-		TradeName:           tenantObj.TradeName,
-		TaxID:               tenantObj.TaxID,
-		AccessKey:           accessKey,
-		DocumentCode:        invoice.DocumentCode,
-		Establishment:       establishmentCode,
-		EmissionPoint:       emissionCode,
-		Sequential:          invoice.Sequential,
-		HeadquartersAddress: tenantObj.Address,
+		Environment:           sriEnv,
+		EmissionType:          invoice.EmissionType,
+		CorporateName:         tenantObj.CorporateName,
+		TradeName:             tenantObj.TradeName,
+		TaxID:                 tenantObj.TaxID,
+		AccessKey:             accessKey,
+		DocumentCode:          invoice.DocumentCode,
+		Establishment:         establishmentCode,
+		EmissionPoint:         emissionCode,
+		Sequential:            invoice.Sequential,
+		HeadquartersAddress:   tenantObj.Address,
+		MicroenterpriseRegime: tenantObj.MicroenterpriseRegime,
+		WithholdingAgent:      tenantObj.WithholdingAgent,
+		RimpeTaxpayer:         tenantObj.RimpeTaxpayer,
 	}
 }
 
@@ -140,7 +138,7 @@ func reorderDetails(invoice Invoice, services []CatalogItem) invoiceSRI.Details 
 			Value:          fmt.Sprintf("%.2f", item.Subtotal*item.IceTax),
 		}
 
-		if item.IceTaxCode != "3000" {
+		if item.IceTaxCode != "" && item.IceTaxCode != "3000" {
 			tax = append(tax, iceTax)
 		}
 
@@ -263,11 +261,12 @@ func reorderInvoiceInfo(invoice Invoice, tenantObj tenant.Tenant, establishmentA
 		IssueDate:               invoice.IssueDate.Format("02/01/2006"),
 		BuyerIdentification:     invoice.Patient.Document,
 		BuyerAddress:            "S/N", // As Pengi's Patient model does not have an address yet
-		BuyerIdentificationType: "05",  // SRI code for Cedula
+		BuyerIdentificationType: ResolveBuyerIdentificationType(invoice.Patient.Document),
 		BuyerSocialReason:       invoice.Patient.FirstName + " " + invoice.Patient.LastName,
 		EstablishmentAddress:    establishmentAddress,
+		SpecialContributor:      tenantObj.SpecialContributorNumber,
 		AccountingObliged:       accountingObliged,
-		Currency:                "USD",
+		Currency:                "DOLAR",
 		TotalAmount:             fmt.Sprintf("%.2f", invoice.Total),
 		TotalWithoutTaxes:       fmt.Sprintf("%.2f", invoice.Subtotal),
 		TotalWithTaxes: invoiceSRI.TotalWithTaxes{
@@ -291,13 +290,13 @@ func GenerateInvoiceXml(invoiceSRI invoiceSRI.InvoiceSRI) (string, error) {
 }
 
 // Function to generate the invoiceSRI with input data
-func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string) (*invoiceSRI.InvoiceSRI, string, error) {
+func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string, sriEnv string) (*invoiceSRI.InvoiceSRI, string, error) {
 
-	accessKey, err := GenerateAccessKey(invoice, tenantObj, establishmentCode, emissionCode)
+	accessKey, err := GenerateAccessKey(invoice.IssueDate, invoice.DocumentCode, tenantObj.TaxID, establishmentCode, emissionCode, invoice.Sequential, invoice.EmissionType, sriEnv)
 	if err != nil {
 		return nil, "", err
 	}
-	infoTributariaData := reorderTaxInfo(invoice, accessKey, tenantObj, establishmentCode, emissionCode)
+	infoTributariaData := reorderTaxInfo(invoice, accessKey, tenantObj, establishmentCode, emissionCode, sriEnv)
 	invoiceInfo := reorderInvoiceInfo(invoice, tenantObj, establishmentAddress)
 	invoiceDetails := reorderDetails(invoice, services)
 

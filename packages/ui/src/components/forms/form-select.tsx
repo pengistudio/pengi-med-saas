@@ -31,6 +31,7 @@ type FormSelectProps<
 	options: { value: string; label: string | React.ReactNode }[];
 	className?: string;
 	disabled?: boolean;
+	emptyMessage?: React.ReactNode;
 };
 
 function FormSelect<
@@ -47,6 +48,7 @@ function FormSelect<
 	options,
 	className,
 	disabled,
+	emptyMessage,
 }: FormSelectProps<T, Output, Input>) {
 	const { textGet } = useUiText();
 
@@ -93,11 +95,17 @@ function FormSelect<
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
-							{options.map((option) => (
-								<SelectItem key={option.value} value={option.value}>
-									{option.label}
-								</SelectItem>
-							))}
+							{options.length === 0 ? (
+								<div className="text-muted-foreground px-2 py-4 text-center text-sm">
+									{emptyMessage ?? textGet("form.select.no_options")}
+								</div>
+							) : (
+								options.map((option) => (
+									<SelectItem key={option.value} value={option.value}>
+										{option.label}
+									</SelectItem>
+								))
+							)}
 						</SelectContent>
 					</Select>
 					{description && <FieldDescription>{description}</FieldDescription>}

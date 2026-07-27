@@ -1,9 +1,9 @@
 package core_errors
 
 var (
-	ErrInternal           AppError = NewAppError("E-INT-001", "Internal server error.")
-	ErrInvalidRequest     AppError = NewAppError("E-INT-002", "Invalid request.")
-	ErrRateLimitExceeded  AppError = NewAppError("E-INT-003", "Rate limit exceeded.")
+	ErrInternal          AppError = NewAppError("E-INT-001", "Internal server error.")
+	ErrInvalidRequest    AppError = NewAppError("E-INT-002", "Invalid request.")
+	ErrRateLimitExceeded AppError = NewAppError("E-INT-003", "Rate limit exceeded.")
 
 	ErrMessagesNotFound AppError = NewAppError("E-MES-001", "Messages not found.")
 
@@ -11,6 +11,8 @@ var (
 
 	ErrTenantNotFound            AppError = NewAppError("E-TEN-001", "Tenant not found.")
 	ErrTenantInvalidDisplayToken AppError = NewAppError("E-TEN-002", "Invalid or missing display token.")
+	ErrTenantInvalidLogoFile     AppError = NewAppError("E-TEN-003", "Invalid logo file. Only PNG or JPG images are allowed.")
+	ErrTenantLogoNotFound        AppError = NewAppError("E-TEN-004", "No logo has been uploaded for this tenant.")
 
 	ErrUserNotFound AppError = NewAppError("E-USR-001", "User not found.")
 
@@ -53,11 +55,18 @@ var (
 	ErrPlanLimitPatients              AppError = NewAppError("E-PLAN-002", "Patient limit reached for this plan.")
 
 	// Billing Errors
-	ErrBillingInvalidRequest       AppError = NewAppError("E-BILL-001", "Invalid billing request.")
-	ErrBillingInvoiceNotFound      AppError = NewAppError("E-BILL-002", "Invoice not found.")
-	ErrBillingProductNotFound      AppError = NewAppError("E-BILL-003", "Product/Service not found.")
-	ErrBillingInvoiceCreateError   AppError = NewAppError("E-BILL-004", "Error creating invoice.")
-	ErrBillingInvalidSignatureFile AppError = NewAppError("E-BILL-005", "Incorrect password or invalid signature file.")
+	ErrBillingInvalidRequest        AppError = NewAppError("E-BILL-001", "Invalid billing request.")
+	ErrBillingInvoiceNotFound       AppError = NewAppError("E-BILL-002", "Invoice not found.")
+	ErrBillingProductNotFound       AppError = NewAppError("E-BILL-003", "Product/Service not found.")
+	ErrBillingInvoiceCreateError    AppError = NewAppError("E-BILL-004", "Error creating invoice.")
+	ErrBillingInvalidSignatureFile  AppError = NewAppError("E-BILL-005", "Incorrect password or invalid signature file.")
+	ErrBillingCreditNoteNotFound    AppError = NewAppError("E-BILL-006", "Credit note not found.")
+	ErrBillingCreditNoteCreateError AppError = NewAppError("E-BILL-007", "Error creating credit note.")
+	ErrBillingInvoiceNotAuthorized  AppError = NewAppError("E-BILL-008", "Invoice must be authorized by the SRI before it can be credited.")
+	ErrBillingDebitNoteNotFound     AppError = NewAppError("E-BILL-009", "Debit note not found.")
+	ErrBillingDebitNoteCreateError  AppError = NewAppError("E-BILL-010", "Error creating debit note.")
+	ErrBillingInvoiceRideNotReady   AppError = NewAppError("E-BILL-011", "Invoice must be authorized before the RIDE can be downloaded.")
+	ErrBillingInvoiceRideGenerate   AppError = NewAppError("E-BILL-012", "Error generating the RIDE PDF.")
 
 	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")

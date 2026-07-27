@@ -16,8 +16,29 @@ func NewGotenbergClient(url string) *GotenbergClient {
 	return &GotenbergClient{URL: url}
 }
 
-// GeneratePDFFromHTML sends an HTML string to Gotenberg and returns the generated PDF bytes.
+// PDFOptions controls the page format Gotenberg renders the HTML into.
+type PDFOptions struct {
+	Landscape   bool
+	PaperWidth  string // inches
+	PaperHeight string // inches
+}
+
+// A5Landscape is the paper format used by the prescription PDF (kept as the
+// default for GeneratePDFFromHTML for backwards compatibility).
+var A5Landscape = PDFOptions{Landscape: true, PaperWidth: "8.3", PaperHeight: "5.8"}
+
+// A4Portrait is the standard paper format for a RIDE (comprobante SRI) PDF.
+var A4Portrait = PDFOptions{Landscape: false, PaperWidth: "8.27", PaperHeight: "11.7"}
+
+// GeneratePDFFromHTML sends an HTML string to Gotenberg and returns the generated PDF
+// bytes, using the A5-landscape format (prescription PDF default).
 func (g *GotenbergClient) GeneratePDFFromHTML(htmlContent string) ([]byte, error) {
+	return g.GeneratePDFFromHTMLWithOptions(htmlContent, A5Landscape)
+}
+
+// GeneratePDFFromHTMLWithOptions sends an HTML string to Gotenberg and returns the
+// generated PDF bytes, using the given page format.
+func (g *GotenbergClient) GeneratePDFFromHTMLWithOptions(htmlContent string, opts PDFOptions) ([]byte, error) {
 	// Gotenberg endpoint for HTML to PDF
 	endpoint := fmt.Sprintf("%s/forms/chromium/convert/html", g.URL)
 
@@ -35,19 +56,17 @@ func (g *GotenbergClient) GeneratePDFFromHTML(htmlContent string) ([]byte, error
 		return nil, fmt.Errorf("failed to write html content to form: %w", err)
 	}
 
-	// Add landscape setting if needed (Gotenberg uses 'landscape' form field)
-	err = writer.WriteField("landscape", "true")
-	if err != nil {
+	landscape := "false"
+	if opts.Landscape {
+		landscape = "true"
+	}
+	if err := writer.WriteField("landscape", landscape); err != nil {
 		return nil, fmt.Errorf("failed to write landscape field: %w", err)
 	}
-
-	// Set paper size to A5 (148 x 210 mm = 5.8 x 8.3 inches)
-	err = writer.WriteField("paperWidth", "8.3")
-	if err != nil {
+	if err := writer.WriteField("paperWidth", opts.PaperWidth); err != nil {
 		return nil, fmt.Errorf("failed to write paperWidth: %w", err)
 	}
-	err = writer.WriteField("paperHeight", "5.8")
-	if err != nil {
+	if err := writer.WriteField("paperHeight", opts.PaperHeight); err != nil {
 		return nil, fmt.Errorf("failed to write paperHeight: %w", err)
 	}
 

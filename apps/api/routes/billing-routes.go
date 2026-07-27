@@ -3,8 +3,8 @@ package routes
 import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
-	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	billing_handlers "pengi-med-saas/features/billing/handlers"
+	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
@@ -15,6 +15,8 @@ import (
 func RegisterBillingRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	invoiceHandler := billing_handlers.NewInvoiceHandler(db, logger.Log)
 	catalogItemHandler := billing_handlers.NewCatalogItemHandler(db, logger.Log)
+	creditNoteHandler := billing_handlers.NewCreditNoteHandler(db, logger.Log)
+	debitNoteHandler := billing_handlers.NewDebitNoteHandler(db, logger.Log)
 
 	billingGroup := router.Group("/billing", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 
@@ -35,4 +37,15 @@ func RegisterBillingRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	// RabbitMQ Jobs
 	billingGroup.POST("/invoices/:id/sri/process", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(invoiceHandler.SRIInvoiceProcessing))
 	billingGroup.POST("/invoices/sri/process-batch", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(invoiceHandler.MultipleSRIInvoiceProcessing))
+	billingGroup.GET("/invoices/:id/ride", rp(db, "READ_BILLING"), invoiceHandler.DownloadInvoiceRide)
+
+	// Credit Notes
+	billingGroup.POST("/credit-notes", rp(db, "CREATE_BILLING"), envelope.Handle(creditNoteHandler.CreateCreditNote))
+	billingGroup.GET("/credit-notes", rp(db, "READ_BILLING"), envelope.Handle(creditNoteHandler.GetAllCreditNotes))
+	billingGroup.POST("/credit-notes/:id/sri/process", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(creditNoteHandler.SRICreditNoteProcessing))
+
+	// Debit Notes
+	billingGroup.POST("/debit-notes", rp(db, "CREATE_BILLING"), envelope.Handle(debitNoteHandler.CreateDebitNote))
+	billingGroup.GET("/debit-notes", rp(db, "READ_BILLING"), envelope.Handle(debitNoteHandler.GetAllDebitNotes))
+	billingGroup.POST("/debit-notes/:id/sri/process", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(debitNoteHandler.SRIDebitNoteProcessing))
 }

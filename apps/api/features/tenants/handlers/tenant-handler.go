@@ -117,6 +117,96 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 	}, "tenant.signature.upload.success")
 }
 
+// UploadLogo uploads the tenant's company logo (PNG/JPG), used on the RIDE.
+func (h *TenantHandler) UploadLogo(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	file, _, err := c.Request.FormFile("logo")
+	if err != nil {
+		h.logger.Error("Failed to retrieve logo file from form", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusBadRequest, "Logo file is required", core_errors.ErrTenantInvalidLogoFile)
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		h.logger.Error("Failed to read logo file", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to read logo file", core_errors.ErrInternal)
+	}
+
+	var ext string
+	switch contentType := http.DetectContentType(data); contentType {
+	case "image/png":
+		ext = ".png"
+	case "image/jpeg":
+		ext = ".jpg"
+	default:
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.logo.invalid_file", core_errors.ErrTenantInvalidLogoFile)
+	}
+
+	uploadDir := filepath.Join("storage", "tenants", fmt.Sprint(tenantID))
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		h.logger.Error("Failed to create storage directory", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create storage directory", core_errors.ErrInternal)
+	}
+
+	logoPath := filepath.Join(uploadDir, "logo"+ext)
+	if err := os.WriteFile(logoPath, data, 0644); err != nil {
+		h.logger.Error("Failed to save logo file", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save logo file", core_errors.ErrInternal)
+	}
+
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+	}
+
+	// Remove a previously uploaded logo with a different extension, if any.
+	if tenantRecord.LogoPath != nil && *tenantRecord.LogoPath != logoPath {
+		os.Remove(*tenantRecord.LogoPath)
+	}
+
+	tenantRecord.LogoPath = &logoPath
+	if err := h.db.Save(&tenantRecord).Error; err != nil {
+		h.logger.Error("Failed to update tenant logo", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant logo", core_errors.ErrInternal)
+	}
+
+	return envelope.SuccessResponse(gin.H{"path": logoPath}, "tenant.logo.upload.success")
+}
+
+// DownloadLogo serves the tenant's uploaded logo file so the frontend can preview it.
+func (h *TenantHandler) DownloadLogo(c *gin.Context) {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound))
+		return
+	}
+
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
+		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound))
+		return
+	}
+
+	if tenantRecord.LogoPath == nil {
+		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.sri.logo.not_found", core_errors.ErrTenantLogoNotFound))
+		return
+	}
+
+	data, err := os.ReadFile(*tenantRecord.LogoPath)
+	if err != nil {
+		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.sri.logo.not_found", core_errors.ErrTenantLogoNotFound))
+		return
+	}
+
+	contentType := http.DetectContentType(data)
+	c.Data(http.StatusOK, contentType, data)
+}
+
 // GetSriStatus retrieves the current status of the SRI signature configuration
 func (h *TenantHandler) GetSriStatus(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
@@ -132,14 +222,33 @@ func (h *TenantHandler) GetSriStatus(c *gin.Context) envelope.Response {
 	isConfigured := tenantRecord.SriP12Path != "" && tenantRecord.SriPassword != ""
 
 	return envelope.SuccessResponse(gin.H{
-		"is_configured":      isConfigured,
-		"expiration_date":    tenantRecord.SriCertExpiration,
-		"tax_id":             tenantRecord.TaxID,
-		"trade_name":         tenantRecord.TradeName,
-		"corporate_name":     tenantRecord.CorporateName,
-		"address":            tenantRecord.Address,
-		"accounting_obliged": tenantRecord.AccountingObliged,
+		"is_configured":              isConfigured,
+		"expiration_date":            tenantRecord.SriCertExpiration,
+		"tax_id":                     tenantRecord.TaxID,
+		"trade_name":                 tenantRecord.TradeName,
+		"corporate_name":             tenantRecord.CorporateName,
+		"address":                    tenantRecord.Address,
+		"accounting_obliged":         tenantRecord.AccountingObliged,
+		"special_contributor_number": derefOrEmpty(tenantRecord.SpecialContributorNumber),
+		"microenterprise_regime":     tenantRecord.MicroenterpriseRegime != nil,
+		"withholding_agent":          derefOrEmpty(tenantRecord.WithholdingAgent),
+		"rimpe_taxpayer":             derefOrEmpty(tenantRecord.RimpeTaxpayer),
+		"has_logo":                   tenantRecord.LogoPath != nil,
 	}, "tenant.sri.status.fetch.success")
+}
+
+func derefOrEmpty(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func nilIfEmpty(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }
 
 // UpdateSriInfo updates the tenant's SRI information
@@ -165,6 +274,15 @@ func (h *TenantHandler) UpdateSriInfo(c *gin.Context) envelope.Response {
 	tenantRecord.CorporateName = dto.CorporateName
 	tenantRecord.Address = dto.Address
 	tenantRecord.AccountingObliged = dto.AccountingObliged
+	tenantRecord.SpecialContributorNumber = nilIfEmpty(dto.SpecialContributorNumber)
+	tenantRecord.WithholdingAgent = nilIfEmpty(dto.WithholdingAgent)
+	tenantRecord.RimpeTaxpayer = nilIfEmpty(dto.RimpeTaxpayer)
+	if dto.MicroenterpriseRegime {
+		si := "SI"
+		tenantRecord.MicroenterpriseRegime = &si
+	} else {
+		tenantRecord.MicroenterpriseRegime = nil
+	}
 
 	if err := h.db.Save(&tenantRecord).Error; err != nil {
 		h.logger.Error("Failed to update tenant SRI info", zap.Error(err))

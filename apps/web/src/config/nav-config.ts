@@ -2,6 +2,8 @@ import {
 	Calendar,
 	CreditCard,
 	FileKey,
+	FileMinus,
+	FilePlus,
 	Hospital,
 	Layers,
 	LayoutDashboard,
@@ -102,6 +104,16 @@ export const createNavItems = (
 				label: textGet("dashboard.billing.invoices"),
 				href: "/billing",
 				icon: Receipt,
+			},
+			{
+				label: textGet("dashboard.billing.credit-notes"),
+				href: "/billing/credit-notes",
+				icon: FileMinus,
+			},
+			{
+				label: textGet("dashboard.billing.debit-notes"),
+				href: "/billing/debit-notes",
+				icon: FilePlus,
 			},
 			{
 				label: textGet("dashboard.billing.catalog-items"),

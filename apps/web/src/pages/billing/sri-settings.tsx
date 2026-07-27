@@ -9,6 +9,7 @@ import {
 import { CheckCircle2, Info, Loader2, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getSriStatus, type SriStatus } from "@/api/tenant-service";
+import { LogoUploadForm } from "@/sections/forms/billing/logo-upload-form";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
@@ -37,47 +38,47 @@ const SriSettingsPage = () => {
 						<Text uuid="billing.sri.settings.title" />
 					</h1>
 				</div>
-				<div className="grid gap-6 md:grid-cols-2">
-					<div className="flex flex-col gap-6">
-						{loading ? (
-							<Card className="flex items-center justify-center p-8">
-								<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-							</Card>
-						) : status?.is_configured ? (
-							<Card className="bg-primary/5 border-primary/20 gap-0">
-								<CardHeader className="pb-3">
-									<CardTitle className="flex items-center gap-2 text-primary text-base">
-										<CheckCircle2 className="h-5 w-5" />
-										<Text uuid="billing.sri.status.configured" />
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									{status.expiration_date && (
-										<p className="text-sm text-foreground/80">
-											<Text uuid="billing.sri.status.valid_until" />{" "}
-											<span className="font-semibold">
-												{new Date(status.expiration_date).toLocaleDateString()}
-											</span>
-										</p>
-									)}
-								</CardContent>
-							</Card>
-						) : (
-							<Card className="bg-destructive/5 border-destructive/20 gap-0">
-								<CardHeader className="pb-3">
-									<CardTitle className="flex items-center gap-2 text-destructive text-base">
-										<XCircle className="h-5 w-5" />
-										<Text uuid="billing.sri.status.unconfigured" />
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<p className="text-sm text-foreground/80">
-										<Text uuid="billing.sri.status.unconfigured_desc" />
-									</p>
-								</CardContent>
-							</Card>
-						)}
+				{loading ? (
+					<Card className="flex items-center justify-center p-8">
+						<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+					</Card>
+				) : status?.is_configured ? (
+					<Card className="bg-primary/5 border-primary/20 gap-0">
+						<CardHeader className="pb-3">
+							<CardTitle className="flex items-center gap-2 text-primary text-base">
+								<CheckCircle2 className="h-5 w-5" />
+								<Text uuid="billing.sri.status.configured" />
+							</CardTitle>
+						</CardHeader>
+						<CardContent>
+							{status.expiration_date && (
+								<p className="text-sm text-foreground/80">
+									<Text uuid="billing.sri.status.valid_until" />{" "}
+									<span className="font-semibold">
+										{new Date(status.expiration_date).toLocaleDateString()}
+									</span>
+								</p>
+							)}
+						</CardContent>
+					</Card>
+				) : (
+					<Card className="bg-destructive/5 border-destructive/20 gap-0">
+						<CardHeader className="pb-3">
+							<CardTitle className="flex items-center gap-2 text-destructive text-base">
+								<XCircle className="h-5 w-5" />
+								<Text uuid="billing.sri.status.unconfigured" />
+							</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<p className="text-sm text-foreground/80">
+								<Text uuid="billing.sri.status.unconfigured_desc" />
+							</p>
+						</CardContent>
+					</Card>
+				)}
 
+				<div className="grid gap-6 lg:grid-cols-3">
+					<div className="flex flex-col gap-6 lg:col-span-2">
 						<Card>
 							<CardHeader>
 								<CardTitle>
@@ -110,7 +111,7 @@ const SriSettingsPage = () => {
 					</div>
 
 					<div className="flex flex-col gap-6">
-						<Card className="bg-primary/5 border-primary/20 h-fit">
+						<Card className="bg-primary/5 border-primary/20">
 							<CardHeader>
 								<CardTitle className="flex items-center gap-2 text-primary">
 									<Info className="h-5 w-5" />
@@ -135,6 +136,25 @@ const SriSettingsPage = () => {
 								</div>
 							</CardContent>
 						</Card>
+
+						{status && (
+							<Card>
+								<CardHeader>
+									<CardTitle>
+										<Text uuid="billing.sri.logo.title" />
+									</CardTitle>
+									<CardDescription>
+										<Text uuid="billing.sri.logo.description" />
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<LogoUploadForm
+										hasLogo={status.has_logo}
+										onSuccess={fetchStatus}
+									/>
+								</CardContent>
+							</Card>
+						)}
 					</div>
 				</div>
 			</main>

@@ -14,6 +14,7 @@ type Invoice struct {
 	gorm.Model
 	TenantID          uint                    `gorm:"index" json:"tenant_id"` // Multi-tenant
 	AccessKey         *string                 `gorm:"size:49" json:"access_key"`
+	AuthorizedAt      *time.Time              `json:"authorized_at"` // fechaAutorizacion del SRI; el número de autorización es el mismo AccessKey
 	DocumentCode      string                  `json:"document_code"` // Factura
 	EmissionType      string                  `json:"emission_type"` // "1" Emisión normal (offline)
 	Sequential        string                  `json:"sequential"`    // "000000001"

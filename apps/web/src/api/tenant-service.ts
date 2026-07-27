@@ -1,5 +1,5 @@
 import { apiWithTenant } from ".";
-import { createHttpService } from "./fetch";
+import { createHttpService, type ServiceResponse } from "./fetch";
 
 const tenantService = createHttpService(apiWithTenant);
 
@@ -14,6 +14,23 @@ export const uploadSriSignature = async (file: File, password: string) => {
 	});
 };
 
+export const uploadLogo = async (file: File) => {
+	const formData = new FormData();
+	formData.append("logo", file);
+
+	return tenantService.putForm("/tenants/logo", formData, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const getLogo = async (): Promise<ServiceResponse<Blob>> => {
+	return tenantService.get<Blob>("/tenants/logo", {
+		responseType: "blob",
+		notifyError: false,
+	});
+};
+
 export type SriStatus = {
 	is_configured: boolean;
 	expiration_date: string | null;
@@ -22,6 +39,11 @@ export type SriStatus = {
 	corporate_name: string;
 	address: string;
 	accounting_obliged: boolean;
+	special_contributor_number: string;
+	microenterprise_regime: boolean;
+	withholding_agent: string;
+	rimpe_taxpayer: string;
+	has_logo: boolean;
 };
 
 export const getSriStatus = async () => {
@@ -36,6 +58,10 @@ export type UpdateSriInfoPayload = {
 	corporate_name: string;
 	address: string;
 	accounting_obliged: boolean;
+	special_contributor_number: string;
+	microenterprise_regime: boolean;
+	withholding_agent: string;
+	rimpe_taxpayer: string;
 };
 
 export const updateSriInfo = async (payload: UpdateSriInfoPayload) => {
