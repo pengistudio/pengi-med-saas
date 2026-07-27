@@ -23,6 +23,12 @@ type CompanySignupDTO struct {
 	Password string `json:"password" binding:"required,min=6"`
 }
 
+type JoinExistingCompanyDTO struct {
+	Token    string `json:"token" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
 type SelfRegisterDTO struct {
 	CompanyName string `json:"company_name" binding:"required,min=2,max=100"`
 	Username    string `json:"username"     binding:"required,min=3,max=50"`

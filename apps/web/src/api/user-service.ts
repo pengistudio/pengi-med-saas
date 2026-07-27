@@ -12,6 +12,19 @@ export const getEnvironmentsFromUser = async (
 	);
 };
 
+export interface CreateAdditionalCompanyPayload
+	extends Record<string, unknown> {
+	company_name: string;
+}
+
+export const createAdditionalCompany = async (
+	payload: CreateAdditionalCompanyPayload,
+): Promise<ServiceResponse<EnvironmentWithCompany>> => {
+	return httpService.post<EnvironmentWithCompany>("/companies", payload, {
+		notifyError: true,
+	});
+};
+
 // ─── Profile API ─────────────────────────────────────────────────────────────
 
 export interface ProfileData {

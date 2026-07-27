@@ -164,6 +164,62 @@
         "value": "Cerrar sesión"
     },
     {
+        "key": "dashboard.dropdown.new_company",
+        "value": "Crear nueva empresa"
+    },
+    {
+        "key": "dashboard.new_company.dialog.title",
+        "value": "Crear nueva empresa"
+    },
+    {
+        "key": "dashboard.new_company.dialog.description",
+        "value": "Esto creará una empresa independiente con su propio período de prueba de 14 días."
+    },
+    {
+        "key": "dashboard.new_company.dialog.label",
+        "value": "Nombre de la empresa"
+    },
+    {
+        "key": "dashboard.new_company.dialog.placeholder",
+        "value": "Ej. Clínica Dental Sonrisa"
+    },
+    {
+        "key": "dashboard.new_company.dialog.submit",
+        "value": "Crear empresa"
+    },
+    {
+        "key": "dashboard.new_company.dialog.cancel",
+        "value": "Cancelar"
+    },
+    {
+        "key": "company.create_additional.success",
+        "value": "Empresa creada correctamente"
+    },
+    {
+        "key": "company.create_additional.limit_reached",
+        "value": "Alcanzaste el límite de empresas que podés crear. Contactá a soporte para aumentarlo."
+    },
+    {
+        "key": "E-COMP-002",
+        "value": "Alcanzaste el límite de empresas que podés crear. Contactá a soporte para aumentarlo."
+    },
+    {
+        "key": "backoffice.company_users.col.owned_companies",
+        "value": "Empresas propias"
+    },
+    {
+        "key": "backoffice.company_users.max_owned_companies",
+        "value": "Límite de empresas propias"
+    },
+    {
+        "key": "backoffice.company_users.max_owned_companies.description",
+        "value": "Máximo de empresas que este usuario puede crear como propietario"
+    },
+    {
+        "key": "form.validation.number_invalid",
+        "value": "Debe ser un número válido"
+    },
+    {
         "key": "session.expired.title",
         "value": "Sesión expirada"
     },
@@ -2634,6 +2690,34 @@
     {
         "key": "signup.success",
         "value": "Cuenta creada exitosamente"
+    },
+    {
+        "key": "signup.email_step.continue",
+        "value": "Continuar"
+    },
+    {
+        "key": "signup.existing_account.title",
+        "value": "Ya tenés una cuenta Gentoo"
+    },
+    {
+        "key": "signup.existing_account.description",
+        "value": "Ingresá tu contraseña para confirmar que sos vos y sumarte a esta empresa."
+    },
+    {
+        "key": "signup.existing_account.submit",
+        "value": "Confirmar y unirme"
+    },
+    {
+        "key": "company.team.already_member",
+        "value": "Ya sos miembro de esta empresa"
+    },
+    {
+        "key": "auth.signup.company.email_not_found",
+        "value": "No encontramos una cuenta con ese correo"
+    },
+    {
+        "key": "E-TEAM-004",
+        "value": "El usuario ya pertenece a esta empresa."
     },
     {
         "key": "E-AUTH-007",

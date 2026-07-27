@@ -1,14 +1,23 @@
 package company_handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/utils"
 	company_models "pengi-med-saas/features/companies/models"
+	company_services "pengi-med-saas/features/companies/services"
+	tenant_models "pengi-med-saas/features/tenants/models"
 	role_data "pengi-med-saas/features/users/data"
+	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
 
 	"github.com/gin-gonic/gin"
@@ -218,4 +227,134 @@ func (h *CompanyHandler) UpdateTeamMemberRole(c *gin.Context) envelope.Response 
 		"environment_id": env.ID,
 		"role_id":        req.RoleID,
 	}, "company.team.role.update.success")
+}
+
+type CreateAdditionalCompanyRequest struct {
+	CompanyName string `json:"company_name" binding:"required,min=2,max=100"`
+}
+
+// CreateAdditionalCompany lets an already-authenticated user create a second,
+// fully independent Company (own Tenant, own TRIAL Subscription) without
+// re-registering. Mirrors UserHandler.Register step-by-step, minus the User
+// creation step (the user already exists) and gated by a per-user ownership
+// limit (User.MaxOwnedCompanies) that backoffice admins can raise manually.
+func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Response {
+	userID := c.GetInt64("user_id")
+
+	var req CreateAdditionalCompanyRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
+	}
+
+	var user user_models.User
+	if err := h.db.First(&user, userID).Error; err != nil {
+		h.logger.Error("CreateAdditionalCompany: user not found", zap.Int64("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+	}
+
+	var ownedCount int64
+	h.db.Model(&company_models.Company{}).Where("owner_user_id = ?", user.ID).Count(&ownedCount)
+	if int(ownedCount) >= user.MaxOwnedCompanies {
+		return envelope.ErrorResponse(http.StatusForbidden, "company.create_additional.limit_reached", core_errors.ErrCompanyOwnershipLimit)
+	}
+
+	// Generate a unique slug (same algorithm + retry loop as Register).
+	baseSlug := utils.GenerateSlug(req.CompanyName)
+	slug := baseSlug
+	for i := 1; ; i++ {
+		var existing tenant_models.Tenant
+		if err := h.db.Where("slug = ?", slug).First(&existing).Error; err != nil {
+			break
+		}
+		slug = fmt.Sprintf("%s-%d", baseSlug, i)
+	}
+
+	var newEnv user_models.Environment
+	var newCompany company_models.Company
+	txErr := h.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Tenant — DisplayToken is required (uniqueIndex), same as Register.
+		newTenant := tenant_models.Tenant{
+			Name:      req.CompanyName,
+			Slug:      slug,
+			TradeName: req.CompanyName,
+			DisplayToken: func() string {
+				b := make([]byte, 16)
+				rand.Read(b)
+				return hex.EncodeToString(b)
+			}(),
+		}
+		if err := tx.Create(&newTenant).Error; err != nil {
+			return fmt.Errorf("tenant: %w", err)
+		}
+
+		// 2. Company
+		newCompany = company_models.Company{
+			LegalName:   req.CompanyName,
+			TradeName:   req.CompanyName,
+			PlanCode:    "TRIAL",
+			TenantID:    newTenant.ID,
+			OwnerUserID: user.ID,
+		}
+		if err := tx.Create(&newCompany).Error; err != nil {
+			return fmt.Errorf("company: %w", err)
+		}
+
+		// 3. Canonical admin role
+		var adminRole user_models.Role
+		if err := tx.Where(user_models.Role{Role: role_data.RoleAdmin}).First(&adminRole).Error; err != nil {
+			return fmt.Errorf("canonical admin role not found: %w", err)
+		}
+
+		// 4. (skipped) User — already exists.
+
+		// 5. Environment (link existing user → new company)
+		newEnv = user_models.Environment{
+			UserID:    user.ID,
+			Name:      req.CompanyName,
+			RoleID:    adminRole.ID,
+			CompanyID: newCompany.ID,
+		}
+		if err := tx.Create(&newEnv).Error; err != nil {
+			return fmt.Errorf("environment: %w", err)
+		}
+
+		// 6. TRIAL subscription (14 days)
+		subscription := company_models.Subscription{
+			Status:    "active",
+			PlanCode:  "TRIAL",
+			ExpiresAt: time.Now().Add(14 * 24 * time.Hour),
+			CompanyID: newCompany.ID,
+		}
+		if err := tx.Create(&subscription).Error; err != nil {
+			return fmt.Errorf("subscription: %w", err)
+		}
+
+		newEnv.Role = adminRole
+		newCompany.Tenant = newTenant
+		return nil
+	})
+
+	if txErr != nil {
+		h.logger.Error("CreateAdditionalCompany transaction failed", zap.Int64("user_id", userID), zap.Error(txErr))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+
+	// Live-compute enabled_features the same way GetEnvironmentsFromUser does,
+	// so the frontend's setEnvironment(response.data) sees a consistent shape.
+	if ef, err := company_services.EnabledFeaturesForCompany(h.db, newCompany.ID); err == nil {
+		if raw, err := json.Marshal(ef); err == nil {
+			newCompany.Tenant.EnabledFeatures = string(raw)
+		}
+	}
+
+	h.logger.Info("Additional company created",
+		zap.Int64("user_id", userID),
+		zap.String("company", req.CompanyName),
+		zap.String("slug", slug),
+		zap.Uint("company_id", newCompany.ID))
+
+	return envelope.New(http.StatusCreated, "company.create_additional.success", user_dto.EnvironmentWithCompany{
+		Environment: newEnv,
+		Company:     newCompany,
+	})
 }

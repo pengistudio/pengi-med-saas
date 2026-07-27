@@ -16,4 +16,5 @@ type Company struct {
 	TenantID      uint                      `gorm:"not null" json:"tenant_id"`
 	Tenant        tenant_models.Tenant      `gorm:"foreignKey:TenantID;references:ID" json:"tenant"`
 	Environments  []user_models.Environment `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	OwnerUserID   uint                      `gorm:"index" json:"owner_user_id"`
 }

@@ -97,6 +97,8 @@ export interface CompanyUser {
 	role_id: number;
 	role_name: string;
 	environment_name: string;
+	max_owned_companies: number;
+	owned_companies: number;
 }
 
 export interface Role {
@@ -108,6 +110,7 @@ export interface UpdateCompanyUserRequest extends Record<string, unknown> {
 	user_name?: string;
 	email?: string;
 	role_id?: number;
+	max_owned_companies?: number;
 }
 
 export const getCompanyUsers = async (

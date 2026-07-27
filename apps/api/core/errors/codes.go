@@ -7,7 +7,8 @@ var (
 
 	ErrMessagesNotFound AppError = NewAppError("E-MES-001", "Messages not found.")
 
-	ErrCompanyNotFound AppError = NewAppError("E-COMP-001", "Company not found.")
+	ErrCompanyNotFound       AppError = NewAppError("E-COMP-001", "Company not found.")
+	ErrCompanyOwnershipLimit AppError = NewAppError("E-COMP-002", "Owned company limit reached for this user.")
 
 	ErrTenantNotFound            AppError = NewAppError("E-TEN-001", "Tenant not found.")
 	ErrTenantInvalidDisplayToken AppError = NewAppError("E-TEN-002", "Invalid or missing display token.")
@@ -94,4 +95,5 @@ var (
 	ErrTeamEnvironmentNotFound AppError = NewAppError("E-TEAM-001", "Team member not found in this company.")
 	ErrTeamInvalidRole         AppError = NewAppError("E-TEAM-002", "Invalid or unsupported role.")
 	ErrTeamLastAdmin           AppError = NewAppError("E-TEAM-003", "Cannot remove the last admin from this company.")
+	ErrTeamAlreadyMember       AppError = NewAppError("E-TEAM-004", "User already belongs to this company.")
 )

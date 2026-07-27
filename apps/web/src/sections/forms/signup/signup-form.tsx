@@ -14,11 +14,20 @@ import {
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
-import { companySignup } from "@/api/auth-service";
+import {
+	checkCompanySignupEmail,
+	companySignup,
+	joinCompanyWithExistingAccount,
+} from "@/api/auth-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
+import { useTokenStore } from "@/store/token-store";
 
-const formSchema = z
+const emailStepSchema = z.object({
+	email: z.email(),
+});
+
+const signupSchema = z
 	.object({
 		name: z.string().min(2).max(100),
 		user_name: z
@@ -45,13 +54,26 @@ const formSchema = z
 		path: ["confirm_password"],
 	});
 
+const existingAccountSchema = z.object({
+	password: z
+		.string()
+		.min(6)
+		.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
+});
+
+type Step = "email" | "new_account" | "existing_account";
+
 const SignupForm = () => {
 	const { textGet } = useText();
+	const { setToken } = useTokenStore();
 	const [load, setLoad] = React.useState(false);
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get("token");
 	const honeypotRef = React.useRef<HTMLInputElement>(null);
+
+	const [step, setStep] = React.useState<Step>("email");
+	const [knownEmail, setKnownEmail] = React.useState("");
 
 	if (!token) {
 		return (
@@ -73,15 +95,159 @@ const SignupForm = () => {
 		);
 	}
 
+	async function onEmailStepSubmit(values: z.infer<typeof emailStepSchema>) {
+		if (!token) return;
+		setLoad(true);
+		const res = await checkCompanySignupEmail(token, values.email);
+		setLoad(false);
+		if (!res.success) return;
+		setKnownEmail(values.email);
+		setStep(res.data?.exists ? "existing_account" : "new_account");
+	}
+
+	async function onSignupSubmit(values: z.infer<typeof signupSchema>) {
+		if (!token) return;
+		if (honeypotRef.current?.value) {
+			navigate("/login");
+			return;
+		}
+		setLoad(true);
+		const response = await companySignup({
+			token,
+			name: values.name,
+			user_name: values.user_name,
+			email: values.email,
+			password: values.password,
+		});
+		setLoad(false);
+		if (response.success) {
+			navigate("/login");
+		}
+	}
+
+	async function onExistingAccountSubmit(
+		values: z.infer<typeof existingAccountSchema>,
+	) {
+		if (!token) return;
+		setLoad(true);
+		const response = await joinCompanyWithExistingAccount({
+			token,
+			email: knownEmail,
+			password: values.password,
+		});
+		setLoad(false);
+		if (response.success && response.data) {
+			setToken(response.data.token);
+			navigate(
+				`/login/environments?exchange_token=${response.data.exchange_token}`,
+			);
+		}
+	}
+
+	if (step === "email") {
+		return (
+			<Form<typeof emailStepSchema>
+				schema={emailStepSchema}
+				onSubmit={onEmailStepSubmit}
+				className="max-w-md w-full min-w-xs"
+				defaultValues={{ email: "" }}
+			>
+				{(field) => (
+					<Card className="md:shadow-none md:border-none">
+						<CardHeader>
+							<CardTitle>
+								<Text uuid="signup.title" />
+							</CardTitle>
+							<CardDescription>
+								<Text uuid="signup.subtitle" />
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<FormInput
+								field={field}
+								name="email"
+								type="email"
+								placeholder={textGet("signup.email.placeholder")}
+								label={textGet("signup.email")}
+								autoComplete="email"
+							/>
+						</CardContent>
+						<CardFooter className="flex flex-col gap-4">
+							<Button type="submit" className="w-full" disabled={load}>
+								{load && <Spinner />}
+								<Text uuid="signup.email_step.continue" />
+							</Button>
+							<Button
+								variant="link"
+								className="w-full"
+								type="button"
+								onClick={() => navigate("/login")}
+							>
+								<Text uuid="signup.go_to_login" />
+							</Button>
+						</CardFooter>
+					</Card>
+				)}
+			</Form>
+		);
+	}
+
+	if (step === "existing_account") {
+		return (
+			<Form<typeof existingAccountSchema>
+				schema={existingAccountSchema}
+				onSubmit={onExistingAccountSubmit}
+				className="max-w-md w-full min-w-xs"
+				defaultValues={{ password: "" }}
+			>
+				{(field) => (
+					<Card className="md:shadow-none md:border-none">
+						<CardHeader>
+							<CardTitle>
+								<Text uuid="signup.existing_account.title" />
+							</CardTitle>
+							<CardDescription>
+								{knownEmail} —{" "}
+								<Text uuid="signup.existing_account.description" />
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<FormPasswordInput
+								field={field}
+								name="password"
+								placeholder={textGet("signup.password.placeholder")}
+								label={textGet("signup.password")}
+							/>
+						</CardContent>
+						<CardFooter className="flex flex-col gap-4">
+							<Button type="submit" className="w-full" disabled={load}>
+								{load && <Spinner />}
+								<Text uuid="signup.existing_account.submit" />
+							</Button>
+							<Button
+								variant="link"
+								className="w-full"
+								type="button"
+								onClick={() => setStep("email")}
+							>
+								<Text uuid="signup.go_to_login" />
+							</Button>
+						</CardFooter>
+					</Card>
+				)}
+			</Form>
+		);
+	}
+
 	return (
-		<Form<typeof formSchema>
-			schema={formSchema}
-			onSubmit={onSubmit}
+		<Form<typeof signupSchema>
+			schema={signupSchema}
+			onSubmit={onSignupSubmit}
 			className="max-w-md w-full min-w-xs"
 			defaultValues={{
 				name: "",
 				user_name: "",
-				email: "",
+				email: knownEmail,
 				password: "",
 				confirm_password: "",
 			}}
@@ -121,6 +287,7 @@ const SignupForm = () => {
 								placeholder={textGet("signup.email.placeholder")}
 								label={textGet("signup.email")}
 								autoComplete="email"
+								readOnly
 							/>
 							<FormPasswordInput
 								field={field}
@@ -161,7 +328,7 @@ const SignupForm = () => {
 								variant="link"
 								className="w-full"
 								type="button"
-								onClick={() => navigate("/login")}
+								onClick={() => setStep("email")}
 							>
 								<Text uuid="signup.go_to_login" />
 							</Button>
@@ -171,28 +338,6 @@ const SignupForm = () => {
 			}}
 		</Form>
 	);
-
-	async function onSubmit(values: z.infer<typeof formSchema>) {
-		if (!token) return;
-		if (honeypotRef.current?.value) {
-			navigate("/login");
-			return;
-		}
-		setLoad(true);
-		const response = await companySignup({
-			token,
-			name: values.name,
-			user_name: values.user_name,
-			email: values.email,
-			password: values.password,
-		});
-		if (response.success) {
-			setLoad(false);
-			navigate("/login");
-			return;
-		}
-		setLoad(false);
-	}
 };
 
 export default SignupForm;

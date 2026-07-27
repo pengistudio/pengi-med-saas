@@ -37,6 +37,16 @@ func RegisterCompanyRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		authedGroup.DELETE("/subscriptions/plan-change", envelope.Handle(companyPaymentHandler.CancelPlanChange))
 	}
 
+	// Auth only — user creates a brand-new, independent company. Must NOT
+	// require X-Tenant-Slug/tenant middleware: the user isn't inside a
+	// tenant yet, they're creating one.
+	selfServiceGroup := router.Group("/companies",
+		auth_middleware.AuthMiddleware(),
+	)
+	{
+		selfServiceGroup.POST("", envelope.Handle(companyHandler.CreateAdditionalCompany))
+	}
+
 	// Team management — requires auth + tenant + active subscription
 	teamGroup := router.Group("/companies/team",
 		auth_middleware.AuthMiddleware(),

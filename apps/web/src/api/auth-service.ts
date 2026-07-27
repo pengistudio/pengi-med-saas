@@ -108,3 +108,36 @@ export const companySignup = async (
 		},
 	);
 };
+
+export const checkCompanySignupEmail = async (
+	token: string,
+	email: string,
+): Promise<ServiceResponse<{ exists: boolean }>> => {
+	return loginService.get<{ exists: boolean }>(
+		`/auth/signup/company/check-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`,
+	);
+};
+
+export interface JoinExistingCompanyRequest extends Record<string, unknown> {
+	token: string;
+	email: string;
+	password: string;
+}
+
+export interface JoinExistingCompanyResponse {
+	token: string;
+	exchange_token: string;
+	user_id: number;
+}
+
+export const joinCompanyWithExistingAccount = async (
+	data: JoinExistingCompanyRequest,
+): Promise<ServiceResponse<JoinExistingCompanyResponse>> => {
+	return loginService.post<JoinExistingCompanyResponse>(
+		"/auth/signup/company/join",
+		data,
+		{
+			notifyError: true,
+		},
+	);
+};

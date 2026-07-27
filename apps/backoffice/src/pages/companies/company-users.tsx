@@ -56,6 +56,9 @@ const editUserSchema = z.object({
 	}),
 	email: z.string().email(),
 	role_id: z.string().min(1),
+	max_owned_companies: z.string().regex(/^[0-9]+$/, {
+		message: "form.validation.number_invalid",
+	}),
 });
 
 const CompanyUsers = () => {
@@ -162,6 +165,9 @@ const CompanyUsers = () => {
 		if (values.email !== editingUser.email) payload.email = values.email;
 		const newRoleId = Number(values.role_id);
 		if (newRoleId !== editingUser.role_id) payload.role_id = newRoleId;
+		const newMaxOwnedCompanies = Number(values.max_owned_companies);
+		if (newMaxOwnedCompanies !== editingUser.max_owned_companies)
+			payload.max_owned_companies = newMaxOwnedCompanies;
 
 		const res = await updateCompanyUser(id, editingUser.user_id, payload);
 		setSaving(false);
@@ -235,6 +241,11 @@ const CompanyUsers = () => {
 											<TableHead>
 												{textGet("backoffice.company_users.col.environment")}
 											</TableHead>
+											<TableHead>
+												{textGet(
+													"backoffice.company_users.col.owned_companies",
+												)}
+											</TableHead>
 											<TableHead className="text-right">
 												{textGet("table.actions")}
 											</TableHead>
@@ -254,6 +265,9 @@ const CompanyUsers = () => {
 												</TableCell>
 												<TableCell className="text-muted-foreground">
 													{user.environment_name}
+												</TableCell>
+												<TableCell className="text-muted-foreground">
+													{user.owned_companies} / {user.max_owned_companies}
 												</TableCell>
 												<TableCell className="text-right">
 													<Button
@@ -313,6 +327,7 @@ const CompanyUsers = () => {
 									user_name: editingUser.user_name,
 									email: editingUser.email,
 									role_id: String(editingUser.role_id),
+									max_owned_companies: String(editingUser.max_owned_companies),
 								}}
 							>
 								{(field) => (
@@ -338,6 +353,17 @@ const CompanyUsers = () => {
 													"backoffice.company_users.select_role",
 												)}
 												options={roleOptions}
+											/>
+											<FormInput
+												field={field}
+												name="max_owned_companies"
+												type="number"
+												label={textGet(
+													"backoffice.company_users.max_owned_companies",
+												)}
+												description={textGet(
+													"backoffice.company_users.max_owned_companies.description",
+												)}
 											/>
 										</div>
 										<DialogFooter>

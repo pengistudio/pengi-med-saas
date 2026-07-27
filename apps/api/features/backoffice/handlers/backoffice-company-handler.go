@@ -240,26 +240,32 @@ func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Resp
 
 	// Build the response combining environment + user data
 	type CompanyUserResponse struct {
-		EnvironmentID   uint   `json:"environment_id"`
-		UserID          uint   `json:"user_id"`
-		UserName        string `json:"user_name"`
-		Email           string `json:"email"`
-		RoleID          uint   `json:"role_id"`
-		RoleName        string `json:"role_name"`
-		EnvironmentName string `json:"environment_name"`
+		EnvironmentID     uint   `json:"environment_id"`
+		UserID            uint   `json:"user_id"`
+		UserName          string `json:"user_name"`
+		Email             string `json:"email"`
+		RoleID            uint   `json:"role_id"`
+		RoleName          string `json:"role_name"`
+		EnvironmentName   string `json:"environment_name"`
+		MaxOwnedCompanies int    `json:"max_owned_companies"`
+		OwnedCompanies    int64  `json:"owned_companies"`
 	}
 
 	result := make([]CompanyUserResponse, 0, len(environments))
 	for _, env := range environments {
 		u := userMap[env.UserID]
+		var ownedCompanies int64
+		h.db.Model(&company_models.Company{}).Where("owner_user_id = ?", env.UserID).Count(&ownedCompanies)
 		result = append(result, CompanyUserResponse{
-			EnvironmentID:   env.ID,
-			UserID:          env.UserID,
-			UserName:        u.UserName,
-			Email:           u.Email,
-			RoleID:          env.RoleID,
-			RoleName:        env.Role.Role,
-			EnvironmentName: env.Name,
+			EnvironmentID:     env.ID,
+			UserID:            env.UserID,
+			UserName:          u.UserName,
+			Email:             u.Email,
+			RoleID:            env.RoleID,
+			RoleName:          env.Role.Role,
+			EnvironmentName:   env.Name,
+			MaxOwnedCompanies: u.MaxOwnedCompanies,
+			OwnedCompanies:    ownedCompanies,
 		})
 	}
 
@@ -273,9 +279,10 @@ func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Re
 	userID := c.Param("user_id")
 
 	type UpdateCompanyUserRequest struct {
-		UserName string `json:"user_name"`
-		Email    string `json:"email"`
-		RoleID   *uint  `json:"role_id"`
+		UserName          string `json:"user_name"`
+		Email             string `json:"email"`
+		RoleID            *uint  `json:"role_id"`
+		MaxOwnedCompanies *int   `json:"max_owned_companies"`
 	}
 
 	var req UpdateCompanyUserRequest
@@ -298,6 +305,9 @@ func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Re
 		}
 		if req.Email != "" {
 			userUpdates["email"] = req.Email
+		}
+		if req.MaxOwnedCompanies != nil {
+			userUpdates["max_owned_companies"] = *req.MaxOwnedCompanies
 		}
 		if len(userUpdates) > 0 {
 			if err := tx.Model(&user_models.User{}).Where("id = ?", userID).Updates(userUpdates).Error; err != nil {

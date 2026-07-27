@@ -36,6 +36,8 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		authRoutes.GET("/verify-email", envelope.Handle(userHandler.VerifyEmail))
 		authRoutes.POST("/signup", envelope.Handle(userHandler.SignUp))
 		authRoutes.POST("/signup/company", envelope.Handle(userHandler.SignUpWithCompanyToken))
+		authRoutes.GET("/signup/company/check-email", envelope.Handle(userHandler.CheckCompanySignupEmail))
+		authRoutes.POST("/signup/company/join", envelope.Handle(userHandler.JoinCompanyWithExistingAccount))
 		authRoutes.POST("/login", envelope.Handle(userHandler.Login))
 		authRoutes.POST("/refresh", envelope.Handle(userHandler.RefreshAuthToken))
 		authRoutes.POST("/logout", envelope.Handle(userHandler.Logout))

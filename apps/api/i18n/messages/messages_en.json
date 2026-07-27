@@ -164,6 +164,62 @@
         "value": "Logout"
     },
     {
+        "key": "dashboard.dropdown.new_company",
+        "value": "Create new company"
+    },
+    {
+        "key": "dashboard.new_company.dialog.title",
+        "value": "Create new company"
+    },
+    {
+        "key": "dashboard.new_company.dialog.description",
+        "value": "This will create an independent company with its own 14-day trial period."
+    },
+    {
+        "key": "dashboard.new_company.dialog.label",
+        "value": "Company name"
+    },
+    {
+        "key": "dashboard.new_company.dialog.placeholder",
+        "value": "E.g. Sunshine Dental Clinic"
+    },
+    {
+        "key": "dashboard.new_company.dialog.submit",
+        "value": "Create company"
+    },
+    {
+        "key": "dashboard.new_company.dialog.cancel",
+        "value": "Cancel"
+    },
+    {
+        "key": "company.create_additional.success",
+        "value": "Company created successfully"
+    },
+    {
+        "key": "company.create_additional.limit_reached",
+        "value": "You've reached your company creation limit. Contact support to raise it."
+    },
+    {
+        "key": "E-COMP-002",
+        "value": "You've reached your company creation limit. Contact support to raise it."
+    },
+    {
+        "key": "backoffice.company_users.col.owned_companies",
+        "value": "Owned companies"
+    },
+    {
+        "key": "backoffice.company_users.max_owned_companies",
+        "value": "Owned companies limit"
+    },
+    {
+        "key": "backoffice.company_users.max_owned_companies.description",
+        "value": "Maximum number of companies this user can create as owner"
+    },
+    {
+        "key": "form.validation.number_invalid",
+        "value": "Must be a valid number"
+    },
+    {
         "key": "session.expired.title",
         "value": "Session expired"
     },
@@ -2634,6 +2690,34 @@
     {
         "key": "signup.success",
         "value": "Account created successfully"
+    },
+    {
+        "key": "signup.email_step.continue",
+        "value": "Continue"
+    },
+    {
+        "key": "signup.existing_account.title",
+        "value": "You already have a Gentoo account"
+    },
+    {
+        "key": "signup.existing_account.description",
+        "value": "Enter your password to confirm it's you and join this company."
+    },
+    {
+        "key": "signup.existing_account.submit",
+        "value": "Confirm and join"
+    },
+    {
+        "key": "company.team.already_member",
+        "value": "You're already a member of this company"
+    },
+    {
+        "key": "auth.signup.company.email_not_found",
+        "value": "We couldn't find an account with that email"
+    },
+    {
+        "key": "E-TEAM-004",
+        "value": "The user already belongs to this company."
     },
     {
         "key": "E-AUTH-007",

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/mailer"
+	"pengi-med-saas/core/utils"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	company_models "pengi-med-saas/features/companies/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -248,10 +248,13 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusForbidden, "plan.limit.users", core_errors.ErrPlanLimitUsers)
 	}
 
-	// 4) Check if username already exists
+	// 4) Check if username or email already exist
 	var existingUser user_models.User
 	if err := h.db.Where("user_name = ?", req.UserName).First(&existingUser).Error; err == nil {
 		return envelope.ErrorResponse(http.StatusConflict, "Username already exists", core_errors.ErrAuthUserCreateError)
+	}
+	if err := h.db.Where("email = ?", req.Email).First(&existingUser).Error; err == nil {
+		return envelope.ErrorResponse(http.StatusConflict, "auth.register.email_taken", core_errors.ErrAuthEmailTaken)
 	}
 
 	// 5) Resolve the role: use token's role_id if set, otherwise fall back to admin
@@ -275,9 +278,10 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	var newUser user_models.User
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
 		newUser = user_models.User{
-			UserName: req.UserName,
-			Email:    req.Email,
-			Password: req.Password,
+			UserName:      req.UserName,
+			Email:         req.Email,
+			Password:      req.Password,
+			EmailVerified: false,
 		}
 		if err := newUser.Save(tx); err != nil {
 			return err
@@ -301,6 +305,24 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthUserCreateError)
 	}
 
+	// Send verification email (non-blocking) — without this the invited user
+	// can never pass the EmailVerified check in Login.
+	verificationToken, tokenErr := auth.GenerateEmailVerificationToken(newUser.ID)
+	if tokenErr != nil {
+		h.logger.Error("Failed to generate verification token", zap.Error(tokenErr))
+	} else {
+		frontendURL := os.Getenv("FRONTEND_URL")
+		verificationURL := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, verificationToken)
+		go func() {
+			m := mailer.NewMailer()
+			if err := m.SendEmailVerification(newUser.Email, verificationURL); err != nil {
+				h.logger.Error("Failed to send verification email",
+					zap.String("email", newUser.Email),
+					zap.Error(err))
+			}
+		}()
+	}
+
 	h.logger.Info("User registered via company signup token",
 		zap.String("username", newUser.UserName),
 		zap.Uint("company_id", companyID),
@@ -312,18 +334,123 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	}, "user.company_signup.success")
 }
 
-// generateSlug converts a company name into a URL-safe slug.
-func generateSlug(name string) string {
-	slug := strings.ToLower(name)
-	slug = regexp.MustCompile(`[^a-z0-9]+`).ReplaceAllString(slug, "-")
-	slug = strings.Trim(slug, "-")
-	if len(slug) > 50 {
-		slug = slug[:50]
+// CheckCompanySignupEmail lets the invite-link signup page know, before showing
+// any form, whether the entered email already belongs to a Gentoo account.
+func (h *UserHandler) CheckCompanySignupEmail(c *gin.Context) envelope.Response {
+	token := c.Query("token")
+	email := c.Query("email")
+	if token == "" || email == "" {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
-	if slug == "" {
-		slug = "empresa"
+
+	if _, _, err := auth.ParseCompanySignupToken(token); err != nil {
+		h.logger.Warn("Invalid company signup token on email check", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired signup token", core_errors.ErrAuthInvalidSignupToken)
 	}
-	return slug
+
+	var existingUser user_models.User
+	exists := h.db.Where("email = ?", email).First(&existingUser).Error == nil
+
+	return envelope.SuccessResponse(gin.H{
+		"exists": exists,
+	}, "user.company_signup.check_email.success")
+}
+
+// JoinCompanyWithExistingAccount links an already-existing user to a company via
+// a signup token, without creating a duplicate User row. It confirms the
+// caller owns the account by validating their password, then attaches a new
+// Environment and logs them in (same response shape as Login).
+func (h *UserHandler) JoinCompanyWithExistingAccount(c *gin.Context) envelope.Response {
+	var req user_dto.JoinExistingCompanyDTO
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("Invalid join-company request", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
+	}
+
+	companyID, roleID, err := auth.ParseCompanySignupToken(req.Token)
+	if err != nil {
+		h.logger.Warn("Invalid company signup token on join", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired signup token", core_errors.ErrAuthInvalidSignupToken)
+	}
+
+	var company company_models.Company
+	if err := h.db.First(&company, companyID).Error; err != nil {
+		h.logger.Error("Company not found for join", zap.Uint("company_id", companyID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+	}
+
+	var envCount int64
+	h.db.Model(&user_models.Environment{}).Where("company_id = ?", company.ID).Count(&envCount)
+	if subscription_middleware.ExceedsPlanLimit(h.db, company.ID, "max_users", envCount) {
+		return envelope.ErrorResponse(http.StatusForbidden, "plan.limit.users", core_errors.ErrPlanLimitUsers)
+	}
+
+	var foundUser user_models.User
+	if err := h.db.Where("email = ?", req.Email).First(&foundUser).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "auth.signup.company.email_not_found", core_errors.ErrAuthUserInvalidID)
+	}
+
+	if !auth.CompareHashAndPassword(foundUser.Password, req.Password) {
+		h.logger.Warn("Failed join-company password check", zap.String("email", req.Email))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
+	}
+
+	var existingEnv user_models.Environment
+	if err := h.db.Where("user_id = ? AND company_id = ?", foundUser.ID, company.ID).First(&existingEnv).Error; err == nil {
+		return envelope.ErrorResponse(http.StatusConflict, "company.team.already_member", core_errors.ErrTeamAlreadyMember)
+	}
+
+	var defaultRole user_models.Role
+	if roleID != 0 {
+		if err := h.db.First(&defaultRole, roleID).Error; err != nil {
+			h.logger.Warn("Role from token not found, falling back to admin", zap.Uint("role_id", roleID))
+			roleID = 0
+		}
+	}
+	if roleID == 0 {
+		if err := h.db.Where("role = ?", "admin").First(&defaultRole).Error; err != nil {
+			if err := h.db.First(&defaultRole).Error; err != nil {
+				h.logger.Error("No roles available", zap.Error(err))
+				return envelope.ErrorResponse(http.StatusInternalServerError, "No roles configured", core_errors.ErrInternal)
+			}
+		}
+	}
+
+	env := user_models.Environment{
+		UserID:    foundUser.ID,
+		Name:      company.LegalName,
+		RoleID:    defaultRole.ID,
+		CompanyID: company.ID,
+	}
+	if err := h.db.Create(&env).Error; err != nil {
+		h.logger.Error("Failed to create environment for existing user", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+
+	token, err := auth.GenerateToken(foundUser.UserName, int64(foundUser.ID))
+	if err != nil {
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+	}
+
+	if err := IssueRefreshFamily(h.db, foundUser.ID, foundUser.UserName, c); err != nil {
+		h.logger.Error("Failed to issue refresh token family", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+	}
+
+	exchangeToken, err := auth.GenerateExchangeToken(foundUser.UserName, int64(foundUser.ID))
+	if err != nil {
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+	}
+
+	h.logger.Info("Existing user joined company via signup token",
+		zap.Uint("user_id", foundUser.ID),
+		zap.Uint("company_id", companyID),
+	)
+	return envelope.SuccessResponse(gin.H{
+		"token":          token,
+		"exchange_token": exchangeToken,
+		"user_id":        foundUser.ID,
+	}, "user.company_signup.join.success")
 }
 
 // Register creates a new company account atomically: Tenant + Company + Role + User + Environment + Subscription.
@@ -345,7 +472,7 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 	}
 
 	// Generate unique slug
-	baseSlug := generateSlug(req.CompanyName)
+	baseSlug := utils.GenerateSlug(req.CompanyName)
 	slug := baseSlug
 	for i := 1; ; i++ {
 		var existing tenant_models.Tenant
@@ -399,6 +526,10 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 		}
 		if err := newUser.Save(tx); err != nil {
 			return fmt.Errorf("user: %w", err)
+		}
+
+		if err := tx.Model(&newCompany).Update("owner_user_id", newUser.ID).Error; err != nil {
+			return fmt.Errorf("company owner: %w", err)
 		}
 
 		// 6. Environment (link user → company)
