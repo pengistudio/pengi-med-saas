@@ -12,7 +12,7 @@ import {
 	Text,
 } from "@pengi/ui";
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
 import { userLogin } from "@/api/auth-service";
 import { Form } from "@/components/forms/form";
@@ -37,6 +37,8 @@ const LoginForm = () => {
 	const [emailNotVerified, setEmailNotVerified] = React.useState(false);
 	const { setToken } = useTokenStore();
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const intent = searchParams.get("intent");
 
 	return (
 		<Form<typeof formSchema>
@@ -53,10 +55,22 @@ const LoginForm = () => {
 					<Card className="md:shadow-none md:border-none">
 						<CardHeader>
 							<CardTitle>
-								<Text uuid="login.title" />
+								<Text
+									uuid={
+										intent === "new_company"
+											? "login.new_company.title"
+											: "login.title"
+									}
+								/>
 							</CardTitle>
 							<CardDescription>
-								<Text uuid="login.subtitle" />
+								<Text
+									uuid={
+										intent === "new_company"
+											? "login.new_company.subtitle"
+											: "login.subtitle"
+									}
+								/>
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
@@ -118,6 +132,10 @@ const LoginForm = () => {
 		}
 		setToken(response.data.token);
 		setLoad(false);
+		if (intent === "new_company") {
+			navigate("/companies/new");
+			return;
+		}
 		navigate(
 			`/login/environments?exchange_token=${response.data.exchange_token}`,
 		);

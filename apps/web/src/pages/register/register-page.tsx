@@ -1,10 +1,23 @@
-import { Button, FormInput, FormPasswordInput, Spinner, Text } from "@pengi/ui";
+import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardTitle,
+	FormInput,
+	FormPasswordInput,
+	Spinner,
+	Text,
+} from "@pengi/ui";
 import {
 	Building2,
 	CalendarDays,
 	CheckCircle2,
+	ChevronRight,
 	ClipboardList,
+	LogIn,
 	ReceiptText,
+	UserPlus,
 	UsersRound,
 } from "lucide-react";
 import React from "react";
@@ -118,11 +131,96 @@ const BrandPanel = () => (
 	</div>
 );
 
+type Step = "choice" | "form";
+
 const RegisterPage = () => {
 	const { textGet } = useText();
 	const [load, setLoad] = React.useState(false);
 	const [done, setDone] = React.useState(false);
+	const [step, setStep] = React.useState<Step>("choice");
 	const navigate = useNavigate();
+
+	if (step === "choice") {
+		return (
+			<div className="min-h-screen flex">
+				<BrandPanel />
+				<div className="flex-1 flex flex-col bg-muted/30">
+					<div className="flex items-center justify-between p-6">
+						<div className="flex items-center gap-2">
+							<img src={GentooPenguin} alt="Gentoo" className="w-7 h-7" />
+							<span className="font-bold text-lg">Gentoo</span>
+						</div>
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => navigate("/login")}
+						>
+							<Text uuid="register.go_to_login" />
+						</Button>
+					</div>
+					<div className="flex-1 flex items-center justify-center px-6 py-12">
+						<div className="w-full max-w-lg space-y-4">
+							<div className="space-y-1 text-center mb-4">
+								<h1 className="text-2xl font-bold text-foreground">
+									<Text uuid="register.choice.title" />
+								</h1>
+								<p className="text-muted-foreground text-sm">
+									<Text uuid="register.choice.subtitle" />
+								</p>
+							</div>
+							<button
+								type="button"
+								onClick={() => setStep("form")}
+								className="w-full text-left"
+							>
+								<Card className="hover:border-primary hover:shadow-md transition-all cursor-pointer">
+									<CardContent className="flex items-center gap-4 py-2">
+										<div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+											<UserPlus className="h-5 w-5 text-primary" />
+										</div>
+										<div className="flex-1 min-w-0">
+											<CardTitle className="text-base">
+												<Text uuid="register.choice.new_account.title" />
+											</CardTitle>
+											<CardDescription>
+												<Text uuid="register.choice.new_account.description" />
+											</CardDescription>
+										</div>
+										<ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+									</CardContent>
+								</Card>
+							</button>
+							<button
+								type="button"
+								onClick={() => navigate("/login?intent=new_company")}
+								className="w-full text-left"
+							>
+								<Card className="hover:border-primary hover:shadow-md transition-all cursor-pointer">
+									<CardContent className="flex items-center gap-4 py-2">
+										<div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+											<LogIn className="h-5 w-5 text-primary" />
+										</div>
+										<div className="flex-1 min-w-0">
+											<CardTitle className="text-base">
+												<Text uuid="register.choice.existing_account.title" />
+											</CardTitle>
+											<CardDescription>
+												<Text uuid="register.choice.existing_account.description" />
+											</CardDescription>
+										</div>
+										<ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+									</CardContent>
+								</Card>
+							</button>
+						</div>
+					</div>
+					<div className="p-6 flex justify-center">
+						<SelectLanguage />
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	if (done) {
 		return (

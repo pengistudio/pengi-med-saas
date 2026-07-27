@@ -84,6 +84,14 @@
         "value": "Bienvenido de nuevo, por favor inicie sesión en su cuenta."
     },
     {
+        "key": "login.new_company.title",
+        "value": "Inicia sesión para crear otra empresa"
+    },
+    {
+        "key": "login.new_company.subtitle",
+        "value": "Usa tu cuenta Gentoo existente para crear una empresa independiente."
+    },
+    {
         "key": "login.username.placeholder",
         "value": "Ingrese su nombre de usuario"
     },
@@ -197,11 +205,11 @@
     },
     {
         "key": "company.create_additional.limit_reached",
-        "value": "Alcanzaste el límite de empresas que podés crear. Contactá a soporte para aumentarlo."
+        "value": "Alcanzaste el límite de empresas que puedes crear. Contacta a soporte para aumentarlo."
     },
     {
         "key": "E-COMP-002",
-        "value": "Alcanzaste el límite de empresas que podés crear. Contactá a soporte para aumentarlo."
+        "value": "Alcanzaste el límite de empresas que puedes crear. Contacta a soporte para aumentarlo."
     },
     {
         "key": "backoffice.company_users.col.owned_companies",
@@ -2697,11 +2705,11 @@
     },
     {
         "key": "signup.existing_account.title",
-        "value": "Ya tenés una cuenta Gentoo"
+        "value": "Ya tienes una cuenta Gentoo"
     },
     {
         "key": "signup.existing_account.description",
-        "value": "Ingresá tu contraseña para confirmar que sos vos y sumarte a esta empresa."
+        "value": "Ingresa tu contraseña para confirmar que eres tú y unirte a esta empresa."
     },
     {
         "key": "signup.existing_account.submit",
@@ -2709,7 +2717,7 @@
     },
     {
         "key": "company.team.already_member",
-        "value": "Ya sos miembro de esta empresa"
+        "value": "Ya eres miembro de esta empresa"
     },
     {
         "key": "auth.signup.company.email_not_found",
@@ -4825,7 +4833,7 @@
     },
     {
         "key": "privacy.section.processor.desc",
-        "value": "Los pagos de suscripción son procesados por dLocal, empresa certificada bajo el estándar PCI DSS (Payment Card Industry Data Security Standard). Cuando realizas un pago, eres redirigido al entorno seguro de dLocal donde ingresás tus datos bancarios."
+        "value": "Los pagos de suscripción son procesados por dLocal, empresa certificada bajo el estándar PCI DSS (Payment Card Industry Data Security Standard). Cuando realizas un pago, eres redirigido al entorno seguro de dLocal donde ingresas tus datos bancarios."
     },
     {
         "key": "privacy.section.data.title",
@@ -4964,6 +4972,30 @@
         "value": "¿Ya tienes cuenta? Iniciar sesión"
     },
     {
+        "key": "register.choice.title",
+        "value": "¿Cómo quieres empezar?"
+    },
+    {
+        "key": "register.choice.subtitle",
+        "value": "Elige la opción que corresponda a tu caso"
+    },
+    {
+        "key": "register.choice.new_account.title",
+        "value": "Crear cuenta y empresa nueva"
+    },
+    {
+        "key": "register.choice.new_account.description",
+        "value": "Registra tu consultorio desde cero, con una cuenta nueva"
+    },
+    {
+        "key": "register.choice.existing_account.title",
+        "value": "Ya tengo cuenta Gentoo"
+    },
+    {
+        "key": "register.choice.existing_account.description",
+        "value": "Inicia sesión y crea otra empresa con tu cuenta actual"
+    },
+    {
         "key": "register.check_email.title",
         "value": "Revisa tu email"
     },
@@ -5005,7 +5037,7 @@
     },
     {
         "key": "privacy.section.contact.desc",
-        "value": "Si tenés preguntas sobre el manejo de tus datos, podés contactarnos en soporte@pengimed.com."
+        "value": "Si tienes preguntas sobre el manejo de tus datos, puedes contactarnos en soporte@pengimed.com."
     },
     {
         "key": "privacy.section.legal.title",

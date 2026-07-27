@@ -8,12 +8,6 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
@@ -21,9 +15,6 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-	Input,
-	Label,
-	Spinner,
 } from "@pengi/ui";
 import {
 	AlertTriangle,
@@ -37,9 +28,8 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { memo, useCallback, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation } from "react-router";
 import { initiatePayment } from "@/api/subscription-service";
-import { createAdditionalCompany } from "@/api/user-service";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
 import NotificationBell from "@/components/custom/notification-bell";
@@ -50,7 +40,6 @@ import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import {
 	selectEnvironment,
-	selectSetEnvironment,
 	selectSubscriptionExpired,
 	selectSubscriptionGraceDaysLeft,
 	useSessionStore,
@@ -66,30 +55,10 @@ import usePermission from "@/hooks/use-permission";
 
 function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const { logout } = useAuth();
-	const navigate = useNavigate();
-	const setEnvironment = useSessionStore(selectSetEnvironment);
 	const { textGet } = useText();
 	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
 	const [paying, setPaying] = useState(false);
-	const [newCompanyDialogOpen, setNewCompanyDialogOpen] = useState(false);
-	const [newCompanyName, setNewCompanyName] = useState("");
-	const [creatingCompany, setCreatingCompany] = useState(false);
 	useNotificationsPoll();
-
-	const handleCreateCompany = useCallback(async () => {
-		if (newCompanyName.trim().length < 2) return;
-		setCreatingCompany(true);
-		const res = await createAdditionalCompany({
-			company_name: newCompanyName.trim(),
-		});
-		setCreatingCompany(false);
-		if (res.success && res.data) {
-			setEnvironment(res.data);
-			setNewCompanyDialogOpen(false);
-			setNewCompanyName("");
-			navigate("/");
-		}
-	}, [newCompanyName, setEnvironment, navigate]);
 
 	const handlePay = useCallback(async () => {
 		setPaying(true);
@@ -149,291 +118,234 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	}, [logout]);
 
 	return (
-		<>
-			<div className="flex h-screen bg-background overflow-hidden max-h-screen">
-				{/* Sidebar */}
-				<aside
-					className={cn(
-						"flex flex-col border-r border-border bg-sidebar transition-all duration-500 ease-in-out shrink-0",
-						sidebarOpen ? "w-64" : "w-16",
-						"max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-64",
-						!sidebarOpen && "max-md:-translate-x-full",
-					)}
-				>
-					{/* Sidebar Header */}
-					<div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4 overflow-hidden">
-						{sidebarOpen ? (
-							<div className="flex flex-1 items-center justify-between min-w-0">
-								<div className="flex items-center gap-2 min-w-0 flex-1">
-									<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-lg transition-all duration-300 hover:shadow-xl">
-										<Building2
-											className="h-5 w-5 text-primary-foreground"
-											strokeWidth={1.75}
-										/>
-									</div>
-									<span className="text-lg font-semibold text-sidebar-foreground truncate min-w-0">
-										{environment?.trade_name}
-									</span>
+		<div className="flex h-screen bg-background overflow-hidden max-h-screen">
+			{/* Sidebar */}
+			<aside
+				className={cn(
+					"flex flex-col border-r border-border bg-sidebar transition-all duration-500 ease-in-out shrink-0",
+					sidebarOpen ? "w-64" : "w-16",
+					"max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-64",
+					!sidebarOpen && "max-md:-translate-x-full",
+				)}
+			>
+				{/* Sidebar Header */}
+				<div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4 overflow-hidden">
+					{sidebarOpen ? (
+						<div className="flex flex-1 items-center justify-between min-w-0">
+							<div className="flex items-center gap-2 min-w-0 flex-1">
+								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-lg transition-all duration-300 hover:shadow-xl">
+									<Building2
+										className="h-5 w-5 text-primary-foreground"
+										strokeWidth={1.75}
+									/>
 								</div>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={close}
-									className="h-8 w-8 shrink-0 text-sidebar-foreground hover:bg-sidebar-accent transition-colors duration-300 max-md:hidden"
-								>
-									<PanelLeftClose className="h-5 w-5" />
-								</Button>
+								<span className="text-lg font-semibold text-sidebar-foreground truncate min-w-0">
+									{environment?.trade_name}
+								</span>
 							</div>
-						) : (
 							<Button
 								variant="ghost"
 								size="icon"
-								onClick={open}
-								className="h-10 w-10 shrink-0 text-sidebar-foreground hover:bg-sidebar-accent transition-colors duration-300 max-md:hidden"
+								onClick={close}
+								className="h-8 w-8 shrink-0 text-sidebar-foreground hover:bg-sidebar-accent transition-colors duration-300 max-md:hidden"
 							>
-								<PanelLeft className="h-6 w-6" />
+								<PanelLeftClose className="h-5 w-5" />
 							</Button>
-						)}
-					</div>
+						</div>
+					) : (
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={open}
+							className="h-10 w-10 shrink-0 text-sidebar-foreground hover:bg-sidebar-accent transition-colors duration-300 max-md:hidden"
+						>
+							<PanelLeft className="h-6 w-6" />
+						</Button>
+					)}
+				</div>
 
-					{/* Navigation */}
-					<nav className="flex-1 space-y-1 p-2 overflow-hidden">
-						{navItems.map((items) => {
-							if (items.accordionItems) {
-								return <NavAccordion {...items} key={items.label} />;
-							}
-							return <NavItem {...items} key={items.label} />;
-						})}
-					</nav>
+				{/* Navigation */}
+				<nav className="flex-1 space-y-1 p-2 overflow-hidden">
+					{navItems.map((items) => {
+						if (items.accordionItems) {
+							return <NavAccordion {...items} key={items.label} />;
+						}
+						return <NavItem {...items} key={items.label} />;
+					})}
+				</nav>
 
-					{/* Sidebar Footer */}
-					<div className="border-t border-sidebar-border p-2 py-4 overflow-hidden space-y-1">
-						{bottomNavItems.map((item) =>
-							"accordionItems" in item && item.accordionItems ? (
-								<NavAccordion {...item} key={item.label} />
-							) : (
-								<NavItem
-									{...(item as Parameters<typeof NavItem>[0])}
-									key={item.label}
-								/>
-							),
+				{/* Sidebar Footer */}
+				<div className="border-t border-sidebar-border p-2 py-4 overflow-hidden space-y-1">
+					{bottomNavItems.map((item) =>
+						"accordionItems" in item && item.accordionItems ? (
+							<NavAccordion {...item} key={item.label} />
+						) : (
+							<NavItem
+								{...(item as Parameters<typeof NavItem>[0])}
+								key={item.label}
+							/>
+						),
+					)}
+					<a
+						href="/"
+						title={!sidebarOpen ? textGet("dashboard.help") : undefined}
+						className={cn(
+							"flex items-center rounded-lg px-3 py-2 text-sidebar-foreground transition-all duration-300 hover:bg-sidebar-accent overflow-hidden",
+							sidebarOpen ? "gap-3" : "gap-0",
 						)}
-						<a
-							href="/"
-							title={!sidebarOpen ? textGet("dashboard.help") : undefined}
+					>
+						<HelpCircle className="h-5 w-5 shrink-0" />
+						<span
 							className={cn(
-								"flex items-center rounded-lg px-3 py-2 text-sidebar-foreground transition-all duration-300 hover:bg-sidebar-accent overflow-hidden",
-								sidebarOpen ? "gap-3" : "gap-0",
+								"transition-all duration-300 truncate",
+								sidebarOpen
+									? "opacity-100 w-auto"
+									: "opacity-0 w-0 overflow-hidden ml-0",
 							)}
 						>
-							<HelpCircle className="h-5 w-5 shrink-0" />
-							<span
-								className={cn(
-									"transition-all duration-300 truncate",
-									sidebarOpen
-										? "opacity-100 w-auto"
-										: "opacity-0 w-0 overflow-hidden ml-0",
-								)}
-							>
-								{textGet("dashboard.help")}
-							</span>
-						</a>
+							{textGet("dashboard.help")}
+						</span>
+					</a>
+				</div>
+			</aside>
+
+			{sidebarOpen && (
+				// biome-ignore lint/a11y/noStaticElementInteractions: here its fine
+				// biome-ignore lint/a11y/useKeyWithClickEvents: here its fine
+				<div
+					className="fixed inset-0 z-40 bg-black/50 md:hidden backdrop-blur-sm"
+					onClick={close}
+				/>
+			)}
+
+			{/* Main Content */}
+			<div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+				{/* Navbar */}
+				<header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6 shrink-0">
+					<div className="flex items-center gap-4">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="md:hidden"
+							onClick={toggle}
+						>
+							<Menu className="h-5 w-5" />
+						</Button>
+						<span className="text-lg font-semibold">
+							{textGet("dashboard.title")}
+						</span>
 					</div>
-				</aside>
 
-				{sidebarOpen && (
-					// biome-ignore lint/a11y/noStaticElementInteractions: here its fine
-					// biome-ignore lint/a11y/useKeyWithClickEvents: here its fine
-					<div
-						className="fixed inset-0 z-40 bg-black/50 md:hidden backdrop-blur-sm"
-						onClick={close}
-					/>
-				)}
-
-				{/* Main Content */}
-				<div className="flex flex-1 flex-col min-w-0 overflow-hidden">
-					{/* Navbar */}
-					<header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6 shrink-0">
-						<div className="flex items-center gap-4">
-							<Button
-								variant="ghost"
-								size="icon"
-								className="md:hidden"
-								onClick={toggle}
-							>
-								<Menu className="h-5 w-5" />
-							</Button>
-							<span className="text-lg font-semibold">
-								{textGet("dashboard.title")}
-							</span>
-						</div>
-
-						<div className="flex items-center gap-2">
-							<SelectLanguage />
-							<NotificationBell />
-							<DropdownMenu>
-								<DropdownMenuTrigger>
-									<div className="relative h-10 w-10 rounded-full cursor-pointer">
-										<Avatar className="h-10 w-10">
-											<AvatarImage alt="User" />
-											<AvatarFallback>
-												{handleAvatarFallbackText()}
-											</AvatarFallback>
-										</Avatar>
-									</div>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end" className="w-56">
-									<DropdownMenuGroup>
-										<DropdownMenuLabel>
-											{textGet("dashboard.dropdown.profile.title")}
-										</DropdownMenuLabel>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem
-											onClick={() => (window.location.href = "/profile")}
-										>
-											{textGet("dashboard.dropdown.profile")}
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => (window.location.href = "/settings")}
-										>
-											{textGet("dashboard.dropdown.settings")}
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={() => setNewCompanyDialogOpen(true)}
-										>
-											<Building2 className="w-4 h-4" />
-											{textGet("dashboard.dropdown.new_company")}
-										</DropdownMenuItem>
-									</DropdownMenuGroup>
+					<div className="flex items-center gap-2">
+						<SelectLanguage />
+						<NotificationBell />
+						<DropdownMenu>
+							<DropdownMenuTrigger>
+								<div className="relative h-10 w-10 rounded-full cursor-pointer">
+									<Avatar className="h-10 w-10">
+										<AvatarImage alt="User" />
+										<AvatarFallback>
+											{handleAvatarFallbackText()}
+										</AvatarFallback>
+									</Avatar>
+								</div>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="w-56">
+								<DropdownMenuGroup>
+									<DropdownMenuLabel>
+										{textGet("dashboard.dropdown.profile.title")}
+									</DropdownMenuLabel>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem
-										onClick={handleLogout}
-										variant="destructive"
+										onClick={() => (window.location.href = "/profile")}
 									>
-										<Power className="w-4 h-4 text-red-500" />
-										{textGet("dashboard.dropdown.logout")}
+										{textGet("dashboard.dropdown.profile")}
 									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</div>
-					</header>
-
-					{/* Grace period warning banner */}
-					{graceDaysLeft < 0 && !isSubscriptionPage && (
-						<div className="flex items-center justify-between gap-3 bg-amber-500/10 border-b border-amber-500/30 px-4 py-2.5 shrink-0">
-							<div className="flex items-center gap-2">
-								<AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-								<p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-									{textGet("subscription.grace.banner")}{" "}
-									<span className="font-bold">
-										{3 + graceDaysLeft}{" "}
-										{textGet("subscription.grace.days_remaining")}
-									</span>
-								</p>
-							</div>
-							<Button
-								size="sm"
-								variant="outline"
-								className="border-amber-500/50 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400 shrink-0"
-								onClick={() => (window.location.href = "/subscription")}
-							>
-								{textGet("subscription.grace.cta")}
-							</Button>
-						</div>
-					)}
-
-					{/* Page Content */}
-					<main className="flex-1 overflow-auto p-4 md:p-6 relative">
-						{subscriptionExpired &&
-						!isSubscriptionPage &&
-						graceDaysLeft === 0 ? (
-							<div className="flex items-center justify-center h-full">
-								<Card className="max-w-md w-full border-destructive/50">
-									<CardHeader className="text-center">
-										<div className="flex justify-center mb-2">
-											<AlertTriangle className="h-12 w-12 text-destructive" />
-										</div>
-										<CardTitle className="text-destructive">
-											{textGet("subscription.expired.title")}
-										</CardTitle>
-										<CardDescription>
-											{textGet("subscription.expired.description")}
-										</CardDescription>
-									</CardHeader>
-									<CardContent className="text-center space-y-2">
-										<p className="text-sm text-muted-foreground">
-											{textGet("subscription.expired.contact")}
-										</p>
-										<Button
-											className="w-full"
-											onClick={handlePay}
-											disabled={paying}
-										>
-											<CreditCard className="w-4 h-4 mr-2" />
-											{textGet("dashboard.subscription.pay_now")}
-										</Button>
-										<Button
-											variant="outline"
-											className="w-full"
-											onClick={handleLogout}
-										>
-											<Power className="w-4 h-4 mr-2" />
-											{textGet("dashboard.dropdown.logout")}
-										</Button>
-									</CardContent>
-								</Card>
-							</div>
-						) : (
-							children
-						)}
-					</main>
-				</div>
-			</div>
-
-			<Dialog
-				open={newCompanyDialogOpen}
-				onOpenChange={setNewCompanyDialogOpen}
-			>
-				<DialogContent className="sm:max-w-md">
-					<DialogHeader>
-						<DialogTitle>
-							{textGet("dashboard.new_company.dialog.title")}
-						</DialogTitle>
-						<DialogDescription>
-							{textGet("dashboard.new_company.dialog.description")}
-						</DialogDescription>
-					</DialogHeader>
-					<div className="space-y-2 py-2">
-						<Label htmlFor="new-company-name">
-							{textGet("dashboard.new_company.dialog.label")}
-						</Label>
-						<Input
-							id="new-company-name"
-							value={newCompanyName}
-							onChange={(e) => setNewCompanyName(e.target.value)}
-							placeholder={textGet("dashboard.new_company.dialog.placeholder")}
-						/>
+									<DropdownMenuItem
+										onClick={() => (window.location.href = "/settings")}
+									>
+										{textGet("dashboard.dropdown.settings")}
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem onClick={handleLogout} variant="destructive">
+									<Power className="w-4 h-4 text-red-500" />
+									{textGet("dashboard.dropdown.logout")}
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
-					<DialogFooter>
+				</header>
+
+				{/* Grace period warning banner */}
+				{graceDaysLeft < 0 && !isSubscriptionPage && (
+					<div className="flex items-center justify-between gap-3 bg-amber-500/10 border-b border-amber-500/30 px-4 py-2.5 shrink-0">
+						<div className="flex items-center gap-2">
+							<AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+							<p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+								{textGet("subscription.grace.banner")}{" "}
+								<span className="font-bold">
+									{3 + graceDaysLeft}{" "}
+									{textGet("subscription.grace.days_remaining")}
+								</span>
+							</p>
+						</div>
 						<Button
-							type="button"
+							size="sm"
 							variant="outline"
-							onClick={() => setNewCompanyDialogOpen(false)}
+							className="border-amber-500/50 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400 shrink-0"
+							onClick={() => (window.location.href = "/subscription")}
 						>
-							{textGet("dashboard.new_company.dialog.cancel")}
+							{textGet("subscription.grace.cta")}
 						</Button>
-						<Button
-							type="button"
-							onClick={handleCreateCompany}
-							disabled={creatingCompany || newCompanyName.trim().length < 2}
-						>
-							{creatingCompany && <Spinner />}
-							{textGet("dashboard.new_company.dialog.submit")}
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-		</>
+					</div>
+				)}
+
+				{/* Page Content */}
+				<main className="flex-1 overflow-auto p-4 md:p-6 relative">
+					{subscriptionExpired && !isSubscriptionPage && graceDaysLeft === 0 ? (
+						<div className="flex items-center justify-center h-full">
+							<Card className="max-w-md w-full border-destructive/50">
+								<CardHeader className="text-center">
+									<div className="flex justify-center mb-2">
+										<AlertTriangle className="h-12 w-12 text-destructive" />
+									</div>
+									<CardTitle className="text-destructive">
+										{textGet("subscription.expired.title")}
+									</CardTitle>
+									<CardDescription>
+										{textGet("subscription.expired.description")}
+									</CardDescription>
+								</CardHeader>
+								<CardContent className="text-center space-y-2">
+									<p className="text-sm text-muted-foreground">
+										{textGet("subscription.expired.contact")}
+									</p>
+									<Button
+										className="w-full"
+										onClick={handlePay}
+										disabled={paying}
+									>
+										<CreditCard className="w-4 h-4 mr-2" />
+										{textGet("dashboard.subscription.pay_now")}
+									</Button>
+									<Button
+										variant="outline"
+										className="w-full"
+										onClick={handleLogout}
+									>
+										<Power className="w-4 h-4 mr-2" />
+										{textGet("dashboard.dropdown.logout")}
+									</Button>
+								</CardContent>
+							</Card>
+						</div>
+					) : (
+						children
+					)}
+				</main>
+			</div>
+		</div>
 	);
 }
 

@@ -84,6 +84,14 @@
         "value": "Welcome back, please login to your account."
     },
     {
+        "key": "login.new_company.title",
+        "value": "Log in to create another company"
+    },
+    {
+        "key": "login.new_company.subtitle",
+        "value": "Use your existing Gentoo account to create an independent company."
+    },
+    {
         "key": "login.username.placeholder",
         "value": "Enter your username"
     },
@@ -4962,6 +4970,30 @@
     {
         "key": "register.go_to_login",
         "value": "Already have an account? Sign in"
+    },
+    {
+        "key": "register.choice.title",
+        "value": "How would you like to start?"
+    },
+    {
+        "key": "register.choice.subtitle",
+        "value": "Choose the option that fits your case"
+    },
+    {
+        "key": "register.choice.new_account.title",
+        "value": "Create account and new company"
+    },
+    {
+        "key": "register.choice.new_account.description",
+        "value": "Register your practice from scratch, with a new account"
+    },
+    {
+        "key": "register.choice.existing_account.title",
+        "value": "I already have a Gentoo account"
+    },
+    {
+        "key": "register.choice.existing_account.description",
+        "value": "Log in and create another company with your current account"
     },
     {
         "key": "register.check_email.title",

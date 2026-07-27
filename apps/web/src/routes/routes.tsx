@@ -59,6 +59,9 @@ const KanbanPage = lazy(() => import("@/pages/kanban/kanban-page"));
 const LoginEnvironments = lazy(
 	() => import("@/pages/login/login-environments"),
 );
+const CreateCompanyPage = lazy(
+	() => import("@/pages/companies/create-company-page"),
+);
 const Login = lazy(() => import("@/pages/login/login-page"));
 const Profile = lazy(() => import("@/pages/profile/profile"));
 const ResetPasswordPage = lazy(
@@ -280,6 +283,10 @@ const router = createBrowserRouter([
 			{
 				path: "/login/environments",
 				element: <LoginEnvironments />,
+			},
+			{
+				path: "/companies/new",
+				element: <CreateCompanyPage />,
 			},
 			{
 				path: "/signup",
