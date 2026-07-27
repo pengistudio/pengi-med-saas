@@ -1,10 +1,12 @@
 package user_handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
+	company_services "pengi-med-saas/features/companies/services"
 	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
 
@@ -45,6 +47,13 @@ func (h *EnvironmentHandler) GetEnvironmentsFromUser(c *gin.Context) envelope.Re
 	for _, env := range user.Environments {
 		var company company_models.Company
 		if err := h.db.Preload("Tenant").First(&company, env.CompanyID).Error; err == nil {
+			if ef, err := company_services.EnabledFeaturesForCompany(h.db, company.ID); err == nil {
+				if raw, err := json.Marshal(ef); err == nil {
+					company.Tenant.EnabledFeatures = string(raw)
+				}
+			} else {
+				h.logger.Warn("Failed to compute live enabled features, using cached value", zap.Uint("company_id", company.ID), zap.Error(err))
+			}
 			responseDTO = append(responseDTO, user_dto.EnvironmentWithCompany{
 				Environment: env,
 				Company:     company,

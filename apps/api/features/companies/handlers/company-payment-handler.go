@@ -1,7 +1,6 @@
 package company_handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"net/http"
@@ -12,7 +11,6 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/utils"
 	company_models "pengi-med-saas/features/companies/models"
-	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -79,54 +77,6 @@ type SubscriptionDetailResponse struct {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-// applyPlanFeatures syncs the tenant's enabled_features from the given plan code.
-// Package-level so DashboardHandler can reuse it.
-func applyPlanFeatures(db *gorm.DB, logger *zap.Logger, companyID uint, newPlanCode string) error {
-	var plan company_models.Plan
-	if err := db.Where("code = ?", newPlanCode).First(&plan).Error; err != nil {
-		return err
-	}
-
-	var company company_models.Company
-	if err := db.First(&company, companyID).Error; err != nil {
-		return err
-	}
-
-	var tenant tenant_models.Tenant
-	if err := db.First(&tenant, company.TenantID).Error; err != nil {
-		return err
-	}
-
-	enabledFeatures := tenant_models.DefaultEnabledFeatures()
-	if plan.Properties != nil {
-		if featuresData, ok := plan.Properties["enabled_features"]; ok {
-			if featuresJSON, err := json.Marshal(featuresData); err == nil {
-				json.Unmarshal(featuresJSON, &enabledFeatures)
-			}
-		}
-	}
-
-	featuresJSON, err := json.Marshal(enabledFeatures)
-	if err != nil {
-		return err
-	}
-
-	if err := db.Model(&tenant).Update("enabled_features", string(featuresJSON)).Error; err != nil {
-		return err
-	}
-
-	logger.Info("Applied plan features to tenant",
-		zap.Uint("company_id", companyID),
-		zap.Uint("tenant_id", tenant.ID),
-		zap.String("plan_code", newPlanCode))
-
-	return nil
-}
-
-func (h *CompanyPaymentHandler) applyPlanFeaturesToTenant(subscription *company_models.Subscription, newPlanCode string) error {
-	return applyPlanFeatures(h.db, h.logger, subscription.CompanyID, newPlanCode)
-}
-
 // checkAndApplyPendingPlanChange applies a deferred plan change if its scheduled date has passed.
 // Returns true if a change was applied (caller should reload sub.Plan).
 func checkAndApplyPendingPlanChange(db *gorm.DB, logger *zap.Logger, sub *company_models.Subscription, company *company_models.Company) bool {
@@ -141,9 +91,6 @@ func checkAndApplyPendingPlanChange(db *gorm.DB, logger *zap.Logger, sub *compan
 	sub.NextPlanCode = ""
 	sub.PlanChangeAt = nil
 	db.Model(company).Update("plan_code", newCode)
-	if err := applyPlanFeatures(db, logger, sub.CompanyID, newCode); err != nil {
-		logger.Error("Failed to apply deferred plan features", zap.Error(err))
-	}
 	db.Save(sub)
 	logger.Info("Applied deferred plan change", zap.Uint("subscription_id", sub.ID), zap.String("plan_code", newCode))
 	return true
@@ -233,9 +180,6 @@ func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Respons
 			sub.NextPlanCode = ""
 			sub.PlanChangeAt = nil
 			h.db.Model(&company).Update("plan_code", targetPlan.Code)
-			if err := h.applyPlanFeaturesToTenant(&sub, targetPlan.Code); err != nil {
-				h.logger.Error("Failed to apply plan features on free plan switch", zap.Error(err))
-			}
 			h.db.Save(&sub)
 			h.logger.Info("Free plan switch applied immediately",
 				zap.Uint("subscription_id", sub.ID),
@@ -275,9 +219,6 @@ func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Respons
 				sub.NextPlanCode = ""
 				sub.PlanChangeAt = nil
 				h.db.Model(&company).Update("plan_code", targetPlan.Code)
-				if err := h.applyPlanFeaturesToTenant(&sub, targetPlan.Code); err != nil {
-					h.logger.Error("Failed to apply plan features on upgrade", zap.Error(err))
-				}
 				h.db.Save(&sub)
 				return envelope.SuccessResponse(PaySubscriptionResponse{
 					Free:       true,
@@ -410,9 +351,6 @@ func (h *CompanyPaymentHandler) ConfirmPayment(c *gin.Context) envelope.Response
 			sub.NextPlanCode = ""
 			sub.PlanChangeAt = nil
 			h.db.Model(&company).Update("plan_code", payment.TargetPlanCode)
-			if err := h.applyPlanFeaturesToTenant(&sub, payment.TargetPlanCode); err != nil {
-				h.logger.Error("Failed to apply plan features on upgrade confirm", zap.Error(err))
-			}
 			h.db.Save(&sub)
 			h.logger.Info("Upgrade confirmed, plan applied immediately",
 				zap.Uint("subscription_id", sub.ID),
@@ -440,9 +378,6 @@ func (h *CompanyPaymentHandler) ConfirmPayment(c *gin.Context) envelope.Response
 					sub.NextPlanCode = ""
 					sub.PlanChangeAt = nil
 					h.db.Model(&company).Update("plan_code", payment.TargetPlanCode)
-					if err := h.applyPlanFeaturesToTenant(&sub, payment.TargetPlanCode); err != nil {
-						h.logger.Error("Failed to apply plan features after plan change", zap.Error(err))
-					}
 				}
 			}
 

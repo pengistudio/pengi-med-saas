@@ -14,6 +14,8 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	company_models "pengi-med-saas/features/companies/models"
+	company_services "pengi-med-saas/features/companies/services"
 	tenant_dto "pengi-med-saas/features/tenants/dto"
 	tenant_models "pengi-med-saas/features/tenants/models"
 
@@ -382,49 +384,24 @@ func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(settings, "tenant.settings.update.success")
 }
 
-// GetEnabledFeatures returns the enabled features for the tenant
+// GetEnabledFeatures returns the enabled features for the tenant, computed live from the
+// company's current subscription plan.
 func (h *TenantHandler) GetEnabledFeatures(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
 	}
 
-	var tenantRecord tenant_models.Tenant
-	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
+	var company company_models.Company
+	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
 	}
 
-	features := tenant_models.DefaultEnabledFeatures()
-	if tenantRecord.EnabledFeatures != "" && tenantRecord.EnabledFeatures != "{}" {
-		if err := json.Unmarshal([]byte(tenantRecord.EnabledFeatures), &features); err != nil {
-			h.logger.Warn("Failed to parse EnabledFeatures, using defaults", zap.Error(err))
-		}
+	features, err := company_services.EnabledFeaturesForCompany(h.db, company.ID)
+	if err != nil {
+		h.logger.Error("Failed to compute enabled features", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining features", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(features, "tenant.features.fetch.success")
-}
-
-// UpdateEnabledFeatures saves new enabled features for the tenant
-func (h *TenantHandler) UpdateEnabledFeatures(c *gin.Context) envelope.Response {
-	tenantID, exists := c.Get("tenant_id")
-	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
-	}
-
-	var features tenant_models.EnabledFeatures
-	if err := c.ShouldBindJSON(&features); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid features payload", core_errors.ErrBillingInvalidRequest)
-	}
-
-	raw, err := json.Marshal(features)
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to encode features", core_errors.ErrInternal)
-	}
-
-	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("enabled_features", string(raw)).Error; err != nil {
-		h.logger.Error("Failed to save EnabledFeatures", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save features", core_errors.ErrInternal)
-	}
-
-	return envelope.SuccessResponse(features, "tenant.features.update.success")
 }

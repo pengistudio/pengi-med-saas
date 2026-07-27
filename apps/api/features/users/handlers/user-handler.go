@@ -3,7 +3,6 @@ package user_handlers
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -422,18 +421,6 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 		}
 		if err := tx.Create(&subscription).Error; err != nil {
 			return fmt.Errorf("subscription: %w", err)
-		}
-
-		// 8. Apply TRIAL plan features to tenant
-		var trialPlan company_models.Plan
-		if err := tx.Where("code = ?", "TRIAL").First(&trialPlan).Error; err == nil {
-			if trialPlan.Properties != nil {
-				if featuresData, ok := trialPlan.Properties["enabled_features"]; ok {
-					if featuresJSON, err := json.Marshal(featuresData); err == nil {
-						tx.Model(&newTenant).Update("enabled_features", string(featuresJSON))
-					}
-				}
-			}
 		}
 
 		return nil

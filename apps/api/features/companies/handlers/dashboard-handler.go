@@ -1,7 +1,6 @@
 package company_handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -9,8 +8,8 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	company_services "pengi-med-saas/features/companies/services"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
-	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -216,12 +215,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 				subscriptionInfo.LastPaymentDate = &paidDate
 			}
 
-			var tenant tenant_models.Tenant
-			if err := h.db.First(&tenant, tenantID).Error; err == nil {
-				ef := tenant_models.DefaultEnabledFeatures()
-				if tenant.EnabledFeatures != "" {
-					json.Unmarshal([]byte(tenant.EnabledFeatures), &ef)
-				}
+			if ef, err := company_services.EnabledFeaturesForPlanCode(h.db, sub.PlanCode); err == nil {
 				subscriptionInfo.EnabledFeatures = map[string]bool{
 					"clinical": ef.Clinical,
 					"billing":  ef.Billing,

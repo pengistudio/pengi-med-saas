@@ -5,7 +5,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
-	tenant_models "pengi-med-saas/features/tenants/models"
+	company_services "pengi-med-saas/features/companies/services"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -50,13 +50,6 @@ type UpdatePlanRequest struct {
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) (map[string]interface{}, error) {
-	enabledFeatures := tenant_models.EnabledFeatures{
-		Clinical: false,
-		Billing:  false,
-		Team:     false,
-		Kanban:   false,
-	}
-
 	if len(featureCodes) == 0 {
 		return map[string]interface{}{
 			"clinical": false,
@@ -71,25 +64,7 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 		return nil, err
 	}
 
-	categoriesFound := make(map[string]bool)
-	for _, feature := range features {
-		for _, perm := range feature.Permissions {
-			categoriesFound[perm.Category] = true
-		}
-	}
-
-	if categoriesFound["CLINICAL"] {
-		enabledFeatures.Clinical = true
-	}
-	if categoriesFound["BILLING"] {
-		enabledFeatures.Billing = true
-	}
-	if categoriesFound["TEAM"] {
-		enabledFeatures.Team = true
-	}
-	if categoriesFound["KANBAN"] {
-		enabledFeatures.Kanban = true
-	}
+	enabledFeatures := company_services.CalculateEnabledFeaturesFromFeatures(features)
 
 	return map[string]interface{}{
 		"clinical": enabledFeatures.Clinical,
