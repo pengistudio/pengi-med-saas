@@ -68,14 +68,15 @@ func RunSriPipeline(
 		return err
 	}
 
-	if _, err := sriClient.ValidateXMLWithSRI([]byte(finalXML), sriEnv); err != nil {
+	signerEnv := toSignerEnv(sriEnv)
+	if _, err := sriClient.ValidateXMLWithSRI([]byte(finalXML), signerEnv); err != nil {
 		return fmt.Errorf("failed to validate XML with SRI: %w", err)
 	}
 	if err := onStatus(StatusValidated, nil); err != nil {
 		return err
 	}
 
-	authResp, err := sriClient.AuthorizeXMLWithSRI(accessKey, sriEnv)
+	authResp, err := sriClient.AuthorizeXMLWithSRI(accessKey, signerEnv)
 	if err != nil {
 		// SRI may still be processing; leave the document as validated so it can be retried.
 		if strings.Contains(err.Error(), "autorizacion") || strings.Contains(err.Error(), "EN PROCESAMIENTO") {
@@ -96,11 +97,22 @@ func RunSriPipeline(
 	return onStatus(StatusAuthorized, auth)
 }
 
-// ResolveSriEnv reads SRI_ENV ("1" pruebas, "2" producción), defaulting to pruebas.
+// ResolveSriEnv reads SRI_ENV and normalizes it to the SRI ambiente code used in the
+// XML and access key: "1" pruebas, "2" producción. Accepts either the numeric code or
+// the human-readable "test"/"prod" (case-insensitive); anything else defaults to pruebas.
 func ResolveSriEnv() string {
 	sriEnv := os.Getenv("SRI_ENV")
-	if sriEnv == "" {
-		sriEnv = "1"
+	if sriEnv == "2" || strings.EqualFold(sriEnv, "prod") {
+		return "2"
 	}
-	return sriEnv
+	return "1"
+}
+
+// toSignerEnv translates the SRI ambiente code ("1"/"2") into the "test"/"prod" path
+// segment expected by the sri-xml-signer microservice's routes.
+func toSignerEnv(sriEnv string) string {
+	if sriEnv == "2" {
+		return "prod"
+	}
+	return "test"
 }

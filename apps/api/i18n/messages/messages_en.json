@@ -2876,8 +2876,16 @@
         "value": "Unit Price"
     },
     {
+        "key": "billing.invoice.item.discount",
+        "value": "Discount"
+    },
+    {
         "key": "billing.invoice.item.tax",
         "value": "Tax"
+    },
+    {
+        "key": "billing.invoice.item.total",
+        "value": "Total"
     },
     {
         "key": "billing.invoice.subtotal",
@@ -2972,12 +2980,44 @@
         "value": "Electronic Signature"
     },
     {
+        "key": "billing.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "billing.filter.authorized",
+        "value": "Authorized"
+    },
+    {
+        "key": "billing.filter.failed",
+        "value": "Failed"
+    },
+    {
+        "key": "billing.filter.pending",
+        "value": "Pending"
+    },
+    {
         "key": "billing.status.authorized",
         "value": "Authorized"
     },
     {
         "key": "billing.status.draft",
         "value": "Draft"
+    },
+    {
+        "key": "billing.status.failed",
+        "value": "Failed"
+    },
+    {
+        "key": "billing.status.failed.detail.title",
+        "value": "Failure reason"
+    },
+    {
+        "key": "billing.status.failed.detail.unknown",
+        "value": "The SRI rejected the document but no reason was recorded."
+    },
+    {
+        "key": "billing.status.failed.retry",
+        "value": "Retry"
     },
     {
         "key": "billing.status.pending",

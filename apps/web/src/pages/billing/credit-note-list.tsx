@@ -1,7 +1,7 @@
-import { Button, Text } from "@pengi/ui";
+import { Button, Text, ToggleGroup, ToggleGroupItem } from "@pengi/ui";
 import type { Row } from "@tanstack/react-table";
 import { Play, Plus } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
 	type CreditNote,
@@ -14,13 +14,23 @@ import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import {
-	creditNoteColumns,
-	creditNoteColumnsMobile,
+	getCreditNoteColumns,
+	getCreditNoteColumnsMobile,
 } from "@/sections/columns/billing/credit-note-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
+
+const STATUS_FILTERS = [
+	{ value: "all", labelKey: "billing.filter.all" },
+	{
+		value: "pending,processing,signed,validated",
+		labelKey: "billing.filter.pending",
+	},
+	{ value: "failed", labelKey: "billing.filter.failed" },
+	{ value: "authorized", labelKey: "billing.filter.authorized" },
+] as const;
 
 const CreditNoteListPage = () => {
 	const [loading, setLoading] = useState(true);
@@ -30,29 +40,34 @@ const CreditNoteListPage = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [search, setSearch] = useState("");
 	const [searchInput, setSearchInput] = useState("");
+	const [statusFilter, setStatusFilter] = useState("all");
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
 	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
-	const fetchCreditNotes = useCallback(async (p: number, s: string) => {
-		setLoading(true);
-		const res = await getAllCreditNotes({
-			page: p,
-			limit: PAGE_LIMIT,
-			search: s,
-		});
-		if (res.success && res.data) {
-			setCreditNoteList(res.data.items);
-			setTotalPages(res.data.total_pages);
-		}
-		setLoading(false);
-	}, []);
+	const fetchCreditNotes = useCallback(
+		async (p: number, s: string, st: string) => {
+			setLoading(true);
+			const res = await getAllCreditNotes({
+				page: p,
+				limit: PAGE_LIMIT,
+				search: s,
+				status: st === "all" ? undefined : st,
+			});
+			if (res.success && res.data) {
+				setCreditNoteList(res.data.items);
+				setTotalPages(res.data.total_pages);
+			}
+			setLoading(false);
+		},
+		[],
+	);
 
 	useEffect(() => {
-		fetchCreditNotes(page, search);
-	}, [page, search, fetchCreditNotes]);
+		fetchCreditNotes(page, search, statusFilter);
+	}, [page, search, statusFilter, fetchCreditNotes]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -61,6 +76,24 @@ const CreditNoteListPage = () => {
 		}, 400);
 		return () => clearTimeout(timer);
 	}, [searchInput]);
+
+	const handleRetry = useCallback(
+		async (id: number) => {
+			const res = await processCreditNoteSRI(id);
+			if (res.success) {
+				fetchCreditNotes(page, search, statusFilter);
+			}
+		},
+		[page, search, statusFilter, fetchCreditNotes],
+	);
+
+	const columns = useMemo(
+		() =>
+			isMobile
+				? getCreditNoteColumnsMobile(handleRetry)
+				: getCreditNoteColumns(handleRetry),
+		[isMobile, handleRetry],
+	);
 
 	return (
 		<DashboardLayout>
@@ -94,12 +127,32 @@ const CreditNoteListPage = () => {
 						)}
 						searchValue={searchInput}
 						onSearchChange={setSearchInput}
-						columns={isMobile ? creditNoteColumnsMobile : creditNoteColumns}
+						toolbarRight={
+							<ToggleGroup
+								value={[statusFilter]}
+								onValueChange={(value) => {
+									setStatusFilter(value[0] ?? "all");
+									setPage(1);
+								}}
+							>
+								{STATUS_FILTERS.map((filter) => (
+									<ToggleGroupItem key={filter.value} value={filter.value}>
+										<Text uuid={filter.labelKey} />
+									</ToggleGroupItem>
+								))}
+							</ToggleGroup>
+						}
+						columns={columns}
 						data={creditNoteList}
 						loading={loading}
 						pageCount={totalPages}
 						page={page}
 						onPageChange={setPage}
+						rowClassName={(row) =>
+							row.original.status === "failed"
+								? "bg-destructive/5 hover:bg-destructive/10"
+								: ""
+						}
 					/>
 				</div>
 			</main>
@@ -114,7 +167,7 @@ const CreditNoteListPage = () => {
 			await processCreditNoteSRI(row.original.ID);
 		}
 		setProcessing(false);
-		fetchCreditNotes(page, search);
+		fetchCreditNotes(page, search, statusFilter);
 	}
 };
 

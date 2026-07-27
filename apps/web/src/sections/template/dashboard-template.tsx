@@ -261,7 +261,9 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 									>
 										{textGet("dashboard.dropdown.profile")}
 									</DropdownMenuItem>
-									<DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => (window.location.href = "/settings")}
+									>
 										{textGet("dashboard.dropdown.settings")}
 									</DropdownMenuItem>
 								</DropdownMenuGroup>

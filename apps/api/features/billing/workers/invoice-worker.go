@@ -68,6 +68,16 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 			return err
 		}
 
+		fail := func(err error) error {
+			invoice.Status = billing_models.InvoiceStatusFailed
+			msg := err.Error()
+			invoice.ErrorMessage = &msg
+			if saveErr := db.Save(&invoice).Error; saveErr != nil {
+				logger.Error("Failed to persist invoice failure status", zap.Uint("invoice_id", invoice.ID), zap.Error(saveErr))
+			}
+			return err
+		}
+
 		invoice.Status = billing_models.InvoiceStatusProcessing
 		if err := db.Save(&invoice).Error; err != nil {
 			logger.Error("Failed to update invoice status to processing", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
@@ -78,18 +88,18 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		var tenant tenant_models.Tenant
 		if err := db.Unscoped().First(&tenant, invoice.TenantID).Error; err != nil {
 			logger.Error("Failed to find Tenant for invoice", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		if tenant.SriP12Path == "" || tenant.SriPassword == "" {
 			logger.Error("Tenant missing SRI Signature configuration", zap.Uint("tenant_id", tenant.ID))
-			return fmt.Errorf("missing SRI setup for tenant %d", tenant.ID)
+			return fail(fmt.Errorf("missing SRI setup for tenant %d", tenant.ID))
 		}
 
 		// 2. Fetch dependencies
 		var items []billing_models.InvoiceItem
 		if err := db.Unscoped().Where("invoice_id = ?", invoice.ID).Find(&items).Error; err != nil {
-			return err
+			return fail(err)
 		}
 		invoice.Items = items
 
@@ -98,7 +108,7 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		for _, item := range items {
 			var product billing_models.CatalogItem
 			if err := db.Unscoped().First(&product, item.ProductID).Error; err != nil {
-				return err
+				return fail(err)
 			}
 			product.UnitPrice = item.UnitPrice
 			// product.Discount = item.Discount (no longer part of CatalogItem schema)
@@ -120,19 +130,19 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		sriInvoice, accessCode, err := sri_services.GenerateInvoice(invoice, products, tenant, establishmentCode, emissionCode, address, sriEnv)
 		if err != nil {
 			logger.Error("Failed to generate SRI parameters", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		invoice.AccessKey = &accessCode
 		if err := db.Save(&invoice).Error; err != nil {
 			logger.Error("Failed to persist invoice access key", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		sriXML, err := sri_services.GenerateInvoiceXml(*sriInvoice)
 		if err != nil {
 			logger.Error("Failed to generate XML structure", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		// 4. Sign, validate & authorize (shared pipeline, agnostic to document type)
@@ -173,7 +183,7 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		)
 		if err != nil {
 			logger.Error("Failed to run SRI pipeline for invoice", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		logger.Info("Invoice successfully processed by SRI", zap.Uint64("id", uint64(invoice.ID)))

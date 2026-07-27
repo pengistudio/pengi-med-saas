@@ -41,6 +41,16 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 			return err
 		}
 
+		fail := func(err error) error {
+			creditNote.Status = billing_models.InvoiceStatusFailed
+			msg := err.Error()
+			creditNote.ErrorMessage = &msg
+			if saveErr := db.Save(&creditNote).Error; saveErr != nil {
+				logger.Error("Failed to persist credit note failure status", zap.Uint("credit_note_id", creditNote.ID), zap.Error(saveErr))
+			}
+			return err
+		}
+
 		creditNote.Status = billing_models.InvoiceStatusProcessing
 		if err := db.Save(&creditNote).Error; err != nil {
 			logger.Error("Failed to update credit note status to processing", zap.Uint("credit_note_id", creditNote.ID), zap.Error(err))
@@ -51,18 +61,18 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 		var tenant tenant_models.Tenant
 		if err := db.Unscoped().First(&tenant, creditNote.TenantID).Error; err != nil {
 			logger.Error("Failed to find Tenant for credit note", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		if tenant.SriP12Path == "" || tenant.SriPassword == "" {
 			logger.Error("Tenant missing SRI Signature configuration", zap.Uint("tenant_id", tenant.ID))
-			return fmt.Errorf("missing SRI setup for tenant %d", tenant.ID)
+			return fail(fmt.Errorf("missing SRI setup for tenant %d", tenant.ID))
 		}
 
 		// 2. Fetch dependencies
 		var items []billing_models.CreditNoteItem
 		if err := db.Unscoped().Where("credit_note_id = ?", creditNote.ID).Find(&items).Error; err != nil {
-			return err
+			return fail(err)
 		}
 		creditNote.Items = items
 
@@ -70,7 +80,7 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 		for _, item := range items {
 			var product billing_models.CatalogItem
 			if err := db.Unscoped().First(&product, item.ProductID).Error; err != nil {
-				return err
+				return fail(err)
 			}
 			product.UnitPrice = item.UnitPrice
 			product.Tax = item.TaxRate
@@ -90,19 +100,19 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 		creditNoteSRI, accessCode, err := sri_services.GenerateCreditNote(creditNote, products, tenant, establishmentCode, emissionCode, address, sriEnv)
 		if err != nil {
 			logger.Error("Failed to generate SRI parameters", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		creditNote.AccessKey = &accessCode
 		if err := db.Save(&creditNote).Error; err != nil {
 			logger.Error("Failed to persist credit note access key", zap.Uint("credit_note_id", creditNote.ID), zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		sriXML, err := sri_services.GenerateCreditNoteXml(*creditNoteSRI)
 		if err != nil {
 			logger.Error("Failed to generate XML structure", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		// 4. Sign, validate & authorize (shared pipeline, agnostic to document type)
@@ -135,7 +145,7 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 		)
 		if err != nil {
 			logger.Error("Failed to run SRI pipeline for credit note", zap.Uint("credit_note_id", creditNote.ID), zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		logger.Info("Credit note successfully processed by SRI", zap.Uint64("id", uint64(creditNote.ID)))

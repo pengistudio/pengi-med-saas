@@ -39,8 +39,14 @@ import {
 	PAYMENT_LABELS,
 	type TaxPercentageCode,
 } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+
+// SRI forma de pago "01" = Sin utilización del sistema financiero (pago
+// inmediato) — el único caso donde plazo/unidad de tiempo no aplican.
+const CASH_PAYMENT_METHOD = "01";
 
 const invoiceItemSchema = z.object({
+	product_id: z.string().min(1, "validation.required"),
 	description: z.string().min(1, "validation.required"),
 	quantity: z.number().min(1, "validation.min_1"),
 	unit_price: z.number().min(0, "validation.min_0"),
@@ -81,36 +87,17 @@ export function InvoiceForm() {
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoading(true);
 
-		const itemsWatch = values.items;
-		const subTotal = itemsWatch.reduce(
-			(sum, item) => sum + (item.quantity * item.unit_price - item.discount),
-			0,
-		);
-		const totalTax = itemsWatch.reduce((sum, item) => {
-			const rate =
-				IVA_PERCENTAGE_CODES_AS_NUMBER[item.tax_rate as TaxPercentageCode] || 0;
-			return sum + (item.quantity * item.unit_price - item.discount) * rate;
-		}, 0);
-		const total = subTotal + totalTax;
-
+		// Pricing, tax rate and totals are always computed server-side from the
+		// tenant's own catalog — never trust client-supplied numbers for a document
+		// with legal/fiscal effect. Only product_id, quantity and discount travel.
 		const payload = {
 			...values,
 			patient_id: values.patient_id ? parseInt(values.patient_id, 10) : 0,
 			items: values.items.map((item) => ({
-				...item,
-				product_id: 1, // Added default since it does not exist on UI
-				total:
-					item.quantity * item.unit_price -
-					item.discount +
-					(item.quantity * item.unit_price - item.discount) *
-						(IVA_PERCENTAGE_CODES_AS_NUMBER[
-							item.tax_rate as TaxPercentageCode
-						] || 0),
+				product_id: parseInt(item.product_id, 10),
+				quantity: item.quantity,
+				discount: item.discount,
 			})),
-			subtotal: subTotal,
-			discount: itemsWatch.reduce((sum, item) => sum + item.discount, 0),
-			tax_total: totalTax,
-			total: total,
 		};
 
 		try {
@@ -131,6 +118,7 @@ export function InvoiceForm() {
 				patient_id: "",
 				items: [
 					{
+						product_id: undefined,
 						description: undefined,
 						quantity: 1,
 						unit_price: 0,
@@ -183,7 +171,7 @@ function InvoiceFormInner({
 		0,
 	);
 	const discountTotal = (itemsWatch || []).reduce(
-		(sum, item) => sum + item.discount,
+		(sum, item) => sum + (item.discount || 0),
 		0,
 	);
 	const totalTax = (itemsWatch || []).reduce((sum, item) => {
@@ -192,6 +180,16 @@ function InvoiceFormInner({
 		return sum + (item.quantity * item.unit_price - item.discount) * rate;
 	}, 0);
 	const total = subtotal + totalTax;
+
+	const paymentMethod = form.watch("payment_method");
+	const showPaymentTerm = paymentMethod !== CASH_PAYMENT_METHOD;
+
+	useEffect(() => {
+		if (!showPaymentTerm) {
+			form.setValue("time_unit", "dias");
+			form.setValue("term", 0);
+		}
+	}, [showPaymentTerm, form]);
 
 	const handleFinalCustomerChange = (isChecked: boolean) => {
 		setIsFinalCustomer(isChecked);
@@ -280,6 +278,7 @@ function InvoiceFormInner({
 							label={textGet("billing.invoice.patient")}
 							placeholder={textGet("billing.invoice.patient.placeholder")}
 							field={form}
+							disabled={isFinalCustomer}
 							options={patients.map((p) => ({
 								label: `${p.first_name} ${p.last_name} - ${p.document}`,
 								value: p.ID.toString(),
@@ -287,6 +286,7 @@ function InvoiceFormInner({
 						/>
 						<Button
 							type="button"
+							disabled={isFinalCustomer}
 							onClick={() => navigate("/clinical/patients/create")}
 						>
 							<Plus className="mr-2 h-4 w-4" />
@@ -294,7 +294,12 @@ function InvoiceFormInner({
 						</Button>
 					</div>
 
-					<div className="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4">
+					<div
+						className={cn(
+							"grid gap-4 mt-4 grid-cols-1",
+							showPaymentTerm && "md:grid-cols-3",
+						)}
+					>
 						<FormSelect
 							field={form}
 							name="payment_method"
@@ -304,20 +309,24 @@ function InvoiceFormInner({
 								"billing.invoice.payment.method.placeholder",
 							)}
 						/>
-						<FormSelect
-							name="time_unit"
-							label={textGet("billing.invoice.time.unit")}
-							field={form}
-							options={renderTimeUnits()}
-							placeholder={textGet("billing.invoice.time.unit.placeholder")}
-						/>
-						<FormInput
-							name="term"
-							label={textGet("billing.invoice.term")}
-							field={form}
-							type="number"
-							placeholder={textGet("billing.invoice.term.placeholder")}
-						/>
+						{showPaymentTerm && (
+							<>
+								<FormSelect
+									name="time_unit"
+									label={textGet("billing.invoice.time.unit")}
+									field={form}
+									options={renderTimeUnits()}
+									placeholder={textGet("billing.invoice.time.unit.placeholder")}
+								/>
+								<FormInput
+									name="term"
+									label={textGet("billing.invoice.term")}
+									field={form}
+									type="number"
+									placeholder={textGet("billing.invoice.term.placeholder")}
+								/>
+							</>
+						)}
 					</div>
 				</CardContent>
 			</Card>
@@ -332,13 +341,17 @@ function InvoiceFormInner({
 							<Text uuid="billing.invoice.items.desc" />
 						</CardDescription>
 					</div>
-					<div>
+					<div className="flex items-center gap-4">
+						<span className="text-sm font-medium whitespace-nowrap">
+							<Text uuid="billing.invoice.total" />: ${total.toFixed(2)}
+						</span>
 						<Button
 							type="button"
 							variant="outline"
 							size="sm"
 							onClick={() =>
 								append({
+									product_id: undefined,
 									description: "",
 									quantity: 1,
 									unit_price: 0,
@@ -354,135 +367,178 @@ function InvoiceFormInner({
 					</div>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					{fields.map((field, index) => (
-						<div
-							key={field.id}
-							className="grid lg:grid-cols-[1fr_3fr_2fr_2fr_1fr] gap-2 items-end border p-4 rounded-md"
-						>
-							<div>
-								<FormInput
-									type="number"
-									field={form}
-									name={`items.${index}.quantity` as const}
-									label={textGet("billing.invoice.item.qty")}
-								/>
-							</div>
-							<div>
-								<Field className="flex flex-col h-full justify-end">
-									<FieldLabel className="mb-2">
-										{textGet("billing.invoice.item.description")}
-									</FieldLabel>
-									<Combobox
-										value={form.watch(`items.${index}.description` as const)}
-										onValueChange={(val) => {
-											if (!val) return;
-											form.setValue(
-												`items.${index}.description` as const,
-												val as string,
-											);
-											setItemInputValues((prev) => {
-												const next = [...prev];
-												next[index] = val as string;
-												return next;
-											});
+					{fields.map((field, index) => {
+						const item = itemsWatch?.[index];
+						const rate = item
+							? IVA_PERCENTAGE_CODES_AS_NUMBER[
+									item.tax_rate as TaxPercentageCode
+								] || 0
+							: 0;
+						const lineBase = item
+							? item.quantity * item.unit_price - item.discount
+							: 0;
+						const lineTotal = lineBase + lineBase * rate;
 
-											const selectedItem = catalogItems.find(
-												(item) => item.name === val,
-											);
-											if (selectedItem) {
+						return (
+							<div
+								key={field.id}
+								className="grid lg:grid-cols-[1fr_3fr_2fr_2fr_2fr_2fr_1fr] gap-2 items-end border p-4 rounded-md"
+							>
+								<div>
+									<FormInput
+										type="number"
+										field={form}
+										name={`items.${index}.quantity` as const}
+										label={textGet("billing.invoice.item.qty")}
+									/>
+								</div>
+								<div>
+									<Field className="flex flex-col h-full justify-end">
+										<FieldLabel className="mb-2">
+											{textGet("billing.invoice.item.description")}
+										</FieldLabel>
+										<Combobox
+											value={form.watch(`items.${index}.description` as const)}
+											onValueChange={(val) => {
+												if (!val) return;
 												form.setValue(
-													`items.${index}.unit_price` as const,
-													selectedItem.unit_price,
+													`items.${index}.description` as const,
+													val as string,
 												);
+												setItemInputValues((prev) => {
+													const next = [...prev];
+													next[index] = val as string;
+													return next;
+												});
+
+												const selectedItem = catalogItems.find(
+													(item) => item.name === val,
+												);
+												if (selectedItem) {
+													form.setValue(
+														`items.${index}.product_id` as const,
+														selectedItem.ID.toString(),
+													);
+													form.setValue(
+														`items.${index}.unit_price` as const,
+														selectedItem.unit_price,
+													);
+													form.setValue(
+														`items.${index}.tax_rate` as const,
+														selectedItem.tax_percentage_code,
+													);
+													form.setValue(
+														`items.${index}.ice_tax` as const,
+														selectedItem.ice_tax,
+													);
+												}
+											}}
+											onInputValueChange={(val) => {
 												form.setValue(
-													`items.${index}.tax_rate` as const,
-													selectedItem.tax_percentage_code,
+													`items.${index}.description` as const,
+													val,
 												);
-												form.setValue(
-													`items.${index}.ice_tax` as const,
-													selectedItem.ice_tax,
-												);
-											}
-										}}
-										onInputValueChange={(val) => {
-											form.setValue(`items.${index}.description` as const, val);
-											setItemInputValues((prev) => {
-												const next = [...prev];
-												next[index] = val;
-												return next;
-											});
-										}}
-										filteredItems={catalogItems
-											.filter((item) => {
-												const q = (itemInputValues[index] ?? "").toLowerCase();
-												return !q || item.name.toLowerCase().includes(q);
-											})
-											.map((item) => item.name)}
+												setItemInputValues((prev) => {
+													const next = [...prev];
+													next[index] = val;
+													return next;
+												});
+											}}
+											filteredItems={catalogItems
+												.filter((item) => {
+													const q = (
+														itemInputValues[index] ?? ""
+													).toLowerCase();
+													return !q || item.name.toLowerCase().includes(q);
+												})
+												.map((item) => item.name)}
+										>
+											<ComboboxInput
+												placeholder={textGet(
+													"billing.invoice.item.combobox.placeholder",
+												)}
+											/>
+											<ComboboxContent>
+												<ComboboxEmpty>
+													{textGet("common.no_results")}
+												</ComboboxEmpty>
+												<ComboboxList>
+													{catalogItems
+														.filter((item) => {
+															const q = (
+																itemInputValues[index] ?? ""
+															).toLowerCase();
+															return !q || item.name.toLowerCase().includes(q);
+														})
+														.map((item) => (
+															<ComboboxItem
+																key={item.ID.toString()}
+																value={item.name}
+															>
+																{item.name}
+															</ComboboxItem>
+														))}
+												</ComboboxList>
+											</ComboboxContent>
+										</Combobox>
+									</Field>
+								</div>
+								<div>
+									<FormInput
+										type="number"
+										step="0.01"
+										field={form}
+										name={`items.${index}.unit_price` as const}
+										label={textGet("billing.invoice.item.price")}
+										disabled
+									/>
+								</div>
+								<div>
+									<FormInput
+										type="number"
+										step="0.01"
+										field={form}
+										name={`items.${index}.discount` as const}
+										label={textGet("billing.invoice.item.discount")}
+									/>
+								</div>
+								<div>
+									<FormSelect
+										field={form}
+										name={`items.${index}.tax_rate` as const}
+										label={textGet("billing.invoice.item.tax")}
+										disabled
+										options={[
+											{ label: "0%", value: "0" },
+											{ label: "12%", value: "2" },
+											{ label: "15%", value: "4" },
+										]}
+									/>
+								</div>
+								<div>
+									<Field className="flex flex-col h-full justify-end">
+										<FieldLabel className="mb-2">
+											{textGet("billing.invoice.item.total")}
+										</FieldLabel>
+										<div className="h-9 flex items-center px-3 text-sm font-medium border rounded-md bg-muted/30">
+											${lineTotal.toFixed(2)}
+										</div>
+									</Field>
+								</div>
+								<div className="flex justify-end pb-2">
+									<Button
+										type="button"
+										variant="destructive"
+										size="icon"
+										onClick={() => remove(index)}
+										disabled={fields.length === 1}
 									>
-										<ComboboxInput
-											placeholder={textGet(
-												"billing.invoice.item.combobox.placeholder",
-											)}
-										/>
-										<ComboboxContent>
-											<ComboboxEmpty>
-												{textGet("common.no_results")}
-											</ComboboxEmpty>
-											<ComboboxList>
-												{catalogItems
-													.filter((item) => {
-														const q = (
-															itemInputValues[index] ?? ""
-														).toLowerCase();
-														return !q || item.name.toLowerCase().includes(q);
-													})
-													.map((item) => (
-														<ComboboxItem
-															key={item.ID.toString()}
-															value={item.name}
-														>
-															{item.name}
-														</ComboboxItem>
-													))}
-											</ComboboxList>
-										</ComboboxContent>
-									</Combobox>
-								</Field>
+										<Trash className="h-4 w-4" />
+									</Button>
+								</div>
 							</div>
-							<div>
-								<FormInput
-									type="number"
-									step="0.01"
-									field={form}
-									name={`items.${index}.unit_price` as const}
-									label={textGet("billing.invoice.item.price")}
-								/>
-							</div>
-							<div>
-								<FormSelect
-									field={form}
-									name={`items.${index}.tax_rate` as const}
-									label={textGet("billing.invoice.item.tax")}
-									options={[
-										{ label: "0%", value: "0" },
-										{ label: "12%", value: "2" },
-										{ label: "15%", value: "4" },
-									]}
-								/>
-							</div>
-							<div className="flex justify-end pb-2">
-								<Button
-									type="button"
-									variant="destructive"
-									size="icon"
-									onClick={() => remove(index)}
-									disabled={fields.length === 1}
-								>
-									<Trash className="h-4 w-4" />
-								</Button>
-							</div>
-						</div>
-					))}
+						);
+					})}
 				</CardContent>
 			</Card>
 

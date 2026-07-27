@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
@@ -73,7 +74,15 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 		}
 
 		qty := float64(itemDTO.Quantity)
-		subtotal := service.UnitPrice * qty // CatalogItem has no discount property
+		grossAmount := service.UnitPrice * qty
+		discount := itemDTO.Discount
+		if discount < 0 {
+			discount = 0
+		}
+		if discount > grossAmount {
+			discount = grossAmount
+		}
+		subtotal := grossAmount - discount
 		taxTotal := subtotal * service.Tax
 		total := subtotal + taxTotal
 
@@ -86,7 +95,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 			Quantity:         qty,
 			Description:      service.Name,
 			UnitPrice:        service.UnitPrice,
-			Discount:         0.0,
+			Discount:         discount,
 			TaxRate:          service.Tax,
 			Subtotal:         subtotal,
 			TaxAmount:        taxTotal,
@@ -100,37 +109,19 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 
 		items = append(items, item)
 		subtotalAcc += subtotal
-		discountAcc += 0.0 // service.Discount
+		discountAcc += discount
 		taxAcc += taxTotal
 		totalAcc += total
 	}
 
 	invoice.Items = items
 
-	// Assign totals
-	if dto.SubTotal != nil {
-		invoice.Subtotal = *dto.SubTotal
-	} else {
-		invoice.Subtotal = subtotalAcc
-	}
-
-	if dto.Discount != nil {
-		invoice.Discount = *dto.Discount
-	} else {
-		invoice.Discount = discountAcc
-	}
-
-	if dto.TaxTotal != nil {
-		invoice.TaxTotal = *dto.TaxTotal
-	} else {
-		invoice.TaxTotal = taxAcc
-	}
-
-	if dto.Total != nil {
-		invoice.Total = *dto.Total
-	} else {
-		invoice.Total = totalAcc
-	}
+	// Totals are always server-computed from the itemized data above — never trust
+	// client-supplied aggregate totals for a document with legal/fiscal effect.
+	invoice.Subtotal = subtotalAcc
+	invoice.Discount = discountAcc
+	invoice.TaxTotal = taxAcc
+	invoice.Total = totalAcc
 
 	// Generate Sequential using GORM transaction to avoid race conditions
 	err := h.db.Scopes(tenantScope).Transaction(func(tx *gorm.DB) error {
@@ -172,6 +163,9 @@ func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 	if search != "" {
 		like := "%" + search + "%"
 		baseQuery = baseQuery.Where("sequential ILIKE ? OR status ILIKE ?", like, like)
+	}
+	if status := c.Query("status"); status != "" {
+		baseQuery = baseQuery.Where("status IN ?", strings.Split(status, ","))
 	}
 
 	var total int64
@@ -221,6 +215,14 @@ func (h *InvoiceHandler) SRIInvoiceProcessing(c *gin.Context) envelope.Response 
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
 	}
 
+	tenantScope := tenant_middleware.TenantScope(c)
+	if err := h.db.Scopes(tenantScope).Model(&billing_models.Invoice{}).
+		Where("id = ?", invoiceID).
+		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
+		h.logger.Error("Failed to mark invoice as pending", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
+	}
+
 	body, err := json.Marshal(&billing_dto.InvoiceDTO{
 		InvoiceID: invoiceID,
 	})
@@ -248,6 +250,14 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 	var idList billing_dto.InvoiceIDListDTO
 	if err := c.ShouldBindJSON(&idList); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_payload", core_errors.ErrBillingInvalidRequest)
+	}
+
+	tenantScope := tenant_middleware.TenantScope(c)
+	if err := h.db.Scopes(tenantScope).Model(&billing_models.Invoice{}).
+		Where("id IN ?", idList.IDList).
+		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
+		h.logger.Error("Failed to mark invoices as pending", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
 	}
 
 	for _, currentID := range idList.IDList {

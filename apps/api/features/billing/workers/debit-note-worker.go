@@ -41,6 +41,16 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 			return err
 		}
 
+		fail := func(err error) error {
+			debitNote.Status = billing_models.InvoiceStatusFailed
+			msg := err.Error()
+			debitNote.ErrorMessage = &msg
+			if saveErr := db.Save(&debitNote).Error; saveErr != nil {
+				logger.Error("Failed to persist debit note failure status", zap.Uint("debit_note_id", debitNote.ID), zap.Error(saveErr))
+			}
+			return err
+		}
+
 		debitNote.Status = billing_models.InvoiceStatusProcessing
 		if err := db.Save(&debitNote).Error; err != nil {
 			logger.Error("Failed to update debit note status to processing", zap.Uint("debit_note_id", debitNote.ID), zap.Error(err))
@@ -51,18 +61,18 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 		var tenant tenant_models.Tenant
 		if err := db.Unscoped().First(&tenant, debitNote.TenantID).Error; err != nil {
 			logger.Error("Failed to find Tenant for debit note", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		if tenant.SriP12Path == "" || tenant.SriPassword == "" {
 			logger.Error("Tenant missing SRI Signature configuration", zap.Uint("tenant_id", tenant.ID))
-			return fmt.Errorf("missing SRI setup for tenant %d", tenant.ID)
+			return fail(fmt.Errorf("missing SRI setup for tenant %d", tenant.ID))
 		}
 
 		// 2. Fetch dependencies
 		var motives []billing_models.DebitNoteMotive
 		if err := db.Unscoped().Where("debit_note_id = ?", debitNote.ID).Find(&motives).Error; err != nil {
-			return err
+			return fail(err)
 		}
 		debitNote.Motives = motives
 
@@ -78,19 +88,19 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 		debitNoteSRI, accessCode, err := sri_services.GenerateDebitNote(debitNote, tenant, establishmentCode, emissionCode, address, sriEnv)
 		if err != nil {
 			logger.Error("Failed to generate SRI parameters", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		debitNote.AccessKey = &accessCode
 		if err := db.Save(&debitNote).Error; err != nil {
 			logger.Error("Failed to persist debit note access key", zap.Uint("debit_note_id", debitNote.ID), zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		sriXML, err := sri_services.GenerateDebitNoteXml(*debitNoteSRI)
 		if err != nil {
 			logger.Error("Failed to generate XML structure", zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		// 4. Sign, validate & authorize (shared pipeline, agnostic to document type)
@@ -123,7 +133,7 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 		)
 		if err != nil {
 			logger.Error("Failed to run SRI pipeline for debit note", zap.Uint("debit_note_id", debitNote.ID), zap.Error(err))
-			return err
+			return fail(err)
 		}
 
 		logger.Info("Debit note successfully processed by SRI", zap.Uint64("id", uint64(debitNote.ID)))

@@ -1,8 +1,9 @@
 package billing_dto
 
 type CreateInvoiceItem struct {
-	ProductID uint `json:"product_id" binding:"required"`
-	Quantity  uint `json:"quantity" binding:"required"`
+	ProductID uint    `json:"product_id" binding:"required"`
+	Quantity  uint    `json:"quantity" binding:"required"`
+	Discount  float64 `json:"discount"`
 }
 
 type CreateInvoiceDTO struct {
@@ -13,10 +14,6 @@ type CreateInvoiceDTO struct {
 	EstablishmentCode string              `json:"establishment_code" binding:"required"`
 	EmissionPointCode string              `json:"emission_point_code" binding:"required"`
 	Items             []CreateInvoiceItem `json:"items" binding:"required,min=1"`
-	SubTotal          *float64            `json:"subtotal,omitempty"`
-	Discount          *float64            `json:"discount,omitempty"`
-	TaxTotal          *float64            `json:"tax_total,omitempty"`
-	Total             *float64            `json:"total,omitempty"`
 }
 
 type InvoiceDTO struct {

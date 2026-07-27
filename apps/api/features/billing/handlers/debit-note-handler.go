@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
@@ -117,6 +118,9 @@ func (h *DebitNoteHandler) GetAllDebitNotes(c *gin.Context) envelope.Response {
 		like := "%" + search + "%"
 		baseQuery = baseQuery.Where("sequential ILIKE ? OR status ILIKE ?", like, like)
 	}
+	if status := c.Query("status"); status != "" {
+		baseQuery = baseQuery.Where("status IN ?", strings.Split(status, ","))
+	}
 
 	var total int64
 	if err := baseQuery.Count(&total).Error; err != nil {
@@ -143,6 +147,14 @@ func (h *DebitNoteHandler) SRIDebitNoteProcessing(c *gin.Context) envelope.Respo
 	debitNoteID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
+	}
+
+	tenantScope := tenant_middleware.TenantScope(c)
+	if err := h.db.Scopes(tenantScope).Model(&billing_models.DebitNote{}).
+		Where("id = ?", debitNoteID).
+		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
+		h.logger.Error("Failed to mark debit note as pending", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
 	}
 
 	body, err := json.Marshal(&billing_dto.DebitNoteDTO{DebitNoteID: debitNoteID})

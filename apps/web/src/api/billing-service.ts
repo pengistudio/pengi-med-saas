@@ -43,6 +43,7 @@ export interface Invoice extends BaseModel {
 	authorization_date?: string;
 	access_key?: string;
 	status: string;
+	error_message?: string;
 	subtotal: number;
 	subtotal_0: number;
 	subtotal_12: number;
@@ -72,6 +73,7 @@ export interface CreditNote extends BaseModel {
 	sequential: string;
 	access_key?: string;
 	status: string;
+	error_message?: string;
 	reason: string;
 	subtotal: number;
 	tax_total: number;
@@ -85,6 +87,7 @@ export type CreateCreditNotePayload = {
 	items: {
 		product_id: number;
 		quantity: number;
+		discount: number;
 	}[];
 };
 
@@ -105,6 +108,7 @@ export interface DebitNote extends BaseModel {
 	sequential: string;
 	access_key?: string;
 	status: string;
+	error_message?: string;
 	subtotal: number;
 	tax_total: number;
 	total: number;
@@ -124,15 +128,13 @@ export type CreateDebitNotePayload = {
 
 export type CreateInvoicePayload = {
 	patient_id: number;
+	payment_method: string;
+	term: number;
+	time_unit: string;
 	items: {
 		product_id: number;
-		description: string;
 		quantity: number;
-		unit_price: number;
 		discount: number;
-		tax_rate: string;
-		ice_tax: number;
-		total: number;
 	}[];
 	establishment_code?: string;
 	emission_point_code?: string;
@@ -157,6 +159,7 @@ export type InvoiceListParams = {
 	page?: number;
 	limit?: number;
 	search?: string;
+	status?: string;
 };
 
 export const getAllInvoices = async (
@@ -166,6 +169,7 @@ export const getAllInvoices = async (
 	if (params.page) qs.set("page", String(params.page));
 	if (params.limit) qs.set("limit", String(params.limit));
 	if (params.search) qs.set("search", params.search);
+	if (params.status) qs.set("status", params.status);
 	const query = qs.toString() ? `?${qs.toString()}` : "";
 	return billingService.get<PaginatedResponse<Invoice>>(
 		`/billing/invoices${query}`,
@@ -230,6 +234,7 @@ export type CreditNoteListParams = {
 	page?: number;
 	limit?: number;
 	search?: string;
+	status?: string;
 };
 
 export const getAllCreditNotes = async (
@@ -239,6 +244,7 @@ export const getAllCreditNotes = async (
 	if (params.page) qs.set("page", String(params.page));
 	if (params.limit) qs.set("limit", String(params.limit));
 	if (params.search) qs.set("search", params.search);
+	if (params.status) qs.set("status", params.status);
 	const query = qs.toString() ? `?${qs.toString()}` : "";
 	return billingService.get<PaginatedResponse<CreditNote>>(
 		`/billing/credit-notes${query}`,
@@ -272,6 +278,7 @@ export type DebitNoteListParams = {
 	page?: number;
 	limit?: number;
 	search?: string;
+	status?: string;
 };
 
 export const getAllDebitNotes = async (
@@ -281,6 +288,7 @@ export const getAllDebitNotes = async (
 	if (params.page) qs.set("page", String(params.page));
 	if (params.limit) qs.set("limit", String(params.limit));
 	if (params.search) qs.set("search", params.search);
+	if (params.status) qs.set("status", params.status);
 	const query = qs.toString() ? `?${qs.toString()}` : "";
 	return billingService.get<PaginatedResponse<DebitNote>>(
 		`/billing/debit-notes${query}`,

@@ -6,4 +6,5 @@ const (
 	InvoiceStatusSigned     = "signed"
 	InvoiceStatusValidated  = "validated"
 	InvoiceStatusAuthorized = "authorized"
+	InvoiceStatusFailed     = "failed"
 )

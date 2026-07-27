@@ -10,15 +10,18 @@ import {
 	AlertDialogTrigger,
 	Button,
 	Text,
+	ToggleGroup,
+	ToggleGroupItem,
 } from "@pengi/ui";
 import type { Row } from "@tanstack/react-table";
 import { Play, Plus, Trash } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import {
 	deleteInvoice,
 	getAllInvoices,
 	type Invoice,
+	processInvoiceSRI,
 	processMultipleInvoicesSRI,
 } from "@/api/billing-service";
 import { DataTable } from "@/components/custom/table/data-table";
@@ -27,13 +30,26 @@ import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import {
-	invoiceColumns,
-	invoiceColumnsMobile,
+	getInvoiceColumns,
+	getInvoiceColumnsMobile,
 } from "@/sections/columns/billing/invoice-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
+const TRANSIENT_STATUSES = ["pending", "processing", "signed", "validated"];
+const POLL_INTERVAL_MS = 4000;
+const POLL_MAX_DURATION_MS = 2 * 60 * 1000;
+
+const STATUS_FILTERS = [
+	{ value: "all", labelKey: "billing.filter.all" },
+	{
+		value: "pending,processing,signed,validated",
+		labelKey: "billing.filter.pending",
+	},
+	{ value: "failed", labelKey: "billing.filter.failed" },
+	{ value: "authorized", labelKey: "billing.filter.authorized" },
+] as const;
 
 const InvoiceListPage = () => {
 	const [loading, setLoading] = useState(true);
@@ -43,25 +59,59 @@ const InvoiceListPage = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [search, setSearch] = useState("");
 	const [searchInput, setSearchInput] = useState("");
+	const [statusFilter, setStatusFilter] = useState("all");
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
 	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
-	const fetchInvoices = useCallback(async (p: number, s: string) => {
-		setLoading(true);
-		const res = await getAllInvoices({ page: p, limit: PAGE_LIMIT, search: s });
-		if (res.success && res.data) {
-			setInvoiceList(res.data.items);
-			setTotalPages(res.data.total_pages);
-		}
-		setLoading(false);
-	}, []);
+	const fetchInvoices = useCallback(
+		async (p: number, s: string, st: string, silent = false) => {
+			if (!silent) setLoading(true);
+			const res = await getAllInvoices({
+				page: p,
+				limit: PAGE_LIMIT,
+				search: s,
+				status: st === "all" ? undefined : st,
+			});
+			if (res.success && res.data) {
+				setInvoiceList(res.data.items);
+				setTotalPages(res.data.total_pages);
+			}
+			if (!silent) setLoading(false);
+		},
+		[],
+	);
 
 	useEffect(() => {
-		fetchInvoices(page, search);
-	}, [page, search, fetchInvoices]);
+		fetchInvoices(page, search, statusFilter);
+	}, [page, search, statusFilter, fetchInvoices]);
+
+	// Invoice processing is async (RabbitMQ worker). Poll while any row is in a
+	// transient status so the table reflects progress without a manual reload.
+	// pollStartedAtRef tracks the real wall-clock start across re-renders (a plain
+	// local var would reset every time invoiceList changes and the effect re-runs).
+	const pollStartedAtRef = useRef<number | null>(null);
+	useEffect(() => {
+		const hasTransient = invoiceList.some((invoice) =>
+			TRANSIENT_STATUSES.includes(invoice.status),
+		);
+		if (!hasTransient) {
+			pollStartedAtRef.current = null;
+			return;
+		}
+		if (pollStartedAtRef.current === null) {
+			pollStartedAtRef.current = Date.now();
+		}
+		if (Date.now() - pollStartedAtRef.current >= POLL_MAX_DURATION_MS) return;
+
+		const timeout = setTimeout(() => {
+			fetchInvoices(page, search, statusFilter, true);
+		}, POLL_INTERVAL_MS);
+
+		return () => clearTimeout(timeout);
+	}, [invoiceList, page, search, statusFilter, fetchInvoices]);
 
 	// Debounce search
 	useEffect(() => {
@@ -71,6 +121,24 @@ const InvoiceListPage = () => {
 		}, 400);
 		return () => clearTimeout(timer);
 	}, [searchInput]);
+
+	const handleRetry = useCallback(
+		async (id: number) => {
+			const res = await processInvoiceSRI(id);
+			if (res.success) {
+				fetchInvoices(page, search, statusFilter, true);
+			}
+		},
+		[page, search, statusFilter, fetchInvoices],
+	);
+
+	const columns = useMemo(
+		() =>
+			isMobile
+				? getInvoiceColumnsMobile(handleRetry)
+				: getInvoiceColumns(handleRetry),
+		[isMobile, handleRetry],
+	);
 
 	return (
 		<DashboardLayout>
@@ -133,12 +201,32 @@ const InvoiceListPage = () => {
 						searchPlaceholder={textGet("billing.invoice.search.placeholder")}
 						searchValue={searchInput}
 						onSearchChange={setSearchInput}
-						columns={isMobile ? invoiceColumnsMobile : invoiceColumns}
+						toolbarRight={
+							<ToggleGroup
+								value={[statusFilter]}
+								onValueChange={(value) => {
+									setStatusFilter(value[0] ?? "all");
+									setPage(1);
+								}}
+							>
+								{STATUS_FILTERS.map((filter) => (
+									<ToggleGroupItem key={filter.value} value={filter.value}>
+										<Text uuid={filter.labelKey} />
+									</ToggleGroupItem>
+								))}
+							</ToggleGroup>
+						}
+						columns={columns}
 						data={invoiceList}
 						loading={loading}
 						pageCount={totalPages}
 						page={page}
 						onPageChange={setPage}
+						rowClassName={(row) =>
+							row.original.status === "failed"
+								? "bg-destructive/5 hover:bg-destructive/10"
+								: ""
+						}
 					/>
 				</div>
 			</main>
@@ -151,7 +239,7 @@ const InvoiceListPage = () => {
 			const res = await deleteInvoice(row.original.ID);
 			if (!res.success) break;
 		}
-		fetchInvoices(page, search);
+		fetchInvoices(page, search, statusFilter);
 	}
 
 	async function handleProcessSelected() {
@@ -163,7 +251,7 @@ const InvoiceListPage = () => {
 		setProcessing(false);
 
 		if (res.success) {
-			fetchInvoices(page, search);
+			fetchInvoices(page, search, statusFilter);
 		}
 	}
 };

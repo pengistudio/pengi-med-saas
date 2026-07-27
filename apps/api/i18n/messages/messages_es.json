@@ -2876,8 +2876,16 @@
         "value": "Precio U."
     },
     {
+        "key": "billing.invoice.item.discount",
+        "value": "Descuento"
+    },
+    {
         "key": "billing.invoice.item.tax",
         "value": "Impuesto"
+    },
+    {
+        "key": "billing.invoice.item.total",
+        "value": "Total"
     },
     {
         "key": "billing.invoice.subtotal",
@@ -2972,12 +2980,44 @@
         "value": "Firma Electrónica"
     },
     {
+        "key": "billing.filter.all",
+        "value": "Todas"
+    },
+    {
+        "key": "billing.filter.authorized",
+        "value": "Autorizadas"
+    },
+    {
+        "key": "billing.filter.failed",
+        "value": "Fallidas"
+    },
+    {
+        "key": "billing.filter.pending",
+        "value": "Pendientes"
+    },
+    {
         "key": "billing.status.authorized",
         "value": "Autorizado"
     },
     {
         "key": "billing.status.draft",
         "value": "Borrador"
+    },
+    {
+        "key": "billing.status.failed",
+        "value": "Fallido"
+    },
+    {
+        "key": "billing.status.failed.detail.title",
+        "value": "Motivo del fallo"
+    },
+    {
+        "key": "billing.status.failed.detail.unknown",
+        "value": "El SRI rechazó el documento pero no se registró el motivo."
+    },
+    {
+        "key": "billing.status.failed.retry",
+        "value": "Reintentar"
     },
     {
         "key": "billing.status.pending",

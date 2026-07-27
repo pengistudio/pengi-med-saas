@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, Text } from "@pengi/ui";
+import { Text } from "@pengi/ui";
 import { InvoiceForm } from "@/sections/forms/billing/invoice-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
@@ -12,16 +12,7 @@ const CreateInvoicePage = () => {
 					</h1>
 				</div>
 				<div className="w-full">
-					<Card>
-						<CardHeader>
-							<CardTitle>
-								<Text uuid="billing.invoice.create.description" />
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<InvoiceForm />
-						</CardContent>
-					</Card>
+					<InvoiceForm />
 				</div>
 			</main>
 		</DashboardLayout>

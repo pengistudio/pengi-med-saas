@@ -29,7 +29,8 @@ type Invoice struct {
 	PaymentMethod     string                  `json:"payment_method"`
 	Term              string                  `json:"term"`
 	TimeUnit          string                  `json:"time_unit"`
-	Status            string                  `gorm:"type:varchar(20);default:'draft'" json:"status"` // "draft", "signed", "sent", "authorized", "rejected"
+	Status            string                  `gorm:"type:varchar(20);default:'draft'" json:"status"` // "draft", "pending", "processing", "signed", "validated", "authorized", "failed"
+	ErrorMessage      *string                 `json:"error_message"`
 	Items             []InvoiceItem           `gorm:"foreignKey:InvoiceID" json:"items"`
 	CompanyID         uint                    `json:"company_id"` // Optional if you need it, or can be replaced by Tenant logic
 	EstablishmentCode string                  `json:"establishment_code"`

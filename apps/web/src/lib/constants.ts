@@ -69,10 +69,10 @@ export const IVA_PERCENTAGE_CODES_AS_NUMBER: Record<TaxPercentageCode, number> =
 export const PAYMENT_LABELS: Record<string, string> = {
 	"01": "Sin utilización del sistema financiero",
 	"15": "Compensación de deudas",
-	"16": "Tarjeta prepago",
-	"17": "Tarjeta de débito",
-	"18": "Tarjeta de crédito",
-	"19": "Dinero electrónico",
+	"16": "Tarjeta de débito",
+	"17": "Dinero electrónico",
+	"18": "Tarjeta prepago",
+	"19": "Tarjeta de crédito",
 	"20": "Otros con utilización del sistema financiero",
 	"21": "Endoso de títulos",
 };

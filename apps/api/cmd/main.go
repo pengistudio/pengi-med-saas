@@ -55,15 +55,38 @@ func main() {
 	logger.Log.Info("message cache initialized")
 
 	// Initialize RabbitMQ
+	// rabbitChannel is reserved for publishing from HTTP handlers (see "invoice_channel"
+	// below). Each background consumer gets its own dedicated channel — amqp.Channel is
+	// not safe for concurrent use, and declaring the next queue on the same channel while
+	// a previous StartConsumer goroutine is still finishing its Consume() handshake races
+	// and closes the channel with a 503 "unexpected command received".
 	rabbitConn, rabbitChannel, err := rabbitmq.StartRabbitMQWithChannel()
 	if err != nil {
 		logger.Log.Warn("RabbitMQ failed to start. Queues will be unavailable.", zap.Error(err))
 	} else {
 		defer rabbitConn.Close()
 		defer rabbitChannel.Close()
-		billing_workers.InitInvoiceBroker(rabbitChannel, DB_CONNECTION, logger.Log)
-		billing_workers.InitCreditNoteBroker(rabbitChannel, DB_CONNECTION, logger.Log)
-		billing_workers.InitDebitNoteBroker(rabbitChannel, DB_CONNECTION, logger.Log)
+
+		if invoiceChannel, err := rabbitmq.GetChannelMQ(rabbitConn); err != nil {
+			logger.Log.Warn("Failed to open invoice channel, invoice signer won't start", zap.Error(err))
+		} else {
+			defer invoiceChannel.Close()
+			billing_workers.InitInvoiceBroker(invoiceChannel, DB_CONNECTION, logger.Log)
+		}
+
+		if creditNoteChannel, err := rabbitmq.GetChannelMQ(rabbitConn); err != nil {
+			logger.Log.Warn("Failed to open credit note channel, credit note signer won't start", zap.Error(err))
+		} else {
+			defer creditNoteChannel.Close()
+			billing_workers.InitCreditNoteBroker(creditNoteChannel, DB_CONNECTION, logger.Log)
+		}
+
+		if debitNoteChannel, err := rabbitmq.GetChannelMQ(rabbitConn); err != nil {
+			logger.Log.Warn("Failed to open debit note channel, debit note signer won't start", zap.Error(err))
+		} else {
+			defer debitNoteChannel.Close()
+			billing_workers.InitDebitNoteBroker(debitNoteChannel, DB_CONNECTION, logger.Log)
+		}
 	}
 
 	// Initialize archive scheduler

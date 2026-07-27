@@ -5,6 +5,8 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	Field,
+	FieldLabel,
 	FormInput,
 	FormSelect,
 	Text,
@@ -117,7 +119,7 @@ function DebitNoteFormInner({
 		form.watch("motives");
 
 	const subtotal = (motivesWatch || []).reduce(
-		(sum, motive) => sum + motive.value,
+		(sum, motive) => sum + (motive.value || 0),
 		0,
 	);
 	const totalTax = (motivesWatch || []).reduce((sum, motive) => {
@@ -170,7 +172,10 @@ function DebitNoteFormInner({
 							<Text uuid="billing.debit_note.motives" />
 						</CardTitle>
 					</div>
-					<div>
+					<div className="flex items-center gap-4">
+						<span className="text-sm font-medium whitespace-nowrap">
+							<Text uuid="billing.invoice.total" />: ${total.toFixed(2)}
+						</span>
 						<Button
 							type="button"
 							variant="outline"
@@ -185,51 +190,72 @@ function DebitNoteFormInner({
 					</div>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					{fields.map((field, index) => (
-						<div
-							key={field.id}
-							className="grid lg:grid-cols-[3fr_2fr_2fr_1fr] gap-2 items-end border p-4 rounded-md"
-						>
-							<div>
-								<FormInput
-									field={form}
-									name={`motives.${index}.reason` as const}
-									label={textGet("billing.debit_note.motive.reason")}
-									placeholder={textGet(
-										"billing.debit_note.motive.reason.placeholder",
-									)}
-								/>
+					{fields.map((field, index) => {
+						const motive = motivesWatch?.[index];
+						const rate = motive
+							? IVA_PERCENTAGE_CODES_AS_NUMBER[
+									motive.tax_percentage_code as TaxPercentageCode
+								] || 0
+							: 0;
+						const motiveValue = motive?.value || 0;
+						const lineTotal = motiveValue + motiveValue * rate;
+
+						return (
+							<div
+								key={field.id}
+								className="grid lg:grid-cols-[3fr_2fr_2fr_2fr_1fr] gap-2 items-end border p-4 rounded-md"
+							>
+								<div>
+									<FormInput
+										field={form}
+										name={`motives.${index}.reason` as const}
+										label={textGet("billing.debit_note.motive.reason")}
+										placeholder={textGet(
+											"billing.debit_note.motive.reason.placeholder",
+										)}
+									/>
+								</div>
+								<div>
+									<FormInput
+										type="number"
+										step="0.01"
+										field={form}
+										name={`motives.${index}.value` as const}
+										label={textGet("billing.debit_note.motive.value")}
+									/>
+								</div>
+								<div>
+									<FormSelect
+										field={form}
+										name={`motives.${index}.tax_percentage_code` as const}
+										label={textGet("billing.debit_note.motive.tax")}
+										options={taxOptions}
+									/>
+								</div>
+								<div>
+									<Field className="flex flex-col h-full justify-end">
+										<FieldLabel className="mb-2">
+											{textGet("billing.invoice.item.total")}
+										</FieldLabel>
+										<div className="h-9 flex items-center px-3 text-sm font-medium border rounded-md bg-muted/30">
+											${lineTotal.toFixed(2)}
+										</div>
+									</Field>
+								</div>
+								<div className="flex justify-end pb-2">
+									<Button
+										type="button"
+										variant="destructive"
+										size="icon"
+										onClick={() => remove(index)}
+										disabled={fields.length === 1}
+									>
+										<Trash className="h-4 w-4" />
+									</Button>
+								</div>
 							</div>
-							<div>
-								<FormInput
-									type="number"
-									step="0.01"
-									field={form}
-									name={`motives.${index}.value` as const}
-									label={textGet("billing.debit_note.motive.value")}
-								/>
-							</div>
-							<div>
-								<FormSelect
-									field={form}
-									name={`motives.${index}.tax_percentage_code` as const}
-									label={textGet("billing.debit_note.motive.tax")}
-									options={taxOptions}
-								/>
-							</div>
-							<div className="flex justify-end pb-2">
-								<Button
-									type="button"
-									variant="destructive"
-									size="icon"
-									onClick={() => remove(index)}
-									disabled={fields.length === 1}
-								>
-									<Trash className="h-4 w-4" />
-								</Button>
-							</div>
-						</div>
-					))}
+						);
+					})}
 				</CardContent>
 			</Card>
 

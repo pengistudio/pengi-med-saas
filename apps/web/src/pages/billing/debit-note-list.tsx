@@ -1,7 +1,7 @@
-import { Button, Text } from "@pengi/ui";
+import { Button, Text, ToggleGroup, ToggleGroupItem } from "@pengi/ui";
 import type { Row } from "@tanstack/react-table";
 import { Play, Plus } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
 	type DebitNote,
@@ -14,13 +14,23 @@ import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import {
-	debitNoteColumns,
-	debitNoteColumnsMobile,
+	getDebitNoteColumns,
+	getDebitNoteColumnsMobile,
 } from "@/sections/columns/billing/debit-note-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
+
+const STATUS_FILTERS = [
+	{ value: "all", labelKey: "billing.filter.all" },
+	{
+		value: "pending,processing,signed,validated",
+		labelKey: "billing.filter.pending",
+	},
+	{ value: "failed", labelKey: "billing.filter.failed" },
+	{ value: "authorized", labelKey: "billing.filter.authorized" },
+] as const;
 
 const DebitNoteListPage = () => {
 	const [loading, setLoading] = useState(true);
@@ -30,29 +40,34 @@ const DebitNoteListPage = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [search, setSearch] = useState("");
 	const [searchInput, setSearchInput] = useState("");
+	const [statusFilter, setStatusFilter] = useState("all");
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
 	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
-	const fetchDebitNotes = useCallback(async (p: number, s: string) => {
-		setLoading(true);
-		const res = await getAllDebitNotes({
-			page: p,
-			limit: PAGE_LIMIT,
-			search: s,
-		});
-		if (res.success && res.data) {
-			setDebitNoteList(res.data.items);
-			setTotalPages(res.data.total_pages);
-		}
-		setLoading(false);
-	}, []);
+	const fetchDebitNotes = useCallback(
+		async (p: number, s: string, st: string) => {
+			setLoading(true);
+			const res = await getAllDebitNotes({
+				page: p,
+				limit: PAGE_LIMIT,
+				search: s,
+				status: st === "all" ? undefined : st,
+			});
+			if (res.success && res.data) {
+				setDebitNoteList(res.data.items);
+				setTotalPages(res.data.total_pages);
+			}
+			setLoading(false);
+		},
+		[],
+	);
 
 	useEffect(() => {
-		fetchDebitNotes(page, search);
-	}, [page, search, fetchDebitNotes]);
+		fetchDebitNotes(page, search, statusFilter);
+	}, [page, search, statusFilter, fetchDebitNotes]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -61,6 +76,24 @@ const DebitNoteListPage = () => {
 		}, 400);
 		return () => clearTimeout(timer);
 	}, [searchInput]);
+
+	const handleRetry = useCallback(
+		async (id: number) => {
+			const res = await processDebitNoteSRI(id);
+			if (res.success) {
+				fetchDebitNotes(page, search, statusFilter);
+			}
+		},
+		[page, search, statusFilter, fetchDebitNotes],
+	);
+
+	const columns = useMemo(
+		() =>
+			isMobile
+				? getDebitNoteColumnsMobile(handleRetry)
+				: getDebitNoteColumns(handleRetry),
+		[isMobile, handleRetry],
+	);
 
 	return (
 		<DashboardLayout>
@@ -92,12 +125,32 @@ const DebitNoteListPage = () => {
 						searchPlaceholder={textGet("billing.debit_note.search.placeholder")}
 						searchValue={searchInput}
 						onSearchChange={setSearchInput}
-						columns={isMobile ? debitNoteColumnsMobile : debitNoteColumns}
+						toolbarRight={
+							<ToggleGroup
+								value={[statusFilter]}
+								onValueChange={(value) => {
+									setStatusFilter(value[0] ?? "all");
+									setPage(1);
+								}}
+							>
+								{STATUS_FILTERS.map((filter) => (
+									<ToggleGroupItem key={filter.value} value={filter.value}>
+										<Text uuid={filter.labelKey} />
+									</ToggleGroupItem>
+								))}
+							</ToggleGroup>
+						}
+						columns={columns}
 						data={debitNoteList}
 						loading={loading}
 						pageCount={totalPages}
 						page={page}
 						onPageChange={setPage}
+						rowClassName={(row) =>
+							row.original.status === "failed"
+								? "bg-destructive/5 hover:bg-destructive/10"
+								: ""
+						}
 					/>
 				</div>
 			</main>
@@ -112,7 +165,7 @@ const DebitNoteListPage = () => {
 			await processDebitNoteSRI(row.original.ID);
 		}
 		setProcessing(false);
-		fetchDebitNotes(page, search);
+		fetchDebitNotes(page, search, statusFilter);
 	}
 };
 
