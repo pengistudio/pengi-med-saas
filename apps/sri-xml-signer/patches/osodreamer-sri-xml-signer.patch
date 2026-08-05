@@ -1,0 +1,66 @@
+diff --git a/dist/index.js b/dist/index.js
+index 42007fa90fcf3cf4e5e42707800629750e9d6a3d..da33432896b6ee7809ebe026f9dcd8b29624b44f 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -514,7 +514,7 @@ var SignedInfoBuilder = class {
+     return [
+       `<ds:SignedInfo ${XMLNS_ATTRIBUTE} Id="Signature-SignedInfo${ids.signedInfoNumber}">`,
+       `
+-<ds:CanonicalizationMethod Algorithm="${"http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /* XML_C14N_20010315 */}">`,
++<ds:CanonicalizationMethod Algorithm="${"http://www.w3.org/2001/10/xml-exc-c14n#" /* XML_EXC_C14N */}">`,
+       "</ds:CanonicalizationMethod>",
+       `
+ <ds:SignatureMethod Algorithm="${"http://www.w3.org/2000/09/xmldsig#rsa-sha1" /* RSA_SHA1 */}">`,
+@@ -542,6 +542,9 @@ var SignedInfoBuilder = class {
+       "\n<ds:Transforms>",
+       `
+ <ds:Transform Algorithm="${"http://www.w3.org/2000/09/xmldsig#enveloped-signature" /* ENVELOPED_SIGNATURE */}">`,
++      "</ds:Transform>",
++      `
++<ds:Transform Algorithm="${"http://www.w3.org/2001/10/xml-exc-c14n#" /* XML_EXC_C14N */}">`,
+       "</ds:Transform>",
+       "\n</ds:Transforms>",
+       `
+@@ -708,7 +711,8 @@ var XadesSignatureService = class {
+       sha1_certificado,
+       sha1_comprobante: digestXml
+     });
+-    const signatureValue = this.signer.signSha1RsaBase64(SignedInfo);
++    const canonicalizedSignedInfo = await this.canonicalizer.canonicalize(SignedInfo);
++    const signatureValue = this.signer.signSha1RsaBase64(canonicalizedSignedInfo);
+     const xadesBes = new XadesDocumentAssembler().build({
+       ids,
+       SignedInfo,
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 76b895b129cd06a0b7b1d165d24c9ec486ad8366..82f76ae01447650f149ec4d5c24c8dd0fa7bad00 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -451,7 +451,7 @@ var SignedInfoBuilder = class {
+     return [
+       `<ds:SignedInfo ${XMLNS_ATTRIBUTE} Id="Signature-SignedInfo${ids.signedInfoNumber}">`,
+       `
+-<ds:CanonicalizationMethod Algorithm="${"http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /* XML_C14N_20010315 */}">`,
++<ds:CanonicalizationMethod Algorithm="${"http://www.w3.org/2001/10/xml-exc-c14n#" /* XML_EXC_C14N */}">`,
+       "</ds:CanonicalizationMethod>",
+       `
+ <ds:SignatureMethod Algorithm="${"http://www.w3.org/2000/09/xmldsig#rsa-sha1" /* RSA_SHA1 */}">`,
+@@ -479,6 +479,9 @@ var SignedInfoBuilder = class {
+       "\n<ds:Transforms>",
+       `
+ <ds:Transform Algorithm="${"http://www.w3.org/2000/09/xmldsig#enveloped-signature" /* ENVELOPED_SIGNATURE */}">`,
++      "</ds:Transform>",
++      `
++<ds:Transform Algorithm="${"http://www.w3.org/2001/10/xml-exc-c14n#" /* XML_EXC_C14N */}">`,
+       "</ds:Transform>",
+       "\n</ds:Transforms>",
+       `
+@@ -645,7 +648,8 @@ var XadesSignatureService = class {
+       sha1_certificado,
+       sha1_comprobante: digestXml
+     });
+-    const signatureValue = this.signer.signSha1RsaBase64(SignedInfo);
++    const canonicalizedSignedInfo = await this.canonicalizer.canonicalize(SignedInfo);
++    const signatureValue = this.signer.signSha1RsaBase64(canonicalizedSignedInfo);
+     const xadesBes = new XadesDocumentAssembler().build({
+       ids,
+       SignedInfo,

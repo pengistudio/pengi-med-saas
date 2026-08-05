@@ -125,7 +125,7 @@ func reorderDetails(invoice Invoice, services []CatalogItem) invoiceSRI.Details 
 
 			Code:           item.TaxCode,
 			CodePercentage: item.TaxPercentage,
-			Tariff:         fmt.Sprintf("%.2f", item.TaxRate),
+			Tariff:         fmt.Sprintf("%.2f", item.TaxRate*100),
 			TaxableBase:    fmt.Sprintf("%.2f", item.Subtotal),
 			Value:          fmt.Sprintf("%.2f", item.Subtotal*item.TaxRate),
 		})
@@ -133,7 +133,7 @@ func reorderDetails(invoice Invoice, services []CatalogItem) invoiceSRI.Details 
 		iceTax := invoiceSRI.Tax{
 			Code:           item.IceTaxCode,
 			CodePercentage: item.IceTaxPercentage,
-			Tariff:         fmt.Sprintf("%.2f", item.IceTax),
+			Tariff:         fmt.Sprintf("%.2f", item.IceTax*100),
 			TaxableBase:    fmt.Sprintf("%.2f", item.Subtotal),
 			Value:          fmt.Sprintf("%.2f", item.Subtotal*item.IceTax),
 		}
@@ -199,7 +199,7 @@ func reorderInvoiceInfo(invoice Invoice, tenantObj tenant.Tenant, establishmentA
 			key := taxKey{Code: item.TaxCode, PercentageCode: item.TaxPercentage}
 			if _, exists := groupedTaxes[key]; !exists {
 				// Init if not exists
-				rateStr := fmt.Sprintf("%.2f", item.TaxRate)
+				rateStr := fmt.Sprintf("%.2f", item.TaxRate*100)
 				groupedTaxes[key] = &invoiceSRI.TotalWithTax{
 					Code:               item.TaxCode,
 					PercentageCode:     item.TaxPercentage,
@@ -227,7 +227,7 @@ func reorderInvoiceInfo(invoice Invoice, tenantObj tenant.Tenant, establishmentA
 			key := taxKey{Code: item.IceTaxCode, PercentageCode: item.IceTaxPercentage}
 			if _, exists := groupedTaxes[key]; !exists {
 				// Init if not exists
-				rateStr := fmt.Sprintf("%.2f", item.IceTax)
+				rateStr := fmt.Sprintf("%.2f", item.IceTax*100)
 				groupedTaxes[key] = &invoiceSRI.TotalWithTax{
 					Code:               item.IceTaxCode,
 					PercentageCode:     item.IceTaxPercentage,

@@ -237,6 +237,7 @@ const INVOICE_STATUS_STYLES: Record<string, { className: string }> = {
 	pending: { className: "bg-amber-500/10 text-amber-600" },
 	processing: { className: "bg-blue-500/10 text-blue-600" },
 	signed: { className: "bg-blue-500/10 text-blue-600" },
+	connection_error: { className: "bg-orange-500/10 text-orange-600" },
 };
 
 function InvoiceStatusBadge({ status }: { status: string }) {

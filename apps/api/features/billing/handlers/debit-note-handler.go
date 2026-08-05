@@ -150,8 +150,15 @@ func (h *DebitNoteHandler) SRIDebitNoteProcessing(c *gin.Context) envelope.Respo
 	}
 
 	tenantScope := tenant_middleware.TenantScope(c)
-	if err := h.db.Scopes(tenantScope).Model(&billing_models.DebitNote{}).
-		Where("id = ?", debitNoteID).
+	var debitNote billing_models.DebitNote
+	if err := h.db.Scopes(tenantScope).First(&debitNote, debitNoteID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
+	}
+	if debitNote.Status == billing_models.InvoiceStatusAuthorized {
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.already_authorized", core_errors.ErrBillingInvalidRequest)
+	}
+
+	if err := h.db.Scopes(tenantScope).Model(&debitNote).
 		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
 		h.logger.Error("Failed to mark debit note as pending", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)

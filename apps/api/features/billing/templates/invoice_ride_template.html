@@ -70,7 +70,7 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             padding: 8px 12px;
-            width: 65mm;
+            width: 85mm;
             text-align: center;
         }
 
@@ -85,10 +85,10 @@
             margin-top: 4px;
         }
 
-        .doc-box .qr {
+        .doc-box .barcode {
             margin: 6px auto 0;
-            width: 25mm;
-            height: 25mm;
+            width: 75mm;
+            height: 15mm;
         }
 
         .section-title {
@@ -171,7 +171,7 @@
                 <p>Ambiente: {{.Environment}}</p>
                 <p>Fecha Autorización:<br>{{.AuthorizationDate}}</p>
                 <p class="access-key">Clave de Acceso:<br>{{.AccessKey}}</p>
-                <img class="qr" src="data:image/png;base64,{{.QRCodeBase64}}" alt="QR" />
+                <img class="barcode" src="data:image/png;base64,{{.BarcodeBase64}}" alt="Barcode" />
             </div>
         </div>
 

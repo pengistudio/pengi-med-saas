@@ -51,7 +51,26 @@ export function InvoiceStatusBadge({
 			);
 		case "failed":
 			return (
-				<FailedStatusBadge errorMessage={errorMessage} onRetry={onRetry} />
+				<RetryableStatusBadge
+					badgeClassName="cursor-pointer"
+					badgeVariant="destructive"
+					statusKey="billing.status.failed"
+					detailTitleKey="billing.status.failed.detail.title"
+					detailUnknownKey="billing.status.failed.detail.unknown"
+					errorMessage={errorMessage}
+					onRetry={onRetry}
+				/>
+			);
+		case "connection_error":
+			return (
+				<RetryableStatusBadge
+					badgeClassName="cursor-pointer bg-amber-500 hover:bg-amber-600 text-white"
+					statusKey="billing.status.connection_error"
+					detailTitleKey="billing.status.connection_error.detail.title"
+					detailUnknownKey="billing.status.connection_error.detail.unknown"
+					errorMessage={errorMessage}
+					onRetry={onRetry}
+				/>
 			);
 		default:
 			return (
@@ -62,10 +81,24 @@ export function InvoiceStatusBadge({
 	}
 }
 
-function FailedStatusBadge({
+interface RetryableStatusBadgeProps
+	extends Pick<InvoiceStatusBadgeProps, "errorMessage" | "onRetry"> {
+	badgeClassName: string;
+	badgeVariant?: "destructive";
+	statusKey: string;
+	detailTitleKey: string;
+	detailUnknownKey: string;
+}
+
+function RetryableStatusBadge({
+	badgeClassName,
+	badgeVariant,
+	statusKey,
+	detailTitleKey,
+	detailUnknownKey,
 	errorMessage,
 	onRetry,
-}: Pick<InvoiceStatusBadgeProps, "errorMessage" | "onRetry">) {
+}: RetryableStatusBadgeProps) {
 	const { textGet } = useText();
 	const [retrying, setRetrying] = useState(false);
 
@@ -81,17 +114,17 @@ function FailedStatusBadge({
 			<Popover>
 				<PopoverTrigger
 					render={
-						<Badge variant="destructive" className="cursor-pointer">
-							<Text uuid="billing.status.failed" />
+						<Badge variant={badgeVariant} className={badgeClassName}>
+							<Text uuid={statusKey} />
 						</Badge>
 					}
 				/>
 				<PopoverContent>
 					<PopoverTitle>
-						<Text uuid="billing.status.failed.detail.title" />
+						<Text uuid={detailTitleKey} />
 					</PopoverTitle>
 					<p className="text-muted-foreground whitespace-pre-wrap break-words">
-						{errorMessage ?? textGet("billing.status.failed.detail.unknown")}
+						{errorMessage ?? textGet(detailUnknownKey)}
 					</p>
 				</PopoverContent>
 			</Popover>
@@ -101,7 +134,7 @@ function FailedStatusBadge({
 					variant="ghost"
 					disabled={retrying}
 					onClick={handleRetry}
-					title={textGet("billing.status.failed.retry")}
+					title={textGet("billing.status.retry")}
 				>
 					{retrying ? (
 						<Loader2 className="h-3.5 w-3.5 animate-spin" />

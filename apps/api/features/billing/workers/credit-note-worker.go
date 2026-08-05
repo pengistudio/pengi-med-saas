@@ -2,6 +2,7 @@ package billing_workers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
@@ -44,9 +45,18 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 		fail := func(err error) error {
 			creditNote.Status = billing_models.InvoiceStatusFailed
 			msg := err.Error()
+			if errors.Is(err, sri_services.ErrSriConnection) {
+				creditNote.Status = billing_models.InvoiceStatusConnectionError
+				msg = "No se pudo conectar con el SRI. Es un problema temporal del servicio, no de la nota de crédito — puedes reintentar en unos minutos."
+			}
 			creditNote.ErrorMessage = &msg
 			if saveErr := db.Save(&creditNote).Error; saveErr != nil {
 				logger.Error("Failed to persist credit note failure status", zap.Uint("credit_note_id", creditNote.ID), zap.Error(saveErr))
+			}
+			if creditNote.AccessKey != nil {
+				if rmErr := sri_services.RemoveStoredXml(creditNote.TenantID, "credit-notes", *creditNote.AccessKey); rmErr != nil {
+					logger.Error("Failed to remove orphaned SRI XML after failure", zap.Uint("credit_note_id", creditNote.ID), zap.Error(rmErr))
+				}
 			}
 			return err
 		}
@@ -94,6 +104,11 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 		}
 
 		// 3. Generate XML
+		if creditNote.AccessKey != nil {
+			if rmErr := sri_services.RemoveStoredXml(creditNote.TenantID, "credit-notes", *creditNote.AccessKey); rmErr != nil {
+				logger.Error("Failed to remove previous SRI XML before reprocessing", zap.Uint("credit_note_id", creditNote.ID), zap.Error(rmErr))
+			}
+		}
 		establishmentCode := creditNote.EstablishmentCode
 		emissionCode := creditNote.EmissionPointCode
 		sriEnv := sri_services.ResolveSriEnv()

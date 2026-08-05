@@ -63,7 +63,7 @@ func reorderDebitNoteInfo(debitNote billing_models.DebitNote, tenantObj tenant.T
 			groupedTaxes[key] = &invoiceSRI.Tax{
 				Code:           motive.TaxCode,
 				CodePercentage: motive.TaxPercentageCode,
-				Tariff:         fmt.Sprintf("%.2f", motive.TaxRate),
+				Tariff:         fmt.Sprintf("%.2f", motive.TaxRate*100),
 				TaxableBase:    "0.00",
 				Value:          "0.00",
 			}

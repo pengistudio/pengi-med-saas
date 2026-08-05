@@ -3080,6 +3080,10 @@
         "value": "Autorizadas"
     },
     {
+        "key": "billing.filter.connection_error",
+        "value": "Conexión SRI"
+    },
+    {
         "key": "billing.filter.failed",
         "value": "Fallidas"
     },
@@ -3109,6 +3113,22 @@
     },
     {
         "key": "billing.status.failed.retry",
+        "value": "Reintentar"
+    },
+    {
+        "key": "billing.status.connection_error",
+        "value": "Sin conexión SRI"
+    },
+    {
+        "key": "billing.status.connection_error.detail.title",
+        "value": "Problema de conexión"
+    },
+    {
+        "key": "billing.status.connection_error.detail.unknown",
+        "value": "No se pudo conectar con el SRI. Es un problema temporal del servicio, no del documento."
+    },
+    {
+        "key": "billing.status.retry",
         "value": "Reintentar"
     },
     {

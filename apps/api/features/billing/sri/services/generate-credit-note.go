@@ -38,7 +38,7 @@ func reorderCreditNoteDetails(items []billing_models.CreditNoteItem, services []
 		tax = append(tax, invoiceSRI.Tax{
 			Code:           item.TaxCode,
 			CodePercentage: item.TaxPercentage,
-			Tariff:         fmt.Sprintf("%.2f", item.TaxRate),
+			Tariff:         fmt.Sprintf("%.2f", item.TaxRate*100),
 			TaxableBase:    fmt.Sprintf("%.2f", item.Subtotal),
 			Value:          fmt.Sprintf("%.2f", item.Subtotal*item.TaxRate),
 		})
@@ -46,7 +46,7 @@ func reorderCreditNoteDetails(items []billing_models.CreditNoteItem, services []
 		iceTax := invoiceSRI.Tax{
 			Code:           item.IceTaxCode,
 			CodePercentage: item.IceTaxPercentage,
-			Tariff:         fmt.Sprintf("%.2f", item.IceTax),
+			Tariff:         fmt.Sprintf("%.2f", item.IceTax*100),
 			TaxableBase:    fmt.Sprintf("%.2f", item.Subtotal),
 			Value:          fmt.Sprintf("%.2f", item.Subtotal*item.IceTax),
 		}
@@ -94,7 +94,7 @@ func reorderCreditNoteInfo(creditNote billing_models.CreditNote, tenantObj tenan
 		if item.TaxCode != "" && item.TaxPercentage != "" {
 			key := taxKey{Code: item.TaxCode, PercentageCode: item.TaxPercentage}
 			if _, exists := groupedTaxes[key]; !exists {
-				rateStr := fmt.Sprintf("%.2f", item.TaxRate)
+				rateStr := fmt.Sprintf("%.2f", item.TaxRate*100)
 				groupedTaxes[key] = &invoiceSRI.TotalWithTax{
 					Code:               item.TaxCode,
 					PercentageCode:     item.TaxPercentage,
@@ -116,7 +116,7 @@ func reorderCreditNoteInfo(creditNote billing_models.CreditNote, tenantObj tenan
 		if item.IceTaxCode != "" && item.IceTaxCode != "3000" && item.IceTaxPercentage != "" {
 			key := taxKey{Code: item.IceTaxCode, PercentageCode: item.IceTaxPercentage}
 			if _, exists := groupedTaxes[key]; !exists {
-				rateStr := fmt.Sprintf("%.2f", item.IceTax)
+				rateStr := fmt.Sprintf("%.2f", item.IceTax*100)
 				groupedTaxes[key] = &invoiceSRI.TotalWithTax{
 					Code:               item.IceTaxCode,
 					PercentageCode:     item.IceTaxPercentage,

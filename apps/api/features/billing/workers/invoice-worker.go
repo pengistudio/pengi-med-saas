@@ -2,6 +2,7 @@ package billing_workers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -71,9 +72,18 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		fail := func(err error) error {
 			invoice.Status = billing_models.InvoiceStatusFailed
 			msg := err.Error()
+			if errors.Is(err, sri_services.ErrSriConnection) {
+				invoice.Status = billing_models.InvoiceStatusConnectionError
+				msg = "No se pudo conectar con el SRI. Es un problema temporal del servicio, no de la factura — puedes reintentar en unos minutos."
+			}
 			invoice.ErrorMessage = &msg
 			if saveErr := db.Save(&invoice).Error; saveErr != nil {
 				logger.Error("Failed to persist invoice failure status", zap.Uint("invoice_id", invoice.ID), zap.Error(saveErr))
+			}
+			if invoice.AccessKey != nil {
+				if rmErr := sri_services.RemoveStoredXml(invoice.TenantID, "invoices", *invoice.AccessKey); rmErr != nil {
+					logger.Error("Failed to remove orphaned SRI XML after failure", zap.Uint("invoice_id", invoice.ID), zap.Error(rmErr))
+				}
 			}
 			return err
 		}
@@ -124,6 +134,11 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 		}
 
 		// 3. Generate XML
+		if invoice.AccessKey != nil {
+			if rmErr := sri_services.RemoveStoredXml(invoice.TenantID, "invoices", *invoice.AccessKey); rmErr != nil {
+				logger.Error("Failed to remove previous SRI XML before reprocessing", zap.Uint("invoice_id", invoice.ID), zap.Error(rmErr))
+			}
+		}
 		establishmentCode := invoice.EstablishmentCode
 		emissionCode := invoice.EmissionPointCode
 		sriEnv := sri_services.ResolveSriEnv()

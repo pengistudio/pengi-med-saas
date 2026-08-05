@@ -2,6 +2,7 @@ package billing_workers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
@@ -44,9 +45,18 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 		fail := func(err error) error {
 			debitNote.Status = billing_models.InvoiceStatusFailed
 			msg := err.Error()
+			if errors.Is(err, sri_services.ErrSriConnection) {
+				debitNote.Status = billing_models.InvoiceStatusConnectionError
+				msg = "No se pudo conectar con el SRI. Es un problema temporal del servicio, no de la nota de débito — puedes reintentar en unos minutos."
+			}
 			debitNote.ErrorMessage = &msg
 			if saveErr := db.Save(&debitNote).Error; saveErr != nil {
 				logger.Error("Failed to persist debit note failure status", zap.Uint("debit_note_id", debitNote.ID), zap.Error(saveErr))
+			}
+			if debitNote.AccessKey != nil {
+				if rmErr := sri_services.RemoveStoredXml(debitNote.TenantID, "debit-notes", *debitNote.AccessKey); rmErr != nil {
+					logger.Error("Failed to remove orphaned SRI XML after failure", zap.Uint("debit_note_id", debitNote.ID), zap.Error(rmErr))
+				}
 			}
 			return err
 		}
@@ -82,6 +92,11 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 		}
 
 		// 3. Generate XML
+		if debitNote.AccessKey != nil {
+			if rmErr := sri_services.RemoveStoredXml(debitNote.TenantID, "debit-notes", *debitNote.AccessKey); rmErr != nil {
+				logger.Error("Failed to remove previous SRI XML before reprocessing", zap.Uint("debit_note_id", debitNote.ID), zap.Error(rmErr))
+			}
+		}
 		establishmentCode := debitNote.EstablishmentCode
 		emissionCode := debitNote.EmissionPointCode
 		sriEnv := sri_services.ResolveSriEnv()

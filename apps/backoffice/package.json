@@ -15,6 +15,7 @@
 		"@base-ui/react": "catalog:",
 		"@hookform/resolvers": "catalog:",
 		"@pengi/ui": "workspace:*",
+		"@tailwindcss/node": "catalog:",
 		"@tailwindcss/vite": "catalog:",
 		"@tanstack/react-table": "catalog:",
 		"axios": "catalog:",

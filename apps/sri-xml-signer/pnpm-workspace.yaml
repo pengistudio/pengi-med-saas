@@ -1,3 +1,6 @@
 allowBuilds:
   esbuild: true
   osodreamer-sri-xml-signer: true
+
+patchedDependencies:
+  osodreamer-sri-xml-signer: patches/osodreamer-sri-xml-signer.patch

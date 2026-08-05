@@ -11,6 +11,7 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/utils"
 	company_models "pengi-med-saas/features/companies/models"
+	company_services "pengi-med-saas/features/companies/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -341,54 +342,8 @@ func (h *CompanyPaymentHandler) ConfirmPayment(c *gin.Context) envelope.Response
 	}
 
 	var sub company_models.Subscription
-	if err := h.db.First(&sub, payment.SubscriptionID).Error; err == nil {
-		isUpgrade := payment.Months == 0 && payment.TargetPlanCode != "" && payment.TargetPlanCode != sub.PlanCode
-
-		if isUpgrade {
-			// Upgrade proration paid — apply plan immediately, no period extension
-			sub.PlanCode = payment.TargetPlanCode
-			sub.Status = "active"
-			sub.NextPlanCode = ""
-			sub.PlanChangeAt = nil
-			h.db.Model(&company).Update("plan_code", payment.TargetPlanCode)
-			h.db.Save(&sub)
-			h.logger.Info("Upgrade confirmed, plan applied immediately",
-				zap.Uint("subscription_id", sub.ID),
-				zap.String("plan_code", payment.TargetPlanCode))
-		} else {
-			months := payment.Months
-			if months <= 0 {
-				months = 1
-			}
-
-			isActivePlanChange := payment.TargetPlanCode != "" &&
-				payment.TargetPlanCode != sub.PlanCode &&
-				sub.ExpiresAt.After(time.Now())
-
-			if isActivePlanChange {
-				// Active subscription with plan change — defer features to period end
-				planChangeAt := sub.ExpiresAt
-				sub.ExpiresAt = planChangeAt.AddDate(0, months, 0)
-				sub.NextPlanCode = payment.TargetPlanCode
-				sub.PlanChangeAt = &planChangeAt
-			} else {
-				sub.ExpiresAt = sub.ExpiresAt.AddDate(0, months, 0)
-				if payment.TargetPlanCode != "" && payment.TargetPlanCode != sub.PlanCode {
-					sub.PlanCode = payment.TargetPlanCode
-					sub.NextPlanCode = ""
-					sub.PlanChangeAt = nil
-					h.db.Model(&company).Update("plan_code", payment.TargetPlanCode)
-				}
-			}
-
-			sub.Status = "active"
-			h.db.Save(&sub)
-			h.logger.Info("Subscription renewed",
-				zap.Uint("subscription_id", sub.ID),
-				zap.Int("months", months),
-				zap.Time("new_expires_at", sub.ExpiresAt),
-				zap.Bool("plan_change_deferred", isActivePlanChange))
-		}
+	if err := h.db.Preload("Plan").First(&sub, payment.SubscriptionID).Error; err == nil {
+		company_services.ApplyPaidSubscription(h.db, h.logger, &sub, &company, &payment)
 	}
 
 	return envelope.SuccessResponse(nil, "company.payment.confirm.success")

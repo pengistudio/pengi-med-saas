@@ -91,6 +91,7 @@ services:
     environment:
       - PNPM_HOME=/pnpm/store
       - ALLOWED_ORIGIN=http://pengi-api:8080
+      - CI=true
     volumes:
       - ./apps/sri-xml-signer:/app
       - pnpm_store_sri:/pnpm/store

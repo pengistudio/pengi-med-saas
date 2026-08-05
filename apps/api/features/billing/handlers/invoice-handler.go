@@ -214,8 +214,15 @@ func (h *InvoiceHandler) SRIInvoiceProcessing(c *gin.Context) envelope.Response 
 	}
 
 	tenantScope := tenant_middleware.TenantScope(c)
-	if err := h.db.Scopes(tenantScope).Model(&billing_models.Invoice{}).
-		Where("id = ?", invoiceID).
+	var invoice billing_models.Invoice
+	if err := h.db.Scopes(tenantScope).First(&invoice, invoiceID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
+	}
+	if invoice.Status == billing_models.InvoiceStatusAuthorized {
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.already_authorized", core_errors.ErrBillingInvalidRequest)
+	}
+
+	if err := h.db.Scopes(tenantScope).Model(&invoice).
 		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
 		h.logger.Error("Failed to mark invoice as pending", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
@@ -251,16 +258,33 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 	}
 
 	tenantScope := tenant_middleware.TenantScope(c)
+	var invoicesToProcess []billing_models.Invoice
+	if err := h.db.Scopes(tenantScope).
+		Where("id IN ? AND status != ?", idList.IDList, billing_models.InvoiceStatusAuthorized).
+		Find(&invoicesToProcess).Error; err != nil {
+		h.logger.Error("Failed to fetch invoices for batch processing", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
+	}
+
+	if len(invoicesToProcess) == 0 {
+		return envelope.SuccessResponse(nil, "billing.invoices.processing.queued")
+	}
+
+	var validIDs []uint
+	for _, inv := range invoicesToProcess {
+		validIDs = append(validIDs, inv.ID)
+	}
+
 	if err := h.db.Scopes(tenantScope).Model(&billing_models.Invoice{}).
-		Where("id IN ?", idList.IDList).
+		Where("id IN ?", validIDs).
 		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
 		h.logger.Error("Failed to mark invoices as pending", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
 	}
 
-	for _, currentID := range idList.IDList {
+	for _, currentID := range validIDs {
 		body, err := json.Marshal(&billing_dto.InvoiceDTO{
-			InvoiceID: currentID,
+			InvoiceID: uint64(currentID),
 		})
 		if err != nil {
 			h.logger.Error("Failed to marshal InvoiceDTO", zap.Error(err))
@@ -303,8 +327,15 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 	tenantIDVal, _ := c.Get("tenant_id")
 	pdfPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantIDVal), "invoices", fmt.Sprintf("%s.pdf", *invoice.AccessKey))
 
-	pdfBytes, err := os.ReadFile(pdfPath)
-	if err != nil {
+	force := c.Query("force") == "true"
+	var errFile error
+	var pdfBytes []byte
+
+	if !force {
+		pdfBytes, errFile = os.ReadFile(pdfPath)
+	}
+
+	if force || errFile != nil {
 		var tenant tenant_models.Tenant
 		if err := h.db.First(&tenant, tenantIDVal).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
@@ -314,12 +345,17 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 		if address == "" {
 			address = "Dirección no provista"
 		}
-		pdfBytes, err = sri_services.GenerateInvoiceRide(invoice, tenant, address, sri_services.ResolveSriEnv())
-		if err != nil {
-			h.logger.Error("Failed to generate RIDE on demand", zap.Uint64("invoice_id", invoiceID), zap.Error(err))
+		pdfBytes, errFile = sri_services.GenerateInvoiceRide(invoice, tenant, address, sri_services.ResolveSriEnv())
+		if errFile != nil {
+			h.logger.Error("Failed to generate RIDE on demand", zap.Uint64("invoice_id", invoiceID), zap.Error(errFile))
 			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
 			return
 		}
+
+		// Save the newly generated RIDE to cache
+		destDir := filepath.Dir(pdfPath)
+		_ = os.MkdirAll(destDir, os.ModePerm)
+		_ = os.WriteFile(pdfPath, pdfBytes, 0644)
 	}
 
 	fileName := fmt.Sprintf("factura_%s-%s-%s.pdf", invoice.EstablishmentCode, invoice.EmissionPointCode, invoice.Sequential)

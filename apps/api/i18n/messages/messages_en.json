@@ -3080,6 +3080,10 @@
         "value": "Authorized"
     },
     {
+        "key": "billing.filter.connection_error",
+        "value": "SRI Connection"
+    },
+    {
         "key": "billing.filter.failed",
         "value": "Failed"
     },
@@ -3109,6 +3113,22 @@
     },
     {
         "key": "billing.status.failed.retry",
+        "value": "Retry"
+    },
+    {
+        "key": "billing.status.connection_error",
+        "value": "SRI unreachable"
+    },
+    {
+        "key": "billing.status.connection_error.detail.title",
+        "value": "Connection problem"
+    },
+    {
+        "key": "billing.status.connection_error.detail.unknown",
+        "value": "Could not connect to the SRI. This is a temporary service issue, not a problem with the document."
+    },
+    {
+        "key": "billing.status.retry",
         "value": "Retry"
     },
     {

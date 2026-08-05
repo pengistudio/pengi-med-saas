@@ -47,7 +47,7 @@ type InvoiceRideTemplateData struct {
 	AuthorizationDate string
 	IssueDate         string
 	Sequential        string
-	QRCodeBase64      string
+	BarcodeBase64     string
 
 	// Receptor
 	BuyerName           string
@@ -69,7 +69,7 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		return InvoiceRideTemplateData{}, fmt.Errorf("invoice %d has no access key yet", invoice.ID)
 	}
 
-	qrBase64, err := GenerateQRCodeBase64(*invoice.AccessKey)
+	bcBase64, err := GenerateBarcodeBase64(*invoice.AccessKey)
 	if err != nil {
 		return InvoiceRideTemplateData{}, err
 	}
@@ -150,7 +150,7 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		AuthorizationDate:    authDate,
 		IssueDate:            invoice.IssueDate.Format("02/01/2006"),
 		Sequential:           invoice.Sequential,
-		QRCodeBase64:         qrBase64,
+		BarcodeBase64:        bcBase64,
 		BuyerName:            buyerName,
 		BuyerIdentification:  buyerIdentification,
 		Items:                items,

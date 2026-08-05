@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +12,23 @@ import (
 
 	"go.uber.org/zap"
 )
+
+// ErrSriConnection marks an error as a connectivity/infrastructure failure while
+// talking to the sri-xml-signer service or SRI itself (timeout, connection refused,
+// DNS, etc.) rather than a genuine rejection of the document's content. SRI's own
+// rejections always come back with a "[SRI-ERROR]" prefix (from the sri-xml-signer
+// service's structured error handling); anything from these three calls that lacks
+// that prefix is an infrastructure problem, not a fault with the invoice — wrap it
+// with ErrSriConnection so callers (the worker's fail() closures) can distinguish
+// "the document is wrong" from "try again in a bit".
+var ErrSriConnection = errors.New("sri connection error")
+
+func wrapSriError(prefix string, err error) error {
+	if strings.Contains(err.Error(), "[SRI-ERROR]") {
+		return fmt.Errorf("%s: %w", prefix, err)
+	}
+	return fmt.Errorf("%s: %w: %w", prefix, ErrSriConnection, err)
+}
 
 // Shared pipeline states, reused by every SRI document type worker (factura, nota de
 // crédito, nota de débito, ...).
@@ -51,7 +69,7 @@ func RunSriPipeline(
 
 	signResp, err := sriClient.SignXML(p12Buffer, p12Password, []byte(rawXML))
 	if err != nil {
-		return fmt.Errorf("failed to sign XML: %w", err)
+		return wrapSriError("failed to sign XML", err)
 	}
 	finalXML := signResp.XML
 
@@ -70,7 +88,11 @@ func RunSriPipeline(
 
 	signerEnv := toSignerEnv(sriEnv)
 	if _, err := sriClient.ValidateXMLWithSRI([]byte(finalXML), signerEnv); err != nil {
-		return fmt.Errorf("failed to validate XML with SRI: %w", err)
+		if strings.Contains(err.Error(), "ERROR SECUENCIAL REGISTRADO (ID 45)") {
+			logger.Info("Document already registered in SRI, proceeding to authorization", zap.String("access_key", accessKey))
+		} else {
+			return wrapSriError("failed to validate XML with SRI", err)
+		}
 	}
 	if err := onStatus(StatusValidated, nil); err != nil {
 		return err
@@ -83,7 +105,7 @@ func RunSriPipeline(
 			logger.Warn("SRI authorization pending, document left as validated", zap.String("access_key", accessKey), zap.Error(err))
 			return nil
 		}
-		return fmt.Errorf("failed to authorize XML with SRI: %w", err)
+		return wrapSriError("failed to authorize XML with SRI", err)
 	}
 
 	auth := &SriAuthorization{}
@@ -95,6 +117,17 @@ func RunSriPipeline(
 	}
 
 	return onStatus(StatusAuthorized, auth)
+}
+
+// RemoveStoredXml deletes the signed XML previously written by RunSriPipeline for
+// this tenant/document, if present. Safe to call even when no file was ever written
+// (e.g. failures before the sign step) — a missing file is not an error.
+func RemoveStoredXml(tenantID uint, storageFolder string, accessKey string) error {
+	xmlPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantID), storageFolder, fmt.Sprintf("%s.xml", accessKey))
+	if err := os.Remove(xmlPath); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
 }
 
 // ResolveSriEnv reads SRI_ENV and normalizes it to the SRI ambiente code used in the

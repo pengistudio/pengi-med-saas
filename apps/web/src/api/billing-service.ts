@@ -223,8 +223,10 @@ export const processMultipleInvoicesSRI = async (
 
 export const downloadInvoiceRide = async (
 	id: number,
+	force: boolean = false,
 ): Promise<ServiceResponse<Blob>> => {
-	return billingService.get<Blob>(`/billing/invoices/${id}/ride`, {
+	const qs = force ? "?force=true" : "";
+	return billingService.get<Blob>(`/billing/invoices/${id}/ride${qs}`, {
 		responseType: "blob",
 		notifyError: true,
 	});

@@ -53,8 +53,8 @@ func TestBuildInvoiceRideData_AndRenderTemplate(t *testing.T) {
 	if data.AccessKey != accessKey {
 		t.Errorf("expected AccessKey %s, got %s", accessKey, data.AccessKey)
 	}
-	if data.QRCodeBase64 == "" {
-		t.Error("expected non-empty QRCodeBase64")
+	if data.BarcodeBase64 == "" {
+		t.Error("expected non-empty BarcodeBase64")
 	}
 	if len(data.Items) != 1 {
 		t.Fatalf("expected 1 item, got %d", len(data.Items))

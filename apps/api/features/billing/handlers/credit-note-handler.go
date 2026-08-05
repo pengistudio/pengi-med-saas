@@ -183,8 +183,15 @@ func (h *CreditNoteHandler) SRICreditNoteProcessing(c *gin.Context) envelope.Res
 	}
 
 	tenantScope := tenant_middleware.TenantScope(c)
-	if err := h.db.Scopes(tenantScope).Model(&billing_models.CreditNote{}).
-		Where("id = ?", creditNoteID).
+	var creditNote billing_models.CreditNote
+	if err := h.db.Scopes(tenantScope).First(&creditNote, creditNoteID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
+	}
+	if creditNote.Status == billing_models.InvoiceStatusAuthorized {
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.already_authorized", core_errors.ErrBillingInvalidRequest)
+	}
+
+	if err := h.db.Scopes(tenantScope).Model(&creditNote).
 		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
 		h.logger.Error("Failed to mark credit note as pending", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)

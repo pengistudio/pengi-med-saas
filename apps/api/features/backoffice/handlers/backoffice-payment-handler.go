@@ -13,6 +13,7 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/utils"
 	company_models "pengi-med-saas/features/companies/models"
+	company_services "pengi-med-saas/features/companies/services"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -191,18 +192,8 @@ func (h *BackofficePaymentHandler) HandleDlocalWebhook(c *gin.Context) envelope.
 
 	if payload.Status == "PAID" {
 		var sub company_models.Subscription
-		if err := h.db.First(&sub, payment.SubscriptionID).Error; err == nil {
-			months := payment.Months
-			if months <= 0 {
-				months = 1
-			}
-			sub.ExpiresAt = sub.ExpiresAt.AddDate(0, months, 0)
-			sub.Status = "active"
-			h.db.Save(&sub)
-			h.logger.Info("Subscription renewed via dlocal payment",
-				zap.Uint("subscription_id", sub.ID),
-				zap.Int("months", months),
-				zap.Time("new_expires_at", sub.ExpiresAt))
+		if err := h.db.Preload("Plan").Preload("Company").First(&sub, payment.SubscriptionID).Error; err == nil {
+			company_services.ApplyPaidSubscription(h.db, h.logger, &sub, &sub.Company, &payment)
 		}
 	}
 

@@ -15,6 +15,9 @@ catalogs:
     '@hookform/resolvers':
       specifier: ^5.4.3
       version: 5.4.3
+    '@tailwindcss/node':
+      specifier: ^4.3.3
+      version: 4.3.3
     '@tailwindcss/vite':
       specifier: ^4.3.3
       version: 4.3.3
@@ -130,6 +133,9 @@ importers:
       '@pengi/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@tailwindcss/node':
+        specifier: 'catalog:'
+        version: 4.3.3
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.3(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0))
@@ -257,6 +263,9 @@ importers:
       '@pengi/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@tailwindcss/node':
+        specifier: 'catalog:'
+        version: 4.3.3
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.3(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0))

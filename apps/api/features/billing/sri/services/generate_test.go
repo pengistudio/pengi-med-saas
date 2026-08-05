@@ -116,6 +116,59 @@ func TestGenerateInvoice_ProducesValidAccessKeyAndXml(t *testing.T) {
 	}
 }
 
+// Regression test: TaxRate/IceTax are stored as fractions (0.15 for 15%)
+// throughout this codebase's tax math, but SRI's <tarifa> field expects the
+// percentage number (15.00), not the fraction — sending "0.15" makes SRI
+// reject the document with "ERROR EN DIFERENCIAS ... La tarifa del impuesto
+// 0.15 no es igual a la parametrizada 15.0".
+func TestGenerateInvoice_TariffIsPercentageNotFraction(t *testing.T) {
+	tenantObj := testTenant()
+	patient := testPatient()
+
+	invoice := billing_models.Invoice{
+		DocumentCode: "01",
+		EmissionType: "1",
+		Sequential:   "000000001",
+		IssueDate:    time.Now(),
+		Patient:      &patient,
+		Subtotal:     80,
+		Total:        92,
+		Items: []billing_models.InvoiceItem{
+			{
+				ProductID:     1,
+				Description:   "Consulta",
+				Quantity:      1,
+				UnitPrice:     80,
+				TaxCode:       "2",
+				TaxPercentage: "4",
+				TaxRate:       0.15,
+				Subtotal:      80,
+			},
+		},
+	}
+
+	products := []CatalogItem{
+		{SKU: "CONS-01", UnitPrice: 80, Tax: 0.15},
+	}
+	products[0].ID = 1
+
+	sriInvoice, _, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1")
+	if err != nil {
+		t.Fatalf("GenerateInvoice failed: %v", err)
+	}
+
+	xmlStr, err := GenerateInvoiceXml(*sriInvoice)
+	if err != nil {
+		t.Fatalf("GenerateInvoiceXml failed: %v", err)
+	}
+	if !strings.Contains(xmlStr, "<tarifa>15.00</tarifa>") {
+		t.Errorf("expected <tarifa>15.00</tarifa> (percentage form), got XML: %s", xmlStr)
+	}
+	if strings.Contains(xmlStr, "<tarifa>0.15</tarifa>") {
+		t.Errorf("tarifa was sent as a raw fraction (0.15) instead of a percentage (15.00)")
+	}
+}
+
 func TestGenerateInvoice_NilPatient_EmitsFinalConsumer(t *testing.T) {
 	tenantObj := testTenant()
 

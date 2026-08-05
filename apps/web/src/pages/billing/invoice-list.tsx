@@ -48,6 +48,10 @@ const STATUS_FILTERS = [
 		labelKey: "billing.filter.pending",
 	},
 	{ value: "failed", labelKey: "billing.filter.failed" },
+	{
+		value: "connection_error",
+		labelKey: "billing.filter.connection_error",
+	},
 	{ value: "authorized", labelKey: "billing.filter.authorized" },
 ] as const;
 
@@ -225,7 +229,9 @@ const InvoiceListPage = () => {
 						rowClassName={(row) =>
 							row.original.status === "failed"
 								? "bg-destructive/5 hover:bg-destructive/10"
-								: ""
+								: row.original.status === "connection_error"
+									? "bg-amber-500/5 hover:bg-amber-500/10"
+									: ""
 						}
 					/>
 				</div>
