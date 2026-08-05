@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/testutils"
-	"go.uber.org/zap"
 )
 
 func TestGetAllInvoices_TenantScope(t *testing.T) {
@@ -62,14 +62,14 @@ func TestGetAllInvoices_TenantScope(t *testing.T) {
 	// Create invoices for each tenant
 	inv1 := &billing_models.Invoice{
 		TenantID:   tenant1.ID,
-		PatientID:  pat1.ID,
+		PatientID:  testutils.Ptr(pat1.ID),
 		Sequential: "INV-001",
 		Status:     "pending",
 		Total:      100.0,
 	}
 	inv2 := &billing_models.Invoice{
 		TenantID:   tenant2.ID,
-		PatientID:  pat2.ID,
+		PatientID:  testutils.Ptr(pat2.ID),
 		Sequential: "INV-002",
 		Status:     "pending",
 		Total:      200.0,
@@ -157,7 +157,7 @@ func TestGetAllInvoices_Pagination(t *testing.T) {
 	for i := 1; i <= 5; i++ {
 		inv := &billing_models.Invoice{
 			TenantID:   tenant.ID,
-			PatientID:  patient.ID,
+			PatientID:  testutils.Ptr(patient.ID),
 			Sequential: fmt.Sprintf("INV-PAG-%03d", i),
 			Status:     "pending",
 			Total:      float64(i * 100),
@@ -233,6 +233,72 @@ func TestGetAllInvoices_Pagination(t *testing.T) {
 		if len(itemsList) != 1 {
 			t.Errorf("page 3: expected 1 invoice, got %d", len(itemsList))
 		}
+	}
+}
+
+func TestCreateInvoice_FinalConsumer_NoPatient(t *testing.T) {
+	db := testutils.SetupTestDB(t,
+		&tenant_models.Tenant{},
+		&clinical_models.Patient{},
+		&billing_models.Invoice{},
+		&billing_models.InvoiceItem{},
+		&billing_models.InvoiceCounter{},
+		&billing_models.CatalogItem{},
+	)
+	logger := zap.NewNop()
+
+	now := time.Now().UnixNano() % 1000000
+	tenant := &tenant_models.Tenant{
+		Name:         "Final Consumer Tenant",
+		Slug:         fmt.Sprintf("inv-fc-%d", now),
+		DisplayToken: fmt.Sprintf("tok-inv-fc-%d", now),
+	}
+	if err := db.Create(tenant).Error; err != nil {
+		t.Fatalf("failed to create test tenant: %v", err)
+	}
+
+	product := &billing_models.CatalogItem{
+		TenantID:  tenant.ID,
+		Name:      "Consulta",
+		SKU:       fmt.Sprintf("CONS-%d", now),
+		UnitPrice: 50.0,
+		Tax:       0.12,
+	}
+	if err := db.Create(product).Error; err != nil {
+		t.Fatalf("failed to create test catalog item: %v", err)
+	}
+
+	handler := NewInvoiceHandler(db, logger)
+
+	payload := billing_dto.CreateInvoiceDTO{
+		// PatientID intentionally omitted — "Consumidor Final" invoice
+		PaymentMethod:     "01",
+		Term:              0,
+		TimeUnit:          "dias",
+		EstablishmentCode: "001",
+		EmissionPointCode: "001",
+		Items: []billing_dto.CreateInvoiceItem{
+			{ProductID: product.ID, Quantity: 1, Discount: 0},
+		},
+	}
+	body, _ := json.Marshal(payload)
+
+	c, _ := testutils.NewGinContext(tenant.ID, 1)
+	c.Request = httptest.NewRequest("POST", "/invoices", bytes.NewReader(body))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	response := handler.CreateInvoice(c)
+
+	if response.Code != 200 {
+		t.Fatalf("expected status 200, got %d (data: %+v)", response.Code, response.Data)
+	}
+
+	var stored billing_models.Invoice
+	if err := db.Where("tenant_id = ?", tenant.ID).First(&stored).Error; err != nil {
+		t.Fatalf("failed to load created invoice: %v", err)
+	}
+	if stored.PatientID != nil {
+		t.Errorf("expected PatientID to be nil for a final-consumer invoice, got %v", *stored.PatientID)
 	}
 }
 

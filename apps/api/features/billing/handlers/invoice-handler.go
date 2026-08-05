@@ -58,9 +58,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 		IssueDate:         time.Now(),
 	}
 
-	if dto.PatientID != nil {
-		invoice.PatientID = *dto.PatientID
-	}
+	invoice.PatientID = dto.PatientID
 
 	// Compute totals based on CatalogItem (products)
 	var items []billing_models.InvoiceItem

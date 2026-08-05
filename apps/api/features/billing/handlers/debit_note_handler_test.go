@@ -53,7 +53,7 @@ func setupDebitNoteTestData(t *testing.T) (*gorm.DB, *tenant_models.Tenant, *bil
 
 	invoice := &billing_models.Invoice{
 		TenantID:          tenant.ID,
-		PatientID:         patient.ID,
+		PatientID:         testutils.Ptr(patient.ID),
 		Sequential:        "000000001",
 		EstablishmentCode: "001",
 		EmissionPointCode: "001",

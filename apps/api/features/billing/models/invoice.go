@@ -12,29 +12,29 @@ import (
 
 type Invoice struct {
 	gorm.Model
-	TenantID          uint                    `gorm:"index" json:"tenant_id"` // Multi-tenant
-	AccessKey         *string                 `gorm:"size:49" json:"access_key"`
-	AuthorizedAt      *time.Time              `json:"authorized_at"` // fechaAutorizacion del SRI; el número de autorización es el mismo AccessKey
-	DocumentCode      string                  `json:"document_code"` // Factura
-	EmissionType      string                  `json:"emission_type"` // "1" Emisión normal (offline)
-	Sequential        string                  `json:"sequential"`    // "000000001"
-	IssueDate         time.Time               `json:"issue_date"`
-	PatientID         uint                    `json:"patient_id"` // FK a Patient
-	Patient           clinical_models.Patient `gorm:"foreignKey:PatientID" json:"patient"`
-	Subtotal          float64                 `json:"subtotal"`
-	Discount          float64                 `json:"discount"`
-	TaxTotal          float64                 `json:"tax_total"`
-	Total             float64                 `json:"total"`
-	Currency          string                  `json:"currency"`
-	PaymentMethod     string                  `json:"payment_method"`
-	Term              string                  `json:"term"`
-	TimeUnit          string                  `json:"time_unit"`
-	Status            string                  `gorm:"type:varchar(20);default:'draft'" json:"status"` // "draft", "pending", "processing", "signed", "validated", "authorized", "failed"
-	ErrorMessage      *string                 `json:"error_message"`
-	Items             []InvoiceItem           `gorm:"foreignKey:InvoiceID" json:"items"`
-	CompanyID         uint                    `json:"company_id"` // Optional if you need it, or can be replaced by Tenant logic
-	EstablishmentCode string                  `json:"establishment_code"`
-	EmissionPointCode string                  `json:"emission_point_code"`
+	TenantID          uint                     `gorm:"index" json:"tenant_id"` // Multi-tenant
+	AccessKey         *string                  `gorm:"size:49" json:"access_key"`
+	AuthorizedAt      *time.Time               `json:"authorized_at"` // fechaAutorizacion del SRI; el número de autorización es el mismo AccessKey
+	DocumentCode      string                   `json:"document_code"` // Factura
+	EmissionType      string                   `json:"emission_type"` // "1" Emisión normal (offline)
+	Sequential        string                   `json:"sequential"`    // "000000001"
+	IssueDate         time.Time                `json:"issue_date"`
+	PatientID         *uint                    `json:"patient_id"` // FK a Patient — nil = Consumidor Final (sin paciente)
+	Patient           *clinical_models.Patient `gorm:"foreignKey:PatientID" json:"patient"`
+	Subtotal          float64                  `json:"subtotal"`
+	Discount          float64                  `json:"discount"`
+	TaxTotal          float64                  `json:"tax_total"`
+	Total             float64                  `json:"total"`
+	Currency          string                   `json:"currency"`
+	PaymentMethod     string                   `json:"payment_method"`
+	Term              string                   `json:"term"`
+	TimeUnit          string                   `json:"time_unit"`
+	Status            string                   `gorm:"type:varchar(20);default:'draft'" json:"status"` // "draft", "pending", "processing", "signed", "validated", "authorized", "failed"
+	ErrorMessage      *string                  `json:"error_message"`
+	Items             []InvoiceItem            `gorm:"foreignKey:InvoiceID" json:"items"`
+	CompanyID         uint                     `json:"company_id"` // Optional if you need it, or can be replaced by Tenant logic
+	EstablishmentCode string                   `json:"establishment_code"`
+	EmissionPointCode string                   `json:"emission_point_code"`
 }
 
 type InvoiceItem struct {

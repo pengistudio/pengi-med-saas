@@ -97,3 +97,9 @@ func NewGinContext(tenantID uint, userID int64) (*gin.Context, *httptest.Respons
 	c.Set("userId", userID)
 	return c, w
 }
+
+// Ptr returns a pointer to the given value. Useful for populating optional
+// (*T) struct fields in tests without an intermediate variable.
+func Ptr[T any](v T) *T {
+	return &v
+}
