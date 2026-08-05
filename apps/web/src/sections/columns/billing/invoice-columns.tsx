@@ -233,7 +233,7 @@ export function getInvoiceColumnsMobile(
 								{invoice.patient ? (
 									`${invoice.patient.first_name} ${invoice.patient.last_name}`
 								) : (
-									<Text uuid="common.unknown" />
+									<Text uuid="billing.invoice.final_consumer" />
 								)}
 							</span>
 							<InvoiceStatusBadge

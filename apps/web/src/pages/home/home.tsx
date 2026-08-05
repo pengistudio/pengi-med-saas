@@ -291,7 +291,7 @@ function RecentInvoicesCard({
 						{invoices.map((invoice) => {
 							const patientName = invoice.patient
 								? `${invoice.patient.first_name} ${invoice.patient.last_name}`
-								: `#${invoice.sequential}`;
+								: textGet("billing.invoice.final_consumer");
 							return (
 								<div
 									key={invoice.ID}

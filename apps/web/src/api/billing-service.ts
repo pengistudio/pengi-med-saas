@@ -35,8 +35,8 @@ export interface InvoiceItem {
 
 export interface Invoice extends BaseModel {
 	tenant_id: number;
-	patient_id: number;
-	patient?: Patient;
+	patient_id: number | null;
+	patient?: Patient | null;
 	establishment_code: string;
 	emission_point_code: string;
 	sequential: string;
@@ -127,7 +127,7 @@ export type CreateDebitNotePayload = {
 };
 
 export type CreateInvoicePayload = {
-	patient_id: number;
+	patient_id?: number | null;
 	payment_method: string;
 	term: number;
 	time_unit: string;

@@ -92,7 +92,7 @@ export function InvoiceForm() {
 		// with legal/fiscal effect. Only product_id, quantity and discount travel.
 		const payload = {
 			...values,
-			patient_id: values.patient_id ? parseInt(values.patient_id, 10) : 0,
+			patient_id: values.patient_id ? parseInt(values.patient_id, 10) : null,
 			items: values.items.map((item) => ({
 				product_id: parseInt(item.product_id, 10),
 				quantity: item.quantity,
