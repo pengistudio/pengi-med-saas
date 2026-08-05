@@ -3,9 +3,9 @@ import {
 	type ComprobanteModel,
 	generateXmlInvoice,
 	type SRIEnv,
-	signXml,
 	validateXml,
 } from "osodreamer-sri-xml-signer";
+import { signXades } from "./xades-signer/sign";
 
 export type SignParams = {
 	p12Buffer: Uint8Array;
@@ -27,7 +27,9 @@ export const signerService = {
 	generate: (payload: ComprobanteModel) => generateXmlInvoice(payload),
 
 	sign: ({ p12Buffer, xmlBuffer, password }: SignParams) =>
-		signXml({ p12Buffer, xmlBuffer, password }),
+		Promise.resolve(
+			signXades(Buffer.from(xmlBuffer).toString("utf8"), Buffer.from(p12Buffer), password),
+		),
 
 	validate: ({ xmlBuffer, env }: ValidateParams) =>
 		validateXml({ xml: xmlBuffer, env }),
