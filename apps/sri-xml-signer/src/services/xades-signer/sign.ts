@@ -23,6 +23,21 @@ function rsaSha1Sign(canonicalSignedInfo: string, privateKeyPem: string): string
 	return algorithm.getSignature(canonicalSignedInfo, privateKeyPem) as string;
 }
 
+// SRI comprobantes (factura/notaCredito/notaDebito) always declare
+// id="comprobante" on the root element — the <ds:Reference URI="#comprobante">
+// built by buildSignedInfo() depends on it. Without this check, XML missing
+// that id silently produces a structurally broken signature (a Reference
+// pointing at nothing) that would only surface as an opaque failure at SRI.
+function assertSignableRoot(xmlToSign: string): void {
+	const doc = new DOMParser().parseFromString(xmlToSign, "text/xml");
+	const root = doc.documentElement;
+	if (!root || root.getAttribute("id") !== "comprobante") {
+		throw new Error(
+			`signXades: root element must have id="comprobante" (got ${root ? `id="${root.getAttribute("id")}"` : "no root element"}) — SRI comprobantes (factura/notaCredito/notaDebito) always declare this`,
+		);
+	}
+}
+
 /**
  * Sign an SRI comprobante XML (factura/notaCredito/notaDebito) with XAdES-BES,
  * using xml-crypto's canonicalization and RSA-SHA1 primitives for every
@@ -30,6 +45,7 @@ function rsaSha1Sign(canonicalSignedInfo: string, privateKeyPem: string): string
  * hand-rolled canonicalizer produced digests xmlsec1 rejects.
  */
 export function signXades(xmlToSign: string, p12Buffer: Buffer, password: string): string {
+	assertSignableRoot(xmlToSign);
 	const cert = extractCertificateData(p12Buffer, password);
 	const ids = generateSignatureIds();
 
@@ -79,5 +95,12 @@ export function signXades(xmlToSign: string, p12Buffer: Buffer, password: string
 	}
 	const imported = originalDoc.importNode(signatureNode, true);
 	originalDoc.documentElement.appendChild(imported);
+	// Known limitation: if xmlToSign contains a literal `&#xD;` char reference,
+	// @xmldom/xmldom's serializer emits a raw CR byte here instead of preserving
+	// the entity — a spec-compliant parser normalizes that to LF on re-parse,
+	// causing a digest mismatch on verification. canonicalizeFragment() (used
+	// for the digests above) preserves it correctly; this is a serializer-only
+	// gap. Not realistic for SRI's own generated XML (no invoice field contains
+	// a CR char reference), so left as-is rather than working around it here.
 	return new XMLSerializer().serializeToString(originalDoc);
 }

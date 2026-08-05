@@ -150,7 +150,6 @@ export function extractCertificateData(p12Buffer: Buffer, password: string): Cer
 	// structures is deliberate, not a shortcut; forge.pki.Certificate and
 	// forge.jsbn.BigInteger (used below) are the well-typed, stable parts of
 	// the surface and keep their real types.
-	const p12Asn1 = forge.asn1.fromDer(forge.util.createBuffer(p12Buffer.toString("binary")));
 	// biome-ignore lint/suspicious/noExplicitAny: forge's PKCS12 bag types are unreliable across @types/node-forge versions
 	let p12: any;
 	try {
@@ -158,6 +157,7 @@ export function extractCertificateData(p12Buffer: Buffer, password: string): Cer
 		// narrow `p12` to forge's real PKCS12 return type) — that narrowed
 		// type has an unreliable/inconsistent shape across @types/node-forge
 		// versions and causes spurious implicit-any errors further down.
+		const p12Asn1 = forge.asn1.fromDer(forge.util.createBuffer(p12Buffer.toString("binary")));
 		p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, password) as any;
 	} catch (err) {
 		// `es2016` (this project's tsconfig target) predates the ES2022

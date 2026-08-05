@@ -31,6 +31,10 @@ tests-api:
 tests-web:
 	docker compose -f docker-compose.dev.yaml exec web pnpm test:run
 
+# Run SRI XML signer tests only
+tests-signer:
+	docker compose -f docker-compose.dev.yaml exec sri-xml-signer pnpm test
+
 # Run E2E tests locally (requires stack running with `just dev`)
 # Note: Playwright runs LOCAL, not in Docker - it needs real browsers
 tests-e2e:
