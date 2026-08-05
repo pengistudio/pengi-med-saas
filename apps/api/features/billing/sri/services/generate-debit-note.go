@@ -82,6 +82,8 @@ func reorderDebitNoteInfo(debitNote billing_models.DebitNote, tenantObj tenant.T
 		taxes = append(taxes, *tax)
 	}
 
+	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(debitNote.Invoice.Patient)
+
 	modifiedDocNumber := fmt.Sprintf("%s-%s-%s", debitNote.Invoice.EstablishmentCode, debitNote.Invoice.EmissionPointCode, debitNote.Invoice.Sequential)
 	currency := "DOLAR"
 
@@ -90,9 +92,9 @@ func reorderDebitNoteInfo(debitNote billing_models.DebitNote, tenantObj tenant.T
 		EstablishmentAddress:    establishmentAddress,
 		SpecialContributor:      tenantObj.SpecialContributorNumber,
 		AccountingObliged:       accountingObliged,
-		BuyerIdentificationType: ResolveBuyerIdentificationType(debitNote.Invoice.Patient.Document),
-		BuyerSocialReason:       debitNote.Invoice.Patient.FirstName + " " + debitNote.Invoice.Patient.LastName,
-		BuyerIdentification:     debitNote.Invoice.Patient.Document,
+		BuyerIdentificationType: buyerIdentificationType,
+		BuyerSocialReason:       buyerSocialReason,
+		BuyerIdentification:     buyerIdentification,
 		ModifiedDocCode:         "01", // Factura
 		ModifiedDocNumber:       modifiedDocNumber,
 		ModifiedDocIssueDate:    debitNote.Invoice.IssueDate.Format("02/01/2006"),

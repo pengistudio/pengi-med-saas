@@ -39,7 +39,7 @@ func TestGenerateInvoice_EnvironmentMatchesSriEnvArgument(t *testing.T) {
 		EmissionType: "1",
 		Sequential:   "000000001",
 		IssueDate:    time.Now(),
-		Patient:      patient,
+		Patient:      &patient,
 		Total:        100,
 	}
 	products := []CatalogItem{{SKU: "CONS-01", UnitPrice: 100, Tax: 0.12}}
@@ -71,7 +71,7 @@ func TestGenerateInvoice_ProducesValidAccessKeyAndXml(t *testing.T) {
 		EmissionType: "1",
 		Sequential:   "000000001",
 		IssueDate:    time.Now(),
-		Patient:      patient,
+		Patient:      &patient,
 		Subtotal:     100,
 		Total:        112,
 		Items: []billing_models.InvoiceItem{
@@ -125,7 +125,7 @@ func TestGenerateCreditNote_ProducesValidXmlReferencingInvoice(t *testing.T) {
 		EmissionPointCode: "001",
 		Sequential:        "000000042",
 		IssueDate:         time.Now(),
-		Patient:           patient,
+		Patient:           &patient,
 	}
 
 	creditNote := billing_models.CreditNote{
@@ -191,7 +191,7 @@ func TestGenerateDebitNote_ProducesValidXmlReferencingInvoice(t *testing.T) {
 		EmissionPointCode: "001",
 		Sequential:        "000000042",
 		IssueDate:         time.Now(),
-		Patient:           patient,
+		Patient:           &patient,
 	}
 
 	debitNote := billing_models.DebitNote{

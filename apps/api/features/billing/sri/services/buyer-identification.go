@@ -1,6 +1,18 @@
 package services
 
-import "strings"
+import (
+	"strings"
+
+	clinical_models "pengi-med-saas/features/clinical/models"
+)
+
+// SRI-mandated identification for a document (factura/nota) issued without a
+// buyer on file — i.e. a "Consumidor Final" sale.
+const (
+	FinalConsumerIdentification     = "9999999999999"
+	FinalConsumerIdentificationType = "07"
+	FinalConsumerSocialReason       = "CONSUMIDOR FINAL"
+)
 
 // ResolveBuyerIdentificationType returns the SRI buyer identification type code:
 //
@@ -10,7 +22,7 @@ import "strings"
 //	07 Consumidor Final (no document)
 func ResolveBuyerIdentificationType(document string) string {
 	if document == "" {
-		return "07"
+		return FinalConsumerIdentificationType
 	}
 
 	digitsOnly := true
@@ -29,4 +41,15 @@ func ResolveBuyerIdentificationType(document string) string {
 	default:
 		return "06"
 	}
+}
+
+// ResolveBuyerInfo returns the SRI buyer identification, identification type and
+// social reason for a document. When patient is nil (no patient attached — a
+// "Consumidor Final" sale), it returns the SRI-mandated Consumidor Final triple
+// instead of an empty/zero buyer.
+func ResolveBuyerInfo(patient *clinical_models.Patient) (identification, identificationType, socialReason string) {
+	if patient == nil {
+		return FinalConsumerIdentification, FinalConsumerIdentificationType, FinalConsumerSocialReason
+	}
+	return patient.Document, ResolveBuyerIdentificationType(patient.Document), patient.FirstName + " " + patient.LastName
 }

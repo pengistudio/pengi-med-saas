@@ -120,10 +120,7 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		})
 	}
 
-	buyerName := ""
-	if invoice.Patient.ID != 0 {
-		buyerName = invoice.Patient.FirstName + " " + invoice.Patient.LastName
-	}
+	buyerIdentification, _, buyerName := ResolveBuyerInfo(invoice.Patient)
 
 	specialContributor := ""
 	if tenantObj.SpecialContributorNumber != nil {
@@ -154,7 +151,7 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		Sequential:           invoice.Sequential,
 		QRCodeBase64:         qrBase64,
 		BuyerName:            buyerName,
-		BuyerIdentification:  invoice.Patient.Document,
+		BuyerIdentification:  buyerIdentification,
 		Items:                items,
 		Subtotal:             fmt.Sprintf("%.2f", invoice.Subtotal),
 		Discount:             fmt.Sprintf("%.2f", invoice.Discount),

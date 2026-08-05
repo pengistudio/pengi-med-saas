@@ -141,6 +141,8 @@ func reorderCreditNoteInfo(creditNote billing_models.CreditNote, tenantObj tenan
 		totalWithTaxes = append(totalWithTaxes, *taxInfo)
 	}
 
+	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(creditNote.Invoice.Patient)
+
 	modifiedDocNumber := fmt.Sprintf("%s-%s-%s", creditNote.Invoice.EstablishmentCode, creditNote.Invoice.EmissionPointCode, creditNote.Invoice.Sequential)
 
 	currency := "DOLAR"
@@ -149,9 +151,9 @@ func reorderCreditNoteInfo(creditNote billing_models.CreditNote, tenantObj tenan
 		EstablishmentAddress:    establishmentAddress,
 		SpecialContributor:      tenantObj.SpecialContributorNumber,
 		AccountingObliged:       accountingObliged,
-		BuyerIdentificationType: ResolveBuyerIdentificationType(creditNote.Invoice.Patient.Document),
-		BuyerSocialReason:       creditNote.Invoice.Patient.FirstName + " " + creditNote.Invoice.Patient.LastName,
-		BuyerIdentification:     creditNote.Invoice.Patient.Document,
+		BuyerIdentificationType: buyerIdentificationType,
+		BuyerSocialReason:       buyerSocialReason,
+		BuyerIdentification:     buyerIdentification,
 		ModifiedDocCode:         "01", // Factura
 		ModifiedDocNumber:       modifiedDocNumber,
 		ModifiedDocIssueDate:    creditNote.Invoice.IssueDate.Format("02/01/2006"),

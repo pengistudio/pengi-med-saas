@@ -25,7 +25,7 @@ func TestBuildInvoiceRideData_AndRenderTemplate(t *testing.T) {
 		IssueDate:         time.Now(),
 		AccessKey:         &accessKey,
 		AuthorizedAt:      &authorizedAt,
-		Patient:           patient,
+		Patient:           &patient,
 		Subtotal:          100,
 		Total:             112,
 		PaymentMethod:     "01",
@@ -103,7 +103,7 @@ func TestBuildInvoiceRideData_WithLogo(t *testing.T) {
 		Sequential:        "000000001",
 		IssueDate:         time.Now(),
 		AccessKey:         &accessKey,
-		Patient:           patient,
+		Patient:           &patient,
 		Total:             112,
 	}
 

@@ -257,12 +257,14 @@ func reorderInvoiceInfo(invoice Invoice, tenantObj tenant.Tenant, establishmentA
 		totalWithTaxes = append(totalWithTaxes, *taxInfo)
 	}
 
+	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(invoice.Patient)
+
 	return invoiceSRI.InvoiceInfo{
 		IssueDate:               invoice.IssueDate.Format("02/01/2006"),
-		BuyerIdentification:     invoice.Patient.Document,
+		BuyerIdentification:     buyerIdentification,
 		BuyerAddress:            "S/N", // As Pengi's Patient model does not have an address yet
-		BuyerIdentificationType: ResolveBuyerIdentificationType(invoice.Patient.Document),
-		BuyerSocialReason:       invoice.Patient.FirstName + " " + invoice.Patient.LastName,
+		BuyerIdentificationType: buyerIdentificationType,
+		BuyerSocialReason:       buyerSocialReason,
 		EstablishmentAddress:    establishmentAddress,
 		SpecialContributor:      tenantObj.SpecialContributorNumber,
 		AccountingObliged:       accountingObliged,
