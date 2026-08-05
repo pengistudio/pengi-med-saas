@@ -5,8 +5,12 @@ const EXCLUSIVE_C14N = "http://www.w3.org/2001/10/xml-exc-c14n#";
 
 const parser = new DOMParser({
 	errorHandler: () => {
-		// osodreamer's XmlDomContext silences parser warnings the same way;
-		// malformed input still yields no documentElement below and throws there.
+		// osodreamer's XmlDomContext silences parser warnings the same way.
+		// NOTE: @xmldom/xmldom self-heals many malformed inputs (e.g. a
+		// mismatched closing tag) instead of failing to parse, so the `!root`
+		// guard below only catches clearly-non-XML input (empty string,
+		// non-XML text) — it does NOT guarantee the input was well-formed.
+		// Callers are still responsible for passing well-formed XML.
 	},
 });
 
@@ -17,7 +21,7 @@ const parser = new DOMParser({
  */
 export function canonicalizeFragment(xml: string): string {
 	const doc = parser.parseFromString(xml, "text/xml");
-	const root = doc.documentElement;
+	const root = doc?.documentElement;
 	if (!root) {
 		throw new Error("canonicalizeFragment: input is not well-formed XML");
 	}

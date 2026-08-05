@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  osodreamer-sri-xml-signer:
-    hash: aeae8e1209c6a660f9b723f7d6677d91725b7d5b282d991a82c7496181fd7246
-    path: patches/osodreamer-sri-xml-signer.patch
-
 importers:
 
   .:
@@ -39,7 +34,7 @@ importers:
         version: 1.4.0
       osodreamer-sri-xml-signer:
         specifier: ^0.1.3
-        version: 0.1.3(patch_hash=aeae8e1209c6a660f9b723f7d6677d91725b7d5b282d991a82c7496181fd7246)
+        version: 0.1.3
       xml-crypto:
         specifier: ^6.1.2
         version: 6.1.2
@@ -2027,7 +2022,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  osodreamer-sri-xml-signer@0.1.3(patch_hash=aeae8e1209c6a660f9b723f7d6677d91725b7d5b282d991a82c7496181fd7246):
+  osodreamer-sri-xml-signer@0.1.3:
     dependencies:
       '@xmldom/xmldom': 0.9.10
       node-forge: 1.4.0
