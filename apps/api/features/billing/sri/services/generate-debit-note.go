@@ -82,6 +82,7 @@ func reorderDebitNoteInfo(debitNote billing_models.DebitNote, tenantObj tenant.T
 		taxes = append(taxes, *tax)
 	}
 
+	WarnOnDanglingPatientRef("debit_note", debitNote.ID, debitNote.Invoice.PatientID, debitNote.Invoice.Patient)
 	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(debitNote.Invoice.Patient)
 
 	modifiedDocNumber := fmt.Sprintf("%s-%s-%s", debitNote.Invoice.EstablishmentCode, debitNote.Invoice.EmissionPointCode, debitNote.Invoice.Sequential)

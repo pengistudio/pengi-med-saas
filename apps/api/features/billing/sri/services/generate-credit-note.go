@@ -141,6 +141,7 @@ func reorderCreditNoteInfo(creditNote billing_models.CreditNote, tenantObj tenan
 		totalWithTaxes = append(totalWithTaxes, *taxInfo)
 	}
 
+	WarnOnDanglingPatientRef("credit_note", creditNote.ID, creditNote.Invoice.PatientID, creditNote.Invoice.Patient)
 	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(creditNote.Invoice.Patient)
 
 	modifiedDocNumber := fmt.Sprintf("%s-%s-%s", creditNote.Invoice.EstablishmentCode, creditNote.Invoice.EmissionPointCode, creditNote.Invoice.Sequential)

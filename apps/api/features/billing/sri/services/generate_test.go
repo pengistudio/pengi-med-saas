@@ -116,6 +116,58 @@ func TestGenerateInvoice_ProducesValidAccessKeyAndXml(t *testing.T) {
 	}
 }
 
+func TestGenerateInvoice_NilPatient_EmitsFinalConsumer(t *testing.T) {
+	tenantObj := testTenant()
+
+	invoice := billing_models.Invoice{
+		DocumentCode: "01",
+		EmissionType: "1",
+		Sequential:   "000000001",
+		IssueDate:    time.Now(),
+		Subtotal:     100,
+		Total:        112,
+		Items: []billing_models.InvoiceItem{
+			{
+				ProductID:     1,
+				Description:   "Consulta",
+				Quantity:      1,
+				UnitPrice:     100,
+				TaxCode:       "2",
+				TaxPercentage: "2",
+				TaxRate:       0.12,
+				Subtotal:      100,
+			},
+		},
+	}
+
+	products := []CatalogItem{
+		{SKU: "CONS-01", UnitPrice: 100, Tax: 0.12},
+	}
+	products[0].ID = 1
+
+	sriInvoice, accessKey, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1")
+	if err != nil {
+		t.Fatalf("GenerateInvoice failed: %v", err)
+	}
+
+	xmlStr, err := GenerateInvoiceXml(*sriInvoice)
+	if err != nil {
+		t.Fatalf("GenerateInvoiceXml failed: %v", err)
+	}
+	if !strings.Contains(xmlStr, "<claveAcceso>"+accessKey+"</claveAcceso>") {
+		t.Errorf("expected claveAcceso in XML to match generated access key")
+	}
+	if !strings.Contains(xmlStr, FinalConsumerIdentification) {
+		t.Errorf("expected XML to contain Consumidor Final identification %q, got: %s", FinalConsumerIdentification, xmlStr)
+	}
+	if !strings.Contains(xmlStr, FinalConsumerIdentificationType) {
+		t.Errorf("expected XML to contain Consumidor Final identification type %q, got: %s", FinalConsumerIdentificationType, xmlStr)
+	}
+	if !strings.Contains(xmlStr, FinalConsumerSocialReason) {
+		t.Errorf("expected XML to contain Consumidor Final social reason %q, got: %s", FinalConsumerSocialReason, xmlStr)
+	}
+}
+
 func TestGenerateCreditNote_ProducesValidXmlReferencingInvoice(t *testing.T) {
 	tenantObj := testTenant()
 	patient := testPatient()

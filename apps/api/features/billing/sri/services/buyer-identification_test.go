@@ -20,6 +20,26 @@ func TestResolveBuyerInfo_NilPatient_ReturnsFinalConsumer(t *testing.T) {
 	}
 }
 
+func TestResolveBuyerInfo_PatientWithEmptyDocument_ReturnsFinalConsumer(t *testing.T) {
+	patient := &clinical_models.Patient{
+		FirstName: "Juan",
+		LastName:  "Perez",
+		Document:  "",
+	}
+
+	identification, identificationType, socialReason := ResolveBuyerInfo(patient)
+
+	if identification != FinalConsumerIdentification {
+		t.Errorf("expected identification %q, got %q", FinalConsumerIdentification, identification)
+	}
+	if identificationType != FinalConsumerIdentificationType {
+		t.Errorf("expected identificationType %q, got %q", FinalConsumerIdentificationType, identificationType)
+	}
+	if socialReason != FinalConsumerSocialReason {
+		t.Errorf("expected socialReason %q, got %q", FinalConsumerSocialReason, socialReason)
+	}
+}
+
 func TestResolveBuyerInfo_WithPatient_ReturnsPatientData(t *testing.T) {
 	patient := &clinical_models.Patient{
 		FirstName: "Juan",

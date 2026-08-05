@@ -120,6 +120,7 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		})
 	}
 
+	WarnOnDanglingPatientRef("invoice_ride", invoice.ID, invoice.PatientID, invoice.Patient)
 	buyerIdentification, _, buyerName := ResolveBuyerInfo(invoice.Patient)
 
 	specialContributor := ""

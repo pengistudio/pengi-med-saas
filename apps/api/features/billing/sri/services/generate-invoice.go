@@ -257,6 +257,7 @@ func reorderInvoiceInfo(invoice Invoice, tenantObj tenant.Tenant, establishmentA
 		totalWithTaxes = append(totalWithTaxes, *taxInfo)
 	}
 
+	WarnOnDanglingPatientRef("invoice", invoice.ID, invoice.PatientID, invoice.Patient)
 	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(invoice.Patient)
 
 	return invoiceSRI.InvoiceInfo{

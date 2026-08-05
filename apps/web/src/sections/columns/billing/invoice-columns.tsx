@@ -88,7 +88,11 @@ export function getInvoiceColumns(
 				const patient = row.original.patient;
 				return (
 					<span>
-						{patient ? patient.document : <Text uuid="common.unknown" />}
+						{patient ? (
+							patient.document
+						) : (
+							<Text uuid="billing.invoice.final_consumer" />
+						)}
 					</span>
 				);
 			},
@@ -106,7 +110,7 @@ export function getInvoiceColumns(
 				if (!patient)
 					return (
 						<span className="text-muted-foreground">
-							<Text uuid="common.unknown" />
+							<Text uuid="billing.invoice.final_consumer" />
 						</span>
 					);
 				return (
