@@ -163,20 +163,29 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		nextAppointmentDate = &t
 	}
 
+	nextAppointmentStatus := "pending"
+	if newRecord.NextAppointmentStatus != nil {
+		nextAppointmentStatus = *newRecord.NextAppointmentStatus
+	}
+	if nextAppointmentStatus == "not_required" {
+		nextAppointmentDate = nil
+	}
+
 	record := &clinical_models.MedicalRecord{
-		Date:                time.Time(newRecord.Date),
-		Motive:              newRecord.Motive,
-		Observation:         *newRecord.Observation,
-		PatientID:           newRecord.PatientID,
-		AppointmentID:       newRecord.AppointmentID,
-		NextAppointmentDate: nextAppointmentDate,
-		SOAPRecord:          newRecord.SOAPRecord,
-		Diagnoses:           newRecord.Diagnoses,
-		VisitType:           newRecord.VisitType,
-		APP:                 stringOrEmpty(newRecord.APP),
-		APF:                 stringOrEmpty(newRecord.APF),
-		APQX:                stringOrEmpty(newRecord.APQX),
-		Allergies:           stringOrEmpty(newRecord.Allergies),
+		Date:                  time.Time(newRecord.Date),
+		Motive:                newRecord.Motive,
+		Observation:           *newRecord.Observation,
+		PatientID:             newRecord.PatientID,
+		AppointmentID:         newRecord.AppointmentID,
+		NextAppointmentDate:   nextAppointmentDate,
+		NextAppointmentStatus: nextAppointmentStatus,
+		SOAPRecord:            newRecord.SOAPRecord,
+		Diagnoses:             newRecord.Diagnoses,
+		VisitType:             newRecord.VisitType,
+		APP:                   stringOrEmpty(newRecord.APP),
+		APF:                   stringOrEmpty(newRecord.APF),
+		APQX:                  stringOrEmpty(newRecord.APQX),
+		Allergies:             stringOrEmpty(newRecord.Allergies),
 	}
 
 	// Create prescription if provided
@@ -249,6 +258,12 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 	if updatedRecord.NextAppointmentDate != nil {
 		record["next_appointment_date"] = time.Time(*updatedRecord.NextAppointmentDate)
+	}
+	if updatedRecord.NextAppointmentStatus != nil {
+		record["next_appointment_status"] = *updatedRecord.NextAppointmentStatus
+		if *updatedRecord.NextAppointmentStatus == "not_required" {
+			record["next_appointment_date"] = nil
+		}
 	}
 	if updatedRecord.Diagnoses != nil {
 		record["diagnoses"] = updatedRecord.Diagnoses

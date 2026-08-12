@@ -10,6 +10,7 @@ type DraftValues = {
 	motive?: string;
 	observation?: string;
 	next_appointment_date?: string;
+	next_appointment_status?: "scheduled" | "pending" | "not_required";
 	soap_record?: {
 		subjective?: string;
 		objective?: string;
@@ -43,6 +44,7 @@ type FormValues = {
 	motive?: string;
 	observation?: string;
 	next_appointment_date?: Date;
+	next_appointment_status?: "scheduled" | "pending" | "not_required";
 	soap_record?: {
 		subjective?: string;
 		objective?: string;

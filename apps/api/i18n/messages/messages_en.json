@@ -592,6 +592,22 @@
         "value": "Suggested by doctor"
     },
     {
+        "key": "clinical.patient.appointment.not_required",
+        "value": "Discharged / No more visits"
+    },
+    {
+        "key": "clinical.next_appointment_status.scheduled",
+        "value": "Specific date"
+    },
+    {
+        "key": "clinical.next_appointment_status.pending",
+        "value": "Pending, no date yet"
+    },
+    {
+        "key": "clinical.next_appointment_status.not_required",
+        "value": "No further appointments needed (discharged)"
+    },
+    {
         "key": "clinical.patient.medic",
         "value": "Medic"
     },

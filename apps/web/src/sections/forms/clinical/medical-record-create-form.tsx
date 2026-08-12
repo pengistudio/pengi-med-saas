@@ -11,6 +11,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 	FormInput,
+	FormRadioGroup,
 	FormTextArea,
 	Tabs,
 	TabsContent,
@@ -64,55 +65,70 @@ const prescriptionItemSchema = z.object({
 	notes: z.string().optional(),
 });
 
-const formSchema = z.object({
-	date: z.date({ error: "Campo requerido" }),
-	motive: z
-		.string({ error: "Campo requerido" })
-		.min(1, "Campo requerido")
-		.max(100, "Máximo 100 caracteres"),
-	observation: z.string().optional(),
-	next_appointment_date: z.date().optional(),
-	soap_record: z.object({
-		subjective: z
+const formSchema = z
+	.object({
+		date: z.date({ error: "Campo requerido" }),
+		motive: z
 			.string({ error: "Campo requerido" })
-			.min(1, "Campo requerido"),
-		objective: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
-		assessment: z
-			.string({ error: "Campo requerido" })
-			.min(1, "Campo requerido"),
-		plan: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
-	}),
-	prescription: z
-		.object({
-			content: z.string().optional(),
-			indications: z.string().optional(),
-			items: z.array(prescriptionItemSchema).optional(),
-		})
-		.optional(),
-	vital_signs: z
-		.object({
-			weight: z.coerce.number().positive().optional().nullable(),
-			height: z.coerce.number().positive().optional().nullable(),
-			blood_pressure: z.string().optional(),
-			temperature: z.coerce.number().positive().optional().nullable(),
-			heart_rate: z.coerce.number().int().positive().optional().nullable(),
-			o2_saturation: z.coerce
-				.number()
-				.int()
-				.min(0)
-				.max(100)
-				.optional()
-				.nullable(),
-		})
-		.optional(),
-	diagnoses: z
-		.array(z.object({ code: z.string(), title: z.string() }))
-		.optional(),
-	app: z.string().optional(),
-	apf: z.string().optional(),
-	apqx: z.string().optional(),
-	allergies: z.string().optional(),
-});
+			.min(1, "Campo requerido")
+			.max(100, "Máximo 100 caracteres"),
+		observation: z.string().optional(),
+		next_appointment_status: z
+			.enum(["scheduled", "pending", "not_required"])
+			.default("scheduled"),
+		next_appointment_date: z.date().optional(),
+		soap_record: z.object({
+			subjective: z
+				.string({ error: "Campo requerido" })
+				.min(1, "Campo requerido"),
+			objective: z
+				.string({ error: "Campo requerido" })
+				.min(1, "Campo requerido"),
+			assessment: z
+				.string({ error: "Campo requerido" })
+				.min(1, "Campo requerido"),
+			plan: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
+		}),
+		prescription: z
+			.object({
+				content: z.string().optional(),
+				indications: z.string().optional(),
+				items: z.array(prescriptionItemSchema).optional(),
+			})
+			.optional(),
+		vital_signs: z
+			.object({
+				weight: z.coerce.number().positive().optional().nullable(),
+				height: z.coerce.number().positive().optional().nullable(),
+				blood_pressure: z.string().optional(),
+				temperature: z.coerce.number().positive().optional().nullable(),
+				heart_rate: z.coerce.number().int().positive().optional().nullable(),
+				o2_saturation: z.coerce
+					.number()
+					.int()
+					.min(0)
+					.max(100)
+					.optional()
+					.nullable(),
+			})
+			.optional(),
+		diagnoses: z
+			.array(z.object({ code: z.string(), title: z.string() }))
+			.optional(),
+		app: z.string().optional(),
+		apf: z.string().optional(),
+		apqx: z.string().optional(),
+		allergies: z.string().optional(),
+	})
+	.refine(
+		(data) =>
+			data.next_appointment_status !== "scheduled" ||
+			!!data.next_appointment_date,
+		{
+			message: "Campo requerido",
+			path: ["next_appointment_date"],
+		},
+	);
 
 const TABS = ["consulta", "soap", "complementario"] as const;
 type TabId = (typeof TABS)[number];
@@ -149,6 +165,7 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 				onSubmit={onSubmit}
 				defaultValues={{
 					date: new Date(),
+					next_appointment_status: "scheduled",
 					prescription: { items: [] },
 				}}
 			>
@@ -217,9 +234,12 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 			date: values.date.toISOString(),
 			motive: values.motive,
 			observation: values.observation || "",
-			next_appointment_date: values.next_appointment_date
-				? values.next_appointment_date.toISOString().split("T")[0]
-				: undefined,
+			next_appointment_status: values.next_appointment_status,
+			next_appointment_date:
+				values.next_appointment_status === "scheduled" &&
+				values.next_appointment_date
+					? values.next_appointment_date.toISOString().split("T")[0]
+					: undefined,
 			soap_record: values.soap_record,
 			prescription,
 			diagnoses: values.diagnoses ?? [],
@@ -372,6 +392,10 @@ function FormInner({
 		settings.clinical;
 
 	const watchedMotive = useWatch({ control: field.control, name: "motive" });
+	const watchedNextAppointmentStatus = useWatch({
+		control: field.control,
+		name: "next_appointment_status",
+	});
 	const watchedSoap = useWatch({
 		control: field.control,
 		name: "soap_record",
@@ -883,16 +907,41 @@ function FormInner({
 								</div>
 							</div>
 						</CardHeader>
-						<CardContent>
-							<div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-								<FormCalendar
-									field={field}
-									name="next_appointment_date"
-									label={textGet("form.create_medical_record.next_appointment")}
-									isOptional
-									showMonthYearDropdowns
-								/>
-							</div>
+						<CardContent className="space-y-4">
+							<FormRadioGroup
+								field={field}
+								name="next_appointment_status"
+								options={[
+									{
+										value: "scheduled",
+										label: textGet(
+											"clinical.next_appointment_status.scheduled",
+										),
+									},
+									{
+										value: "pending",
+										label: textGet("clinical.next_appointment_status.pending"),
+									},
+									{
+										value: "not_required",
+										label: textGet(
+											"clinical.next_appointment_status.not_required",
+										),
+									},
+								]}
+							/>
+							{watchedNextAppointmentStatus === "scheduled" && (
+								<div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+									<FormCalendar
+										field={field}
+										name="next_appointment_date"
+										label={textGet(
+											"form.create_medical_record.next_appointment",
+										)}
+										showMonthYearDropdowns
+									/>
+								</div>
+							)}
 						</CardContent>
 					</Card>
 

@@ -34,36 +34,38 @@ func (ct *CustomDateTime) UnmarshalJSON(b []byte) error {
 }
 
 type CreateMedicalRecordDTO struct {
-	Date                CustomDateTime                `json:"date" binding:"required"`
-	Motive              string                        `json:"motive" binding:"required"`
-	Observation         *string                       `json:"observation"`
-	PatientID           uint                          `json:"patient_id" binding:"required"`
-	AppointmentID       *uint                         `json:"appointment_id,omitempty"`
-	NextAppointmentDate *CustomDateTime               `json:"next_appointment_date,omitempty"`
-	SOAPRecord          clinical_models.SOAPRecord    `json:"soap_record"`
-	Prescription        *clinical_models.Prescription `json:"prescription,omitempty"`
-	VitalSigns          *clinical_models.VitalSigns   `json:"vital_signs,omitempty"`
-	Diagnoses           datatypes.JSON                `json:"diagnoses,omitempty"`
-	VisitType           string                        `json:"visit_type" binding:"required,oneof=first followup"`
-	APP                 *string                       `json:"app,omitempty"`
-	APF                 *string                       `json:"apf,omitempty"`
-	APQX                *string                       `json:"apqx,omitempty"`
-	Allergies           *string                       `json:"allergies,omitempty"`
+	Date                  CustomDateTime                `json:"date" binding:"required"`
+	Motive                string                        `json:"motive" binding:"required"`
+	Observation           *string                       `json:"observation"`
+	PatientID             uint                          `json:"patient_id" binding:"required"`
+	AppointmentID         *uint                         `json:"appointment_id,omitempty"`
+	NextAppointmentDate   *CustomDateTime               `json:"next_appointment_date,omitempty"`
+	NextAppointmentStatus *string                       `json:"next_appointment_status,omitempty" binding:"omitempty,oneof=scheduled pending not_required"`
+	SOAPRecord            clinical_models.SOAPRecord    `json:"soap_record"`
+	Prescription          *clinical_models.Prescription `json:"prescription,omitempty"`
+	VitalSigns            *clinical_models.VitalSigns   `json:"vital_signs,omitempty"`
+	Diagnoses             datatypes.JSON                `json:"diagnoses,omitempty"`
+	VisitType             string                        `json:"visit_type" binding:"required,oneof=first followup"`
+	APP                   *string                       `json:"app,omitempty"`
+	APF                   *string                       `json:"apf,omitempty"`
+	APQX                  *string                       `json:"apqx,omitempty"`
+	Allergies             *string                       `json:"allergies,omitempty"`
 }
 
 type UpdateMedicalRecordDTO struct {
-	Date                *CustomDateTime               `json:"date,omitempty"`
-	Motive              *string                       `json:"motive,omitempty"`
-	Observation         *string                       `json:"observation,omitempty"`
-	AppointmentID       *uint                         `json:"appointment_id,omitempty"`
-	NextAppointmentDate *CustomDateTime               `json:"next_appointment_date,omitempty"`
-	SOAPRecord          *clinical_models.SOAPRecord   `json:"soap_record,omitempty"`
-	Prescription        *clinical_models.Prescription `json:"prescription,omitempty"`
-	Diagnoses           datatypes.JSON                `json:"diagnoses,omitempty"`
-	APP                 *string                       `json:"app,omitempty"`
-	APF                 *string                       `json:"apf,omitempty"`
-	APQX                *string                       `json:"apqx,omitempty"`
-	Allergies           *string                       `json:"allergies,omitempty"`
+	Date                  *CustomDateTime               `json:"date,omitempty"`
+	Motive                *string                       `json:"motive,omitempty"`
+	Observation           *string                       `json:"observation,omitempty"`
+	AppointmentID         *uint                         `json:"appointment_id,omitempty"`
+	NextAppointmentDate   *CustomDateTime               `json:"next_appointment_date,omitempty"`
+	NextAppointmentStatus *string                       `json:"next_appointment_status,omitempty" binding:"omitempty,oneof=scheduled pending not_required"`
+	SOAPRecord            *clinical_models.SOAPRecord   `json:"soap_record,omitempty"`
+	Prescription          *clinical_models.Prescription `json:"prescription,omitempty"`
+	Diagnoses             datatypes.JSON                `json:"diagnoses,omitempty"`
+	APP                   *string                       `json:"app,omitempty"`
+	APF                   *string                       `json:"apf,omitempty"`
+	APQX                  *string                       `json:"apqx,omitempty"`
+	Allergies             *string                       `json:"allergies,omitempty"`
 }
 
 type UpdatePrescriptionDTO struct {

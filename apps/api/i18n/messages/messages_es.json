@@ -592,6 +592,22 @@
         "value": "Sugerida por el médico"
     },
     {
+        "key": "clinical.patient.appointment.not_required",
+        "value": "Alta / Sin más citas"
+    },
+    {
+        "key": "clinical.next_appointment_status.scheduled",
+        "value": "Fecha específica"
+    },
+    {
+        "key": "clinical.next_appointment_status.pending",
+        "value": "Pendiente, sin fecha aún"
+    },
+    {
+        "key": "clinical.next_appointment_status.not_required",
+        "value": "No requiere más citas (alta)"
+    },
+    {
         "key": "clinical.patient.medic",
         "value": "Médico"
     },

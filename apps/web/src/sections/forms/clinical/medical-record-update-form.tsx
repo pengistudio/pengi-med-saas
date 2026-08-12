@@ -5,6 +5,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	FormRadioGroup,
 	FormTextArea,
 	Text,
 } from "@pengi/ui";
@@ -16,6 +17,7 @@ import {
 	Stethoscope,
 } from "lucide-react";
 import React from "react";
+import { type UseFormReturn, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
 import {
@@ -27,25 +29,106 @@ import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { useText } from "@/hooks/use-text";
 
-const formSchema = z.object({
-	date: z.date({ error: "Campo requerido" }),
-	motive: z
-		.string({ error: "Campo requerido" })
-		.min(1, "Campo requerido")
-		.max(100, "Máximo 100 caracteres"),
-	observation: z.string().optional(),
-	next_appointment_date: z.date().optional(),
-	soap_record: z.object({
-		subjective: z
+const formSchema = z
+	.object({
+		date: z.date({ error: "Campo requerido" }),
+		motive: z
 			.string({ error: "Campo requerido" })
-			.min(1, "Campo requerido"),
-		objective: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
-		assessment: z
-			.string({ error: "Campo requerido" })
-			.min(1, "Campo requerido"),
-		plan: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
-	}),
-});
+			.min(1, "Campo requerido")
+			.max(100, "Máximo 100 caracteres"),
+		observation: z.string().optional(),
+		next_appointment_status: z
+			.enum(["scheduled", "pending", "not_required"])
+			.default("scheduled"),
+		next_appointment_date: z.date().optional(),
+		soap_record: z.object({
+			subjective: z
+				.string({ error: "Campo requerido" })
+				.min(1, "Campo requerido"),
+			objective: z
+				.string({ error: "Campo requerido" })
+				.min(1, "Campo requerido"),
+			assessment: z
+				.string({ error: "Campo requerido" })
+				.min(1, "Campo requerido"),
+			plan: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
+		}),
+	})
+	.refine(
+		(data) =>
+			data.next_appointment_status !== "scheduled" ||
+			!!data.next_appointment_date,
+		{
+			message: "Campo requerido",
+			path: ["next_appointment_date"],
+		},
+	);
+
+function NextAppointmentCard({
+	field,
+	textGet,
+}: {
+	field: UseFormReturn<
+		z.input<typeof formSchema>,
+		unknown,
+		z.infer<typeof formSchema>
+	>;
+	textGet: (key: string) => string;
+}) {
+	const status = useWatch({
+		control: field.control,
+		name: "next_appointment_status",
+	});
+
+	return (
+		<Card className="border-l-4 border-l-cyan-500">
+			<CardHeader>
+				<div className="flex items-center gap-3">
+					<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-500 text-white">
+						<Calendar className="h-4 w-4" />
+					</div>
+					<div>
+						<CardTitle className="text-base">
+							<Text uuid="form.update_medical_record.next_appointment" />
+						</CardTitle>
+						<CardDescription className="text-xs">
+							<Text uuid="form.optional" />
+						</CardDescription>
+					</div>
+				</div>
+			</CardHeader>
+			<CardContent className="space-y-4">
+				<FormRadioGroup
+					field={field}
+					name="next_appointment_status"
+					options={[
+						{
+							value: "scheduled",
+							label: textGet("clinical.next_appointment_status.scheduled"),
+						},
+						{
+							value: "pending",
+							label: textGet("clinical.next_appointment_status.pending"),
+						},
+						{
+							value: "not_required",
+							label: textGet("clinical.next_appointment_status.not_required"),
+						},
+					]}
+				/>
+				{status === "scheduled" && (
+					<div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+						<FormCalendar
+							field={field}
+							name="next_appointment_date"
+							label={textGet("form.update_medical_record.next_appointment")}
+						/>
+					</div>
+				)}
+			</CardContent>
+		</Card>
+	);
+}
 
 const UpdateMedicalRecordForm = () => {
 	const { id } = useParams<{ id: string }>();
@@ -69,6 +152,9 @@ const UpdateMedicalRecordForm = () => {
 				date: new Date(record.date),
 				motive: record.motive,
 				observation: record.observation || "",
+				next_appointment_status:
+					record.next_appointment_status ??
+					(record.next_appointment_date ? "scheduled" : "pending"),
 				next_appointment_date: record.next_appointment_date
 					? new Date(record.next_appointment_date)
 					: undefined,
@@ -139,33 +225,7 @@ const UpdateMedicalRecordForm = () => {
 					</Card>
 
 					{/* Próxima Cita Sugerida */}
-					<Card className="border-l-4 border-l-cyan-500">
-						<CardHeader>
-							<div className="flex items-center gap-3">
-								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-500 text-white">
-									<Calendar className="h-4 w-4" />
-								</div>
-								<div>
-									<CardTitle className="text-base">
-										<Text uuid="form.update_medical_record.next_appointment" />
-									</CardTitle>
-									<CardDescription className="text-xs">
-										<Text uuid="form.optional" />
-									</CardDescription>
-								</div>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-								<FormCalendar
-									field={field}
-									name="next_appointment_date"
-									label={textGet("form.update_medical_record.next_appointment")}
-									isOptional
-								/>
-							</div>
-						</CardContent>
-					</Card>
+					<NextAppointmentCard field={field} textGet={textGet} />
 
 					{/* SOAP: Subjective */}
 					<Card className="border-l-4 border-l-primary">
@@ -296,9 +356,12 @@ const UpdateMedicalRecordForm = () => {
 			date: values.date.toISOString(),
 			motive: values.motive,
 			observation: values.observation || "",
-			next_appointment_date: values.next_appointment_date
-				? values.next_appointment_date.toISOString().split("T")[0]
-				: undefined,
+			next_appointment_status: values.next_appointment_status,
+			next_appointment_date:
+				values.next_appointment_status === "scheduled" &&
+				values.next_appointment_date
+					? values.next_appointment_date.toISOString().split("T")[0]
+					: undefined,
 			soap_record: values.soap_record,
 		};
 

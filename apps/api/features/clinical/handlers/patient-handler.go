@@ -220,6 +220,7 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 				WHERE mr.patient_id = patients.id
 				AND mr.deleted_at IS NULL
 				AND mr.next_appointment_date IS NOT NULL
+				AND mr.next_appointment_status != 'not_required'
 				AND mr.date = (
 					SELECT MAX(mr2.date) FROM medical_records mr2
 					WHERE mr2.patient_id = patients.id AND mr2.deleted_at IS NULL

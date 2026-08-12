@@ -255,6 +255,12 @@ export const patientColumns: ColumnDef<Patient>[] = [
 									<Text uuid="clinical.patient.appointment.suggested" />
 								</span>
 							</div>
+							<div className="flex items-center gap-1.5">
+								<span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
+								<span>
+									<Text uuid="clinical.patient.appointment.not_required" />
+								</span>
+							</div>
 						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
@@ -315,6 +321,15 @@ export const patientColumns: ColumnDef<Patient>[] = [
 						<span className="opacity-80 text-[10px]">
 							<Text uuid="clinical.patient.appointment.suggested" />
 						</span>
+					</span>
+				);
+			}
+
+			// Prioridad 3: marcado explícitamente como "sin más citas" (alta)
+			if (lastRecord?.next_appointment_status === "not_required") {
+				return (
+					<span className="inline-flex rounded-md border px-2 py-1 text-xs font-medium bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-400/40">
+						<Text uuid="clinical.patient.appointment.not_required" />
 					</span>
 				);
 			}
