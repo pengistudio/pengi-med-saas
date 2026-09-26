@@ -9,6 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// now is the clock; tests replace it.
+var now = time.Now
+
 // ApplyPaidSubscription applies a confirmed SubscriptionPayment to its Subscription.
 // sub.Plan must be preloaded (its Price is used to decide whether a plan change should be
 // deferred to period end or applied immediately).
@@ -39,7 +42,7 @@ func ApplyPaidSubscription(db *gorm.DB, logger *zap.Logger, sub *company_models.
 	// always applies immediately, regardless of remaining trial time.
 	isActivePlanChange := payment.TargetPlanCode != "" &&
 		payment.TargetPlanCode != sub.PlanCode &&
-		sub.ExpiresAt.After(time.Now()) &&
+		sub.ExpiresAt.After(now()) &&
 		sub.Plan.Price > 0
 
 	if isActivePlanChange {
@@ -49,7 +52,13 @@ func ApplyPaidSubscription(db *gorm.DB, logger *zap.Logger, sub *company_models.
 		sub.NextPlanCode = payment.TargetPlanCode
 		sub.PlanChangeAt = &planChangeAt
 	} else {
-		sub.ExpiresAt = company_models.AddMonths(sub.ExpiresAt, months)
+		// An expired subscription restarts today (to the end of the day, like any
+		// expiry); the months it spent expired are not charged.
+		start := sub.ExpiresAt
+		if today := now().In(company_models.SubscriptionLocation); start.Before(today) {
+			start = time.Date(today.Year(), today.Month(), today.Day(), 23, 59, 59, 0, company_models.SubscriptionLocation)
+		}
+		sub.ExpiresAt = company_models.AddMonths(start, months)
 		if payment.TargetPlanCode != "" && payment.TargetPlanCode != sub.PlanCode {
 			sub.PlanCode = payment.TargetPlanCode
 			sub.NextPlanCode = ""
