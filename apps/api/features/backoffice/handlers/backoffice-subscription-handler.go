@@ -6,7 +6,6 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
 	company_models "pengi-med-saas/features/companies/models"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -73,9 +72,9 @@ func (h *BackofficeSubscriptionHandler) CreateSubscription(c *gin.Context) envel
 		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
-	expiresAt, err := time.Parse(time.RFC3339, req.ExpiresAt)
+	expiresAt, err := company_models.ParseExpiry(req.ExpiresAt)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid date format, use RFC3339", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid date format, use YYYY-MM-DD", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	subscription := company_models.Subscription{
@@ -115,7 +114,7 @@ func (h *BackofficeSubscriptionHandler) UpdateSubscription(c *gin.Context) envel
 		updates["plan_code"] = req.PlanCode
 	}
 	if req.ExpiresAt != "" {
-		expiresAt, err := time.Parse(time.RFC3339, req.ExpiresAt)
+		expiresAt, err := company_models.ParseExpiry(req.ExpiresAt)
 		if err != nil {
 			return envelope.ErrorResponse(http.StatusBadRequest, "Invalid date format", core_errors.ErrBackofficeInvalidRequest)
 		}

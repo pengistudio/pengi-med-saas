@@ -9,11 +9,6 @@ import {
 	FormInput,
 	Input,
 	Label,
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
 	Spinner,
 } from "@pengi/ui";
 import { Check, Copy, Link } from "lucide-react";
@@ -23,16 +18,19 @@ import z from "zod";
 import {
 	type Company,
 	companies,
+	companySignupLink,
 	getCompanySignupToken,
 } from "@/api/company-service";
 import { type Plan, plans as planResource } from "@/api/plan-service";
 import { subscriptions } from "@/api/subscription-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
+import {
+	type PlanTerm,
+	PlanTermFields,
+} from "@/lib/subscription/plan-term-fields";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-
-const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL || "http://localhost:5173";
 
 const companySchema = z.object({
 	trade_name: z.string().min(2),
@@ -109,8 +107,10 @@ const CreateCompany = () => {
 	const [company, setCompany] = React.useState<Company | null>(null);
 
 	// Step 2 state
-	const [selectedPlanCode, setSelectedPlanCode] = React.useState("");
-	const [expiresAt, setExpiresAt] = React.useState("");
+	const [term, setTerm] = React.useState<PlanTerm>({
+		planCode: "",
+		expiresAt: "",
+	});
 
 	// Step 3 state
 	const [signupLink, setSignupLink] = React.useState("");
@@ -129,7 +129,7 @@ const CreateCompany = () => {
 		setLinkLoading(true);
 		getCompanySignupToken(company.ID).then((res) => {
 			if (res.success && res.data) {
-				setSignupLink(`${WEB_APP_URL}/signup?token=${res.data.token}`);
+				setSignupLink(companySignupLink(res.data.token));
 			}
 			setLinkLoading(false);
 		});
@@ -146,13 +146,13 @@ const CreateCompany = () => {
 	}
 
 	async function handleSubscriptionSubmit() {
-		if (!company || !selectedPlanCode || !expiresAt) return;
+		if (!company || !term.planCode || !term.expiresAt) return;
 		setLoading(true);
 		const res = await subscriptions.create({
 			company_id: company.ID,
-			plan_code: selectedPlanCode,
+			plan_code: term.planCode,
 			status: "active",
-			expires_at: new Date(expiresAt).toISOString(),
+			expires_at: term.expiresAt,
 		});
 		setLoading(false);
 		if (res.success) {
@@ -236,40 +236,7 @@ const CreateCompany = () => {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label>{textGet("backoffice.subscriptions.col.plan")}</Label>
-								<Select
-									value={selectedPlanCode}
-									onValueChange={(val) => setSelectedPlanCode(val ?? "")}
-								>
-									<SelectTrigger>
-										<SelectValue
-											placeholder={textGet(
-												"backoffice.onboarding.subscription.plan_placeholder",
-											)}
-										/>
-									</SelectTrigger>
-									<SelectContent>
-										{plans.map((p) => (
-											<SelectItem key={p.code} value={p.code}>
-												{p.name}{" "}
-												<span className="text-muted-foreground text-xs ml-1">
-													${p.price}
-												</span>
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="space-y-2">
-								<Label>{textGet("backoffice.subscriptions.col.expires")}</Label>
-								<Input
-									type="date"
-									value={expiresAt}
-									onChange={(e) => setExpiresAt(e.target.value)}
-									min={new Date().toISOString().split("T")[0]}
-								/>
-							</div>
+							<PlanTermFields plans={plans} value={term} onChange={setTerm} />
 						</CardContent>
 						<CardFooter className="flex justify-between">
 							<Button
@@ -281,7 +248,7 @@ const CreateCompany = () => {
 							</Button>
 							<Button
 								onClick={handleSubscriptionSubmit}
-								disabled={loading || !selectedPlanCode || !expiresAt}
+								disabled={loading || !term.planCode || !term.expiresAt}
 							>
 								{loading && <Spinner />}
 								{textGet("backoffice.onboarding.next")}

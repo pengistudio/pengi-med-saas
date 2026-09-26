@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -77,5 +78,55 @@ func TestGetSubscriptionByID_UnknownIDIsNotFound(t *testing.T) {
 
 	if w.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", w.Code)
+	}
+}
+
+// The backoffice sends the expiry as a date; it means the end of that day in
+// Ecuador (not midnight UTC, which is the evening before there).
+func TestCreateAndUpdateSubscription_ADateIsTheEndOfThatDayInEcuador(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db := testutils.SetupTestDB(t, &company_models.Company{}, &company_models.Plan{}, &company_models.Subscription{})
+	if err := db.Create(&company_models.Plan{Name: "Pro", Code: "pro"}).Error; err != nil {
+		t.Fatal(err)
+	}
+	company := company_models.Company{TradeName: "Clínica Norte"}
+	if err := db.Create(&company).Error; err != nil {
+		t.Fatal(err)
+	}
+	h := NewBackofficeSubscriptionHandler(db, zap.NewNop())
+	router := gin.New()
+	router.POST("/backoffice/subscriptions", envelope.Handle(h.CreateSubscription))
+	router.PUT("/backoffice/subscriptions/:id", envelope.Handle(h.UpdateSubscription))
+
+	send := func(method, path, body string) {
+		t.Helper()
+		req := httptest.NewRequest(method, path, strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		if w.Code >= 300 {
+			t.Fatalf("%s %s = %d: %s", method, path, w.Code, w.Body.String())
+		}
+	}
+	expiry := func() time.Time {
+		t.Helper()
+		var sub company_models.Subscription
+		if err := db.Where("company_id = ?", company.ID).First(&sub).Error; err != nil {
+			t.Fatal(err)
+		}
+		return sub.ExpiresAt
+	}
+
+	send(http.MethodPost, "/backoffice/subscriptions",
+		`{"company_id":`+strconv.FormatUint(uint64(company.ID), 10)+`,"plan_code":"pro","status":"active","expires_at":"2026-11-16"}`)
+	if want := time.Date(2026, 11, 17, 4, 59, 59, 0, time.UTC); !expiry().Equal(want) {
+		t.Fatalf("created expiry = %s, want %s", expiry().UTC(), want)
+	}
+
+	var sub company_models.Subscription
+	db.Where("company_id = ?", company.ID).First(&sub)
+	send(http.MethodPut, "/backoffice/subscriptions/"+strconv.FormatUint(uint64(sub.ID), 10), `{"expires_at":"2027-01-31"}`)
+	if want := time.Date(2027, 2, 1, 4, 59, 59, 0, time.UTC); !expiry().Equal(want) {
+		t.Fatalf("updated expiry = %s, want %s", expiry().UTC(), want)
 	}
 }

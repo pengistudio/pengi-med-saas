@@ -142,3 +142,13 @@ export const getPasswordResetLink = async (
 		{ notifyError: true },
 	);
 };
+
+const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL || "http://localhost:5173";
+
+/** Web app link where a company's owner signs up with a signup token. */
+export const companySignupLink = (token: string) =>
+	`${WEB_APP_URL}/signup?token=${encodeURIComponent(token)}`;
+
+/** Web app link where a client creates their own company (register token). */
+export const companyRegisterLink = (token: string) =>
+	`${WEB_APP_URL}/register?token=${encodeURIComponent(token)}`;

@@ -45,11 +45,11 @@ func ApplyPaidSubscription(db *gorm.DB, logger *zap.Logger, sub *company_models.
 	if isActivePlanChange {
 		// Active paid subscription with plan change — defer features to period end
 		planChangeAt := sub.ExpiresAt
-		sub.ExpiresAt = planChangeAt.AddDate(0, months, 0)
+		sub.ExpiresAt = company_models.AddMonths(planChangeAt, months)
 		sub.NextPlanCode = payment.TargetPlanCode
 		sub.PlanChangeAt = &planChangeAt
 	} else {
-		sub.ExpiresAt = sub.ExpiresAt.AddDate(0, months, 0)
+		sub.ExpiresAt = company_models.AddMonths(sub.ExpiresAt, months)
 		if payment.TargetPlanCode != "" && payment.TargetPlanCode != sub.PlanCode {
 			sub.PlanCode = payment.TargetPlanCode
 			sub.NextPlanCode = ""

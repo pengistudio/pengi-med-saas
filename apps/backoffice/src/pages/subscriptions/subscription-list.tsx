@@ -1,5 +1,6 @@
 import { type Subscription, subscriptions } from "@/api/subscription-service";
 import { type ResourceColumn, ResourceList } from "@/lib/resource";
+import { formatExpiry } from "@/lib/subscription/term";
 import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
@@ -33,7 +34,7 @@ const columns: ResourceColumn<Subscription>[] = [
 	},
 	{
 		header: "backoffice.subscriptions.col.expires",
-		cell: (s) => new Date(s.expires_at).toLocaleDateString(),
+		cell: (s) => formatExpiry(s.expires_at),
 		className: "text-muted-foreground",
 	},
 ];

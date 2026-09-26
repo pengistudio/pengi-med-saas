@@ -6,7 +6,6 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-	Input,
 	Label,
 	Select,
 	SelectContent,
@@ -25,17 +24,10 @@ import { type Plan, plans as planResource } from "@/api/plan-service";
 import { subscriptions } from "@/api/subscription-service";
 import { useText } from "@/hooks/use-text";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
-import { cn } from "@/lib/utils";
-
-function addMonths(date: Date, months: number): Date {
-	const result = new Date(date);
-	result.setMonth(result.getMonth() + months);
-	return result;
-}
-
-function toDateInputValue(date: Date): string {
-	return date.toISOString().split("T")[0];
-}
+import {
+	type PlanTerm,
+	PlanTermFields,
+} from "@/lib/subscription/plan-term-fields";
 
 const CreateSubscription = () => {
 	const { textGet } = useText();
@@ -44,54 +36,28 @@ const CreateSubscription = () => {
 	const [companies, setCompanies] = React.useState<Company[]>([]);
 	const [plans, setPlans] = React.useState<Plan[]>([]);
 	const [selectedCompany, setSelectedCompany] = React.useState("");
-	const [selectedPlan, setSelectedPlan] = React.useState("");
-	const [selectedMonths, setSelectedMonths] = React.useState<number>(1);
-	const [expiresAt, setExpiresAt] = React.useState("");
+	const [term, setTerm] = React.useState<PlanTerm>({
+		planCode: "",
+		expiresAt: "",
+	});
 
 	React.useEffect(() => {
 		companyResource.list().then((res) => {
-			if (res.success && res.data) setCompanies(res.data as Company[]);
+			if (res.success && res.data) setCompanies(res.data);
 		});
 		planResource.list().then((res) => {
-			if (res.success && res.data) setPlans(res.data as Plan[]);
+			if (res.success && res.data) setPlans(res.data);
 		});
 	}, []);
 
-	const currentPlan = plans.find((p) => p.code === selectedPlan);
-	const sortedPricings = React.useMemo(() => {
-		if (!currentPlan?.pricings?.length) return [];
-		return [...currentPlan.pricings].sort((a, b) => a.months - b.months);
-	}, [currentPlan]);
-
-	const selectedPricing = sortedPricings.find(
-		(p) => p.months === selectedMonths,
-	);
-
-	// Reset months & auto-calculate expiration when plan changes
-	React.useEffect(() => {
-		if (sortedPricings.length > 0) {
-			const firstMonths = sortedPricings[0].months;
-			setSelectedMonths(firstMonths);
-			setExpiresAt(toDateInputValue(addMonths(new Date(), firstMonths)));
-		} else {
-			setSelectedMonths(1);
-			setExpiresAt(toDateInputValue(addMonths(new Date(), 1)));
-		}
-	}, [sortedPricings]);
-
-	const handleSelectMonths = (months: number) => {
-		setSelectedMonths(months);
-		setExpiresAt(toDateInputValue(addMonths(new Date(), months)));
-	};
-
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (!selectedCompany || !selectedPlan || !expiresAt) return;
+		if (!selectedCompany || !term.planCode || !term.expiresAt) return;
 		await save({
 			company_id: Number(selectedCompany),
-			plan_code: selectedPlan,
+			plan_code: term.planCode,
 			status: "active",
-			expires_at: new Date(expiresAt).toISOString(),
+			expires_at: term.expiresAt,
 		});
 	}
 
@@ -131,72 +97,7 @@ const CreateSubscription = () => {
 									</SelectContent>
 								</Select>
 							</div>
-							<div className="space-y-2">
-								<Label>{textGet("backoffice.subscriptions.col.plan")}</Label>
-								<Select
-									value={selectedPlan}
-									onValueChange={(v) => v && setSelectedPlan(v)}
-								>
-									<SelectTrigger>
-										<SelectValue
-											placeholder={textGet(
-												"backoffice.subscriptions.select.plan",
-											)}
-										/>
-									</SelectTrigger>
-									<SelectContent>
-										{plans.map((p) => (
-											<SelectItem key={p.ID} value={p.code}>
-												{p.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-
-							{/* Period selector — shown when the selected plan has pricings */}
-							{sortedPricings.length > 0 && (
-								<div className="space-y-2">
-									<Label>{textGet("backoffice.plans.pricings.title")}</Label>
-									<div className="flex flex-wrap gap-2">
-										{sortedPricings.map((p) => (
-											<button
-												key={p.months}
-												type="button"
-												onClick={() => handleSelectMonths(p.months)}
-												className={cn(
-													"px-3 py-1.5 rounded-md text-sm font-medium transition-colors border",
-													selectedMonths === p.months
-														? "bg-primary text-primary-foreground border-primary"
-														: "bg-muted text-muted-foreground border-transparent hover:bg-muted/80",
-												)}
-											>
-												{textGet(`subscription.plans.period.${p.months}`)} — $
-												{p.price.toFixed(2)}
-											</button>
-										))}
-									</div>
-									{selectedPricing && selectedPricing.months > 1 && (
-										<p className="text-xs text-muted-foreground">
-											≈ $
-											{(selectedPricing.price / selectedPricing.months).toFixed(
-												2,
-											)}{" "}
-											/ mes
-										</p>
-									)}
-								</div>
-							)}
-
-							<div className="space-y-2">
-								<Label>{textGet("backoffice.subscriptions.col.expires")}</Label>
-								<Input
-									type="date"
-									value={expiresAt}
-									onChange={(e) => setExpiresAt(e.target.value)}
-									required
-								/>
-							</div>
+							<PlanTermFields plans={plans} value={term} onChange={setTerm} />
 						</CardContent>
 						<CardFooter className="flex justify-between">
 							<Button
@@ -208,7 +109,12 @@ const CreateSubscription = () => {
 							</Button>
 							<Button
 								type="submit"
-								disabled={saving || !selectedCompany || !selectedPlan}
+								disabled={
+									saving ||
+									!selectedCompany ||
+									!term.planCode ||
+									!term.expiresAt
+								}
 							>
 								{saving && <Spinner />}
 								{textGet("backoffice.subscriptions.create")}

@@ -14,13 +14,13 @@ import { useNavigate } from "react-router";
 import {
 	type Company,
 	companies,
+	companyRegisterLink,
+	companySignupLink,
 	generateCompanyRegisterToken,
 	getCompanySignupToken,
 } from "@/api/company-service";
 import { useText } from "@/hooks/use-text";
 import { type ResourceColumn, ResourceList } from "@/lib/resource";
-
-const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL || "http://localhost:5173";
 
 const columns: ResourceColumn<Company>[] = [
 	{
@@ -70,7 +70,7 @@ const CompanyList = () => {
 
 		const res = await getCompanySignupToken(company.ID);
 		if (res.success && res.data) {
-			setSignupLink(`${WEB_APP_URL}/signup?token=${res.data.token}`);
+			setSignupLink(companySignupLink(res.data.token));
 		} else {
 			setSignupLink("");
 		}
@@ -85,7 +85,7 @@ const CompanyList = () => {
 
 		const res = await generateCompanyRegisterToken();
 		if (res.success && res.data) {
-			setSignupLink(`${WEB_APP_URL}/register?token=${res.data.token}`);
+			setSignupLink(companyRegisterLink(res.data.token));
 		} else {
 			setSignupLink("");
 		}

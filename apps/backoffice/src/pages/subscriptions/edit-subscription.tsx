@@ -6,7 +6,6 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-	FormInput,
 	Label,
 	Select,
 	SelectContent,
@@ -17,19 +16,17 @@ import {
 } from "@pengi/ui";
 import React from "react";
 import { useNavigate, useParams } from "react-router";
-import z from "zod";
-import {
-	type Plan,
-	type PricingOption,
-	plans as planResource,
-} from "@/api/plan-service";
+import { type Plan, plans as planResource } from "@/api/plan-service";
 import { subscriptions } from "@/api/subscription-service";
-import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
-import { cn } from "@/lib/utils";
+import {
+	type PlanTerm,
+	PlanTermFields,
+} from "@/lib/subscription/plan-term-fields";
+import { expiryDate } from "@/lib/subscription/term";
 
-const formSchema = z.object({ expires_at: z.string().min(1) });
+const STATUSES = ["active", "expired", "cancelled"] as const;
 
 const EditSubscription = () => {
 	const { textGet } = useText();
@@ -42,138 +39,88 @@ const EditSubscription = () => {
 		save,
 	} = useResourceItem(subscriptions, id);
 	const [plans, setPlans] = React.useState<Plan[]>([]);
-	const [selectedPlan, setSelectedPlan] = React.useState("");
-	const [selectedStatus, setSelectedStatus] = React.useState("active");
-	const defaultValues = {
-		expires_at: subscription?.expires_at.split("T")[0] ?? "",
-	};
+	const [term, setTerm] = React.useState<PlanTerm>({
+		planCode: "",
+		expiresAt: "",
+	});
+	const [status, setStatus] = React.useState("active");
 
 	React.useEffect(() => {
 		planResource.list().then((res) => {
-			if (res.success && res.data) setPlans(res.data as Plan[]);
+			if (res.success && res.data) setPlans(res.data);
 		});
 	}, []);
 
 	React.useEffect(() => {
 		if (!subscription) return;
-		setSelectedPlan(subscription.plan_code);
-		setSelectedStatus(subscription.status);
+		setTerm({
+			planCode: subscription.plan_code,
+			expiresAt: expiryDate(subscription.expires_at),
+		});
+		setStatus(subscription.status);
 	}, [subscription]);
 
-	const currentPlan = plans.find((p) => p.code === selectedPlan);
-	const sortedPricings: PricingOption[] = React.useMemo(() => {
-		if (!currentPlan?.pricings?.length) return [];
-		return [...currentPlan.pricings].sort((a, b) => a.months - b.months);
-	}, [currentPlan]);
-
-	async function onSubmit(values: z.infer<typeof formSchema>) {
+	async function onSubmit(e: React.FormEvent) {
+		e.preventDefault();
+		if (!term.planCode || !term.expiresAt) return;
 		await save({
-			plan_code: selectedPlan,
-			status: selectedStatus,
-			expires_at: new Date(values.expires_at).toISOString(),
+			plan_code: term.planCode,
+			status,
+			expires_at: term.expiresAt,
 		});
 	}
 
 	return (
 		<ResourceEditPage loading={loading}>
 			<div className="max-w-2xl mx-auto">
-				<Form<typeof formSchema>
-					schema={formSchema}
-					onSubmit={onSubmit}
-					defaultValues={defaultValues}
-				>
-					{(field) => (
-						<Card>
-							<CardHeader>
-								<CardTitle>
-									{textGet("backoffice.subscriptions.edit.title")}
-								</CardTitle>
-								<CardDescription>
-									{textGet("backoffice.subscriptions.edit.description")}
-								</CardDescription>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<div className="space-y-2">
-									<Label>{textGet("backoffice.subscriptions.col.plan")}</Label>
-									<Select
-										value={selectedPlan}
-										onValueChange={(v) => v && setSelectedPlan(v)}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{plans.map((p) => (
-												<SelectItem key={p.ID} value={p.code}>
-													{p.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-
-								{/* Plan pricing summary — informational only */}
-								{sortedPricings.length > 0 && (
-									<div className="space-y-2">
-										<Label>{textGet("backoffice.plans.pricings.title")}</Label>
-										<div className="flex flex-wrap gap-2">
-											{sortedPricings.map((p) => (
-												<span
-													key={p.months}
-													className={cn(
-														"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-mono",
-														"bg-muted text-muted-foreground",
-													)}
-												>
-													{textGet(`subscription.plans.period.${p.months}`)} · $
-													{p.price.toFixed(0)}
-												</span>
-											))}
-										</div>
-									</div>
-								)}
-
-								<div className="space-y-2">
-									<Label>
-										{textGet("backoffice.subscriptions.col.status")}
-									</Label>
-									<Select
-										value={selectedStatus}
-										onValueChange={(v) => v && setSelectedStatus(v)}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="active">Active</SelectItem>
-											<SelectItem value="expired">Expired</SelectItem>
-											<SelectItem value="cancelled">Cancelled</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-								<FormInput
-									field={field}
-									name="expires_at"
-									type="date"
-									label={textGet("backoffice.subscriptions.col.expires")}
-								/>
-							</CardContent>
-							<CardFooter className="flex justify-between">
-								<Button
-									type="button"
-									variant="outline"
-									onClick={() => navigate("/subscriptions")}
-								>
-									{textGet("backoffice.common.cancel")}
-								</Button>
-								<Button type="submit" disabled={saving}>
-									{saving && <Spinner />}
-									{textGet("backoffice.common.save")}
-								</Button>
-							</CardFooter>
-						</Card>
-					)}
-				</Form>
+				<form onSubmit={onSubmit}>
+					<Card>
+						<CardHeader>
+							<CardTitle>
+								{textGet("backoffice.subscriptions.edit.title")}
+							</CardTitle>
+							<CardDescription>
+								{textGet("backoffice.subscriptions.edit.description")}
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<PlanTermFields
+								plans={plans}
+								value={term}
+								onChange={setTerm}
+								suggestOnPlanChange={false}
+							/>
+							<div className="space-y-2">
+								<Label>{textGet("backoffice.subscriptions.col.status")}</Label>
+								<Select value={status} onValueChange={(v) => v && setStatus(v)}>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{STATUSES.map((s) => (
+											<SelectItem key={s} value={s}>
+												{textGet(`subscription.status.${s}`)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						</CardContent>
+						<CardFooter className="flex justify-between">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => navigate("/subscriptions")}
+							>
+								{textGet("backoffice.common.cancel")}
+							</Button>
+							<Button type="submit" disabled={saving}>
+								{saving && <Spinner />}
+								{textGet("backoffice.common.save")}
+							</Button>
+						</CardFooter>
+					</Card>
+				</form>
 			</div>
 		</ResourceEditPage>
 	);
