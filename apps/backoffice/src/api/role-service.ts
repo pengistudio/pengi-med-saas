@@ -1,15 +1,11 @@
 import { resource } from "@/lib/resource/http-resource";
+import type { Permission } from "./permission-service";
 export interface Role {
 	ID: number;
 	CreatedAt: string;
 	UpdatedAt: string;
 	role: string;
-	permissions: {
-		ID: string;
-		name: string;
-		category: string;
-		description: string;
-	}[];
+	permissions: Permission[];
 }
 
 export interface CreateRoleRequest extends Record<string, unknown> {

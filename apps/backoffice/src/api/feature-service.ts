@@ -1,16 +1,12 @@
 import { resource } from "@/lib/resource/http-resource";
+import type { Permission } from "./permission-service";
 export interface Feature {
 	ID: number;
 	CreatedAt: string;
 	UpdatedAt: string;
 	code: string;
 	name: string;
-	permissions: {
-		ID: string;
-		name: string;
-		category: string;
-		description: string;
-	}[];
+	permissions: Permission[];
 }
 
 export interface CreateFeatureRequest extends Record<string, unknown> {
