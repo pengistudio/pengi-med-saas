@@ -37,6 +37,15 @@ const CreatePatientPage = lazy(
 const EditPatientPage = lazy(
 	() => import("@/pages/clincal/patient/edit-patient"),
 );
+const GenerateMedicalReportPage = lazy(
+	() => import("@/pages/clincal/patient/generate-medical-report"),
+);
+const GenerateMedicalCertificatePage = lazy(
+	() => import("@/pages/clincal/patient/generate-medical-certificate"),
+);
+const MedicalDocumentsListPage = lazy(
+	() => import("@/pages/clincal/patient/medical-documents-list"),
+);
 const MedicalRecords = lazy(
 	() => import("@/pages/clincal/patient/medical-record-list"),
 );
@@ -155,6 +164,34 @@ const clinicalRoutes: RouteObject = {
 					<UpdateMedicalRecordPage />
 				</CheckPermission>
 			),
+		},
+		{
+			path: "medical-reports/create",
+			element: (
+				<CheckPermission
+					permissions={[
+						PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_REPORT,
+					]}
+				>
+					<GenerateMedicalReportPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "medical-certificates/create",
+			element: (
+				<CheckPermission
+					permissions={[
+						PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_CERTIFICATE,
+					]}
+				>
+					<GenerateMedicalCertificatePage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "medical-documents",
+			element: <MedicalDocumentsListPage />,
 		},
 		{
 			path: "appointments",

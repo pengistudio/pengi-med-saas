@@ -532,12 +532,176 @@
         "value": "View Medical Record"
     },
     {
-        "key": "clinical.patient.download_records",
-        "value": "Download Medical Consultation History"
+        "key": "clinical.patient.generate_report",
+        "value": "Generate Medical Report"
     },
     {
-        "key": "clinical.patient.report.title",
-        "value": "MEDICAL CONSULTATION HISTORY"
+        "key": "clinical.patient.generate_certificate",
+        "value": "Generate Medical Certificate"
+    },
+    {
+        "key": "clinical.medical_report.create.success",
+        "value": "Medical report generated successfully."
+    },
+    {
+        "key": "clinical.medical_report.email.success",
+        "value": "Medical report sent by email."
+    },
+    {
+        "key": "clinical.medical_certificate.create.success",
+        "value": "Medical certificate generated successfully."
+    },
+    {
+        "key": "clinical.medical_certificate.email.success",
+        "value": "Medical certificate sent by email."
+    },
+    {
+        "key": "clinical.medical_report.list.success",
+        "value": "Medical reports fetched successfully."
+    },
+    {
+        "key": "clinical.medical_certificate.list.success",
+        "value": "Medical certificates fetched successfully."
+    },
+    {
+        "key": "clinical.patient.generate_documents",
+        "value": "View Medical Documents"
+    },
+    {
+        "key": "clinical.medical_documents.title",
+        "value": "Medical Documents"
+    },
+    {
+        "key": "clinical.medical_documents.description",
+        "value": "Medical reports and certificates generated for this patient."
+    },
+    {
+        "key": "clinical.medical_documents.empty",
+        "value": "No documents have been generated for this patient."
+    },
+    {
+        "key": "clinical.medical_documents.type",
+        "value": "Type"
+    },
+    {
+        "key": "clinical.medical_documents.type.report",
+        "value": "Medical Report"
+    },
+    {
+        "key": "clinical.medical_documents.type.certificate",
+        "value": "Medical Certificate"
+    },
+    {
+        "key": "clinical.medical_documents.created_at",
+        "value": "Creation date"
+    },
+    {
+        "key": "clinical.medical_documents.new_report",
+        "value": "New Report"
+    },
+    {
+        "key": "clinical.medical_documents.new_certificate",
+        "value": "New Certificate"
+    },
+    {
+        "key": "clinical.medical_documents.back",
+        "value": "Back to patient"
+    },
+    {
+        "key": "clinical.medical_documents.send_email.title",
+        "value": "Send document by email"
+    },
+    {
+        "key": "dialog.medical_report.title",
+        "value": "Generate Medical Report"
+    },
+    {
+        "key": "dialog.medical_report.description",
+        "value": "Review and edit the consultation history before saving the report."
+    },
+    {
+        "key": "dialog.medical_report.patient_data",
+        "value": "Patient data"
+    },
+    {
+        "key": "dialog.medical_report.created_at",
+        "value": "Creation date"
+    },
+    {
+        "key": "dialog.medical_report.consultations",
+        "value": "Consultation history"
+    },
+    {
+        "key": "dialog.medical_report.summary",
+        "value": "Summary"
+    },
+    {
+        "key": "dialog.medical_report.plan",
+        "value": "Plan"
+    },
+    {
+        "key": "dialog.medical_report.save",
+        "value": "Save"
+    },
+    {
+        "key": "dialog.medical_report.print",
+        "value": "Print"
+    },
+    {
+        "key": "dialog.medical_report.send_email",
+        "value": "Send by email"
+    },
+    {
+        "key": "dialog.medical_report.email_placeholder",
+        "value": "email@example.com"
+    },
+    {
+        "key": "dialog.medical_report.no_consultations",
+        "value": "This patient has no recorded consultations."
+    },
+    {
+        "key": "dialog.medical_certificate.title",
+        "value": "Generate Medical Certificate"
+    },
+    {
+        "key": "dialog.medical_certificate.description",
+        "value": "Fill in the certificate details before saving it."
+    },
+    {
+        "key": "dialog.medical_certificate.diagnosis",
+        "value": "Diagnosis"
+    },
+    {
+        "key": "dialog.medical_certificate.observations",
+        "value": "Observations"
+    },
+    {
+        "key": "dialog.medical_certificate.rest_days",
+        "value": "Rest days"
+    },
+    {
+        "key": "dialog.medical_certificate.rest_from",
+        "value": "Rest from"
+    },
+    {
+        "key": "dialog.medical_certificate.rest_to",
+        "value": "Rest to"
+    },
+    {
+        "key": "dialog.medical_certificate.save",
+        "value": "Save"
+    },
+    {
+        "key": "dialog.medical_certificate.print",
+        "value": "Print"
+    },
+    {
+        "key": "dialog.medical_certificate.send_email",
+        "value": "Send by email"
+    },
+    {
+        "key": "dialog.medical_certificate.email_placeholder",
+        "value": "email@example.com"
     },
     {
         "key": "clinical.patient.last_name",

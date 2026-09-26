@@ -86,26 +86,117 @@ export const deleteMultiplePatients = async (
 	return getAllPatientsWithLastFollowUp({});
 };
 
-export const downloadPatientReport = async (id: number): Promise<void> => {
-	const response = await clinicalService.get<Blob>(
-		`/clinical/patients/${id}/report`,
-		{
-			responseType: "blob",
-			notifyError: true,
-		},
-	);
+// ─── Medical Report / Certificate API ────────────────────────────────────────
 
-	if (response.success && response.data) {
-		const url = window.URL.createObjectURL(new Blob([response.data]));
-		const link = document.createElement("a");
-		link.href = url;
-		link.setAttribute(
-			"download",
-			response.filename ?? `patient_report_${id}.pdf`,
-		);
-		link.click();
-		link.remove();
-	}
+export interface MedicalReportConsultationEntry {
+	medical_record_id: number;
+	date: string;
+	motive: string;
+	summary: string;
+}
+
+export interface MedicalReport extends BaseModel {
+	patient_id: number;
+	consultations: MedicalReportConsultationEntry[];
+	plan: string;
+}
+
+export interface MedicalCertificate extends BaseModel {
+	patient_id: number;
+	diagnosis: string;
+	observations: string;
+	rest_days?: number | null;
+	rest_from?: string | null;
+	rest_to?: string | null;
+}
+
+export const getMedicalReports = async (
+	patientId: number,
+): Promise<ServiceResponse<MedicalReport[]>> => {
+	return clinicalService.get<MedicalReport[]>(
+		`/clinical/patients/${patientId}/reports`,
+		{ notifyError: true },
+	);
+};
+
+export const getMedicalCertificates = async (
+	patientId: number,
+): Promise<ServiceResponse<MedicalCertificate[]>> => {
+	return clinicalService.get<MedicalCertificate[]>(
+		`/clinical/patients/${patientId}/certificates`,
+		{ notifyError: true },
+	);
+};
+
+export const createMedicalReport = async (
+	patientId: number,
+	payload: {
+		consultations: MedicalReportConsultationEntry[];
+		plan: string;
+	},
+): Promise<ServiceResponse<MedicalReport>> => {
+	return clinicalService.post<MedicalReport>(
+		`/clinical/patients/${patientId}/reports`,
+		payload,
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const downloadMedicalReportPdf = async (
+	reportId: number,
+): Promise<ServiceResponse<Blob>> => {
+	return clinicalService.get<Blob>(`/clinical/reports/${reportId}/download`, {
+		responseType: "blob",
+		notifyError: true,
+	});
+};
+
+export const emailMedicalReport = async (
+	reportId: number,
+	email: string,
+): Promise<ServiceResponse<null>> => {
+	return clinicalService.post<null>(
+		`/clinical/reports/${reportId}/email`,
+		{ email },
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const createMedicalCertificate = async (
+	patientId: number,
+	payload: {
+		diagnosis: string;
+		observations: string;
+		rest_days?: number | null;
+		rest_from?: string | null;
+		rest_to?: string | null;
+	},
+): Promise<ServiceResponse<MedicalCertificate>> => {
+	return clinicalService.post<MedicalCertificate>(
+		`/clinical/patients/${patientId}/certificates`,
+		payload,
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const downloadMedicalCertificatePdf = async (
+	certificateId: number,
+): Promise<ServiceResponse<Blob>> => {
+	return clinicalService.get<Blob>(
+		`/clinical/certificates/${certificateId}/download`,
+		{ responseType: "blob", notifyError: true },
+	);
+};
+
+export const emailMedicalCertificate = async (
+	certificateId: number,
+	email: string,
+): Promise<ServiceResponse<null>> => {
+	return clinicalService.post<null>(
+		`/clinical/certificates/${certificateId}/email`,
+		{ email },
+		{ notifySuccess: true, notifyError: true },
+	);
 };
 
 export type CreatePatientPayload = {

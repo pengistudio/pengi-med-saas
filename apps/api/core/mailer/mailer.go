@@ -2,6 +2,7 @@ package mailer
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -32,23 +33,34 @@ func NewMailer() *Mailer {
 	}
 }
 
+type resendAttachment struct {
+	Filename string `json:"filename"`
+	Content  string `json:"content"` // base64-encoded
+}
+
 type resendPayload struct {
-	From    string   `json:"from"`
-	To      []string `json:"to"`
-	Subject string   `json:"subject"`
-	HTML    string   `json:"html"`
+	From        string             `json:"from"`
+	To          []string           `json:"to"`
+	Subject     string             `json:"subject"`
+	HTML        string             `json:"html"`
+	Attachments []resendAttachment `json:"attachments,omitempty"`
 }
 
 func (m *Mailer) send(to, subject, html string) error {
+	return m.sendWithAttachments(to, subject, html, nil)
+}
+
+func (m *Mailer) sendWithAttachments(to, subject, html string, attachments []resendAttachment) error {
 	if m.apiKey == "" {
 		return fmt.Errorf("Resend not configured: RESEND_API_KEY is empty")
 	}
 
 	payload := resendPayload{
-		From:    fmt.Sprintf("%s <%s>", m.fromName, m.from),
-		To:      []string{to},
-		Subject: subject,
-		HTML:    html,
+		From:        fmt.Sprintf("%s <%s>", m.fromName, m.from),
+		To:          []string{to},
+		Subject:     subject,
+		HTML:        html,
+		Attachments: attachments,
 	}
 
 	body, err := json.Marshal(payload)
@@ -111,4 +123,23 @@ func (m *Mailer) SendContactMessage(toEmail, name, fromEmail, message string) er
 
 	subject := fmt.Sprintf("Nuevo contacto de %s — Gentoo", name)
 	return m.send(toEmail, subject, html)
+}
+
+// SendMedicalDocumentEmail sends a generated PDF (medical report or
+// certificate) as an email attachment to the given address.
+func (m *Mailer) SendMedicalDocumentEmail(toEmail, subject, documentTitle, pdfFilename string, pdfBytes []byte) error {
+	html := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color: #0d9488;">%s</h2>
+  <p>Adjunto encontrarás el documento en formato PDF.</p>
+</body>
+</html>`, documentTitle)
+
+	attachment := resendAttachment{
+		Filename: pdfFilename,
+		Content:  base64.StdEncoding.EncodeToString(pdfBytes),
+	}
+
+	return m.sendWithAttachments(toEmail, subject, html, []resendAttachment{attachment})
 }

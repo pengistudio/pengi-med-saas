@@ -532,12 +532,176 @@
         "value": "Ver Historia Clínica"
     },
     {
-        "key": "clinical.patient.download_records",
-        "value": "Descargar Historial de Consultas Médicas"
+        "key": "clinical.patient.generate_report",
+        "value": "Generar Informe Médico"
     },
     {
-        "key": "clinical.patient.report.title",
-        "value": "HISTORIAL DE CONSULTAS MEDICAS"
+        "key": "clinical.patient.generate_certificate",
+        "value": "Generar Certificado Médico"
+    },
+    {
+        "key": "clinical.medical_report.create.success",
+        "value": "Informe médico generado correctamente."
+    },
+    {
+        "key": "clinical.medical_report.email.success",
+        "value": "Informe médico enviado por correo."
+    },
+    {
+        "key": "clinical.medical_certificate.create.success",
+        "value": "Certificado médico generado correctamente."
+    },
+    {
+        "key": "clinical.medical_certificate.email.success",
+        "value": "Certificado médico enviado por correo."
+    },
+    {
+        "key": "clinical.medical_report.list.success",
+        "value": "Informes médicos obtenidos correctamente."
+    },
+    {
+        "key": "clinical.medical_certificate.list.success",
+        "value": "Certificados médicos obtenidos correctamente."
+    },
+    {
+        "key": "clinical.patient.generate_documents",
+        "value": "Ver Documentos Médicos"
+    },
+    {
+        "key": "clinical.medical_documents.title",
+        "value": "Documentos Médicos"
+    },
+    {
+        "key": "clinical.medical_documents.description",
+        "value": "Informes y certificados médicos generados para este paciente."
+    },
+    {
+        "key": "clinical.medical_documents.empty",
+        "value": "No hay documentos generados para este paciente."
+    },
+    {
+        "key": "clinical.medical_documents.type",
+        "value": "Tipo"
+    },
+    {
+        "key": "clinical.medical_documents.type.report",
+        "value": "Informe Médico"
+    },
+    {
+        "key": "clinical.medical_documents.type.certificate",
+        "value": "Certificado Médico"
+    },
+    {
+        "key": "clinical.medical_documents.created_at",
+        "value": "Fecha de creación"
+    },
+    {
+        "key": "clinical.medical_documents.new_report",
+        "value": "Nuevo Informe"
+    },
+    {
+        "key": "clinical.medical_documents.new_certificate",
+        "value": "Nuevo Certificado"
+    },
+    {
+        "key": "clinical.medical_documents.back",
+        "value": "Volver al paciente"
+    },
+    {
+        "key": "clinical.medical_documents.send_email.title",
+        "value": "Enviar documento por correo"
+    },
+    {
+        "key": "dialog.medical_report.title",
+        "value": "Generar Informe Médico"
+    },
+    {
+        "key": "dialog.medical_report.description",
+        "value": "Revisa y edita el historial de consultas antes de guardar el informe."
+    },
+    {
+        "key": "dialog.medical_report.patient_data",
+        "value": "Datos del paciente"
+    },
+    {
+        "key": "dialog.medical_report.created_at",
+        "value": "Fecha de creación"
+    },
+    {
+        "key": "dialog.medical_report.consultations",
+        "value": "Historial de consultas"
+    },
+    {
+        "key": "dialog.medical_report.summary",
+        "value": "Resumen"
+    },
+    {
+        "key": "dialog.medical_report.plan",
+        "value": "Plan"
+    },
+    {
+        "key": "dialog.medical_report.save",
+        "value": "Guardar"
+    },
+    {
+        "key": "dialog.medical_report.print",
+        "value": "Imprimir"
+    },
+    {
+        "key": "dialog.medical_report.send_email",
+        "value": "Enviar al correo"
+    },
+    {
+        "key": "dialog.medical_report.email_placeholder",
+        "value": "correo@ejemplo.com"
+    },
+    {
+        "key": "dialog.medical_report.no_consultations",
+        "value": "Este paciente no tiene consultas registradas."
+    },
+    {
+        "key": "dialog.medical_certificate.title",
+        "value": "Generar Certificado Médico"
+    },
+    {
+        "key": "dialog.medical_certificate.description",
+        "value": "Completa los datos del certificado antes de guardarlo."
+    },
+    {
+        "key": "dialog.medical_certificate.diagnosis",
+        "value": "Diagnóstico"
+    },
+    {
+        "key": "dialog.medical_certificate.observations",
+        "value": "Observaciones"
+    },
+    {
+        "key": "dialog.medical_certificate.rest_days",
+        "value": "Días de reposo"
+    },
+    {
+        "key": "dialog.medical_certificate.rest_from",
+        "value": "Reposo desde"
+    },
+    {
+        "key": "dialog.medical_certificate.rest_to",
+        "value": "Reposo hasta"
+    },
+    {
+        "key": "dialog.medical_certificate.save",
+        "value": "Guardar"
+    },
+    {
+        "key": "dialog.medical_certificate.print",
+        "value": "Imprimir"
+    },
+    {
+        "key": "dialog.medical_certificate.send_email",
+        "value": "Enviar al correo"
+    },
+    {
+        "key": "dialog.medical_certificate.email_placeholder",
+        "value": "correo@ejemplo.com"
     },
     {
         "key": "clinical.patient.last_name",

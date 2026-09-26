@@ -3,8 +3,9 @@ package routes
 import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
-	subscription_middleware "pengi-med-saas/features/companies/middleware"
+	"pengi-med-saas/core/mailer"
 	clinical_handlers "pengi-med-saas/features/clinical/handlers"
+	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
@@ -23,6 +24,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
 	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log)
 	draftHandler := clinical_handlers.NewMedicalRecordDraftHandler(db, logger.Log)
+	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer())
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 	{
@@ -43,10 +45,19 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			patientGroup.GET("", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetAllPatients))
 			patientGroup.GET("/follow-up", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetAllPatientsWithLastFollowUp))
 			patientGroup.GET("/:id", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetPatientByID))
-			patientGroup.GET("/:id/report", rp(db, "DOWNLOAD_PATIENT_REPORT"), downloadHandler.DownloadPatientReport)
 			patientGroup.POST("/delete-multiple", rp(db, "DELETE_PATIENT"), envelope.Handle(patientHandler.DeleteMultiplePatients))
 			patientGroup.DELETE("/delete-multiple/:id", rp(db, "DELETE_PATIENT"), envelope.Handle(patientHandler.DeleteOnePatient))
+			patientGroup.POST("/:id/reports", rp(db, "CREATE_MEDICAL_REPORT"), envelope.Handle(medicalDocumentHandler.CreateMedicalReport))
+			patientGroup.GET("/:id/reports", rp(db, "CREATE_MEDICAL_REPORT"), envelope.Handle(medicalDocumentHandler.ListMedicalReports))
+			patientGroup.POST("/:id/certificates", rp(db, "CREATE_MEDICAL_CERTIFICATE"), envelope.Handle(medicalDocumentHandler.CreateMedicalCertificate))
+			patientGroup.GET("/:id/certificates", rp(db, "CREATE_MEDICAL_CERTIFICATE"), envelope.Handle(medicalDocumentHandler.ListMedicalCertificates))
 		}
+
+		// Medical report / certificate document routes (generate, download, email)
+		clinicalGroup.GET("/reports/:id/download", rp(db, "CREATE_MEDICAL_REPORT"), medicalDocumentHandler.DownloadMedicalReport)
+		clinicalGroup.POST("/reports/:id/email", rp(db, "CREATE_MEDICAL_REPORT"), envelope.Handle(medicalDocumentHandler.EmailMedicalReport))
+		clinicalGroup.GET("/certificates/:id/download", rp(db, "CREATE_MEDICAL_CERTIFICATE"), medicalDocumentHandler.DownloadMedicalCertificate)
+		clinicalGroup.POST("/certificates/:id/email", rp(db, "CREATE_MEDICAL_CERTIFICATE"), envelope.Handle(medicalDocumentHandler.EmailMedicalCertificate))
 
 		// Medical Record routes
 		recordGroup := clinicalGroup.Group("/records")

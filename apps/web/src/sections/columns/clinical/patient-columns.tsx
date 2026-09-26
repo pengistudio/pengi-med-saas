@@ -17,8 +17,10 @@ import {
 } from "@pengi/ui";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
-	Download,
 	Eye,
+	FileCheck,
+	FileText,
+	FolderOpen,
 	HelpCircle,
 	MoreVertical,
 	Pencil,
@@ -26,8 +28,6 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Patient } from "@/api/clinical-service";
-import { downloadPatientReport } from "@/api/clinical-service";
-import useAuth from "@/hooks/use-auth";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
@@ -43,7 +43,6 @@ function getInitials(patient: Patient): string {
 function RenderActions({ row }: CellContext<Patient, unknown>) {
 	const navigate = useNavigate();
 	const setPatient = usePatientStore(selectSetPatient);
-	const { token } = useAuth();
 	const params = new URLSearchParams({
 		patient_id: String(row.original.ID),
 	});
@@ -100,19 +99,41 @@ function RenderActions({ row }: CellContext<Patient, unknown>) {
 							</DropdownMenuItem>
 						)}
 						{checkPermission([
-							PERMISSIONS.MEDICAL_RECORD.PERMISSION_DOWNLOAD_PATIENT_REPORT,
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_REPORT,
 						]) && (
 							<DropdownMenuItem
-								onClick={async () => {
-									if (token) {
-										await downloadPatientReport(row.original.ID);
-									}
-								}}
+								onClick={() =>
+									navigate(
+										`/clinical/medical-reports/create?${params.toString()}`,
+									)
+								}
 							>
-								<Download className="w-4 h-4 mr-2 mb-1" />
-								<Text uuid="clinical.patient.download_records" />
+								<FileText className="w-4 h-4 mr-2" />
+								<Text uuid="clinical.patient.generate_report" />
 							</DropdownMenuItem>
 						)}
+						{checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_CERTIFICATE,
+						]) && (
+							<DropdownMenuItem
+								onClick={() =>
+									navigate(
+										`/clinical/medical-certificates/create?${params.toString()}`,
+									)
+								}
+							>
+								<FileCheck className="w-4 h-4 mr-2" />
+								<Text uuid="clinical.patient.generate_certificate" />
+							</DropdownMenuItem>
+						)}
+						<DropdownMenuItem
+							onClick={() =>
+								navigate(`/clinical/medical-documents?${params.toString()}`)
+							}
+						>
+							<FolderOpen className="w-4 h-4 mr-2" />
+							<Text uuid="clinical.patient.generate_documents" />
+						</DropdownMenuItem>
 					</DropdownMenuGroup>
 				</DropdownMenuContent>
 			</DropdownMenu>

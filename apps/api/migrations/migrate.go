@@ -48,6 +48,8 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.VitalSigns{},
 		clinical_models.Appointment{},
 		clinical_models.Cie10Code{},
+		clinical_models.MedicalReport{},
+		clinical_models.MedicalCertificate{},
 		integration_models.TenantIntegration{},
 		backoffice_models.BackofficeUser{},
 		billing_models.Invoice{},

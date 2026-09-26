@@ -60,6 +60,18 @@ var ClinicalPermissions = []permission_models.Permission{
 		Category:     "CLINICAL",
 		Description:  "Download patient reports",
 	},
+	{
+		BaseStringID: database.BaseStringID{ID: "CREATE_MEDICAL_REPORT"},
+		Name:         "Create Medical Report",
+		Category:     "CLINICAL",
+		Description:  "Generate, download and email medical reports",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "CREATE_MEDICAL_CERTIFICATE"},
+		Name:         "Create Medical Certificate",
+		Category:     "CLINICAL",
+		Description:  "Generate, download and email medical certificates",
+	},
 }
 
 var BillingPermissions = []permission_models.Permission{
