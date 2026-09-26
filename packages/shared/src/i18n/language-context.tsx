@@ -1,10 +1,4 @@
-import {
-	createContext,
-	type ReactNode,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+import { createContext, type ReactNode, useContext, useState } from "react";
 import { useMessageStore } from "./message-store";
 import { type SupportedLocale, updateZodLocale } from "./zod-i18n";
 
@@ -25,15 +19,19 @@ export function LanguageProvider({
 }) {
 	const { lang } = useMessageStore();
 
+	// zod's locale is switched before the state changes, not in an effect:
+	// children's effects run before their parent's, so a form re-validating on
+	// the language change would otherwise still get the old language's messages.
 	const [currentLanguage, setCurrentLanguage] = useState<SupportedLocale>(
-		lang ?? "es",
+		() => {
+			const initial = lang ?? "es";
+			updateZodLocale(initial);
+			return initial;
+		},
 	);
 
-	useEffect(() => {
-		updateZodLocale(currentLanguage);
-	}, [currentLanguage]);
-
 	const changeLanguage = (lang: SupportedLocale) => {
+		updateZodLocale(lang);
 		setCurrentLanguage(lang);
 	};
 
