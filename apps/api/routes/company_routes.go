@@ -17,11 +17,6 @@ func RegisterCompanyRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	companyPaymentHandler := company_handlers.NewCompanyPaymentHandler(db, logger.Log)
 	dashboardHandler := company_handlers.NewDashboardHandler(db, logger.Log)
 
-	group := router.Group("/companies")
-	{
-		group.GET("", envelope.Handle(companyHandler.GetCompanies))
-	}
-
 	// Auth + tenant only (no subscription middleware — accessible even with expired subscription)
 	authedGroup := router.Group("/companies",
 		auth_middleware.AuthMiddleware(),
