@@ -235,7 +235,7 @@ const SettingsPage = () => {
 							className={cn(
 								"inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
 								hasCustomTemplate
-									? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+									? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
 									: "bg-muted text-muted-foreground",
 							)}
 						>
@@ -295,7 +295,7 @@ const SettingsPage = () => {
 								className={cn(
 									"mt-1 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
 									googleStatus?.connected
-										? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+										? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
 										: "bg-muted text-muted-foreground",
 								)}
 							>
@@ -303,7 +303,7 @@ const SettingsPage = () => {
 									className={cn(
 										"size-1.5 rounded-full",
 										googleStatus?.connected
-											? "bg-green-500"
+											? "bg-emerald-500"
 											: "bg-muted-foreground/50",
 									)}
 								/>

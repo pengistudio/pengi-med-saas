@@ -59,7 +59,7 @@ export default function TaskCardContent({
 	return (
 		<div
 			className={cn(
-				"rounded-xl border-l-4 bg-white p-3 shadow-sm space-y-2.5 transition-all duration-300",
+				"rounded-xl border-l-4 bg-card p-3 shadow-sm space-y-2.5 transition-all duration-300",
 				borderColor,
 				isDragging
 					? "shadow-2xl scale-105 opacity-40"

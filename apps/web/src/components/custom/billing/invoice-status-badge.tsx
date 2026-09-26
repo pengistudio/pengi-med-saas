@@ -45,7 +45,7 @@ export function InvoiceStatusBadge({
 			);
 		case "authorized":
 			return (
-				<Badge className="bg-green-500 hover:bg-green-600 text-white">
+				<Badge className="bg-emerald-500 hover:bg-emerald-600 text-white">
 					<Text uuid="billing.status.authorized" />
 				</Badge>
 			);

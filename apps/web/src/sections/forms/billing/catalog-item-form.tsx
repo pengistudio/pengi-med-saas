@@ -201,7 +201,7 @@ const CatalogItemForm = ({
 								placeholder={textGet("billing.catalog-item.form.tax")}
 								label={textGet("billing.catalog-item.form.tax")}
 								autoComplete="tax"
-								startAddon={<Percent className="w-4 h-4 text-green-600" />}
+								startAddon={<Percent className="w-4 h-4 text-emerald-600" />}
 								step="0.01"
 								disabled
 								isOptional
@@ -257,7 +257,7 @@ const CatalogItemForm = ({
 									"billing.catalog-item.form.ice.tax.placeholder",
 								)}
 								label={textGet("billing.catalog-item.form.ice_tax")}
-								startAddon={<Percent className="w-4 h-4 text-green-600" />}
+								startAddon={<Percent className="w-4 h-4 text-emerald-600" />}
 								step="0.01"
 								disabled
 								isOptional

@@ -27,6 +27,7 @@ const statusConfig = {
 		borderColor: "border-l-blue-500",
 		badgeColor: "bg-blue-50 text-blue-700",
 		accentColor: "text-blue-600",
+		barColor: "bg-blue-500",
 	},
 	in_progress: {
 		icon: Zap,
@@ -34,6 +35,7 @@ const statusConfig = {
 		borderColor: "border-l-amber-500",
 		badgeColor: "bg-amber-50 text-amber-700",
 		accentColor: "text-amber-600",
+		barColor: "bg-amber-500",
 	},
 	done: {
 		icon: CheckCircle2,
@@ -41,6 +43,7 @@ const statusConfig = {
 		borderColor: "border-l-emerald-500",
 		badgeColor: "bg-emerald-50 text-emerald-700",
 		accentColor: "text-emerald-600",
+		barColor: "bg-emerald-500",
 	},
 };
 
@@ -97,15 +100,7 @@ export default function TaskDetailsPanel({
 			>
 				{/* Status color bar on the left */}
 				<div
-					className="absolute left-0 top-0 bottom-0 w-1"
-					style={{
-						background:
-							task.status === "todo"
-								? "#3b82f6"
-								: task.status === "in_progress"
-									? "#f59e0b"
-									: "#10b981",
-					}}
+					className={cn("absolute left-0 top-0 bottom-0 w-1", status.barColor)}
 				/>
 
 				<div className="pl-4 pr-4 pt-5 pb-5 flex flex-col gap-5 max-h-[85vh] overflow-y-auto">

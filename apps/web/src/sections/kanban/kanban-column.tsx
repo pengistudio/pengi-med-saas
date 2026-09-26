@@ -70,7 +70,7 @@ export default function KanbanColumn({
 	return (
 		<div
 			className={cn(
-				"w-80 bg-white rounded-xl border-t-4 border-l border-r border-b border-slate-200 p-3 flex flex-col gap-2.5 shadow-xs hover:shadow-sm transition-all duration-300 shrink-0",
+				"w-80 bg-card rounded-xl border-t-4 border-l border-r border-b border-border p-3 flex flex-col gap-2.5 shadow-xs hover:shadow-sm transition-all duration-300 shrink-0",
 				config.color,
 			)}
 			ref={setNodeRef}
@@ -168,7 +168,7 @@ export default function KanbanColumn({
 				<Button
 					onClick={onAddTask}
 					variant="ghost"
-					className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-slate-100 gap-2 text-xs font-medium transition-all duration-200 h-8"
+					className="w-full justify-start text-muted-foreground gap-2 text-xs font-medium transition-all duration-200 h-8"
 				>
 					<Plus className="h-3.5 w-3.5" />
 					{textGet("tasks.column.add_card")}

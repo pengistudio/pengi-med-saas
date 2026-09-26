@@ -32,7 +32,7 @@ export function ColorSwatchPicker<T extends FieldValues>({
 							aria-label="default"
 							onClick={() => onChange("")}
 							className={cn(
-								"h-7 w-7 rounded-full border-2 border-dashed border-gray-400 bg-transparent transition-transform hover:scale-110 cursor-pointer",
+								"h-7 w-7 rounded-full border-2 border-dashed border-muted-foreground bg-transparent transition-transform hover:scale-110 cursor-pointer",
 								!value && "ring-2 ring-offset-2 ring-primary",
 							)}
 						/>
