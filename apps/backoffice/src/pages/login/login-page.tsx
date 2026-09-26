@@ -1,9 +1,18 @@
+import { Navigate, useSearchParams } from "react-router";
 import GentooPenguin from "@/assets/gentoo-black.png";
 import LoginImage from "@/assets/login.webp";
 import SelectLanguage from "@/components/custom/select-language";
+import { safeNext, useSession } from "@/lib/session";
 import LoginForm from "@/sections/forms/login/login-form";
 
 const Login = () => {
+	const { status } = useSession();
+	const [searchParams] = useSearchParams();
+
+	if (status === "authenticated") {
+		return <Navigate to={safeNext(searchParams.get("next"))} replace />;
+	}
+
 	return (
 		<>
 			<div className="absolute top-6 left-6 flex items-center gap-1 font-bold">

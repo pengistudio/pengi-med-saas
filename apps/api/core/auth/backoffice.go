@@ -116,3 +116,11 @@ func SetBackofficeRefreshCookie(c *gin.Context, refreshToken string) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(BackofficeRefreshCookie, refreshToken, int(RefreshTokenTTL().Seconds()), "/", "", httpsEnabled, true)
 }
+
+// ClearBackofficeRefreshCookie removes the backoffice refresh cookie, with the
+// same attributes it was set with so the browser deletes it.
+func ClearBackofficeRefreshCookie(c *gin.Context) {
+	httpsEnabled, _ := config.GetBoolEnv("HTTPS_ENABLED")
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(BackofficeRefreshCookie, "", -1, "/", "", httpsEnabled, true)
+}

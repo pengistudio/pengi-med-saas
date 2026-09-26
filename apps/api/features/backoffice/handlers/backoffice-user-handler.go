@@ -1,7 +1,6 @@
 package backoffice_handlers
 
 import (
-	"errors"
 	"net/http"
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/envelope"
@@ -9,7 +8,6 @@ import (
 	"pengi-med-saas/core/tenantdb"
 	backoffice_dto "pengi-med-saas/features/backoffice/dto"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -198,71 +196,19 @@ func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Respon
 	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "auth.token.refresh.success")
 }
 
-func (h *BackofficeUserHandler) ExtendSession(c *gin.Context) envelope.Response {
-	userId := c.GetInt64("user_id")
-	var user backoffice_models.BackofficeUser
-	if err := h.db.Model(&backoffice_models.BackofficeUser{}).First(&user, userId).Error; err != nil {
-		h.logger.Error("Failed to find backoffice user for session extension", zap.Int64("userId", userId), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthUserInvalidID)
+// Logout ends the admin's session: the stored refresh token is cleared, so the
+// refresh cookie stops working, and the cookie is removed from the browser.
+func (h *BackofficeUserHandler) Logout(c *gin.Context) envelope.Response {
+	if refreshToken, err := c.Cookie(auth.BackofficeRefreshCookie); err == nil && refreshToken != "" {
+		if claims, err := auth.ParseBackofficeRefreshToken(refreshToken); err == nil {
+			if err := h.db.Model(&backoffice_models.BackofficeUser{}).
+				Where("id = ? AND refresh_token = ?", claims.UserID, refreshToken).
+				Update("refresh_token", "").Error; err != nil {
+				h.logger.Error("Failed to revoke backoffice refresh token", zap.Error(err))
+				return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+			}
+		}
 	}
-	token, err := auth.GenerateBackofficeToken(user.UserName, int64(user.ID))
-	if err != nil {
-		h.logger.Error("Failed to generate token for session extension", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	h.logger.Info("Session extended successfully", zap.String("username", user.UserName))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "auth.session.extend.success")
-}
-
-func (h *BackofficeUserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {
-	claims, token, err := ExtractAndValidateBearerToken(c)
-	if err != nil {
-		h.logger.Warn("Bearer token validation failed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrBackofficeInvalidRequest)
-	}
-
-	userID, ok := claims["userId"].(float64)
-	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid user ID in token", core_errors.ErrBackofficeInvalidRequest)
-	}
-
-	username, ok := claims["username"].(string)
-	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid username in token", core_errors.ErrBackofficeInvalidRequest)
-	}
-
-	return envelope.SuccessResponse(gin.H{
-		"valid":    true,
-		"user_id":  int64(userID),
-		"username": username,
-		"token":    token,
-		"message":  "Token is valid",
-	}, "auth.token.valid")
-}
-
-func ExtractAndValidateBearerToken(c *gin.Context) (map[string]interface{}, string, error) {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		return nil, "", errors.New("authorization header missing")
-	}
-
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return nil, "", errors.New("invalid authorization header format")
-	}
-
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	if token == "" {
-		return nil, "", errors.New("token is empty")
-	}
-
-	if _, err := auth.ParseBackofficeAccessToken(token); err != nil {
-		return nil, "", err
-	}
-	claims, err := auth.ParseToken(token)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return claims, token, nil
+	auth.ClearBackofficeRefreshCookie(c)
+	return envelope.SuccessResponse(nil, "auth.logout.success")
 }

@@ -237,3 +237,39 @@ func TestBackofficeAuth_PasswordChangeRevokesRefresh(t *testing.T) {
 		t.Fatal("refresh with the cookie issued before the password change = 200, want rejection")
 	}
 }
+
+// Logging out ends the session server-side: the refresh cookie issued at login
+// stops working and the response clears it.
+func TestBackofficeAuth_LogoutRevokesRefresh(t *testing.T) {
+	router, db := backofficeRouter(t)
+	createBackofficeAdmin(t, db)
+	_, cookies := backofficeLogin(t, router)
+
+	w := call(router, http.MethodPost, "/backoffice/auth/logout", "", cookies...)
+	if w.Code != http.StatusOK {
+		t.Fatalf("logout = %d: %s", w.Code, w.Body.String())
+	}
+	cleared := false
+	for _, c := range w.Result().Cookies() {
+		if c.Name == auth.BackofficeRefreshCookie && c.MaxAge < 0 {
+			cleared = true
+		}
+	}
+	if !cleared {
+		t.Fatal("logout did not clear the refresh cookie")
+	}
+
+	if w := call(router, http.MethodPost, "/backoffice/auth/refresh", "", cookies...); w.Code == http.StatusOK {
+		t.Fatal("refresh with the cookie from before logout = 200, want rejection")
+	}
+}
+
+// /extend and /validate were unused; /validate was public.
+func TestBackofficeAuth_NoExtendOrValidateRoutes(t *testing.T) {
+	router, _ := backofficeRouter(t)
+	for _, path := range []string{"/backoffice/auth/extend", "/backoffice/auth/validate"} {
+		if w := call(router, http.MethodPost, path, ""); w.Code != http.StatusNotFound {
+			t.Fatalf("POST %s = %d, want 404 (route must not exist)", path, w.Code)
+		}
+	}
+}

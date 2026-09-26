@@ -45,8 +45,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	{
 		backofficeAuthRoutes.POST("/login", envelope.Handle(backofficeUserHandler.Login))
 		backofficeAuthRoutes.POST("/refresh", envelope.Handle(backofficeUserHandler.RefreshAuthToken))
-		backofficeAuthRoutes.POST("/extend", backofficeAuth, envelope.Handle(backofficeUserHandler.ExtendSession))
-		backofficeAuthRoutes.POST("/validate", envelope.Handle(backofficeUserHandler.ValidateBearerToken))
+		backofficeAuthRoutes.POST("/logout", envelope.Handle(backofficeUserHandler.Logout))
 	}
 
 	backofficeCompanyRoutes := router.Group("/backoffice/companies", backofficeAuth)

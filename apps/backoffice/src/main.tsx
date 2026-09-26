@@ -5,6 +5,10 @@ import { Toaster, TooltipProvider } from "@pengi/ui";
 import App from "./App.tsx";
 import { AppTextBridge } from "./components/app-text-bridge.tsx";
 import { LanguageProvider } from "./contexts/language-context.tsx";
+import { session } from "./lib/session";
+
+// Restore the session from the refresh cookie while the app renders.
+session.restore();
 
 const root = document.getElementById("root");
 

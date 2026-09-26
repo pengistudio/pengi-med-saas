@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import { createBrowserRouter, Outlet } from "react-router";
-import CheckAuth from "@/contexts/check-auth";
+import { RequireSession, session } from "@/lib/session";
 
 const CompanyList = lazy(() => import("@/pages/companies/company-list"));
 const CompanyUsers = lazy(() => import("@/pages/companies/company-users"));
@@ -37,9 +37,9 @@ const router = createBrowserRouter([
 	},
 	{
 		element: (
-			<CheckAuth>
+			<RequireSession session={session}>
 				<Outlet />
-			</CheckAuth>
+			</RequireSession>
 		),
 		children: [
 			{ path: "/", element: <Home /> },

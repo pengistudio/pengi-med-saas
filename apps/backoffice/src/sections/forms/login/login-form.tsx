@@ -11,12 +11,11 @@ import {
 	Spinner,
 } from "@pengi/ui";
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
-import { userLogin } from "@/api/auth-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
-import { useTokenStore } from "@/store/token-store";
+import { safeNext, useSession } from "@/lib/session";
 
 const formSchema = z.object({
 	password: z
@@ -31,7 +30,8 @@ const formSchema = z.object({
 
 const LoginForm = () => {
 	const [load, setLoad] = React.useState(false);
-	const { setToken } = useTokenStore();
+	const { login } = useSession();
+	const [searchParams] = useSearchParams();
 	const { textGet } = useText();
 	const navigate = useNavigate();
 
@@ -84,14 +84,9 @@ const LoginForm = () => {
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoad(true);
-		const response = await userLogin(values);
-		if (!response.success) {
-			setLoad(false);
-			return;
-		}
-		setToken(response.data.token);
+		const ok = await login(values);
 		setLoad(false);
-		navigate("/");
+		if (ok) navigate(safeNext(searchParams.get("next")), { replace: true });
 	}
 };
 

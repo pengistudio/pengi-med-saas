@@ -22,8 +22,8 @@ import type React from "react";
 import { memo, useCallback, useMemo } from "react";
 import NavAccordion from "@/components/custom/nav/nav-accordion";
 import NavItem from "@/components/custom/nav/nav-item";
-import useAuth from "@/hooks/use-auth";
 import { useText } from "@/hooks/use-text";
+import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store/sidebar-store";
 
@@ -35,12 +35,13 @@ import SelectLanguage from "@/components/custom/select-language";
 import { createNavItems } from "@/config/nav-config";
 
 function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
-	const { logout } = useAuth();
+	const { logout } = useSession();
 	const { textGet } = useText();
 	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
 
 	const navItems = useMemo(() => createNavItems(textGet), [textGet]);
 
+	// RequireSession sends the now-anonymous user to /login.
 	const handleLogout = useCallback(() => {
 		logout();
 	}, [logout]);

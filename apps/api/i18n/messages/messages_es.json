@@ -2232,6 +2232,14 @@
         "value": "Gestiona las empresas registradas en la plataforma"
     },
     {
+        "key": "backoffice.session.expired.title",
+        "value": "Tu sesión expiró"
+    },
+    {
+        "key": "backoffice.session.expired.description",
+        "value": "Inicia sesión de nuevo para continuar."
+    },
+    {
         "key": "backoffice.common.loading",
         "value": "Cargando..."
     },
