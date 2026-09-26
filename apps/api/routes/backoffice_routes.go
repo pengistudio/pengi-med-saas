@@ -7,7 +7,7 @@ import (
 	"pengi-med-saas/core/logger"
 	core_middleware "pengi-med-saas/core/middleware"
 	backoffice_handlers "pengi-med-saas/features/backoffice/handlers"
-	auth_middleware "pengi-med-saas/features/users/middleware"
+	backoffice_middleware "pengi-med-saas/features/backoffice/middleware"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
@@ -15,6 +15,7 @@ import (
 )
 
 func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
+	backofficeAuth := backoffice_middleware.BackofficeAuthMiddleware(db)
 	backofficeUserHandler := backoffice_handlers.NewBackofficeUserHandler(db, logger.Log)
 	backofficeCompanyHandler := backoffice_handlers.NewBackofficeCompanyHandler(db, logger.Log)
 	backofficeFeatureHandler := backoffice_handlers.NewBackofficeFeatureHandler(db, logger.Log)
@@ -26,15 +27,15 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 
 	backofficeRoutes := router.Group("/backoffice")
 	{
-		backofficeRoutes.GET("/permissions", auth_middleware.AuthMiddleware(), envelope.Handle(backofficePermissionHandler.GetPermissions))
-		backofficeRoutes.GET("/dashboard", auth_middleware.AuthMiddleware(), envelope.Handle(backofficeDashboardHandler.GetDashboardStats))
+		backofficeRoutes.GET("/permissions", backofficeAuth, envelope.Handle(backofficePermissionHandler.GetPermissions))
+		backofficeRoutes.GET("/dashboard", backofficeAuth, envelope.Handle(backofficeDashboardHandler.GetDashboardStats))
 	}
 
-	backofficeUserRoutes := router.Group("/backoffice/users", auth_middleware.AuthMiddleware())
+	backofficeUserRoutes := router.Group("/backoffice/users", backofficeAuth)
 	{
 		backofficeUserRoutes.GET("", envelope.Handle(backofficeUserHandler.GetUsers))
 		backofficeUserRoutes.GET("/:id", envelope.Handle(backofficeUserHandler.GetUserByID))
-		backofficeUserRoutes.POST("", envelope.Handle(backofficeUserHandler.SignUp))
+		backofficeUserRoutes.POST("", envelope.Handle(backofficeUserHandler.CreateUser))
 		backofficeUserRoutes.PUT("/:id", envelope.Handle(backofficeUserHandler.UpdateUser))
 		backofficeUserRoutes.DELETE("/:id", envelope.Handle(backofficeUserHandler.DeleteUser))
 	}
@@ -42,14 +43,13 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	authLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/15), 15)
 	backofficeAuthRoutes := router.Group("/backoffice/auth", authLimiter.Middleware())
 	{
-		backofficeAuthRoutes.POST("/signup", envelope.Handle(backofficeUserHandler.SignUp))
 		backofficeAuthRoutes.POST("/login", envelope.Handle(backofficeUserHandler.Login))
 		backofficeAuthRoutes.POST("/refresh", envelope.Handle(backofficeUserHandler.RefreshAuthToken))
-		backofficeAuthRoutes.POST("/extend", auth_middleware.AuthMiddleware(), envelope.Handle(backofficeUserHandler.ExtendSession))
+		backofficeAuthRoutes.POST("/extend", backofficeAuth, envelope.Handle(backofficeUserHandler.ExtendSession))
 		backofficeAuthRoutes.POST("/validate", envelope.Handle(backofficeUserHandler.ValidateBearerToken))
 	}
 
-	backofficeCompanyRoutes := router.Group("/backoffice/companies", auth_middleware.AuthMiddleware())
+	backofficeCompanyRoutes := router.Group("/backoffice/companies", backofficeAuth)
 	{
 		backofficeCompanyRoutes.GET("", envelope.Handle(backofficeCompanyHandler.GetCompanies))
 		backofficeCompanyRoutes.GET("/:id", envelope.Handle(backofficeCompanyHandler.GetCompanyByID))
@@ -64,7 +64,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeCompanyRoutes.DELETE("/:id/users/:user_id", envelope.Handle(backofficeCompanyHandler.DeleteCompanyUser))
 	}
 
-	backofficeRoleRoutes := router.Group("/backoffice/roles", auth_middleware.AuthMiddleware())
+	backofficeRoleRoutes := router.Group("/backoffice/roles", backofficeAuth)
 	{
 		backofficeRoleRoutes.GET("", envelope.Handle(backofficeRoleHandler.GetRoles))
 		backofficeRoleRoutes.GET("/:id", envelope.Handle(backofficeRoleHandler.GetRoleByID))
@@ -73,7 +73,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeRoleRoutes.DELETE("/:id", envelope.Handle(backofficeRoleHandler.DeleteRole))
 	}
 
-	backofficeFeatureRoutes := router.Group("/backoffice/features", auth_middleware.AuthMiddleware())
+	backofficeFeatureRoutes := router.Group("/backoffice/features", backofficeAuth)
 	{
 		backofficeFeatureRoutes.GET("", envelope.Handle(backofficeFeatureHandler.GetFeatures))
 		backofficeFeatureRoutes.GET("/:id", envelope.Handle(backofficeFeatureHandler.GetFeatureByID))
@@ -82,7 +82,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeFeatureRoutes.DELETE("/:id", envelope.Handle(backofficeFeatureHandler.DeleteFeature))
 	}
 
-	backofficePlanRoutes := router.Group("/backoffice/plans", auth_middleware.AuthMiddleware())
+	backofficePlanRoutes := router.Group("/backoffice/plans", backofficeAuth)
 	{
 		backofficePlanRoutes.GET("", envelope.Handle(backofficePlanHandler.GetPlans))
 		backofficePlanRoutes.GET("/:id", envelope.Handle(backofficePlanHandler.GetPlanByID))
@@ -92,13 +92,13 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	}
 
 	backofficePaymentHandler := backoffice_handlers.NewBackofficePaymentHandler(db, logger.Log)
-	backofficePaymentRoutes := router.Group("/backoffice/payments", auth_middleware.AuthMiddleware())
+	backofficePaymentRoutes := router.Group("/backoffice/payments", backofficeAuth)
 	{
 		backofficePaymentRoutes.POST("/generate", envelope.Handle(backofficePaymentHandler.GeneratePayments))
 		backofficePaymentRoutes.GET("", envelope.Handle(backofficePaymentHandler.GetPayments))
 	}
 
-	backofficeSubscriptionRoutes := router.Group("/backoffice/subscriptions", auth_middleware.AuthMiddleware())
+	backofficeSubscriptionRoutes := router.Group("/backoffice/subscriptions", backofficeAuth)
 	{
 		backofficeSubscriptionRoutes.GET("", envelope.Handle(backofficeSubscriptionHandler.GetSubscriptions))
 		backofficeSubscriptionRoutes.GET("/company/:id", envelope.Handle(backofficeSubscriptionHandler.GetSubscriptionsByCompany))

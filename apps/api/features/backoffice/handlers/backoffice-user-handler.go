@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -108,10 +107,12 @@ func (h *BackofficeUserHandler) DeleteUser(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(nil, "backoffice.users.delete.success")
 }
 
-func (h *BackofficeUserHandler) SignUp(c *gin.Context) envelope.Response {
+// CreateUser creates a backoffice admin. Only reachable by an authenticated
+// admin (POST /backoffice/users).
+func (h *BackofficeUserHandler) CreateUser(c *gin.Context) envelope.Response {
 	var user backoffice_models.BackofficeUser
 	if err := c.ShouldBind(&user); err != nil {
-		h.logger.Error("Invalid signup request", zap.Error(err))
+		h.logger.Error("Invalid create backoffice user request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 	if err := user.Save(h.db); err != nil {
@@ -141,12 +142,12 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidCredentials)
 	}
 
-	token, err := auth.GenerateToken(foundUser.UserName, int64(foundUser.ID))
+	token, err := auth.GenerateBackofficeToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
-	refreshToken, _, err := auth.GenerateRefreshToken(foundUser.UserName, int64(foundUser.ID), uuid.NewString())
+	refreshToken, err := auth.GenerateBackofficeRefreshToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate refresh token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
@@ -156,47 +157,52 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
-	exchangeToken, err := auth.GenerateExchangeToken(foundUser.UserName, int64(foundUser.ID))
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	auth.SetRefreshTokenCookie(refreshToken, c)
+	auth.SetBackofficeRefreshCookie(c, refreshToken)
 
 	h.logger.Info("Backoffice user logged in successfully", zap.String("username", foundUser.UserName))
 	return envelope.SuccessResponse(gin.H{
-		"token":          token,
-		"exchange_token": exchangeToken,
-		"user_id":        foundUser.ID,
+		"token":   token,
+		"user_id": foundUser.ID,
 	}, "login.successful")
 }
 
+// RefreshAuthToken issues a new access token for the backoffice refresh
+// cookie. The refresh token must be a backoffice one and still be the one
+// stored for that admin (a newer login replaces it).
 func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
-	refreshToken, err := c.Cookie("refresh_token")
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
+	invalid := envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRefreshToken)
+	refreshToken, err := c.Cookie(auth.BackofficeRefreshCookie)
+	if err != nil || refreshToken == "" {
+		return invalid
 	}
-	claims, err := auth.ValidateRefreshToken(refreshToken)
+	claims, err := auth.ParseBackofficeRefreshToken(refreshToken)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRefreshToken)
+		return invalid
 	}
-	token, err := auth.GenerateToken(claims.Username, int64(claims.UserID))
+	var user backoffice_models.BackofficeUser
+	if err := h.db.Where("id = ? AND user_name = ?", claims.UserID, claims.Username).First(&user).Error; err != nil {
+		return invalid
+	}
+	if user.RefreshToken != refreshToken {
+		h.logger.Warn("Backoffice refresh token is not the current one", zap.String("username", user.UserName))
+		return invalid
+	}
+	token, err := auth.GenerateBackofficeToken(user.UserName, int64(user.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate token during refresh", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
-	h.logger.Info("Token refreshed successfully", zap.String("username", claims.Username))
-	return envelope.SuccessResponse(gin.H{"token": token, "user_id": claims.UserID}, "auth.token.refresh.success")
+	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "auth.token.refresh.success")
 }
 
 func (h *BackofficeUserHandler) ExtendSession(c *gin.Context) envelope.Response {
-	userId := c.GetInt64("userId")
+	userId := c.GetInt64("user_id")
 	var user backoffice_models.BackofficeUser
 	if err := h.db.Model(&backoffice_models.BackofficeUser{}).First(&user, userId).Error; err != nil {
 		h.logger.Error("Failed to find backoffice user for session extension", zap.Int64("userId", userId), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthUserInvalidID)
 	}
-	token, err := auth.GenerateToken(user.UserName, int64(user.ID))
+	token, err := auth.GenerateBackofficeToken(user.UserName, int64(user.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate token for session extension", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
@@ -247,6 +253,9 @@ func ExtractAndValidateBearerToken(c *gin.Context) (map[string]interface{}, stri
 		return nil, "", errors.New("token is empty")
 	}
 
+	if _, err := auth.ParseBackofficeAccessToken(token); err != nil {
+		return nil, "", err
+	}
 	claims, err := auth.ParseToken(token)
 	if err != nil {
 		return nil, "", err

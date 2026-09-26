@@ -13,7 +13,6 @@ export interface BackofficeUser extends Base {
 
 export interface LoginResponse {
 	token: string;
-	exchange_token: string;
 	user_id: number;
 }
 

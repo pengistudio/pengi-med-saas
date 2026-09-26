@@ -11,6 +11,7 @@ export const userLogin = async (
 	return loginService.post<LoginResponse>("/backoffice/auth/login", data, {
 		notifySuccess: true,
 		notifyError: true,
+		withCredentials: true, // stores the backoffice refresh cookie
 	});
 };
 

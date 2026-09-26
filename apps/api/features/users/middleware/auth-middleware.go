@@ -39,6 +39,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// 5) Only clinic access tokens: not refresh or exchange tokens, and not
+		// backoffice tokens (same signing key, different audience).
+		if claims["type"] != "access_token" || auth.IsBackofficeToken(claims) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired token", core_errors.ErrAuthInvalidRequest))
+			return
+		}
+
 		// Extract info
 		// In jwt.go, ParseToken returns map[string]interface{}.
 		// We expect "userId" (float64) and "username" (string).
