@@ -14,6 +14,7 @@ var (
 	ErrTenantInvalidDisplayToken AppError = NewAppError("E-TEN-002", "Invalid or missing display token.")
 	ErrTenantInvalidLogoFile     AppError = NewAppError("E-TEN-003", "Invalid logo file. Only PNG or JPG images are allowed.")
 	ErrTenantLogoNotFound        AppError = NewAppError("E-TEN-004", "No logo has been uploaded for this tenant.")
+	ErrTenantForbidden           AppError = NewAppError("E-TEN-005", "User has no role in this tenant.")
 
 	ErrUserNotFound AppError = NewAppError("E-USR-001", "User not found.")
 

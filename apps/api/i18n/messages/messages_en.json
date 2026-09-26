@@ -5454,5 +5454,9 @@
     {
         "key": "billing.invoice.error.final_consumer_limit",
         "value": "A Consumidor Final invoice cannot exceed 50 USD. Select a patient to identify the buyer."
+    },
+    {
+        "key": "tenant.error.forbidden",
+        "value": "You do not have access to this company."
     }
 ]

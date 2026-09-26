@@ -11,7 +11,6 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
 	user_models "pengi-med-saas/features/users/models"
-	auth_middleware "pengi-med-saas/features/users/middleware"
 )
 
 const ContextKeyAllowedPermissions = "allowed_permissions"
@@ -118,30 +117,11 @@ func RequireRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 // RequirePermission and RequireRolePermission.
 func checkRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Find company for this tenant
-		tenantID := c.GetUint("tenant_id")
-		var company company_models.Company
-		if err := db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
-				http.StatusForbidden, "Company not found", core_errors.ErrCompanyNotFound,
-			))
-			return
-		}
-
-		// Find user's Environment for this company
-		userID, _, ok := auth_middleware.GetUserFromContext(c)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(
-				http.StatusUnauthorized, "User not authenticated", core_errors.ErrAuthInvalidRequest,
-			))
-			return
-		}
-
+		// TenantMiddleware already verified the caller holds this Environment (their
+		// role in the tenant's company); only its permissions are checked here.
+		environmentID := c.GetUint("environment_id")
 		var env user_models.Environment
-		if err := db.
-			Where("user_id = ? AND company_id = ?", userID, company.ID).
-			Preload("Role.Permissions").
-			First(&env).Error; err != nil {
+		if environmentID == 0 || db.Preload("Role.Permissions").First(&env, environmentID).Error != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
 				http.StatusForbidden, "User has no role in this company", core_errors.ErrPermissionGetError,
 			))

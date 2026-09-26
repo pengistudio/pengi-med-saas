@@ -5454,5 +5454,9 @@
     {
         "key": "billing.invoice.error.final_consumer_limit",
         "value": "Una factura a Consumidor Final no puede superar los 50 USD. Selecciona un paciente para identificar al comprador."
+    },
+    {
+        "key": "tenant.error.forbidden",
+        "value": "No tienes acceso a esta empresa."
     }
 ]

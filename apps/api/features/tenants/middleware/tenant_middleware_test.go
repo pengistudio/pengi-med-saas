@@ -5,7 +5,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+	company_models "pengi-med-saas/features/companies/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
+	user_models "pengi-med-saas/features/users/models"
 	"pengi-med-saas/testutils"
 )
 
@@ -58,42 +61,6 @@ func TestTenantMiddleware_UnknownSlug(t *testing.T) {
 	}
 }
 
-func TestTenantMiddleware_SetsContextValue(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{})
-
-	tenant := tenant_models.Tenant{
-		Slug: "test-tenant",
-		Name: "Test Tenant",
-	}
-	if err := db.Create(&tenant).Error; err != nil {
-		t.Fatalf("failed to create test tenant: %v", err)
-	}
-
-	middleware := TenantMiddleware(db)
-
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest("GET", "/test", nil)
-	c.Request.Header.Set("X-Tenant-Slug", "test-tenant")
-
-	middleware(c)
-
-	// Check if context was aborted (should not be aborted for valid slug)
-	if c.IsAborted() {
-		t.Errorf("expected context to NOT be aborted for valid slug")
-	}
-
-	tenantID, exists := c.Get("tenant_id")
-	if !exists {
-		t.Errorf("expected tenant_id to be set in context")
-	}
-
-	if tenantID != tenant.ID {
-		t.Errorf("expected tenant_id %d, got %v", tenant.ID, tenantID)
-	}
-}
-
 func TestTenantScope_FiltersQuery(t *testing.T) {
 	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &testModel{})
 
@@ -141,5 +108,111 @@ func TestTenantScope_FiltersQuery(t *testing.T) {
 		if item.TenantID != tenant1.ID {
 			t.Errorf("expected all results to have tenant_id %d, got %d", tenant1.ID, item.TenantID)
 		}
+	}
+}
+
+// membershipFixture creates two tenants, each with its company, and one user who
+// only has a role (Environment) in the first.
+type membershipFixture struct {
+	db          *gorm.DB
+	own, other  tenant_models.Tenant
+	ownCompany  company_models.Company
+	environment user_models.Environment
+	userID      int64
+}
+
+func newMembershipFixture(t *testing.T) membershipFixture {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &company_models.Company{}, &user_models.Environment{})
+
+	f := membershipFixture{db: db, userID: 7}
+	f.own = tenant_models.Tenant{Slug: "own-clinic", Name: "Own", DisplayToken: "tok-own"}
+	f.other = tenant_models.Tenant{Slug: "other-clinic", Name: "Other", DisplayToken: "tok-other"}
+	for _, tenant := range []*tenant_models.Tenant{&f.own, &f.other} {
+		if err := db.Create(tenant).Error; err != nil {
+			t.Fatalf("create tenant: %v", err)
+		}
+		company := company_models.Company{LegalName: tenant.Name, TradeName: tenant.Name, PlanCode: "basic", TenantID: tenant.ID}
+		if err := db.Create(&company).Error; err != nil {
+			t.Fatalf("create company: %v", err)
+		}
+		if tenant.ID == f.own.ID {
+			f.ownCompany = company
+		}
+	}
+	f.environment = user_models.Environment{UserID: uint(f.userID), Name: "Own", CompanyID: f.ownCompany.ID}
+	if err := db.Create(&f.environment).Error; err != nil {
+		t.Fatalf("create environment: %v", err)
+	}
+	return f
+}
+
+// request runs TenantMiddleware as the authenticated fixture user (as
+// AuthMiddleware would have left the context) against the given tenant slug.
+func (f membershipFixture) request(slug string) (*gin.Context, *httptest.ResponseRecorder) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("GET", "/test", nil)
+	c.Request.Header.Set("X-Tenant-Slug", slug)
+	c.Set("user_id", f.userID)
+	c.Set("username", "user@clinic.ec")
+	TenantMiddleware(f.db)(c)
+	return c, w
+}
+
+func TestTenantMiddleware_MemberGetsTenantCompanyAndEnvironment(t *testing.T) {
+	f := newMembershipFixture(t)
+
+	c, _ := f.request("own-clinic")
+
+	if c.IsAborted() {
+		t.Fatalf("a member of the tenant was rejected")
+	}
+	if got := c.GetUint("tenant_id"); got != f.own.ID {
+		t.Fatalf("tenant_id = %d, want %d", got, f.own.ID)
+	}
+	if got := c.GetUint("company_id"); got != f.ownCompany.ID {
+		t.Fatalf("company_id = %d, want %d", got, f.ownCompany.ID)
+	}
+	if got := c.GetUint("environment_id"); got != f.environment.ID {
+		t.Fatalf("environment_id = %d, want %d", got, f.environment.ID)
+	}
+}
+
+// A user must not reach another company's data by sending its slug.
+func TestTenantMiddleware_RejectsUserWithoutRoleInTheTenant(t *testing.T) {
+	f := newMembershipFixture(t)
+
+	c, w := f.request("other-clinic")
+
+	if !c.IsAborted() || w.Code != 403 {
+		t.Fatalf("aborted=%v code=%d, want aborted with 403", c.IsAborted(), w.Code)
+	}
+	if _, exists := c.Get("tenant_id"); exists {
+		t.Fatalf("tenant_id was set for a non-member")
+	}
+}
+
+func TestTenantMiddleware_RejectsUserWhoseRoleWasRemoved(t *testing.T) {
+	f := newMembershipFixture(t)
+	f.db.Delete(&f.environment)
+
+	if c, w := f.request("own-clinic"); !c.IsAborted() || w.Code != 403 {
+		t.Fatalf("aborted=%v code=%d, want aborted with 403", c.IsAborted(), w.Code)
+	}
+}
+
+func TestTenantMiddleware_RejectsUnauthenticatedRequest(t *testing.T) {
+	f := newMembershipFixture(t)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("GET", "/test", nil)
+	c.Request.Header.Set("X-Tenant-Slug", "own-clinic")
+
+	TenantMiddleware(f.db)(c)
+
+	if !c.IsAborted() || w.Code != 401 {
+		t.Fatalf("aborted=%v code=%d, want aborted with 401", c.IsAborted(), w.Code)
 	}
 }
