@@ -30,6 +30,7 @@ type JoinExistingCompanyDTO struct {
 }
 
 type SelfRegisterDTO struct {
+	Token       string `json:"token"        binding:"required"`
 	CompanyName string `json:"company_name" binding:"required,min=2,max=100"`
 	Username    string `json:"username"     binding:"required,min=3,max=50"`
 	Email       string `json:"email"        binding:"required,email"`

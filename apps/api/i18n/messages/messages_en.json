@@ -5104,6 +5104,34 @@
         "value": "This username is already in use."
     },
     {
+        "key": "auth.register.invalid_token",
+        "value": "The registration link is invalid or has expired. Ask our team for a new one."
+    },
+    {
+        "key": "backoffice.company.register_token.success",
+        "value": "Registration link generated successfully"
+    },
+    {
+        "key": "backoffice.companies.register_link.button",
+        "value": "Registration link"
+    },
+    {
+        "key": "backoffice.companies.register_link.title",
+        "value": "Company registration link"
+    },
+    {
+        "key": "backoffice.companies.register_link.description",
+        "value": "Share this link with the client so they can create their company and admin user. It expires in 72 hours."
+    },
+    {
+        "key": "register.invalid_link.title",
+        "value": "Invalid link"
+    },
+    {
+        "key": "register.invalid_link.description",
+        "value": "Registration is only available through an invitation link. Contact us to request one."
+    },
+    {
         "key": "auth.verify_email.success",
         "value": "Email verified successfully. You can now sign in."
     },

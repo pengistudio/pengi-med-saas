@@ -14,6 +14,7 @@ import { useNavigate } from "react-router";
 import {
 	type Company,
 	companies,
+	generateCompanyRegisterToken,
 	getCompanySignupToken,
 } from "@/api/company-service";
 import { useText } from "@/hooks/use-text";
@@ -54,10 +55,14 @@ const CompanyList = () => {
 	const [signupDialogOpen, setSignupDialogOpen] = React.useState(false);
 	const [signupLink, setSignupLink] = React.useState("");
 	const [signupCompanyName, setSignupCompanyName] = React.useState("");
+	const [linkKind, setLinkKind] = React.useState<"signup" | "register">(
+		"signup",
+	);
 	const [signupLoading, setSignupLoading] = React.useState(false);
 	const [copied, setCopied] = React.useState(false);
 
 	const handleGenerateSignupLink = async (company: Company) => {
+		setLinkKind("signup");
 		setSignupLoading(true);
 		setSignupCompanyName(company.trade_name);
 		setSignupDialogOpen(true);
@@ -66,6 +71,21 @@ const CompanyList = () => {
 		const res = await getCompanySignupToken(company.ID);
 		if (res.success && res.data) {
 			setSignupLink(`${WEB_APP_URL}/signup?token=${res.data.token}`);
+		} else {
+			setSignupLink("");
+		}
+		setSignupLoading(false);
+	};
+
+	const handleGenerateRegisterLink = async () => {
+		setLinkKind("register");
+		setSignupLoading(true);
+		setSignupDialogOpen(true);
+		setCopied(false);
+
+		const res = await generateCompanyRegisterToken();
+		if (res.success && res.data) {
+			setSignupLink(`${WEB_APP_URL}/register?token=${res.data.token}`);
 		} else {
 			setSignupLink("");
 		}
@@ -86,6 +106,12 @@ const CompanyList = () => {
 				resource={companies}
 				columns={columns}
 				itemLabel={(c) => c.trade_name}
+				headerActions={
+					<Button variant="outline" onClick={handleGenerateRegisterLink}>
+						<Link className="h-4 w-4 mr-2" />
+						{textGet("backoffice.companies.register_link.button")}
+					</Button>
+				}
 				rowActions={(company) => (
 					<>
 						<Button
@@ -113,11 +139,19 @@ const CompanyList = () => {
 				<DialogContent className="sm:max-w-md">
 					<DialogHeader>
 						<DialogTitle>
-							{textGet("backoffice.companies.signup_link.title")}
+							{linkKind === "register"
+								? textGet("backoffice.companies.register_link.title")
+								: textGet("backoffice.companies.signup_link.title")}
 						</DialogTitle>
 						<DialogDescription>
-							{textGet("backoffice.companies.signup_link.description")}{" "}
-							<strong>{signupCompanyName}</strong>
+							{linkKind === "register" ? (
+								textGet("backoffice.companies.register_link.description")
+							) : (
+								<>
+									{textGet("backoffice.companies.signup_link.description")}{" "}
+									<strong>{signupCompanyName}</strong>
+								</>
+							)}
 						</DialogDescription>
 					</DialogHeader>
 					{signupLoading ? (

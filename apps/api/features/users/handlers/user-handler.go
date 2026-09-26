@@ -445,10 +445,16 @@ func (h *UserHandler) JoinCompanyWithExistingAccount(c *gin.Context) envelope.Re
 
 // Register creates a new company account atomically: Tenant + Company + Role + User + Environment + Subscription.
 // The account is inactive until the user verifies their email.
+// Requires a company register token issued from the backoffice.
 func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 	var req user_dto.SelfRegisterDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRequest)
+	}
+
+	if err := auth.ParseCompanyRegisterToken(req.Token); err != nil {
+		h.logger.Warn("Invalid company register token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.register.invalid_token", core_errors.ErrAuthInvalidSignupToken)
 	}
 
 	// Check uniqueness before transaction

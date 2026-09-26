@@ -65,6 +65,7 @@ export const resetPassword = async (
 };
 
 export interface RegisterRequest extends Record<string, unknown> {
+	token: string;
 	company_name: string;
 	username: string;
 	email: string;

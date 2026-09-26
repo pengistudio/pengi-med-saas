@@ -56,6 +56,16 @@ export const getCompanySignupToken = async (
 	);
 };
 
+export const generateCompanyRegisterToken = async (): Promise<
+	ServiceResponse<{ token: string }>
+> => {
+	return httpService.post<{ token: string }>(
+		"/backoffice/companies/register-token",
+		{},
+		{ notifyError: true },
+	);
+};
+
 // ── Company Users ───────────────────────────────────────────────────────────
 
 export interface CompanyUser {

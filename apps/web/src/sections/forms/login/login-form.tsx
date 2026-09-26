@@ -104,14 +104,6 @@ const LoginForm = () => {
 								{load && <Spinner />}
 								<Text uuid="login.login_button" />
 							</Button>
-							<Button
-								variant="outline"
-								className="w-full"
-								type="button"
-								onClick={() => navigate("/register")}
-							>
-								<Text uuid="session.register.button" />
-							</Button>
 						</CardFooter>
 					</Card>
 				);

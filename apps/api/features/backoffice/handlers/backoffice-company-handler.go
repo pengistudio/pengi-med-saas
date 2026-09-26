@@ -206,6 +206,19 @@ func (h *BackofficeCompanyHandler) GenerateCompanySignupToken(c *gin.Context) en
 	}, "backoffice.company.signup_token.success")
 }
 
+// GenerateCompanyRegisterToken issues a token that lets a prospect register a
+// brand-new company through the public /register page.
+func (h *BackofficeCompanyHandler) GenerateCompanyRegisterToken(c *gin.Context) envelope.Response {
+	token, err := auth.GenerateCompanyRegisterToken()
+	if err != nil {
+		h.logger.Error("Failed to generate company register token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating register token", core_errors.ErrAuthTokenGenerateError)
+	}
+
+	h.logger.Info("Company register token generated")
+	return envelope.SuccessResponse(gin.H{"token": token}, "backoffice.company.register_token.success")
+}
+
 // GetCompanyUsers returns all users linked to a company via Environment records.
 func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Response {
 	id := c.Param("id")

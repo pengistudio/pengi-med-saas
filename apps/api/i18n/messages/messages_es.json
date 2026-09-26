@@ -5104,6 +5104,34 @@
         "value": "Este nombre de usuario ya está en uso."
     },
     {
+        "key": "auth.register.invalid_token",
+        "value": "El enlace de registro no es válido o ha expirado. Solicita uno nuevo a nuestro equipo."
+    },
+    {
+        "key": "backoffice.company.register_token.success",
+        "value": "Link de registro generado exitosamente"
+    },
+    {
+        "key": "backoffice.companies.register_link.button",
+        "value": "Link de registro"
+    },
+    {
+        "key": "backoffice.companies.register_link.title",
+        "value": "Link de registro de empresa"
+    },
+    {
+        "key": "backoffice.companies.register_link.description",
+        "value": "Comparte este link con el cliente para que cree su empresa y su usuario administrador. Expira en 72 horas."
+    },
+    {
+        "key": "register.invalid_link.title",
+        "value": "Enlace inválido"
+    },
+    {
+        "key": "register.invalid_link.description",
+        "value": "El registro solo está disponible con un enlace de invitación. Contáctanos para solicitar uno."
+    },
+    {
         "key": "auth.verify_email.success",
         "value": "Email verificado exitosamente. Ya puedes iniciar sesión."
     },

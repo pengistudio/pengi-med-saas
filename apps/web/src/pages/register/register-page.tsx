@@ -21,7 +21,7 @@ import {
 	UsersRound,
 } from "lucide-react";
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
 import { register } from "@/api/auth-service";
 import GentooPenguin from "@/assets/gentoo.png";
@@ -139,6 +139,38 @@ const RegisterPage = () => {
 	const [done, setDone] = React.useState(false);
 	const [step, setStep] = React.useState<Step>("choice");
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const token = searchParams.get("token");
+
+	if (!token) {
+		return (
+			<div className="min-h-screen flex">
+				<BrandPanel />
+				<div className="flex-1 flex flex-col bg-muted/30">
+					<div className="flex-1 flex items-center justify-center px-6 py-12">
+						<div className="w-full max-w-lg space-y-4">
+							<h1 className="text-2xl font-bold text-foreground">
+								<Text uuid="register.invalid_link.title" />
+							</h1>
+							<p className="text-muted-foreground">
+								<Text uuid="register.invalid_link.description" />
+							</p>
+							<Button
+								variant="outline"
+								className="mt-2"
+								onClick={() => navigate("/login")}
+							>
+								<Text uuid="register.go_to_login" />
+							</Button>
+						</div>
+					</div>
+					<div className="p-6 flex justify-center">
+						<SelectLanguage />
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	if (step === "choice") {
 		return (
@@ -374,8 +406,10 @@ const RegisterPage = () => {
 	);
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
+		if (!token) return;
 		setLoad(true);
 		const res = await register({
+			token,
 			company_name: values.company_name,
 			username: values.username,
 			email: values.email,

@@ -328,3 +328,30 @@ func ParseCompanySignupToken(tokenStr string) (uint, uint, error) {
 
 	return uint(companyIDFloat), uint(roleIDFloat), nil
 }
+
+// GenerateCompanyRegisterToken creates a JWT, issued from the backoffice, that
+// allows a prospect to self-register a brand-new company via /register.
+// It expires in 72 hours.
+func GenerateCompanyRegisterToken() (string, error) {
+	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"type": "company_register",
+		"exp":  time.Now().Add(72 * time.Hour).Unix(),
+	})
+	return token.SignedString([]byte(secretKey))
+}
+
+// ParseCompanyRegisterToken validates a company register token.
+func ParseCompanyRegisterToken(tokenStr string) error {
+	claims, err := ParseToken(tokenStr)
+	if err != nil {
+		return err
+	}
+
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "company_register" {
+		return errors.New("invalid token type, expected company_register")
+	}
+
+	return nil
+}

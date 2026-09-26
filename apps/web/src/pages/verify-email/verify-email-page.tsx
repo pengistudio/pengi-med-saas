@@ -72,7 +72,7 @@ const VerifyEmailPage = () => {
 							<Button
 								variant="outline"
 								className="w-full"
-								onClick={() => navigate("/register")}
+								onClick={() => navigate("/login")}
 							>
 								<Text uuid="register.go_to_login" />
 							</Button>
