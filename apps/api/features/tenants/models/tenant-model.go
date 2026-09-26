@@ -80,7 +80,7 @@ type Tenant struct {
 	WithholdingAgent         *string    `json:"withholding_agent"`                              // Nº resolución agente de retención
 	RimpeTaxpayer            *string    `json:"rimpe_taxpayer"`                                 // Leyenda RIMPE (ej. "CONTRIBUYENTE RÉGIMEN RIMPE")
 	SriPassword              string     `json:"-"`                                              // Hidden from API responses
-	SriP12Path               string     `json:"sri_p12_path"`                                   // Local storage path to the uploaded signature
+	SriP12Path               string     `json:"-"`                                              // Local storage path to the uploaded signature
 	SriCertExpiration        *time.Time `json:"sri_cert_expiration"`                            // Date the certificate expires
 	LogoPath                 *string    `json:"-"`                                              // Local storage path to the uploaded company logo
 	UISettings               string     `gorm:"type:text;default:'{}'" json:"-"`                // JSON-encoded UISettings

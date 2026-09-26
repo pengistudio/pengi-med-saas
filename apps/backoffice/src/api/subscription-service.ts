@@ -11,6 +11,8 @@ export interface Subscription {
 	status: string;
 	plan_code: string;
 	expires_at: string;
+	next_plan_code: string;
+	plan_change_at: string | null;
 	CompanyID: number;
 	company?: { ID: number; trade_name: string; legal_name: string };
 	plan: { ID: number; name: string; code: string; price: number };
