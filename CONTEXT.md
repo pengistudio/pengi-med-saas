@@ -4,6 +4,20 @@ SaaS multi-tenant para consultorios médicos en Ecuador: gestión clínica (paci
 
 ## Language
 
+### Organización
+
+**Tenant**:
+Espacio aislado de datos de un consultorio; ningún dato de un tenant es visible desde otro. Se identifica en cada petición por su slug.
+_Avoid_: cuenta, organización
+
+**Empresa**:
+Entidad comercial dueña de un tenant (uno a uno): razón social, plan y suscripción. En código: `Company`.
+_Avoid_: compañía, cliente
+
+**Miembro**:
+Usuario con un rol en una empresa; solo un miembro puede operar sobre el tenant de esa empresa. En código: `Environment`.
+_Avoid_: environment, entorno
+
 ### Facturación electrónica
 
 **Comprobante electrónico**:

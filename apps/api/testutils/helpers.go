@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"os"
+	"pengi-med-saas/core/tenantdb"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -78,6 +79,11 @@ func SetupTestDB(t *testing.T, models ...interface{}) *gorm.DB {
 				t.Fatalf("failed to open test DB: %v", err)
 			}
 		}
+	}
+
+	// Same data-layer tenant isolation as production (core/database/connect.go).
+	if err := tenantdb.Register(db); err != nil {
+		t.Fatalf("failed to register tenant isolation: %v", err)
 	}
 
 	if err := db.AutoMigrate(models...); err != nil {

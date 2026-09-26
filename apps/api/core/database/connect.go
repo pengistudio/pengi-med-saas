@@ -6,6 +6,7 @@ import (
 	"log"
 	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/config"
+	"pengi-med-saas/core/tenantdb"
 
 	_ "github.com/lib/pq" // driver PostgreSQL
 	"gorm.io/driver/postgres"
@@ -47,6 +48,11 @@ func Connect() (*gorm.DB, error) {
 
 	// Register Audit Callbacks
 	audit.RegisterCallbacks(db)
+
+	// Tenant isolation at the data layer (docs/adr/0002)
+	if err := tenantdb.Register(db); err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }
