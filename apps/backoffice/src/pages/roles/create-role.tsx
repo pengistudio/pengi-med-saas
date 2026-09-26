@@ -15,17 +15,17 @@ import React from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
 import { getPermissions, type Permission } from "@/api/permission-service";
-import { createRole } from "@/api/role-service";
+import { roles } from "@/api/role-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({ role: z.string().min(2) });
 
 const CreateRole = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const [loading, setLoading] = React.useState(false);
+	const { saving, save } = useResourceItem(roles);
 	const [permissions, setPermissions] = React.useState<Permission[]>([]);
 	const [selectedPermissions, setSelectedPermissions] = React.useState<
 		string[]
@@ -69,17 +69,14 @@ const CreateRole = () => {
 		perms.every((p) => selectedPermissions.includes(p.ID));
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		setLoading(true);
-		const res = await createRole({
+		await save({
 			...values,
 			permission_ids: selectedPermissions,
 		});
-		setLoading(false);
-		if (res.success) navigate("/roles");
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -183,18 +180,18 @@ const CreateRole = () => {
 									variant="outline"
 									onClick={() => navigate("/roles")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
-									{textGet("backoffice.companies.save")}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
+									{textGet("backoffice.common.save")}
 								</Button>
 							</CardFooter>
 						</Card>
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

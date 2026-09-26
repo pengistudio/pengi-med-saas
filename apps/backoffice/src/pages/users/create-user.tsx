@@ -9,13 +9,12 @@ import {
 	FormInput,
 	Spinner,
 } from "@pengi/ui";
-import React from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { createUser } from "@/api/user-service";
+import { users } from "@/api/user-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({
 	name: z.string().min(2),
@@ -29,17 +28,14 @@ const formSchema = z.object({
 const CreateUser = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const [loading, setLoading] = React.useState(false);
+	const { saving, save } = useResourceItem(users);
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		setLoading(true);
-		const res = await createUser(values);
-		setLoading(false);
-		if (res.success) navigate("/users");
+		await save(values);
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -87,10 +83,10 @@ const CreateUser = () => {
 									variant="outline"
 									onClick={() => navigate("/users")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
 									{textGet("backoffice.users.create")}
 								</Button>
 							</CardFooter>
@@ -98,7 +94,7 @@ const CreateUser = () => {
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

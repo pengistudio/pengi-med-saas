@@ -14,11 +14,11 @@ import {
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
-import { getFeatureByID, updateFeature } from "@/api/feature-service";
+import { features } from "@/api/feature-service";
 import { getPermissions, type Permission } from "@/api/permission-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({ name: z.string().min(2) });
 
@@ -26,10 +26,14 @@ const EditFeature = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
-	const [loading, setLoading] = React.useState(false);
-	const [initialLoading, setInitialLoading] = React.useState(true);
-	const [code, setCode] = React.useState("");
-	const [defaultValues, setDefaultValues] = React.useState({ name: "" });
+	const {
+		item: feature,
+		loading,
+		saving,
+		save,
+	} = useResourceItem(features, id);
+	const code = feature?.code ?? "";
+	const defaultValues = { name: feature?.name ?? "" };
 	const [permissions, setPermissions] = React.useState<Permission[]>([]);
 	const [selectedPermissions, setSelectedPermissions] = React.useState<
 		string[]
@@ -42,16 +46,9 @@ const EditFeature = () => {
 	}, []);
 
 	React.useEffect(() => {
-		if (!id) return;
-		getFeatureByID(id).then((res) => {
-			if (res.success && res.data) {
-				setDefaultValues({ name: res.data.name });
-				setCode(res.data.code);
-				setSelectedPermissions(res.data.permissions?.map((p) => p.ID) ?? []);
-			}
-			setInitialLoading(false);
-		});
-	}, [id]);
+		if (feature)
+			setSelectedPermissions(feature.permissions?.map((p) => p.ID) ?? []);
+	}, [feature]);
 
 	const grouped = React.useMemo(() => {
 		const map: Record<string, Permission[]> = {};
@@ -92,30 +89,14 @@ const EditFeature = () => {
 		perms.every((p) => selectedPermissions.includes(p.ID));
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		if (!id) return;
-		setLoading(true);
-		const res = await updateFeature(id, {
+		await save({
 			...values,
 			permission_ids: selectedPermissions,
 		});
-		setLoading(false);
-		if (res.success) navigate("/features");
-	}
-
-	if (initialLoading) {
-		return (
-			<DashboardLayout>
-				<div className="flex items-center justify-center h-64">
-					<p className="text-muted-foreground animate-pulse">
-						{textGet("backoffice.companies.loading")}
-					</p>
-				</div>
-			</DashboardLayout>
-		);
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage loading={loading}>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -229,18 +210,18 @@ const EditFeature = () => {
 									variant="outline"
 									onClick={() => navigate("/features")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
-									{textGet("backoffice.companies.save")}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
+									{textGet("backoffice.common.save")}
 								</Button>
 							</CardFooter>
 						</Card>
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

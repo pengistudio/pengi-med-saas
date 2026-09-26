@@ -14,11 +14,11 @@ import {
 import React from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { createFeature } from "@/api/feature-service";
+import { features } from "@/api/feature-service";
 import { getPermissions, type Permission } from "@/api/permission-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({
 	code: z.string().min(2),
@@ -28,7 +28,7 @@ const formSchema = z.object({
 const CreateFeature = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const [loading, setLoading] = React.useState(false);
+	const { saving, save } = useResourceItem(features);
 	const [permissions, setPermissions] = React.useState<Permission[]>([]);
 	const [selectedPermissions, setSelectedPermissions] = React.useState<
 		string[]
@@ -75,17 +75,14 @@ const CreateFeature = () => {
 		perms.every((p) => selectedPermissions.includes(p.ID));
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		setLoading(true);
-		const res = await createFeature({
+		await save({
 			...values,
 			permission_ids: selectedPermissions,
 		});
-		setLoading(false);
-		if (res.success) navigate("/features");
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -198,10 +195,10 @@ const CreateFeature = () => {
 									variant="outline"
 									onClick={() => navigate("/features")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
 									{textGet("backoffice.features.create")}
 								</Button>
 							</CardFooter>
@@ -209,7 +206,7 @@ const CreateFeature = () => {
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

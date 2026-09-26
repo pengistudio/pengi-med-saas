@@ -1,3 +1,4 @@
+import { resource } from "@/lib/resource/http-resource";
 import { api } from ".";
 import { createHttpService, type ServiceResponse } from "./fetch";
 
@@ -35,43 +36,11 @@ export interface UpdateCompanyRequest extends Record<string, unknown> {
 	plan_code?: string;
 }
 
-export const getCompanies = async (): Promise<ServiceResponse<Company[]>> => {
-	return httpService.get<Company[]>("/backoffice/companies");
-};
-
-export const getCompanyByID = async (
-	id: number | string,
-): Promise<ServiceResponse<Company>> => {
-	return httpService.get<Company>(`/backoffice/companies/${id}`);
-};
-
-export const createCompany = async (
-	data: CreateCompanyRequest,
-): Promise<ServiceResponse<Company>> => {
-	return httpService.post<Company>("/backoffice/companies", data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-};
-
-export const updateCompany = async (
-	id: number | string,
-	data: UpdateCompanyRequest,
-): Promise<ServiceResponse<Company>> => {
-	return httpService.put<Company>(`/backoffice/companies/${id}`, data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-};
-
-export const deleteCompany = async (
-	id: number | string,
-): Promise<ServiceResponse<null>> => {
-	return httpService.delete<null>(`/backoffice/companies/${id}`, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-};
+export const companies = resource<
+	Company,
+	CreateCompanyRequest,
+	UpdateCompanyRequest
+>("companies");
 
 export interface CompanySignupTokenResponse {
 	token: string;

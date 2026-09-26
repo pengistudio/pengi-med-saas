@@ -14,12 +14,15 @@ import {
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
-import { type Feature, getFeatures } from "@/api/feature-service";
-import { getPlanByID, updatePlan } from "@/api/plan-service";
+import {
+	type Feature,
+	features as featureResource,
+} from "@/api/feature-service";
+import { plans } from "@/api/plan-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const TIERS = [1, 2, 3] as const;
 
@@ -43,12 +46,9 @@ const EditPlan = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
-	const [loading, setLoading] = React.useState(false);
-	const [initialLoading, setInitialLoading] = React.useState(true);
-	const [code, setCode] = React.useState("");
-	const [defaultValues, setDefaultValues] = React.useState({
-		name: "",
-	});
+	const { item: plan, loading, saving, save } = useResourceItem(plans, id);
+	const defaultValues = { name: plan?.name ?? "" };
+	const code = plan?.code ?? "";
 	const [features, setFeatures] = React.useState<Feature[]>([]);
 	const [selectedFeatures, setSelectedFeatures] = React.useState<string[]>([]);
 	const [limits, setLimits] = React.useState<PlanLimits>({
@@ -60,43 +60,32 @@ const EditPlan = () => {
 	const [pricings, setPricings] = React.useState<PricingsState>({});
 
 	React.useEffect(() => {
-		getFeatures().then((res) => {
+		featureResource.list().then((res) => {
 			if (res.success && res.data) setFeatures(res.data as Feature[]);
 		});
 	}, []);
 
 	React.useEffect(() => {
-		if (!id) return;
-		getPlanByID(id).then((res) => {
-			if (res.success && res.data) {
-				setDefaultValues({ name: res.data.name });
-				setCode(res.data.code);
-				const loadedTier = res.data.tier ?? 1;
-				setTier(
-					(loadedTier >= 1 && loadedTier <= 3 ? loadedTier : 1) as 1 | 2 | 3,
-				);
-				setSelectedFeatures(res.data.Features?.map((f) => f.code) ?? []);
+		if (!plan) return;
+		const loadedTier = plan.tier ?? 1;
+		setTier((loadedTier >= 1 && loadedTier <= 3 ? loadedTier : 1) as 1 | 2 | 3);
+		setSelectedFeatures(plan.Features?.map((f) => f.code) ?? []);
 
-				const props = res.data.Properties ?? {};
-				const loaded: PlanLimits = {};
-				for (const key of PLAN_LIMIT_KEYS) {
-					const val = props[key];
-					loaded[key] = val === undefined || val === null ? -1 : Number(val);
-				}
-				setLimits(loaded);
+		const props = plan.Properties ?? {};
+		const loaded: PlanLimits = {};
+		for (const key of PLAN_LIMIT_KEYS) {
+			const val = props[key];
+			loaded[key] = val === undefined || val === null ? -1 : Number(val);
+		}
+		setLimits(loaded);
 
-				const existingPricings = res.data.pricings ?? [];
-				if (existingPricings.length === 0 && res.data.price > 0) {
-					setPricings(
-						arrayToPricingsState([{ months: 1, price: res.data.price }]),
-					);
-				} else {
-					setPricings(arrayToPricingsState(existingPricings));
-				}
-			}
-			setInitialLoading(false);
-		});
-	}, [id]);
+		const existingPricings = plan.pricings ?? [];
+		if (existingPricings.length === 0 && plan.price > 0) {
+			setPricings(arrayToPricingsState([{ months: 1, price: plan.price }]));
+		} else {
+			setPricings(arrayToPricingsState(existingPricings));
+		}
+	}, [plan]);
 
 	const toggleFeature = (featureCode: string) => {
 		setSelectedFeatures((prev) =>
@@ -107,33 +96,17 @@ const EditPlan = () => {
 	};
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		if (!id) return;
-		setLoading(true);
-		const res = await updatePlan(id, {
+		await save({
 			name: values.name,
 			tier,
 			feature_codes: selectedFeatures,
 			properties: { ...limits } as Record<string, unknown>,
 			pricings: pricingsStateToArray(pricings),
 		});
-		setLoading(false);
-		if (res.success) navigate("/plans");
-	}
-
-	if (initialLoading) {
-		return (
-			<DashboardLayout>
-				<div className="flex items-center justify-center h-64">
-					<p className="text-muted-foreground animate-pulse">
-						{textGet("backoffice.companies.loading")}
-					</p>
-				</div>
-			</DashboardLayout>
-		);
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage loading={loading}>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -233,18 +206,18 @@ const EditPlan = () => {
 									variant="outline"
 									onClick={() => navigate("/plans")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
-									{textGet("backoffice.companies.save")}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
+									{textGet("backoffice.common.save")}
 								</Button>
 							</CardFooter>
 						</Card>
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

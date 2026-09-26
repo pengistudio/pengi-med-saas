@@ -193,7 +193,7 @@ const Home = () => {
 					<CardContent>
 						{loading ? (
 							<p className="text-sm text-muted-foreground py-8 text-center animate-pulse">
-								{textGet("backoffice.companies.loading")}
+								{textGet("backoffice.common.loading")}
 							</p>
 						) : !stats?.recent_companies?.length ? (
 							<p className="text-sm text-muted-foreground py-8 text-center">

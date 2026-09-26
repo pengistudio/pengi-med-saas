@@ -1,3 +1,4 @@
+import { resource } from "@/lib/resource/http-resource";
 import { api } from ".";
 import { createHttpService, type ServiceResponse } from "./fetch";
 
@@ -28,8 +29,11 @@ export interface UpdateSubscriptionRequest extends Record<string, unknown> {
 	plan_code?: string;
 }
 
-export const getSubscriptions = (): Promise<ServiceResponse<Subscription[]>> =>
-	httpService.get<Subscription[]>("/backoffice/subscriptions");
+export const subscriptions = resource<
+	Subscription,
+	CreateSubscriptionRequest,
+	UpdateSubscriptionRequest
+>("subscriptions");
 
 export const getSubscriptionsByCompany = (
 	companyId: number | string,
@@ -37,28 +41,3 @@ export const getSubscriptionsByCompany = (
 	httpService.get<Subscription[]>(
 		`/backoffice/subscriptions/company/${companyId}`,
 	);
-
-export const createSubscription = (
-	data: CreateSubscriptionRequest,
-): Promise<ServiceResponse<Subscription>> =>
-	httpService.post<Subscription>("/backoffice/subscriptions", data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-
-export const updateSubscription = (
-	id: number | string,
-	data: UpdateSubscriptionRequest,
-): Promise<ServiceResponse<Subscription>> =>
-	httpService.put<Subscription>(`/backoffice/subscriptions/${id}`, data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-
-export const deleteSubscription = (
-	id: number | string,
-): Promise<ServiceResponse<null>> =>
-	httpService.delete<null>(`/backoffice/subscriptions/${id}`, {
-		notifySuccess: true,
-		notifyError: true,
-	});

@@ -36,8 +36,8 @@ import { toast } from "sonner";
 import z from "zod";
 import {
 	type CompanyUser,
+	companies,
 	deleteCompanyUser,
-	getCompanyByID,
 	getCompanyUsers,
 	getPasswordResetLink,
 	getRoles,
@@ -97,7 +97,7 @@ const CompanyUsers = () => {
 		const [usersRes, rolesRes, companyRes] = await Promise.all([
 			getCompanyUsers(id),
 			getRoles(),
-			getCompanyByID(id),
+			companies.get(id),
 		]);
 
 		if (usersRes.success && usersRes.data) {

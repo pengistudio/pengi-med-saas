@@ -17,12 +17,15 @@ import {
 } from "@pengi/ui";
 import React from "react";
 import { useNavigate } from "react-router";
-import { type Company, getCompanies } from "@/api/company-service";
-import { getPlans, type Plan } from "@/api/plan-service";
-import { createSubscription } from "@/api/subscription-service";
+import {
+	type Company,
+	companies as companyResource,
+} from "@/api/company-service";
+import { type Plan, plans as planResource } from "@/api/plan-service";
+import { subscriptions } from "@/api/subscription-service";
 import { useText } from "@/hooks/use-text";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 function addMonths(date: Date, months: number): Date {
 	const result = new Date(date);
@@ -37,7 +40,7 @@ function toDateInputValue(date: Date): string {
 const CreateSubscription = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const [loading, setLoading] = React.useState(false);
+	const { saving, save } = useResourceItem(subscriptions);
 	const [companies, setCompanies] = React.useState<Company[]>([]);
 	const [plans, setPlans] = React.useState<Plan[]>([]);
 	const [selectedCompany, setSelectedCompany] = React.useState("");
@@ -46,10 +49,10 @@ const CreateSubscription = () => {
 	const [expiresAt, setExpiresAt] = React.useState("");
 
 	React.useEffect(() => {
-		getCompanies().then((res) => {
+		companyResource.list().then((res) => {
 			if (res.success && res.data) setCompanies(res.data as Company[]);
 		});
-		getPlans().then((res) => {
+		planResource.list().then((res) => {
 			if (res.success && res.data) setPlans(res.data as Plan[]);
 		});
 	}, []);
@@ -84,19 +87,16 @@ const CreateSubscription = () => {
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		if (!selectedCompany || !selectedPlan || !expiresAt) return;
-		setLoading(true);
-		const res = await createSubscription({
+		await save({
 			company_id: Number(selectedCompany),
 			plan_code: selectedPlan,
 			status: "active",
 			expires_at: new Date(expiresAt).toISOString(),
 		});
-		setLoading(false);
-		if (res.success) navigate("/subscriptions");
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage>
 			<div className="max-w-2xl mx-auto">
 				<form onSubmit={onSubmit}>
 					<Card>
@@ -204,20 +204,20 @@ const CreateSubscription = () => {
 								variant="outline"
 								onClick={() => navigate("/subscriptions")}
 							>
-								{textGet("backoffice.companies.cancel")}
+								{textGet("backoffice.common.cancel")}
 							</Button>
 							<Button
 								type="submit"
-								disabled={loading || !selectedCompany || !selectedPlan}
+								disabled={saving || !selectedCompany || !selectedPlan}
 							>
-								{loading && <Spinner />}
+								{saving && <Spinner />}
 								{textGet("backoffice.subscriptions.create")}
 							</Button>
 						</CardFooter>
 					</Card>
 				</form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

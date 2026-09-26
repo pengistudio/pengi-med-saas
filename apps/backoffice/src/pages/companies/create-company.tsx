@@ -22,11 +22,11 @@ import { useNavigate } from "react-router";
 import z from "zod";
 import {
 	type Company,
-	createCompany,
+	companies,
 	getCompanySignupToken,
 } from "@/api/company-service";
-import { getPlans, type Plan } from "@/api/plan-service";
-import { createSubscription } from "@/api/subscription-service";
+import { type Plan, plans as planResource } from "@/api/plan-service";
+import { subscriptions } from "@/api/subscription-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
@@ -118,7 +118,7 @@ const CreateCompany = () => {
 	const [linkLoading, setLinkLoading] = React.useState(false);
 
 	React.useEffect(() => {
-		getPlans().then((res) => {
+		planResource.list().then((res) => {
 			if (res.success && res.data) setPlans(res.data as Plan[]);
 		});
 	}, []);
@@ -137,7 +137,7 @@ const CreateCompany = () => {
 
 	async function handleCompanySubmit(values: z.infer<typeof companySchema>) {
 		setLoading(true);
-		const res = await createCompany(values);
+		const res = await companies.create(values);
 		setLoading(false);
 		if (res.success && res.data) {
 			setCompany(res.data as Company);
@@ -148,7 +148,7 @@ const CreateCompany = () => {
 	async function handleSubscriptionSubmit() {
 		if (!company || !selectedPlanCode || !expiresAt) return;
 		setLoading(true);
-		const res = await createSubscription({
+		const res = await subscriptions.create({
 			company_id: company.ID,
 			plan_code: selectedPlanCode,
 			status: "active",

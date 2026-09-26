@@ -15,10 +15,10 @@ import React from "react";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
 import { getPermissions, type Permission } from "@/api/permission-service";
-import { getRoleByID, updateRole } from "@/api/role-service";
+import { roles } from "@/api/role-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({ role: z.string().min(2) });
 
@@ -26,9 +26,8 @@ const EditRole = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
-	const [loading, setLoading] = React.useState(false);
-	const [initialLoading, setInitialLoading] = React.useState(true);
-	const [defaultValues, setDefaultValues] = React.useState({ role: "" });
+	const { item: role, loading, saving, save } = useResourceItem(roles, id);
+	const defaultValues = { role: role?.role ?? "" };
 	const [permissions, setPermissions] = React.useState<Permission[]>([]);
 	const [selectedPermissions, setSelectedPermissions] = React.useState<
 		string[]
@@ -41,15 +40,8 @@ const EditRole = () => {
 	}, []);
 
 	React.useEffect(() => {
-		if (!id) return;
-		getRoleByID(id).then((res) => {
-			if (res.success && res.data) {
-				setDefaultValues({ role: res.data.role });
-				setSelectedPermissions(res.data.permissions?.map((p) => p.ID) ?? []);
-			}
-			setInitialLoading(false);
-		});
-	}, [id]);
+		if (role) setSelectedPermissions(role.permissions?.map((p) => p.ID) ?? []);
+	}, [role]);
 
 	const grouped = React.useMemo(() => {
 		const map: Record<string, Permission[]> = {};
@@ -85,30 +77,14 @@ const EditRole = () => {
 		perms.every((p) => selectedPermissions.includes(p.ID));
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		if (!id) return;
-		setLoading(true);
-		const res = await updateRole(id, {
+		await save({
 			...values,
 			permission_ids: selectedPermissions,
 		});
-		setLoading(false);
-		if (res.success) navigate("/roles");
-	}
-
-	if (initialLoading) {
-		return (
-			<DashboardLayout>
-				<div className="flex items-center justify-center h-64">
-					<p className="text-muted-foreground animate-pulse">
-						{textGet("backoffice.companies.loading")}
-					</p>
-				</div>
-			</DashboardLayout>
-		);
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage loading={loading}>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -210,18 +186,18 @@ const EditRole = () => {
 									variant="outline"
 									onClick={() => navigate("/roles")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
-									{textGet("backoffice.companies.save")}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
+									{textGet("backoffice.common.save")}
 								</Button>
 							</CardFooter>
 						</Card>
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

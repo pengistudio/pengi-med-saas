@@ -18,15 +18,16 @@ import {
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
-import { getPlans, type Plan, type PricingOption } from "@/api/plan-service";
 import {
-	getSubscriptions,
-	updateSubscription,
-} from "@/api/subscription-service";
+	type Plan,
+	type PricingOption,
+	plans as planResource,
+} from "@/api/plan-service";
+import { subscriptions } from "@/api/subscription-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const formSchema = z.object({ expires_at: z.string().min(1) });
 
@@ -34,40 +35,30 @@ const EditSubscription = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
-	const [loading, setLoading] = React.useState(false);
-	const [initialLoading, setInitialLoading] = React.useState(true);
+	const {
+		item: subscription,
+		loading,
+		saving,
+		save,
+	} = useResourceItem(subscriptions, id);
 	const [plans, setPlans] = React.useState<Plan[]>([]);
 	const [selectedPlan, setSelectedPlan] = React.useState("");
 	const [selectedStatus, setSelectedStatus] = React.useState("active");
-	const [defaultValues, setDefaultValues] = React.useState({ expires_at: "" });
+	const defaultValues = {
+		expires_at: subscription?.expires_at.split("T")[0] ?? "",
+	};
 
 	React.useEffect(() => {
-		getPlans().then((res) => {
+		planResource.list().then((res) => {
 			if (res.success && res.data) setPlans(res.data as Plan[]);
 		});
 	}, []);
 
 	React.useEffect(() => {
-		if (!id) return;
-		getSubscriptions().then((res) => {
-			if (res.success && res.data) {
-				const sub = (
-					res.data as Array<{
-						ID: number;
-						plan_code: string;
-						status: string;
-						expires_at: string;
-					}>
-				).find((s) => s.ID === Number(id));
-				if (sub) {
-					setSelectedPlan(sub.plan_code);
-					setSelectedStatus(sub.status);
-					setDefaultValues({ expires_at: sub.expires_at.split("T")[0] });
-				}
-			}
-			setInitialLoading(false);
-		});
-	}, [id]);
+		if (!subscription) return;
+		setSelectedPlan(subscription.plan_code);
+		setSelectedStatus(subscription.status);
+	}, [subscription]);
 
 	const currentPlan = plans.find((p) => p.code === selectedPlan);
 	const sortedPricings: PricingOption[] = React.useMemo(() => {
@@ -76,31 +67,15 @@ const EditSubscription = () => {
 	}, [currentPlan]);
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		if (!id) return;
-		setLoading(true);
-		const res = await updateSubscription(id, {
+		await save({
 			plan_code: selectedPlan,
 			status: selectedStatus,
 			expires_at: new Date(values.expires_at).toISOString(),
 		});
-		setLoading(false);
-		if (res.success) navigate("/subscriptions");
-	}
-
-	if (initialLoading) {
-		return (
-			<DashboardLayout>
-				<div className="flex items-center justify-center h-64">
-					<p className="text-muted-foreground animate-pulse">
-						{textGet("backoffice.companies.loading")}
-					</p>
-				</div>
-			</DashboardLayout>
-		);
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage loading={loading}>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -189,18 +164,18 @@ const EditSubscription = () => {
 									variant="outline"
 									onClick={() => navigate("/subscriptions")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
-									{textGet("backoffice.companies.save")}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
+									{textGet("backoffice.common.save")}
 								</Button>
 							</CardFooter>
 						</Card>
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

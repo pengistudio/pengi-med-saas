@@ -2232,6 +2232,38 @@
         "value": "Manage companies registered on the platform"
     },
     {
+        "key": "backoffice.common.loading",
+        "value": "Loading..."
+    },
+    {
+        "key": "backoffice.common.save",
+        "value": "Save changes"
+    },
+    {
+        "key": "backoffice.common.cancel",
+        "value": "Cancel"
+    },
+    {
+        "key": "backoffice.common.edit",
+        "value": "Edit"
+    },
+    {
+        "key": "backoffice.common.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "backoffice.common.delete.title",
+        "value": "Delete this record?"
+    },
+    {
+        "key": "backoffice.common.delete.description",
+        "value": "This action cannot be undone. It will delete:"
+    },
+    {
+        "key": "backoffice.common.delete.confirm",
+        "value": "Delete"
+    },
+    {
         "key": "backoffice.companies.loading",
         "value": "Loading..."
     },
@@ -2630,6 +2662,10 @@
     {
         "key": "backoffice.subscriptions.edit.description",
         "value": "Modify the subscription details."
+    },
+    {
+        "key": "backoffice.subscription.found",
+        "value": "Subscription found"
     },
     {
         "key": "backoffice.subscription.list.success",

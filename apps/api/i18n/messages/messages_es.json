@@ -2232,6 +2232,38 @@
         "value": "Gestiona las empresas registradas en la plataforma"
     },
     {
+        "key": "backoffice.common.loading",
+        "value": "Cargando..."
+    },
+    {
+        "key": "backoffice.common.save",
+        "value": "Guardar cambios"
+    },
+    {
+        "key": "backoffice.common.cancel",
+        "value": "Cancelar"
+    },
+    {
+        "key": "backoffice.common.edit",
+        "value": "Editar"
+    },
+    {
+        "key": "backoffice.common.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "backoffice.common.delete.title",
+        "value": "¿Eliminar este registro?"
+    },
+    {
+        "key": "backoffice.common.delete.description",
+        "value": "Esta acción no se puede deshacer. Se eliminará:"
+    },
+    {
+        "key": "backoffice.common.delete.confirm",
+        "value": "Eliminar"
+    },
+    {
         "key": "backoffice.companies.loading",
         "value": "Cargando..."
     },
@@ -2630,6 +2662,10 @@
     {
         "key": "backoffice.subscriptions.edit.description",
         "value": "Modifica los datos de la suscripción."
+    },
+    {
+        "key": "backoffice.subscription.found",
+        "value": "Suscripción encontrada"
     },
     {
         "key": "backoffice.subscription.list.success",

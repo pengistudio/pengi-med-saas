@@ -1,8 +1,4 @@
-import { api } from ".";
-import { createHttpService, type ServiceResponse } from "./fetch";
-
-const httpService = createHttpService(api);
-
+import { resource } from "@/lib/resource/http-resource";
 export interface Feature {
 	ID: number;
 	CreatedAt: string;
@@ -28,35 +24,8 @@ export interface UpdateFeatureRequest extends Record<string, unknown> {
 	permission_ids?: string[];
 }
 
-export const getFeatures = (): Promise<ServiceResponse<Feature[]>> =>
-	httpService.get<Feature[]>("/backoffice/features");
-
-export const getFeatureByID = (
-	id: number | string,
-): Promise<ServiceResponse<Feature>> =>
-	httpService.get<Feature>(`/backoffice/features/${id}`);
-
-export const createFeature = (
-	data: CreateFeatureRequest,
-): Promise<ServiceResponse<Feature>> =>
-	httpService.post<Feature>("/backoffice/features", data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-
-export const updateFeature = (
-	id: number | string,
-	data: UpdateFeatureRequest,
-): Promise<ServiceResponse<Feature>> =>
-	httpService.put<Feature>(`/backoffice/features/${id}`, data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-
-export const deleteFeature = (
-	id: number | string,
-): Promise<ServiceResponse<null>> =>
-	httpService.delete<null>(`/backoffice/features/${id}`, {
-		notifySuccess: true,
-		notifyError: true,
-	});
+export const features = resource<
+	Feature,
+	CreateFeatureRequest,
+	UpdateFeatureRequest
+>("features");

@@ -14,12 +14,15 @@ import {
 import React from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { type Feature, getFeatures } from "@/api/feature-service";
-import { createPlan } from "@/api/plan-service";
+import {
+	type Feature,
+	features as featureResource,
+} from "@/api/feature-service";
+import { plans } from "@/api/plan-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { type PlanLimits, PlanLimitsEditor } from "./plan-limits-editor";
 import {
 	PlanPricingsEditor,
@@ -37,7 +40,7 @@ const formSchema = z.object({
 const CreatePlan = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const [loading, setLoading] = React.useState(false);
+	const { saving, save } = useResourceItem(plans);
 	const [features, setFeatures] = React.useState<Feature[]>([]);
 	const [selectedFeatures, setSelectedFeatures] = React.useState<string[]>([]);
 	const [limits, setLimits] = React.useState<PlanLimits>({
@@ -49,7 +52,7 @@ const CreatePlan = () => {
 	const [pricings, setPricings] = React.useState<PricingsState>({});
 
 	React.useEffect(() => {
-		getFeatures().then((res) => {
+		featureResource.list().then((res) => {
 			if (res.success && res.data) setFeatures(res.data as Feature[]);
 		});
 	}, []);
@@ -61,8 +64,7 @@ const CreatePlan = () => {
 	};
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		setLoading(true);
-		const res = await createPlan({
+		await save({
 			name: values.name,
 			code: values.code,
 			tier,
@@ -71,12 +73,10 @@ const CreatePlan = () => {
 			properties: { ...limits } as Record<string, unknown>,
 			pricings: pricingsStateToArray(pricings),
 		});
-		setLoading(false);
-		if (res.success) navigate("/plans");
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -177,10 +177,10 @@ const CreatePlan = () => {
 									variant="outline"
 									onClick={() => navigate("/plans")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
 									{textGet("backoffice.plans.create")}
 								</Button>
 							</CardFooter>
@@ -188,7 +188,7 @@ const CreatePlan = () => {
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

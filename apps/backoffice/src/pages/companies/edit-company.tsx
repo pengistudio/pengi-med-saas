@@ -9,13 +9,12 @@ import {
 	FormInput,
 	Spinner,
 } from "@pengi/ui";
-import React from "react";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
-import { getCompanyByID, updateCompany } from "@/api/company-service";
+import { companies } from "@/api/company-service";
 import { Form } from "@/components/forms/form";
 import { useText } from "@/hooks/use-text";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({
 	legal_name: z.string().min(2),
@@ -26,51 +25,18 @@ const EditCompany = () => {
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const { id } = useParams<{ id: string }>();
-	const [loading, setLoading] = React.useState(false);
-	const [initialLoading, setInitialLoading] = React.useState(true);
-	const [defaultValues, setDefaultValues] = React.useState({
-		legal_name: "",
-		trade_name: "",
-	});
-
-	React.useEffect(() => {
-		if (!id) return;
-		getCompanyByID(id).then((res) => {
-			if (res.success && res.data) {
-				const company = res.data;
-				setDefaultValues({
-					legal_name: company.legal_name,
-					trade_name: company.trade_name,
-				});
-			}
-			setInitialLoading(false);
-		});
-	}, [id]);
+	const { item, loading, saving, save } = useResourceItem(companies, id);
+	const defaultValues = {
+		legal_name: item?.legal_name ?? "",
+		trade_name: item?.trade_name ?? "",
+	};
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		if (!id) return;
-		setLoading(true);
-		const res = await updateCompany(id, values);
-		setLoading(false);
-		if (res.success) {
-			navigate("/companies");
-		}
-	}
-
-	if (initialLoading) {
-		return (
-			<DashboardLayout>
-				<div className="flex items-center justify-center h-64">
-					<p className="text-muted-foreground animate-pulse">
-						{textGet("backoffice.companies.loading")}
-					</p>
-				</div>
-			</DashboardLayout>
-		);
+		await save(values);
 	}
 
 	return (
-		<DashboardLayout>
+		<ResourceEditPage loading={loading}>
 			<div className="max-w-2xl mx-auto">
 				<Form<typeof formSchema>
 					schema={formSchema}
@@ -113,18 +79,18 @@ const EditCompany = () => {
 									variant="outline"
 									onClick={() => navigate("/companies")}
 								>
-									{textGet("backoffice.companies.cancel")}
+									{textGet("backoffice.common.cancel")}
 								</Button>
-								<Button type="submit" disabled={loading}>
-									{loading && <Spinner />}
-									{textGet("backoffice.companies.save")}
+								<Button type="submit" disabled={saving}>
+									{saving && <Spinner />}
+									{textGet("backoffice.common.save")}
 								</Button>
 							</CardFooter>
 						</Card>
 					)}
 				</Form>
 			</div>
-		</DashboardLayout>
+		</ResourceEditPage>
 	);
 };
 

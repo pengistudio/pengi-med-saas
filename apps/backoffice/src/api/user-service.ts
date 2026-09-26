@@ -1,8 +1,4 @@
-import { api } from ".";
-import { createHttpService, type ServiceResponse } from "./fetch";
-
-const httpService = createHttpService(api);
-
+import { resource } from "@/lib/resource/http-resource";
 export interface BackofficeUser {
 	ID: number;
 	CreatedAt: string;
@@ -23,35 +19,8 @@ export interface UpdateUserRequest extends Record<string, unknown> {
 	password?: string;
 }
 
-export const getUsers = async (): Promise<ServiceResponse<BackofficeUser[]>> =>
-	httpService.get<BackofficeUser[]>("/backoffice/users");
-
-export const getUserByID = async (
-	id: number | string,
-): Promise<ServiceResponse<BackofficeUser>> =>
-	httpService.get<BackofficeUser>(`/backoffice/users/${id}`);
-
-export const createUser = async (
-	data: CreateUserRequest,
-): Promise<ServiceResponse<BackofficeUser>> =>
-	httpService.post<BackofficeUser>("/backoffice/users", data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-
-export const updateUser = async (
-	id: number | string,
-	data: UpdateUserRequest,
-): Promise<ServiceResponse<BackofficeUser>> =>
-	httpService.put<BackofficeUser>(`/backoffice/users/${id}`, data, {
-		notifySuccess: true,
-		notifyError: true,
-	});
-
-export const deleteUser = async (
-	id: number | string,
-): Promise<ServiceResponse<null>> =>
-	httpService.delete<null>(`/backoffice/users/${id}`, {
-		notifySuccess: true,
-		notifyError: true,
-	});
+export const users = resource<
+	BackofficeUser,
+	CreateUserRequest,
+	UpdateUserRequest
+>("users");

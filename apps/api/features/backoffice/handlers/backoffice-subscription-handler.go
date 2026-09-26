@@ -48,6 +48,15 @@ func (h *BackofficeSubscriptionHandler) GetSubscriptions(c *gin.Context) envelop
 	return envelope.SuccessResponse(subscriptions, "backoffice.subscription.list.success")
 }
 
+func (h *BackofficeSubscriptionHandler) GetSubscriptionByID(c *gin.Context) envelope.Response {
+	id := c.Param("id")
+	var subscription company_models.Subscription
+	if err := h.db.Preload("Plan").Preload("Company").First(&subscription, id).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "Subscription not found", core_errors.ErrBackofficeSubscriptionNotFound)
+	}
+	return envelope.SuccessResponse(subscription, "backoffice.subscription.found")
+}
+
 func (h *BackofficeSubscriptionHandler) GetSubscriptionsByCompany(c *gin.Context) envelope.Response {
 	companyID := c.Param("id")
 	var subscriptions []company_models.Subscription
