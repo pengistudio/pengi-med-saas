@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -208,5 +209,31 @@ func TestWebAuth_RefreshTokenIsNotAnAccessToken(t *testing.T) {
 
 	if w := call(router, http.MethodPost, "/companies", webRefresh); w.Code != http.StatusUnauthorized {
 		t.Fatalf("POST /companies with a refresh token = %d, want 401", w.Code)
+	}
+}
+
+// Changing an admin's password must end their existing sessions: the refresh
+// cookie issued before the change stops working.
+func TestBackofficeAuth_PasswordChangeRevokesRefresh(t *testing.T) {
+	router, db := backofficeRouter(t)
+	createBackofficeAdmin(t, db)
+	token, cookies := backofficeLogin(t, router)
+	var admin backoffice_models.BackofficeUser
+	if err := db.Where("user_name = ?", "admin").First(&admin).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(http.MethodPut, "/backoffice/users/"+strconv.FormatUint(uint64(admin.ID), 10),
+		strings.NewReader(`{"password":"otra-clave-larga-123"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("password change = %d: %s", w.Code, w.Body.String())
+	}
+
+	if w := call(router, http.MethodPost, "/backoffice/auth/refresh", "", cookies...); w.Code == http.StatusOK {
+		t.Fatal("refresh with the cookie issued before the password change = 200, want rejection")
 	}
 }

@@ -81,6 +81,9 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 			return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating user", core_errors.ErrInternal)
 		}
 		updates["password"] = hashed
+		// End existing sessions: the stored refresh token no longer matches
+		// any cookie, so every refresh issued before the change is rejected.
+		updates["refresh_token"] = ""
 	}
 
 	if len(updates) > 0 {
