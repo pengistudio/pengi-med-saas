@@ -79,7 +79,7 @@ func TestGetAllInvoices_TenantScope(t *testing.T) {
 	}
 
 	// Create handler
-	handler := NewInvoiceHandler(db, logger)
+	handler := NewInvoiceHandler(db, logger, nil)
 
 	// Test: Query invoices for tenant1
 	c1, _ := testutils.NewGinContext(tenant1.ID, 1)
@@ -167,7 +167,7 @@ func TestGetAllInvoices_Pagination(t *testing.T) {
 		}
 	}
 
-	handler := NewInvoiceHandler(db, logger)
+	handler := NewInvoiceHandler(db, logger, nil)
 
 	// Test: Page 1 with limit 2
 	c1, _ := testutils.NewGinContext(tenant.ID, 1)
@@ -268,7 +268,7 @@ func TestCreateInvoice_FinalConsumer_NoPatient(t *testing.T) {
 		t.Fatalf("failed to create test catalog item: %v", err)
 	}
 
-	handler := NewInvoiceHandler(db, logger)
+	handler := NewInvoiceHandler(db, logger, nil)
 
 	payload := billing_dto.CreateInvoiceDTO{
 		// PatientID intentionally omitted — "Consumidor Final" invoice
@@ -309,7 +309,7 @@ func TestCreateInvoice_MissingTenantID(t *testing.T) {
 	)
 	logger := zap.NewNop()
 
-	handler := NewInvoiceHandler(db, logger)
+	handler := NewInvoiceHandler(db, logger, nil)
 
 	// Create context WITHOUT tenant_id
 	c, _ := testutils.NewGinContext(1, 1)

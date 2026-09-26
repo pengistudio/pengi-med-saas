@@ -153,6 +153,7 @@ export function getInvoiceColumns(
 					<InvoiceStatusBadge
 						status={invoice.status}
 						errorMessage={invoice.error_message}
+						errorCode={invoice.error_code}
 						onRetry={() => onRetry(invoice.ID)}
 					/>
 				);
@@ -243,6 +244,7 @@ export function getInvoiceColumnsMobile(
 							<InvoiceStatusBadge
 								status={invoice.status}
 								errorMessage={invoice.error_message}
+								errorCode={invoice.error_code}
 								onRetry={() => onRetry(invoice.ID)}
 							/>
 						</div>

@@ -14,12 +14,15 @@ import { useText } from "@/hooks/use-text";
 interface InvoiceStatusBadgeProps {
 	status: string;
 	errorMessage?: string | null;
+	// i18n key explaining the failure; errorMessage then shows as raw detail.
+	errorCode?: string | null;
 	onRetry?: () => void | Promise<void>;
 }
 
 export function InvoiceStatusBadge({
 	status,
 	errorMessage,
+	errorCode,
 	onRetry,
 }: InvoiceStatusBadgeProps) {
 	switch (status) {
@@ -58,6 +61,7 @@ export function InvoiceStatusBadge({
 					detailTitleKey="billing.status.failed.detail.title"
 					detailUnknownKey="billing.status.failed.detail.unknown"
 					errorMessage={errorMessage}
+					errorCode={errorCode}
 					onRetry={onRetry}
 				/>
 			);
@@ -69,6 +73,21 @@ export function InvoiceStatusBadge({
 					detailTitleKey="billing.status.connection_error.detail.title"
 					detailUnknownKey="billing.status.connection_error.detail.unknown"
 					errorMessage={errorMessage}
+					errorCode={errorCode}
+					onRetry={onRetry}
+				/>
+			);
+		// NO AUTORIZADO: retried manually once the cause is fixed (same access key).
+		case "rejected":
+			return (
+				<RetryableStatusBadge
+					badgeClassName="cursor-pointer"
+					badgeVariant="destructive"
+					statusKey="billing.status.rejected"
+					detailTitleKey="billing.status.rejected.detail.title"
+					detailUnknownKey="billing.status.rejected.detail.unknown"
+					errorMessage={errorMessage}
+					errorCode={errorCode}
 					onRetry={onRetry}
 				/>
 			);
@@ -82,7 +101,10 @@ export function InvoiceStatusBadge({
 }
 
 interface RetryableStatusBadgeProps
-	extends Pick<InvoiceStatusBadgeProps, "errorMessage" | "onRetry"> {
+	extends Pick<
+		InvoiceStatusBadgeProps,
+		"errorMessage" | "errorCode" | "onRetry"
+	> {
 	badgeClassName: string;
 	badgeVariant?: "destructive";
 	statusKey: string;
@@ -97,6 +119,7 @@ function RetryableStatusBadge({
 	detailTitleKey,
 	detailUnknownKey,
 	errorMessage,
+	errorCode,
 	onRetry,
 }: RetryableStatusBadgeProps) {
 	const { textGet } = useText();
@@ -123,9 +146,20 @@ function RetryableStatusBadge({
 					<PopoverTitle>
 						<Text uuid={detailTitleKey} />
 					</PopoverTitle>
-					<p className="text-muted-foreground whitespace-pre-wrap break-words">
-						{errorMessage ?? textGet(detailUnknownKey)}
-					</p>
+					{errorCode ? (
+						<>
+							<p>{textGet(errorCode)}</p>
+							{errorMessage && (
+								<p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
+									{errorMessage}
+								</p>
+							)}
+						</>
+					) : (
+						<p className="text-muted-foreground whitespace-pre-wrap break-words">
+							{errorMessage ?? textGet(detailUnknownKey)}
+						</p>
+					)}
 				</PopoverContent>
 			</Popover>
 			{onRetry && (

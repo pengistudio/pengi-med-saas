@@ -99,6 +99,7 @@ export function getDebitNoteColumns(
 					<InvoiceStatusBadge
 						status={debitNote.status}
 						errorMessage={debitNote.error_message}
+						errorCode={debitNote.error_code}
 						onRetry={() => onRetry(debitNote.ID)}
 					/>
 				);
@@ -181,6 +182,7 @@ export function getDebitNoteColumnsMobile(
 							<InvoiceStatusBadge
 								status={debitNote.status}
 								errorMessage={debitNote.error_message}
+								errorCode={debitNote.error_code}
 								onRetry={() => onRetry(debitNote.ID)}
 							/>
 						</div>

@@ -44,6 +44,7 @@ export interface Invoice extends BaseModel {
 	access_key?: string;
 	status: string;
 	error_message?: string;
+	error_code?: string | null;
 	subtotal: number;
 	subtotal_0: number;
 	subtotal_12: number;
@@ -74,6 +75,7 @@ export interface CreditNote extends BaseModel {
 	access_key?: string;
 	status: string;
 	error_message?: string;
+	error_code?: string | null;
 	reason: string;
 	subtotal: number;
 	tax_total: number;
@@ -109,6 +111,7 @@ export interface DebitNote extends BaseModel {
 	access_key?: string;
 	status: string;
 	error_message?: string;
+	error_code?: string | null;
 	subtotal: number;
 	tax_total: number;
 	total: number;

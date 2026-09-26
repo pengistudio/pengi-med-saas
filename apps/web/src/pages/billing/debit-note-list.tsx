@@ -28,7 +28,7 @@ const STATUS_FILTERS = [
 		value: "pending,processing,signed,validated",
 		labelKey: "billing.filter.pending",
 	},
-	{ value: "failed", labelKey: "billing.filter.failed" },
+	{ value: "failed,rejected", labelKey: "billing.filter.failed" },
 	{
 		value: "connection_error",
 		labelKey: "billing.filter.connection_error",
@@ -151,7 +151,8 @@ const DebitNoteListPage = () => {
 						page={page}
 						onPageChange={setPage}
 						rowClassName={(row) =>
-							row.original.status === "failed"
+							row.original.status === "failed" ||
+							row.original.status === "rejected"
 								? "bg-destructive/5 hover:bg-destructive/10"
 								: row.original.status === "connection_error"
 									? "bg-amber-500/5 hover:bg-amber-500/10"

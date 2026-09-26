@@ -5418,5 +5418,37 @@
     {
         "key": "error_page.home_button",
         "value": "Volver al inicio"
+    },
+    {
+        "key": "billing.status.rejected",
+        "value": "No autorizado"
+    },
+    {
+        "key": "billing.status.rejected.detail.title",
+        "value": "Motivo del rechazo"
+    },
+    {
+        "key": "billing.status.rejected.detail.unknown",
+        "value": "El SRI no autorizó el comprobante. Corrige la causa y reintenta: se reenviará con la misma clave de acceso."
+    },
+    {
+        "key": "billing.sri_document.error.connection",
+        "value": "No se pudo conectar con el SRI. Es un problema temporal del servicio, no del documento; se reintentará automáticamente."
+    },
+    {
+        "key": "billing.sri_document.error.returned",
+        "value": "El SRI devolvió el comprobante. Revisa el motivo y vuelve a intentarlo."
+    },
+    {
+        "key": "billing.sri_document.error.not_authorized",
+        "value": "El SRI no autorizó el comprobante. Corrige la causa indicada y reintenta; se reenviará con la misma clave de acceso y secuencial."
+    },
+    {
+        "key": "billing.sri_document.error.missing_signature",
+        "value": "Falta configurar la firma electrónica (archivo P12 y contraseña) en Configuración."
+    },
+    {
+        "key": "billing.sri_document.error.internal",
+        "value": "Ocurrió un error interno al procesar el comprobante."
     }
 ]

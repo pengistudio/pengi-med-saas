@@ -113,6 +113,7 @@ export function getCreditNoteColumns(
 					<InvoiceStatusBadge
 						status={creditNote.status}
 						errorMessage={creditNote.error_message}
+						errorCode={creditNote.error_code}
 						onRetry={() => onRetry(creditNote.ID)}
 					/>
 				);
@@ -190,6 +191,7 @@ export function getCreditNoteColumnsMobile(
 							<InvoiceStatusBadge
 								status={creditNote.status}
 								errorMessage={creditNote.error_message}
+								errorCode={creditNote.error_code}
 								onRetry={() => onRetry(creditNote.ID)}
 							/>
 						</div>

@@ -8,7 +8,7 @@ import (
 	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/logger"
-	billing_workers "pengi-med-saas/features/billing/workers"
+	sri_document "pengi-med-saas/features/billing/sri-document"
 	clinical_workers "pengi-med-saas/features/clinical/workers"
 	"pengi-med-saas/features/health"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
@@ -56,24 +56,20 @@ func main() {
 	logger.Log.Info("message cache initialized")
 
 	// Initialize RabbitMQ (reconnects on its own). HTTP handlers publish on a shared
-	// channel (see "invoice_channel" below); each background consumer gets its own
+	// channel (rabbitmq.PublishChannel); each background consumer gets its own
 	// dedicated channel — amqp.Channel is not safe for concurrent use, and declaring
 	// the next queue on the same channel while a previous StartConsumer goroutine is
 	// still finishing its Consume() handshake races and closes the channel with a 503
 	// "unexpected command received".
-	go rabbitmq.Run(
-		func(ch *amqp.Channel) error { return billing_workers.InitInvoiceBroker(ch, DB_CONNECTION, logger.Log) },
-		func(ch *amqp.Channel) error {
-			return billing_workers.InitCreditNoteBroker(ch, DB_CONNECTION, logger.Log)
-		},
-		func(ch *amqp.Channel) error {
-			return billing_workers.InitDebitNoteBroker(ch, DB_CONNECTION, logger.Log)
-		},
-	)
+	sriDocuments := sri_document.NewDefault(DB_CONNECTION, logger.Log)
+	var sriConsumers []func(ch *amqp.Channel) error
+	for _, kind := range sri_document.Kinds {
+		sriConsumers = append(sriConsumers, func(ch *amqp.Channel) error { return sriDocuments.StartConsumer(ch, kind) })
+	}
+	go rabbitmq.Run(sriConsumers...)
 
-	stuckDocumentScheduler := billing_workers.NewStuckDocumentScheduler(DB_CONNECTION, logger.Log)
-	go stuckDocumentScheduler.Start()
-	logger.Log.Info("stuck SRI document scheduler started")
+	go sriDocuments.RunSweeper(5*time.Minute, sri_document.Kinds...)
+	logger.Log.Info("SRI document sweeper started")
 
 	// Initialize archive scheduler
 	archiveScheduler := kanban_workers.NewArchiveScheduler(DB_CONNECTION, logger.Log)
@@ -116,14 +112,6 @@ func main() {
 	r.Use(cors.New(corsConfig))
 
 	r.Use(i18n_middleware.I18nMiddleware(DB_CONNECTION))
-
-	// Inject the current RabbitMQ publish channel into context if connected
-	r.Use(func(c *gin.Context) {
-		if ch := rabbitmq.PublishChannel(); ch != nil {
-			c.Set("invoice_channel", ch)
-		}
-		c.Next()
-	})
 
 	r.GET("/health", health.Health)
 

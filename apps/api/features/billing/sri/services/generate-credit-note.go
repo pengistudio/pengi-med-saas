@@ -179,13 +179,9 @@ func GenerateCreditNoteXml(creditNoteSRI invoiceSRI.CreditNoteSRI) (string, erro
 	return xmlHeader + string(output), nil
 }
 
-// GenerateCreditNote builds the CreditNoteSRI struct and access key for a given CreditNote.
-func GenerateCreditNote(creditNote billing_models.CreditNote, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string, sriEnv string) (*invoiceSRI.CreditNoteSRI, string, error) {
-	accessKey, err := GenerateAccessKey(creditNote.IssueDate, creditNote.DocumentCode, tenantObj.TaxID, establishmentCode, emissionCode, creditNote.Sequential, creditNote.EmissionType, sriEnv)
-	if err != nil {
-		return nil, "", err
-	}
-
+// GenerateCreditNote builds the SRI nota de crédito for an access key the caller
+// already holds; the key never changes across attempts (see sri-document).
+func GenerateCreditNote(creditNote billing_models.CreditNote, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string, sriEnv string, accessKey string) (*invoiceSRI.CreditNoteSRI, error) {
 	taxInfo := reorderCreditNoteTaxInfo(creditNote, accessKey, tenantObj, establishmentCode, emissionCode, sriEnv)
 	creditNoteInfo := reorderCreditNoteInfo(creditNote, tenantObj, establishmentAddress)
 	details := reorderCreditNoteDetails(creditNote.Items, services)
@@ -200,5 +196,5 @@ func GenerateCreditNote(creditNote billing_models.CreditNote, services []Catalog
 		Details:        details,
 	}
 
-	return creditNoteSRIObj, accessKey, nil
+	return creditNoteSRIObj, nil
 }

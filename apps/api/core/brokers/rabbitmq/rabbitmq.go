@@ -10,7 +10,6 @@ import (
 
 	"pengi-med-saas/core/logger"
 
-	"github.com/gin-gonic/gin"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"go.uber.org/zap"
 )
@@ -307,13 +306,4 @@ func retryCount(headers amqp.Table) int {
 		return v
 	}
 	return 0
-}
-
-// GetChannel retrieves a RabbitMQ channel injected into the Gin context
-func GetChannel(c *gin.Context, key string) *amqp.Channel {
-	ch, exists := c.Get(key)
-	if !exists {
-		return nil
-	}
-	return ch.(*amqp.Channel)
 }

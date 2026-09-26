@@ -5418,5 +5418,37 @@
     {
         "key": "error_page.home_button",
         "value": "Back to home"
+    },
+    {
+        "key": "billing.status.rejected",
+        "value": "Not authorized"
+    },
+    {
+        "key": "billing.status.rejected.detail.title",
+        "value": "Rejection reason"
+    },
+    {
+        "key": "billing.status.rejected.detail.unknown",
+        "value": "The SRI did not authorize this document. Fix the cause and retry: it will be resent with the same access key."
+    },
+    {
+        "key": "billing.sri_document.error.connection",
+        "value": "Could not reach the SRI. This is a temporary service problem, not an issue with the document; it will be retried automatically."
+    },
+    {
+        "key": "billing.sri_document.error.returned",
+        "value": "The SRI returned the document. Check the reason and try again."
+    },
+    {
+        "key": "billing.sri_document.error.not_authorized",
+        "value": "The SRI did not authorize the document. Fix the stated cause and retry; it will be resent with the same access key and sequential number."
+    },
+    {
+        "key": "billing.sri_document.error.missing_signature",
+        "value": "The electronic signature (P12 file and password) is not configured in Settings."
+    },
+    {
+        "key": "billing.sri_document.error.internal",
+        "value": "An internal error occurred while processing the document."
     }
 ]

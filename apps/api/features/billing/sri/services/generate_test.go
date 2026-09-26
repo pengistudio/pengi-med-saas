@@ -48,7 +48,8 @@ func TestGenerateInvoice_EnvironmentMatchesSriEnvArgument(t *testing.T) {
 	// Regression test: TaxInfo.Environment (and the ambiente digit embedded in the
 	// access key itself) used to be hardcoded to "1" (pruebas) regardless of the
 	// actual SRI_ENV the document was being sent to.
-	sriInvoice, accessKey, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dir", "2")
+	accessKey := testAccessKey(t, "2")
+	sriInvoice, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dir", "2", accessKey)
 	if err != nil {
 		t.Fatalf("GenerateInvoice failed: %v", err)
 	}
@@ -93,7 +94,8 @@ func TestGenerateInvoice_ProducesValidAccessKeyAndXml(t *testing.T) {
 	}
 	products[0].ID = 1
 
-	sriInvoice, accessKey, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1")
+	accessKey := testAccessKey(t, "1")
+	sriInvoice, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1", accessKey)
 	if err != nil {
 		t.Fatalf("GenerateInvoice failed: %v", err)
 	}
@@ -152,7 +154,7 @@ func TestGenerateInvoice_TariffIsPercentageNotFraction(t *testing.T) {
 	}
 	products[0].ID = 1
 
-	sriInvoice, _, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1")
+	sriInvoice, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1", testAccessKey(t, "1"))
 	if err != nil {
 		t.Fatalf("GenerateInvoice failed: %v", err)
 	}
@@ -198,7 +200,8 @@ func TestGenerateInvoice_NilPatient_EmitsFinalConsumer(t *testing.T) {
 	}
 	products[0].ID = 1
 
-	sriInvoice, accessKey, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1")
+	accessKey := testAccessKey(t, "1")
+	sriInvoice, err := GenerateInvoice(invoice, products, tenantObj, "001", "001", "Dirección Establecimiento", "1", accessKey)
 	if err != nil {
 		t.Fatalf("GenerateInvoice failed: %v", err)
 	}
@@ -261,7 +264,8 @@ func TestGenerateCreditNote_ProducesValidXmlReferencingInvoice(t *testing.T) {
 	}
 	products[0].ID = 1
 
-	sriCreditNote, accessKey, err := GenerateCreditNote(creditNote, products, tenantObj, "001", "001", "Dirección Establecimiento", "1")
+	accessKey := testAccessKey(t, "1")
+	sriCreditNote, err := GenerateCreditNote(creditNote, products, tenantObj, "001", "001", "Dirección Establecimiento", "1", accessKey)
 	if err != nil {
 		t.Fatalf("GenerateCreditNote failed: %v", err)
 	}
@@ -318,7 +322,8 @@ func TestGenerateDebitNote_ProducesValidXmlReferencingInvoice(t *testing.T) {
 		},
 	}
 
-	sriDebitNote, accessKey, err := GenerateDebitNote(debitNote, tenantObj, "001", "001", "Dirección Establecimiento", "1")
+	accessKey := testAccessKey(t, "1")
+	sriDebitNote, err := GenerateDebitNote(debitNote, tenantObj, "001", "001", "Dirección Establecimiento", "1", accessKey)
 	if err != nil {
 		t.Fatalf("GenerateDebitNote failed: %v", err)
 	}
@@ -342,4 +347,14 @@ func TestGenerateDebitNote_ProducesValidXmlReferencingInvoice(t *testing.T) {
 	if !strings.Contains(xmlStr, "<claveAcceso>"+accessKey+"</claveAcceso>") {
 		t.Errorf("expected claveAcceso in XML to match generated access key")
 	}
+}
+
+// testAccessKey returns a valid 49-digit access key for the given SRI ambiente.
+func testAccessKey(t *testing.T, sriEnv string) string {
+	t.Helper()
+	key, err := GenerateAccessKey(time.Now(), "01", testTenant().TaxID, "001", "001", "000000001", "1", sriEnv)
+	if err != nil {
+		t.Fatalf("GenerateAccessKey: %v", err)
+	}
+	return key
 }

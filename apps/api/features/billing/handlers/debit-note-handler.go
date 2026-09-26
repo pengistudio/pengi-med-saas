@@ -1,17 +1,16 @@
 package billing_handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
+	sri_document "pengi-med-saas/features/billing/sri-document"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -20,12 +19,13 @@ import (
 )
 
 type DebitNoteHandler struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db           *gorm.DB
+	logger       *zap.Logger
+	sriDocuments *sri_document.Lifecycle
 }
 
-func NewDebitNoteHandler(db *gorm.DB, logger *zap.Logger) *DebitNoteHandler {
-	return &DebitNoteHandler{db: db, logger: logger}
+func NewDebitNoteHandler(db *gorm.DB, logger *zap.Logger, sriDocuments *sri_document.Lifecycle) *DebitNoteHandler {
+	return &DebitNoteHandler{db: db, logger: logger, sriDocuments: sriDocuments}
 }
 
 func (h *DebitNoteHandler) CreateDebitNote(c *gin.Context) envelope.Response {
@@ -138,42 +138,5 @@ func (h *DebitNoteHandler) GetAllDebitNotes(c *gin.Context) envelope.Response {
 }
 
 func (h *DebitNoteHandler) SRIDebitNoteProcessing(c *gin.Context) envelope.Response {
-	channel := rabbitmq.GetChannel(c, "invoice_channel")
-	if channel == nil {
-		h.logger.Error("RabbitMQ channel not found in context")
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.rabbitmq_failed", core_errors.ErrInternal)
-	}
-
-	debitNoteID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
-	}
-
-	tenantScope := tenant_middleware.TenantScope(c)
-	var debitNote billing_models.DebitNote
-	if err := h.db.Scopes(tenantScope).First(&debitNote, debitNoteID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
-	}
-	if debitNote.Status == billing_models.InvoiceStatusAuthorized {
-		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.already_authorized", core_errors.ErrBillingInvalidRequest)
-	}
-
-	if err := h.db.Scopes(tenantScope).Model(&debitNote).
-		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
-		h.logger.Error("Failed to mark debit note as pending", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
-	}
-
-	body, err := json.Marshal(&billing_dto.DebitNoteDTO{DebitNoteID: debitNoteID})
-	if err != nil {
-		h.logger.Error("Failed to marshal DebitNoteDTO", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.encode_failed", core_errors.ErrBillingInvalidRequest)
-	}
-
-	if err := rabbitmq.PublishMessage(channel, "debit_note_tasks", body); err != nil {
-		h.logger.Error("Failed to publish to RabbitMQ", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
-	}
-
-	return envelope.SuccessResponse(nil, "billing.invoice.processing.queued")
+	return enqueueSriDocument(c, h.db, h.logger, h.sriDocuments, sri_document.DebitNote)
 }

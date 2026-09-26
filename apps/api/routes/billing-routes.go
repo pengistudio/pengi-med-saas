@@ -4,6 +4,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
 	billing_handlers "pengi-med-saas/features/billing/handlers"
+	sri_document "pengi-med-saas/features/billing/sri-document"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
@@ -13,10 +14,11 @@ import (
 )
 
 func RegisterBillingRoutes(router *gin.RouterGroup, db *gorm.DB) {
-	invoiceHandler := billing_handlers.NewInvoiceHandler(db, logger.Log)
+	sriDocuments := sri_document.NewDefault(db, logger.Log)
+	invoiceHandler := billing_handlers.NewInvoiceHandler(db, logger.Log, sriDocuments)
 	catalogItemHandler := billing_handlers.NewCatalogItemHandler(db, logger.Log)
-	creditNoteHandler := billing_handlers.NewCreditNoteHandler(db, logger.Log)
-	debitNoteHandler := billing_handlers.NewDebitNoteHandler(db, logger.Log)
+	creditNoteHandler := billing_handlers.NewCreditNoteHandler(db, logger.Log, sriDocuments)
+	debitNoteHandler := billing_handlers.NewDebitNoteHandler(db, logger.Log, sriDocuments)
 
 	billingGroup := router.Group("/billing", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 

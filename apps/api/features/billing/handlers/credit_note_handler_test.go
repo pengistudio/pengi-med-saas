@@ -86,7 +86,7 @@ func TestCreateCreditNote_RequiresAuthorizedInvoice(t *testing.T) {
 		t.Fatalf("failed to set invoice pending: %v", err)
 	}
 
-	handler := NewCreditNoteHandler(db, zap.NewNop())
+	handler := NewCreditNoteHandler(db, zap.NewNop(), nil)
 
 	payload := billing_dto.CreateCreditNoteDTO{
 		InvoiceID: invoice.ID,
@@ -111,7 +111,7 @@ func TestCreateCreditNote_RequiresAuthorizedInvoice(t *testing.T) {
 func TestCreateCreditNote_Success(t *testing.T) {
 	db, tenant, product, invoice := setupCreditNoteTestData(t)
 
-	handler := NewCreditNoteHandler(db, zap.NewNop())
+	handler := NewCreditNoteHandler(db, zap.NewNop(), nil)
 
 	payload := billing_dto.CreateCreditNoteDTO{
 		InvoiceID: invoice.ID,

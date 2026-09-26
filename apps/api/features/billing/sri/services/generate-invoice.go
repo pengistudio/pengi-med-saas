@@ -292,13 +292,9 @@ func GenerateInvoiceXml(invoiceSRI invoiceSRI.InvoiceSRI) (string, error) {
 	return xmlHeader + string(output), nil
 }
 
-// Function to generate the invoiceSRI with input data
-func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string, sriEnv string) (*invoiceSRI.InvoiceSRI, string, error) {
-
-	accessKey, err := GenerateAccessKey(invoice.IssueDate, invoice.DocumentCode, tenantObj.TaxID, establishmentCode, emissionCode, invoice.Sequential, invoice.EmissionType, sriEnv)
-	if err != nil {
-		return nil, "", err
-	}
+// GenerateInvoice builds the SRI factura for an access key the caller already
+// holds; the key never changes across attempts (see sri-document).
+func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string, sriEnv string, accessKey string) (*invoiceSRI.InvoiceSRI, error) {
 	infoTributariaData := reorderTaxInfo(invoice, accessKey, tenantObj, establishmentCode, emissionCode, sriEnv)
 	invoiceInfo := reorderInvoiceInfo(invoice, tenantObj, establishmentAddress)
 	invoiceDetails := reorderDetails(invoice, services)
@@ -313,5 +309,5 @@ func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.T
 		Details:     invoiceDetails,
 	}
 
-	return invoiceSRIObj, accessKey, nil
+	return invoiceSRIObj, nil
 }

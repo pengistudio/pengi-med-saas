@@ -116,13 +116,9 @@ func GenerateDebitNoteXml(debitNoteSRI invoiceSRI.DebitNoteSRI) (string, error) 
 	return xmlHeader + string(output), nil
 }
 
-// GenerateDebitNote builds the DebitNoteSRI struct and access key for a given DebitNote.
-func GenerateDebitNote(debitNote billing_models.DebitNote, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string, sriEnv string) (*invoiceSRI.DebitNoteSRI, string, error) {
-	accessKey, err := GenerateAccessKey(debitNote.IssueDate, debitNote.DocumentCode, tenantObj.TaxID, establishmentCode, emissionCode, debitNote.Sequential, debitNote.EmissionType, sriEnv)
-	if err != nil {
-		return nil, "", err
-	}
-
+// GenerateDebitNote builds the SRI nota de débito for an access key the caller
+// already holds; the key never changes across attempts (see sri-document).
+func GenerateDebitNote(debitNote billing_models.DebitNote, tenantObj tenant.Tenant, establishmentCode string, emissionCode string, establishmentAddress string, sriEnv string, accessKey string) (*invoiceSRI.DebitNoteSRI, error) {
 	taxInfo := reorderDebitNoteTaxInfo(debitNote, accessKey, tenantObj, establishmentCode, emissionCode, sriEnv)
 	debitNoteInfo := reorderDebitNoteInfo(debitNote, tenantObj, establishmentAddress)
 	motives := reorderDebitMotives(debitNote)
@@ -137,5 +133,5 @@ func GenerateDebitNote(debitNote billing_models.DebitNote, tenantObj tenant.Tena
 		Motives:       motives,
 	}
 
-	return debitNoteSRIObj, accessKey, nil
+	return debitNoteSRIObj, nil
 }

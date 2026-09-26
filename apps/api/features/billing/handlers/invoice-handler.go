@@ -1,7 +1,7 @@
 package billing_handlers
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
+	sri_document "pengi-med-saas/features/billing/sri-document"
 	sri_services "pengi-med-saas/features/billing/sri/services"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -25,12 +25,13 @@ import (
 )
 
 type InvoiceHandler struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db           *gorm.DB
+	logger       *zap.Logger
+	sriDocuments *sri_document.Lifecycle
 }
 
-func NewInvoiceHandler(db *gorm.DB, logger *zap.Logger) *InvoiceHandler {
-	return &InvoiceHandler{db: db, logger: logger}
+func NewInvoiceHandler(db *gorm.DB, logger *zap.Logger, sriDocuments *sri_document.Lifecycle) *InvoiceHandler {
+	return &InvoiceHandler{db: db, logger: logger, sriDocuments: sriDocuments}
 }
 
 func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
@@ -202,99 +203,22 @@ func (h *InvoiceHandler) DeleteInvoiceByID(c *gin.Context) envelope.Response {
 }
 
 func (h *InvoiceHandler) SRIInvoiceProcessing(c *gin.Context) envelope.Response {
-	invoiceChannel := rabbitmq.GetChannel(c, "invoice_channel")
-	if invoiceChannel == nil {
-		h.logger.Error("RabbitMQ channel not found in context")
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.rabbitmq_failed", core_errors.ErrInternal)
-	}
-
-	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
-	}
-
-	tenantScope := tenant_middleware.TenantScope(c)
-	var invoice billing_models.Invoice
-	if err := h.db.Scopes(tenantScope).First(&invoice, invoiceID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
-	}
-	if invoice.Status == billing_models.InvoiceStatusAuthorized {
-		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.already_authorized", core_errors.ErrBillingInvalidRequest)
-	}
-
-	if err := h.db.Scopes(tenantScope).Model(&invoice).
-		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
-		h.logger.Error("Failed to mark invoice as pending", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
-	}
-
-	body, err := json.Marshal(&billing_dto.InvoiceDTO{
-		InvoiceID: invoiceID,
-	})
-	if err != nil {
-		h.logger.Error("Failed to marshal InvoiceDTO", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.encode_failed", core_errors.ErrBillingInvalidRequest)
-	}
-
-	err = rabbitmq.PublishMessage(invoiceChannel, "invoice_tasks", body)
-	if err != nil {
-		h.logger.Error("Failed to publish to RabbitMQ", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
-	}
-
-	return envelope.SuccessResponse(nil, "billing.invoice.processing.queued")
+	return enqueueSriDocument(c, h.db, h.logger, h.sriDocuments, sri_document.Invoice)
 }
 
+// MultipleSRIInvoiceProcessing queues every listed invoice that can still be
+// processed; authorized and unknown ones are skipped.
 func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.Response {
-	invoiceChannel := rabbitmq.GetChannel(c, "invoice_channel")
-	if invoiceChannel == nil {
-		h.logger.Error("RabbitMQ channel not found in context")
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.rabbitmq_failed", core_errors.ErrInternal)
-	}
-
 	var idList billing_dto.InvoiceIDListDTO
 	if err := c.ShouldBindJSON(&idList); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_payload", core_errors.ErrBillingInvalidRequest)
 	}
 
-	tenantScope := tenant_middleware.TenantScope(c)
-	var invoicesToProcess []billing_models.Invoice
-	if err := h.db.Scopes(tenantScope).
-		Where("id IN ? AND status != ?", idList.IDList, billing_models.InvoiceStatusAuthorized).
-		Find(&invoicesToProcess).Error; err != nil {
-		h.logger.Error("Failed to fetch invoices for batch processing", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
-	}
-
-	if len(invoicesToProcess) == 0 {
-		return envelope.SuccessResponse(nil, "billing.invoices.processing.queued")
-	}
-
-	var validIDs []uint
-	for _, inv := range invoicesToProcess {
-		validIDs = append(validIDs, inv.ID)
-	}
-
-	if err := h.db.Scopes(tenantScope).Model(&billing_models.Invoice{}).
-		Where("id IN ?", validIDs).
-		Update("status", billing_models.InvoiceStatusPending).Error; err != nil {
-		h.logger.Error("Failed to mark invoices as pending", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
-	}
-
-	for _, currentID := range validIDs {
-		body, err := json.Marshal(&billing_dto.InvoiceDTO{
-			InvoiceID: uint64(currentID),
-		})
-		if err != nil {
-			h.logger.Error("Failed to marshal InvoiceDTO", zap.Error(err))
-			continue // Skip errors on individual payloads
-		}
-
-		err = rabbitmq.PublishMessage(invoiceChannel, "invoice_tasks", body)
-		if err != nil {
-			h.logger.Error("Failed to publish to RabbitMQ", zap.Error(err))
-			continue
+	tenantDB := h.db.Scopes(tenant_middleware.TenantScope(c))
+	for _, id := range idList.IDList {
+		err := h.sriDocuments.Enqueue(tenantDB, sri_document.Invoice, uint64(id))
+		if err != nil && !errors.Is(err, sri_document.ErrNotFound) && !errors.Is(err, sri_document.ErrAlreadyAuthorized) {
+			h.logger.Error("Failed to enqueue invoice for SRI processing", zap.Uint("invoice_id", uint(id)), zap.Error(err))
 		}
 	}
 

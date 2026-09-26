@@ -28,6 +28,7 @@ type CreditNote struct {
 	Total             float64          `json:"total"`
 	Currency          string           `json:"currency"`
 	Status            string           `gorm:"type:varchar(20);default:'pending'" json:"status"`
+	ErrorCode         *string          `gorm:"size:100" json:"error_code"` // i18n key describing ErrorMessage for the UI
 	ErrorMessage      *string          `json:"error_message"`
 	Items             []CreditNoteItem `gorm:"foreignKey:CreditNoteID" json:"items"`
 	EstablishmentCode string           `json:"establishment_code"`
