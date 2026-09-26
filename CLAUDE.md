@@ -170,9 +170,9 @@ To add a migration: create a file in `migrations/code-migrations/{year}/`, regis
 
 **Never edit a code-migration file that is already committed to `origin/main`** — IDs are immutable, editing one that already ran elsewhere is a silent no-op there (drift between environments). Always create a new file with a new ID instead. This is enforced automatically by `.claude/hooks/guard-migrations.mjs` (blocks Edit/Write on any migration file already in `origin/main`); see `docs/backend/api-code-migration.md` rule #1.
 
-### Async invoice processing
+### Async SRI processing (comprobantes electrónicos)
 
-`POST /billing/invoices/:id/sri/process` publishes a message to RabbitMQ queue `invoice_tasks`. The worker in `features/billing/workers/invoice-worker.go` consumes it, calls the `sri-xml-signer` microservice, and updates the invoice status through these stages: `pending → processing → signed → validated → authorized`.
+`features/billing/sri-document/` owns the whole lifecycle of facturas, notas de crédito and notas de débito: `Enqueue` (called by the `*/sri/process` handlers), `Process` (RabbitMQ consumers, one queue per document kind) and `Sweep` (re-queues stuck documents and pending authorizations). Status: `pending → processing → signed → validated (recibido) → authorized`, plus `rejected` (NO AUTORIZADO: corrected and resent with the same key on user retry) and `failed`/`connection_error` (retryable). A document's access key never changes and it is never resent while the SRI is processing it — see `docs/adr/0001-clave-de-acceso-inmutable.md`. Adding a new document type = a new `Kind` in `kinds.go`.
 
 ---
 
