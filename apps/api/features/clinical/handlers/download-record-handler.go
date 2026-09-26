@@ -105,7 +105,7 @@ func generatePrescriptionPDF(db *gorm.DB, c *gin.Context, record *clinical_model
 	// Attempt to find company information (for header & footer)
 	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
-	db.Where("tenant_id = ?", tenantID).First(&company)
+	tenantdb.For(c, db).First(&company)
 
 	tradeName := "Consultorio Médico"
 	if company.TradeName != "" {

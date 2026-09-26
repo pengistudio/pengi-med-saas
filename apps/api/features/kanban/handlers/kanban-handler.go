@@ -2,6 +2,7 @@ package kanban_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	kanban_dto "pengi-med-saas/features/kanban/dto"
 	kanban_models "pengi-med-saas/features/kanban/models"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -64,10 +64,10 @@ func toTaskResponse(task kanban_models.Task) kanban_dto.TaskResponse {
 
 // GetTasks returns all tasks for the tenant, grouped by status.
 func (h *KanbanHandler) GetTasks(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	var tasks []kanban_models.Task
-	if err := h.db.Scopes(tenantScope).
+	if err := db.
 		Where("archived_at IS NULL").
 		Order("status, position").
 		Find(&tasks).Error; err != nil {
@@ -103,7 +103,7 @@ func (h *KanbanHandler) CreateTask(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.request", core_errors.ErrInvalidRequest)
 	}
 
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 	tenantID := c.GetUint("tenant_id")
 
 	status := "todo"
@@ -113,7 +113,7 @@ func (h *KanbanHandler) CreateTask(c *gin.Context) envelope.Response {
 
 	// Get max position for the given status
 	var maxPosition int
-	h.db.Scopes(tenantScope).
+	db.
 		Model(&kanban_models.Task{}).
 		Where("status = ?", status).
 		Order("position DESC").
@@ -167,10 +167,10 @@ func (h *KanbanHandler) UpdateTask(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.request", core_errors.ErrInvalidRequest)
 	}
 
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	var task kanban_models.Task
-	if err := h.db.Scopes(tenantScope).First(&task, id).Error; err != nil {
+	if err := db.First(&task, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return envelope.ErrorResponse(http.StatusNotFound, "kanban.task.not.found", core_errors.ErrTenantNotFound)
 		}
@@ -216,10 +216,10 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.request", core_errors.ErrInvalidRequest)
 	}
 
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	var task kanban_models.Task
-	if err := h.db.Scopes(tenantScope).First(&task, id).Error; err != nil {
+	if err := db.First(&task, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return envelope.ErrorResponse(http.StatusNotFound, "kanban.task.not.found", core_errors.ErrTenantNotFound)
 		}
@@ -230,7 +230,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 	oldStatus := task.Status
 	if oldStatus != req.Status {
 		// Decrease positions in old status column
-		if err := h.db.Scopes(tenantScope).
+		if err := db.
 			Model(&kanban_models.Task{}).
 			Where("status = ? AND position > ?", oldStatus, task.Position).
 			Update("position", gorm.Expr("position - 1")).Error; err != nil {
@@ -239,7 +239,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 		}
 
 		// Increase positions in new status column at insertion point
-		if err := h.db.Scopes(tenantScope).
+		if err := db.
 			Model(&kanban_models.Task{}).
 			Where("status = ? AND position >= ?", req.Status, req.Position).
 			Update("position", gorm.Expr("position + 1")).Error; err != nil {
@@ -250,7 +250,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 		// Same column reordering
 		if req.Position > task.Position {
 			// Moving down: shift others up
-			if err := h.db.Scopes(tenantScope).
+			if err := db.
 				Model(&kanban_models.Task{}).
 				Where("status = ? AND position > ? AND position <= ?", req.Status, task.Position, req.Position).
 				Update("position", gorm.Expr("position - 1")).Error; err != nil {
@@ -259,7 +259,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 			}
 		} else {
 			// Moving up: shift others down
-			if err := h.db.Scopes(tenantScope).
+			if err := db.
 				Model(&kanban_models.Task{}).
 				Where("status = ? AND position >= ? AND position < ?", req.Status, req.Position, task.Position).
 				Update("position", gorm.Expr("position + 1")).Error; err != nil {
@@ -287,10 +287,10 @@ func (h *KanbanHandler) DeleteTask(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.id", core_errors.ErrInvalidRequest)
 	}
 
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	var task kanban_models.Task
-	if err := h.db.Scopes(tenantScope).First(&task, id).Error; err != nil {
+	if err := db.First(&task, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return envelope.ErrorResponse(http.StatusNotFound, "kanban.task.not.found", core_errors.ErrTenantNotFound)
 		}
@@ -299,7 +299,7 @@ func (h *KanbanHandler) DeleteTask(c *gin.Context) envelope.Response {
 	}
 
 	// Shift positions after deletion
-	if err := h.db.Scopes(tenantScope).
+	if err := db.
 		Model(&kanban_models.Task{}).
 		Where("status = ? AND position > ?", task.Status, task.Position).
 		Update("position", gorm.Expr("position - 1")).Error; err != nil {

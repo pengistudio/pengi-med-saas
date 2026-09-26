@@ -3,6 +3,7 @@ package integration_handlers
 import (
 	"net/http"
 	"os"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -90,7 +91,7 @@ func (h *GoogleIntegrationHandler) Callback(c *gin.Context) {
 	}
 
 	// Upsert by tenant_id
-	if err := h.db.Where(integration_models.TenantIntegration{TenantID: tenant.ID}).
+	if err := tenantdb.ForTenant(h.db, tenant.ID).Where(integration_models.TenantIntegration{TenantID: tenant.ID}).
 		Assign(integration_models.TenantIntegration{
 			GoogleAccessToken:  token.AccessToken,
 			GoogleRefreshToken: token.RefreshToken,
@@ -104,7 +105,7 @@ func (h *GoogleIntegrationHandler) Callback(c *gin.Context) {
 	}
 
 	// Update tokens if record already existed
-	h.db.Model(&integration).Updates(map[string]interface{}{
+	tenantdb.ForTenant(h.db, tenant.ID).Model(&integration).Updates(map[string]interface{}{
 		"google_access_token":  token.AccessToken,
 		"google_refresh_token": token.RefreshToken,
 		"google_token_expiry":  &expiry,
@@ -117,10 +118,9 @@ func (h *GoogleIntegrationHandler) Callback(c *gin.Context) {
 
 // GetStatus returns the current Google Calendar integration status.
 func (h *GoogleIntegrationHandler) GetStatus(c *gin.Context) envelope.Response {
-	tenantID, _ := c.Get("tenant_id")
 
 	var integration integration_models.TenantIntegration
-	err := h.db.Where("tenant_id = ?", tenantID).First(&integration).Error
+	err := tenantdb.For(c, h.db).First(&integration).Error
 	if err != nil {
 		return envelope.SuccessResponse(gin.H{"connected": false}, "integrations.google.status.success")
 	}
@@ -136,12 +136,12 @@ func (h *GoogleIntegrationHandler) Disconnect(c *gin.Context) envelope.Response 
 	tenantID, _ := c.Get("tenant_id")
 
 	var integration integration_models.TenantIntegration
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&integration).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&integration).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "integration not found", core_errors.ErrIntegrationNotFound)
 	}
 
 	expiry := time.Time{}
-	if err := h.db.Model(&integration).Updates(map[string]interface{}{
+	if err := tenantdb.For(c, h.db).Model(&integration).Updates(map[string]interface{}{
 		"google_access_token":  "",
 		"google_refresh_token": "",
 		"google_token_expiry":  &expiry,

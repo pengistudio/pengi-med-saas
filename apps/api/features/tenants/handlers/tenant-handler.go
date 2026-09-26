@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	"pengi-med-saas/core/envelope"
@@ -348,7 +349,7 @@ func (h *TenantHandler) GetTodayAppointmentsPublic(c *gin.Context) envelope.Resp
 
 	today := time.Now().Format("2006-01-02")
 	var appointments []clinical_models.Appointment
-	if err := h.db.Where("tenant_id = ? AND DATE(date) = ?", tenantRecord.ID, today).
+	if err := tenantdb.ForTenant(h.db, tenantRecord.ID).Where("DATE(date) = ?", today).
 		Preload("Patient").
 		Order("start_time ASC").
 		Find(&appointments).Error; err != nil {
@@ -387,13 +388,13 @@ func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 // GetEnabledFeatures returns the enabled features for the tenant, computed live from the
 // company's current subscription plan.
 func (h *TenantHandler) GetEnabledFeatures(c *gin.Context) envelope.Response {
-	tenantID, exists := c.Get("tenant_id")
+	_, exists := c.Get("tenant_id")
 	if !exists {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
 	}
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
 	}
 

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"time"
 
@@ -50,10 +51,9 @@ func (h *CompanyHandler) GetCompanies(c *gin.Context) envelope.Response {
 
 // GetTeamMembers returns all users linked to the current tenant's company.
 func (h *CompanyHandler) GetTeamMembers(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
 	}
 
@@ -127,7 +127,6 @@ type GenerateInviteLinkRequest struct {
 // GenerateInviteLink generates a company signup token with an embedded role.
 // Only admins should call this endpoint (enforced via role check).
 func (h *CompanyHandler) GenerateInviteLink(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	var req GenerateInviteLinkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -144,7 +143,7 @@ func (h *CompanyHandler) GenerateInviteLink(c *gin.Context) envelope.Response {
 	}
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
 	}
 
@@ -167,7 +166,6 @@ type UpdateTeamMemberRoleRequest struct {
 // UpdateTeamMemberRole reassigns an existing team member's role. Guarded by
 // RequireRolePermission(MANAGE_TEAM_MEMBERS) at the route level.
 func (h *CompanyHandler) UpdateTeamMemberRole(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	environmentID, err := strconv.ParseUint(c.Param("environment_id"), 10, 64)
 	if err != nil {
@@ -180,7 +178,7 @@ func (h *CompanyHandler) UpdateTeamMemberRole(c *gin.Context) envelope.Response 
 	}
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
 	}
 

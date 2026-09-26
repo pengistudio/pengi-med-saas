@@ -2,6 +2,7 @@ package notifications_service
 
 import (
 	"encoding/json"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	notifications_models "pengi-med-saas/features/notifications/models"
@@ -30,9 +31,9 @@ func CreateIfNotExists(db *gorm.DB, logger *zap.Logger, input CreateNotification
 	// yet — doesn't trip GORM's default logger, which logs ErrRecordNotFound
 	// as an error line on every miss.
 	var existingCount int64
-	if err := db.Model(&notifications_models.Notification{}).Where(
-		"tenant_id = ? AND type = ? AND resource_type = ? AND resource_id = ? AND read_at IS NULL",
-		input.TenantID, input.Type, input.ResourceType, input.ResourceID,
+	if err := tenantdb.ForTenant(db, input.TenantID).Model(&notifications_models.Notification{}).Where(
+		"type = ? AND resource_type = ? AND resource_id = ? AND read_at IS NULL",
+		input.Type, input.ResourceType, input.ResourceID,
 	).Count(&existingCount).Error; err != nil {
 		return err
 	}
@@ -56,7 +57,7 @@ func CreateIfNotExists(db *gorm.DB, logger *zap.Logger, input CreateNotification
 		ActionURL:    input.ActionURL,
 	}
 
-	if err := db.Create(&notification).Error; err != nil {
+	if err := tenantdb.ForTenant(db, input.TenantID).Create(&notification).Error; err != nil {
 		logger.Error("failed to create notification", zap.Error(err), zap.String("type", input.Type))
 		return err
 	}
@@ -66,14 +67,14 @@ func CreateIfNotExists(db *gorm.DB, logger *zap.Logger, input CreateNotification
 
 func MarkAsRead(db *gorm.DB, tenantID, userID, notificationID uint) error {
 	now := time.Now()
-	return db.Model(&notifications_models.Notification{}).
-		Where("id = ? AND tenant_id = ? AND user_id = ?", notificationID, tenantID, userID).
+	return tenantdb.ForTenant(db, tenantID).Model(&notifications_models.Notification{}).
+		Where("id = ? AND user_id = ?", notificationID, userID).
 		Update("read_at", now).Error
 }
 
 func MarkAllAsRead(db *gorm.DB, tenantID, userID uint) error {
 	now := time.Now()
-	return db.Model(&notifications_models.Notification{}).
-		Where("tenant_id = ? AND user_id = ? AND read_at IS NULL", tenantID, userID).
+	return tenantdb.ForTenant(db, tenantID).Model(&notifications_models.Notification{}).
+		Where("user_id = ? AND read_at IS NULL", userID).
 		Update("read_at", now).Error
 }

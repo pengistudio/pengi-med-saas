@@ -2,13 +2,13 @@ package audit_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"time"
 
 	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -37,7 +37,7 @@ func (h *AuditLogHandler) GetAuditLogs(c *gin.Context) envelope.Response {
 	}
 	offset := (page - 1) * limit
 
-	baseQuery := h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&audit.AuditLog{})
+	baseQuery := tenantdb.For(c, h.db).Model(&audit.AuditLog{})
 
 	if patientID := c.Query("patient_id"); patientID != "" {
 		id, err := strconv.ParseUint(patientID, 10, 32)

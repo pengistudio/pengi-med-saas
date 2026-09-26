@@ -2,6 +2,7 @@ package company_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	"pengi-med-saas/core/envelope"
@@ -9,7 +10,6 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	company_services "pengi-med-saas/features/companies/services"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -71,7 +71,7 @@ type DashboardStats struct {
 
 // GetDashboardStats returns aggregated statistics for the dashboard.
 func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
-	scope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	now := time.Now()
 	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
@@ -82,21 +82,21 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 
 	// 1. Total patients
 	var totalPatients int64
-	if err := h.db.Scopes(scope).Model(&clinical_models.Patient{}).Count(&totalPatients).Error; err != nil {
+	if err := db.Model(&clinical_models.Patient{}).Count(&totalPatients).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count patients", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// 2. Critical patients
 	var criticalPatients int64
-	if err := h.db.Scopes(scope).Model(&clinical_models.Patient{}).Where("critical = ?", true).Count(&criticalPatients).Error; err != nil {
+	if err := db.Model(&clinical_models.Patient{}).Where("critical = ?", true).Count(&criticalPatients).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count critical patients", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// 3. Today's appointments
 	var todayAppointments int64
-	if err := h.db.Scopes(scope).Model(&clinical_models.Appointment{}).
+	if err := db.Model(&clinical_models.Appointment{}).
 		Where("date >= ? AND date < ?", todayStart, todayEnd).
 		Count(&todayAppointments).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count today appointments", zap.Error(err))
@@ -105,7 +105,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 
 	// 4. Monthly completed appointments
 	var monthlyCompleted int64
-	if err := h.db.Scopes(scope).Model(&clinical_models.Appointment{}).
+	if err := db.Model(&clinical_models.Appointment{}).
 		Where("status = ? AND date >= ?", "completed", monthStart).
 		Count(&monthlyCompleted).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count monthly completed", zap.Error(err))
@@ -114,17 +114,17 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 
 	// 4b. Delta queries (best-effort — don't fail the whole response on error)
 	var newPatientsThisMonth int64
-	h.db.Scopes(scope).Model(&clinical_models.Patient{}).
+	db.Model(&clinical_models.Patient{}).
 		Where("created_at >= ?", monthStart).
 		Count(&newPatientsThisMonth)
 
 	var prevMonthCompleted int64
-	h.db.Scopes(scope).Model(&clinical_models.Appointment{}).
+	db.Model(&clinical_models.Appointment{}).
 		Where("status = ? AND date >= ? AND date < ?", "completed", prevMonthStart, monthStart).
 		Count(&prevMonthCompleted)
 
 	var yesterdayAppointments int64
-	h.db.Scopes(scope).Model(&clinical_models.Appointment{}).
+	db.Model(&clinical_models.Appointment{}).
 		Where("date >= ? AND date < ?", yesterdayStart, todayStart).
 		Count(&yesterdayAppointments)
 
@@ -140,7 +140,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		dayEnd := day.Add(24 * time.Hour)
 
 		var count int64
-		h.db.Scopes(scope).Model(&clinical_models.Appointment{}).
+		db.Model(&clinical_models.Appointment{}).
 			Where("date >= ? AND date < ?", day, dayEnd).
 			Count(&count)
 
@@ -153,7 +153,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 
 	// 6. Upcoming appointments today (next 5, ordered by start_time)
 	var upcomingRaw []clinical_models.Appointment
-	h.db.Scopes(scope).
+	db.
 		Where("date >= ? AND date < ? AND status = ?", todayStart, todayEnd, "scheduled").
 		Preload("Patient").
 		Order("start_time ASC").
@@ -181,9 +181,8 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 
 	// 7. Subscription + enabled features for this tenant's company
 	var subscriptionInfo *DashboardSubscriptionInfo
-	tenantID := c.GetUint("tenant_id")
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err == nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err == nil {
 		var sub company_models.Subscription
 		if err := h.db.Preload("Plan").
 			Where("company_id = ?", company.ID).

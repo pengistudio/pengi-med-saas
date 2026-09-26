@@ -2,6 +2,7 @@ package subscription_middleware
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,7 +31,7 @@ func SubscriptionMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 		// 1. Find company by tenant_id
 		var company company_models.Company
-		if err := db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+		if err := tenantdb.For(c, db).First(&company).Error; err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
 				http.StatusForbidden, "No company found for this tenant", core_errors.ErrCompanyNotFound,
 			))

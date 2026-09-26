@@ -2,6 +2,7 @@ package notifications_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 
 	"pengi-med-saas/core/envelope"
@@ -9,7 +10,6 @@ import (
 	notifications_dto "pengi-med-saas/features/notifications/dto"
 	notifications_models "pengi-med-saas/features/notifications/models"
 	notifications_service "pengi-med-saas/features/notifications/services"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -50,7 +50,7 @@ func (h *NotificationHandler) ListNotifications(c *gin.Context) envelope.Respons
 	}
 	offset := (page - 1) * limit
 
-	baseQuery := h.db.Scopes(tenant_middleware.TenantScope(c)).
+	baseQuery := tenantdb.For(c, h.db).
 		Model(&notifications_models.Notification{}).
 		Where("user_id = ?", userID)
 
@@ -61,7 +61,7 @@ func (h *NotificationHandler) ListNotifications(c *gin.Context) envelope.Respons
 	}
 
 	var unreadCount int64
-	unreadQuery := h.db.Scopes(tenant_middleware.TenantScope(c)).
+	unreadQuery := tenantdb.For(c, h.db).
 		Model(&notifications_models.Notification{}).
 		Where("user_id = ? AND read_at IS NULL", userID)
 	if err := unreadQuery.Count(&unreadCount).Error; err != nil {

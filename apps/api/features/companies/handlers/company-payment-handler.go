@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	"pengi-med-saas/core/envelope"
@@ -54,11 +55,11 @@ type PricingOptionResponse struct {
 }
 
 type PlanOptionResponse struct {
-	Code            string                 `json:"code"`
-	Name            string                 `json:"name"`
-	Tier            int                    `json:"tier"`
-	Price           float64                `json:"price"`
-	EnabledFeatures map[string]interface{} `json:"enabled_features"`
+	Code            string                  `json:"code"`
+	Name            string                  `json:"name"`
+	Tier            int                     `json:"tier"`
+	Price           float64                 `json:"price"`
+	EnabledFeatures map[string]interface{}  `json:"enabled_features"`
 	Pricings        []PricingOptionResponse `json:"pricings"`
 }
 
@@ -145,10 +146,9 @@ func (h *CompanyPaymentHandler) GetAvailablePlans(c *gin.Context) envelope.Respo
 }
 
 func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
@@ -322,10 +322,9 @@ func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Respons
 }
 
 func (h *CompanyPaymentHandler) ConfirmPayment(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
@@ -350,10 +349,9 @@ func (h *CompanyPaymentHandler) ConfirmPayment(c *gin.Context) envelope.Response
 }
 
 func (h *CompanyPaymentHandler) GetMySubscription(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
@@ -395,10 +393,9 @@ func (h *CompanyPaymentHandler) GetMySubscription(c *gin.Context) envelope.Respo
 }
 
 func (h *CompanyPaymentHandler) CancelPlanChange(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
@@ -423,10 +420,9 @@ func (h *CompanyPaymentHandler) CancelPlanChange(c *gin.Context) envelope.Respon
 }
 
 func (h *CompanyPaymentHandler) GetSubscriptionPayments(c *gin.Context) envelope.Response {
-	tenantID := c.GetUint("tenant_id")
 
 	var company company_models.Company
-	if err := h.db.Where("tenant_id = ?", tenantID).First(&company).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
