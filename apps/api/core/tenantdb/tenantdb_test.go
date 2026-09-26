@@ -232,3 +232,22 @@ func TestForTenant_BindsBackgroundWorkToOneTenant(t *testing.T) {
 		t.Fatalf("got %+v, want only other-1", notes)
 	}
 }
+
+// Handlers keep the bound handle in a variable and run several statements on
+// it; conditions from one must not leak into the next.
+func TestFor_HandleIsReusableAcrossStatements(t *testing.T) {
+	db := setup(t)
+	for _, bound := range map[string]*gorm.DB{
+		"For":       tenantdb.For(member(ownTenant), db),
+		"ForTenant": tenantdb.ForTenant(db, ownTenant),
+	} {
+		var first note
+		if err := bound.Where("text = ?", "own-1").First(&first).Error; err != nil {
+			t.Fatalf("first statement: %v", err)
+		}
+		var all []note
+		if err := bound.Find(&all).Error; err != nil || len(all) != 2 {
+			t.Fatalf("second statement got %d notes (err %v), want 2: conditions leaked", len(all), err)
+		}
+	}
+}

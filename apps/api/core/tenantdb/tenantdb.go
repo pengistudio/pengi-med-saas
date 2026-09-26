@@ -62,16 +62,19 @@ func For(c *gin.Context, db *gorm.DB) *gorm.DB {
 		ctx = context.WithValue(ctx, tenantKey{}, tenantID)
 	}
 	userID, _ := c.Get("user_id")
+	// Session() makes the handle reusable: handlers run several statements on it.
 	return db.WithContext(ctx).
 		Set("audit_tenant_id", tenantID).
-		Set("audit_user_id", userID)
+		Set("audit_user_id", userID).
+		Session(&gorm.Session{})
 }
 
 // ForTenant binds db to one tenant outside a request, for background work on
 // that tenant's data (e.g. syncing its calendar after the request ended).
 func ForTenant(db *gorm.DB, tenantID uint) *gorm.DB {
 	return db.WithContext(context.WithValue(context.Background(), tenantKey{}, tenantID)).
-		Set("audit_tenant_id", tenantID)
+		Set("audit_tenant_id", tenantID).
+		Session(&gorm.Session{})
 }
 
 // System opts db out of tenant isolation, for work that spans every tenant.
