@@ -17,6 +17,7 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/i18n/messages ./i18n/messages
 COPY features/clinical/templates ./features/clinical/templates
+COPY features/billing/templates ./features/billing/templates
 
 EXPOSE 8080
 
