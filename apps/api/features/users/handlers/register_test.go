@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"pengi-med-saas/core/auth"
 	company_models "pengi-med-saas/features/companies/models"
 	permission_models "pengi-med-saas/features/permissions/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -17,8 +18,18 @@ import (
 	"go.uber.org/zap"
 )
 
-func registerPayload(company, username, email string) []byte {
+func registerPayload(t *testing.T, company, username, email string) []byte {
+	t.Helper()
+	token, err := auth.GenerateCompanyRegisterToken()
+	if err != nil {
+		t.Fatalf("failed to generate register token: %v", err)
+	}
+	return registerPayloadWithToken(token, company, username, email)
+}
+
+func registerPayloadWithToken(token, company, username, email string) []byte {
 	body, _ := json.Marshal(user_dto.SelfRegisterDTO{
+		Token:       token,
 		CompanyName: company,
 		Username:    username,
 		Email:       email,
@@ -45,7 +56,7 @@ func TestRegister_ReusesCanonicalAdminRole(t *testing.T) {
 
 	// First registration.
 	c1, w1 := testutils.NewGinContext(0, 0)
-	c1.Request = httptest.NewRequest("POST", "/auth/register", bytes.NewReader(registerPayload("Clinic One", "clinicone", "one@example.com")))
+	c1.Request = httptest.NewRequest("POST", "/auth/register", bytes.NewReader(registerPayload(t, "Clinic One", "clinicone", "one@example.com")))
 	c1.Request.Header.Set("Content-Type", "application/json")
 	resp1 := handler.Register(c1)
 	if resp1.Code != 201 {
@@ -54,7 +65,7 @@ func TestRegister_ReusesCanonicalAdminRole(t *testing.T) {
 
 	// Second registration (different company).
 	c2, w2 := testutils.NewGinContext(0, 0)
-	c2.Request = httptest.NewRequest("POST", "/auth/register", bytes.NewReader(registerPayload("Clinic Two", "clinictwo", "two@example.com")))
+	c2.Request = httptest.NewRequest("POST", "/auth/register", bytes.NewReader(registerPayload(t, "Clinic Two", "clinictwo", "two@example.com")))
 	c2.Request.Header.Set("Content-Type", "application/json")
 	resp2 := handler.Register(c2)
 	if resp2.Code != 201 {
@@ -95,11 +106,52 @@ func TestRegister_FailsWithoutSeededAdminRole(t *testing.T) {
 	handler := NewUserHandler(db, logger)
 
 	c, _ := testutils.NewGinContext(0, 0)
-	c.Request = httptest.NewRequest("POST", "/auth/register", bytes.NewReader(registerPayload("Clinic Three", "clinicthree", "three@example.com")))
+	c.Request = httptest.NewRequest("POST", "/auth/register", bytes.NewReader(registerPayload(t, "Clinic Three", "clinicthree", "three@example.com")))
 	c.Request.Header.Set("Content-Type", "application/json")
 	resp := handler.Register(c)
 
 	if resp.Code != 500 {
 		t.Fatalf("expected 500 when canonical admin role is missing, got %d", resp.Code)
+	}
+}
+
+func TestRegister_RejectsMissingOrInvalidToken(t *testing.T) {
+	db := testutils.SetupTestDB(t,
+		&user_models.User{}, &user_models.Environment{}, &user_models.Role{},
+		&permission_models.Permission{}, &company_models.Company{}, &company_models.Subscription{},
+		&tenant_models.Tenant{},
+	)
+	handler := NewUserHandler(db, zap.NewNop())
+
+	signupToken, err := auth.GenerateCompanySignupToken(1, 0)
+	if err != nil {
+		t.Fatalf("failed to generate signup token: %v", err)
+	}
+
+	cases := []struct {
+		name  string
+		token string
+		want  int
+	}{
+		{"missing token", "", 400},
+		{"garbage token", "not-a-jwt", 401},
+		{"company signup token", signupToken, 401},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			c, _ := testutils.NewGinContext(0, 0)
+			c.Request = httptest.NewRequest("POST", "/auth/register", bytes.NewReader(registerPayloadWithToken(tc.token, "Clinic Four", "clinicfour", "four@example.com")))
+			c.Request.Header.Set("Content-Type", "application/json")
+			resp := handler.Register(c)
+			if resp.Code != tc.want {
+				t.Fatalf("expected %d, got %d", tc.want, resp.Code)
+			}
+		})
+	}
+
+	var count int64
+	db.Model(&tenant_models.Tenant{}).Count(&count)
+	if count != 0 {
+		t.Fatalf("expected no tenant to be created, got %d", count)
 	}
 }
