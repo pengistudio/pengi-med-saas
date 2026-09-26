@@ -64,6 +64,9 @@ jobs:
       - name: Descargar Dependencias
         run: go mod download
 
+      - name: Análisis Estático (go vet)
+        run: go vet ./...
+
       - name: Ejecutar Pruebas
         run: go test ./...
 
