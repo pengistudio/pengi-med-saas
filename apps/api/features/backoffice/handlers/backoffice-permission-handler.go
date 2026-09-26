@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	permission_models "pengi-med-saas/features/permissions/models"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ type BackofficePermissionHandler struct {
 }
 
 func NewBackofficePermissionHandler(db *gorm.DB, logger *zap.Logger) *BackofficePermissionHandler {
-	return &BackofficePermissionHandler{db: db, logger: logger}
+	return &BackofficePermissionHandler{db: tenantdb.System(db), logger: logger}
 }
 
 func (h *BackofficePermissionHandler) GetPermissions(c *gin.Context) envelope.Response {

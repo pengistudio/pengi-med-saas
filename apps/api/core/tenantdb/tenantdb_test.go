@@ -3,6 +3,7 @@ package tenantdb_test
 import (
 	"errors"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"pengi-med-saas/core/tenantdb"
@@ -186,6 +187,8 @@ func TestSystem_SeesEveryTenant(t *testing.T) {
 // tenant in its context keeps today's behaviour.
 func TestUnboundQueriesAreUnchangedWhilePermissive(t *testing.T) {
 	db := setup(t)
+	restore := tenantdb.SetMode(tenantdb.Permissive)
+	defer restore()
 	var notes []note
 	db.Find(&notes)
 	if len(notes) != 3 {
@@ -195,7 +198,7 @@ func TestUnboundQueriesAreUnchangedWhilePermissive(t *testing.T) {
 
 func TestStrict_UnboundQueryOnATenantTableFails(t *testing.T) {
 	db := setup(t)
-	restore := tenantdb.SetStrict(true)
+	restore := tenantdb.SetMode(tenantdb.Strict)
 	defer restore()
 
 	var notes []note
@@ -249,5 +252,30 @@ func TestFor_HandleIsReusableAcrossStatements(t *testing.T) {
 		if err := bound.Find(&all).Error; err != nil || len(all) != 2 {
 			t.Fatalf("second statement got %d notes (err %v), want 2: conditions leaked", len(all), err)
 		}
+	}
+}
+
+// Warn mode (ADR 0002 rollout): unbound queries still run, but each one is
+// reported with the table and the caller's file:line so it can be fixed.
+func TestWarn_UnboundQueryRunsAndIsReportedWithItsCaller(t *testing.T) {
+	db := setup(t)
+	restore := tenantdb.SetMode(tenantdb.Warn)
+	defer restore()
+	var reports []string
+	restoreReporter := tenantdb.SetReporter(func(table, caller string) {
+		reports = append(reports, table+" @ "+caller)
+	})
+	defer restoreReporter()
+
+	var notes []note
+	if err := db.Find(&notes).Error; err != nil || len(notes) != 3 {
+		t.Fatalf("got %d notes (err %v), want the unbound query to still run", len(notes), err)
+	}
+	tenantdb.For(member(ownTenant), db).Find(&notes)
+	tenantdb.System(db).Find(&notes)
+	db.Find(&[]catalogue{})
+
+	if len(reports) != 1 || !strings.HasPrefix(reports[0], "notes @ ") || !strings.Contains(reports[0], "tenantdb_test.go:") {
+		t.Fatalf("reports = %v, want exactly the unbound notes query with its caller", reports)
 	}
 }

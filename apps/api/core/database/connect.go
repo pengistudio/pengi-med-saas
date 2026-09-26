@@ -53,6 +53,8 @@ func Connect() (*gorm.DB, error) {
 	if err := tenantdb.Register(db); err != nil {
 		return nil, err
 	}
+	// permissive | warn (default: logs unbound queries) | strict (rejects them)
+	tenantdb.SetMode(tenantdb.ParseMode(config.GetEnvWithDefault("TENANTDB_MODE", "warn")))
 
 	return db, nil
 }

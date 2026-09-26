@@ -2,6 +2,7 @@ package sri_document
 
 import (
 	"fmt"
+	"pengi-med-saas/core/tenantdb"
 	"strings"
 	"testing"
 	"time"
@@ -27,7 +28,7 @@ func TestInvoiceKind_BuildsXmlWithTheGivenAccessKeyAndFrozenPrices(t *testing.T)
 	db.Create(&billing_models.InvoiceItem{InvoiceID: invoice.ID, ProductID: product.ID, Quantity: 1, UnitPrice: 50, TaxRate: 0.15, Subtotal: 50})
 
 	key := "0109202601179001122300110010010000000071234567811"
-	xml, err := Invoice.BuildXML(db, invoice.ID, tenant, key, "1")
+	xml, err := Invoice.BuildXML(tenantdb.System(db), invoice.ID, tenant, key, "1")
 	if err != nil {
 		t.Fatalf("BuildXML: %v", err)
 	}

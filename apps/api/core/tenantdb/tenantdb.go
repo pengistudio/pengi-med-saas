@@ -14,18 +14,25 @@ package tenantdb
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
+	"runtime"
+	"strings"
 	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
+
+	"pengi-med-saas/core/logger"
+
+	"go.uber.org/zap"
 )
 
 var (
 	// ErrNoTenant: a tenant table was queried with neither a tenant (For) nor
-	// System in the context, while strict mode is on.
+	// System in the context, in Strict mode.
 	ErrNoTenant = errors.New("tenantdb: no tenant bound to this query")
 	// ErrTenantMismatch: a row explicitly set to another tenant was created.
 	ErrTenantMismatch = errors.New("tenantdb: row belongs to another tenant")
@@ -34,14 +41,68 @@ var (
 type tenantKey struct{}
 type systemKey struct{}
 
-// strict makes unbound queries on tenant tables fail. Off during the staged
-// migration of ADR 0002; switched on once every call site goes through For.
-var strict atomic.Bool
+// Mode is what happens to a statement on a tenant table bound to neither a
+// tenant (For/ForTenant) nor System.
+type Mode int32
 
-// SetStrict switches strict mode and returns a func restoring the previous one.
-func SetStrict(on bool) (restore func()) {
-	prev := strict.Swap(on)
-	return func() { strict.Store(prev) }
+const (
+	// Permissive runs it unfiltered, as before ADR 0002.
+	Permissive Mode = iota
+	// Warn runs it unfiltered and reports it (table and caller), so remaining
+	// unbound call sites can be found in logs before going strict.
+	Warn
+	// Strict fails it with ErrNoTenant.
+	Strict
+)
+
+var mode atomic.Int32
+
+func init() { mode.Store(int32(Warn)) }
+
+// SetMode switches the mode and returns a func restoring the previous one.
+func SetMode(m Mode) (restore func()) {
+	prev := mode.Swap(int32(m))
+	return func() { mode.Store(prev) }
+}
+
+// ParseMode maps "permissive", "warn" or "strict" to a Mode; anything else is Warn.
+func ParseMode(s string) Mode {
+	switch s {
+	case "permissive":
+		return Permissive
+	case "strict":
+		return Strict
+	default:
+		return Warn
+	}
+}
+
+var reporter atomic.Pointer[func(table, caller string)]
+
+func init() {
+	report := func(table, caller string) {
+		if logger.Log != nil {
+			logger.Log.Warn("tenantdb: unbound query on tenant table", zap.String("table", table), zap.String("caller", caller))
+		}
+	}
+	reporter.Store(&report)
+}
+
+// SetReporter replaces how Warn mode reports unbound statements (the app logger
+// by default) and returns a func restoring the previous reporter.
+func SetReporter(report func(table, caller string)) (restore func()) {
+	prev := reporter.Swap(&report)
+	return func() { reporter.Store(prev) }
+}
+
+// unbound applies the mode to a statement bound to neither a tenant nor System.
+func unbound(db *gorm.DB) {
+	switch Mode(mode.Load()) {
+	case Strict:
+		_ = db.AddError(ErrNoTenant)
+	case Warn:
+		(*reporter.Load())(db.Statement.Table, caller())
+	}
 }
 
 // TenantID is the tenant TenantMiddleware resolved for this request, or 0.
@@ -124,9 +185,7 @@ func scope(db *gorm.DB) {
 		return
 	}
 	if tenantID == 0 {
-		if strict.Load() {
-			_ = db.AddError(ErrNoTenant)
-		}
+		unbound(db)
 		return
 	}
 	db.Statement.AddClause(clause.Where{Exprs: []clause.Expression{
@@ -143,9 +202,7 @@ func stamp(db *gorm.DB) {
 		return
 	}
 	if tenantID == 0 {
-		if strict.Load() {
-			_ = db.AddError(ErrNoTenant)
-		}
+		unbound(db)
 		return
 	}
 	stampOne := func(row reflect.Value) {
@@ -165,5 +222,21 @@ func stamp(db *gorm.DB) {
 		}
 	case reflect.Struct:
 		stampOne(rv)
+	}
+}
+
+// caller is the file:line of the first frame outside GORM and this plugin: the
+// code that built the unbound statement.
+func caller() string {
+	pcs := make([]uintptr, 32)
+	frames := runtime.CallersFrames(pcs[:runtime.Callers(2, pcs)])
+	for {
+		frame, more := frames.Next()
+		if !strings.Contains(frame.File, "gorm.io/") && !strings.HasSuffix(frame.File, "core/tenantdb/tenantdb.go") {
+			return fmt.Sprintf("%s:%d", frame.File, frame.Line)
+		}
+		if !more {
+			return "unknown"
+		}
 	}
 }

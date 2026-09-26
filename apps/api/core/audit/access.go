@@ -1,6 +1,7 @@
 package audit
 
 import (
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	auth_middleware "pengi-med-saas/features/users/middleware"
@@ -30,6 +31,6 @@ func RecordAccess(db *gorm.DB, c *gin.Context, entityType string, entityID uint,
 		CreatedAt:  time.Now(),
 	}
 
-	newDB := db.Session(&gorm.Session{NewDB: true})
+	newDB := tenantdb.For(c, db).Session(&gorm.Session{NewDB: true})
 	_ = newDB.Create(&log).Error
 }

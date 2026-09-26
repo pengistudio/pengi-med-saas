@@ -3,6 +3,7 @@ package sri_document
 import (
 	"errors"
 	"fmt"
+	"pengi-med-saas/core/tenantdb"
 	"strings"
 	"testing"
 	"time"
@@ -472,8 +473,9 @@ func TestProcess_ClearsPreviousErrorOnceReceived(t *testing.T) {
 
 // ─── Enqueue ─────────────────────────────────────────────────────────────────
 
+// tenantDB is what handlers pass to Enqueue: a handle bound to the caller's tenant.
 func (f *fixture) tenantDB(tenantID uint) *gorm.DB {
-	return f.db.Where("tenant_id = ?", tenantID)
+	return tenantdb.ForTenant(f.db, tenantID)
 }
 
 func TestEnqueue_FailedDocumentGoesBackToPendingAndIsQueued(t *testing.T) {

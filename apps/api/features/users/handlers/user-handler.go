@@ -1,6 +1,7 @@
 package user_handlers
 
 import (
+	"pengi-med-saas/core/tenantdb"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -34,7 +35,7 @@ type UserHandler struct {
 
 func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
 	return &UserHandler{
-		db:     db,
+		db:     tenantdb.System(db),
 		logger: logger,
 	}
 }

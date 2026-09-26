@@ -3,6 +3,7 @@ package migrations
 import (
 	"fmt"
 	"pengi-med-saas/core/database"
+	"pengi-med-saas/core/tenantdb"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
@@ -23,6 +24,8 @@ import (
 )
 
 func RunMigrations(db *gorm.DB) error {
+	// Migrations and seeds span every tenant (docs/adr/0002).
+	db = tenantdb.System(db)
 	err := database.MigrateDB(
 		db,
 		database.DBExecute{},

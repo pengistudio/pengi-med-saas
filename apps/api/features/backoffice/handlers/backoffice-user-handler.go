@@ -6,6 +6,7 @@ import (
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	backoffice_dto "pengi-med-saas/features/backoffice/dto"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	"strings"
@@ -23,7 +24,7 @@ type BackofficeUserHandler struct {
 
 func NewBackofficeUserHandler(db *gorm.DB, logger *zap.Logger) *BackofficeUserHandler {
 	return &BackofficeUserHandler{
-		db:     db,
+		db:     tenantdb.System(db),
 		logger: logger,
 	}
 }

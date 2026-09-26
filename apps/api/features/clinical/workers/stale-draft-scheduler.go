@@ -2,6 +2,7 @@ package clinical_workers
 
 import (
 	"fmt"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	clinical_models "pengi-med-saas/features/clinical/models"
@@ -23,7 +24,7 @@ type StaleDraftScheduler struct {
 }
 
 func NewStaleDraftScheduler(db *gorm.DB, logger *zap.Logger) *StaleDraftScheduler {
-	return &StaleDraftScheduler{db: db, logger: logger}
+	return &StaleDraftScheduler{db: tenantdb.System(db), logger: logger} // spans every tenant
 }
 
 // Start begins the scheduler loop that runs every 10 minutes.

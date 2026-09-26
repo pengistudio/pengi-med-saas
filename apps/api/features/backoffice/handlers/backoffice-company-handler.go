@@ -7,6 +7,7 @@ import (
 	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	company_models "pengi-med-saas/features/companies/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
@@ -24,7 +25,7 @@ type BackofficeCompanyHandler struct {
 
 func NewBackofficeCompanyHandler(db *gorm.DB, logger *zap.Logger) *BackofficeCompanyHandler {
 	return &BackofficeCompanyHandler{
-		db:     db,
+		db:     tenantdb.System(db),
 		logger: logger,
 	}
 }

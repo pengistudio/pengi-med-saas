@@ -11,6 +11,7 @@ import (
 	"os"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	"pengi-med-saas/core/utils"
 	company_models "pengi-med-saas/features/companies/models"
 	company_services "pengi-med-saas/features/companies/services"
@@ -44,7 +45,7 @@ type BackofficePaymentHandler struct {
 
 func NewBackofficePaymentHandler(db *gorm.DB, logger *zap.Logger) *BackofficePaymentHandler {
 	return &BackofficePaymentHandler{
-		db:     db,
+		db:     tenantdb.System(db),
 		logger: logger,
 		dlocal: utils.NewDlocalClient(),
 	}

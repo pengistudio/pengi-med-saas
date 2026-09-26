@@ -18,6 +18,7 @@ package sri_document
 import (
 	"errors"
 	"fmt"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	billing_models "pengi-med-saas/features/billing/models"
@@ -43,7 +44,9 @@ type Lifecycle struct {
 }
 
 func New(db *gorm.DB, logger *zap.Logger, gateway Gateway, storage Storage, publisher Publisher, sriEnv string) *Lifecycle {
-	return &Lifecycle{db: db, logger: logger, gateway: gateway, storage: storage, publisher: publisher, sriEnv: sriEnv}
+	// Processing and sweeping span every tenant (docs/adr/0002); Enqueue gets a
+	// tenant-bound handle from its caller instead.
+	return &Lifecycle{db: tenantdb.System(db), logger: logger, gateway: gateway, storage: storage, publisher: publisher, sriEnv: sriEnv}
 }
 
 // document is the slice of a comprobante the lifecycle reads, common to every kind.

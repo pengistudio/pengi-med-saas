@@ -2,6 +2,7 @@ package backoffice_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	"pengi-med-saas/core/envelope"
@@ -20,7 +21,7 @@ type BackofficeDashboardHandler struct {
 }
 
 func NewBackofficeDashboardHandler(db *gorm.DB, logger *zap.Logger) *BackofficeDashboardHandler {
-	return &BackofficeDashboardHandler{db: db, logger: logger}
+	return &BackofficeDashboardHandler{db: tenantdb.System(db), logger: logger}
 }
 
 type ExpiringSubscription struct {
@@ -32,13 +33,13 @@ type ExpiringSubscription struct {
 }
 
 type DashboardStats struct {
-	TotalCompanies         int64                    `json:"total_companies"`
-	TotalUsers             int64                    `json:"total_users"`
-	TotalPlans             int64                    `json:"total_plans"`
-	TotalFeatures          int64                    `json:"total_features"`
-	ActiveSubscriptions    int64                    `json:"active_subscriptions"`
-	RecentCompanies        []company_models.Company `json:"recent_companies"`
-	ExpiringSubscriptions  []ExpiringSubscription   `json:"expiring_subscriptions"`
+	TotalCompanies        int64                    `json:"total_companies"`
+	TotalUsers            int64                    `json:"total_users"`
+	TotalPlans            int64                    `json:"total_plans"`
+	TotalFeatures         int64                    `json:"total_features"`
+	ActiveSubscriptions   int64                    `json:"active_subscriptions"`
+	RecentCompanies       []company_models.Company `json:"recent_companies"`
+	ExpiringSubscriptions []ExpiringSubscription   `json:"expiring_subscriptions"`
 }
 
 func (h *BackofficeDashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	company_models "pengi-med-saas/features/companies/models"
 	"time"
 
@@ -18,7 +19,7 @@ type BackofficeSubscriptionHandler struct {
 }
 
 func NewBackofficeSubscriptionHandler(db *gorm.DB, logger *zap.Logger) *BackofficeSubscriptionHandler {
-	return &BackofficeSubscriptionHandler{db: db, logger: logger}
+	return &BackofficeSubscriptionHandler{db: tenantdb.System(db), logger: logger}
 }
 
 // ── DTOs ────────────────────────────────────────────────────────────────────

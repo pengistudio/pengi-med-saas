@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	company_models "pengi-med-saas/features/companies/models"
 	company_services "pengi-med-saas/features/companies/services"
 	user_dto "pengi-med-saas/features/users/dto"
@@ -22,7 +23,7 @@ type EnvironmentHandler struct {
 
 func NewEnvironmentHandler(db *gorm.DB, logger *zap.Logger) *EnvironmentHandler {
 	return &EnvironmentHandler{
-		db:     db,
+		db:     tenantdb.System(db),
 		logger: logger,
 	}
 }

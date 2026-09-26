@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	company_models "pengi-med-saas/features/companies/models"
 	permission_models "pengi-med-saas/features/permissions/models"
 
@@ -18,7 +19,7 @@ type BackofficeFeatureHandler struct {
 }
 
 func NewBackofficeFeatureHandler(db *gorm.DB, logger *zap.Logger) *BackofficeFeatureHandler {
-	return &BackofficeFeatureHandler{db: db, logger: logger}
+	return &BackofficeFeatureHandler{db: tenantdb.System(db), logger: logger}
 }
 
 // ── DTOs ────────────────────────────────────────────────────────────────────

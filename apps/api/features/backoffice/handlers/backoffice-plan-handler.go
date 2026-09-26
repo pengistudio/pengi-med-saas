@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	company_models "pengi-med-saas/features/companies/models"
 	company_services "pengi-med-saas/features/companies/services"
 
@@ -18,7 +19,7 @@ type BackofficePlanHandler struct {
 }
 
 func NewBackofficePlanHandler(db *gorm.DB, logger *zap.Logger) *BackofficePlanHandler {
-	return &BackofficePlanHandler{db: db, logger: logger}
+	return &BackofficePlanHandler{db: tenantdb.System(db), logger: logger}
 }
 
 // ── DTOs ────────────────────────────────────────────────────────────────────

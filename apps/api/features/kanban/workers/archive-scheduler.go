@@ -2,6 +2,7 @@ package kanban_workers
 
 import (
 	"encoding/json"
+	"pengi-med-saas/core/tenantdb"
 	"time"
 
 	kanban_models "pengi-med-saas/features/kanban/models"
@@ -18,7 +19,7 @@ type ArchiveScheduler struct {
 
 func NewArchiveScheduler(db *gorm.DB, logger *zap.Logger) *ArchiveScheduler {
 	return &ArchiveScheduler{
-		db:     db,
+		db:     tenantdb.System(db), // archives across every tenant
 		logger: logger,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	permission_models "pengi-med-saas/features/permissions/models"
 	user_models "pengi-med-saas/features/users/models"
 
@@ -18,7 +19,7 @@ type BackofficeRoleHandler struct {
 }
 
 func NewBackofficeRoleHandler(db *gorm.DB, logger *zap.Logger) *BackofficeRoleHandler {
-	return &BackofficeRoleHandler{db: db, logger: logger}
+	return &BackofficeRoleHandler{db: tenantdb.System(db), logger: logger}
 }
 
 type createRoleRequest struct {

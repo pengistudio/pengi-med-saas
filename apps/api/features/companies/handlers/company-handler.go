@@ -38,17 +38,6 @@ func NewCompanyHandler(db *gorm.DB, logger *zap.Logger) *CompanyHandler {
 	}
 }
 
-func (h *CompanyHandler) GetCompanies(c *gin.Context) envelope.Response {
-	companies := []company_models.Company{}
-	if err := h.db.Find(&companies).Error; err != nil {
-		h.logger.Error("Failed to fetch companies", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining companies", core_errors.ErrCompanyNotFound)
-	}
-
-	h.logger.Info("Companies fetched successfully", zap.Int("count", len(companies)))
-	return envelope.SuccessResponse(companies, "company.list.success")
-}
-
 // GetTeamMembers returns all users linked to the current tenant's company.
 func (h *CompanyHandler) GetTeamMembers(c *gin.Context) envelope.Response {
 
@@ -237,6 +226,8 @@ type CreateAdditionalCompanyRequest struct {
 // creation step (the user already exists) and gated by a per-user ownership
 // limit (User.MaxOwnedCompanies) that backoffice admins can raise manually.
 func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Response {
+	// The caller is creating a tenant, not acting inside one.
+	sys := tenantdb.System(h.db)
 	userID := c.GetInt64("user_id")
 
 	var req CreateAdditionalCompanyRequest
@@ -245,13 +236,13 @@ func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Respon
 	}
 
 	var user user_models.User
-	if err := h.db.First(&user, userID).Error; err != nil {
+	if err := sys.First(&user, userID).Error; err != nil {
 		h.logger.Error("CreateAdditionalCompany: user not found", zap.Int64("user_id", userID), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
 	}
 
 	var ownedCount int64
-	h.db.Model(&company_models.Company{}).Where("owner_user_id = ?", user.ID).Count(&ownedCount)
+	sys.Model(&company_models.Company{}).Where("owner_user_id = ?", user.ID).Count(&ownedCount)
 	if int(ownedCount) >= user.MaxOwnedCompanies {
 		return envelope.ErrorResponse(http.StatusForbidden, "company.create_additional.limit_reached", core_errors.ErrCompanyOwnershipLimit)
 	}
@@ -261,7 +252,7 @@ func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Respon
 	slug := baseSlug
 	for i := 1; ; i++ {
 		var existing tenant_models.Tenant
-		if err := h.db.Where("slug = ?", slug).First(&existing).Error; err != nil {
+		if err := sys.Where("slug = ?", slug).First(&existing).Error; err != nil {
 			break
 		}
 		slug = fmt.Sprintf("%s-%d", baseSlug, i)
@@ -269,7 +260,7 @@ func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Respon
 
 	var newEnv user_models.Environment
 	var newCompany company_models.Company
-	txErr := h.db.Transaction(func(tx *gorm.DB) error {
+	txErr := sys.Transaction(func(tx *gorm.DB) error {
 		// 1. Tenant — DisplayToken is required (uniqueIndex), same as Register.
 		newTenant := tenant_models.Tenant{
 			Name:      req.CompanyName,
@@ -339,7 +330,7 @@ func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Respon
 
 	// Live-compute enabled_features the same way GetEnvironmentsFromUser does,
 	// so the frontend's setEnvironment(response.data) sees a consistent shape.
-	if ef, err := company_services.EnabledFeaturesForCompany(h.db, newCompany.ID); err == nil {
+	if ef, err := company_services.EnabledFeaturesForCompany(sys, newCompany.ID); err == nil {
 		if raw, err := json.Marshal(ef); err == nil {
 			newCompany.Tenant.EnabledFeatures = string(raw)
 		}
