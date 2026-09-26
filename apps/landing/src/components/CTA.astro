@@ -27,70 +27,32 @@
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-white/70 text-sm font-medium mb-6"
                     style="background: oklch(100% 0 0 / 10%); border: 1px solid oklch(100% 0 0 / 15%);">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Sin compromisos · Cancela cuando quieras
+                    Te respondemos en menos de 24 horas
                 </div>
 
                 <h2 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-5">
                     Digitaliza tu consulta hoy
                 </h2>
                 <p class="text-lg text-white/75 mb-10 leading-relaxed">
-                    Únete a los profesionales de la salud en Ecuador que ya gestionan
-                    sus pacientes, expedientes y facturación electrónica desde Gentoo.
+                    Agenda una demo y recibe una propuesta a la medida de tu consulta.
                 </p>
 
-                <!-- Email capture -->
-                <form
-                    id="cta-email-form"
-                    class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-6"
-                    onsubmit="return false;"
+                <a
+                    href="#contact"
+                    class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-primary transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl mb-6"
+                    style="background: oklch(100% 0 0); box-shadow: 0 4px 16px oklch(0% 0 0 / 20%);"
                 >
-                    <input
-                        type="email"
-                        id="cta-email-input"
-                        placeholder="tucorreo@clinica.com"
-                        required
-                        class="flex-1 px-5 py-4 rounded-2xl text-base text-text outline-none transition-all duration-200"
-                        style="background: oklch(100% 0 0 / 90%); border: 1px solid oklch(100% 0 0 / 50%); backdrop-filter: blur(12px);"
-                    />
-                    <button
-                        type="submit"
-                        class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-base font-bold text-primary transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl whitespace-nowrap"
-                        style="background: oklch(100% 0 0); box-shadow: 0 4px 16px oklch(0% 0 0 / 20%);"
-                    >
-                        Comenzar gratis
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </button>
-                </form>
+                    Solicitar demo
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
 
-                <div class="flex items-center justify-center gap-5">
-                    <a href="mailto:pengiservicios@gmail.com" class="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        Contactar ventas
-                    </a>
-                    <span class="text-white/30">·</span>
-                    <a href="#faq" class="text-sm text-white/60 hover:text-white transition-colors">
-                        Ver preguntas frecuentes
-                    </a>
-                </div>
+                <p class="text-sm text-white/60">
+                    ¿Prefieres escribirnos directo?
+                    <a href="https://wa.me/5935136947" target="_blank" rel="noopener noreferrer" class="font-semibold text-white/80 hover:text-white underline underline-offset-4 transition-colors">WhatsApp</a>
+                </p>
             </div>
         </div>
     </div>
 </section>
-
-<script>
-    const form = document.getElementById("cta-email-form") as HTMLFormElement | null;
-    const input = document.getElementById("cta-email-input") as HTMLInputElement | null;
-
-    form?.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = input?.value.trim();
-        if (!email) return;
-        const subject = encodeURIComponent("Solicitud de acceso a Gentoo");
-        const body = encodeURIComponent(`Hola, quiero comenzar mi prueba gratuita de Gentoo.\n\nMi correo: ${email}`);
-        window.location.href = `mailto:pengiservicios@gmail.com?subject=${subject}&body=${body}`;
-    });
-</script>

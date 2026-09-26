@@ -1,7 +1,6 @@
 ---
 const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:5173";
 const loginUrl = `${appUrl}/login`;
-const registerUrl = `${appUrl}/register`;
 ---
 
 <nav
@@ -21,8 +20,7 @@ const registerUrl = `${appUrl}/register`;
 
             <div class="hidden md:flex items-center gap-1">
                 <a href="#features" class="px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200">Funcionalidades</a>
-                <a href="#pricing" class="px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200">Planes</a>
-                <a href="#cta" class="px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200">Contacto</a>
+                <a href="#contact" class="px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all duration-200">Contacto</a>
             </div>
 
             <div class="flex items-center gap-2">
@@ -33,12 +31,12 @@ const registerUrl = `${appUrl}/register`;
                     Iniciar sesión
                 </a>
                 <a
-                    href={registerUrl}
+                    href="#contact"
                     id="nav-cta"
                     class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 hover:-translate-y-0.5"
                     style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280)); box-shadow: 0 4px 16px oklch(59.929% 0.0998 185.282 / 30%);"
                 >
-                    Comenzar gratis
+                    Solicitar demo
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                     </svg>
@@ -59,11 +57,10 @@ const registerUrl = `${appUrl}/register`;
         <div id="mobile-menu" class="md:hidden hidden mt-2">
             <div class="glass rounded-2xl px-4 py-4 flex flex-col gap-1">
                 <a href="#features" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Funcionalidades</a>
-                <a href="#pricing" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Planes</a>
-                <a href="#cta" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Contacto</a>
+                <a href="#contact" class="mobile-link px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Contacto</a>
                 <div class="h-px bg-border/50 my-1"></div>
                 <a href={loginUrl} class="px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-white/60 transition-all">Iniciar sesión</a>
-                <a href={registerUrl} class="mt-1 flex justify-center items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-primary-foreground" style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));">Comenzar gratis</a>
+                <a href="#contact" class="mobile-link mt-1 flex justify-center items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-primary-foreground" style="background: linear-gradient(135deg, oklch(59.929% 0.0998 185.282), oklch(62% 0.14 280));">Solicitar demo</a>
             </div>
         </div>
     </div>
