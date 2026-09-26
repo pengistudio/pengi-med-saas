@@ -5,8 +5,8 @@ const httpService = createHttpService(api);
 
 export interface Company {
 	ID: number;
-	createdAt: string;
-	updatedAt: string;
+	CreatedAt: string;
+	UpdatedAt: string;
 	legal_name: string;
 	trade_name: string;
 	plan_code: string;

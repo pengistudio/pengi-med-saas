@@ -10,8 +10,8 @@ export interface PricingOption {
 
 export interface Plan {
 	ID: number;
-	createdAt: string;
-	updatedAt: string;
+	CreatedAt: string;
+	UpdatedAt: string;
 	name: string;
 	code: string;
 	tier: number;

@@ -1,8 +1,8 @@
 export interface Base {
 	ID: number;
-	createdAt: string;
-	updatedAt: string;
-	deletedAt?: string | null;
+	CreatedAt: string;
+	UpdatedAt: string;
+	DeletedAt?: string | null;
 }
 
 export interface BackofficeUser extends Base {

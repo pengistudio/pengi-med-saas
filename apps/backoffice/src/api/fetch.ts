@@ -38,9 +38,9 @@ type BackendResponse<T> = {
 
 export interface BaseModel {
 	ID: number;
-	createdAt: string; // formato ISO string
-	updatedAt: string;
-	deletedAt?: string | null;
+	CreatedAt: string; // formato ISO string
+	UpdatedAt: string;
+	DeletedAt?: string | null;
 }
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
@@ -173,7 +173,7 @@ export class HttpService {
 				toast.error(
 					typeof config.notifyError === "string"
 						? config.notifyError
-						: errorObj.data.error_message,
+						: errorObj.message,
 				);
 			}
 

@@ -5,8 +5,8 @@ const httpService = createHttpService(api);
 
 export interface Role {
 	ID: number;
-	createdAt: string;
-	updatedAt: string;
+	CreatedAt: string;
+	UpdatedAt: string;
 	role: string;
 	permissions: {
 		ID: string;

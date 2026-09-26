@@ -5,8 +5,8 @@ const httpService = createHttpService(api);
 
 export interface Subscription {
 	ID: number;
-	createdAt: string;
-	updatedAt: string;
+	CreatedAt: string;
+	UpdatedAt: string;
 	status: string;
 	plan_code: string;
 	expires_at: string;

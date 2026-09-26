@@ -5,8 +5,8 @@ const httpService = createHttpService(api);
 
 export interface Feature {
 	ID: number;
-	createdAt: string;
-	updatedAt: string;
+	CreatedAt: string;
+	UpdatedAt: string;
 	code: string;
 	name: string;
 	permissions: {
