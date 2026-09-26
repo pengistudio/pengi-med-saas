@@ -1,10 +1,11 @@
-import { useText } from "@pengi/shared";
+import { SelectLanguage, useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardTitle,
+	Form,
 	FormInput,
 	FormPasswordInput,
 	Spinner,
@@ -26,8 +27,6 @@ import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
 import { register } from "@/api/auth-service";
 import GentooPenguin from "@/assets/gentoo.png";
-import SelectLanguage from "@/components/custom/select-language";
-import { Form } from "@/components/forms/form";
 
 const formSchema = z
 	.object({

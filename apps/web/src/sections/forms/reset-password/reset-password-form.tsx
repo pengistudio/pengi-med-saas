@@ -7,6 +7,7 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormPasswordInput,
 	Spinner,
 	Text,
@@ -15,7 +16,6 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
 import { resetPassword } from "@/api/auth-service";
-import { Form } from "@/components/forms/form";
 
 const formSchema = z
 	.object({

@@ -1,5 +1,3 @@
-import type { SupportedLocale } from "@pengi/shared";
-import { useLanguage, useMessageStore } from "@pengi/shared";
 import {
 	Select,
 	SelectContent,
@@ -8,8 +6,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@pengi/ui";
+import { useLanguage } from "./language-context";
+import { useMessageStore } from "./message-store";
+import type { SupportedLocale } from "./zod-i18n";
 
-const SelectLanguage = () => {
+export function SelectLanguage() {
 	const { changeLanguage } = useLanguage();
 	const { lang } = useMessageStore();
 	return (
@@ -22,14 +23,12 @@ const SelectLanguage = () => {
 			<SelectTrigger className="w-fit">
 				<SelectValue />
 			</SelectTrigger>
-			<SelectGroup>
-				<SelectContent>
+			<SelectContent>
+				<SelectGroup>
 					<SelectItem value="es">Español</SelectItem>
 					<SelectItem value="en">English</SelectItem>
-				</SelectContent>
-			</SelectGroup>
+				</SelectGroup>
+			</SelectContent>
 		</Select>
 	);
-};
-
-export default SelectLanguage;
+}

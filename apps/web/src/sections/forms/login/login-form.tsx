@@ -7,6 +7,7 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormInput,
 	FormPasswordInput,
 	Spinner,
@@ -16,7 +17,6 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
 import { userLogin } from "@/api/auth-service";
-import { Form } from "@/components/forms/form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useTokenStore } from "@/store/token-store";
 

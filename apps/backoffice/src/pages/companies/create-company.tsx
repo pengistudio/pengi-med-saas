@@ -7,6 +7,8 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	cn,
+	Form,
 	FormInput,
 	Input,
 	Label,
@@ -24,12 +26,10 @@ import {
 } from "@/api/company-service";
 import { type Plan, plans as planResource } from "@/api/plan-service";
 import { subscriptions } from "@/api/subscription-service";
-import { Form } from "@/components/forms/form";
 import {
 	type PlanTerm,
 	PlanTermFields,
 } from "@/lib/subscription/plan-term-fields";
-import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const companySchema = z.object({

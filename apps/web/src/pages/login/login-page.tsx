@@ -1,6 +1,6 @@
+import { SelectLanguage } from "@pengi/shared";
 import GentooPenguin from "@/assets/gentoo.png";
 import LoginImage from "@/assets/login.webp";
-import SelectLanguage from "@/components/custom/select-language";
 import LoginForm from "@/sections/forms/login/login-form";
 
 const Login = () => {

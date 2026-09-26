@@ -2,6 +2,8 @@ import { createContext, type ReactNode, useContext } from "react";
 
 export interface TextApi {
 	textGet: (key: string) => string;
+	/** Current UI language; forms revalidate when it changes to refresh their messages. */
+	language?: string;
 }
 
 const TextContext = createContext<TextApi | null>(null);

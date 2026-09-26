@@ -1,7 +1,7 @@
+import { SelectLanguage } from "@pengi/shared";
 import { Navigate, useSearchParams } from "react-router";
 import GentooPenguin from "@/assets/gentoo-black.png";
 import LoginImage from "@/assets/login.webp";
-import SelectLanguage from "@/components/custom/select-language";
 import { safeNext, useSession } from "@/lib/session";
 import LoginForm from "@/sections/forms/login/login-form";
 

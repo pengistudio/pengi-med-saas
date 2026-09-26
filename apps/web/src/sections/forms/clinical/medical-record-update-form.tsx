@@ -6,6 +6,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormRadioGroup,
 	FormTextArea,
 	Text,
@@ -26,7 +27,6 @@ import {
 	type MedicalRecord,
 	updateMedicalRecord,
 } from "@/api/clinical-service";
-import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
 
 const formSchema = z

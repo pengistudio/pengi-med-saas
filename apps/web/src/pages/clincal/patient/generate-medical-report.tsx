@@ -5,6 +5,7 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormTextArea,
 	Input,
 	Text,
@@ -22,7 +23,6 @@ import {
 	getPatientById,
 	type Patient,
 } from "@/api/clinical-service";
-import { Form } from "@/components/forms/form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const consultationSchema = z.object({

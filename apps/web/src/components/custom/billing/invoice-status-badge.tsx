@@ -150,13 +150,13 @@ function RetryableStatusBadge({
 						<>
 							<p>{textGet(errorCode)}</p>
 							{errorMessage && (
-								<p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
+								<p className="text-xs text-muted-foreground whitespace-pre-wrap wrap-break-word">
 									{errorMessage}
 								</p>
 							)}
 						</>
 					) : (
-						<p className="text-muted-foreground whitespace-pre-wrap break-words">
+						<p className="text-muted-foreground whitespace-pre-wrap wrap-break-word">
 							{errorMessage ?? textGet(detailUnknownKey)}
 						</p>
 					)}

@@ -1,6 +1,6 @@
+import { SelectLanguage } from "@pengi/shared";
 import GentooPenguin from "@/assets/gentoo.png";
 import LoginImage from "@/assets/login.webp";
-import SelectLanguage from "@/components/custom/select-language";
 import ResetPasswordForm from "@/sections/forms/reset-password/reset-password-form";
 
 const ResetPasswordPage = () => {

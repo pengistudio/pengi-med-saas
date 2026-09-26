@@ -6,6 +6,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormInput,
 	Spinner,
 	Text,
@@ -14,7 +15,6 @@ import { Building2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import z from "zod";
 import { createAdditionalCompany } from "@/api/user-service";
-import { Form } from "@/components/forms/form";
 import { selectSetEnvironment, useSessionStore } from "@/store/session-store";
 
 const formSchema = z.object({

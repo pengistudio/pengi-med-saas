@@ -7,6 +7,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	Form,
 	FormTextArea,
 	Text,
 } from "@pengi/ui";
@@ -14,7 +15,6 @@ import { Save } from "lucide-react";
 import React from "react";
 import { z } from "zod";
 import { updatePrescription } from "@/api/clinical-service";
-import { Form } from "@/components/forms/form";
 
 const prescriptionSchema = z.object({
 	content: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),

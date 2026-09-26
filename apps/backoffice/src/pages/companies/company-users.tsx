@@ -20,6 +20,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	Form,
 	FormInput,
 	FormSelect,
 	Spinner,
@@ -47,7 +48,6 @@ import {
 	type UpdateCompanyUserRequest,
 	updateCompanyUser,
 } from "@/api/company-service";
-import { Form } from "@/components/forms/form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const editUserSchema = z.object({

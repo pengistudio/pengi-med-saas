@@ -7,6 +7,7 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormInput,
 	FormRadioGroup,
 	FormSelect,
@@ -18,7 +19,6 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { createPatient } from "@/api/clinical-service";
-import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 

@@ -1,4 +1,4 @@
-import { useText } from "@pengi/shared";
+import { SelectLanguage, useText } from "@pengi/shared";
 import {
 	Avatar,
 	AvatarFallback,
@@ -35,7 +35,6 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { initiatePayment } from "@/api/subscription-service";
 import NotificationBell from "@/components/custom/notification-bell";
-import SelectLanguage from "@/components/custom/select-language";
 import useAuth from "@/hooks/use-auth";
 import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
 import { cn } from "@/lib/utils";

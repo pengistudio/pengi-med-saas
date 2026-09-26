@@ -8,6 +8,8 @@ import {
 	CardHeader,
 	CardTitle,
 	Checkbox,
+	cn,
+	Form,
 	FormInput,
 	Label,
 	Spinner,
@@ -20,9 +22,7 @@ import {
 	features as featureResource,
 } from "@/api/feature-service";
 import { plans } from "@/api/plan-service";
-import { Form } from "@/components/forms/form";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
-import { cn } from "@/lib/utils";
 
 const TIERS = [1, 2, 3] as const;
 

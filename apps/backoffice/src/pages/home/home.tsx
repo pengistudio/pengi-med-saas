@@ -5,6 +5,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	cn,
 	Table,
 	TableBody,
 	TableCell,
@@ -26,7 +27,6 @@ import {
 	type DashboardStats,
 	getDashboardStats,
 } from "@/api/dashboard-service";
-import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 function StatCard({

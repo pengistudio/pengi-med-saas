@@ -6,6 +6,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormInput,
 	Text,
 } from "@pengi/ui";
@@ -17,7 +18,6 @@ import {
 	type ProfileData,
 	updateProfile,
 } from "@/api/user-service";
-import { Form } from "@/components/forms/form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";
 

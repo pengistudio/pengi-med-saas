@@ -3,6 +3,7 @@ import {
 	Avatar,
 	AvatarFallback,
 	Button,
+	cn,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
@@ -25,13 +26,12 @@ import {
 import type React from "react";
 import { memo, useCallback, useMemo } from "react";
 import { useSession } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
 	children: React.ReactNode;
 }
 
-import SelectLanguage from "@/components/custom/select-language";
+import { SelectLanguage } from "@pengi/shared";
 import { createNavItems } from "@/config/nav-config";
 
 function DashboardLayoutComponent({ children }: DashboardLayoutProps) {

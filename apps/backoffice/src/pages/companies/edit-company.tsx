@@ -7,13 +7,13 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormInput,
 	Spinner,
 } from "@pengi/ui";
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
 import { companies } from "@/api/company-service";
-import { Form } from "@/components/forms/form";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({

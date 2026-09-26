@@ -7,6 +7,7 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormInput,
 	Spinner,
 } from "@pengi/ui";
@@ -15,7 +16,6 @@ import { useNavigate, useParams } from "react-router";
 import z from "zod";
 import { features } from "@/api/feature-service";
 import { PermissionPicker } from "@/components/features/permission-picker";
-import { Form } from "@/components/forms/form";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({ name: z.string().min(2) });

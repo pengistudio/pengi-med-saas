@@ -14,6 +14,7 @@ import {
 	ComboboxList,
 	Field,
 	FieldLabel,
+	Form,
 	FormInput,
 	FormSelect,
 	Text,
@@ -32,7 +33,6 @@ import {
 	getAllPatientsWithLastFollowUp,
 	type Patient,
 } from "@/api/clinical-service";
-import { Form } from "@/components/forms/form";
 import { Switch } from "@/components/ui/switch";
 import {
 	IVA_PERCENTAGE_CODES_AS_NUMBER,

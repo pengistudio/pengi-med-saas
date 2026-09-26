@@ -10,6 +10,7 @@
 	},
 	"peerDependencies": {
 		"@base-ui/react": "^1.4.1",
+		"@hookform/resolvers": "^5.4.3",
 		"@tanstack/react-table": "^8.21.3",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",
@@ -30,6 +31,7 @@
 	},
 	"devDependencies": {
 		"@base-ui/react": "catalog:",
+		"@hookform/resolvers": "catalog:",
 		"@tanstack/react-table": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",

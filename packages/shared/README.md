@@ -14,5 +14,9 @@ Call `initShared({ client: noAuthApi })` once in each app's `main.tsx`.
 ## What goes here
 
 Only code that **both** apps use **and** that is not a visual component.
-Visual components (including the sidebar nav) go to `@pengi/ui`. Code only
+Visual components (including the sidebar nav) go to `@pengi/ui`. The one
+exception is `SelectLanguage`: it is the control of the language state that
+lives here, and `@pengi/ui` cannot import `@pengi/shared` (shared depends on
+ui). A ui component that needs text or the current language reads it from
+`useUiText()`, which `AppTextBridge` fills. Code only
 one app uses stays in that app, even if the other might need it "someday".

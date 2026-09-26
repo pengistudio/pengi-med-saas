@@ -11,6 +11,7 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
+	Form,
 	FormInput,
 	FormRadioGroup,
 	FormTextArea,
@@ -45,7 +46,6 @@ import {
 	getMedicalRecords,
 	type MedicalRecord,
 } from "@/api/clinical-service";
-import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormTagInput } from "@/components/forms/form-tag-input";

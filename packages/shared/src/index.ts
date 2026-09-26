@@ -29,6 +29,7 @@ export {
 	type MessageMap,
 	type UIMessage,
 } from "./i18n/messages-service";
+export { SelectLanguage } from "./i18n/select-language";
 export { useMessages } from "./i18n/use-messages";
 export { useText } from "./i18n/use-text";
 export {

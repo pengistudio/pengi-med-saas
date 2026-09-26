@@ -1,7 +1,7 @@
+import { cn } from "@pengi/ui";
 import { type Subscription, subscriptions } from "@/api/subscription-service";
 import { type ResourceColumn, ResourceList } from "@/lib/resource";
 import { formatExpiry } from "@/lib/subscription/term";
-import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
 	active: "bg-emerald-500/10 text-emerald-600",

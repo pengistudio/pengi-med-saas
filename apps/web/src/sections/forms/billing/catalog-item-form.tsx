@@ -8,6 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 	Checkbox,
+	Form,
 	FormInput,
 	FormSelect,
 	FormTextArea,
@@ -19,7 +20,6 @@ import React from "react";
 import { type UseFormReturn, useFormContext } from "react-hook-form";
 import { z } from "zod";
 import type { CatalogItem } from "@/api/billing-service";
-import { Form } from "@/components/forms/form";
 import {
 	IVA_PERCENTAGE_CODES,
 	IVA_PERCENTAGE_CODES_AS_NUMBER,

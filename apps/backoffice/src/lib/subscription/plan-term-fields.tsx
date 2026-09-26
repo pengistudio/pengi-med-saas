@@ -1,5 +1,6 @@
 import { useText } from "@pengi/shared";
 import {
+	cn,
 	Input,
 	Label,
 	Select,
@@ -10,7 +11,6 @@ import {
 } from "@pengi/ui";
 import React from "react";
 import type { Plan } from "@/api/plan-service";
-import { cn } from "@/lib/utils";
 import { sortedPricings, suggestExpiry, todayInEcuador } from "./term";
 
 /** A plan and the date (YYYY-MM-DD, Ecuador) the subscription expires on. */

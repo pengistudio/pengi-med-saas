@@ -7,6 +7,7 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Form,
 	FormInput,
 	FormPasswordInput,
 	Spinner,
@@ -20,7 +21,6 @@ import {
 	companySignup,
 	joinCompanyWithExistingAccount,
 } from "@/api/auth-service";
-import { Form } from "@/components/forms/form";
 import { useTokenStore } from "@/store/token-store";
 
 const emailStepSchema = z.object({

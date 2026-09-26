@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLanguage, useText } from "@pengi/shared";
 import React from "react";
 import type {
 	DefaultValues,
@@ -10,7 +9,8 @@ import type {
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { cn } from "@/lib/utils";
+import { useUiText } from "../../context/text-context";
+import { cn } from "../../lib/utils";
 
 function countLeafErrors(errors: FieldErrors): number {
 	let count = 0;
@@ -57,8 +57,7 @@ export const Form = <
 		className,
 	} = props;
 
-	const { currentLanguage } = useLanguage();
-	const { textGet } = useText();
+	const { textGet, language } = useUiText();
 
 	const form = useForm({
 		defaultValues,
@@ -78,10 +77,10 @@ export const Form = <
 	const { isSubmitted } = form.formState;
 
 	React.useEffect(() => {
-		if (currentLanguage && isSubmitted) {
+		if (language && isSubmitted) {
 			form.trigger(); // revalida todos los campos si ya se intentó enviar
 		}
-	}, [currentLanguage, form, isSubmitted]);
+	}, [language, form, isSubmitted]);
 
 	// Función para manejar errores de validación
 	const handleInvalidSubmit = React.useCallback(
