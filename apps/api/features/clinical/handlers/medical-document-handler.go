@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +25,6 @@ import (
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 )
 
@@ -63,7 +63,7 @@ func (h *MedicalDocumentHandler) CreateMedicalReport(c *gin.Context) envelope.Re
 	}
 
 	var patient clinical_models.Patient
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, patientID).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&patient, patientID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
@@ -99,7 +99,7 @@ func (h *MedicalDocumentHandler) CreateMedicalReport(c *gin.Context) envelope.Re
 		report.GeneratedByID = uint(uid)
 	}
 
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(report).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Create(report).Error; err != nil {
 		h.logger.Error("Failed to create medical report", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalReportError)
 	}
@@ -114,7 +114,7 @@ func (h *MedicalDocumentHandler) ListMedicalReports(c *gin.Context) envelope.Res
 	}
 
 	var reports []clinical_models.MedicalReport
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).
+	if err := tenantdb.For(c, h.db).
 		Where("patient_id = ?", patientID).
 		Order("created_at DESC").
 		Find(&reports).Error; err != nil {
@@ -134,7 +134,7 @@ func (h *MedicalDocumentHandler) DownloadMedicalReport(c *gin.Context) {
 	}
 
 	var report clinical_models.MedicalReport
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("Patient").First(&report, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Preload("Patient").First(&report, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound))
 		return
 	}
@@ -167,7 +167,7 @@ func (h *MedicalDocumentHandler) EmailMedicalReport(c *gin.Context) envelope.Res
 	}
 
 	var report clinical_models.MedicalReport
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("Patient").First(&report, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Preload("Patient").First(&report, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
 
@@ -207,7 +207,7 @@ type medicalReportTemplateData struct {
 func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report *clinical_models.MedicalReport) ([]byte, error) {
 	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
-	h.db.Where("tenant_id = ?", tenantID).First(&company)
+	tenantdb.For(c, h.db).First(&company)
 
 	tradeName := "Consultorio Médico"
 	if company.TradeName != "" {
@@ -270,7 +270,7 @@ func (h *MedicalDocumentHandler) CreateMedicalCertificate(c *gin.Context) envelo
 	}
 
 	var patient clinical_models.Patient
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&patient, patientID).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&patient, patientID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
@@ -289,7 +289,7 @@ func (h *MedicalDocumentHandler) CreateMedicalCertificate(c *gin.Context) envelo
 		certificate.GeneratedByID = uint(uid)
 	}
 
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(certificate).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Create(certificate).Error; err != nil {
 		h.logger.Error("Failed to create medical certificate", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalCertificateError)
 	}
@@ -304,7 +304,7 @@ func (h *MedicalDocumentHandler) ListMedicalCertificates(c *gin.Context) envelop
 	}
 
 	var certificates []clinical_models.MedicalCertificate
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).
+	if err := tenantdb.For(c, h.db).
 		Where("patient_id = ?", patientID).
 		Order("created_at DESC").
 		Find(&certificates).Error; err != nil {
@@ -324,7 +324,7 @@ func (h *MedicalDocumentHandler) DownloadMedicalCertificate(c *gin.Context) {
 	}
 
 	var certificate clinical_models.MedicalCertificate
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("Patient").First(&certificate, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Preload("Patient").First(&certificate, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound))
 		return
 	}
@@ -357,7 +357,7 @@ func (h *MedicalDocumentHandler) EmailMedicalCertificate(c *gin.Context) envelop
 	}
 
 	var certificate clinical_models.MedicalCertificate
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("Patient").First(&certificate, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Preload("Patient").First(&certificate, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
 
@@ -392,7 +392,7 @@ type medicalCertificateTemplateData struct {
 func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, certificate *clinical_models.MedicalCertificate) ([]byte, error) {
 	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
-	h.db.Where("tenant_id = ?", tenantID).First(&company)
+	tenantdb.For(c, h.db).First(&company)
 
 	tradeName := "Consultorio Médico"
 	if company.TradeName != "" {

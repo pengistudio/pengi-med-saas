@@ -2,13 +2,13 @@ package clinical_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -45,7 +45,7 @@ func (h *MedicalRecordDraftHandler) GetDraft(c *gin.Context) envelope.Response {
 	}
 
 	var draft clinical_models.MedicalRecordDraft
-	err = h.db.Scopes(tenant_middleware.TenantScope(c)).
+	err = tenantdb.For(c, h.db).
 		Where("user_id = ? AND patient_id = ?", userID, patientID).
 		First(&draft).Error
 	if err != nil {
@@ -88,7 +88,7 @@ func (h *MedicalRecordDraftHandler) SaveDraft(c *gin.Context) envelope.Response 
 	// Include deleted_at so a re-save resurrects a previously discarded
 	// (soft-deleted) draft for this patient instead of silently updating
 	// a row that GORM's default scope will keep filtering out.
-	err = h.db.Clauses(clause.OnConflict{
+	err = tenantdb.For(c, h.db).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "tenant_id"}, {Name: "user_id"}, {Name: "patient_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"data", "updated_at", "deleted_at"}),
 	}).Create(&draft).Error
@@ -113,7 +113,7 @@ func (h *MedicalRecordDraftHandler) DeleteDraft(c *gin.Context) envelope.Respons
 	// Hard delete (Unscoped): a soft-deleted row would still occupy the
 	// unique (tenant_id, user_id, patient_id) index and break the next
 	// upsert for the same patient.
-	if err := h.db.Unscoped().Scopes(tenant_middleware.TenantScope(c)).
+	if err := tenantdb.For(c, h.db).Unscoped().
 		Where("user_id = ? AND patient_id = ?", userID, patientID).
 		Delete(&clinical_models.MedicalRecordDraft{}).Error; err != nil {
 		h.logger.Error("failed to delete medical record draft", zap.Error(err))

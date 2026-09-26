@@ -5,14 +5,13 @@ import (
 	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 )
 
 type VitalSignsHandler struct {
@@ -51,7 +50,7 @@ func (h *VitalSignsHandler) UpsertVitalSigns(c *gin.Context) envelope.Response {
 	}
 
 	if result.Error == gorm.ErrRecordNotFound {
-		if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(&input).Error; err != nil {
+		if err := tenantdb.For(c, h.db).Create(&input).Error; err != nil {
 			h.logger.Error("failed to create vital signs", zap.Error(err))
 			return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.vital_signs.error.save_failed", core_errors.ErrInternal)
 		}
@@ -59,7 +58,7 @@ func (h *VitalSignsHandler) UpsertVitalSigns(c *gin.Context) envelope.Response {
 	}
 
 	// Update existing record
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&existing).Updates(&input).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Model(&existing).Updates(&input).Error; err != nil {
 		h.logger.Error("failed to update vital signs", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.vital_signs.error.save_failed", core_errors.ErrInternal)
 	}
@@ -97,6 +96,6 @@ func (h *VitalSignsHandler) GetVitalSigns(c *gin.Context) envelope.Response {
 // tenant; vital signs have no tenant_id of their own and inherit their record's.
 func (h *VitalSignsHandler) recordInTenant(c *gin.Context, recordID uint64) bool {
 	var count int64
-	h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.MedicalRecord{}).Where("id = ?", recordID).Count(&count)
+	tenantdb.For(c, h.db).Model(&clinical_models.MedicalRecord{}).Where("id = ?", recordID).Count(&count)
 	return count == 1
 }

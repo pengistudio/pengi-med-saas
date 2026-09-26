@@ -5,6 +5,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	google_calendar "pengi-med-saas/core/google"
+	"pengi-med-saas/core/tenantdb"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	integration_models "pengi-med-saas/features/integrations/models"
@@ -14,8 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 )
 
 type AppointmentHandler struct {
@@ -49,7 +48,7 @@ func (h *AppointmentHandler) syncCreate(tenantID uint, appointment *clinical_mod
 		h.logger.Warn("Google Calendar: failed to create event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
 		return
 	}
-	h.db.Model(appointment).Update("google_event_id", eventID)
+	tenantdb.ForTenant(h.db, tenantID).Model(appointment).Update("google_event_id", eventID)
 	h.logger.Info("Google Calendar: event created", zap.String("event_id", eventID), zap.Uint("appointment_id", appointment.ID))
 }
 
@@ -87,7 +86,7 @@ func (h *AppointmentHandler) syncDelete(tenantID uint, appointment *clinical_mod
 // Returns false if not connected or on any error.
 func (h *AppointmentHandler) getValidToken(tenantID uint) (accessToken, calendarID string, ok bool) {
 	var integration integration_models.TenantIntegration
-	if err := h.db.Where("tenant_id = ? AND google_connected = true", tenantID).First(&integration).Error; err != nil {
+	if err := tenantdb.ForTenant(h.db, tenantID).Where("google_connected = true").First(&integration).Error; err != nil {
 		return "", "", false
 	}
 
@@ -101,7 +100,7 @@ func (h *AppointmentHandler) getValidToken(tenantID uint) (accessToken, calendar
 			return "", "", false
 		}
 		expiry := google_calendar.TokenExpiry(newToken.ExpiresIn)
-		h.db.Model(&integration).Updates(map[string]interface{}{
+		tenantdb.ForTenant(h.db, tenantID).Model(&integration).Updates(map[string]interface{}{
 			"google_access_token": newToken.AccessToken,
 			"google_token_expiry": &expiry,
 		})
@@ -113,8 +112,7 @@ func (h *AppointmentHandler) getValidToken(tenantID uint) (accessToken, calendar
 
 // GetAppointments returns all appointments for the tenant, optionally filtered by date range
 func (h *AppointmentHandler) GetAppointments(c *gin.Context) envelope.Response {
-	tenantID, _ := c.Get("tenant_id")
-	query := h.db.Where("tenant_id = ?", tenantID).Preload("Patient")
+	query := tenantdb.For(c, h.db).Preload("Patient")
 
 	// Optional date range filter
 	start := c.Query("start")
@@ -134,11 +132,10 @@ func (h *AppointmentHandler) GetAppointments(c *gin.Context) envelope.Response {
 
 // GetTodayAppointments returns all appointments for today grouped by status (for waiting room board)
 func (h *AppointmentHandler) GetTodayAppointments(c *gin.Context) envelope.Response {
-	tenantID, _ := c.Get("tenant_id")
 	today := time.Now().Format("2006-01-02")
 
 	var appointments []clinical_models.Appointment
-	if err := h.db.Where("tenant_id = ? AND DATE(date) = ?", tenantID, today).
+	if err := tenantdb.For(c, h.db).Where("DATE(date) = ?", today).
 		Preload("Patient").
 		Order("start_time ASC").
 		Find(&appointments).Error; err != nil {
@@ -156,11 +153,10 @@ func (h *AppointmentHandler) GetPatientAppointments(c *gin.Context) envelope.Res
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	tenantID, _ := c.Get("tenant_id")
 	status := c.DefaultQuery("status", "scheduled")
 
 	var appointments []clinical_models.Appointment
-	if err := h.db.Where("tenant_id = ? AND patient_id = ? AND status = ?", tenantID, patientID, status).
+	if err := tenantdb.For(c, h.db).Where("patient_id = ? AND status = ?", patientID, status).
 		Order("date ASC, start_time ASC").
 		Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get patient appointments", zap.Error(err))
@@ -178,7 +174,7 @@ func (h *AppointmentHandler) GetAppointment(c *gin.Context) envelope.Response {
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("Patient").First(&appointment, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Preload("Patient").First(&appointment, id).Error; err != nil {
 		h.logger.Error("Failed to get appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
@@ -203,9 +199,9 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 	// Check for overlapping appointments on the same date and tenant
 	if exists {
 		var count int64
-		h.db.Model(&clinical_models.Appointment{}).
-			Where("tenant_id = ? AND DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ?",
-				tenantID, dto.Date, dto.EndTime, dto.StartTime).
+		tenantdb.For(c, h.db).Model(&clinical_models.Appointment{}).
+			Where("DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ?",
+				dto.Date, dto.EndTime, dto.StartTime).
 			Count(&count)
 		if count > 0 {
 			return envelope.ErrorResponse(http.StatusConflict, "appointments.overlap.error", core_errors.ErrClinicalAppointmentOverlap)
@@ -228,13 +224,13 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 		appointment.TenantID = tenantID.(uint)
 	}
 
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(appointment).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Create(appointment).Error; err != nil {
 		h.logger.Error("Failed to create appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// Reload with patient
-	h.db.Preload("Patient").First(appointment, appointment.ID)
+	tenantdb.For(c, h.db).Preload("Patient").First(appointment, appointment.ID)
 
 	// Sync to Google Calendar (non-blocking, errors are logged)
 	if exists {
@@ -253,7 +249,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&appointment, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&appointment, id).Error; err != nil {
 		h.logger.Error("Appointment not found", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
@@ -309,20 +305,20 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 
 	tenantID, _ := c.Get("tenant_id")
 	var count int64
-	h.db.Model(&clinical_models.Appointment{}).
-		Where("tenant_id = ? AND DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ? AND id != ?",
-			tenantID, newDate, newEnd, newStart, id).
+	tenantdb.For(c, h.db).Model(&clinical_models.Appointment{}).
+		Where("DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ? AND id != ?",
+			newDate, newEnd, newStart, id).
 		Count(&count)
 	if count > 0 {
 		return envelope.ErrorResponse(http.StatusConflict, "appointments.overlap.error", core_errors.ErrClinicalAppointmentOverlap)
 	}
 
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&appointment).Updates(updates).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Model(&appointment).Updates(updates).Error; err != nil {
 		h.logger.Error("Failed to update appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	h.db.Preload("Patient").First(&appointment, id)
+	tenantdb.For(c, h.db).Preload("Patient").First(&appointment, id)
 
 	// Sync to Google Calendar (non-blocking, errors are logged)
 	go h.syncUpdate(tenantID.(uint), &appointment)
@@ -357,16 +353,16 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&appointment, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&appointment, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&appointment).Update("status", dto.Status).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Model(&appointment).Update("status", dto.Status).Error; err != nil {
 		h.logger.Error("Failed to update appointment status", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	h.db.Preload("Patient").First(&appointment, id)
+	tenantdb.For(c, h.db).Preload("Patient").First(&appointment, id)
 
 	tenantID, _ := c.Get("tenant_id")
 	if tenantID != nil {
@@ -389,7 +385,7 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&appointment, id).Error; err != nil {
+	if err := tenantdb.For(c, h.db).First(&appointment, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
 
@@ -397,7 +393,7 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusBadRequest, "Only scheduled, cancelled or completed appointments can be deleted", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Delete(&appointment).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Delete(&appointment).Error; err != nil {
 		h.logger.Error("Failed to delete appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
@@ -415,6 +411,6 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 // an appointment can never point at (and later preload) another clinic's patient.
 func (h *AppointmentHandler) patientInTenant(c *gin.Context, patientID uint) bool {
 	var count int64
-	h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.Patient{}).Where("id = ?", patientID).Count(&count)
+	tenantdb.For(c, h.db).Model(&clinical_models.Patient{}).Where("id = ?", patientID).Count(&count)
 	return count == 1
 }

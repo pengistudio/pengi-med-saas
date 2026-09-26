@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"strings"
 	"time"
@@ -20,7 +21,6 @@ import (
 	"pengi-med-saas/core/utils"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 )
 
 type DownloadRecordHandler struct {
@@ -59,7 +59,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 
 	// 1. Fetch Medical Record
 	var record clinical_models.MedicalRecord
-	err = h.db.Scopes(tenant_middleware.TenantScope(c)).
+	err = tenantdb.For(c, h.db).
 		Preload("Prescription").
 		First(&record, recordID).Error
 
@@ -75,7 +75,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 
 	// 2. Fetch Patient Data
 	var patient clinical_models.Patient
-	err = h.db.First(&patient, record.PatientID).Error
+	err = tenantdb.For(c, h.db).First(&patient, record.PatientID).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "Error retrieving patient data", core_errors.ErrClinicalPatientNotFound))
 		return
