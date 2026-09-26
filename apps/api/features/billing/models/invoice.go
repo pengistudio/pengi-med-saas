@@ -10,6 +10,11 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 )
 
+// FinalConsumerMaxTotal is the largest invoice total (USD) that may be issued to
+// Consumidor Final; above it the buyer must be identified (ficha técnica SRI
+// offline v2.26 §8.10) or the SRI rejects the invoice (ID 69).
+const FinalConsumerMaxTotal = 50.0
+
 type Invoice struct {
 	gorm.Model
 	TenantID          uint                     `gorm:"index" json:"tenant_id"` // Multi-tenant

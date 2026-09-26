@@ -5450,5 +5450,9 @@
     {
         "key": "billing.sri_document.error.internal",
         "value": "Ocurrió un error interno al procesar el comprobante."
+    },
+    {
+        "key": "billing.invoice.error.final_consumer_limit",
+        "value": "Una factura a Consumidor Final no puede superar los 50 USD. Selecciona un paciente para identificar al comprador."
     }
 ]

@@ -5450,5 +5450,9 @@
     {
         "key": "billing.sri_document.error.internal",
         "value": "An internal error occurred while processing the document."
+    },
+    {
+        "key": "billing.invoice.error.final_consumer_limit",
+        "value": "A Consumidor Final invoice cannot exceed 50 USD. Select a patient to identify the buyer."
     }
 ]

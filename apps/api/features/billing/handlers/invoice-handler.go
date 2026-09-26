@@ -3,6 +3,7 @@ package billing_handlers
 import (
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -121,6 +122,10 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 	invoice.Discount = discountAcc
 	invoice.TaxTotal = taxAcc
 	invoice.Total = totalAcc
+
+	if invoice.PatientID == nil && math.Round(invoice.Total*100)/100 > billing_models.FinalConsumerMaxTotal {
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.final_consumer_limit", core_errors.ErrBillingInvalidRequest)
+	}
 
 	// Generate Sequential using GORM transaction to avoid race conditions
 	err := h.db.Scopes(tenantScope).Transaction(func(tx *gorm.DB) error {

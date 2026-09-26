@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
+	"pengi-med-saas/core/envelope"
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
@@ -261,7 +263,7 @@ func TestCreateInvoice_FinalConsumer_NoPatient(t *testing.T) {
 		TenantID:  tenant.ID,
 		Name:      "Consulta",
 		SKU:       fmt.Sprintf("CONS-%d", now),
-		UnitPrice: 50.0,
+		UnitPrice: 40.0, // 44.80 with IVA: within the Consumidor Final limit
 		Tax:       0.12,
 	}
 	if err := db.Create(product).Error; err != nil {
@@ -335,5 +337,61 @@ func TestCreateInvoice_MissingTenantID(t *testing.T) {
 	// Verify response is 401 (Unauthorized - missing tenant)
 	if response.Code != 401 {
 		t.Errorf("expected status 401 for missing tenant_id, got %d", response.Code)
+	}
+}
+
+// createFinalConsumerInvoice posts a Consumidor Final invoice (no patient) for one
+// unit of a product with the given price and IVA rate.
+func createFinalConsumerInvoice(t *testing.T, unitPrice, tax float64) (envelope.Response, *gorm.DB, uint) {
+	t.Helper()
+	db := testutils.SetupTestDB(t,
+		&tenant_models.Tenant{},
+		&clinical_models.Patient{},
+		&billing_models.Invoice{},
+		&billing_models.InvoiceItem{},
+		&billing_models.InvoiceCounter{},
+		&billing_models.CatalogItem{},
+	)
+	now := time.Now().UnixNano() % 1000000
+	tenant := &tenant_models.Tenant{Name: "FC", Slug: fmt.Sprintf("inv-fcl-%d", now), DisplayToken: fmt.Sprintf("tok-inv-fcl-%d", now)}
+	if err := db.Create(tenant).Error; err != nil {
+		t.Fatalf("create tenant: %v", err)
+	}
+	product := &billing_models.CatalogItem{TenantID: tenant.ID, Name: "Consulta", SKU: fmt.Sprintf("FCL-%d", now), UnitPrice: unitPrice, Tax: tax}
+	if err := db.Create(product).Error; err != nil {
+		t.Fatalf("create product: %v", err)
+	}
+
+	body, _ := json.Marshal(billing_dto.CreateInvoiceDTO{
+		PaymentMethod: "01", TimeUnit: "dias", EstablishmentCode: "001", EmissionPointCode: "001",
+		Items: []billing_dto.CreateInvoiceItem{{ProductID: product.ID, Quantity: 1}},
+	})
+	c, _ := testutils.NewGinContext(tenant.ID, 1)
+	c.Request = httptest.NewRequest("POST", "/invoices", bytes.NewReader(body))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	return NewInvoiceHandler(db, zap.NewNop(), nil).CreateInvoice(c), db, tenant.ID
+}
+
+// Ficha técnica SRI offline v2.26 §8.10: above 50 USD the buyer must be identified;
+// the SRI rejects such a Consumidor Final invoice (ID 69).
+func TestCreateInvoice_FinalConsumer_OverFiftyIsRefused(t *testing.T) {
+	response, db, tenantID := createFinalConsumerInvoice(t, 50, 0.12) // 56.00
+
+	if response.Code != 400 || response.Message != "billing.invoice.error.final_consumer_limit" {
+		t.Fatalf("code=%d message=%q, want 400 billing.invoice.error.final_consumer_limit", response.Code, response.Message)
+	}
+	var count int64
+	db.Model(&billing_models.Invoice{}).Where("tenant_id = ?", tenantID).Count(&count)
+	if count != 0 {
+		t.Fatalf("an invoice was stored (and a sequential consumed)")
+	}
+}
+
+func TestCreateInvoice_FinalConsumer_ExactlyFiftyIsAllowed(t *testing.T) {
+	response, _, _ := createFinalConsumerInvoice(t, 50, 0) // 50.00
+
+	if response.Code != 200 {
+		t.Fatalf("code=%d message=%q, want 200", response.Code, response.Message)
 	}
 }
