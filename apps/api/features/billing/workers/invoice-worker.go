@@ -43,14 +43,14 @@ func generateAndStoreInvoiceRide(invoice billing_models.Invoice, tenant tenant_m
 	return nil
 }
 
-func InitInvoiceBroker(ch *amqp.Channel, db *gorm.DB, logger *zap.Logger) {
-	q, err := rabbitmq.DeclareQueue(ch, "invoice_tasks")
+func InitInvoiceBroker(ch *amqp.Channel, db *gorm.DB, logger *zap.Logger) error {
+	q, err := rabbitmq.DeclareQueueWithRetry(ch, "invoice_tasks")
 	if err != nil {
-		logger.Error("Failed to declare queue, invoice signer won't start", zap.Error(err))
-		return
+		return fmt.Errorf("declare invoice_tasks: %w", err)
 	}
 
-	go rabbitmq.StartConsumer(ch, q.Name, handleInvoiceTask(db, logger))
+	rabbitmq.StartConsumer(ch, q.Name, handleInvoiceTask(db, logger), isRetryable)
+	return nil
 }
 
 func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error {
@@ -63,10 +63,20 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 
 		logger.Info("Processing Invoice task", zap.Uint64("invoice_id", invoiceDTO.InvoiceID))
 
+		claimed, err := claimForProcessing(db, &billing_models.Invoice{}, invoiceDTO.InvoiceID)
+		if err != nil {
+			logger.Error("Failed to claim invoice for processing", zap.Uint64("invoice_id", invoiceDTO.InvoiceID), zap.Error(err))
+			return err
+		}
+		if !claimed {
+			logger.Info("Invoice already processing or not in a processable state, skipping", zap.Uint64("invoice_id", invoiceDTO.InvoiceID))
+			return nil
+		}
+
 		var invoice billing_models.Invoice
 		if err := db.Unscoped().Preload("Patient").First(&invoice, invoiceDTO.InvoiceID).Error; err != nil {
 			logger.Error("Failed to find invoice", zap.Error(err))
-			return err
+			return fmt.Errorf("%w: %w", errTransient, err)
 		}
 
 		fail := func(err error) error {
@@ -88,11 +98,12 @@ func handleInvoiceTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error 
 			return err
 		}
 
-		invoice.Status = billing_models.InvoiceStatusProcessing
-		if err := db.Save(&invoice).Error; err != nil {
-			logger.Error("Failed to update invoice status to processing", zap.Uint("invoice_id", invoice.ID), zap.Error(err))
-			return err
-		}
+		defer func() {
+			if r := recover(); r != nil {
+				fail(fmt.Errorf("panic: %v", r))
+				panic(r)
+			}
+		}()
 
 		// 1. Fetch Tenant
 		var tenant tenant_models.Tenant

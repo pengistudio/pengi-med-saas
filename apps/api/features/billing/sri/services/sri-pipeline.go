@@ -23,6 +23,12 @@ import (
 // "the document is wrong" from "try again in a bit".
 var ErrSriConnection = errors.New("sri connection error")
 
+// ErrSignerUnreachable marks an ErrSriConnection raised while signing, before
+// anything was sent to SRI. Only these are safe to retry automatically: every run
+// generates a new random access key, so re-running after SRI already received the
+// document would submit the same sequential under a second key.
+var ErrSignerUnreachable = errors.New("sri signer unreachable")
+
 func wrapSriError(prefix string, err error) error {
 	if strings.Contains(err.Error(), "[SRI-ERROR]") {
 		return fmt.Errorf("%s: %w", prefix, err)
@@ -69,7 +75,11 @@ func RunSriPipeline(
 
 	signResp, err := sriClient.SignXML(p12Buffer, p12Password, []byte(rawXML))
 	if err != nil {
-		return wrapSriError("failed to sign XML", err)
+		wrapped := wrapSriError("failed to sign XML", err)
+		if errors.Is(wrapped, ErrSriConnection) {
+			return fmt.Errorf("%w: %w", ErrSignerUnreachable, wrapped)
+		}
+		return wrapped
 	}
 	finalXML := signResp.XML
 

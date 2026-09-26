@@ -20,6 +20,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -54,40 +55,25 @@ func main() {
 	}
 	logger.Log.Info("message cache initialized")
 
-	// Initialize RabbitMQ
-	// rabbitChannel is reserved for publishing from HTTP handlers (see "invoice_channel"
-	// below). Each background consumer gets its own dedicated channel — amqp.Channel is
-	// not safe for concurrent use, and declaring the next queue on the same channel while
-	// a previous StartConsumer goroutine is still finishing its Consume() handshake races
-	// and closes the channel with a 503 "unexpected command received".
-	rabbitConn, rabbitChannel, err := rabbitmq.StartRabbitMQWithChannel()
-	if err != nil {
-		logger.Log.Warn("RabbitMQ failed to start. Queues will be unavailable.", zap.Error(err))
-	} else {
-		defer rabbitConn.Close()
-		defer rabbitChannel.Close()
+	// Initialize RabbitMQ (reconnects on its own). HTTP handlers publish on a shared
+	// channel (see "invoice_channel" below); each background consumer gets its own
+	// dedicated channel — amqp.Channel is not safe for concurrent use, and declaring
+	// the next queue on the same channel while a previous StartConsumer goroutine is
+	// still finishing its Consume() handshake races and closes the channel with a 503
+	// "unexpected command received".
+	go rabbitmq.Run(
+		func(ch *amqp.Channel) error { return billing_workers.InitInvoiceBroker(ch, DB_CONNECTION, logger.Log) },
+		func(ch *amqp.Channel) error {
+			return billing_workers.InitCreditNoteBroker(ch, DB_CONNECTION, logger.Log)
+		},
+		func(ch *amqp.Channel) error {
+			return billing_workers.InitDebitNoteBroker(ch, DB_CONNECTION, logger.Log)
+		},
+	)
 
-		if invoiceChannel, err := rabbitmq.GetChannelMQ(rabbitConn); err != nil {
-			logger.Log.Warn("Failed to open invoice channel, invoice signer won't start", zap.Error(err))
-		} else {
-			defer invoiceChannel.Close()
-			billing_workers.InitInvoiceBroker(invoiceChannel, DB_CONNECTION, logger.Log)
-		}
-
-		if creditNoteChannel, err := rabbitmq.GetChannelMQ(rabbitConn); err != nil {
-			logger.Log.Warn("Failed to open credit note channel, credit note signer won't start", zap.Error(err))
-		} else {
-			defer creditNoteChannel.Close()
-			billing_workers.InitCreditNoteBroker(creditNoteChannel, DB_CONNECTION, logger.Log)
-		}
-
-		if debitNoteChannel, err := rabbitmq.GetChannelMQ(rabbitConn); err != nil {
-			logger.Log.Warn("Failed to open debit note channel, debit note signer won't start", zap.Error(err))
-		} else {
-			defer debitNoteChannel.Close()
-			billing_workers.InitDebitNoteBroker(debitNoteChannel, DB_CONNECTION, logger.Log)
-		}
-	}
+	stuckDocumentScheduler := billing_workers.NewStuckDocumentScheduler(DB_CONNECTION, logger.Log)
+	go stuckDocumentScheduler.Start()
+	logger.Log.Info("stuck SRI document scheduler started")
 
 	// Initialize archive scheduler
 	archiveScheduler := kanban_workers.NewArchiveScheduler(DB_CONNECTION, logger.Log)
@@ -131,10 +117,10 @@ func main() {
 
 	r.Use(i18n_middleware.I18nMiddleware(DB_CONNECTION))
 
-	// Inject RabbitMQ channel into context if available
+	// Inject the current RabbitMQ publish channel into context if connected
 	r.Use(func(c *gin.Context) {
-		if rabbitChannel != nil {
-			c.Set("invoice_channel", rabbitChannel)
+		if ch := rabbitmq.PublishChannel(); ch != nil {
+			c.Set("invoice_channel", ch)
 		}
 		c.Next()
 	})

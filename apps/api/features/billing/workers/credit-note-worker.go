@@ -16,14 +16,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitCreditNoteBroker(ch *amqp.Channel, db *gorm.DB, logger *zap.Logger) {
-	q, err := rabbitmq.DeclareQueue(ch, "credit_note_tasks")
+func InitCreditNoteBroker(ch *amqp.Channel, db *gorm.DB, logger *zap.Logger) error {
+	q, err := rabbitmq.DeclareQueueWithRetry(ch, "credit_note_tasks")
 	if err != nil {
-		logger.Error("Failed to declare queue, credit note signer won't start", zap.Error(err))
-		return
+		return fmt.Errorf("declare credit_note_tasks: %w", err)
 	}
 
-	go rabbitmq.StartConsumer(ch, q.Name, handleCreditNoteTask(db, logger))
+	rabbitmq.StartConsumer(ch, q.Name, handleCreditNoteTask(db, logger), isRetryable)
+	return nil
 }
 
 func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error {
@@ -36,10 +36,20 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 
 		logger.Info("Processing CreditNote task", zap.Uint64("credit_note_id", creditNoteDTO.CreditNoteID))
 
+		claimed, err := claimForProcessing(db, &billing_models.CreditNote{}, creditNoteDTO.CreditNoteID)
+		if err != nil {
+			logger.Error("Failed to claim credit note for processing", zap.Uint64("credit_note_id", creditNoteDTO.CreditNoteID), zap.Error(err))
+			return err
+		}
+		if !claimed {
+			logger.Info("Credit note already processing or not in a processable state, skipping", zap.Uint64("credit_note_id", creditNoteDTO.CreditNoteID))
+			return nil
+		}
+
 		var creditNote billing_models.CreditNote
 		if err := db.Unscoped().Preload("Invoice").Preload("Invoice.Patient").First(&creditNote, creditNoteDTO.CreditNoteID).Error; err != nil {
 			logger.Error("Failed to find credit note", zap.Error(err))
-			return err
+			return fmt.Errorf("%w: %w", errTransient, err)
 		}
 
 		fail := func(err error) error {
@@ -61,11 +71,12 @@ func handleCreditNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) err
 			return err
 		}
 
-		creditNote.Status = billing_models.InvoiceStatusProcessing
-		if err := db.Save(&creditNote).Error; err != nil {
-			logger.Error("Failed to update credit note status to processing", zap.Uint("credit_note_id", creditNote.ID), zap.Error(err))
-			return err
-		}
+		defer func() {
+			if r := recover(); r != nil {
+				fail(fmt.Errorf("panic: %v", r))
+				panic(r)
+			}
+		}()
 
 		// 1. Fetch Tenant
 		var tenant tenant_models.Tenant

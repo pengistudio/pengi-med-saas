@@ -16,14 +16,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitDebitNoteBroker(ch *amqp.Channel, db *gorm.DB, logger *zap.Logger) {
-	q, err := rabbitmq.DeclareQueue(ch, "debit_note_tasks")
+func InitDebitNoteBroker(ch *amqp.Channel, db *gorm.DB, logger *zap.Logger) error {
+	q, err := rabbitmq.DeclareQueueWithRetry(ch, "debit_note_tasks")
 	if err != nil {
-		logger.Error("Failed to declare queue, debit note signer won't start", zap.Error(err))
-		return
+		return fmt.Errorf("declare debit_note_tasks: %w", err)
 	}
 
-	go rabbitmq.StartConsumer(ch, q.Name, handleDebitNoteTask(db, logger))
+	rabbitmq.StartConsumer(ch, q.Name, handleDebitNoteTask(db, logger), isRetryable)
+	return nil
 }
 
 func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) error {
@@ -36,10 +36,20 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 
 		logger.Info("Processing DebitNote task", zap.Uint64("debit_note_id", debitNoteDTO.DebitNoteID))
 
+		claimed, err := claimForProcessing(db, &billing_models.DebitNote{}, debitNoteDTO.DebitNoteID)
+		if err != nil {
+			logger.Error("Failed to claim debit note for processing", zap.Uint64("debit_note_id", debitNoteDTO.DebitNoteID), zap.Error(err))
+			return err
+		}
+		if !claimed {
+			logger.Info("Debit note already processing or not in a processable state, skipping", zap.Uint64("debit_note_id", debitNoteDTO.DebitNoteID))
+			return nil
+		}
+
 		var debitNote billing_models.DebitNote
 		if err := db.Unscoped().Preload("Invoice").Preload("Invoice.Patient").First(&debitNote, debitNoteDTO.DebitNoteID).Error; err != nil {
 			logger.Error("Failed to find debit note", zap.Error(err))
-			return err
+			return fmt.Errorf("%w: %w", errTransient, err)
 		}
 
 		fail := func(err error) error {
@@ -61,11 +71,12 @@ func handleDebitNoteTask(db *gorm.DB, logger *zap.Logger) func(body []byte) erro
 			return err
 		}
 
-		debitNote.Status = billing_models.InvoiceStatusProcessing
-		if err := db.Save(&debitNote).Error; err != nil {
-			logger.Error("Failed to update debit note status to processing", zap.Uint("debit_note_id", debitNote.ID), zap.Error(err))
-			return err
-		}
+		defer func() {
+			if r := recover(); r != nil {
+				fail(fmt.Errorf("panic: %v", r))
+				panic(r)
+			}
+		}()
 
 		// 1. Fetch Tenant
 		var tenant tenant_models.Tenant
