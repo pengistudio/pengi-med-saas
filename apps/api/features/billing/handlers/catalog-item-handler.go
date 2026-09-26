@@ -2,13 +2,13 @@ package billing_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -29,7 +29,7 @@ func (h *CatalogItemHandler) CreateCatalogItem(c *gin.Context) envelope.Response
 	if !exists {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
 	}
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	var dto billing_dto.CreateCatalogItemDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -66,7 +66,7 @@ func (h *CatalogItemHandler) CreateCatalogItem(c *gin.Context) envelope.Response
 		item.IceTaxPercentageCode = *dto.IceTaxPercentageCode
 	}
 
-	if err := h.db.Scopes(tenantScope).Create(item).Error; err != nil {
+	if err := db.Create(item).Error; err != nil {
 		h.logger.Error("Failed to create CatalogItem", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create catalog item", core_errors.ErrInternal)
 	}
@@ -75,7 +75,7 @@ func (h *CatalogItemHandler) CreateCatalogItem(c *gin.Context) envelope.Response
 }
 
 func (h *CatalogItemHandler) GetAllCatalogItems(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -88,7 +88,7 @@ func (h *CatalogItemHandler) GetAllCatalogItems(c *gin.Context) envelope.Respons
 	}
 	offset := (page - 1) * limit
 
-	baseQuery := h.db.Scopes(tenantScope).Model(&billing_models.CatalogItem{})
+	baseQuery := db.Model(&billing_models.CatalogItem{})
 	if search != "" {
 		like := "%" + search + "%"
 		baseQuery = baseQuery.Where("name ILIKE ? OR sku ILIKE ?", like, like)
@@ -110,14 +110,14 @@ func (h *CatalogItemHandler) GetAllCatalogItems(c *gin.Context) envelope.Respons
 }
 
 func (h *CatalogItemHandler) GetCatalogItemByID(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 	itemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid catalog item ID", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var item billing_models.CatalogItem
-	if err := h.db.Scopes(tenantScope).First(&item, itemID).Error; err != nil {
+	if err := db.First(&item, itemID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Catalog item not found", core_errors.ErrBillingProductNotFound)
 	}
 
@@ -125,7 +125,7 @@ func (h *CatalogItemHandler) GetCatalogItemByID(c *gin.Context) envelope.Respons
 }
 
 func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 	itemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid catalog item ID", core_errors.ErrBillingInvalidRequest)
@@ -138,7 +138,7 @@ func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response
 	}
 
 	var item billing_models.CatalogItem
-	if err := h.db.Scopes(tenantScope).First(&item, itemID).Error; err != nil {
+	if err := db.First(&item, itemID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Catalog item not found", core_errors.ErrBillingProductNotFound)
 	}
 
@@ -173,7 +173,7 @@ func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response
 		item.IceTaxPercentageCode = *dto.IceTaxPercentageCode
 	}
 
-	if err := h.db.Scopes(tenantScope).Save(&item).Error; err != nil {
+	if err := db.Save(&item).Error; err != nil {
 		h.logger.Error("Failed to update CatalogItem", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update catalog item", core_errors.ErrInternal)
 	}
@@ -182,18 +182,18 @@ func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response
 }
 
 func (h *CatalogItemHandler) DeleteCatalogItem(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 	itemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid catalog item ID", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var item billing_models.CatalogItem
-	if err := h.db.Scopes(tenantScope).First(&item, itemID).Error; err != nil {
+	if err := db.First(&item, itemID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Catalog item not found", core_errors.ErrBillingProductNotFound)
 	}
 
-	if err := h.db.Scopes(tenantScope).Delete(&item).Error; err != nil {
+	if err := db.Delete(&item).Error; err != nil {
 		h.logger.Error("Failed to delete CatalogItem", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to delete catalog item", core_errors.ErrInternal)
 	}

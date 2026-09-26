@@ -3,12 +3,12 @@ package billing_handlers
 import (
 	"errors"
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	sri_document "pengi-med-saas/features/billing/sri-document"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -23,7 +23,7 @@ func enqueueSriDocument(c *gin.Context, db *gorm.DB, logger *zap.Logger, docs *s
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
 	}
 
-	err = docs.Enqueue(db.Scopes(tenant_middleware.TenantScope(c)), kind, id)
+	err = docs.Enqueue(tenantdb.For(c, db), kind, id)
 	switch {
 	case err == nil:
 		return envelope.SuccessResponse(nil, "billing.invoice.processing.queued")

@@ -2,6 +2,7 @@ package billing_handlers
 
 import (
 	"net/http"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"strings"
 	"time"
@@ -11,7 +12,6 @@ import (
 	billing_dto "pengi-med-saas/features/billing/dto"
 	billing_models "pengi-med-saas/features/billing/models"
 	sri_document "pengi-med-saas/features/billing/sri-document"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -33,7 +33,7 @@ func (h *DebitNoteHandler) CreateDebitNote(c *gin.Context) envelope.Response {
 	if !exists {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "billing.invoice.error.tenant_not_found", core_errors.ErrTenantNotFound)
 	}
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	var dto billing_dto.CreateDebitNoteDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -42,7 +42,7 @@ func (h *DebitNoteHandler) CreateDebitNote(c *gin.Context) envelope.Response {
 	}
 
 	var invoice billing_models.Invoice
-	if err := h.db.Scopes(tenantScope).First(&invoice, dto.InvoiceID).Error; err != nil {
+	if err := db.First(&invoice, dto.InvoiceID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
 	}
 	if invoice.Status != billing_models.InvoiceStatusAuthorized {
@@ -81,7 +81,7 @@ func (h *DebitNoteHandler) CreateDebitNote(c *gin.Context) envelope.Response {
 	debitNote.TaxTotal = taxAcc
 	debitNote.Total = totalAcc
 
-	err := h.db.Scopes(tenantScope).Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		debitNote.TenantID = tenantID.(uint)
 
 		if _, seqErr := debitNote.GenerateSequential(tx); seqErr != nil {
@@ -100,7 +100,7 @@ func (h *DebitNoteHandler) CreateDebitNote(c *gin.Context) envelope.Response {
 }
 
 func (h *DebitNoteHandler) GetAllDebitNotes(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -113,7 +113,7 @@ func (h *DebitNoteHandler) GetAllDebitNotes(c *gin.Context) envelope.Response {
 	}
 	offset := (page - 1) * limit
 
-	baseQuery := h.db.Scopes(tenantScope).Model(&billing_models.DebitNote{})
+	baseQuery := db.Model(&billing_models.DebitNote{})
 	if search != "" {
 		like := "%" + search + "%"
 		baseQuery = baseQuery.Where("sequential ILIKE ? OR status ILIKE ?", like, like)

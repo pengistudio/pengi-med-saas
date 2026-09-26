@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"strings"
 	"time"
@@ -17,7 +18,6 @@ import (
 	billing_models "pengi-med-saas/features/billing/models"
 	sri_document "pengi-med-saas/features/billing/sri-document"
 	sri_services "pengi-med-saas/features/billing/sri/services"
-	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
@@ -40,7 +40,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 	if !exists {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "billing.invoice.error.tenant_not_found", core_errors.ErrTenantNotFound)
 	}
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	var dto billing_dto.CreateInvoiceDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -68,7 +68,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 
 	for _, itemDTO := range dto.Items {
 		var service billing_models.CatalogItem
-		if err := h.db.Scopes(tenantScope).First(&service, itemDTO.ProductID).Error; err != nil {
+		if err := db.First(&service, itemDTO.ProductID).Error; err != nil {
 			h.logger.Error("Product/Service not found", zap.Uint("id", itemDTO.ProductID), zap.Error(err))
 			return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.product_not_found", core_errors.ErrBillingProductNotFound)
 		}
@@ -128,7 +128,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 	}
 
 	// Generate Sequential using GORM transaction to avoid race conditions
-	err := h.db.Scopes(tenantScope).Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		// Use the existing GenerateSequential method which expects the model to be saved
 		// but since we added multi-tenant, it requires the tenant ID populated
 		invoice.TenantID = tenantID.(uint)
@@ -150,7 +150,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 }
 
 func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -163,7 +163,7 @@ func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 	}
 	offset := (page - 1) * limit
 
-	baseQuery := h.db.Scopes(tenantScope).Model(&billing_models.Invoice{})
+	baseQuery := db.Model(&billing_models.Invoice{})
 	if search != "" {
 		like := "%" + search + "%"
 		baseQuery = baseQuery.Where("sequential ILIKE ? OR status ILIKE ?", like, like)
@@ -188,18 +188,18 @@ func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 }
 
 func (h *InvoiceHandler) DeleteInvoiceByID(c *gin.Context) envelope.Response {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var invoice billing_models.Invoice
-	if err := h.db.Scopes(tenantScope).First(&invoice, invoiceID).Error; err != nil {
+	if err := db.First(&invoice, invoiceID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
 	}
 
-	if err := h.db.Scopes(tenantScope).Delete(&invoice).Error; err != nil {
+	if err := db.Delete(&invoice).Error; err != nil {
 		h.logger.Error("Failed to delete invoice", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.delete_failed", core_errors.ErrInternal)
 	}
@@ -219,7 +219,7 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_payload", core_errors.ErrBillingInvalidRequest)
 	}
 
-	tenantDB := h.db.Scopes(tenant_middleware.TenantScope(c))
+	tenantDB := tenantdb.For(c, h.db)
 	for _, id := range idList.IDList {
 		err := h.sriDocuments.Enqueue(tenantDB, sri_document.Invoice, uint64(id))
 		if err != nil && !errors.Is(err, sri_document.ErrNotFound) && !errors.Is(err, sri_document.ErrAlreadyAuthorized) {
@@ -235,7 +235,7 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 // (e.g. the invoice was authorized before this feature existed), it is
 // generated on demand.
 func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
-	tenantScope := tenant_middleware.TenantScope(c)
+	db := tenantdb.For(c, h.db)
 	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest))
@@ -243,7 +243,7 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 	}
 
 	var invoice billing_models.Invoice
-	if err := h.db.Scopes(tenantScope).Preload("Patient").Preload("Items").First(&invoice, invoiceID).Error; err != nil {
+	if err := db.Preload("Patient").Preload("Items").First(&invoice, invoiceID).Error; err != nil {
 		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound))
 		return
 	}
