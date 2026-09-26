@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"pengi-med-saas/core/tenantdb"
+	"pengi-med-saas/core/tenantfiles"
 	"strings"
 	"testing"
 	"time"
@@ -49,28 +50,6 @@ func (g *fakeGateway) QueryAuthorization(accessKey string, sriEnv string) (Autho
 	return g.auth, g.authErr
 }
 
-type fakeStorage struct {
-	files map[string]string
-}
-
-func newFakeStorage() *fakeStorage { return &fakeStorage{files: map[string]string{}} }
-
-func storageKey(tenantID uint, folder, accessKey string) string {
-	return fmt.Sprintf("%d/%s/%s", tenantID, folder, accessKey)
-}
-
-func (s *fakeStorage) ReadCertificate(path string) ([]byte, error) { return []byte("p12"), nil }
-
-func (s *fakeStorage) SaveSignedXML(tenantID uint, folder, accessKey, xml string) error {
-	s.files[storageKey(tenantID, folder, accessKey)] = xml
-	return nil
-}
-
-func (s *fakeStorage) RemoveSignedXML(tenantID uint, folder, accessKey string) error {
-	delete(s.files, storageKey(tenantID, folder, accessKey))
-	return nil
-}
-
 type published struct {
 	queue string
 	body  string
@@ -91,7 +70,7 @@ type fixture struct {
 	t          *testing.T
 	db         *gorm.DB
 	gateway    *fakeGateway
-	storage    *fakeStorage
+	files      *tenantfiles.MemoryStore
 	publisher  *fakePublisher
 	docs       *Lifecycle
 	kind       Kind
@@ -120,7 +99,7 @@ func newFixture(t *testing.T) *fixture {
 		t:         t,
 		db:        db,
 		gateway:   &fakeGateway{auth: Authorization{Status: Authorized, AuthorizedAt: time.Date(2026, 9, 1, 10, 0, 0, 0, time.UTC)}},
-		storage:   newFakeStorage(),
+		files:     tenantfiles.Memory(),
 		publisher: &fakePublisher{},
 		tenant:    tenant,
 	}
@@ -135,12 +114,13 @@ func newFixture(t *testing.T) *fixture {
 		BuildXML: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error) {
 			return "<factura>" + accessKey + "</factura>", nil
 		},
-		OnAuthorized: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, sriEnv string) error {
+		OnAuthorized: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant, sriEnv string) error {
 			f.authorized = append(f.authorized, id)
 			return nil
 		},
 	}
-	f.docs = New(db, zap.NewNop(), f.gateway, f.storage, f.publisher, "1")
+	_ = f.files.Write(tenant.ID, "signature.p12", []byte("p12"))
+	f.docs = New(db, zap.NewNop(), f.gateway, f.publisher, Documents{Files: f.files}, "1")
 	return f
 }
 
@@ -198,7 +178,7 @@ func TestProcess_AuthorizesPendingDocument(t *testing.T) {
 	if got.AuthorizedAt == nil || !got.AuthorizedAt.Equal(time.Date(2026, 9, 1, 10, 0, 0, 0, time.UTC)) {
 		t.Fatalf("authorized_at = %v, want SRI's fechaAutorizacion", got.AuthorizedAt)
 	}
-	if xml := f.storage.files[storageKey(f.tenant.ID, "invoices", *got.AccessKey)]; xml != "<signed><factura>"+*got.AccessKey+"</factura></signed>" {
+	if xml := f.signedXML(got); xml != "<signed><factura>"+*got.AccessKey+"</factura></signed>" {
 		t.Fatalf("stored signed XML = %q", xml)
 	}
 	if len(f.authorized) != 1 || f.authorized[0] != inv.ID {
@@ -244,8 +224,8 @@ func TestProcess_SignerUnreachable_IsConnectionErrorAndRetryable(t *testing.T) {
 	if got.ErrorMessage == nil || !strings.Contains(*got.ErrorMessage, "unreachable") {
 		t.Fatalf("error_message = %v, want the raw cause", got.ErrorMessage)
 	}
-	if len(f.storage.files) != 0 {
-		t.Fatalf("stored files = %v, want none", f.storage.files)
+	if xml := f.signedXML(got); xml != "" {
+		t.Fatalf("stored signed XML = %q, want none", xml)
 	}
 }
 
@@ -272,8 +252,8 @@ func TestProcess_ReturnedBySri_FailsKeepingKeyAndRemovingXml(t *testing.T) {
 	if got.AccessKey == nil {
 		t.Fatalf("access key was cleared; it must survive failures")
 	}
-	if len(f.storage.files) != 0 {
-		t.Fatalf("stored files = %v, want the signed XML removed", f.storage.files)
+	if xml := f.signedXML(got); xml != "" {
+		t.Fatalf("stored signed XML = %q, want it removed", xml)
 	}
 }
 
@@ -445,7 +425,7 @@ func TestProcess_TenantWithoutSignature_Fails(t *testing.T) {
 
 func TestProcess_PostAuthorizationFailureDoesNotFailTheDocument(t *testing.T) {
 	f := newFixture(t)
-	f.kind.OnAuthorized = func(db *gorm.DB, id uint, tenant tenant_models.Tenant, sriEnv string) error {
+	f.kind.OnAuthorized = func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant, sriEnv string) error {
 		return fmt.Errorf("gotenberg down")
 	}
 	inv := f.invoice(billing_models.InvoiceStatusPending)
@@ -648,4 +628,16 @@ func TestEnqueue_DraftInvoiceIsQueuedAndThenProcessed(t *testing.T) {
 	if got := f.reload(inv.ID).Status; got != billing_models.InvoiceStatusAuthorized {
 		t.Fatalf("status = %q, want authorized", got)
 	}
+}
+
+// signedXML is the signed XML stored for an invoice, or "" if there is none.
+func (f *fixture) signedXML(inv billing_models.Invoice) string {
+	if inv.AccessKey == nil {
+		return ""
+	}
+	data, err := f.files.Read(f.tenant.ID, "invoices/"+*inv.AccessKey+".xml")
+	if err != nil {
+		return ""
+	}
+	return string(data)
 }

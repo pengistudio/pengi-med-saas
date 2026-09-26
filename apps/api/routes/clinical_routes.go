@@ -21,10 +21,10 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	icd11Handler := clinical_handlers.NewICD11Handler(logger.Log)
 	icd10Handler := clinical_handlers.NewICD10Handler(db, logger.Log)
 
-	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db)
-	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log)
+	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db, documentRenderer())
+	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log, tenantFiles)
 	draftHandler := clinical_handlers.NewMedicalRecordDraftHandler(db, logger.Log)
-	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer())
+	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer(), documentRenderer())
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 	{

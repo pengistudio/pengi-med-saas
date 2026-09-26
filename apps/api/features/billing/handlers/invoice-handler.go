@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"os"
-	"path/filepath"
 	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"strings"
@@ -253,20 +251,21 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 		return
 	}
 
-	tenantIDVal, _ := c.Get("tenant_id")
-	pdfPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantIDVal), "invoices", fmt.Sprintf("%s.pdf", *invoice.AccessKey))
+	tenantID := tenantdb.TenantID(c)
+	docs := h.sriDocuments.Documents()
+	rideName := sri_document.RideName(*invoice.AccessKey)
 
 	force := c.Query("force") == "true"
 	var errFile error
 	var pdfBytes []byte
 
 	if !force {
-		pdfBytes, errFile = os.ReadFile(pdfPath)
+		pdfBytes, errFile = docs.Files.Read(tenantID, rideName)
 	}
 
 	if force || errFile != nil {
 		var tenant tenant_models.Tenant
-		if err := h.db.First(&tenant, tenantIDVal).Error; err != nil {
+		if err := h.db.First(&tenant, tenantID).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
 			return
 		}
@@ -274,17 +273,17 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 		if address == "" {
 			address = "Dirección no provista"
 		}
-		pdfBytes, errFile = sri_services.GenerateInvoiceRide(invoice, tenant, address, sri_services.ResolveSriEnv())
+		pdfBytes, errFile = sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, address, sri_services.ResolveSriEnv())
 		if errFile != nil {
 			h.logger.Error("Failed to generate RIDE on demand", zap.Uint64("invoice_id", invoiceID), zap.Error(errFile))
 			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
 			return
 		}
 
-		// Save the newly generated RIDE to cache
-		destDir := filepath.Dir(pdfPath)
-		_ = os.MkdirAll(destDir, os.ModePerm)
-		_ = os.WriteFile(pdfPath, pdfBytes, 0644)
+		// Cache the newly generated RIDE for the next download.
+		if err := docs.Files.Write(tenantID, rideName, pdfBytes); err != nil {
+			h.logger.Warn("Failed to cache RIDE", zap.Uint64("invoice_id", invoiceID), zap.Error(err))
+		}
 	}
 
 	fileName := fmt.Sprintf("factura_%s-%s-%s.pdf", invoice.EstablishmentCode, invoice.EmissionPointCode, invoice.Sequential)

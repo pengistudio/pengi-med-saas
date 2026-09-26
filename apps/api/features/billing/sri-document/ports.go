@@ -1,6 +1,11 @@
 package sri_document
 
-import "time"
+import (
+	"time"
+
+	"pengi-med-saas/core/pdfrender"
+	"pengi-med-saas/core/tenantfiles"
+)
 
 // Gateway is everything the lifecycle needs from the outside SRI world: signing
 // (done by the sri-xml-signer service) and the SRI's reception and authorization
@@ -18,12 +23,11 @@ type Gateway interface {
 	QueryAuthorization(accessKey string, sriEnv string) (Authorization, error)
 }
 
-// Storage keeps each tenant's P12 certificate and signed XML files.
-type Storage interface {
-	ReadCertificate(path string) ([]byte, error)
-	SaveSignedXML(tenantID uint, folder, accessKey, xml string) error
-	// RemoveSignedXML is a no-op when the file does not exist.
-	RemoveSignedXML(tenantID uint, folder, accessKey string) error
+// Documents are the tenant files and PDF rendering the lifecycle and its kinds
+// use: the P12 certificate, signed XML and printed documents such as the RIDE.
+type Documents struct {
+	Files    tenantfiles.Store
+	Renderer *pdfrender.Renderer
 }
 
 // Publisher enqueues a processing task for the lifecycle's consumers.

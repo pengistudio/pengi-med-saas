@@ -38,15 +38,15 @@ type Lifecycle struct {
 	db        *gorm.DB
 	logger    *zap.Logger
 	gateway   Gateway
-	storage   Storage
+	docs      Documents
 	publisher Publisher
 	sriEnv    string // SRI ambiente code: "1" pruebas, "2" producción
 }
 
-func New(db *gorm.DB, logger *zap.Logger, gateway Gateway, storage Storage, publisher Publisher, sriEnv string) *Lifecycle {
+func New(db *gorm.DB, logger *zap.Logger, gateway Gateway, publisher Publisher, docs Documents, sriEnv string) *Lifecycle {
 	// Processing and sweeping span every tenant (docs/adr/0002); Enqueue gets a
 	// tenant-bound handle from its caller instead.
-	return &Lifecycle{db: tenantdb.System(db), logger: logger, gateway: gateway, storage: storage, publisher: publisher, sriEnv: sriEnv}
+	return &Lifecycle{db: tenantdb.System(db), logger: logger, gateway: gateway, publisher: publisher, docs: docs, sriEnv: sriEnv}
 }
 
 // document is the slice of a comprobante the lifecycle reads, common to every kind.
@@ -127,7 +127,7 @@ func (l *Lifecycle) attempt(kind Kind, doc document) (err error) {
 	if err != nil {
 		return fail(fmt.Errorf("build XML: %w", err), ErrorCodeInternal)
 	}
-	p12, err := l.storage.ReadCertificate(tenant.SriP12Path)
+	p12, err := l.docs.Files.Read(tenant.ID, certificateName)
 	if err != nil {
 		return fail(fmt.Errorf("read P12 certificate: %w", err), ErrorCodeMissingSignature)
 	}
@@ -135,7 +135,7 @@ func (l *Lifecycle) attempt(kind Kind, doc document) (err error) {
 	if err != nil {
 		return fail(fmt.Errorf("sign XML: %w", err), ErrorCodeInternal)
 	}
-	if err := l.storage.SaveSignedXML(tenant.ID, kind.Folder, accessKey, signed); err != nil {
+	if err := l.docs.Files.Write(tenant.ID, signedXMLName(kind, accessKey), []byte(signed)); err != nil {
 		return fail(fmt.Errorf("store signed XML: %w", err), ErrorCodeInternal)
 	}
 	if err := l.update(kind, doc.ID, map[string]any{"status": billing_models.InvoiceStatusSigned}); err != nil {
@@ -187,7 +187,7 @@ func (l *Lifecycle) authorize(kind Kind, doc document, tenant tenant_models.Tena
 			log.Error("failed to persist SRI rejection", zap.Error(err))
 			return
 		}
-		if err := l.storage.RemoveSignedXML(doc.TenantID, kind.Folder, accessKey); err != nil {
+		if err := l.docs.Files.Remove(doc.TenantID, signedXMLName(kind, accessKey)); err != nil {
 			log.Error("failed to remove signed XML of rejected document", zap.Error(err))
 		}
 
@@ -202,7 +202,7 @@ func (l *Lifecycle) authorize(kind Kind, doc document, tenant tenant_models.Tena
 			return
 		}
 		if kind.OnAuthorized != nil {
-			if err := kind.OnAuthorized(l.db, doc.ID, tenant, l.sriEnv); err != nil {
+			if err := kind.OnAuthorized(l.db, l.docs, doc.ID, tenant, l.sriEnv); err != nil {
 				log.Error("post-authorization step failed", zap.Error(err))
 			}
 		}
@@ -268,7 +268,7 @@ func (l *Lifecycle) fail(kind Kind, doc document, accessKey string, err error, c
 		l.logger.Error("failed to persist SRI document failure", zap.String("kind", kind.Name), zap.Uint("id", doc.ID), zap.Error(updErr))
 	}
 	if accessKey != "" {
-		if rmErr := l.storage.RemoveSignedXML(doc.TenantID, kind.Folder, accessKey); rmErr != nil {
+		if rmErr := l.docs.Files.Remove(doc.TenantID, signedXMLName(kind, accessKey)); rmErr != nil {
 			l.logger.Error("failed to remove signed XML after failure", zap.String("kind", kind.Name), zap.Uint("id", doc.ID), zap.Error(rmErr))
 		}
 	}
@@ -295,3 +295,15 @@ func (l *Lifecycle) load(db *gorm.DB, kind Kind, id uint64) (document, error) {
 func (l *Lifecycle) update(kind Kind, id uint, fields map[string]any) error {
 	return l.db.Unscoped().Model(kind.Model).Where("id = ?", id).Updates(fields).Error
 }
+
+// certificateName is the tenant file holding their P12 signature certificate.
+const certificateName = "signature.p12"
+
+// signedXMLName is the tenant file holding a document's signed XML.
+func signedXMLName(kind Kind, accessKey string) string {
+	return kind.Folder + "/" + accessKey + ".xml"
+}
+
+// Documents exposes the tenant files and renderer the lifecycle uses, for
+// handlers serving the same documents (e.g. downloading a RIDE).
+func (l *Lifecycle) Documents() Documents { return l.docs }

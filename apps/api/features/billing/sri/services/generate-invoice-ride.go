@@ -1,14 +1,13 @@
 package services
 
 import (
-	"bytes"
 	"encoding/base64"
 	"fmt"
 	"html/template"
 	"net/http"
 	"os"
-	"path/filepath"
 
+	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/utils"
 	billing_models "pengi-med-saas/features/billing/models"
 	tenant "pengi-med-saas/features/tenants/models"
@@ -39,7 +38,7 @@ type InvoiceRideTemplateData struct {
 	Establishment        string
 	EmissionPoint        string
 	SpecialContributor   string
-	LogoDataURI          string // e.g. "data:image/png;base64,..." — empty if the tenant has no logo
+	LogoDataURI          template.URL // e.g. "data:image/png;base64,..." — empty if the tenant has no logo. template.URL (built here from the tenant's own file, not user text) so html/template keeps the data: URI instead of replacing it with #ZgotmplZ
 
 	// Documento
 	Environment       string // "PRUEBAS" | "PRODUCCIÓN"
@@ -128,10 +127,10 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		specialContributor = *tenantObj.SpecialContributorNumber
 	}
 
-	logoDataURI := ""
+	var logoDataURI template.URL
 	if tenantObj.LogoPath != nil {
 		if logoBytes, err := os.ReadFile(*tenantObj.LogoPath); err == nil {
-			logoDataURI = fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(logoBytes), base64.StdEncoding.EncodeToString(logoBytes))
+			logoDataURI = template.URL(fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(logoBytes), base64.StdEncoding.EncodeToString(logoBytes)))
 		}
 	}
 
@@ -164,33 +163,10 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 
 // GenerateInvoiceRide renders the RIDE (Representación Impresa del Documento
 // Electrónico) for an already-authorized invoice and returns the PDF bytes.
-func GenerateInvoiceRide(invoice billing_models.Invoice, tenantObj tenant.Tenant, establishmentAddress string, sriEnv string) ([]byte, error) {
+func GenerateInvoiceRide(renderer *pdfrender.Renderer, invoice billing_models.Invoice, tenantObj tenant.Tenant, establishmentAddress string, sriEnv string) ([]byte, error) {
 	data, err := buildInvoiceRideData(invoice, tenantObj, establishmentAddress, sriEnv)
 	if err != nil {
 		return nil, err
 	}
-
-	customPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantObj.ID), "invoice_ride_template.html")
-	tmplPath := "features/billing/templates/invoice_ride_template.html"
-	if _, statErr := os.Stat(customPath); statErr == nil {
-		tmplPath = customPath
-	}
-
-	tmpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		return nil, fmt.Errorf("error loading RIDE template: %w", err)
-	}
-
-	var htmlBuffer bytes.Buffer
-	if err := tmpl.Execute(&htmlBuffer, data); err != nil {
-		return nil, fmt.Errorf("error rendering RIDE template: %w", err)
-	}
-
-	gotenbergURL := os.Getenv("GOTENBERG_URL")
-	if gotenbergURL == "" {
-		gotenbergURL = "http://gotenberg:3000"
-	}
-
-	client := utils.NewGotenbergClient(gotenbergURL)
-	return client.GeneratePDFFromHTMLWithOptions(htmlBuffer.String(), utils.A4Portrait)
+	return renderer.Render(tenantObj.ID, "invoice_ride_template.html", data, utils.A4Portrait)
 }

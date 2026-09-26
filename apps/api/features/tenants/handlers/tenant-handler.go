@@ -7,9 +7,9 @@ import (
 	"io"
 	"math/rand/v2"
 	"net/http"
-	"os"
 	"path/filepath"
 	"pengi-med-saas/core/tenantdb"
+	"pengi-med-saas/core/tenantfiles"
 	"time"
 
 	"pengi-med-saas/core/envelope"
@@ -29,11 +29,17 @@ import (
 type TenantHandler struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	// files is the disk store itself (not just a tenantfiles.Store): the P12 and
+	// logo locations are persisted on the tenant as disk paths.
+	files *tenantfiles.DiskStore
 }
 
-func NewTenantHandler(db *gorm.DB, logger *zap.Logger) *TenantHandler {
-	return &TenantHandler{db: db, logger: logger}
+func NewTenantHandler(db *gorm.DB, logger *zap.Logger, files *tenantfiles.DiskStore) *TenantHandler {
+	return &TenantHandler{db: db, logger: logger, files: files}
 }
+
+// signatureFileName is the tenant file holding their P12 certificate.
+const signatureFileName = "signature.p12"
 
 func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
@@ -53,30 +59,10 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 	}
 	defer file.Close()
 
-	uploadDir := filepath.Join("storage", "tenants", fmt.Sprint(tenantID))
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		h.logger.Error("Failed to create storage directory", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create storage directory", core_errors.ErrInternal)
-	}
-
-	signaturePath := filepath.Join(uploadDir, "signature.p12")
-	out, err := os.Create(signaturePath)
+	pfxData, err := io.ReadAll(file)
 	if err != nil {
-		h.logger.Error("Failed to create signature file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create signature file", core_errors.ErrInternal)
-	}
-	defer out.Close()
-
-	if _, err := io.Copy(out, file); err != nil {
-		h.logger.Error("Failed to save signature file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save signature file", core_errors.ErrInternal)
-	}
-
-	// Read the uploaded file to parse the certificate
-	pfxData, err := os.ReadFile(signaturePath)
-	if err != nil {
-		h.logger.Error("Failed to read signature file for parsing", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to read signature file", core_errors.ErrInternal)
+		h.logger.Error("Failed to read signature file", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusBadRequest, "Signature file is required", core_errors.ErrBillingInvalidRequest)
 	}
 
 	// Try to decode to extract the expiration date
@@ -92,10 +78,15 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 
 	if decodeErr != nil {
 		h.logger.Warn("Failed to decode PKCS12 file giving up all fallbacks, possible invalid password or corrupted file", zap.Error(decodeErr))
-		// Delete the file since it's invalid
-		os.Remove(signaturePath)
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.invalid_file", core_errors.ErrBillingInvalidSignatureFile)
 	}
+
+	// Only a certificate that decoded is stored.
+	if err := h.files.Write(tenantdb.TenantID(c), signatureFileName, pfxData); err != nil {
+		h.logger.Error("Failed to save signature file", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save signature file", core_errors.ErrInternal)
+	}
+	signaturePath := h.files.Path(tenantdb.TenantID(c), signatureFileName)
 
 	// Update tenant record
 	var tenantRecord tenant_models.Tenant
@@ -150,14 +141,9 @@ func (h *TenantHandler) UploadLogo(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.logo.invalid_file", core_errors.ErrTenantInvalidLogoFile)
 	}
 
-	uploadDir := filepath.Join("storage", "tenants", fmt.Sprint(tenantID))
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		h.logger.Error("Failed to create storage directory", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create storage directory", core_errors.ErrInternal)
-	}
-
-	logoPath := filepath.Join(uploadDir, "logo"+ext)
-	if err := os.WriteFile(logoPath, data, 0644); err != nil {
+	logoName := "logo" + ext
+	logoPath := h.files.Path(tenantdb.TenantID(c), logoName)
+	if err := h.files.Write(tenantdb.TenantID(c), logoName, data); err != nil {
 		h.logger.Error("Failed to save logo file", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save logo file", core_errors.ErrInternal)
 	}
@@ -169,7 +155,7 @@ func (h *TenantHandler) UploadLogo(c *gin.Context) envelope.Response {
 
 	// Remove a previously uploaded logo with a different extension, if any.
 	if tenantRecord.LogoPath != nil && *tenantRecord.LogoPath != logoPath {
-		os.Remove(*tenantRecord.LogoPath)
+		_ = h.files.Remove(tenantdb.TenantID(c), filepath.Base(*tenantRecord.LogoPath))
 	}
 
 	tenantRecord.LogoPath = &logoPath
@@ -200,7 +186,7 @@ func (h *TenantHandler) DownloadLogo(c *gin.Context) {
 		return
 	}
 
-	data, err := os.ReadFile(*tenantRecord.LogoPath)
+	data, err := h.files.Read(tenantdb.TenantID(c), filepath.Base(*tenantRecord.LogoPath))
 	if err != nil {
 		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.sri.logo.not_found", core_errors.ErrTenantLogoNotFound))
 		return

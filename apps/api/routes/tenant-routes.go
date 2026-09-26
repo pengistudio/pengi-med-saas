@@ -12,7 +12,7 @@ import (
 )
 
 func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
-	tenantHandler := tenant_handlers.NewTenantHandler(db, logger.Log)
+	tenantHandler := tenant_handlers.NewTenantHandler(db, logger.Log, tenantFiles)
 
 	tenantGroup := router.Group("/tenants", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db))
 

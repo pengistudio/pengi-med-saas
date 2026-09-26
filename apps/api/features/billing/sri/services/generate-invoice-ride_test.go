@@ -5,6 +5,10 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"pengi-med-saas/core/pdfrender"
+	"pengi-med-saas/core/tenantfiles"
+	"pengi-med-saas/core/utils"
+	billing_templates "pengi-med-saas/features/billing/templates"
 	"strings"
 	"testing"
 	"time"
@@ -114,7 +118,7 @@ func TestBuildInvoiceRideData_WithLogo(t *testing.T) {
 	if data.LogoDataURI == "" {
 		t.Fatal("expected non-empty LogoDataURI when tenant has a logo")
 	}
-	if !strings.HasPrefix(data.LogoDataURI, "data:image/png;base64,") {
+	if !strings.HasPrefix(string(data.LogoDataURI), "data:image/png;base64,") {
 		t.Errorf("expected LogoDataURI to be a PNG data URI, got %q", data.LogoDataURI)
 	}
 
@@ -137,5 +141,37 @@ func TestBuildInvoiceRideData_RequiresAccessKey(t *testing.T) {
 
 	if _, err := buildInvoiceRideData(invoice, tenantObj, "Dir", "1"); err == nil {
 		t.Fatal("expected error when invoice has no access key")
+	}
+}
+
+type capturingConverter struct{ html string }
+
+func (c *capturingConverter) GeneratePDFFromHTMLWithOptions(html string, opts utils.PDFOptions) ([]byte, error) {
+	c.html = html
+	return []byte("%PDF"), nil
+}
+
+// The tenant's logo must actually reach the RIDE HTML. As a plain string in a
+// src attribute html/template replaced the data: URI with "#ZgotmplZ", so the
+// logo never showed on any RIDE.
+func TestGenerateInvoiceRide_EmbedsTheTenantLogo(t *testing.T) {
+	tenantObj := testTenant()
+	patient := testPatient()
+	accessKey := "2607202601179000000000110010010000000011855268517"
+	logoPath := filepath.Join(t.TempDir(), "logo.png")
+	if err := os.WriteFile(logoPath, []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, 0644); err != nil {
+		t.Fatalf("write logo: %v", err)
+	}
+	tenantObj.LogoPath = &logoPath
+	invoice := billing_models.Invoice{EstablishmentCode: "001", EmissionPointCode: "001", Sequential: "000000001",
+		IssueDate: time.Now(), AccessKey: &accessKey, Patient: &patient, Total: 112}
+
+	conv := &capturingConverter{}
+	renderer := pdfrender.New(tenantfiles.Memory(), conv, billing_templates.FS)
+	if _, err := GenerateInvoiceRide(renderer, invoice, tenantObj, "Dir", "1"); err != nil {
+		t.Fatalf("GenerateInvoiceRide: %v", err)
+	}
+	if strings.Contains(conv.html, "ZgotmplZ") || !strings.Contains(conv.html, `src="data:image/png;base64,`) {
+		t.Fatalf("logo missing from the RIDE HTML")
 	}
 }

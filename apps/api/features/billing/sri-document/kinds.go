@@ -2,8 +2,6 @@ package sri_document
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	billing_models "pengi-med-saas/features/billing/models"
 	sri_services "pengi-med-saas/features/billing/sri/services"
@@ -47,7 +45,7 @@ var Invoice = Kind{
 	// The RIDE (printed representation) is stored next to the signed XML. It has
 	// tax and legal validity (ficha técnica §8.19), but a failure to render it
 	// never fails the already-authorized comprobante; it is re-rendered on download.
-	OnAuthorized: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, sriEnv string) error {
+	OnAuthorized: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant, sriEnv string) error {
 		var invoice billing_models.Invoice
 		if err := db.Unscoped().Preload("Patient").First(&invoice, id).Error; err != nil {
 			return err
@@ -58,15 +56,11 @@ var Invoice = Kind{
 		if invoice.AccessKey == nil {
 			return fmt.Errorf("invoice %d has no access key", invoice.ID)
 		}
-		pdf, err := sri_services.GenerateInvoiceRide(invoice, tenant, establishmentAddress(tenant), sriEnv)
+		pdf, err := sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, establishmentAddress(tenant), sriEnv)
 		if err != nil {
 			return fmt.Errorf("render RIDE: %w", err)
 		}
-		dir := filepath.Join("storage", "tenants", fmt.Sprint(tenant.ID), "invoices")
-		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			return err
-		}
-		return os.WriteFile(filepath.Join(dir, *invoice.AccessKey+".pdf"), pdf, 0644)
+		return docs.Files.Write(tenant.ID, RideName(*invoice.AccessKey), pdf)
 	},
 }
 
@@ -156,4 +150,9 @@ func establishmentAddress(tenant tenant_models.Tenant) string {
 		return "Dirección no provista"
 	}
 	return tenant.Address
+}
+
+// RideName is the tenant file holding an authorized invoice's RIDE PDF.
+func RideName(accessKey string) string {
+	return "invoices/" + accessKey + ".pdf"
 }

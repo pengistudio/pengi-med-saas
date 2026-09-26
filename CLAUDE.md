@@ -170,6 +170,10 @@ To add a migration: create a file in `migrations/code-migrations/{year}/`, regis
 
 **Never edit a code-migration file that is already committed to `origin/main`** — IDs are immutable, editing one that already ran elsewhere is a silent no-op there (drift between environments). Always create a new file with a new ID instead. This is enforced automatically by `.claude/hooks/guard-migrations.mjs` (blocks Edit/Write on any migration file already in `origin/main`); see `docs/backend/api-code-migration.md` rule #1.
 
+### Tenant files and PDFs
+
+Never build `storage/tenants/...` paths or call Gotenberg directly. Tenant files (P12, logo, signed XML, RIDE, custom templates) go through `core/tenantfiles` (`Store`: `Write`/`Read`/`Remove`/`Exists` by tenant + relative name). PDFs go through `core/pdfrender` (`Render(tenantID, template, data, paper)`): it uses the tenant's uploaded template if present, else the default embedded in the binary (`features/*/templates/embed.go`) — add new default templates there, not to the Dockerfile.
+
 ### Async SRI processing (comprobantes electrónicos)
 
 `features/billing/sri-document/` owns the whole lifecycle of facturas, notas de crédito and notas de débito: `Enqueue` (called by the `*/sri/process` handlers), `Process` (RabbitMQ consumers, one queue per document kind) and `Sweep` (re-queues stuck documents and pending authorizations). Status: `pending → processing → signed → validated (recibido) → authorized`, plus `rejected` (NO AUTORIZADO: corrected and resent with the same key on user retry) and `failed`/`connection_error` (retryable). A document's access key never changes and it is never resent while the SRI is processing it — see `docs/adr/0001-clave-de-acceso-inmutable.md`. Adding a new document type = a new `Kind` in `kinds.go`.

@@ -1,11 +1,11 @@
 package clinical_handlers
 
 import (
-	"fmt"
+	"html/template"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
+	"pengi-med-saas/core/tenantdb"
+	"pengi-med-saas/core/tenantfiles"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -18,28 +18,25 @@ import (
 type PrescriptionTemplateHandler struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	files  tenantfiles.Store
 }
 
-func NewPrescriptionTemplateHandler(db *gorm.DB, logger *zap.Logger) *PrescriptionTemplateHandler {
-	return &PrescriptionTemplateHandler{db: db, logger: logger}
+func NewPrescriptionTemplateHandler(db *gorm.DB, logger *zap.Logger, files tenantfiles.Store) *PrescriptionTemplateHandler {
+	return &PrescriptionTemplateHandler{db: db, logger: logger, files: files}
 }
 
-func prescriptionTemplatePath(tenantID any) string {
-	return filepath.Join("storage", "tenants", fmt.Sprint(tenantID), "prescription_template.html")
-}
+// prescriptionTemplateName is the tenant file overriding the default prescription
+// template; pdfrender picks it up by this same name.
+const prescriptionTemplateName = "prescription_template.html"
 
 // GetPrescriptionTemplateStatus returns whether the tenant has a custom template uploaded.
 func (h *PrescriptionTemplateHandler) GetPrescriptionTemplateStatus(c *gin.Context) envelope.Response {
-	tenantID, _ := c.Get("tenant_id")
-	path := prescriptionTemplatePath(tenantID)
-	_, err := os.Stat(path)
-	hasCustom := err == nil
+	hasCustom := h.files.Exists(tenantdb.TenantID(c), prescriptionTemplateName)
 	return envelope.SuccessResponse(gin.H{"has_custom": hasCustom}, "clinical.prescription_template.status")
 }
 
 // UploadPrescriptionTemplate accepts an HTML file and stores it as the tenant's custom prescription template.
 func (h *PrescriptionTemplateHandler) UploadPrescriptionTemplate(c *gin.Context) envelope.Response {
-	tenantID, _ := c.Get("tenant_id")
 
 	file, _, err := c.Request.FormFile("template")
 	if err != nil {
@@ -48,35 +45,27 @@ func (h *PrescriptionTemplateHandler) UploadPrescriptionTemplate(c *gin.Context)
 	}
 	defer file.Close()
 
-	uploadDir := filepath.Join("storage", "tenants", fmt.Sprint(tenantID))
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		h.logger.Error("Failed to create storage directory", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create storage directory", core_errors.ErrInternal)
-	}
-
-	tmplPath := prescriptionTemplatePath(tenantID)
-	out, err := os.Create(tmplPath)
+	src, err := io.ReadAll(file)
 	if err != nil {
-		h.logger.Error("Failed to create template file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create template file", core_errors.ErrInternal)
+		h.logger.Error("Failed to read template file", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusBadRequest, "Template file is required", core_errors.ErrClinicalInvalidRequest)
 	}
-	defer out.Close()
-
-	if _, err := io.Copy(out, file); err != nil {
+	// A template that does not parse would break every prescription download.
+	if _, err := template.New(prescriptionTemplateName).Parse(string(src)); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.prescription_template.error.invalid", core_errors.ErrClinicalInvalidRequest)
+	}
+	if err := h.files.Write(tenantdb.TenantID(c), prescriptionTemplateName, src); err != nil {
 		h.logger.Error("Failed to save template file", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save template file", core_errors.ErrInternal)
 	}
 
-	h.logger.Info("Prescription template uploaded", zap.Any("tenant_id", tenantID))
+	h.logger.Info("Prescription template uploaded", zap.Uint("tenant_id", tenantdb.TenantID(c)))
 	return envelope.SuccessResponse(gin.H{"has_custom": true}, "clinical.prescription_template.uploaded")
 }
 
 // DeletePrescriptionTemplate removes the tenant's custom prescription template (reverts to default).
 func (h *PrescriptionTemplateHandler) DeletePrescriptionTemplate(c *gin.Context) envelope.Response {
-	tenantID, _ := c.Get("tenant_id")
-	tmplPath := prescriptionTemplatePath(tenantID)
-
-	if err := os.Remove(tmplPath); err != nil && !os.IsNotExist(err) {
+	if err := h.files.Remove(tenantdb.TenantID(c), prescriptionTemplateName); err != nil {
 		h.logger.Error("Failed to delete template file", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to delete template file", core_errors.ErrInternal)
 	}

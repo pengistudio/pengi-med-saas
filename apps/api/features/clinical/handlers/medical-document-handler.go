@@ -1,13 +1,10 @@
 package clinical_handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
-	"os"
-	"path/filepath"
+	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"strings"
@@ -29,13 +26,14 @@ import (
 )
 
 type MedicalDocumentHandler struct {
-	db     *gorm.DB
-	logger *zap.Logger
-	mailer *mailer.Mailer
+	db       *gorm.DB
+	logger   *zap.Logger
+	mailer   *mailer.Mailer
+	renderer *pdfrender.Renderer
 }
 
-func NewMedicalDocumentHandler(db *gorm.DB, logger *zap.Logger, mailer *mailer.Mailer) *MedicalDocumentHandler {
-	return &MedicalDocumentHandler{db: db, logger: logger, mailer: mailer}
+func NewMedicalDocumentHandler(db *gorm.DB, logger *zap.Logger, mailer *mailer.Mailer, renderer *pdfrender.Renderer) *MedicalDocumentHandler {
+	return &MedicalDocumentHandler{db: db, logger: logger, mailer: mailer, renderer: renderer}
 }
 
 func parseFlexibleDate(s string) (time.Time, error) {
@@ -444,29 +442,8 @@ func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, c
 // ─── SHARED HELPERS ────────────────────────────────────────────────────────
 
 func (h *MedicalDocumentHandler) renderMedicalDocumentPDF(tenantID interface{}, templateName string, data interface{}) ([]byte, error) {
-	customPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantID), templateName)
-	tmplPath := filepath.Join("features", "clinical", "templates", templateName)
-	if _, err := os.Stat(customPath); err == nil {
-		tmplPath = customPath
-	}
-
-	tmpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		return nil, fmt.Errorf("error loading template %s: %w", templateName, err)
-	}
-
-	var htmlBuffer bytes.Buffer
-	if err := tmpl.Execute(&htmlBuffer, data); err != nil {
-		return nil, fmt.Errorf("error rendering template %s: %w", templateName, err)
-	}
-
-	gotenbergURL := os.Getenv("GOTENBERG_URL")
-	if gotenbergURL == "" {
-		gotenbergURL = "http://gotenberg:3000"
-	}
-
-	client := utils.NewGotenbergClient(gotenbergURL)
-	return client.GeneratePDFFromHTMLWithOptions(htmlBuffer.String(), utils.A4Portrait)
+	id, _ := tenantID.(uint)
+	return h.renderer.Render(id, templateName, data, utils.A4Portrait)
 }
 
 func patientAge(patient *clinical_models.Patient) int {

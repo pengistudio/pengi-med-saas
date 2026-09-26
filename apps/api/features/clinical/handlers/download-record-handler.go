@@ -1,12 +1,9 @@
 package clinical_handlers
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
 	"net/http"
-	"os"
-	"path/filepath"
+	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/tenantdb"
 	"strconv"
 	"strings"
@@ -24,11 +21,12 @@ import (
 )
 
 type DownloadRecordHandler struct {
-	db *gorm.DB
+	db       *gorm.DB
+	renderer *pdfrender.Renderer
 }
 
-func NewDownloadRecordHandler(db *gorm.DB) *DownloadRecordHandler {
-	return &DownloadRecordHandler{db: db}
+func NewDownloadRecordHandler(db *gorm.DB, renderer *pdfrender.Renderer) *DownloadRecordHandler {
+	return &DownloadRecordHandler{db: db, renderer: renderer}
 }
 
 // ─── PRESCRIPTION DOWNLOAD VIA GOTENBERG ──────────────────────────────────────
@@ -84,7 +82,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 	audit.RecordAccess(h.db, c, "medical_records", record.ID, &record.PatientID)
 
 	// 3. Generate PDF
-	pdfBytes, err := generatePrescriptionPDF(h.db, c, &record, &patient)
+	pdfBytes, err := generatePrescriptionPDF(h.db, h.renderer, c, &record, &patient)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalReportGenerateError))
 		return
@@ -101,9 +99,8 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 	c.Data(http.StatusOK, "application/pdf", pdfBytes)
 }
 
-func generatePrescriptionPDF(db *gorm.DB, c *gin.Context, record *clinical_models.MedicalRecord, patient *clinical_models.Patient) ([]byte, error) {
+func generatePrescriptionPDF(db *gorm.DB, renderer *pdfrender.Renderer, c *gin.Context, record *clinical_models.MedicalRecord, patient *clinical_models.Patient) ([]byte, error) {
 	// Attempt to find company information (for header & footer)
-	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
 	tenantdb.For(c, db).First(&company)
 
@@ -152,32 +149,7 @@ func generatePrescriptionPDF(db *gorm.DB, c *gin.Context, record *clinical_model
 		Address:             "Ecuador", // Default, as location isn't currently in models
 	}
 
-	// Use custom template if tenant has one, otherwise fall back to default
-	customPath := filepath.Join("storage", "tenants", fmt.Sprint(tenantID), "prescription_template.html")
-	tmplPath := "features/clinical/templates/prescription_template.html"
-	if _, err := os.Stat(customPath); err == nil {
-		tmplPath = customPath
-	}
-
-	tmpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		return nil, fmt.Errorf("error loading prescription template: %w", err)
-	}
-
-	var htmlBuffer bytes.Buffer
-	err = tmpl.Execute(&htmlBuffer, data)
-	if err != nil {
-		return nil, fmt.Errorf("error rendering prescription template: %w", err)
-	}
-
-	// Use gotenberg locally on dev network
-	gotenbergURL := os.Getenv("GOTENBERG_URL")
-	if gotenbergURL == "" {
-		gotenbergURL = "http://gotenberg:3000"
-	}
-
-	client := utils.NewGotenbergClient(gotenbergURL)
-	return client.GeneratePDFFromHTML(htmlBuffer.String())
+	return renderer.Render(tenantdb.TenantID(c), "prescription_template.html", data, utils.A5Landscape)
 }
 
 func calculateAge(birthDate time.Time) int {

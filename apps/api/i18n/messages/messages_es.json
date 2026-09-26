@@ -5458,5 +5458,9 @@
     {
         "key": "tenant.error.forbidden",
         "value": "No tienes acceso a esta empresa."
+    },
+    {
+        "key": "clinical.prescription_template.error.invalid",
+        "value": "La plantilla no es un HTML válido: revisa las etiquetas {{...}}."
     }
 ]

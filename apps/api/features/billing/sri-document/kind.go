@@ -25,5 +25,5 @@ type Kind struct {
 	// OnAuthorized runs side effects (e.g. rendering the RIDE) once the SRI has
 	// authorized the document. Optional; its errors never fail the authorized
 	// document.
-	OnAuthorized func(db *gorm.DB, id uint, tenant tenant_models.Tenant, sriEnv string) error
+	OnAuthorized func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant, sriEnv string) error
 }

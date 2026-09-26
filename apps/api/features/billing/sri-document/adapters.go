@@ -2,48 +2,26 @@ package sri_document
 
 import (
 	"errors"
-	"fmt"
-	"os"
-	"path/filepath"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
+	"pengi-med-saas/core/pdfrender"
+	"pengi-med-saas/core/tenantfiles"
 	sri_services "pengi-med-saas/features/billing/sri/services"
+	billing_templates "pengi-med-saas/features/billing/templates"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 // NewDefault wires the lifecycle to its production adapters: the sri-xml-signer
-// service, tenant storage on local disk and RabbitMQ.
+// service, tenant files on local disk, Gotenberg and RabbitMQ.
 func NewDefault(db *gorm.DB, logger *zap.Logger) *Lifecycle {
-	return New(db, logger, NewHTTPGateway(), DiskStorage{}, RabbitPublisher{}, sri_services.ResolveSriEnv())
-}
-
-// DiskStorage keeps signed XML under storage/tenants/<tenant>/<folder>/<key>.xml,
-// relative to the working directory, next to each tenant's other files.
-type DiskStorage struct{}
-
-func (DiskStorage) ReadCertificate(path string) ([]byte, error) {
-	return os.ReadFile(path)
-}
-
-func (DiskStorage) SaveSignedXML(tenantID uint, folder, accessKey, xml string) error {
-	path := signedXMLPath(tenantID, folder, accessKey)
-	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
-		return err
+	files := tenantfiles.Disk(tenantfiles.DefaultRoot)
+	docs := Documents{
+		Files:    files,
+		Renderer: pdfrender.New(files, pdfrender.Gotenberg(), billing_templates.FS),
 	}
-	return os.WriteFile(path, []byte(xml), 0644)
-}
-
-func (DiskStorage) RemoveSignedXML(tenantID uint, folder, accessKey string) error {
-	if err := os.Remove(signedXMLPath(tenantID, folder, accessKey)); err != nil && !os.IsNotExist(err) {
-		return err
-	}
-	return nil
-}
-
-func signedXMLPath(tenantID uint, folder, accessKey string) string {
-	return filepath.Join("storage", "tenants", fmt.Sprint(tenantID), folder, accessKey+".xml")
+	return New(db, logger, NewHTTPGateway(), RabbitPublisher{}, docs, sri_services.ResolveSriEnv())
 }
 
 // RabbitPublisher publishes on the process-wide RabbitMQ publish channel.
