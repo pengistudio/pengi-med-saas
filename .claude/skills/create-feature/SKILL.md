@@ -43,6 +43,15 @@ Responde esto antes de escribir código:
   `apps/api/features/companies/` (plural) — ahí viven `Company`, `Plan`,
   `Feature`, `Subscription`, `SubscriptionMiddleware` y `RequirePermission`.
   No existe `features/company` (singular).
+- **Si estás extendiendo un dominio existente** (ej. agregar una acción nueva
+  a `clinical`), lo más probable es que YA exista un `Feature` con ese
+  `Code` asociado al/los `Plan`(s) — no necesitas crear uno nuevo, solo
+  agregar tus permisos nuevos a ese `Feature` existente (ver paso 7). Revisa
+  qué features existen en dev antes de asumir nada:
+  ```bash
+  docker exec -i pengi-db-dev psql -U postgres -d pengi_gentoo \
+    -c "select id, code, name from features;"
+  ```
 
 ## 1. Backend — scaffolding del dominio
 
@@ -61,6 +70,43 @@ apps/api/features/<domain>/
 
 Los handlers **siempre** devuelven `envelope.Response`, nunca escriben
 directo a `gin.Context`.
+
+### Excepción: handlers que devuelven un binario (PDF, archivo)
+
+Un handler que hace *stream* de un PDF u otro binario **no** devuelve
+`envelope.Response` — escribe directo con `c.Data(...)`/`c.JSON(...)` y se
+registra en las rutas **sin** `envelope.Handle(...)` (llamada directa al
+método). Patrón existente: `DownloadPrescription`/`DownloadMedicalReport` en
+`apps/api/features/clinical/handlers/*.go`. No fuerces estos handlers al
+patrón `envelope.Response` — no aplica.
+
+### Generar PDFs (Gotenberg) — si el dominio necesita documentos/reportes
+
+No uses una librería de PDF nueva. El patrón establecido es HTML → Gotenberg:
+
+```go
+tmpl, _ := template.ParseFiles(tmplPath) // features/<domain>/templates/<name>.html
+var buf bytes.Buffer
+tmpl.Execute(&buf, data)
+client := utils.NewGotenbergClient(os.Getenv("GOTENBERG_URL")) // default http://gotenberg:3000
+pdfBytes, err := client.GeneratePDFFromHTMLWithOptions(buf.String(), utils.A4Portrait) // o A5Landscape
+```
+
+Las plantillas soportan **override por tenant**: antes de usar la plantilla
+default (`features/<domain>/templates/<name>.html`), revisa si existe
+`storage/tenants/{tenantID}/<name>.html` y úsala en su lugar (ver
+`generatePrescriptionPDF` en `download-record-handler.go` para el patrón
+completo, incluyendo fallback).
+
+### Enviar un documento por email
+
+`core/mailer.Mailer` ya soporta adjuntos vía
+`SendMedicalDocumentEmail(toEmail, subject, title, filename, pdfBytes)` (base64
++ Resend API). Si necesitas un nuevo tipo de email con adjunto, sigue ese
+patrón (`sendWithAttachments`) en vez de reinventarlo. Un error
+`resend API error: status 4xx` casi siempre es una restricción del API key de
+Resend en modo sandbox (solo permite enviar a la dirección verificada del
+dueño de la cuenta) — no asumas que es un bug antes de revisar eso.
 
 ## 2. Backend — Error codes
 
@@ -162,13 +208,51 @@ auth_middleware.AuthMiddleware()
 
 ## 7. Feature-flag / Plan wiring
 
-Retoma la decisión del paso 0:
+Retoma la decisión del paso 0. **No te lo saltes ni cuando extiendes un
+dominio existente** — es el paso que más fácil se olvida, y el síntoma solo
+aparece probando en el navegador (el linter/build no lo detecta):
 
-- **Si es plan-gated:** crea el `Feature{Code, Name, Permissions}` (vía
-  backoffice UI `apps/backoffice/src/pages/features/*` o seed), asocia los
-  `Permission`s del paso 3, y asócialo a el/los `Plan`(s) relevantes
-  (`apps/backoffice/src/pages/plans/*`). Confirma que `SubscriptionMiddleware`
-  calcula bien `allowed_permissions` para un tenant en ese plan.
+> **Síntoma si te lo saltas:** en el navegador ves un toast
+> `"Your plan does not include this feature"` (403) al llamar el endpoint
+> nuevo, **aunque** el usuario/rol sí tenga el permiso asignado (paso 3). Eso
+> es porque `RequirePermission` chequea dos cosas por separado — el rol del
+> usuario Y que el `Plan` de la suscripción incluya el permiso vía `Feature`
+> (`apps/api/features/companies/middleware/subscription-middleware.go`,
+> `IsPermissionAllowed`) — y solo wireaste la primera en el paso 3.
+
+- **Si es plan-gated y el `Feature` YA existe** (caso más común — ej. agregas
+  una acción a `clinical`, que ya tiene `Feature{Code: "CLINICAL"}` asociado
+  al plan PRO): agrega una migración nueva que asocie tus permisos nuevos a
+  ese `Feature` existente, igual que el paso 3 los asocia al rol admin pero
+  sobre `company_models.Feature` en vez de `user_models.Role`:
+  ```go
+  var feature company_models.Feature
+  if err := db.Where(company_models.Feature{Code: "<DOMAIN>"}).First(&feature).Error; err != nil {
+      if err == gorm.ErrRecordNotFound {
+          fmt.Println("⚠️  <DOMAIN> feature not found, skipping.")
+          return nil // no rompas el arranque en un ambiente que gestiona Features distinto
+      }
+      return fmt.Errorf("failed to find <DOMAIN> feature: %w", err)
+  }
+  for _, id := range []string{"CREATE_<X>", "..."} {
+      var perm permission_models.Permission
+      db.Where(permission_models.Permission{BaseStringID: database.BaseStringID{ID: id}}).First(&perm)
+      db.Model(&feature).Association("Permissions").Append(&perm)
+  }
+  ```
+  Ponla en su **propia key** de `GlobalDBMap` (no reuses la del paso 3) para
+  que corra después de que los permisos existan. `Association(...).Append(...)`
+  es idempotente (GORM no duplica la fila en `feature_permissions` si ya
+  existe), así que es seguro si la corres más de una vez.
+- **Si es plan-gated y el `Feature` NO existe todavía:** créalo (vía
+  backoffice UI `apps/backoffice/src/pages/features/*` o seed) con
+  `Feature{Code, Name, Permissions}`, y asócialo a el/los `Plan`(s)
+  relevantes (`apps/backoffice/src/pages/plans/*`).
+- Para depurar en dev, inspecciona la tabla directamente (no asumas por logs):
+  ```bash
+  docker exec -i pengi-db-dev psql -U postgres -d pengi_gentoo \
+    -c "select feature_id, permission_id from feature_permissions where feature_id = <id>;"
+  ```
 - **Si es toggle cosmético:** agrega el bool field en
   `apps/api/features/tenants/models/tenant-model.go` → `EnabledFeatures`,
   actualiza `GetEnabledFeatures`/`UpdateEnabledFeatures` si aplica, y usa
@@ -200,6 +284,20 @@ Zod schema + `<Form schema={} onSubmit={}>` +
 `FormCalendar/FormTagInput` (locales a cada app; `FormTagInput` solo existe
 en `apps/web`) — nunca inputs HTML crudos. `FormCheckbox` ya no existe.
 
+### ¿Diálogo (modal) o página independiente?
+
+Un `Dialog` (patrón `edit-prescription-dialog.tsx`) está bien para una
+edición rápida de 1-2 campos disparada desde una fila/acción puntual. Si el
+flujo genera un registro que el usuario querrá **volver a ver, imprimir o
+reenviar más tarde** (informes, documentos, cualquier cosa "generada"), usa
+una página dedicada + una página de listado, no un modal — un modal no tiene
+URL propia ni forma natural de listar lo ya guardado. Regla práctica: si te
+preguntas "¿y cómo veo los que ya generé?", es una página, no un diálogo.
+Cuidado además con grids de N columnas dentro de un `Dialog` angosto para
+mostrar fechas largas (`FormCalendar` con `format(date, "PPP")` en español
+puede desbordar una columna de 3 en un modal de 600px) — en una página con
+más ancho este problema desaparece solo.
+
 ## 10. Frontend — Rutas y navegación
 
 Ya cubierto en el paso 3 (`CheckPermission` en `routes.tsx`, `permission` en
@@ -213,6 +311,18 @@ Las keys son backend-owned — no hay JSON local en `apps/web`. Confirma que
 las keys usadas en `textGet(key)` existen en `messages_es.json`/`messages_en.json`
 (paso 5). `textGet` falla en silencio devolviendo `*key*` — smoke-testea
 visualmente la pantalla nueva para detectar cualquier `*key*` renderizado.
+
+**Gotcha de caché en dev:** el frontend guarda los mensajes en
+`localStorage["messages"]` (`src/store/message-store.ts`) y solo los vuelve a
+pedir al backend si cambia `__APP_VERSION__`. Si agregaste keys nuevas y las
+ves como `*key.nueva*` en el navegador aunque ya estén en el JSON y sembradas
+en la BD (verificable con
+`docker exec -i pengi-db-dev psql -U postgres -d pengi_gentoo -c "select value from messages where key='...';"`),
+no es un bug — es el caché del navegador. Limpialo antes de dar el smoke test
+por fallido:
+```js
+localStorage.removeItem("messages"); // luego recarga la página
+```
 
 ## 12. Tests
 
@@ -229,6 +339,14 @@ visualmente la pantalla nueva para detectar cualquier `*key*` renderizado.
 
 ## 13. Pre-flight / Doctor
 
+- **Entorno docker dev:** `apps/api` corre bajo `air` (`docker-compose.dev.yaml`)
+  con el código montado como volumen — cada guardado dispara un rebuild
+  automático (`docker logs pengi-api` muestra `building... / running...`).
+  No hace falta reiniciar el contenedor a mano. `RunAllMigrations` (incluidas
+  tus code-migrations nuevas) corre en cada arranque del binario, así que
+  una migración nueva se aplica sola en el siguiente rebuild — solo
+  confirma en los logs (`docker logs pengi-api | grep <tu-key>`) que
+  imprimió éxito y no quedó en loop de error.
 - **Frontend:** corre `/doctor` (skill `react-doctor`, ya existe en
   `apps/web/.claude/skills` y `apps/backoffice/.claude/skills`) antes de dar
   por terminado el trabajo frontend — no reinventes lint/a11y/bundle-size
@@ -252,12 +370,21 @@ visualmente la pantalla nueva para detectar cualquier `*key*` renderizado.
 - [ ] Rutas registradas en routes/index.go
 - [ ] i18n keys agregadas en messages_es.json Y messages_en.json
 - [ ] Decisión de feature-flag/plan tomada y documentada; wiring hecho si aplica
+- [ ] Si el Feature de plan ya existía (dominio extendido), permisos nuevos asociados
+      a él vía migración propia (no solo al rol admin) — probado en navegador,
+      no solo por build/lint
 - [ ] Tipos/servicio/store frontend creados
 - [ ] Página/componentes/formularios creados (Zod + Form components)
+- [ ] Si genera documentos: reutiliza Gotenberg (no libs de PDF nuevas) y el
+      handler de descarga NO usa envelope.Handle
+- [ ] Si el flujo produce registros para revisar después: página + listado,
+      no un Dialog
 - [ ] Tests backend escritos y pasando (just tests-api, go vet ./...)
 - [ ] Tests frontend pasando (just tests-web)
 - [ ] /doctor (react-doctor) corrido sin issues nuevos
-- [ ] Smoke test manual de la pantalla nueva (sin *key* renderizado, sin errores de consola)
+- [ ] Smoke test manual de la pantalla nueva (sin *key* renderizado — limpiar
+      localStorage["messages"] si agregaste i18n keys nuevas —, sin errores
+      de consola, y probando en navegador que el plan/feature-gate no bloquea)
 ```
 
 ## Referencias
