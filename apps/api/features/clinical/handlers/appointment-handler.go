@@ -178,7 +178,7 @@ func (h *AppointmentHandler) GetAppointment(c *gin.Context) envelope.Response {
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.Preload("Patient").First(&appointment, id).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Preload("Patient").First(&appointment, id).Error; err != nil {
 		h.logger.Error("Failed to get appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
@@ -192,6 +192,10 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 	if err := c.ShouldBind(&dto); err != nil {
 		h.logger.Error("Invalid create appointment request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
+	}
+
+	if !h.patientInTenant(c, dto.PatientID) {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
 	tenantID, exists := c.Get("tenant_id")
@@ -249,7 +253,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.First(&appointment, id).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&appointment, id).Error; err != nil {
 		h.logger.Error("Appointment not found", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
@@ -262,6 +266,9 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 
 	updates := map[string]interface{}{}
 	if dto.PatientID != nil {
+		if !h.patientInTenant(c, *dto.PatientID) {
+			return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
+		}
 		updates["patient_id"] = *dto.PatientID
 	}
 	if dto.Title != nil {
@@ -350,7 +357,7 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.First(&appointment, id).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&appointment, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
 
@@ -382,7 +389,7 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 	}
 
 	var appointment clinical_models.Appointment
-	if err := h.db.First(&appointment, id).Error; err != nil {
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).First(&appointment, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
 	}
 
@@ -402,4 +409,12 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 
 	h.logger.Info("Appointment deleted", zap.Int("id", id))
 	return envelope.SuccessResponse(nil, "appointments.delete.success")
+}
+
+// patientInTenant reports whether the patient belongs to the caller's tenant, so
+// an appointment can never point at (and later preload) another clinic's patient.
+func (h *AppointmentHandler) patientInTenant(c *gin.Context, patientID uint) bool {
+	var count int64
+	h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.Patient{}).Where("id = ?", patientID).Count(&count)
+	return count == 1
 }

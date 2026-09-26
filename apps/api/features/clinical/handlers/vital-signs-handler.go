@@ -37,6 +37,9 @@ func (h *VitalSignsHandler) UpsertVitalSigns(c *gin.Context) envelope.Response {
 		h.logger.Error("invalid vital signs payload", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.vital_signs.error.invalid_payload", core_errors.ErrClinicalInvalidRequest)
 	}
+	if !h.recordInTenant(c, recordID) {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
+	}
 	input.MedicalRecordID = uint(recordID)
 
 	var existing clinical_models.VitalSigns
@@ -72,6 +75,10 @@ func (h *VitalSignsHandler) GetVitalSigns(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.vital_signs.error.invalid_id", core_errors.ErrClinicalInvalidRequest)
 	}
 
+	if !h.recordInTenant(c, recordID) {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
+	}
+
 	var vitalSigns clinical_models.VitalSigns
 	if err := h.db.Where("medical_record_id = ?", recordID).First(&vitalSigns).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -84,4 +91,12 @@ func (h *VitalSignsHandler) GetVitalSigns(c *gin.Context) envelope.Response {
 	audit.RecordAccess(h.db, c, "vital_signs", vitalSigns.ID, nil)
 
 	return envelope.SuccessResponse(vitalSigns, "clinical.vital_signs.fetch.success")
+}
+
+// recordInTenant reports whether the medical record belongs to the caller's
+// tenant; vital signs have no tenant_id of their own and inherit their record's.
+func (h *VitalSignsHandler) recordInTenant(c *gin.Context, recordID uint64) bool {
+	var count int64
+	h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.MedicalRecord{}).Where("id = ?", recordID).Count(&count)
+	return count == 1
 }

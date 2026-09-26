@@ -60,7 +60,7 @@ func (h *MedicalRecordHandler) syncPatientClinicalHistoryFromFirstVisit(c *gin.C
 		return
 	}
 
-	if err := h.db.Scopes(tenant_middleware.AuditScope(c)).
+	if err := h.db.Scopes(tenant_middleware.TenantScope(c)).
 		Model(&clinical_models.Patient{}).
 		Where("id = ?", record.PatientID).
 		Updates(updates).Error; err != nil {
@@ -157,6 +157,13 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
+	if !h.inTenant(c, &clinical_models.Patient{}, newRecord.PatientID) {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
+	}
+	if newRecord.AppointmentID != nil && !h.inTenant(c, &clinical_models.Appointment{}, *newRecord.AppointmentID) {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+	}
+
 	nextAppointmentDate := (*time.Time)(nil)
 	if newRecord.NextAppointmentDate != nil {
 		t := time.Time(*newRecord.NextAppointmentDate)
@@ -246,9 +253,12 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 		record["date"] = time.Time(*updatedRecord.Date)
 	}
 	if updatedRecord.AppointmentID != nil {
+		if !h.inTenant(c, &clinical_models.Appointment{}, *updatedRecord.AppointmentID) {
+			return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+		}
 		record["appointment_id"] = *updatedRecord.AppointmentID
 		// Auto-complete the linked appointment
-		h.db.Scopes(tenant_middleware.AuditScope(c)).Model(&clinical_models.Appointment{}).Where("id = ?", *updatedRecord.AppointmentID).Update("status", "completed")
+		h.db.Scopes(tenant_middleware.TenantScope(c)).Model(&clinical_models.Appointment{}).Where("id = ?", *updatedRecord.AppointmentID).Update("status", "completed")
 	}
 	if updatedRecord.Motive != nil {
 		record["motive"] = *updatedRecord.Motive
@@ -428,4 +438,13 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 
 	h.logger.Info("Prescription updated successfully", zap.Uint("record_id", medicalRecord.ID))
 	return envelope.SuccessResponse(medicalRecord, "clinical.prescription.update.success")
+}
+
+// inTenant reports whether the row with this ID in model's table belongs to the
+// caller's tenant; client-supplied references (patient, appointment) must never
+// reach another clinic's data.
+func (h *MedicalRecordHandler) inTenant(c *gin.Context, model any, id uint) bool {
+	var count int64
+	h.db.Scopes(tenant_middleware.TenantScope(c)).Model(model).Where("id = ?", id).Count(&count)
+	return count == 1
 }

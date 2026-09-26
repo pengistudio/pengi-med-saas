@@ -39,17 +39,6 @@ func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
 	}
 }
 
-func (h *UserHandler) GetUsers(c *gin.Context) envelope.Response {
-	users := []user_models.User{}
-	if err := h.db.Find(&users).Error; err != nil {
-		h.logger.Error("Failed to fetch users", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining users", core_errors.ErrUserNotFound)
-	}
-
-	h.logger.Info("Users fetched successfully", zap.Int("count", len(users)))
-	return envelope.SuccessResponse(users, "user.list.success")
-}
-
 func (h *UserHandler) SignUp(c *gin.Context) envelope.Response {
 	var user user_models.User
 	if err := c.ShouldBind(&user); err != nil {

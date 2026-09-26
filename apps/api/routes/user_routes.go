@@ -24,7 +24,6 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 
 	userRoutes := router.Group("/users")
 	{
-		userRoutes.GET("", envelope.Handle(userHandler.GetUsers))
 		userRoutes.GET("/environments", auth_middleware.ExchangeAuthMiddleware(), envelope.Handle(environmentHandler.GetEnvironmentsFromUser))
 		userRoutes.GET("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.GetProfile))
 		userRoutes.PUT("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.UpdateProfile))
