@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -31,7 +32,6 @@ import { DataTable } from "@/components/custom/table/data-table";
 import EditPrescriptionDialog from "@/components/features/patient/edit-prescription-dialog";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import usePermission from "@/hooks/use-permission";
-import { useText } from "@/hooks/use-text";
 import { EMPTY_STRING, PERMISSIONS } from "@/lib/constants";
 import {
 	buildPrescriptionWhatsAppMessage,

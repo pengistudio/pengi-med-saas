@@ -1,5 +1,5 @@
 import React from "react";
-import { useMessageStore } from "@/store/message-store";
+import { useMessageStore } from "./message-store";
 
 const useText = () => {
 	const { messages } = useMessageStore();

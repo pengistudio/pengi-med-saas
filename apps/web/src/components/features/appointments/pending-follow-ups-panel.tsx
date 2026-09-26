@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import { Text } from "@pengi/ui";
 import { CalendarClock } from "lucide-react";
 import React from "react";
@@ -5,7 +6,6 @@ import {
 	getAllPatientsWithLastFollowUp,
 	type Patient,
 } from "@/api/clinical-service";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 
 export interface PendingFollowUpsPanelProps {

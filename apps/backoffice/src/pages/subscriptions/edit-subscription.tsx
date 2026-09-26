@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -18,7 +19,6 @@ import React from "react";
 import { useNavigate, useParams } from "react-router";
 import { type Plan, plans as planResource } from "@/api/plan-service";
 import { subscriptions } from "@/api/subscription-service";
-import { useText } from "@/hooks/use-text";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 import {
 	type PlanTerm,

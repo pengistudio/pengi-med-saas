@@ -1,4 +1,4 @@
-import type { BaseModel } from "./fetch";
+import type { BaseModel } from "@pengi/shared";
 
 export interface Patient extends BaseModel {
 	tenant_id: number;

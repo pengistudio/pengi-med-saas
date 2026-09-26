@@ -1,8 +1,8 @@
 import type React from "react";
 import { useCallback } from "react";
 import { useLocation } from "react-router";
-import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/store/sidebar-store";
+import { cn } from "../../lib/utils";
+import { useSidebarStore } from "../../stores/sidebar-store";
 
 type Props = {
 	label: string;

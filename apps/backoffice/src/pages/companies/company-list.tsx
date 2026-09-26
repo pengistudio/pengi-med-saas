@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Dialog,
@@ -19,7 +20,6 @@ import {
 	generateCompanyRegisterToken,
 	getCompanySignupToken,
 } from "@/api/company-service";
-import { useText } from "@/hooks/use-text";
 import { type ResourceColumn, ResourceList } from "@/lib/resource";
 
 const columns: ResourceColumn<Company>[] = [

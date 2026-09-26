@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -9,7 +10,6 @@ import {
 } from "@pengi/ui";
 import { Loader2, RefreshCw } from "lucide-react";
 import { useState } from "react";
-import { useText } from "@/hooks/use-text";
 
 interface InvoiceStatusBadgeProps {
 	status: string;

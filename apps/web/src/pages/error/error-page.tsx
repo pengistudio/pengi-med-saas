@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -8,7 +9,6 @@ import {
 } from "@pengi/ui";
 import { AlertTriangle } from "lucide-react";
 import { isRouteErrorResponse, useRouteError } from "react-router";
-import { useText } from "@/hooks/use-text";
 
 // `String(error)` gives "[object Object]" for anything that isn't an Error
 // instance (e.g. React Router's ErrorResponse for loader/route errors, or a

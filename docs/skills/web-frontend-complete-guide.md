@@ -254,7 +254,7 @@ export const useItemStore = create<ItemStore>((set) => ({
 **NUNCA hardcodear strings.** Usar `useText()` hook siempre.
 
 ```typescript
-import { useText } from "@/hooks/use-text";
+import { useText } from "@pengi/shared";
 
 export default function ItemPage() {
   const { textGet } = useText();
@@ -410,7 +410,7 @@ export const useItemStore = create<ItemStore>((set) => ({
 import { useEffect, useState } from "react";
 import { deleteItem, getItems } from "@/api/item-service";
 import { Button } from "@/components/ui/button";
-import { useText } from "@/hooks/use-text";
+import { useText } from "@pengi/shared";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useItemStore } from "@/store/item-store";
 import type { Item } from "@/types/item-type";
@@ -516,7 +516,7 @@ export default function ItemPage() {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Edit2 } from "lucide-react";
-import { useText } from "@/hooks/use-text";
+import { useText } from "@pengi/shared";
 import type { Item } from "@/types/item-type";
 
 interface ItemCardProps {

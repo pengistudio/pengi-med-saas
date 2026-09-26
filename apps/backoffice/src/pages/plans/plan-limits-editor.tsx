@@ -1,5 +1,5 @@
+import { useText } from "@pengi/shared";
 import { Checkbox, Input, Label } from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
 
 export const PLAN_LIMIT_KEYS = [
 	"max_users",

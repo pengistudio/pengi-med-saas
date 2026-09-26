@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Avatar,
 	AvatarFallback,
@@ -15,6 +16,9 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
+	NavAccordion,
+	NavItem,
+	useSidebarStore,
 } from "@pengi/ui";
 import {
 	AlertTriangle,
@@ -30,13 +34,10 @@ import type React from "react";
 import { memo, useCallback, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { initiatePayment } from "@/api/subscription-service";
-import NavAccordion from "@/components/custom/nav/nav-accordion";
-import NavItem from "@/components/custom/nav/nav-item";
 import NotificationBell from "@/components/custom/notification-bell";
 import SelectLanguage from "@/components/custom/select-language";
 import useAuth from "@/hooks/use-auth";
 import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import {
 	selectEnvironment,
@@ -44,7 +45,6 @@ import {
 	selectSubscriptionGraceDaysLeft,
 	useSessionStore,
 } from "@/store/session-store";
-import { useSidebarStore } from "@/store/sidebar-store";
 
 interface DashboardLayoutProps {
 	children: React.ReactNode;

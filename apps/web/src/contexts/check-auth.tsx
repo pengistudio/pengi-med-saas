@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import { useToast } from "@pengi/ui";
 import { type JwtPayload, jwtDecode } from "jwt-decode";
 import React from "react";
@@ -5,7 +6,6 @@ import { useLocation, useNavigate } from "react-router";
 import { refreshToken } from "@/api/auth-service";
 import { getMySubscription } from "@/api/subscription-service";
 import useAuth from "@/hooks/use-auth";
-import { useText } from "@/hooks/use-text";
 import { ONE_SECOND } from "@/lib/constants";
 import {
 	selectSetSubscriptionGraceDaysLeft,

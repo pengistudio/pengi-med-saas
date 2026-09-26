@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -29,7 +30,6 @@ import {
 } from "@/api/clinical-service";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
-import { useText } from "@/hooks/use-text";
 import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import {

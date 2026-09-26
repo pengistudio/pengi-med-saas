@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Accordion,
 	AccordionContent,
@@ -31,7 +32,6 @@ import React from "react";
 import type { Patient } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import useTenantSettings from "@/hooks/use-tenant-settings";
-import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 
 /**

@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -29,7 +30,6 @@ import {
 	getDashboardStats,
 	type SubscriptionInfo,
 } from "@/api/clinical-service";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

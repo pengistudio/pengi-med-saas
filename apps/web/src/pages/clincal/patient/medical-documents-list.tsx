@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -40,7 +41,6 @@ import {
 	type Patient,
 } from "@/api/clinical-service";
 import usePermission from "@/hooks/use-permission";
-import { useText } from "@/hooks/use-text";
 import { PERMISSIONS } from "@/lib/constants";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

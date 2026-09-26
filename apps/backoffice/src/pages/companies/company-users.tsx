@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -47,7 +48,6 @@ import {
 	updateCompanyUser,
 } from "@/api/company-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const editUserSchema = z.object({

@@ -1,6 +1,6 @@
+import { createHttpService, type ServiceResponse } from "@pengi/shared";
 import type { LoginRequest, LoginResponse } from "@/types/user-type";
 import { noAuthApi } from ".";
-import { createHttpService, type ServiceResponse } from "./fetch";
 
 const loginService = createHttpService(noAuthApi);
 

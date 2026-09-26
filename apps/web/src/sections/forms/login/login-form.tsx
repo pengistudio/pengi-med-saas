@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -17,7 +18,6 @@ import z from "zod";
 import { userLogin } from "@/api/auth-service";
 import { Form } from "@/components/forms/form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useText } from "@/hooks/use-text";
 import { useTokenStore } from "@/store/token-store";
 
 const formSchema = z.object({

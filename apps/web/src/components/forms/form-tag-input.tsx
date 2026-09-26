@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Field,
 	FieldDescription,
@@ -13,7 +14,6 @@ import {
 	type UseFormReturn,
 } from "react-hook-form";
 import type z from "zod";
-import { useText } from "@/hooks/use-text";
 
 type FormTagInputProps<
 	T extends z.ZodType<Output, Input>,

@@ -1,10 +1,10 @@
+import { useText } from "@pengi/shared";
 import { Button, Checkbox, DataTableColumnHeader, Text } from "@pengi/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { downloadInvoiceRide, type Invoice } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { RelativeDate } from "@/components/custom/relative-date";
-import { useText } from "@/hooks/use-text";
 
 function DownloadRideButton({ invoice }: { invoice: Invoice }) {
 	const { textGet } = useText();

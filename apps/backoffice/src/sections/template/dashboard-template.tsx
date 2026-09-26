@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Avatar,
 	AvatarFallback,
@@ -9,6 +10,9 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
+	NavAccordion,
+	NavItem,
+	useSidebarStore,
 } from "@pengi/ui";
 import {
 	HelpCircle,
@@ -20,12 +24,8 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { memo, useCallback, useMemo } from "react";
-import NavAccordion from "@/components/custom/nav/nav-accordion";
-import NavItem from "@/components/custom/nav/nav-item";
-import { useText } from "@/hooks/use-text";
 import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/store/sidebar-store";
 
 interface DashboardLayoutProps {
 	children: React.ReactNode;

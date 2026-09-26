@@ -1,5 +1,5 @@
+import { createHttpService } from "@pengi/shared";
 import { useStore } from "zustand";
-import { createHttpService } from "@/api/fetch";
 import { noAuthApi } from "@/api/http-clients";
 import { type AuthGateway, createSession } from "./session";
 

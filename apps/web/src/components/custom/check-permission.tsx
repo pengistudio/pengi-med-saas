@@ -1,9 +1,9 @@
+import { useText } from "@pengi/shared";
 import { useToast } from "@pengi/ui";
 import React from "react";
 import { Outlet, useNavigate } from "react-router";
 import useAuth from "@/hooks/use-auth";
 import usePermission from "@/hooks/use-permission";
-import { useText } from "@/hooks/use-text";
 
 type CheckPermissionProps = {
 	children?: React.ReactNode;

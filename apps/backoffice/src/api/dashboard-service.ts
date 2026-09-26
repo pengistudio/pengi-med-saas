@@ -1,5 +1,5 @@
+import { createHttpService, type ServiceResponse } from "@pengi/shared";
 import { api } from ".";
-import { createHttpService, type ServiceResponse } from "./fetch";
 
 const httpService = createHttpService(api);
 

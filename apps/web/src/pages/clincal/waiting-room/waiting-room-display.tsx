@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Clock,
 	RefreshCw,
@@ -17,7 +18,6 @@ import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
-import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 
 type DisplayStatus = "scheduled" | "arrived" | "in_consultation";

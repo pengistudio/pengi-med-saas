@@ -1,6 +1,6 @@
+import { createHttpService, type ServiceResponse } from "@pengi/shared";
 import { resource } from "@/lib/resource/http-resource";
 import { api } from ".";
-import { createHttpService, type ServiceResponse } from "./fetch";
 
 const httpService = createHttpService(api);
 

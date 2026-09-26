@@ -1,3 +1,5 @@
+import type { SupportedLocale } from "@pengi/shared";
+import { useLanguage, useMessageStore } from "@pengi/shared";
 import {
 	Select,
 	SelectContent,
@@ -6,9 +8,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@pengi/ui";
-import type { SupportedLocale } from "@/config/zod-i18n";
-import { useLanguage } from "@/contexts/language-context";
-import { useMessageStore } from "@/store/message-store";
 
 const SelectLanguage = () => {
 	const { changeLanguage } = useLanguage();

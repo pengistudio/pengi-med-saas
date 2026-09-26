@@ -117,7 +117,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useText } from "@/hooks/use-text";
+import { useText } from "@pengi/shared";
 import { getFeatures, deleteFeature } from "@/api/feature-service";
 import { useFeatureStore } from "@/store/feature-store";
 import type { Feature } from "@/types/feature-type";
@@ -237,7 +237,7 @@ import { Label } from "@/components/ui/label";
 import { Form } from "@/components/forms/form";
 import { FormInput } from "@/components/forms/form-input";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useText } from "@/hooks/use-text";
+import { useText } from "@pengi/shared";
 import { createFeature, getPermissions } from "@/api/feature-service";
 import type { Permission } from "@/types/feature-type";
 

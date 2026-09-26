@@ -1,8 +1,8 @@
+import type { ServiceResponse } from "@pengi/shared";
+import { useText } from "@pengi/shared";
 import { Button, Checkbox, Label } from "@pengi/ui";
 import React from "react";
-import type { ServiceResponse } from "@/api/fetch";
 import { getPermissions, type Permission } from "@/api/permission-service";
-import { useText } from "@/hooks/use-text";
 
 const UNCATEGORISED = "General";
 

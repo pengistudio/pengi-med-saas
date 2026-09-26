@@ -1,8 +1,8 @@
+import { useText } from "@pengi/shared";
 import React from "react";
 import { Navigate, useLocation } from "react-router";
 import { toast } from "sonner";
 import { useStore } from "zustand";
-import { useText } from "@/hooks/use-text";
 import type { Session } from "./session";
 
 /**

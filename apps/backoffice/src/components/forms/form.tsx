@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLanguage, useText } from "@pengi/shared";
 import React from "react";
 import type {
 	DefaultValues,
@@ -9,9 +10,6 @@ import type {
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-
-import { useLanguage } from "@/contexts/language-context";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 
 type FormProps<

@@ -1,14 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import { AppTextBridge, initShared, LanguageProvider } from "@pengi/shared";
 import { Toaster, TooltipProvider } from "@pengi/ui";
 import App from "./App.tsx";
-import { AppTextBridge } from "./components/app-text-bridge.tsx";
-import { LanguageProvider } from "./contexts/language-context.tsx";
+import { noAuthApi } from "./api";
 import { session } from "./lib/session";
 
 // Restore the session from the refresh cookie while the app renders.
 session.restore();
+
+initShared({ client: noAuthApi });
 
 const root = document.getElementById("root");
 

@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -14,7 +15,6 @@ import { useNavigate } from "react-router";
 import z from "zod";
 import { createAdditionalCompany } from "@/api/user-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import { selectSetEnvironment, useSessionStore } from "@/store/session-store";
 
 const formSchema = z.object({

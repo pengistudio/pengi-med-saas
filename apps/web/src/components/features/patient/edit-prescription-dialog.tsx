@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Dialog,
@@ -14,7 +15,6 @@ import React from "react";
 import { z } from "zod";
 import { updatePrescription } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 
 const prescriptionSchema = z.object({
 	content: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),

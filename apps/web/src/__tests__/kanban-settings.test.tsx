@@ -24,7 +24,8 @@ vi.mock("@/store/tenant-settings-store", () => ({
 	}),
 }));
 
-vi.mock("@/hooks/use-text", () => ({
+vi.mock("@pengi/shared", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@pengi/shared")>()),
 	useText: () => ({
 		textGet: (key: string) => key,
 	}),

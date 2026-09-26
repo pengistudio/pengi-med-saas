@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -20,7 +21,6 @@ import {
 	joinCompanyWithExistingAccount,
 } from "@/api/auth-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import { useTokenStore } from "@/store/token-store";
 
 const emailStepSchema = z.object({

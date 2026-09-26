@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -20,7 +21,6 @@ import {
 } from "@/api/feature-service";
 import { plans } from "@/api/plan-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 import { cn } from "@/lib/utils";
 

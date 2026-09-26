@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Input,
 	Label,
@@ -9,7 +10,6 @@ import {
 } from "@pengi/ui";
 import React from "react";
 import type { Plan } from "@/api/plan-service";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { sortedPricings, suggestExpiry, todayInEcuador } from "./term";
 

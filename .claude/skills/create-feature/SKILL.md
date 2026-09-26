@@ -313,7 +313,7 @@ las keys usadas en `textGet(key)` existen en `messages_es.json`/`messages_en.jso
 visualmente la pantalla nueva para detectar cualquier `*key*` renderizado.
 
 **Gotcha de caché en dev:** el frontend guarda los mensajes en
-`localStorage["messages"]` (`src/store/message-store.ts`) y solo los vuelve a
+`localStorage["messages"]` (`packages/shared/src/i18n/message-store.ts`) y solo los vuelve a
 pedir al backend si cambia `__APP_VERSION__`. Si agregaste keys nuevas y las
 ves como `*key.nueva*` en el navegador aunque ya estén en el JSON y sembradas
 en la BD (verificable con

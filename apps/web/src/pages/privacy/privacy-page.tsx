@@ -1,6 +1,6 @@
+import { useText } from "@pengi/shared";
 import { CreditCard, Database, Lock, Mail, Shield, User } from "lucide-react";
 import { Link } from "react-router";
-import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const SECTIONS = [

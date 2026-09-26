@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { getMessages, type MessageMap } from "@/api/i18n-service";
-import type { SupportedLocale } from "@/config/zod-i18n";
+import { getMessages, type MessageMap } from "./messages-service";
+import type { SupportedLocale } from "./zod-i18n";
 
 type UIMessageState = {
 	messages: MessageMap;

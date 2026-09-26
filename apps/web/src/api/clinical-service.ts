@@ -1,9 +1,9 @@
-import { apiWithTenant, noAuthApi } from ".";
 import {
 	type BaseModel,
 	createHttpService,
 	type ServiceResponse,
-} from "./fetch";
+} from "@pengi/shared";
+import { apiWithTenant, noAuthApi } from ".";
 
 const clinicalService = createHttpService(apiWithTenant);
 const publicService = createHttpService(noAuthApi);

@@ -1,5 +1,5 @@
+import { useText } from "@pengi/shared";
 import { Checkbox, Input, Label } from "@pengi/ui";
-import { useText } from "@/hooks/use-text";
 
 export const PERIOD_MONTHS = [1, 3, 6, 9, 12] as const;
 export type PeriodMonths = (typeof PERIOD_MONTHS)[number];

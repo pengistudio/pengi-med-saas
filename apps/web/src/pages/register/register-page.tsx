@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -27,7 +28,6 @@ import { register } from "@/api/auth-service";
 import GentooPenguin from "@/assets/gentoo.png";
 import SelectLanguage from "@/components/custom/select-language";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 
 const formSchema = z
 	.object({

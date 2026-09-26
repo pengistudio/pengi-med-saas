@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -15,7 +16,6 @@ import z from "zod";
 import { features } from "@/api/feature-service";
 import { PermissionPicker } from "@/components/features/permission-picker";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({ name: z.string().min(2) });

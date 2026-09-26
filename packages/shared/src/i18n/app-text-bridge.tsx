@@ -1,6 +1,6 @@
 import { UiTextProvider } from "@pengi/ui";
 import type { ReactNode } from "react";
-import { useText } from "@/hooks/use-text";
+import { useText } from "./use-text";
 
 export function AppTextBridge({ children }: { children: ReactNode }) {
 	const { textGet } = useText();

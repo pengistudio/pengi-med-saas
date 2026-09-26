@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -20,7 +21,6 @@ import { createPatient } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import useTenantSettings from "@/hooks/use-tenant-settings";
-import { useText } from "@/hooks/use-text";
 
 const STATIC_INSTITUTIONS = [
 	{ label: "Solca", value: "Solca" },

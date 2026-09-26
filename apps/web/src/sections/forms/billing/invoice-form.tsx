@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -33,7 +34,6 @@ import {
 } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
 import { Switch } from "@/components/ui/switch";
-import { useText } from "@/hooks/use-text";
 import {
 	IVA_PERCENTAGE_CODES_AS_NUMBER,
 	PAYMENT_LABELS,

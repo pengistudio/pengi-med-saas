@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Avatar,
 	AvatarFallback,
@@ -38,7 +39,6 @@ import {
 	updateTeamMemberRole,
 } from "@/api/team-service";
 import usePermission from "@/hooks/use-permission";
-import { useText } from "@/hooks/use-text";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";

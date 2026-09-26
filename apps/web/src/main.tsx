@@ -11,10 +11,12 @@ window.addEventListener("unhandledrejection", (event) => {
 	}
 });
 
+import { AppTextBridge, initShared, LanguageProvider } from "@pengi/shared";
 import { Toaster, TooltipProvider } from "@pengi/ui";
 import App from "./App.tsx";
-import { AppTextBridge } from "./components/app-text-bridge.tsx";
-import { LanguageProvider } from "./contexts/language-context.tsx";
+import { noAuthApi } from "./api";
+
+initShared({ client: noAuthApi });
 
 // biome-ignore lint/style/noNonNullAssertion: root element is always present
 createRoot(document.getElementById("root")!).render(

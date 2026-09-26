@@ -55,7 +55,7 @@ import { useNavigate } from "react-router";
 import { z } from "zod";
 import { Button, FormInput, FormSelect, FormTextArea } from "@pengi/ui";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
+import { useText } from "@pengi/shared";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),

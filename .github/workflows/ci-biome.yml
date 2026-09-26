@@ -19,10 +19,10 @@ jobs:
           node-version: 24
 
       - name: "Ejecutar Biome en Aplicaciones Frontend"
-        run: npx @biomejs/biome ci ./apps/web ./apps/backoffice ./packages/ui
+        run: npx @biomejs/biome ci ./apps/web ./apps/backoffice ./packages/ui ./packages/shared
 
   typecheck:
-    name: "TypeScript (web + backoffice)"
+    name: "TypeScript y tests (frontend)"
     runs-on: ubuntu-latest
     steps:
       - name: Descargar Código
@@ -44,6 +44,18 @@ jobs:
 
       - name: TypeScript check (backoffice)
         run: pnpm --filter backoffice typecheck
+
+      - name: TypeScript check (@pengi/shared)
+        run: pnpm --filter @pengi/shared typecheck
+
+      - name: Tests (web)
+        run: pnpm --filter web test:run
+
+      - name: Tests (backoffice)
+        run: pnpm --filter backoffice test:run
+
+      - name: Tests (@pengi/shared)
+        run: pnpm --filter @pengi/shared test:run
 
   backend-go:
     name: "Validar Código Backend (Go)"

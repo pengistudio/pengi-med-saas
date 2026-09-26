@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Avatar,
 	AvatarFallback,
@@ -6,7 +7,6 @@ import {
 	DialogContent,
 } from "@pengi/ui";
 import { CheckCircle2, Clock, Edit2, Trash2, Zap } from "lucide-react";
-import { useText } from "@/hooks/use-text";
 import { generateTaskId } from "@/lib/task-id-generator";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/store/session-store";

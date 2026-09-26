@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	DataTablePagination,
 	DataTableViewOptions,
@@ -22,7 +23,6 @@ import {
 	type VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
-import { useText } from "@/hooks/use-text";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];

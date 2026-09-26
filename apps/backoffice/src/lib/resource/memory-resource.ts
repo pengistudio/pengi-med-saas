@@ -1,4 +1,4 @@
-import type { ServiceResponse } from "@/api/fetch";
+import type { ServiceResponse } from "@pengi/shared";
 import type { ID, Resource } from "./resource";
 
 const ok = <T>(data: T): ServiceResponse<T> => ({

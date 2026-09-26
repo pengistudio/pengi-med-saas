@@ -1,4 +1,4 @@
-import type { ServiceResponse } from "@/api/fetch";
+import type { ServiceResponse } from "@pengi/shared";
 
 export type ID = number | string;
 

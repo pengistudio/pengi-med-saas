@@ -1,3 +1,4 @@
+import { useMessageStore, useText } from "@pengi/shared";
 import {
 	Badge,
 	DropdownMenu,
@@ -15,13 +16,11 @@ import {
 	markNotificationAsRead,
 	type Notification,
 } from "@/api/notification-service";
-import { useText } from "@/hooks/use-text";
 import {
 	formatElapsedDuration,
 	formatRelativeTime,
 	renderNotificationText,
 } from "@/lib/notification-text";
-import { useMessageStore } from "@/store/message-store";
 import { useNotificationStore } from "@/store/notification-store";
 
 const UNREAD_BADGE_MAX = 9;

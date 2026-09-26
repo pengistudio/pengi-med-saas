@@ -130,6 +130,9 @@ importers:
       '@hookform/resolvers':
         specifier: 'catalog:'
         version: 5.4.3(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.83.0(react@19.2.8))(zod@4.4.3)
+      '@pengi/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@pengi/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -275,6 +278,9 @@ importers:
       '@hookform/resolvers':
         specifier: 'catalog:'
         version: 5.4.3(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.83.0(react@19.2.8))(zod@4.4.3)
+      '@pengi/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@pengi/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -403,6 +409,51 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@26.1.1)(jsdom@29.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0))
 
+  packages/shared:
+    devDependencies:
+      '@pengi/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@testing-library/jest-dom':
+        specifier: ^6.10.0
+        version: 6.10.0(@testing-library/dom@10.4.1)
+      '@testing-library/react':
+        specifier: ^16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 6.0.4(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0))
+      axios:
+        specifier: 'catalog:'
+        version: 1.18.1
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.8(react@19.2.8)
+      sonner:
+        specifier: 'catalog:'
+        version: 2.0.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@26.1.1)(jsdom@29.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0))
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+      zustand:
+        specifier: 'catalog:'
+        version: 5.0.14(@types/react@19.2.17)(immer@11.1.15)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8))
+
   packages/ui:
     dependencies:
       class-variance-authority:
@@ -448,6 +499,9 @@ importers:
       react-hook-form:
         specifier: 'catalog:'
         version: 7.83.0(react@19.2.8)
+      react-router:
+        specifier: 'catalog:'
+        version: 8.3.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       sonner:
         specifier: 'catalog:'
         version: 2.0.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -457,6 +511,9 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.4.3
+      zustand:
+        specifier: 'catalog:'
+        version: 5.0.14(@types/react@19.2.17)(immer@11.1.15)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8))
 
 packages:
 

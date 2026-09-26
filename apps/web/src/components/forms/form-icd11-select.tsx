@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Combobox,
 	ComboboxChip,
@@ -26,7 +27,6 @@ import {
 	searchICD10,
 	searchICD11,
 } from "@/api/clinical-service";
-import { useText } from "@/hooks/use-text";
 
 type FormIcd11SelectProps<
 	T extends z.ZodType<Output, Input>,

@@ -1,6 +1,6 @@
+import { useText } from "@pengi/shared";
 import { Label, RadioGroup, RadioGroupItem } from "@pengi/ui";
 import type { KanbanSettings as KanbanSettingsType } from "@/api/settings-service";
-import { useText } from "@/hooks/use-text";
 import { useTenantSettingsStore } from "@/store/tenant-settings-store";
 
 const ARCHIVE_DELAY_OPTIONS: Array<{

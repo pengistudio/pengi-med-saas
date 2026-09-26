@@ -5,8 +5,8 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { useMessageStore } from "@/store/message-store";
-import { type SupportedLocale, updateZodLocale } from "../config/zod-i18n";
+import { useMessageStore } from "./message-store";
+import { type SupportedLocale, updateZodLocale } from "./zod-i18n";
 
 type LanguageContextType = {
 	currentLanguage: SupportedLocale;

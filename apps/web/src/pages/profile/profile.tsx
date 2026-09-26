@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -17,7 +18,6 @@ import {
 	updateProfile,
 } from "@/api/user-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";
 

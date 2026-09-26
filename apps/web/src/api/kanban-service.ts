@@ -1,3 +1,4 @@
+import { createHttpService, type ServiceResponse } from "@pengi/shared";
 import type {
 	CreateTaskPayload,
 	MoveTaskPayload,
@@ -5,9 +6,7 @@ import type {
 	TasksByStatus,
 	UpdateTaskPayload,
 } from "@/types/kanban-type";
-
 import { apiWithTenant } from ".";
-import { createHttpService, type ServiceResponse } from "./fetch";
 
 const kanbanService = createHttpService(apiWithTenant);
 

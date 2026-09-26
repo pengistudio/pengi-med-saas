@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Calendar,
@@ -22,7 +23,6 @@ import {
 	type Path,
 	type UseFormReturn,
 } from "react-hook-form";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 
 // Generate time slots (e.g., 08:00, 09:00, ..., 20:00)

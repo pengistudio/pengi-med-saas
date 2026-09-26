@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -43,7 +44,6 @@ import {
 	type SubscriptionDetail,
 	type SubscriptionPaymentRecord,
 } from "@/api/subscription-service";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

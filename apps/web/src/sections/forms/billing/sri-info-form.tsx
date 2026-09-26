@@ -1,10 +1,10 @@
+import { useText } from "@pengi/shared";
 import { Button, Checkbox, FormInput, Label, Text } from "@pengi/ui";
 import { Loader2, Save } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 import { type SriStatus, updateSriInfo } from "@/api/tenant-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 
 export const sriInfoSchema = z.object({
 	tax_id: z.string().min(1, "form.validation.required"),

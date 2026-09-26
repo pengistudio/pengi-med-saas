@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Card,
 	CardContent,
@@ -25,7 +26,6 @@ import {
 	type DashboardStats,
 	getDashboardStats,
 } from "@/api/dashboard-service";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

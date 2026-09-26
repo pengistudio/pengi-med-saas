@@ -8,6 +8,7 @@ vi.mock("@/api/auth-service", () => ({
 
 vi.mock("react-router", () => ({
 	useNavigate: () => vi.fn(),
+	useSearchParams: () => [new URLSearchParams(), vi.fn()],
 }));
 
 vi.mock("@/store/token-store", () => ({

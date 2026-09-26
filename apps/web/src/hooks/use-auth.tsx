@@ -1,6 +1,6 @@
+import type { ResponseError } from "@pengi/shared";
 import { useToast } from "@pengi/ui";
 import { logoutRequest, userLogin } from "@/api/auth-service";
-import type { ResponseError } from "@/api/fetch";
 import { resetSessionExpiredFlag } from "@/api/index";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";

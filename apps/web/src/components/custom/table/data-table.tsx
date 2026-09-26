@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	DataTablePagination,
 	DataTableViewOptions,
@@ -24,7 +25,6 @@ import {
 } from "@tanstack/react-table";
 import * as React from "react";
 import { useEffect } from "react";
-import { useText } from "@/hooks/use-text";
 import { useRowStore } from "@/store/row-store";
 
 interface DataTableProps<TData, TValue> {

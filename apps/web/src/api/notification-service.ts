@@ -1,9 +1,9 @@
-import { apiWithTenant } from ".";
 import {
 	type BaseModel,
 	createHttpService,
 	type ServiceResponse,
-} from "./fetch";
+} from "@pengi/shared";
+import { apiWithTenant } from ".";
 
 const notificationService = createHttpService(apiWithTenant);
 

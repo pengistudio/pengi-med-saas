@@ -1,10 +1,10 @@
-import { apiWithTenant } from ".";
-import type { PaginatedResponse, Patient } from "./clinical-service";
 import {
 	type BaseModel,
 	createHttpService,
 	type ServiceResponse,
-} from "./fetch";
+} from "@pengi/shared";
+import { apiWithTenant } from ".";
+import type { PaginatedResponse, Patient } from "./clinical-service";
 
 const billingService = createHttpService(apiWithTenant);
 

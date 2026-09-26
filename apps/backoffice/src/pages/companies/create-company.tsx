@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -24,7 +25,6 @@ import {
 import { type Plan, plans as planResource } from "@/api/plan-service";
 import { subscriptions } from "@/api/subscription-service";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import {
 	type PlanTerm,
 	PlanTermFields,

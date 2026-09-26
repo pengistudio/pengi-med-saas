@@ -1,3 +1,4 @@
+import type { ResponseError } from "@pengi/ui";
 import axios, {
 	type AxiosError,
 	type AxiosInstance,
@@ -7,10 +8,7 @@ import axios, {
 import { toast } from "sonner";
 
 // From backend core_errors/codes.go and envelope/response.go
-export type ResponseError = {
-	error_code: string;
-	error_message: string;
-};
+export type { ResponseError };
 
 // Base response properties
 type BaseResponse = {

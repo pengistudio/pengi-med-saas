@@ -1,5 +1,5 @@
+import { useText } from "@pengi/shared";
 import type React from "react";
-import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 /** The create/edit page frame: dashboard layout, and a loading state until the item arrives. */

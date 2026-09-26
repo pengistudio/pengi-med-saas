@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -30,7 +31,6 @@ import {
 	type MedicalRecord,
 } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
-import { useText } from "@/hooks/use-text";
 import {
 	buildPrescriptionWhatsAppMessage,
 	dateParser,

@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -24,7 +25,6 @@ import {
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
-import { useText } from "@/hooks/use-text";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { type Resource, resourceRoutes } from "./resource";
 import { useResourceList } from "./use-resource";

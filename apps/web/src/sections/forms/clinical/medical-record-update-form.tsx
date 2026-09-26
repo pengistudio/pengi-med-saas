@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -27,7 +28,6 @@ import {
 } from "@/api/clinical-service";
 import { Form } from "@/components/forms/form";
 import { FormCalendar } from "@/components/forms/form-calendar";
-import { useText } from "@/hooks/use-text";
 
 const formSchema = z
 	.object({

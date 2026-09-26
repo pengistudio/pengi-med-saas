@@ -184,6 +184,10 @@ Never build `storage/tenants/...` paths or call Gotenberg directly. Tenant files
 
 **Stack:** React 19 + Vite + TypeScript + TailwindCSS v4 + shadcn/ui + Zustand
 
+### Shared packages
+
+`packages/ui` (`@pengi/ui`) holds visual components, including the sidebar nav. `packages/shared` (`@pengi/shared`) holds the non-visual code both apps use: `createHttpService` (the envelope client) and the i18n messages (`useText`, `useMessages`, language context). Each app calls `initShared({ client: noAuthApi })` in `main.tsx`. Only code **both** apps use goes there — see its README.
+
 ### API service layer
 
 Never use axios directly in components. Always go through a service file:
@@ -235,7 +239,7 @@ export interface Invoice extends BaseModel {   // BaseModel has ID, CreatedAt, U
 ### i18n
 
 ```typescript
-const { textGet } = useText();   // hook from @/hooks/use-text (never use `t` or `useTranslation`)
+const { textGet } = useText();   // from @pengi/shared (never use `t` or `useTranslation`)
 const label = textGet("billing.invoice.title");
 // Missing keys render as *billing.invoice.title* — no fallback needed
 ```

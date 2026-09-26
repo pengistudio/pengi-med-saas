@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -14,7 +15,6 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
 import { Form } from "@/components/forms/form";
-import { useText } from "@/hooks/use-text";
 import { safeNext, useSession } from "@/lib/session";
 
 const formSchema = z.object({

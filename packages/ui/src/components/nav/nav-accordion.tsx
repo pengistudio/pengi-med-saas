@@ -1,13 +1,13 @@
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import { cn } from "../../lib/utils";
+import { useSidebarStore } from "../../stores/sidebar-store";
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from "@pengi/ui";
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
-import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/store/sidebar-store";
+} from "../accordion";
 import NavItem from "./nav-item";
 
 type Props = {

@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -17,7 +18,6 @@ import {
 	deleteAppointment,
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
-import { useText } from "@/hooks/use-text";
 import { cn } from "@/lib/utils";
 import { getStatusColor, STATUS_I18N_KEYS } from "./appointment-utils";
 

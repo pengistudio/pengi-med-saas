@@ -18,10 +18,13 @@ beforeEach(() => {
 	}
 });
 
-vi.mock("@/hooks/use-text", () => ({
+vi.mock("@pengi/shared", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@pengi/shared")>()),
 	useText: () => ({
 		textGet: (key: string) => key,
 	}),
+	useMessageStore: (selector: (state: { lang: string }) => unknown) =>
+		selector({ lang: "es" }),
 }));
 
 const mockMarkNotificationAsRead = vi.fn();
@@ -59,11 +62,6 @@ vi.mock("@/store/notification-store", () => ({
 			markReadLocally: mockMarkReadLocally,
 			markAllReadLocally: mockMarkAllReadLocally,
 		}),
-}));
-
-vi.mock("@/store/message-store", () => ({
-	useMessageStore: (selector: (state: { lang: string }) => unknown) =>
-		selector({ lang: "es" }),
 }));
 
 import NotificationBell from "@/components/custom/notification-bell";

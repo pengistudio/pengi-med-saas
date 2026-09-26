@@ -8,8 +8,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/backoffice/package.json apps/backoffice/package.json
 COPY packages/ui/package.json packages/ui/package.json
+COPY packages/shared/package.json packages/shared/package.json
 RUN --mount=type=cache,id=pnpm-backoffice,target=/pnpm/store pnpm install --frozen-lockfile --filter backoffice...
 COPY packages/ui packages/ui
+COPY packages/shared packages/shared
 COPY apps/backoffice apps/backoffice
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL

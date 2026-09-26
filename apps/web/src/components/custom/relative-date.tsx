@@ -1,5 +1,5 @@
+import { useMessageStore } from "@pengi/shared";
 import { formatRelativeTime } from "@/lib/notification-text";
-import { useMessageStore } from "@/store/message-store";
 
 interface RelativeDateProps {
 	date: string;

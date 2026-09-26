@@ -8,6 +8,7 @@ import {
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -45,7 +46,6 @@ import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
-import { useText } from "@/hooks/use-text";
 import { dateParser } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 

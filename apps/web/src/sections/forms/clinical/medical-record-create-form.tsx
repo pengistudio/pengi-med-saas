@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -50,7 +51,6 @@ import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormTagInput } from "@/components/forms/form-tag-input";
 import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
-import { useText } from "@/hooks/use-text";
 import { selectPatient, usePatientStore } from "@/store/patient-store";
 
 type VisitType = "first" | "followup";
