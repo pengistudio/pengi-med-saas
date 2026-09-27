@@ -24,6 +24,9 @@ const (
 	ErrorCodeReturned         = "billing.sri_document.error.returned"
 	ErrorCodeNotAuthorized    = "billing.sri_document.error.not_authorized"
 	ErrorCodeMissingSignature = "billing.sri_document.error.missing_signature"
+	// ErrorCodeSignatureExpired reuses the key the */sri/process handlers answer
+	// with when refusing to queue a document for the same reason.
+	ErrorCodeSignatureExpired = "billing.sri.error.signature_expired"
 	ErrorCodeInternal         = "billing.sri_document.error.internal"
 )
 
@@ -39,4 +42,7 @@ func (r *Rejection) Error() string { return r.Message }
 var (
 	ErrNotFound          = errors.New("sri document not found")
 	ErrAlreadyAuthorized = errors.New("sri document already authorized")
+	// ErrSignatureExpired: the tenant's P12 certificate has expired, so the
+	// document cannot be signed until a valid one is uploaded.
+	ErrSignatureExpired = errors.New("sri signature certificate expired")
 )

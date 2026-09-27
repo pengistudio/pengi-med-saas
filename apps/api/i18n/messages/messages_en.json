@@ -324,6 +324,18 @@
         "value": "Your subscription expires soon. Select a plan to renew."
     },
     {
+        "key": "subscription.card.expires_on",
+        "value": "Expires on {date}"
+    },
+    {
+        "key": "subscription.card.renew_from",
+        "value": "You can renew from {date}."
+    },
+    {
+        "key": "subscription.card.last_payment",
+        "value": "Last payment:"
+    },
+    {
         "key": "subscription.payments.title",
         "value": "Payment History"
     },
@@ -417,7 +429,7 @@
     },
     {
         "key": "subscription.plans.feature.kanban",
-        "value": "Kanban"
+        "value": "Tasks"
     },
     {
         "key": "backoffice.plans.pricings.title",
@@ -632,12 +644,12 @@
         "value": "Consultation history"
     },
     {
-        "key": "dialog.medical_report.summary",
-        "value": "Summary"
+        "key": "dialog.medical_report.background",
+        "value": "Medical history"
     },
     {
-        "key": "dialog.medical_report.plan",
-        "value": "Plan"
+        "key": "dialog.medical_report.general_plan",
+        "value": "General plan"
     },
     {
         "key": "dialog.medical_report.save",
@@ -1858,6 +1870,58 @@
     {
         "key": "waiting_room.title",
         "value": "Waiting Room"
+    },
+    {
+        "key": "waiting_room.summary",
+        "value": "{done} of {total} seen"
+    },
+    {
+        "key": "waiting_room.summary.empty",
+        "value": "No appointments today"
+    },
+    {
+        "key": "waiting_room.tv.title",
+        "value": "Waiting room screen"
+    },
+    {
+        "key": "waiting_room.tv.pair_hint",
+        "value": "On the TV, open /display/pair and enter this code:"
+    },
+    {
+        "key": "waiting_room.tv.regenerate",
+        "value": "Generate new code"
+    },
+    {
+        "key": "waiting_room.tv.copy_code",
+        "value": "Copy code"
+    },
+    {
+        "key": "waiting_room.tv.link_copied",
+        "value": "Link copied"
+    },
+    {
+        "key": "waiting_room.card.late",
+        "value": "{count} min late"
+    },
+    {
+        "key": "waiting_room.card.back",
+        "value": "Move back one step"
+    },
+    {
+        "key": "waiting_room.lane.empty.scheduled",
+        "value": "No one left to check in."
+    },
+    {
+        "key": "waiting_room.lane.empty.arrived",
+        "value": "No one waiting."
+    },
+    {
+        "key": "waiting_room.lane.empty.in_consultation",
+        "value": "No one in consultation."
+    },
+    {
+        "key": "waiting_room.lane.empty.completed",
+        "value": "No one seen yet today."
     },
     {
         "key": "waiting_room.copy_tv_link",
@@ -3437,7 +3501,7 @@
     },
     {
         "key": "E-BILL-005",
-        "value": "Incorrect password or invalid signature file"
+        "value": "The file is not a valid .p12 signature or is damaged."
     },
     {
         "key": "E-BILL-006",
@@ -3665,7 +3729,7 @@
     },
     {
         "key": "billing.sri.invalid_file",
-        "value": "Incorrect password or invalid signature file"
+        "value": "The file is not a valid .p12 signature or is damaged."
     },
     {
         "key": "billing.sri.status.configured",
@@ -3682,6 +3746,22 @@
     {
         "key": "billing.sri.status.unconfigured_desc",
         "value": "Please upload your .p12 file to issue invoices."
+    },
+    {
+        "key": "billing.sri.status.expired",
+        "value": "The electronic signature has expired"
+    },
+    {
+        "key": "billing.sri.status.expired_desc",
+        "value": "It expired on {date}. Upload a valid signature to keep issuing documents."
+    },
+    {
+        "key": "billing.sri.status.expiring",
+        "value": "The electronic signature expires soon"
+    },
+    {
+        "key": "billing.sri.status.expires_on",
+        "value": "Expires on {date} (in {days} days)."
     },
     {
         "key": "billing.invoice.column.sequential",
@@ -4372,6 +4452,14 @@
         "value": "Clinical module"
     },
     {
+        "key": "settings.clinical.description",
+        "value": "Which columns the patient list shows and which sections the consultation has."
+    },
+    {
+        "key": "settings.integrations.google.error",
+        "value": "Couldn't connect Google Calendar. Try again."
+    },
+    {
         "key": "settings.clinical.show_next_appointment",
         "value": "Show next appointment"
     },
@@ -4858,6 +4946,30 @@
     {
         "key": "tasks.page.description",
         "value": "Organize and manage your tasks visually"
+    },
+    {
+        "key": "tasks.board.summary",
+        "value": "{done} of {total} done"
+    },
+    {
+        "key": "tasks.board.empty",
+        "value": "No tasks on the board yet"
+    },
+    {
+        "key": "tasks.column.add_task",
+        "value": "Add task"
+    },
+    {
+        "key": "tasks.lane.empty.todo",
+        "value": "Nothing pending."
+    },
+    {
+        "key": "tasks.lane.empty.in_progress",
+        "value": "Drag a task here when you start working on it."
+    },
+    {
+        "key": "tasks.lane.empty.done",
+        "value": "Finished tasks show up here."
     },
     {
         "key": "tasks.task.description.hint",
@@ -5998,5 +6110,333 @@
     {
         "key": "table.selection.clear",
         "value": "Clear selection"
+    },
+    {
+        "key": "signature.fetch.success",
+        "value": "Electronic signature fetched successfully."
+    },
+    {
+        "key": "signature.upload.success",
+        "value": "Electronic signature saved successfully."
+    },
+    {
+        "key": "signature.delete.success",
+        "value": "Electronic signature removed."
+    },
+    {
+        "key": "signature.document.sign.success",
+        "value": "Document electronically signed."
+    },
+    {
+        "key": "signature.error.not_configured",
+        "value": "Upload your electronic signature in your profile first."
+    },
+    {
+        "key": "signature.error.expired",
+        "value": "The electronic signature certificate is expired."
+    },
+    {
+        "key": "signature.error.invalid_file",
+        "value": "Invalid signature file or password."
+    },
+    {
+        "key": "signature.error.unavailable",
+        "value": "Electronic signature is not available on this server."
+    },
+    {
+        "key": "signature.error.sign_failed",
+        "value": "The document could not be signed."
+    },
+    {
+        "key": "signature.error.already_signed",
+        "value": "The document is already signed."
+    },
+    {
+        "key": "E-SIGN-001",
+        "value": "Invalid signature file or password."
+    },
+    {
+        "key": "E-SIGN-002",
+        "value": "The electronic signature certificate is expired."
+    },
+    {
+        "key": "E-SIGN-003",
+        "value": "You have not uploaded an electronic signature."
+    },
+    {
+        "key": "E-SIGN-004",
+        "value": "The document is already signed."
+    },
+    {
+        "key": "E-SIGN-005",
+        "value": "Error signing the document."
+    },
+    {
+        "key": "E-SIGN-006",
+        "value": "Electronic signature is not available on this server."
+    },
+    {
+        "key": "signature.error.wrong_password",
+        "value": "The electronic signature password is incorrect."
+    },
+    {
+        "key": "signature.error.not_yet_valid",
+        "value": "The electronic signature certificate is not valid yet."
+    },
+    {
+        "key": "signature.form.file_required",
+        "value": "Choose your electronic signature file."
+    },
+    {
+        "key": "signature.form.file_type",
+        "value": "The file must be .p12 or .pfx."
+    },
+    {
+        "key": "signature.form.password_required",
+        "value": "Enter the signature password."
+    },
+    {
+        "key": "E-SIGN-007",
+        "value": "The electronic signature password is incorrect."
+    },
+    {
+        "key": "E-SIGN-008",
+        "value": "The electronic signature certificate is not valid yet."
+    },
+    {
+        "key": "signature.error.ruc_mismatch",
+        "value": "The electronic signature does not belong to the company's RUC."
+    },
+    {
+        "key": "E-SIGN-009",
+        "value": "The electronic signature does not belong to the company's RUC."
+    },
+    {
+        "key": "billing.sri.error.signature_expired",
+        "value": "The SRI electronic signature has expired. Upload a valid one to issue documents."
+    },
+    {
+        "key": "E-BILL-013",
+        "value": "The SRI electronic signature has expired. Upload a valid one to issue documents."
+    },
+    {
+        "key": "signature.title",
+        "value": "Electronic signature"
+    },
+    {
+        "key": "signature.description",
+        "value": "Your .p12 certificate to sign reports, certificates and prescriptions with a visible stamp verifiable in FirmaEC."
+    },
+    {
+        "key": "signature.file.label",
+        "value": "Signature file (.p12)"
+    },
+    {
+        "key": "signature.file.description",
+        "value": "The electronic signature certificate issued in your name."
+    },
+    {
+        "key": "signature.password.label",
+        "value": "Signature password"
+    },
+    {
+        "key": "signature.password.description",
+        "value": "It is stored encrypted and only used to sign your documents."
+    },
+    {
+        "key": "signature.save",
+        "value": "Save signature"
+    },
+    {
+        "key": "signature.replace",
+        "value": "Replace signature"
+    },
+    {
+        "key": "signature.delete",
+        "value": "Remove signature"
+    },
+    {
+        "key": "signature.delete.title",
+        "value": "Remove your electronic signature?"
+    },
+    {
+        "key": "signature.delete.description",
+        "value": "You will not be able to sign documents until you upload a new one. Already signed documents do not change."
+    },
+    {
+        "key": "signature.status.active",
+        "value": "Active"
+    },
+    {
+        "key": "signature.status.expiring_soon",
+        "value": "Expiring soon"
+    },
+    {
+        "key": "signature.status.expired",
+        "value": "Expired"
+    },
+    {
+        "key": "signature.subject_serial",
+        "value": "ID number"
+    },
+    {
+        "key": "signature.issuer",
+        "value": "Issued by"
+    },
+    {
+        "key": "signature.not_after",
+        "value": "Valid until"
+    },
+    {
+        "key": "signature.holder",
+        "value": "Holder"
+    },
+    {
+        "key": "signature.setup",
+        "value": "Set up signature"
+    },
+    {
+        "key": "signature.expired.setup",
+        "value": "Signature expired: update"
+    },
+    {
+        "key": "signature.sign.button",
+        "value": "Sign"
+    },
+    {
+        "key": "signature.sign.confirm.title",
+        "value": "Electronically sign this document?"
+    },
+    {
+        "key": "signature.sign.confirm.description",
+        "value": "It will be signed with your certificate and can no longer be changed. Print and send will use the signed PDF."
+    },
+    {
+        "key": "signature.signed_by",
+        "value": "Signed by"
+    },
+    {
+        "key": "medical_document.steps.save",
+        "value": "Save"
+    },
+    {
+        "key": "medical_document.steps.save.pending",
+        "value": "Save the document to sign, print or send it."
+    },
+    {
+        "key": "medical_document.steps.save.dirty",
+        "value": "You have unsaved changes."
+    },
+    {
+        "key": "medical_document.steps.save.done",
+        "value": "Saved."
+    },
+    {
+        "key": "medical_document.steps.sign",
+        "value": "Sign"
+    },
+    {
+        "key": "medical_document.steps.sign.hint",
+        "value": "Optional. Electronic signature with your certificate."
+    },
+    {
+        "key": "medical_document.steps.deliver",
+        "value": "Print or send"
+    },
+    {
+        "key": "medical_document.steps.deliver.hint",
+        "value": "Available once the document is saved."
+    },
+    {
+        "key": "dialog.medical_report.save_report",
+        "value": "Save report"
+    },
+    {
+        "key": "medical_document.save_new_version",
+        "value": "Save new version"
+    },
+    {
+        "key": "medical_document.email_short",
+        "value": "Email"
+    },
+    {
+        "key": "medical_document.age",
+        "value": "Age"
+    },
+    {
+        "key": "medical_document.years",
+        "value": "years"
+    },
+    {
+        "key": "medical_document.signed_readonly",
+        "value": "Signed document: its content can no longer be edited."
+    },
+    {
+        "key": "dialog.medical_report.soap.subjective",
+        "value": "Subjective"
+    },
+    {
+        "key": "dialog.medical_report.soap.objective",
+        "value": "Objective"
+    },
+    {
+        "key": "dialog.medical_report.soap.assessment",
+        "value": "Assessment"
+    },
+    {
+        "key": "dialog.medical_report.soap.plan",
+        "value": "Plan"
+    },
+    {
+        "key": "medical_document.print",
+        "value": "Print"
+    },
+    {
+        "key": "dialog.medical_certificate.save_certificate",
+        "value": "Save certificate"
+    },
+    {
+        "key": "dialog.medical_certificate.diagnosis.required",
+        "value": "Enter the diagnosis."
+    },
+    {
+        "key": "dialog.medical_certificate.rest.title",
+        "value": "Rest"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.day",
+        "value": "day of rest"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.days",
+        "value": "days of rest"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.from_word",
+        "value": "from"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.to_word",
+        "value": "to"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.none",
+        "value": "No rest. Set the days or pick the dates if the patient needs rest."
+    },
+    {
+        "key": "dialog.medical_certificate.rest.increase",
+        "value": "Add a day"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.decrease",
+        "value": "Remove a day"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.from_label",
+        "value": "From"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.to_label",
+        "value": "To"
     }
 ]

@@ -4,6 +4,7 @@ import {
 	type ServiceResponse,
 } from "@pengi/shared";
 import { apiWithTenant, noAuthApi } from ".";
+import type { DocumentSignature } from "./signature-service";
 
 const clinicalService = createHttpService(apiWithTenant);
 const publicService = createHttpService(noAuthApi);
@@ -88,20 +89,51 @@ export const deleteMultiplePatients = async (
 
 // ─── Medical Report / Certificate API ────────────────────────────────────────
 
+export interface MedicalReportVitalSigns {
+	weight?: number | null;
+	height?: number | null;
+	blood_pressure?: string;
+	temperature?: number | null;
+	heart_rate?: number | null;
+	o2_saturation?: number | null;
+}
+
+export interface MedicalReportPrescription {
+	indications: string;
+	items: Pick<
+		PrescriptionItem,
+		"medication" | "dose" | "frequency" | "duration" | "notes"
+	>[];
+}
+
 export interface MedicalReportConsultationEntry {
 	medical_record_id: number;
 	date: string;
 	motive: string;
-	summary: string;
+	visit_type?: string;
+	observation?: string;
+	subjective?: string;
+	objective?: string;
+	assessment?: string;
+	plan?: string;
+	app?: string;
+	apf?: string;
+	apqx?: string;
+	allergies?: string;
+	diagnoses?: DiagnosisItem[];
+	vital_signs?: MedicalReportVitalSigns | null;
+	prescription?: MedicalReportPrescription | null;
+	/** Only on reports created before the full consultation snapshot. */
+	summary?: string;
 }
 
-export interface MedicalReport extends BaseModel {
+export interface MedicalReport extends BaseModel, DocumentSignature {
 	patient_id: number;
 	consultations: MedicalReportConsultationEntry[];
 	plan: string;
 }
 
-export interface MedicalCertificate extends BaseModel {
+export interface MedicalCertificate extends BaseModel, DocumentSignature {
 	patient_id: number;
 	diagnosis: string;
 	observations: string;
@@ -311,11 +343,13 @@ export interface MedicalRecord extends BaseModel {
 		assessment: string;
 		plan: string;
 	} | null;
-	prescription?: {
-		content: string;
-		indications: string;
-		items?: PrescriptionItem[];
-	} | null;
+	prescription?:
+		| ({
+				content: string;
+				indications: string;
+				items?: PrescriptionItem[];
+		  } & DocumentSignature)
+		| null;
 	vital_signs?: VitalSigns | null;
 	diagnoses?: DiagnosisItem[];
 	visit_type: "first" | "followup";

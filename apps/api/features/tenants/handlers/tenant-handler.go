@@ -1,8 +1,8 @@
 package tenant_handlers
 
 import (
-	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/rand/v2"
@@ -14,6 +14,7 @@ import (
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/pdfsign"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	company_services "pengi-med-saas/features/companies/services"
@@ -23,7 +24,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"software.sslmate.com/src/go-pkcs12"
 )
 
 type TenantHandler struct {
@@ -65,20 +65,40 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "Signature file is required", core_errors.ErrBillingInvalidRequest)
 	}
 
-	// Try to decode to extract the expiration date
-	var cert *x509.Certificate
-	var decodeErr error
-
-	// 1. Try DecodeChain (handles intermediate CAs & legacy ciphers)
-	_, cert, _, decodeErr = pkcs12.DecodeChain(pfxData, password)
-	if decodeErr != nil {
-		// 2. Fallback to simple Decode (strictly 2 bags)
-		_, cert, decodeErr = pkcs12.Decode(pfxData, password)
+	cert, err := pdfsign.Load(pfxData, password)
+	if err != nil {
+		h.logger.Warn("Rejected SRI signature upload", zap.Error(err))
+		if errors.Is(err, pdfsign.ErrWrongPassword) {
+			return envelope.ErrorResponse(http.StatusBadRequest, "signature.error.wrong_password", core_errors.ErrSignatureWrongPassword)
+		}
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.invalid_file", core_errors.ErrBillingInvalidSignatureFile)
+	}
+	// The SRI rejects documents signed outside the certificate's validity.
+	switch err := cert.ValidAt(time.Now()); {
+	case errors.Is(err, pdfsign.ErrExpiredCertificate):
+		return envelope.ErrorResponse(http.StatusBadRequest, "signature.error.expired", core_errors.ErrSignatureExpired)
+	case errors.Is(err, pdfsign.ErrCertificateNotYetValid):
+		return envelope.ErrorResponse(http.StatusBadRequest, "signature.error.not_yet_valid", core_errors.ErrSignatureNotYetValid)
 	}
 
-	if decodeErr != nil {
-		h.logger.Warn("Failed to decode PKCS12 file giving up all fallbacks, possible invalid password or corrupted file", zap.Error(decodeErr))
-		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.invalid_file", core_errors.ErrBillingInvalidSignatureFile)
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+	}
+
+	// The SRI signature must belong to the company's RUC (not, say, a doctor's
+	// personal one). Only reject a clear mismatch: an unrecognised certificate
+	// layout or a tenant without RUC yet is accepted.
+	certTaxIDs := cert.TaxIDs()
+	switch {
+	case tenantRecord.TaxID == "" || len(certTaxIDs) == 0:
+		h.logger.Warn("SRI signature RUC not verified",
+			zap.Uint("tenant_id", tenantRecord.ID), zap.Bool("tenant_has_ruc", tenantRecord.TaxID != ""),
+			zap.String("issuer", cert.Issuer()))
+	case !pdfsign.MatchesTaxID(certTaxIDs, tenantRecord.TaxID):
+		h.logger.Warn("Rejected SRI signature of another taxpayer",
+			zap.Uint("tenant_id", tenantRecord.ID), zap.Strings("certificate_ids", certTaxIDs), zap.String("issuer", cert.Issuer()))
+		return envelope.ErrorResponse(http.StatusBadRequest, "signature.error.ruc_mismatch", core_errors.ErrSignatureRucMismatch)
 	}
 
 	// Only a certificate that decoded is stored.
@@ -88,15 +108,10 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 	}
 	signaturePath := h.files.Path(tenantdb.TenantID(c), signatureFileName)
 
-	// Update tenant record
-	var tenantRecord tenant_models.Tenant
-	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
-	}
-
 	tenantRecord.SriPassword = password
 	tenantRecord.SriP12Path = signaturePath
-	tenantRecord.SriCertExpiration = &cert.NotAfter
+	notAfter := cert.NotAfter()
+	tenantRecord.SriCertExpiration = &notAfter
 
 	if err := h.db.Save(&tenantRecord).Error; err != nil {
 		h.logger.Error("Failed to update tenant signature", zap.Error(err))
@@ -107,7 +122,7 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 		"path":            signaturePath,
 		"filename":        header.Filename,
 		"size":            header.Size,
-		"expiration_date": cert.NotAfter,
+		"expiration_date": notAfter,
 	}, "tenant.signature.upload.success")
 }
 
@@ -208,7 +223,10 @@ func (h *TenantHandler) GetSriStatus(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
 	}
 
-	isConfigured := tenantRecord.SriP12Path != "" && tenantRecord.SriPassword != ""
+	// An expired certificate can no longer sign documents, so it does not count
+	// as configured; expiration_date still says when it expired.
+	expired := tenantRecord.SriCertExpiration != nil && !time.Now().Before(*tenantRecord.SriCertExpiration)
+	isConfigured := tenantRecord.SriP12Path != "" && tenantRecord.SriPassword != "" && !expired
 
 	return envelope.SuccessResponse(gin.H{
 		"is_configured":              isConfigured,

@@ -111,7 +111,8 @@ export function SriInfoForm({ initialData, onSuccess }: SriInfoFormProps) {
 								<Text uuid="billing.sri.info.tax_classification.desc" />
 							</span>
 						</div>
-						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{/* Same two columns as the fields above, so the edges line up */}
+						<div className="grid gap-4 md:grid-cols-2">
 							<FormInput
 								field={field}
 								name="special_contributor_number"
@@ -126,12 +127,14 @@ export function SriInfoForm({ initialData, onSuccess }: SriInfoFormProps) {
 								label={textGet("billing.sri.info.withholding_agent.label")}
 								placeholder="0000"
 							/>
-							<FormInput
-								field={field}
-								name="rimpe_taxpayer"
-								label={textGet("billing.sri.info.rimpe_taxpayer.label")}
-								placeholder="CONTRIBUYENTE RÉGIMEN RIMPE"
-							/>
+							<div className="md:col-span-2">
+								<FormInput
+									field={field}
+									name="rimpe_taxpayer"
+									label={textGet("billing.sri.info.rimpe_taxpayer.label")}
+									placeholder="CONTRIBUYENTE RÉGIMEN RIMPE"
+								/>
+							</div>
 						</div>
 						<div className="flex items-center space-x-2">
 							<Checkbox

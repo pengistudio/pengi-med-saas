@@ -72,6 +72,12 @@ var ClinicalPermissions = []permission_models.Permission{
 		Category:     "CLINICAL",
 		Description:  "Generate, download and email medical certificates",
 	},
+	{
+		BaseStringID: database.BaseStringID{ID: "SIGN_MEDICAL_DOCUMENT"},
+		Name:         "Sign Medical Document",
+		Category:     "CLINICAL",
+		Description:  "Upload an electronic signature (P12) and sign medical reports, certificates and prescriptions",
+	},
 }
 
 var BillingPermissions = []permission_models.Permission{

@@ -119,6 +119,13 @@ func (l *Lifecycle) attempt(kind Kind, doc document) (err error) {
 	if tenant.SriP12Path == "" || tenant.SriPassword == "" {
 		return fail(fmt.Errorf("missing SRI signature setup for tenant %d", tenant.ID), ErrorCodeMissingSignature)
 	}
+	// Checked before the access key is generated or anything is signed: a
+	// document queued while the certificate was valid (or requeued by Sweep)
+	// fails here, not retried automatically, and is resent with the same key
+	// once the user uploads a valid certificate and retries.
+	if signatureExpired(tenant, time.Now()) {
+		return fail(fmt.Errorf("SRI signature certificate of tenant %d expired on %s", tenant.ID, tenant.SriCertExpiration.Format(time.RFC3339)), ErrorCodeSignatureExpired)
+	}
 
 	if accessKey, err = l.ensureAccessKey(kind, doc, tenant); err != nil {
 		return fail(err, ErrorCodeInternal)
@@ -273,6 +280,13 @@ func (l *Lifecycle) fail(kind Kind, doc document, accessKey string, err error, c
 		}
 	}
 	return err
+}
+
+// signatureExpired reports whether the tenant's P12 certificate is past its
+// NotAfter. An unknown expiration (signatures uploaded before it was recorded)
+// is not treated as expired; the signer will still reject a truly expired one.
+func signatureExpired(tenant tenant_models.Tenant, now time.Time) bool {
+	return tenant.SriCertExpiration != nil && !now.Before(*tenant.SriCertExpiration)
 }
 
 func (l *Lifecycle) tenant(id uint) (tenant_models.Tenant, error) {

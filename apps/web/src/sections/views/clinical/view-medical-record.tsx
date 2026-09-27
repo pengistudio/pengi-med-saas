@@ -30,7 +30,9 @@ import {
 	getMedicalRecordById,
 	type MedicalRecord,
 } from "@/api/clinical-service";
+import { signPrescription } from "@/api/signature-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { SignDocumentButton } from "@/components/custom/sign-document-button";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import {
 	buildPrescriptionWhatsAppMessage,
@@ -83,6 +85,23 @@ const ViewMedicalRecord = () => {
 			window.URL.revokeObjectURL(blobUrl);
 		}
 		setIsDownloading(false);
+	};
+
+	const handleSignPrescription = async () => {
+		if (!id) return false;
+		const res = await signPrescription(Number(id));
+		if (res.success && res.data) {
+			const signature = res.data;
+			setMedicalRecord((current) =>
+				current?.prescription
+					? {
+							...current,
+							prescription: { ...current.prescription, ...signature },
+						}
+					: current,
+			);
+		}
+		return res.success;
 	};
 
 	React.useEffect(() => {
@@ -520,6 +539,13 @@ const ViewMedicalRecord = () => {
 									)}
 									<Text uuid="view.medical_record.prescription.download" />
 								</Button>
+								{(medicalRecord.prescription.content ||
+									medicalRecord.prescription.indications) && (
+									<SignDocumentButton
+										signature={medicalRecord.prescription}
+										onSign={handleSignPrescription}
+									/>
+								)}
 								{medicalRecord.patient?.phone && (
 									<Button variant="outline" onClick={handleSendWhatsApp}>
 										<MessageCircle className="h-4 w-4 mr-2" />

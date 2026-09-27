@@ -324,6 +324,18 @@
         "value": "Tu suscripción vence pronto. Selecciona un plan para renovar."
     },
     {
+        "key": "subscription.card.expires_on",
+        "value": "Vence el {date}"
+    },
+    {
+        "key": "subscription.card.renew_from",
+        "value": "Podrás renovar desde el {date}."
+    },
+    {
+        "key": "subscription.card.last_payment",
+        "value": "Último pago:"
+    },
+    {
         "key": "subscription.payments.title",
         "value": "Historial de Pagos"
     },
@@ -417,7 +429,7 @@
     },
     {
         "key": "subscription.plans.feature.kanban",
-        "value": "Kanban"
+        "value": "Tareas"
     },
     {
         "key": "backoffice.plans.pricings.title",
@@ -632,12 +644,12 @@
         "value": "Historial de consultas"
     },
     {
-        "key": "dialog.medical_report.summary",
-        "value": "Resumen"
+        "key": "dialog.medical_report.background",
+        "value": "Antecedentes"
     },
     {
-        "key": "dialog.medical_report.plan",
-        "value": "Plan"
+        "key": "dialog.medical_report.general_plan",
+        "value": "Plan general"
     },
     {
         "key": "dialog.medical_report.save",
@@ -1858,6 +1870,58 @@
     {
         "key": "waiting_room.title",
         "value": "Sala de Espera"
+    },
+    {
+        "key": "waiting_room.summary",
+        "value": "{done} de {total} atendidos"
+    },
+    {
+        "key": "waiting_room.summary.empty",
+        "value": "No hay citas para hoy"
+    },
+    {
+        "key": "waiting_room.tv.title",
+        "value": "Pantalla de sala"
+    },
+    {
+        "key": "waiting_room.tv.pair_hint",
+        "value": "En la TV, abre /display/pair e ingresa este código:"
+    },
+    {
+        "key": "waiting_room.tv.regenerate",
+        "value": "Generar otro código"
+    },
+    {
+        "key": "waiting_room.tv.copy_code",
+        "value": "Copiar código"
+    },
+    {
+        "key": "waiting_room.tv.link_copied",
+        "value": "Enlace copiado"
+    },
+    {
+        "key": "waiting_room.card.late",
+        "value": "{count} min de retraso"
+    },
+    {
+        "key": "waiting_room.card.back",
+        "value": "Regresar al estado anterior"
+    },
+    {
+        "key": "waiting_room.lane.empty.scheduled",
+        "value": "No quedan pacientes por ingresar."
+    },
+    {
+        "key": "waiting_room.lane.empty.arrived",
+        "value": "Nadie esperando."
+    },
+    {
+        "key": "waiting_room.lane.empty.in_consultation",
+        "value": "Nadie en consulta."
+    },
+    {
+        "key": "waiting_room.lane.empty.completed",
+        "value": "Aún no se ha atendido a nadie hoy."
     },
     {
         "key": "waiting_room.copy_tv_link",
@@ -3437,7 +3501,7 @@
     },
     {
         "key": "E-BILL-005",
-        "value": "Contraseña incorrecta o archivo de firma inválido"
+        "value": "El archivo no es una firma .p12 válida o está dañado."
     },
     {
         "key": "E-BILL-006",
@@ -3665,7 +3729,7 @@
     },
     {
         "key": "billing.sri.invalid_file",
-        "value": "Contraseña incorrecta o archivo de firma inválido"
+        "value": "El archivo no es una firma .p12 válida o está dañado."
     },
     {
         "key": "billing.sri.status.configured",
@@ -3682,6 +3746,22 @@
     {
         "key": "billing.sri.status.unconfigured_desc",
         "value": "Por favor, suba su archivo .p12 para poder facturar."
+    },
+    {
+        "key": "billing.sri.status.expired",
+        "value": "La firma electrónica está vencida"
+    },
+    {
+        "key": "billing.sri.status.expired_desc",
+        "value": "Venció el {date}. Sube una firma vigente para seguir emitiendo comprobantes."
+    },
+    {
+        "key": "billing.sri.status.expiring",
+        "value": "La firma electrónica vence pronto"
+    },
+    {
+        "key": "billing.sri.status.expires_on",
+        "value": "Vence el {date} (en {days} días)."
     },
     {
         "key": "billing.invoice.column.sequential",
@@ -4372,6 +4452,14 @@
         "value": "Módulo clínico"
     },
     {
+        "key": "settings.clinical.description",
+        "value": "Qué columnas ves en la lista de pacientes y qué secciones tiene la consulta."
+    },
+    {
+        "key": "settings.integrations.google.error",
+        "value": "No se pudo conectar Google Calendar. Inténtalo de nuevo."
+    },
+    {
         "key": "settings.clinical.show_next_appointment",
         "value": "Mostrar próxima cita"
     },
@@ -4858,6 +4946,30 @@
     {
         "key": "tasks.page.description",
         "value": "Organiza y administra tus tareas visualmente"
+    },
+    {
+        "key": "tasks.board.summary",
+        "value": "{done} de {total} finalizadas"
+    },
+    {
+        "key": "tasks.board.empty",
+        "value": "Aún no hay tareas en el tablero"
+    },
+    {
+        "key": "tasks.column.add_task",
+        "value": "Agregar tarea"
+    },
+    {
+        "key": "tasks.lane.empty.todo",
+        "value": "No hay tareas pendientes."
+    },
+    {
+        "key": "tasks.lane.empty.in_progress",
+        "value": "Arrastra aquí una tarea cuando empieces a trabajar en ella."
+    },
+    {
+        "key": "tasks.lane.empty.done",
+        "value": "Las tareas terminadas aparecerán aquí."
     },
     {
         "key": "tasks.task.description.hint",
@@ -5998,5 +6110,333 @@
     {
         "key": "table.selection.clear",
         "value": "Quitar selección"
+    },
+    {
+        "key": "signature.fetch.success",
+        "value": "Firma electrónica obtenida correctamente."
+    },
+    {
+        "key": "signature.upload.success",
+        "value": "Firma electrónica guardada correctamente."
+    },
+    {
+        "key": "signature.delete.success",
+        "value": "Firma electrónica eliminada."
+    },
+    {
+        "key": "signature.document.sign.success",
+        "value": "Documento firmado electrónicamente."
+    },
+    {
+        "key": "signature.error.not_configured",
+        "value": "Primero sube tu firma electrónica en tu perfil."
+    },
+    {
+        "key": "signature.error.expired",
+        "value": "El certificado de la firma electrónica está caducado."
+    },
+    {
+        "key": "signature.error.invalid_file",
+        "value": "Archivo de firma o contraseña inválidos."
+    },
+    {
+        "key": "signature.error.unavailable",
+        "value": "La firma electrónica no está disponible en este servidor."
+    },
+    {
+        "key": "signature.error.sign_failed",
+        "value": "No se pudo firmar el documento."
+    },
+    {
+        "key": "signature.error.already_signed",
+        "value": "El documento ya está firmado."
+    },
+    {
+        "key": "E-SIGN-001",
+        "value": "Archivo de firma o contraseña inválidos."
+    },
+    {
+        "key": "E-SIGN-002",
+        "value": "El certificado de la firma electrónica está caducado."
+    },
+    {
+        "key": "E-SIGN-003",
+        "value": "No has subido una firma electrónica."
+    },
+    {
+        "key": "E-SIGN-004",
+        "value": "El documento ya está firmado."
+    },
+    {
+        "key": "E-SIGN-005",
+        "value": "Error al firmar el documento."
+    },
+    {
+        "key": "E-SIGN-006",
+        "value": "La firma electrónica no está disponible en este servidor."
+    },
+    {
+        "key": "signature.error.wrong_password",
+        "value": "La contraseña de la firma electrónica es incorrecta."
+    },
+    {
+        "key": "signature.error.not_yet_valid",
+        "value": "El certificado de la firma electrónica todavía no está vigente."
+    },
+    {
+        "key": "signature.form.file_required",
+        "value": "Elige el archivo de tu firma electrónica."
+    },
+    {
+        "key": "signature.form.file_type",
+        "value": "El archivo debe ser .p12 o .pfx."
+    },
+    {
+        "key": "signature.form.password_required",
+        "value": "Escribe la contraseña de la firma."
+    },
+    {
+        "key": "E-SIGN-007",
+        "value": "La contraseña de la firma electrónica es incorrecta."
+    },
+    {
+        "key": "E-SIGN-008",
+        "value": "El certificado de la firma electrónica todavía no está vigente."
+    },
+    {
+        "key": "signature.error.ruc_mismatch",
+        "value": "La firma electrónica no pertenece al RUC de la empresa."
+    },
+    {
+        "key": "E-SIGN-009",
+        "value": "La firma electrónica no pertenece al RUC de la empresa."
+    },
+    {
+        "key": "billing.sri.error.signature_expired",
+        "value": "La firma electrónica del SRI está vencida. Sube una firma vigente para emitir comprobantes."
+    },
+    {
+        "key": "E-BILL-013",
+        "value": "La firma electrónica del SRI está vencida. Sube una firma vigente para emitir comprobantes."
+    },
+    {
+        "key": "signature.title",
+        "value": "Firma electrónica"
+    },
+    {
+        "key": "signature.description",
+        "value": "Tu certificado .p12 para firmar informes, certificados y recetas con sello visible validable en FirmaEC."
+    },
+    {
+        "key": "signature.file.label",
+        "value": "Archivo de firma (.p12)"
+    },
+    {
+        "key": "signature.file.description",
+        "value": "El certificado de firma electrónica emitido a tu nombre."
+    },
+    {
+        "key": "signature.password.label",
+        "value": "Contraseña de la firma"
+    },
+    {
+        "key": "signature.password.description",
+        "value": "Se guarda cifrada y solo se usa para firmar tus documentos."
+    },
+    {
+        "key": "signature.save",
+        "value": "Guardar firma"
+    },
+    {
+        "key": "signature.replace",
+        "value": "Reemplazar firma"
+    },
+    {
+        "key": "signature.delete",
+        "value": "Eliminar firma"
+    },
+    {
+        "key": "signature.delete.title",
+        "value": "¿Eliminar tu firma electrónica?"
+    },
+    {
+        "key": "signature.delete.description",
+        "value": "Ya no podrás firmar documentos hasta que subas una nueva. Los documentos ya firmados no cambian."
+    },
+    {
+        "key": "signature.status.active",
+        "value": "Vigente"
+    },
+    {
+        "key": "signature.status.expiring_soon",
+        "value": "Caduca pronto"
+    },
+    {
+        "key": "signature.status.expired",
+        "value": "Caducada"
+    },
+    {
+        "key": "signature.subject_serial",
+        "value": "Cédula"
+    },
+    {
+        "key": "signature.issuer",
+        "value": "Emitida por"
+    },
+    {
+        "key": "signature.not_after",
+        "value": "Válida hasta"
+    },
+    {
+        "key": "signature.holder",
+        "value": "Titular"
+    },
+    {
+        "key": "signature.setup",
+        "value": "Configurar firma"
+    },
+    {
+        "key": "signature.expired.setup",
+        "value": "Firma caducada: actualizar"
+    },
+    {
+        "key": "signature.sign.button",
+        "value": "Firmar"
+    },
+    {
+        "key": "signature.sign.confirm.title",
+        "value": "¿Firmar electrónicamente este documento?"
+    },
+    {
+        "key": "signature.sign.confirm.description",
+        "value": "Se firmará con tu certificado y ya no podrá modificarse. Imprimir y enviar usarán el PDF firmado."
+    },
+    {
+        "key": "signature.signed_by",
+        "value": "Firmado por"
+    },
+    {
+        "key": "medical_document.steps.save",
+        "value": "Guardar"
+    },
+    {
+        "key": "medical_document.steps.save.pending",
+        "value": "Guarda el documento para firmarlo, imprimirlo o enviarlo."
+    },
+    {
+        "key": "medical_document.steps.save.dirty",
+        "value": "Tienes cambios sin guardar."
+    },
+    {
+        "key": "medical_document.steps.save.done",
+        "value": "Guardado."
+    },
+    {
+        "key": "medical_document.steps.sign",
+        "value": "Firmar"
+    },
+    {
+        "key": "medical_document.steps.sign.hint",
+        "value": "Opcional. Firma electrónica con tu certificado."
+    },
+    {
+        "key": "medical_document.steps.deliver",
+        "value": "Imprimir o enviar"
+    },
+    {
+        "key": "medical_document.steps.deliver.hint",
+        "value": "Disponible cuando el documento está guardado."
+    },
+    {
+        "key": "dialog.medical_report.save_report",
+        "value": "Guardar informe"
+    },
+    {
+        "key": "medical_document.save_new_version",
+        "value": "Guardar nueva versión"
+    },
+    {
+        "key": "medical_document.email_short",
+        "value": "Correo"
+    },
+    {
+        "key": "medical_document.age",
+        "value": "Edad"
+    },
+    {
+        "key": "medical_document.years",
+        "value": "años"
+    },
+    {
+        "key": "medical_document.signed_readonly",
+        "value": "Documento firmado: su contenido ya no se puede editar."
+    },
+    {
+        "key": "dialog.medical_report.soap.subjective",
+        "value": "Subjetivo"
+    },
+    {
+        "key": "dialog.medical_report.soap.objective",
+        "value": "Objetivo"
+    },
+    {
+        "key": "dialog.medical_report.soap.assessment",
+        "value": "Evaluación"
+    },
+    {
+        "key": "dialog.medical_report.soap.plan",
+        "value": "Plan"
+    },
+    {
+        "key": "medical_document.print",
+        "value": "Imprimir"
+    },
+    {
+        "key": "dialog.medical_certificate.save_certificate",
+        "value": "Guardar certificado"
+    },
+    {
+        "key": "dialog.medical_certificate.diagnosis.required",
+        "value": "Escribe el diagnóstico."
+    },
+    {
+        "key": "dialog.medical_certificate.rest.title",
+        "value": "Reposo"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.day",
+        "value": "día de reposo"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.days",
+        "value": "días de reposo"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.from_word",
+        "value": "del"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.to_word",
+        "value": "al"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.none",
+        "value": "Sin reposo. Indica los días o elige las fechas si el paciente necesita reposo."
+    },
+    {
+        "key": "dialog.medical_certificate.rest.increase",
+        "value": "Agregar un día"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.decrease",
+        "value": "Quitar un día"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.from_label",
+        "value": "Desde"
+    },
+    {
+        "key": "dialog.medical_certificate.rest.to_label",
+        "value": "Hasta"
     }
 ]

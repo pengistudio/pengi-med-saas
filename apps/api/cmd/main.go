@@ -8,6 +8,7 @@ import (
 	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/logger"
+	"pengi-med-saas/core/secretbox"
 	sri_document "pengi-med-saas/features/billing/sri-document"
 	clinical_workers "pengi-med-saas/features/clinical/workers"
 	"pengi-med-saas/features/health"
@@ -38,6 +39,11 @@ func main() {
 
 	logger.Init(mode)
 	logger.Info("Starting application...", zap.String("env", mode))
+
+	// Electronic signatures stay disabled (E-SIGN-006) until the key is set.
+	if _, err := secretbox.FromEnv(); err != nil {
+		logger.Log.Warn("electronic signatures unavailable", zap.Error(err))
+	}
 
 	DB_CONNECTION, err := database.Connect()
 	if err != nil {

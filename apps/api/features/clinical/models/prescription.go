@@ -8,6 +8,7 @@ type Prescription struct {
 	Indications     string             `json:"indications"`
 	MedicalRecordID uint               `json:"medical_record_id"`
 	Items           []PrescriptionItem `json:"items" gorm:"foreignKey:PrescriptionID;constraint:OnDelete:CASCADE;"`
+	DocumentSignature
 }
 
 type PrescriptionItem struct {

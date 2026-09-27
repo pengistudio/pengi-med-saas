@@ -1,19 +1,85 @@
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-	Text,
-} from "@pengi/ui";
-import { CheckCircle2, Info, Loader2, XCircle } from "lucide-react";
+import { useText } from "@pengi/shared";
+import { Text } from "@pengi/ui";
+import { differenceInCalendarDays } from "date-fns";
+import { AlertTriangle, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getSriStatus, type SriStatus } from "@/api/tenant-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { SettingsSection } from "@/components/custom/settings-section";
+import { cn, dateParser } from "@/lib/utils";
 import { LogoUploadForm } from "@/sections/forms/billing/logo-upload-form";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
+
+/** Warn about the signature this many days before it expires. */
+const EXPIRY_WARNING_DAYS = 30;
+
+/**
+ * The state of the tenant's SRI signature. The server reports an expired P12 as
+ * not configured but keeps its date, so the date is read first.
+ */
+function SignatureStatus({ status }: { status: SriStatus | null }) {
+	const { textGet } = useText();
+
+	let tone: "ok" | "warn" | "error" = "error";
+	let title = textGet("billing.sri.status.unconfigured");
+	let detail = textGet("billing.sri.status.unconfigured_desc");
+
+	if (status?.expiration_date) {
+		const expires = new Date(status.expiration_date);
+		const days = differenceInCalendarDays(expires, new Date());
+		const date = dateParser(expires, { dateStyle: "long" });
+		if (days < 0) {
+			title = textGet("billing.sri.status.expired");
+			detail = textGet("billing.sri.status.expired_desc").replace(
+				"{date}",
+				date,
+			);
+		} else {
+			tone = days <= EXPIRY_WARNING_DAYS ? "warn" : "ok";
+			title = textGet(
+				tone === "warn"
+					? "billing.sri.status.expiring"
+					: "billing.sri.status.configured",
+			);
+			detail = textGet("billing.sri.status.expires_on")
+				.replace("{date}", date)
+				.replace("{days}", String(days));
+		}
+	} else if (status?.is_configured) {
+		tone = "ok";
+		title = textGet("billing.sri.status.configured");
+		detail = "";
+	}
+
+	const Icon =
+		tone === "ok" ? CheckCircle2 : tone === "warn" ? AlertTriangle : XCircle;
+
+	return (
+		<div
+			className={cn(
+				"flex items-start gap-3 rounded-xl border px-4 py-3",
+				tone === "ok" && "border-primary/20 bg-primary/5",
+				tone === "warn" && "border-amber-500/30 bg-amber-500/10",
+				tone === "error" && "border-destructive/30 bg-destructive/5",
+			)}
+		>
+			<Icon
+				className={cn(
+					"mt-0.5 size-5 shrink-0",
+					tone === "ok" && "text-primary",
+					tone === "warn" && "text-amber-600 dark:text-amber-400",
+					tone === "error" && "text-destructive",
+				)}
+			/>
+			<div>
+				<p className="text-sm font-medium">{title}</p>
+				{detail && <p className="text-sm text-muted-foreground">{detail}</p>}
+			</div>
+		</div>
+	);
+}
 
 const SriSettingsPage = () => {
 	const [status, setStatus] = useState<SriStatus | null>(null);
@@ -31,130 +97,55 @@ const SriSettingsPage = () => {
 	useEffect(() => {
 		fetchStatus();
 	}, [fetchStatus]);
+
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				<PageHeader title={<Text uuid="billing.sri.settings.title" />} />
-				{loading ? (
-					<Card className="flex items-center justify-center p-8">
-						<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-					</Card>
-				) : status?.is_configured ? (
-					<Card className="bg-primary/5 border-primary/20 gap-0">
-						<CardHeader className="pb-3">
-							<CardTitle className="flex items-center gap-2 text-primary text-base">
-								<CheckCircle2 className="h-5 w-5" />
-								<Text uuid="billing.sri.status.configured" />
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{status.expiration_date && (
-								<p className="text-sm text-foreground/80">
-									<Text uuid="billing.sri.status.valid_until" />{" "}
-									<span className="font-semibold">
-										{new Date(status.expiration_date).toLocaleDateString()}
-									</span>
-								</p>
-							)}
-						</CardContent>
-					</Card>
-				) : (
-					<Card className="bg-destructive/5 border-destructive/20 gap-0">
-						<CardHeader className="pb-3">
-							<CardTitle className="flex items-center gap-2 text-destructive text-base">
-								<XCircle className="h-5 w-5" />
-								<Text uuid="billing.sri.status.unconfigured" />
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-sm text-foreground/80">
-								<Text uuid="billing.sri.status.unconfigured_desc" />
+			<div className="grid max-w-5xl gap-8">
+				<div className="grid gap-4">
+					<PageHeader title={<Text uuid="billing.sri.settings.title" />} />
+					{loading && !status ? (
+						<div className="flex h-12 items-center">
+							<Loader2 className="size-5 animate-spin text-muted-foreground" />
+						</div>
+					) : (
+						<SignatureStatus status={status} />
+					)}
+				</div>
+
+				<SettingsSection
+					title={<Text uuid="billing.sri.signature.title" />}
+					description={
+						<>
+							<p>
+								<Text uuid="billing.sri.signature.description" />
 							</p>
-						</CardContent>
-					</Card>
+							<p>
+								<Text uuid="billing.sri.info.p1" />
+							</p>
+						</>
+					}
+				>
+					<SriSignatureForm onSuccess={fetchStatus} />
+				</SettingsSection>
+
+				{status && (
+					<SettingsSection
+						title={<Text uuid="billing.sri.company_info.title" />}
+						description={<Text uuid="billing.sri.company_info.description" />}
+					>
+						<SriInfoForm initialData={status} onSuccess={fetchStatus} />
+					</SettingsSection>
 				)}
 
-				<div className="grid gap-6 lg:grid-cols-3">
-					<div className="flex flex-col gap-6 lg:col-span-2">
-						<Card>
-							<CardHeader>
-								<CardTitle>
-									<Text uuid="billing.sri.signature.title" />
-								</CardTitle>
-								<CardDescription>
-									<Text uuid="billing.sri.signature.description" />
-								</CardDescription>
-							</CardHeader>
-							<CardContent>
-								<SriSignatureForm onSuccess={fetchStatus} />
-							</CardContent>
-						</Card>
-
-						{status && (
-							<Card>
-								<CardHeader>
-									<CardTitle>
-										<Text uuid="billing.sri.company_info.title" />
-									</CardTitle>
-									<CardDescription>
-										<Text uuid="billing.sri.company_info.description" />
-									</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<SriInfoForm initialData={status} onSuccess={fetchStatus} />
-								</CardContent>
-							</Card>
-						)}
-					</div>
-
-					<div className="flex flex-col gap-6">
-						<Card className="bg-primary/5 border-primary/20">
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2 text-primary">
-									<Info className="h-5 w-5" />
-									<Text uuid="billing.sri.info.title" />
-								</CardTitle>
-								<CardDescription className="text-primary/80">
-									<Text uuid="billing.sri.info.description" />
-								</CardDescription>
-							</CardHeader>
-							<CardContent className="text-sm text-foreground/80 space-y-4">
-								<div className="flex items-start gap-2">
-									<div className="mt-1.5 shrink-0 h-1.5 w-1.5 rounded-full bg-primary/70" />
-									<p>
-										<Text uuid="billing.sri.info.p1" />
-									</p>
-								</div>
-								<div className="flex items-start gap-2">
-									<div className="mt-1.5 shrink-0 h-1.5 w-1.5 rounded-full bg-primary/70" />
-									<p>
-										<Text uuid="billing.sri.info.p2" />
-									</p>
-								</div>
-							</CardContent>
-						</Card>
-
-						{status && (
-							<Card>
-								<CardHeader>
-									<CardTitle>
-										<Text uuid="billing.sri.logo.title" />
-									</CardTitle>
-									<CardDescription>
-										<Text uuid="billing.sri.logo.description" />
-									</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<LogoUploadForm
-										hasLogo={status.has_logo}
-										onSuccess={fetchStatus}
-									/>
-								</CardContent>
-							</Card>
-						)}
-					</div>
-				</div>
-			</main>
+				{status && (
+					<SettingsSection
+						title={<Text uuid="billing.sri.logo.title" />}
+						description={<Text uuid="billing.sri.logo.description" />}
+					>
+						<LogoUploadForm hasLogo={status.has_logo} onSuccess={fetchStatus} />
+					</SettingsSection>
+				)}
+			</div>
 		</DashboardLayout>
 	);
 };

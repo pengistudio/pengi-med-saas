@@ -6,6 +6,7 @@ import (
 	"pengi-med-saas/core/mailer"
 	clinical_handlers "pengi-med-saas/features/clinical/handlers"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
+	signature_services "pengi-med-saas/features/signatures/services"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
@@ -21,10 +22,11 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	icd11Handler := clinical_handlers.NewICD11Handler(logger.Log)
 	icd10Handler := clinical_handlers.NewICD10Handler(db, logger.Log)
 
-	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db, documentRenderer())
+	signer := signature_services.NewSigner(db, tenantFiles)
+	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db, logger.Log, documentRenderer(), signer, tenantFiles)
 	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log, tenantFiles)
 	draftHandler := clinical_handlers.NewMedicalRecordDraftHandler(db, logger.Log)
-	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer(), documentRenderer())
+	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer(), documentRenderer(), signer, tenantFiles)
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 	{
@@ -56,8 +58,10 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		// Medical report / certificate document routes (generate, download, email)
 		clinicalGroup.GET("/reports/:id/download", rp(db, "CREATE_MEDICAL_REPORT"), medicalDocumentHandler.DownloadMedicalReport)
 		clinicalGroup.POST("/reports/:id/email", rp(db, "CREATE_MEDICAL_REPORT"), envelope.Handle(medicalDocumentHandler.EmailMedicalReport))
+		clinicalGroup.POST("/reports/:id/sign", rp(db, "CREATE_MEDICAL_REPORT"), rp(db, "SIGN_MEDICAL_DOCUMENT"), envelope.Handle(medicalDocumentHandler.SignMedicalReport))
 		clinicalGroup.GET("/certificates/:id/download", rp(db, "CREATE_MEDICAL_CERTIFICATE"), medicalDocumentHandler.DownloadMedicalCertificate)
 		clinicalGroup.POST("/certificates/:id/email", rp(db, "CREATE_MEDICAL_CERTIFICATE"), envelope.Handle(medicalDocumentHandler.EmailMedicalCertificate))
+		clinicalGroup.POST("/certificates/:id/sign", rp(db, "CREATE_MEDICAL_CERTIFICATE"), rp(db, "SIGN_MEDICAL_DOCUMENT"), envelope.Handle(medicalDocumentHandler.SignMedicalCertificate))
 
 		// Medical Record routes
 		recordGroup := clinicalGroup.Group("/records")
@@ -68,6 +72,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.GET("/:id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(recordHandler.GetMedicalRecord))
 			recordGroup.PUT("/:id/prescription", rp(db, "UPDATE_PRESCRIPTION"), envelope.Handle(recordHandler.UpdatePrescription))
 			recordGroup.GET("/:id/prescription/download", rp(db, "UPDATE_PRESCRIPTION"), downloadHandler.DownloadPrescription)
+			recordGroup.POST("/:id/prescription/sign", rp(db, "UPDATE_PRESCRIPTION"), rp(db, "SIGN_MEDICAL_DOCUMENT"), envelope.Handle(downloadHandler.SignPrescription))
 			recordGroup.PUT("/:id/vital-signs", rp(db, "UPDATE_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.UpsertVitalSigns))
 			recordGroup.GET("/:id/vital-signs", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.GetVitalSigns))
 			recordGroup.GET("/draft/:patient_id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(draftHandler.GetDraft))

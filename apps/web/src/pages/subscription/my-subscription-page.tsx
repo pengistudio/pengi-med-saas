@@ -22,13 +22,14 @@ import {
 } from "@pengi/ui";
 import {
 	AlertTriangle,
+	Check,
 	CheckCircle,
 	CreditCard,
 	Loader2,
 	Lock,
+	Minus,
 	RotateCcw,
 	Shield,
-	XCircle,
 } from "lucide-react";
 import React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -45,7 +46,7 @@ import {
 	type SubscriptionPaymentRecord,
 } from "@/api/subscription-service";
 import { PageHeader } from "@/components/custom/page-header";
-import { cn } from "@/lib/utils";
+import { cn, dateParser } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 // ─── Privacy Modal ────────────────────────────────────────────────────────────
@@ -119,10 +120,13 @@ function PrivacyModal() {
 const PERIOD_ORDER = [1, 3, 6, 9, 12];
 const FEATURE_KEYS = ["clinical", "billing", "team", "kanban"] as const;
 
+/** Renewal opens this many days before the subscription expires. */
+const RENEW_WINDOW_DAYS = 30;
+
 function daysColor(days: number) {
-	if (days <= 7) return "text-red-500";
-	if (days <= 15) return "text-amber-500";
-	return "text-emerald-500";
+	if (days <= 7) return "text-destructive";
+	if (days <= RENEW_WINDOW_DAYS) return "text-amber-600 dark:text-amber-400";
+	return "text-muted-foreground";
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -155,30 +159,26 @@ function StatusBadge({ status }: { status: string }) {
 	return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
 }
 
-function PaymentStatusBadge({ status }: { status: string }) {
+/** Payments that never went through: shown, but quieter than real charges. */
+const INACTIVE_PAYMENT_STATUSES = ["cancelled", "expired"];
+
+function PaymentStatus({ status }: { status: string }) {
 	const { textGet } = useText();
-	const icons: Record<string, React.ReactNode> = {
-		pending: <Loader2 className="h-3 w-3 animate-spin" />,
-		paid: <CheckCircle className="h-3 w-3" />,
-		rejected: <XCircle className="h-3 w-3" />,
-		cancelled: <XCircle className="h-3 w-3" />,
-		expired: <AlertTriangle className="h-3 w-3" />,
-	};
-	const variants: Record<
-		string,
-		"default" | "secondary" | "destructive" | "outline"
-	> = {
-		paid: "default",
-		pending: "secondary",
-		rejected: "destructive",
-		cancelled: "outline",
-		expired: "outline",
+	const dot: Record<string, string> = {
+		paid: "bg-primary",
+		pending: "bg-amber-500",
+		rejected: "bg-destructive",
 	};
 	return (
-		<Badge variant={variants[status] ?? "secondary"} className="gap-1">
-			{icons[status]}
+		<span className="inline-flex items-center gap-2 text-sm">
+			<span
+				className={cn(
+					"size-1.5 rounded-full",
+					dot[status] ?? "bg-muted-foreground/50",
+				)}
+			/>
 			{textGet(`subscription.payment.status.${status}`)}
-		</Badge>
+		</span>
 	);
 }
 
@@ -209,7 +209,7 @@ function PlanCard({
 	const isCurrent = plan.code === currentPlanCode;
 	const isPendingTarget = plan.code === pendingChangePlanCode;
 	const hasPendingChange = pendingChangePlanCode !== "";
-	const canRenew = isCurrent && daysLeft <= 30;
+	const canRenew = isCurrent && daysLeft <= RENEW_WINDOW_DAYS;
 	const showButton = !isCurrent || canRenew;
 
 	const tierDiff = isCurrent ? 0 : plan.tier - currentPlanTier;
@@ -242,8 +242,8 @@ function PlanCard({
 		<Card
 			className={cn(
 				"flex flex-col",
-				isCurrent ? "border-t-2 border-t-primary" : "border-border",
-				isPendingTarget ? "border-t-2 border-t-amber-500" : "",
+				isCurrent && "border-primary/50 ring-1 ring-primary/20",
+				isPendingTarget && "border-amber-500/60",
 			)}
 		>
 			<CardHeader className="pb-3">
@@ -271,8 +271,8 @@ function PlanCard({
 					</p>
 				)}
 
-				{/* Period selector — always shown when multiple periods exist */}
-				{sortedPricings.length > 1 && (
+				{/* Period selector — only when there is something to pay for */}
+				{sortedPricings.length > 1 && showButton && (
 					<div className="flex flex-wrap gap-1 pt-1">
 						{sortedPricings.map((p) => (
 							<button
@@ -295,7 +295,9 @@ function PlanCard({
 				{/* Price display */}
 				<div className="pt-1">
 					<div className="flex items-baseline gap-1">
-						<span className="text-3xl font-bold">${perMonth.toFixed(2)}</span>
+						<span className="text-3xl font-bold tabular-nums">
+							${perMonth.toFixed(2)}
+						</span>
 						<span className="text-sm text-muted-foreground">
 							{textGet("subscription.plans.per_month")}
 						</span>
@@ -319,13 +321,15 @@ function PlanCard({
 						return (
 							<li key={feature} className="flex items-center gap-2 text-sm">
 								{enabled ? (
-									<CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+									<Check className="h-4 w-4 text-primary shrink-0" />
 								) : (
-									<XCircle className="h-4 w-4 text-muted-foreground shrink-0" />
+									<Minus className="h-4 w-4 text-muted-foreground/60 shrink-0" />
 								)}
 								<span
 									className={
-										enabled ? "text-foreground" : "text-muted-foreground"
+										enabled
+											? "text-foreground"
+											: "text-muted-foreground line-through decoration-muted-foreground/40"
 									}
 								>
 									{textGet(`subscription.plans.feature.${feature}`)}
@@ -502,68 +506,66 @@ const MySubscriptionPage = () => {
 				/>
 
 				{/* Subscription overview — informational only */}
-				<Card className="border-t-2 border-t-primary">
-					<CardContent className="pt-2">
+				<Card>
+					<CardContent>
 						{loading ? (
-							<div className="flex gap-8">
-								{[1, 2, 3].map((i) => (
-									<div
-										key={i}
-										className="h-12 w-32 bg-muted animate-pulse rounded"
-									/>
-								))}
+							<div className="space-y-2">
+								<div className="h-7 w-40 rounded bg-muted animate-pulse" />
+								<div className="h-4 w-72 rounded bg-muted animate-pulse" />
 							</div>
 						) : sub ? (
-							<div className="grid grid-cols-2 gap-6 sm:grid-cols-3 sm:divide-x sm:gap-0 items-center">
-								<div className="sm:pr-6 flex flex-col gap-1">
-									<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-										{textGet("subscription.card.plan")}
-									</p>
-									<div className="flex items-center gap-2 flex-wrap">
-										<p className="text-2xl font-bold">{sub.plan_name}</p>
+							<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+								<div className="space-y-1">
+									<div className="flex flex-wrap items-center gap-2">
+										<h2 className="text-2xl font-bold">{sub.plan_name}</h2>
 										<StatusBadge status={sub.status} />
 									</div>
-								</div>
-								<div className="sm:px-6 flex flex-col gap-1">
-									<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-										{textGet("subscription.card.expiry")}
-									</p>
-									<p className="text-2xl font-bold">
-										{new Date(sub.expires_at).toLocaleDateString()}
-									</p>
-									<p
-										className={cn(
-											"text-xs font-medium",
-											daysColor(sub.days_left),
-										)}
-									>
-										{sub.days_left <= 0
-											? textGet("subscription.status.expired")
-											: `${sub.days_left} ${textGet("subscription.card.days_left")}`}
+									<p className="text-sm">
+										{textGet("subscription.card.expires_on").replace(
+											"{date}",
+											dateParser(sub.expires_at, { dateStyle: "long" }),
+										)}{" "}
+										<span
+											className={cn("tabular-nums", daysColor(sub.days_left))}
+										>
+											(
+											{sub.days_left <= 0
+												? textGet("subscription.status.expired")
+												: `${sub.days_left} ${textGet("subscription.card.days_left")}`}
+											)
+										</span>
 									</p>
 									{sub.last_payment_amount > 0 && (
-										<p className="text-xs text-muted-foreground mt-0.5">
+										<p className="text-sm text-muted-foreground tabular-nums">
+											{textGet("subscription.card.last_payment")}{" "}
 											{textGet(
 												`subscription.plans.period.${sub.last_payment_months}`,
-											)}{" "}
-											· ${sub.last_payment_amount.toFixed(2)}
+											)}
+											, ${sub.last_payment_amount.toFixed(2)}
 										</p>
 									)}
 								</div>
-								<div className="sm:pl-6 flex items-center">
-									{sub.days_left <= 30 ? (
-										<div className="flex items-start gap-2 text-amber-600 dark:text-amber-400">
-											<AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-											<p className="text-sm font-medium">
-												{textGet("subscription.card.renew_soon")}
-											</p>
-										</div>
-									) : (
-										<p className="text-sm text-muted-foreground text-center">
-											{textGet("subscription.card.renew_hint")}
+								{sub.days_left <= RENEW_WINDOW_DAYS ? (
+									<div className="flex items-start gap-2 text-amber-600 sm:max-w-xs dark:text-amber-400">
+										<AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+										<p className="text-sm font-medium">
+											{textGet("subscription.card.renew_soon")}
 										</p>
-									)}
-								</div>
+									</div>
+								) : (
+									<p className="text-sm text-muted-foreground sm:max-w-xs sm:text-right">
+										{textGet("subscription.card.renew_from").replace(
+											"{date}",
+											dateParser(
+												new Date(
+													new Date(sub.expires_at).getTime() -
+														RENEW_WINDOW_DAYS * 86_400_000,
+												),
+												{ dateStyle: "long" },
+											),
+										)}
+									</p>
+								)}
 							</div>
 						) : (
 							<p className="text-sm text-muted-foreground">—</p>
@@ -585,7 +587,12 @@ const MySubscriptionPage = () => {
 							</div>
 							<PrivacyModal />
 						</div>
-						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						<div
+							className={cn(
+								"grid gap-4 sm:grid-cols-2",
+								plans.length > 2 && "xl:grid-cols-3",
+							)}
+						>
 							{[...plans]
 								.sort((a, b) => {
 									if (a.code === sub.plan_code) return -1;
@@ -639,34 +646,47 @@ const MySubscriptionPage = () => {
 										<TableHead>
 											{textGet("subscription.payments.col.date")}
 										</TableHead>
-										<TableHead>
+										<TableHead className="text-right">
 											{textGet("subscription.payments.col.amount")}
 										</TableHead>
 										<TableHead>
 											{textGet("subscription.payments.col.status")}
 										</TableHead>
-										<TableHead>
+										<TableHead className="hidden sm:table-cell">
 											{textGet("subscription.payments.col.order")}
 										</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{payments.map((p) => (
-										<TableRow key={p.ID}>
-											<TableCell className="text-sm">
-												{new Date(p.CreatedAt).toLocaleDateString()}
-											</TableCell>
-											<TableCell className="text-sm font-medium">
-												${p.amount.toFixed(2)}
-											</TableCell>
-											<TableCell>
-												<PaymentStatusBadge status={p.status} />
-											</TableCell>
-											<TableCell className="text-xs text-muted-foreground font-mono">
-												{p.order_id.slice(0, 8)}…
-											</TableCell>
-										</TableRow>
-									))}
+									{payments.map((p) => {
+										const inactive = INACTIVE_PAYMENT_STATUSES.includes(
+											p.status,
+										);
+										return (
+											<TableRow
+												key={p.ID}
+												className={cn(inactive && "text-muted-foreground")}
+											>
+												<TableCell className="text-sm">
+													{dateParser(p.CreatedAt)}
+												</TableCell>
+												<TableCell
+													className={cn(
+														"text-right text-sm tabular-nums",
+														!inactive && "font-medium",
+													)}
+												>
+													${p.amount.toFixed(2)}
+												</TableCell>
+												<TableCell>
+													<PaymentStatus status={p.status} />
+												</TableCell>
+												<TableCell className="hidden text-xs text-muted-foreground font-mono sm:table-cell">
+													{p.order_id.slice(0, 8)}
+												</TableCell>
+											</TableRow>
+										);
+									})}
 								</TableBody>
 							</Table>
 						)}

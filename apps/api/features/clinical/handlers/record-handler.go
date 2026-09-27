@@ -362,6 +362,11 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 			}
 
 			if len(prescriptionUpdates) > 0 {
+				if prescriptionChanged(medicalRecord.Prescription, prescriptionUpdates) {
+					for k, v := range clearedSignature() {
+						prescriptionUpdates[k] = v
+					}
+				}
 				if err := tenantdb.For(c, h.db).Model(&clinical_models.Prescription{}).Where("id = ?", *medicalRecord.PrescriptionID).Updates(prescriptionUpdates).Error; err != nil {
 					h.logger.Error("Failed to update prescription", zap.Error(err))
 					return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
@@ -420,10 +425,16 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 		}
 	} else {
 		// Update existing prescription
-		if err := tenantdb.For(c, h.db).Model(&clinical_models.Prescription{}).Where("id = ?", *medicalRecord.PrescriptionID).Updates(map[string]interface{}{
+		updates := map[string]interface{}{
 			"content":     prescriptionData.Content,
 			"indications": prescriptionData.Indications,
-		}).Error; err != nil {
+		}
+		if prescriptionChanged(medicalRecord.Prescription, updates) {
+			for k, v := range clearedSignature() {
+				updates[k] = v
+			}
+		}
+		if err := tenantdb.For(c, h.db).Model(&clinical_models.Prescription{}).Where("id = ?", *medicalRecord.PrescriptionID).Updates(updates).Error; err != nil {
 			h.logger.Error("Failed to update prescription", zap.Error(err))
 			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalRecordUpdateError)
 		}

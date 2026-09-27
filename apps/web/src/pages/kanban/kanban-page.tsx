@@ -15,14 +15,14 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTasks, moveTask } from "@/api/kanban-service";
 import { PageHeader } from "@/components/custom/page-header";
+import BoardProgress from "@/sections/kanban/board-progress";
 import KanbanColumn from "@/sections/kanban/kanban-column";
+import { TASK_STATUSES as STATUSES } from "@/sections/kanban/status-config";
 import TaskCardContent from "@/sections/kanban/task-card-content";
 import TaskFormDialog from "@/sections/kanban/task-form-dialog";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useKanbanStore } from "@/store/kanban-store";
 import type { TaskStatus } from "@/types/kanban-type";
-
-const STATUSES: TaskStatus[] = ["todo", "in_progress", "done"];
 
 export default function KanbanPage() {
 	const { textGet } = useText();
@@ -169,6 +169,11 @@ export default function KanbanPage() {
 		}
 	};
 
+	// Where the dragged task sits right now (drag-over moves it between lanes).
+	const dropTargetStatus = activeTask
+		? tasks.find((t) => t.id === activeTask.id)?.status
+		: undefined;
+
 	const handleAddTaskInColumn = (status: TaskStatus) => {
 		setSelectedStatus(status);
 		setIsFormOpen(true);
@@ -193,7 +198,7 @@ export default function KanbanPage() {
 
 	return (
 		<DashboardLayout>
-			<div className="h-full flex flex-col gap-4">
+			<div className="flex h-full min-h-0 flex-col gap-5">
 				<PageHeader
 					title={textGet("tasks.title")}
 					description={textGet("tasks.page.description")}
@@ -205,6 +210,8 @@ export default function KanbanPage() {
 					}
 				/>
 
+				<BoardProgress tasks={tasks} />
+
 				<DndContext
 					collisionDetection={closestCenter}
 					onDragStart={handleDragStart}
@@ -212,14 +219,13 @@ export default function KanbanPage() {
 					onDragEnd={handleDragEnd}
 					sensors={sensors}
 				>
-					{/* Columns Container */}
-					<div className="flex gap-3 flex-1 pb-4 overflow-x-auto">
+					<div className="-mx-4 grid min-h-0 flex-1 items-start auto-cols-[minmax(17rem,1fr)] grid-flow-col gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
 						{STATUSES.map((status) => (
 							<KanbanColumn
 								key={status}
 								status={status}
 								tasks={getTasksByStatus(status)}
-								totalTasks={tasks.length}
+								isDropTarget={dropTargetStatus === status}
 								onAddTask={() => handleAddTaskInColumn(status)}
 							/>
 						))}
@@ -228,8 +234,8 @@ export default function KanbanPage() {
 					{/* Drag Overlay */}
 					<DragOverlay dropAnimation={null}>
 						{activeTask ? (
-							<div className="w-80 rotate-2 shadow-2xl">
-								<TaskCardContent task={activeTask} />
+							<div className="w-72 rotate-1">
+								<TaskCardContent task={activeTask} lifted />
 							</div>
 						) : null}
 					</DragOverlay>

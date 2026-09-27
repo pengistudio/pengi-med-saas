@@ -31,6 +31,8 @@ func enqueueSriDocument(c *gin.Context, db *gorm.DB, logger *zap.Logger, docs *s
 		return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound)
 	case errors.Is(err, sri_document.ErrAlreadyAuthorized):
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.already_authorized", core_errors.ErrBillingInvalidRequest)
+	case errors.Is(err, sri_document.ErrSignatureExpired):
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.error.signature_expired", core_errors.ErrBillingSignatureExpired)
 	default:
 		logger.Error("Failed to enqueue SRI document", zap.String("kind", kind.Name), zap.Uint64("id", id), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.enqueue_failed", core_errors.ErrInternal)
