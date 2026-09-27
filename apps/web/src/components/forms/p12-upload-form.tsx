@@ -5,6 +5,7 @@ import { Loader2, UploadCloud } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { FilePicker } from "@/components/custom/file-picker";
 
 const p12Schema = z.object({
 	// Sent exactly as typed: CAs may issue passwords with spaces, and a wrong
@@ -80,12 +81,12 @@ export function P12UploadForm<T>({
 		<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 			<div className="space-y-2">
 				<Label>{fileLabel}</Label>
-				<Input
-					type="file"
+				<FilePicker
 					accept=".p12,.pfx"
+					file={form.watch("file")}
 					aria-invalid={!!form.formState.errors.file}
-					onChange={(event) => {
-						form.setValue("file", event.target.files?.[0]);
+					onChange={(file) => {
+						form.setValue("file", file ?? undefined);
 						form.clearErrors("file");
 					}}
 				/>

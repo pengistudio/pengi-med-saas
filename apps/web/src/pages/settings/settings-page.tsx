@@ -1,5 +1,18 @@
 import { useText } from "@pengi/shared";
-import { Button, Text, useToast } from "@pengi/ui";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+	Button,
+	Text,
+	useToast,
+} from "@pengi/ui";
 import { AlertTriangle } from "lucide-react";
 import React from "react";
 import { useSearchParams } from "react-router";
@@ -92,6 +105,7 @@ const SettingsPage = () => {
 		boolean | null
 	>(null);
 	const [templateLoading, setTemplateLoading] = React.useState(false);
+	const [resetConfirmOpen, setResetConfirmOpen] = React.useState(false);
 	const fileInputRef = React.useRef<HTMLInputElement>(null);
 
 	const [googleStatus, setGoogleStatus] =
@@ -154,6 +168,7 @@ const SettingsPage = () => {
 		const res = await deletePrescriptionTemplate();
 		if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
 		setTemplateLoading(false);
+		setResetConfirmOpen(false);
 	}
 
 	function toggleClinical(key: keyof ClinicalSettings) {
@@ -291,15 +306,45 @@ const SettingsPage = () => {
 								onChange={handleUploadTemplate}
 							/>
 							{hasCustomTemplate && (
-								<Button
-									variant="ghost"
-									size="sm"
-									className="text-destructive hover:text-destructive"
-									disabled={templateLoading}
-									onClick={handleDeleteTemplate}
+								<AlertDialog
+									open={resetConfirmOpen}
+									onOpenChange={setResetConfirmOpen}
 								>
-									<Text uuid="settings.prescription_template.reset" />
-								</Button>
+									<AlertDialogTrigger
+										disabled={templateLoading}
+										render={
+											<Button
+												variant="ghost"
+												size="sm"
+												className="text-destructive hover:text-destructive"
+											/>
+										}
+									>
+										<Text uuid="settings.prescription_template.reset" />
+									</AlertDialogTrigger>
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle>
+												<Text uuid="settings.prescription_template.reset_confirm.title" />
+											</AlertDialogTitle>
+											<AlertDialogDescription>
+												<Text uuid="settings.prescription_template.reset_confirm.description" />
+											</AlertDialogDescription>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel>
+												<Text uuid="common.cancel" />
+											</AlertDialogCancel>
+											<AlertDialogAction
+												variant="destructive"
+												disabled={templateLoading}
+												onClick={handleDeleteTemplate}
+											>
+												<Text uuid="settings.prescription_template.reset_confirm.action" />
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
 							)}
 							<Button
 								variant="outline"
