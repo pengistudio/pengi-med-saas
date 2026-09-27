@@ -55,3 +55,5 @@ test-results
 playwright-report
 
 graphify-out
+# TypeScript incremental build cache (tsc -b)
+*.tsbuildinfo
