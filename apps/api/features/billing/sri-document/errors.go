@@ -27,7 +27,14 @@ const (
 	// ErrorCodeSignatureExpired reuses the key the */sri/process handlers answer
 	// with when refusing to queue a document for the same reason.
 	ErrorCodeSignatureExpired = "billing.sri.error.signature_expired"
-	ErrorCodeInternal         = "billing.sri_document.error.internal"
+	// ErrorCodeSignaturePassword: the tenant's sealed P12 password does not
+	// open (another key, corrupt value); the signature must be uploaded again.
+	ErrorCodeSignaturePassword = "billing.sri_document.error.signature_password"
+	// ErrorCodeSignatureUnavailable: SIGNATURE_ENCRYPTION_KEY is not set on this
+	// server, so the sealed password cannot be opened. Same key the upload
+	// handlers answer with.
+	ErrorCodeSignatureUnavailable = "signature.error.unavailable"
+	ErrorCodeInternal             = "billing.sri_document.error.internal"
 )
 
 // Rejection is the SRI's verdict against a comprobante: DEVUELTA at reception or
