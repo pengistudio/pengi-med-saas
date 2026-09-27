@@ -62,7 +62,7 @@ handles obtenidos así:
 `tenantdb.TenantID(c)` da el tenant de la request. `TENANTDB_MODE`
 (`permissive` / `warn` por defecto / `strict`) decide qué pasa con una query
 sin handle: en `strict` falla. `tenant_middleware.TenantScope` es legado —
-CLAUDE.md y `docs/skills/api-backend-complete-guide.md` todavía lo muestran.
+CLAUDE.md todavía lo muestra.
 
 `tenantdb.For` también lleva los metadatos de auditoría: los modelos que
 implementan `IsAuditable() bool` quedan auditados en create/update/delete

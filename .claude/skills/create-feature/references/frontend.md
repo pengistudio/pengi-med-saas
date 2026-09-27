@@ -63,8 +63,7 @@ de datos persistidos, versiona el `name` (`notification-storage-v4`).
 
 ## Formularios
 
-Estándar completo: `docs/skills/form-creation-standard.md` (con las
-correcciones de `docs-desactualizadas.md`). En resumen:
+Estándar completo: `docs/skills/form-creation-standard.md`. En resumen:
 
 - Zod schema + `<Form schema={schema} onSubmit={...}>{(methods) => ...}</Form>`;
   cada campo recibe `field={methods}`.
@@ -109,7 +108,7 @@ página suelta (sin subrutas) va inline como `/team` o `/tasks`.
 ```ts
 {
   label: textGet("<domain>.nav.title"),
-  icon: <Icon />,
+  icon: Package, // componente de lucide-react, no JSX
   href: "/<domain>",
   permission: PERMISSIONS.<GROUP>.PERMISSION_READ_<X>,
   feature: "<key>", // solo si aplica — ver permisos-y-plan.md § Flag de navegación

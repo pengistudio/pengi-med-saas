@@ -9,11 +9,11 @@ Receta en orden. Cada paso termina en un **criterio de cierre**: no pases al
 siguiente hasta cumplirlo. El detalle de cada paso vive en `references/`; abre
 solo el archivo que el paso nombra.
 
-Copia de un **dominio canónico**, no de las guías en `docs/skills/`, que están
-desactualizadas en varios puntos (listados en
-[`references/docs-desactualizadas.md`](references/docs-desactualizadas.md)).
-Los canónicos son **kanban** (backend y rutas, el más limpio) y el catálogo de
-**billing** (`catalog-item`, el frontend CRUD más completo).
+Copia de un **dominio canónico**: **kanban** (backend y rutas, el más limpio)
+y el catálogo de **billing** (`catalog-item`, el frontend CRUD más completo).
+Algunas docs de `docs/` siguen enseñando patrones abandonados; cuando
+contradigan al código, gana el código
+([`references/docs-desactualizadas.md`](references/docs-desactualizadas.md)).
 
 ## 0. Mapa y decisión de gating
 
