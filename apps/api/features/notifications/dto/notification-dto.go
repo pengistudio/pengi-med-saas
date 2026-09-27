@@ -20,6 +20,7 @@ type NotificationDTO struct {
 	MessageKey   string            `json:"message_key"`
 	Params       map[string]string `json:"params"`
 	ActionURL    string            `json:"action_url"`
+	Level        string            `json:"level"`
 	ReadAt       *time.Time        `json:"read_at"`
 }
 
@@ -46,6 +47,7 @@ func ToNotificationDTO(n notifications_models.Notification) NotificationDTO {
 		MessageKey:   n.MessageKey,
 		Params:       params,
 		ActionURL:    n.ActionURL,
+		Level:        n.Level,
 		ReadAt:       n.ReadAt,
 	}
 }

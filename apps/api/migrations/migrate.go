@@ -66,6 +66,7 @@ func RunMigrations(db *gorm.DB) error {
 		kanban_models.Task{},
 		settings_models.SystemSetting{},
 		notifications_models.Notification{},
+		notifications_models.Announcement{},
 	)
 	if err != nil {
 		return err

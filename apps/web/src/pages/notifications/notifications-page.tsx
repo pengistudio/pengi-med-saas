@@ -20,6 +20,10 @@ import {
 	type Notification,
 } from "@/api/notification-service";
 import {
+	NotificationLevelIcon,
+	openNotificationLink,
+} from "@/lib/notification-level";
+import {
 	formatRelativeTime,
 	getNotificationText,
 } from "@/lib/notification-text";
@@ -91,7 +95,7 @@ const NotificationsPage = () => {
 			markNotificationAsRead(notification.ID);
 		}
 		if (notification.action_url) {
-			navigate(notification.action_url);
+			openNotificationLink(notification.action_url, navigate);
 		} else {
 			refresh();
 		}
@@ -186,12 +190,16 @@ const NotificationsPage = () => {
 										>
 											<span
 												className={cn(
-													"text-sm",
+													"flex items-start gap-2 text-sm",
 													notification.read_at
 														? "text-muted-foreground"
 														: "font-medium",
 												)}
 											>
+												<NotificationLevelIcon
+													level={notification.level}
+													className="mt-0.5"
+												/>
 												{getNotificationText(notification, textGet, lang)}
 											</span>
 											<span className="text-xs text-muted-foreground">

@@ -2,6 +2,7 @@ import {
 	Building2,
 	CreditCard,
 	LayoutDashboard,
+	Megaphone,
 	Puzzle,
 	ShieldCheck,
 	Users,
@@ -63,5 +64,10 @@ export const createNavItems = (
 		icon: ShieldCheck,
 		label: textGet("backoffice.nav.roles"),
 		href: "/roles",
+	},
+	{
+		icon: Megaphone,
+		label: textGet("backoffice.nav.announcements"),
+		href: "/announcements",
 	},
 ];

@@ -17,6 +17,7 @@ type Notification struct {
 	MessageKey   string         `json:"message_key" gorm:"not null"`
 	Params       datatypes.JSON `json:"params" gorm:"type:jsonb;default:'{}'"`
 	ActionURL    string         `json:"action_url"`
+	Level        string         `json:"level" gorm:"not null;default:info"`
 	ReadAt       *time.Time     `json:"read_at" gorm:"index:idx_notif_tenant_user_read"`
 }
 

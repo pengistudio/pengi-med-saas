@@ -5590,5 +5590,221 @@
     {
         "key": "clinical.prescription_template.error.invalid",
         "value": "La plantilla no es un HTML válido: revisa las etiquetas {{...}}."
+    },
+    {
+        "key": "notification.announcement",
+        "value": "{{title}}: {{body}}"
+    },
+    {
+        "key": "backoffice.announcement.list.success",
+        "value": "Anuncios obtenidos correctamente."
+    },
+    {
+        "key": "backoffice.announcement.create.success",
+        "value": "Anuncio guardado correctamente."
+    },
+    {
+        "key": "backoffice.announcement.cancel.success",
+        "value": "Anuncio cancelado."
+    },
+    {
+        "key": "E-ANN-001",
+        "value": "Anuncio no encontrado."
+    },
+    {
+        "key": "E-ANN-002",
+        "value": "El destino del anuncio no tiene destinatarios."
+    },
+    {
+        "key": "E-ANN-003",
+        "value": "Solo se pueden cancelar anuncios programados."
+    },
+    {
+        "key": "E-ANN-004",
+        "value": "Error al enviar el anuncio."
+    },
+    {
+        "key": "E-ANN-005",
+        "value": "Datos del anuncio inválidos."
+    },
+    {
+        "key": "backoffice.nav.announcements",
+        "value": "Anuncios"
+    },
+    {
+        "key": "backoffice.announcements.title",
+        "value": "Anuncios"
+    },
+    {
+        "key": "backoffice.announcements.create",
+        "value": "Nuevo anuncio"
+    },
+    {
+        "key": "backoffice.announcements.list.title",
+        "value": "Historial de envíos"
+    },
+    {
+        "key": "backoffice.announcements.list.description",
+        "value": "Notificaciones enviadas o programadas a los usuarios de las clínicas."
+    },
+    {
+        "key": "backoffice.announcements.empty",
+        "value": "Aún no se ha enviado ningún anuncio."
+    },
+    {
+        "key": "backoffice.announcements.col.title",
+        "value": "Título"
+    },
+    {
+        "key": "backoffice.announcements.col.title.placeholder",
+        "value": "Ej. Mantenimiento programado"
+    },
+    {
+        "key": "backoffice.announcements.col.body",
+        "value": "Mensaje"
+    },
+    {
+        "key": "backoffice.announcements.col.body.placeholder",
+        "value": "Texto que verán los usuarios en sus notificaciones"
+    },
+    {
+        "key": "backoffice.announcements.col.target",
+        "value": "Destino"
+    },
+    {
+        "key": "backoffice.announcements.col.scope",
+        "value": "Enviar a"
+    },
+    {
+        "key": "backoffice.announcements.col.company",
+        "value": "Empresa"
+    },
+    {
+        "key": "backoffice.announcements.col.company.placeholder",
+        "value": "Selecciona una empresa"
+    },
+    {
+        "key": "backoffice.announcements.col.user",
+        "value": "Usuario"
+    },
+    {
+        "key": "backoffice.announcements.col.user.placeholder",
+        "value": "Selecciona un usuario"
+    },
+    {
+        "key": "backoffice.announcements.col.level",
+        "value": "Nivel"
+    },
+    {
+        "key": "backoffice.announcements.col.status",
+        "value": "Estado"
+    },
+    {
+        "key": "backoffice.announcements.col.date",
+        "value": "Fecha"
+    },
+    {
+        "key": "backoffice.announcements.col.recipients",
+        "value": "Destinatarios"
+    },
+    {
+        "key": "backoffice.announcements.col.action_url",
+        "value": "Enlace"
+    },
+    {
+        "key": "backoffice.announcements.col.action_url.description",
+        "value": "Ruta de la app (/billing) o enlace https:// que se abre al hacer clic."
+    },
+    {
+        "key": "backoffice.announcements.col.scheduled_at",
+        "value": "Programar envío"
+    },
+    {
+        "key": "backoffice.announcements.col.scheduled_at.description",
+        "value": "Déjalo vacío para enviarlo ahora. Se envía a los usuarios que existan en ese momento."
+    },
+    {
+        "key": "backoffice.announcements.scope.global",
+        "value": "Todos"
+    },
+    {
+        "key": "backoffice.announcements.scope.company",
+        "value": "Una empresa"
+    },
+    {
+        "key": "backoffice.announcements.scope.user",
+        "value": "Un usuario"
+    },
+    {
+        "key": "backoffice.announcements.level.info",
+        "value": "Informativo"
+    },
+    {
+        "key": "backoffice.announcements.level.success",
+        "value": "Éxito"
+    },
+    {
+        "key": "backoffice.announcements.level.warning",
+        "value": "Advertencia"
+    },
+    {
+        "key": "backoffice.announcements.level.critical",
+        "value": "Crítico"
+    },
+    {
+        "key": "backoffice.announcements.status.scheduled",
+        "value": "Programado"
+    },
+    {
+        "key": "backoffice.announcements.status.sent",
+        "value": "Enviado"
+    },
+    {
+        "key": "backoffice.announcements.status.cancelled",
+        "value": "Cancelado"
+    },
+    {
+        "key": "backoffice.announcements.status.failed",
+        "value": "Fallido"
+    },
+    {
+        "key": "backoffice.announcements.cancel",
+        "value": "Cancelar envío"
+    },
+    {
+        "key": "backoffice.announcements.cancel.title",
+        "value": "¿Cancelar este anuncio?"
+    },
+    {
+        "key": "backoffice.announcements.cancel.description",
+        "value": "No se enviará a nadie:"
+    },
+    {
+        "key": "backoffice.announcements.create.title",
+        "value": "Nuevo anuncio"
+    },
+    {
+        "key": "backoffice.announcements.create.description",
+        "value": "Envía una notificación a todos los usuarios, a una empresa o a un usuario."
+    },
+    {
+        "key": "backoffice.announcements.create.submit",
+        "value": "Enviar"
+    },
+    {
+        "key": "backoffice.announcements.validation.action_url",
+        "value": "Debe ser una ruta que empiece con / o un enlace https://"
+    },
+    {
+        "key": "backoffice.announcements.validation.scheduled_future",
+        "value": "La fecha debe estar en el futuro"
+    },
+    {
+        "key": "backoffice.announcements.validation.company_required",
+        "value": "Selecciona una empresa"
+    },
+    {
+        "key": "backoffice.announcements.validation.user_required",
+        "value": "Selecciona un usuario"
     }
 ]

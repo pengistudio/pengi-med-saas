@@ -7,6 +7,8 @@ import { apiWithTenant } from ".";
 
 const notificationService = createHttpService(apiWithTenant);
 
+export type NotificationLevel = "info" | "success" | "warning" | "critical";
+
 export interface Notification extends BaseModel {
 	tenant_id: number;
 	user_id: number;
@@ -16,6 +18,7 @@ export interface Notification extends BaseModel {
 	message_key: string;
 	params: Record<string, string>;
 	action_url: string;
+	level: NotificationLevel;
 	read_at: string | null;
 }
 

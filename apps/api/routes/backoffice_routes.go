@@ -24,6 +24,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	backofficePermissionHandler := backoffice_handlers.NewBackofficePermissionHandler(db, logger.Log)
 	backofficeDashboardHandler := backoffice_handlers.NewBackofficeDashboardHandler(db, logger.Log)
 	backofficeRoleHandler := backoffice_handlers.NewBackofficeRoleHandler(db, logger.Log)
+	backofficeAnnouncementHandler := backoffice_handlers.NewBackofficeAnnouncementHandler(db, logger.Log)
 
 	backofficeRoutes := router.Group("/backoffice")
 	{
@@ -61,6 +62,13 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeCompanyRoutes.PUT("/:id/users/:user_id", envelope.Handle(backofficeCompanyHandler.UpdateCompanyUser))
 		backofficeCompanyRoutes.GET("/:id/users/:user_id/password-reset-link", envelope.Handle(backofficeCompanyHandler.GenerateUserPasswordResetLink))
 		backofficeCompanyRoutes.DELETE("/:id/users/:user_id", envelope.Handle(backofficeCompanyHandler.DeleteCompanyUser))
+	}
+
+	backofficeAnnouncementRoutes := router.Group("/backoffice/announcements", backofficeAuth)
+	{
+		backofficeAnnouncementRoutes.GET("", envelope.Handle(backofficeAnnouncementHandler.GetAnnouncements))
+		backofficeAnnouncementRoutes.POST("", envelope.Handle(backofficeAnnouncementHandler.CreateAnnouncement))
+		backofficeAnnouncementRoutes.POST("/:id/cancel", envelope.Handle(backofficeAnnouncementHandler.CancelAnnouncement))
 	}
 
 	backofficeRoleRoutes := router.Group("/backoffice/roles", backofficeAuth)

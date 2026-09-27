@@ -17,6 +17,10 @@ import {
 	type Notification,
 } from "@/api/notification-service";
 import {
+	NotificationLevelIcon,
+	openNotificationLink,
+} from "@/lib/notification-level";
+import {
 	formatRelativeTime,
 	getNotificationText,
 } from "@/lib/notification-text";
@@ -38,7 +42,7 @@ const NotificationBell = () => {
 		markReadLocally(notification.ID);
 		markNotificationAsRead(notification.ID);
 		if (notification.action_url) {
-			navigate(notification.action_url);
+			openNotificationLink(notification.action_url, navigate);
 		}
 	};
 
@@ -94,7 +98,11 @@ const NotificationBell = () => {
 							className="flex flex-col items-start gap-1 whitespace-normal py-2"
 							onClick={() => handleSelect(notification)}
 						>
-							<span className="font-medium">
+							<span className="flex items-start gap-2 font-medium">
+								<NotificationLevelIcon
+									level={notification.level}
+									className="mt-0.5"
+								/>
 								{getNotificationText(notification, textGet, lang)}
 							</span>
 							<span className="text-xs text-muted-foreground">

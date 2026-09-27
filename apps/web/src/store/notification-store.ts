@@ -46,7 +46,7 @@ export const useNotificationStore = create<NotificationState>()(
 			// user's sessionStorage — v2: base fields moved from snake_case
 			// (created_at) to BaseModel's CreatedAt; v3: the list holds only
 			// unread notifications.
-			name: "notification-storage-v3",
+			name: "notification-storage-v4",
 			storage: createJSONStorage(() => sessionStorage),
 		},
 	),

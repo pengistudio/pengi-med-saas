@@ -81,6 +81,7 @@ function buildNotification(
 		message_key: "notification.clinical.draft.stale",
 		params: { patient_name: "Juan Perez", minutes_elapsed: "75" },
 		action_url: "/clinical/medical-records/1",
+		level: "info",
 		read_at: null,
 		...overrides,
 	};
@@ -135,6 +136,35 @@ describe("NotificationBell", () => {
 		expect(mockMarkReadLocally).toHaveBeenCalledWith(1);
 		expect(mockMarkNotificationAsRead).toHaveBeenCalledWith(1);
 		expect(mockNavigate).toHaveBeenCalledWith("/clinical/medical-records/1");
+	});
+
+	it("opens an external announcement link in a new tab", async () => {
+		const open = vi.spyOn(window, "open").mockReturnValue(null);
+		mockNavigate.mockClear();
+		storeState = {
+			notifications: [
+				buildNotification({
+					type: "announcement",
+					message_key: "notification.announcement",
+					params: { title: "Mantenimiento", body: "Esta noche" },
+					action_url: "https://status.example.com",
+					level: "warning",
+				}),
+			],
+			unreadCount: 1,
+		};
+		render(<NotificationBell />);
+		fireEvent.click(screen.getByRole("button"));
+
+		fireEvent.click(await screen.findByText("notification.announcement"));
+
+		expect(open).toHaveBeenCalledWith(
+			"https://status.example.com",
+			"_blank",
+			"noopener,noreferrer",
+		);
+		expect(mockNavigate).not.toHaveBeenCalled();
+		open.mockRestore();
 	});
 
 	it("marks all notifications as read", async () => {

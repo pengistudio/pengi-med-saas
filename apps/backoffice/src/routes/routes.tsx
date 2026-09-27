@@ -2,6 +2,12 @@ import { lazy } from "react";
 import { createBrowserRouter, Outlet } from "react-router";
 import { RequireSession, session } from "@/lib/session";
 
+const AnnouncementList = lazy(
+	() => import("@/pages/announcements/announcement-list"),
+);
+const CreateAnnouncement = lazy(
+	() => import("@/pages/announcements/create-announcement"),
+);
 const CompanyList = lazy(() => import("@/pages/companies/company-list"));
 const CompanyUsers = lazy(() => import("@/pages/companies/company-users"));
 const CreateCompany = lazy(() => import("@/pages/companies/create-company"));
@@ -62,6 +68,8 @@ const router = createBrowserRouter([
 			{ path: "/users", element: <UserList /> },
 			{ path: "/users/create", element: <CreateUser /> },
 			{ path: "/users/edit/:id", element: <EditUser /> },
+			{ path: "/announcements", element: <AnnouncementList /> },
+			{ path: "/announcements/create", element: <CreateAnnouncement /> },
 		],
 	},
 ]);
