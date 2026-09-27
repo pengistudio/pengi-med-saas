@@ -44,6 +44,7 @@ import {
 	type SubscriptionDetail,
 	type SubscriptionPaymentRecord,
 } from "@/api/subscription-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
@@ -495,14 +496,10 @@ const MySubscriptionPage = () => {
 						</p>
 					</div>
 				)}
-				<div>
-					<h1 className="text-2xl font-bold tracking-tight">
-						{textGet("subscription.page.title")}
-					</h1>
-					<p className="text-muted-foreground text-sm mt-1">
-						{textGet("subscription.page.description")}
-					</p>
-				</div>
+				<PageHeader
+					title={textGet("subscription.page.title")}
+					description={textGet("subscription.page.description")}
+				/>
 
 				{/* Subscription overview — informational only */}
 				<Card className="border-t-2 border-t-primary">

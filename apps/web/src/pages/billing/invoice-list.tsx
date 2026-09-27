@@ -25,6 +25,7 @@ import {
 	processInvoiceSRI,
 	processMultipleInvoicesSRI,
 } from "@/api/billing-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { useResponsive } from "@/hooks/user-responsive";
@@ -146,21 +147,27 @@ const InvoiceListPage = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<div className="flex flex-row items-center gap-2 sm:gap-5 sm:justify-end justify-start flex-wrap">
-					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
-						<Button onClick={() => navigate("/billing/create")}>
-							<Plus className="mr-2 h-4 w-4" />
-							<Text uuid="billing.invoice.create.button" />
-						</Button>
-					)}
-
+			<main className="grid items-start gap-4">
+				<PageHeader
+					title={textGet("dashboard.billing.invoices")}
+					description={textGet("billing.invoice.page.description")}
+					actions={
+						checkPermission([
+							PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
+						]) && (
+							<Button onClick={() => navigate("/billing/create")}>
+								<Plus className="mr-2 h-4 w-4" />
+								<Text uuid="billing.invoice.create.button" />
+							</Button>
+						)
+					}
+				/>
+				<div className="flex flex-row flex-wrap items-center justify-end gap-2">
 					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
 						<Button
 							variant="secondary"
 							disabled={rows.length === ZERO || processing}
 							onClick={handleProcessSelected}
-							className="md:ml-auto"
 						>
 							<Play className="mr-2 h-4 w-4" />
 							<Text uuid="billing.invoice.process.selected" />

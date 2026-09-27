@@ -14,6 +14,7 @@ import { Button } from "@pengi/ui";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTasks, moveTask } from "@/api/kanban-service";
+import { PageHeader } from "@/components/custom/page-header";
 import KanbanColumn from "@/sections/kanban/kanban-column";
 import TaskCardContent from "@/sections/kanban/task-card-content";
 import TaskFormDialog from "@/sections/kanban/task-form-dialog";
@@ -193,24 +194,16 @@ export default function KanbanPage() {
 	return (
 		<DashboardLayout>
 			<div className="h-full flex flex-col gap-4">
-				{/* Header - Refined Typography */}
-				<div className="flex items-start justify-between gap-4">
-					<div className="flex-1 space-y-2">
-						<h1 className="text-3xl font-bold tracking-tight">
-							{textGet("tasks.title")}
-						</h1>
-						<p className="text-sm text-muted-foreground font-light max-w-2xl">
-							{textGet("tasks.page.description")}
-						</p>
-					</div>
-					<Button
-						onClick={() => setIsFormOpen(true)}
-						className="gap-2 h-9 px-4 rounded-lg text-sm font-medium transition-all"
-					>
-						<Plus className="h-4 w-4" />
-						{textGet("tasks.task.create.title")}
-					</Button>
-				</div>
+				<PageHeader
+					title={textGet("tasks.title")}
+					description={textGet("tasks.page.description")}
+					actions={
+						<Button onClick={() => setIsFormOpen(true)}>
+							<Plus className="h-4 w-4 mr-2" />
+							{textGet("tasks.task.create.title")}
+						</Button>
+					}
+				/>
 
 				<DndContext
 					collisionDetection={closestCenter}

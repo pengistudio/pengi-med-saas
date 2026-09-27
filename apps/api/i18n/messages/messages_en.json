@@ -5806,5 +5806,29 @@
     {
         "key": "backoffice.announcements.validation.user_required",
         "value": "Select a user"
+    },
+    {
+        "key": "notification.page.description",
+        "value": "System alerts and announcements from the Pengi team."
+    },
+    {
+        "key": "billing.invoice.page.description",
+        "value": "Issue, send to the SRI and review your electronic invoices."
+    },
+    {
+        "key": "billing.credit_note.page.description",
+        "value": "Credit notes issued against your invoices."
+    },
+    {
+        "key": "billing.debit_note.page.description",
+        "value": "Debit notes issued against your invoices."
+    },
+    {
+        "key": "billing.catalog-item.page.description",
+        "value": "Products and services you use when invoicing."
+    },
+    {
+        "key": "clinical.patient.page.description",
+        "value": "Find patients and open their medical records."
     }
 ]

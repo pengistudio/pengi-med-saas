@@ -5806,5 +5806,29 @@
     {
         "key": "backoffice.announcements.validation.user_required",
         "value": "Selecciona un usuario"
+    },
+    {
+        "key": "notification.page.description",
+        "value": "Avisos del sistema y anuncios del equipo de Pengi."
+    },
+    {
+        "key": "billing.invoice.page.description",
+        "value": "Emite, procesa en el SRI y consulta tus facturas electrónicas."
+    },
+    {
+        "key": "billing.credit_note.page.description",
+        "value": "Notas de crédito emitidas sobre tus facturas."
+    },
+    {
+        "key": "billing.debit_note.page.description",
+        "value": "Notas de débito emitidas sobre tus facturas."
+    },
+    {
+        "key": "billing.catalog-item.page.description",
+        "value": "Productos y servicios que usas al facturar."
+    },
+    {
+        "key": "clinical.patient.page.description",
+        "value": "Busca pacientes y accede a su historia clínica."
     }
 ]

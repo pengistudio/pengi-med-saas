@@ -9,6 +9,7 @@ import {
 	getAllCreditNotes,
 	processCreditNoteSRI,
 } from "@/api/billing-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { useResponsive } from "@/hooks/user-responsive";
@@ -101,15 +102,22 @@ const CreditNoteListPage = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<div className="flex flex-row items-center gap-2 sm:gap-5 sm:justify-end justify-start flex-wrap">
-					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
-						<Button onClick={() => navigate("/billing/credit-notes/create")}>
-							<Plus className="mr-2 h-4 w-4" />
-							<Text uuid="billing.credit_note.create.button" />
-						</Button>
-					)}
-
+			<main className="grid items-start gap-4">
+				<PageHeader
+					title={textGet("dashboard.billing.credit-notes")}
+					description={textGet("billing.credit_note.page.description")}
+					actions={
+						checkPermission([
+							PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
+						]) && (
+							<Button onClick={() => navigate("/billing/credit-notes/create")}>
+								<Plus className="mr-2 h-4 w-4" />
+								<Text uuid="billing.credit_note.create.button" />
+							</Button>
+						)
+					}
+				/>
+				<div className="flex flex-row flex-wrap items-center justify-end gap-2">
 					{checkPermission([
 						PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS,
 					]) && (
@@ -117,7 +125,6 @@ const CreditNoteListPage = () => {
 							variant="secondary"
 							disabled={rows.length === ZERO || processing}
 							onClick={handleProcessSelected}
-							className="md:ml-auto"
 						>
 							<Play className="mr-2 h-4 w-4" />
 							<Text uuid="billing.credit_note.process.selected" />

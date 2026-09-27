@@ -1,16 +1,13 @@
 import { Text } from "@pengi/ui";
+import { PageHeader } from "@/components/custom/page-header";
 import { InvoiceForm } from "@/sections/forms/billing/invoice-form";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const CreateInvoicePage = () => {
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<div className="flex items-center">
-					<h1 className="text-2xl font-semibold tracking-tight">
-						<Text uuid="billing.invoice.create.title" />
-					</h1>
-				</div>
+			<main className="grid items-start gap-4">
+				<PageHeader title={<Text uuid="billing.invoice.create.title" />} />
 				<div className="w-full">
 					<InvoiceForm />
 				</div>

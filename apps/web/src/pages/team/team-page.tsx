@@ -38,6 +38,7 @@ import {
 	type TeamRole,
 	updateTeamMemberRole,
 } from "@/api/team-service";
+import { PageHeader } from "@/components/custom/page-header";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -233,26 +234,18 @@ const TeamPage = () => {
 	return (
 		<DashboardLayout>
 			<div className="space-y-6">
-				{/* Header */}
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-					<div>
-						<h1 className="text-2xl font-bold tracking-tight">
-							{textGet("team.title")}
-						</h1>
-						<p className="text-sm text-muted-foreground mt-1">
-							{textGet("team.description")}
-						</p>
-					</div>
-					{canManageTeam && (
-						<Button
-							onClick={openRoleSelector}
-							className="shrink-0 self-start sm:self-auto"
-						>
-							<UserPlus className="h-4 w-4 mr-2" />
-							{textGet("team.invite")}
-						</Button>
-					)}
-				</div>
+				<PageHeader
+					title={textGet("team.title")}
+					description={textGet("team.description")}
+					actions={
+						canManageTeam && (
+							<Button onClick={openRoleSelector}>
+								<UserPlus className="h-4 w-4 mr-2" />
+								{textGet("team.invite")}
+							</Button>
+						)
+					}
+				/>
 
 				{/* Stats banner */}
 				<div className="flex items-center gap-3 px-4 py-3 rounded-xl border bg-muted/30">

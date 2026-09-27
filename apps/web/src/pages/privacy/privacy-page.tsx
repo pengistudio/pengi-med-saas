@@ -1,6 +1,7 @@
 import { useText } from "@pengi/shared";
 import { CreditCard, Database, Lock, Mail, Shield, User } from "lucide-react";
 import { Link } from "react-router";
+import { PageHeader } from "@/components/custom/page-header";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const SECTIONS = [
@@ -49,17 +50,11 @@ const PrivacyPage = () => {
 					>
 						← {textGet("subscription.page.title")}
 					</Link>
-					<div className="flex items-center gap-3 mt-4 mb-1">
-						<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-							<Shield className="h-5 w-5 text-primary" />
-						</div>
-						<h1 className="text-3xl font-bold tracking-tight">
-							{textGet("privacy.page.title")}
-						</h1>
-					</div>
-					<p className="text-sm text-muted-foreground">
-						{textGet("privacy.page.subtitle")}
-					</p>
+					<PageHeader
+						className="mt-4"
+						title={textGet("privacy.page.title")}
+						description={textGet("privacy.page.subtitle")}
+					/>
 				</div>
 
 				<div className="space-y-8">

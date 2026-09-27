@@ -26,6 +26,7 @@ import {
 	type Patient,
 	updateAppointment,
 } from "@/api/clinical-service";
+import { PageHeader } from "@/components/custom/page-header";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
@@ -249,9 +250,7 @@ export default function AppointmentCalendar() {
 			{/* ── Header ─────────────────────────────────── */}
 			<div className="flex items-center justify-between pb-4 gap-4 flex-wrap">
 				<div className="flex items-center gap-4">
-					<h1 className="text-2xl font-bold tracking-tight">
-						<Text uuid="appointments.title" />
-					</h1>
+					<PageHeader title={<Text uuid="appointments.title" />} />
 					<div className="flex items-center gap-1">
 						<Button
 							variant="outline"
