@@ -141,7 +141,13 @@ func newMembershipFixture(t *testing.T) membershipFixture {
 			f.ownCompany = company
 		}
 	}
-	f.environment = user_models.Environment{UserID: uint(f.userID), Name: "Own", CompanyID: f.ownCompany.ID}
+	// environments.role_id is a real foreign key on Postgres (SQLite doesn't
+	// enforce it), so the environment needs an existing role.
+	role := user_models.Role{Role: "doctor"}
+	if err := db.Create(&role).Error; err != nil {
+		t.Fatalf("create role: %v", err)
+	}
+	f.environment = user_models.Environment{UserID: uint(f.userID), Name: "Own", RoleID: role.ID, CompanyID: f.ownCompany.ID}
 	if err := db.Create(&f.environment).Error; err != nil {
 		t.Fatalf("create environment: %v", err)
 	}
