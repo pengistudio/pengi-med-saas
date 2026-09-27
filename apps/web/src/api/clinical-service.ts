@@ -666,6 +666,16 @@ export const deleteAppointment = async (
 	});
 };
 
+/** Current TV pairing code; created only if the tenant has none. Never unpairs the TV. */
+export const getDisplayToken = async (): Promise<
+	ServiceResponse<{ token: string }>
+> => {
+	return clinicalService.get<{ token: string }>("/tenants/display-token", {
+		notifyError: true,
+	});
+};
+
+/** Replaces the TV pairing code, which unpairs the TV using the current one. */
 export const generateDisplayToken = async (): Promise<
 	ServiceResponse<{ token: string }>
 > => {
