@@ -24,5 +24,7 @@ func RegisterNotificationRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		group.GET("", envelope.Handle(notificationHandler.ListNotifications))
 		group.PATCH("/:id/read", envelope.Handle(notificationHandler.MarkAsRead))
 		group.POST("/mark-all-read", envelope.Handle(notificationHandler.MarkAllAsRead))
+		group.DELETE("/read", envelope.Handle(notificationHandler.DeleteReadNotifications))
+		group.DELETE("/:id", envelope.Handle(notificationHandler.DeleteNotification))
 	}
 }

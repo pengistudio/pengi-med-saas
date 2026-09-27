@@ -5428,6 +5428,10 @@
         "value": "Error updating notification."
     },
     {
+        "key": "E-NOTIF-004",
+        "value": "Error deleting the notification."
+    },
+    {
         "key": "notification.list.success",
         "value": "Notifications fetched."
     },
@@ -5452,6 +5456,18 @@
         "value": "Error updating notification."
     },
     {
+        "key": "notification.delete.success",
+        "value": "Notification deleted."
+    },
+    {
+        "key": "notification.delete_read.success",
+        "value": "Read notifications deleted."
+    },
+    {
+        "key": "notification.error.delete_failed",
+        "value": "Error deleting the notification."
+    },
+    {
         "key": "notification.clinical.draft.stale",
         "value": "You have an unsaved consultation for {{patient_name}} from {{elapsed}} ago."
     },
@@ -5461,11 +5477,51 @@
     },
     {
         "key": "notification.bell.empty",
-        "value": "You have no notifications."
+        "value": "You have no new notifications."
     },
     {
         "key": "notification.bell.mark_all_read",
         "value": "Mark all as read"
+    },
+    {
+        "key": "notification.bell.view_all",
+        "value": "View all"
+    },
+    {
+        "key": "notification.page.title",
+        "value": "Notifications"
+    },
+    {
+        "key": "notification.page.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "notification.page.filter.unread",
+        "value": "Unread"
+    },
+    {
+        "key": "notification.page.empty",
+        "value": "You have no notifications."
+    },
+    {
+        "key": "notification.page.empty_unread",
+        "value": "You have no unread notifications."
+    },
+    {
+        "key": "notification.page.mark_read",
+        "value": "Mark as read"
+    },
+    {
+        "key": "notification.page.mark_all_read",
+        "value": "Mark all as read"
+    },
+    {
+        "key": "notification.page.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "notification.page.delete_read",
+        "value": "Delete read"
     },
     {
         "key": "error_page.title",

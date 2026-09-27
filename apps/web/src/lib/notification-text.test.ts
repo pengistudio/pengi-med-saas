@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	formatRelativeTime,
+	getNotificationText,
 	renderNotificationText,
 } from "@/lib/notification-text";
 
@@ -40,5 +41,32 @@ describe("formatRelativeTime", () => {
 		const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 		const result = formatRelativeTime(oneHourAgo, "es");
 		expect(result.length).toBeGreaterThan(0);
+	});
+});
+
+describe("getNotificationText", () => {
+	const textGet = (key: string) =>
+		key === "stale" ? "{{patient_name}} desde hace {{elapsed}}" : key;
+
+	it("resolves the template and fills its params", () => {
+		const result = getNotificationText(
+			{ message_key: "stale", params: { patient_name: "Juan" } },
+			textGet,
+			"es",
+		);
+		expect(result).toBe("Juan desde hace ");
+	});
+
+	it("computes elapsed from draft_updated_at", () => {
+		const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+		const result = getNotificationText(
+			{
+				message_key: "stale",
+				params: { patient_name: "Juan", draft_updated_at: twoHoursAgo },
+			},
+			textGet,
+			"es",
+		);
+		expect(result).toBe("Juan desde hace alrededor de 2 horas");
 	});
 });

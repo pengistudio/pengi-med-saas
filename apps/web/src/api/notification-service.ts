@@ -30,6 +30,7 @@ export interface ListNotificationsResponse {
 export type NotificationListParams = {
 	page?: number;
 	limit?: number;
+	unread?: boolean;
 };
 
 export const getNotifications = async (
@@ -38,6 +39,7 @@ export const getNotifications = async (
 	const qs = new URLSearchParams();
 	if (params.page) qs.set("page", String(params.page));
 	if (params.limit) qs.set("limit", String(params.limit));
+	if (params.unread) qs.set("unread", "true");
 	const query = qs.toString() ? `?${qs.toString()}` : "";
 	// notifyError: false — this is polled silently every 30s, a failed poll
 	// shouldn't toast-spam the user.
@@ -65,4 +67,22 @@ export const markAllNotificationsAsRead = async (): Promise<
 		undefined,
 		{ notifyError: false },
 	);
+};
+
+export const deleteNotification = async (
+	id: number,
+): Promise<ServiceResponse<null>> => {
+	return notificationService.delete<null>(`/notifications/${id}`, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const deleteReadNotifications = async (): Promise<
+	ServiceResponse<null>
+> => {
+	return notificationService.delete<null>("/notifications/read", {
+		notifySuccess: true,
+		notifyError: true,
+	});
 };

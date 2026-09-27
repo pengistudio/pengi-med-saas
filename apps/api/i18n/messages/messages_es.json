@@ -5428,6 +5428,10 @@
         "value": "Error al actualizar la notificación."
     },
     {
+        "key": "E-NOTIF-004",
+        "value": "Error al eliminar la notificación."
+    },
+    {
         "key": "notification.list.success",
         "value": "Notificaciones obtenidas."
     },
@@ -5452,6 +5456,18 @@
         "value": "Error al actualizar la notificación."
     },
     {
+        "key": "notification.delete.success",
+        "value": "Notificación eliminada."
+    },
+    {
+        "key": "notification.delete_read.success",
+        "value": "Notificaciones leídas eliminadas."
+    },
+    {
+        "key": "notification.error.delete_failed",
+        "value": "Error al eliminar la notificación."
+    },
+    {
         "key": "notification.clinical.draft.stale",
         "value": "Tienes una consulta sin guardar para {{patient_name}} desde hace {{elapsed}}."
     },
@@ -5461,11 +5477,51 @@
     },
     {
         "key": "notification.bell.empty",
-        "value": "No tienes notificaciones."
+        "value": "No tienes notificaciones nuevas."
     },
     {
         "key": "notification.bell.mark_all_read",
         "value": "Marcar todas como leídas"
+    },
+    {
+        "key": "notification.bell.view_all",
+        "value": "Ver todas"
+    },
+    {
+        "key": "notification.page.title",
+        "value": "Notificaciones"
+    },
+    {
+        "key": "notification.page.filter.all",
+        "value": "Todas"
+    },
+    {
+        "key": "notification.page.filter.unread",
+        "value": "No leídas"
+    },
+    {
+        "key": "notification.page.empty",
+        "value": "No tienes notificaciones."
+    },
+    {
+        "key": "notification.page.empty_unread",
+        "value": "No tienes notificaciones sin leer."
+    },
+    {
+        "key": "notification.page.mark_read",
+        "value": "Marcar como leída"
+    },
+    {
+        "key": "notification.page.mark_all_read",
+        "value": "Marcar todas como leídas"
+    },
+    {
+        "key": "notification.page.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "notification.page.delete_read",
+        "value": "Borrar leídas"
     },
     {
         "key": "error_page.title",

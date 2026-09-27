@@ -94,6 +94,7 @@ var (
 	ErrNotificationNotFound    AppError = NewAppError("E-NOTIF-001", "Notification not found.")
 	ErrNotificationFetchError  AppError = NewAppError("E-NOTIF-002", "Error fetching notifications.")
 	ErrNotificationUpdateError AppError = NewAppError("E-NOTIF-003", "Error updating notification.")
+	ErrNotificationDeleteError AppError = NewAppError("E-NOTIF-004", "Error deleting notification.")
 
 	// Team Errors
 	ErrTeamEnvironmentNotFound AppError = NewAppError("E-TEAM-001", "Team member not found in this company.")

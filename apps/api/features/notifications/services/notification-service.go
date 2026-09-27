@@ -78,3 +78,18 @@ func MarkAllAsRead(db *gorm.DB, tenantID, userID uint) error {
 		Where("user_id = ? AND read_at IS NULL", userID).
 		Update("read_at", now).Error
 }
+
+// Delete soft-deletes one of the user's notifications and reports how many
+// rows matched, so the caller can tell "not found / not yours" apart.
+func Delete(db *gorm.DB, tenantID, userID, notificationID uint) (int64, error) {
+	result := tenantdb.ForTenant(db, tenantID).
+		Where("id = ? AND user_id = ?", notificationID, userID).
+		Delete(&notifications_models.Notification{})
+	return result.RowsAffected, result.Error
+}
+
+func DeleteRead(db *gorm.DB, tenantID, userID uint) error {
+	return tenantdb.ForTenant(db, tenantID).
+		Where("user_id = ? AND read_at IS NOT NULL", userID).
+		Delete(&notifications_models.Notification{}).Error
+}

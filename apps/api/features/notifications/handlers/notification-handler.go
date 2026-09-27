@@ -53,6 +53,9 @@ func (h *NotificationHandler) ListNotifications(c *gin.Context) envelope.Respons
 	baseQuery := tenantdb.For(c, h.db).
 		Model(&notifications_models.Notification{}).
 		Where("user_id = ?", userID)
+	if c.Query("unread") == "true" {
+		baseQuery = baseQuery.Where("read_at IS NULL")
+	}
 
 	var total int64
 	if err := baseQuery.Count(&total).Error; err != nil {
@@ -119,4 +122,43 @@ func (h *NotificationHandler) MarkAllAsRead(c *gin.Context) envelope.Response {
 	}
 
 	return envelope.SuccessResponse(nil, "notification.mark_all_read.success")
+}
+
+func (h *NotificationHandler) DeleteNotification(c *gin.Context) envelope.Response {
+	userID, ok := h.currentUserID(c)
+	if !ok {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrNotificationDeleteError)
+	}
+
+	notificationID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrNotificationDeleteError)
+	}
+
+	tenantID := c.GetUint("tenant_id")
+	deleted, err := notifications_service.Delete(h.db, tenantID, userID, uint(notificationID))
+	if err != nil {
+		h.logger.Error("failed to delete notification", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "notification.error.delete_failed", core_errors.ErrNotificationDeleteError)
+	}
+	if deleted == 0 {
+		return envelope.ErrorResponse(http.StatusNotFound, "notification.error.not_found", core_errors.ErrNotificationNotFound)
+	}
+
+	return envelope.SuccessResponse(nil, "notification.delete.success")
+}
+
+func (h *NotificationHandler) DeleteReadNotifications(c *gin.Context) envelope.Response {
+	userID, ok := h.currentUserID(c)
+	if !ok {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrNotificationDeleteError)
+	}
+
+	tenantID := c.GetUint("tenant_id")
+	if err := notifications_service.DeleteRead(h.db, tenantID, userID); err != nil {
+		h.logger.Error("failed to delete read notifications", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "notification.error.delete_failed", core_errors.ErrNotificationDeleteError)
+	}
+
+	return envelope.SuccessResponse(nil, "notification.delete_read.success")
 }

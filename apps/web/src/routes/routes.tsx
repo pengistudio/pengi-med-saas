@@ -73,6 +73,9 @@ const CreateCompanyPage = lazy(
 );
 const Login = lazy(() => import("@/pages/login/login-page"));
 const Profile = lazy(() => import("@/pages/profile/profile"));
+const NotificationsPage = lazy(
+	() => import("@/pages/notifications/notifications-page"),
+);
 const ResetPasswordPage = lazy(
 	() => import("@/pages/reset-password/reset-password-page"),
 );
@@ -359,6 +362,10 @@ const router = createBrowserRouter([
 					{
 						path: "/settings",
 						element: <SettingsPage />,
+					},
+					{
+						path: "/notifications",
+						element: <NotificationsPage />,
 					},
 					{
 						path: "/team",

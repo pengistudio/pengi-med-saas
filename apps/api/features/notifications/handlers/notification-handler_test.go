@@ -2,6 +2,7 @@ package notifications_handlers
 
 import (
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	notifications_dto "pengi-med-saas/features/notifications/dto"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // newAuthedContext builds a gin context scoped to a tenant/user, matching
@@ -129,5 +131,91 @@ func TestMarkAllAsRead_DoesNotAffectOtherUser(t *testing.T) {
 	db.Model(&notifications_models.Notification{}).Where("user_id = ? AND read_at IS NULL", 2).Count(&user2Unread)
 	if user2Unread != 1 {
 		t.Fatalf("expected user 2's notification to remain unread, got %d unread", user2Unread)
+	}
+}
+
+func seedNotification(t *testing.T, db *gorm.DB, tenantID, userID, resourceID uint) notifications_models.Notification {
+	t.Helper()
+	if err := notifications_service.CreateIfNotExists(db, zap.NewNop(), notifications_service.CreateNotificationInput{
+		TenantID: tenantID, UserID: userID, Type: "clinical.draft.stale", ResourceType: "medical_record_draft", ResourceID: resourceID,
+		MessageKey: "notification.clinical.draft.stale", Params: map[string]string{},
+	}); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+	var created notifications_models.Notification
+	if err := db.Where("resource_id = ?", resourceID).First(&created).Error; err != nil {
+		t.Fatalf("failed to load seeded notification: %v", err)
+	}
+	return created
+}
+
+func TestListNotifications_UnreadFilter(t *testing.T) {
+	db := testutils.SetupTestDB(t, &notifications_models.Notification{})
+	seedNotification(t, db, 1, 1, 1)
+	read := seedNotification(t, db, 1, 1, 2)
+	if err := notifications_service.MarkAsRead(db, 1, 1, read.ID); err != nil {
+		t.Fatalf("mark read failed: %v", err)
+	}
+
+	handler := NewNotificationHandler(db, zap.NewNop())
+	c := newAuthedContext(1, 1)
+	c.Request = httptest.NewRequest("GET", "/notifications?unread=true", nil)
+
+	response := handler.ListNotifications(c)
+	if response.Code != 200 {
+		t.Fatalf("expected 200, got %d: %s", response.Code, response.Message)
+	}
+	data := response.Data.(notifications_dto.ListNotificationsResponse)
+	if data.Total != 1 || len(data.Items) != 1 || data.Items[0].ReadAt != nil {
+		t.Fatalf("expected only the unread notification, got total=%d items=%d", data.Total, len(data.Items))
+	}
+	if data.UnreadCount != 1 {
+		t.Fatalf("expected unread_count 1, got %d", data.UnreadCount)
+	}
+}
+
+func TestDeleteNotification_OwnOnly(t *testing.T) {
+	db := testutils.SetupTestDB(t, &notifications_models.Notification{})
+	own := seedNotification(t, db, 1, 1, 1)
+	other := seedNotification(t, db, 1, 2, 2)
+
+	handler := NewNotificationHandler(db, zap.NewNop())
+
+	c := newAuthedContext(1, 1)
+	c.Params = gin.Params{{Key: "id", Value: strconv.Itoa(int(other.ID))}}
+	if response := handler.DeleteNotification(c); response.Code != 404 {
+		t.Fatalf("expected 404 deleting another user's notification, got %d", response.Code)
+	}
+
+	c = newAuthedContext(1, 1)
+	c.Params = gin.Params{{Key: "id", Value: strconv.Itoa(int(own.ID))}}
+	if response := handler.DeleteNotification(c); response.Code != 200 {
+		t.Fatalf("expected 200, got %d: %s", response.Code, response.Message)
+	}
+
+	var remaining int64
+	db.Model(&notifications_models.Notification{}).Count(&remaining)
+	if remaining != 1 {
+		t.Fatalf("expected only the other user's notification to remain, got %d", remaining)
+	}
+}
+
+func TestDeleteReadNotifications_KeepsUnread(t *testing.T) {
+	db := testutils.SetupTestDB(t, &notifications_models.Notification{})
+	seedNotification(t, db, 1, 1, 1)
+	read := seedNotification(t, db, 1, 1, 2)
+	if err := notifications_service.MarkAsRead(db, 1, 1, read.ID); err != nil {
+		t.Fatalf("mark read failed: %v", err)
+	}
+
+	handler := NewNotificationHandler(db, zap.NewNop())
+	if response := handler.DeleteReadNotifications(newAuthedContext(1, 1)); response.Code != 200 {
+		t.Fatalf("expected 200, got %d: %s", response.Code, response.Message)
+	}
+
+	var remaining []notifications_models.Notification
+	db.Find(&remaining)
+	if len(remaining) != 1 || remaining[0].ReadAt != nil {
+		t.Fatalf("expected only the unread notification to remain, got %d", len(remaining))
 	}
 }

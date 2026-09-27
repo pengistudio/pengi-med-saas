@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { enUS, es } from "date-fns/locale";
+import type { Notification } from "@/api/notification-service";
 
 /**
  * Fills a `{{placeholder}}` template (an i18n string resolved via textGet)
@@ -53,4 +54,26 @@ export function formatElapsedDuration(
 	return formatDistanceToNow(date, {
 		locale: lang === "en" ? enUS : es,
 	});
+}
+
+/**
+ * Resolves a notification's full display text: looks up its i18n template
+ * and fills it with its params, computing the live `{{elapsed}}` value for
+ * notifications that carry a `draft_updated_at` timestamp.
+ */
+export function getNotificationText(
+	notification: Pick<Notification, "message_key" | "params">,
+	textGet: (key: string) => string,
+	lang: string | undefined,
+): string {
+	const params = notification.params.draft_updated_at
+		? {
+				...notification.params,
+				elapsed: formatElapsedDuration(
+					notification.params.draft_updated_at,
+					lang,
+				),
+			}
+		: notification.params;
+	return renderNotificationText(textGet(notification.message_key), params);
 }

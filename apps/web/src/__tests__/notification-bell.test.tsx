@@ -154,3 +154,20 @@ describe("NotificationBell", () => {
 		expect(mockMarkAllNotificationsAsRead).toHaveBeenCalled();
 	});
 });
+
+describe("NotificationBell view all", () => {
+	beforeEach(() => {
+		mockNavigate.mockClear();
+		storeState = { notifications: [], unreadCount: 0 };
+	});
+
+	it("links to the full notifications page", async () => {
+		render(<NotificationBell />);
+		fireEvent.click(screen.getByRole("button"));
+
+		const viewAll = await screen.findByText("notification.bell.view_all");
+		fireEvent.click(viewAll);
+
+		expect(mockNavigate).toHaveBeenCalledWith("/notifications");
+	});
+});

@@ -17,9 +17,8 @@ import {
 	type Notification,
 } from "@/api/notification-service";
 import {
-	formatElapsedDuration,
 	formatRelativeTime,
-	renderNotificationText,
+	getNotificationText,
 } from "@/lib/notification-text";
 import { useNotificationStore } from "@/store/notification-store";
 
@@ -34,11 +33,10 @@ const NotificationBell = () => {
 	const markReadLocally = useNotificationStore((s) => s.markReadLocally);
 	const markAllReadLocally = useNotificationStore((s) => s.markAllReadLocally);
 
+	// The store only holds unread notifications (see useNotificationsPoll).
 	const handleSelect = (notification: Notification) => {
-		if (!notification.read_at) {
-			markReadLocally(notification.ID);
-			markNotificationAsRead(notification.ID);
-		}
+		markReadLocally(notification.ID);
+		markNotificationAsRead(notification.ID);
 		if (notification.action_url) {
 			navigate(notification.action_url);
 		}
@@ -90,42 +88,28 @@ const NotificationBell = () => {
 						{textGet("notification.bell.empty")}
 					</div>
 				) : (
-					notifications.map((notification) => {
-						const params = notification.params.draft_updated_at
-							? {
-									...notification.params,
-									elapsed: formatElapsedDuration(
-										notification.params.draft_updated_at,
-										lang,
-									),
-								}
-							: notification.params;
-
-						return (
-							<DropdownMenuItem
-								key={notification.ID}
-								className="flex flex-col items-start gap-1 whitespace-normal py-2"
-								onClick={() => handleSelect(notification)}
-							>
-								<span
-									className={
-										notification.read_at
-											? "text-muted-foreground"
-											: "font-medium"
-									}
-								>
-									{renderNotificationText(
-										textGet(notification.message_key),
-										params,
-									)}
-								</span>
-								<span className="text-xs text-muted-foreground">
-									{formatRelativeTime(notification.CreatedAt, lang)}
-								</span>
-							</DropdownMenuItem>
-						);
-					})
+					notifications.map((notification) => (
+						<DropdownMenuItem
+							key={notification.ID}
+							className="flex flex-col items-start gap-1 whitespace-normal py-2"
+							onClick={() => handleSelect(notification)}
+						>
+							<span className="font-medium">
+								{getNotificationText(notification, textGet, lang)}
+							</span>
+							<span className="text-xs text-muted-foreground">
+								{formatRelativeTime(notification.CreatedAt, lang)}
+							</span>
+						</DropdownMenuItem>
+					))
 				)}
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					className="justify-center text-sm text-muted-foreground"
+					onClick={() => navigate("/notifications")}
+				>
+					{textGet("notification.bell.view_all")}
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
