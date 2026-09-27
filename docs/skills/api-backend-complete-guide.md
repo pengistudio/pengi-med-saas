@@ -5,99 +5,124 @@ description: Guía completa del backend Go/Gin/GORM incluyendo arquitectura, pat
 
 # API Backend — Complete Guide
 
-Guía completa de la arquitectura y desarrollo del backend `apps/api` (Go + Gin + GORM + PostgreSQL).
+Guía de la arquitectura y los patrones del backend `apps/api` (Go + Gin + GORM + PostgreSQL).
+
+> Para crear o extender una feature de punta a punta (permisos, plan, frontend,
+> tests), la receta es la skill `create-feature` (`.claude/skills/create-feature/`).
+> Esta guía es la referencia de arquitectura y patrones del backend.
+> Dominio de referencia para copiar: `features/kanban/` + `routes/kanban-routes.go`.
 
 ## 📐 Arquitectura General
 
 ### Stack Técnico
 
-- **Lenguaje:** Go (`pengi-med-saas`)
+- **Lenguaje:** Go (módulo `pengi-med-saas`)
 - **Framework HTTP:** Gin
 - **ORM:** GORM con PostgreSQL
-- **Logging:** Zap (structured logging)
-- **Messaging:** RabbitMQ (async tasks)
-- **Database:** PostgreSQL 13+
+- **Logging:** Zap (`core/logger`, singleton `logger.Log`)
+- **Messaging:** RabbitMQ (comprobantes SRI)
+- **PDFs:** Gotenberg, siempre vía `core/pdfrender`
 
 ### Estructura de Directorios
 
 ```
 apps/api/
-├── cmd/                          # Entrypoint
-├── configuration/                # Env variables
+├── cmd/main.go                  # Entrypoint: conexión, migraciones, workers, router
 ├── core/
-│   ├── audit/                   # Auditoría de cambios
+│   ├── audit/                   # Plugin de auditoría (IsAuditable) + RecordAccess
 │   ├── auth/                    # JWT, password hashing
-│   ├── brokers/                 # RabbitMQ/messaging
-│   ├── database/                # Setup GORM, migrations map
+│   ├── brokers/rabbitmq/        # Colas, publish, consumers
+│   ├── config/                  # Configuración
+│   ├── database/                # Conexión GORM, GlobalDBMap de code-migrations
 │   ├── envelope/                # Response wrapper (Handle, Success, Error)
-│   ├── errors/                  # AppError type + error codes
+│   ├── errors/                  # AppError + error codes
 │   ├── logger/                  # Zap singleton
-│   ├── middleware/              # Global middleware (rate limiter)
-│   └── utils/                   # General utilities
+│   ├── mailer/                  # Emails (Resend), con adjuntos
+│   ├── middleware/              # Middleware global (rate limiter)
+│   ├── pdfrender/               # HTML → PDF con override por tenant
+│   ├── tenantdb/                # Aislamiento por tenant en la capa de datos
+│   ├── tenantfiles/             # Archivos por tenant (P12, logo, XML, plantillas)
+│   └── utils/
 ├── features/
-│   ├── [dominio]/
-│   │   ├── handlers/            # Business logic (CRUD operations)
-│   │   ├── models/              # GORM database models
-│   │   ├── dto/                 # Data Transfer Objects
-│   │   ├── workers/             # Async workers (optional)
-│   │   └── middleware/          # Domain-specific middleware
-│   ├── backoffice/
-│   ├── billing/
-│   ├── clinical/
-│   ├── companies/               # Plans, subscriptions
-│   ├── health/
-│   ├── kanban/
-│   ├── permissions/
-│   ├── tenants/
-│   └── users/
-├── i18n/
-│   └── messages/
-│       ├── messages_es.json
-│       └── messages_en.json
+│   └── <dominio>/
+│       ├── handlers/            # Un archivo por recurso + *_test.go
+│       ├── models/              # Modelos GORM
+│       ├── dto/                 # Request DTOs
+│       ├── services/            # Opcional: lógica compartida entre handlers
+│       ├── workers/             # Opcional: schedulers / consumers
+│       ├── templates/           # Opcional: HTML de PDFs + embed.go
+│       ├── data/                # Opcional: catálogos estáticos (permissions, users)
+│       └── middleware/          # Opcional: middleware del dominio
+├── i18n/messages/               # messages_es.json, messages_en.json (+ embed.go)
 ├── migrations/
-│   ├── migrate.go               # AutoMigrate + RunAllMigrations
-│   └── code-migrations/
-│       └── [año]/               # Año-basado migrations
-└── routes/
-    ├── index.go                 # RegisterRoutes() master
-    └── [dominio]_routes.go      # Domain-specific routes
+│   ├── migrate.go               # RunMigrations (AutoMigrate) + RunAllMigrations
+│   └── code-migrations/2026/    # Migraciones de datos (package y2026)
+├── routes/
+│   ├── index.go                 # RegisterRoutes(): llama a cada Register<X>Routes
+│   ├── documents.go             # tenantFiles + documentRenderer() compartidos
+│   └── <dominio>-routes.go      # Rutas + middleware del dominio
+└── testutils/                   # SetupTestDB, NewGinContext, Ptr
 ```
 
 ### Dominios Existentes
 
-| Dominio | Propósito | Permisos |
+| Dominio | Propósito | Categoría de permisos |
 |---------|-----------|----------|
-| `backoffice` | Panel de administración | `PERM_BO_*` |
-| `billing` | Facturación, invoices | `PERM_BILL_*` |
-| `clinical` | Pacientes, citas, records | `PERM_CLIN_*` |
-| `companies` | Empresas, planes, suscripciones | `PERM_COMP_*` |
-| `health` | Health check / status | — |
-| `kanban` | Task management | `PERM_KANB_*` |
-| `permissions` | RBAC granular | — |
-| `tenants` | Multi-tenancy | — |
-| `users` | Auth, JWT, environments | `PERM_USR_*` |
+| `audit` | Consulta del log de auditoría | `AUDIT` |
+| `backoffice` | API del panel de administración de plataforma | — (auth propia de backoffice) |
+| `billing` | Facturación electrónica SRI | `BILLING` |
+| `clinical` | Pacientes, citas, historias, documentos médicos | `CLINICAL` |
+| `companies` | Empresas, planes, features, suscripciones, equipo | `TEAM` |
+| `contact` | Formulario de contacto público | — |
+| `health` | Health check | — |
+| `integrations` | Integraciones por tenant (p. ej. calendario) | — |
+| `kanban` | Tareas | `KANBAN` |
+| `notifications` | Notificaciones y anuncios | — |
+| `permissions` | Catálogo de permisos (RBAC) | — |
+| `settings` | Configuración | — |
+| `tenants` | Multi-tenancy, ajustes del tenant, logo | — |
+| `users` | Auth, JWT, environments, roles | — |
+
+Los IDs de permiso son `<ACCION>_<RECURSO>` (`READ_KANBAN`, `CREATE_PATIENT`,
+`MANAGE_SRI_SETTINGS`) y viven en `features/permissions/data/permission-data.go`.
+Detalle en [`docs/backend/permissions-system.md`](../backend/permissions-system.md).
 
 ---
 
 ## 🏢 Multi-Tenancy Model
 
-El sistema es **multi-tenant por defecto**:
-
 ```
 User
-  ├─ Environment[0] → {CompanyID, RoleID, Name}
-  ├─ Environment[1] → {CompanyID, RoleID, Name}
-  └─ Environment[2] → {CompanyID, RoleID, Name}
+  ├─ Environment[0] → {CompanyID, TenantID, RoleID}
+  └─ Environment[1] → ...
 
-Company
-  ├─ Tenant[0] → {subscription, SriP12Path, ...}
-  └─ Tenant[1]
+Company ── Subscription → Plan → Features → Permissions
+  └─ Tenant[0..n]
 
-Todos los modelos de dominio:
-  └─ TenantID uint (filtro obligatorio en queries)
+Modelos de dominio: TenantID uint
 ```
 
-**Clave:** Cada request inyecta `tenant_id` vía `TenantMiddleware`. **TODAS** las queries deben usar `tenant_middleware.TenantScope(c)`.
+`TenantMiddleware(db)` lee el header `X-Tenant-Slug`, verifica que el usuario
+pertenece al tenant y deja `tenant_id`, `company_id` y `environment_id` en el
+contexto.
+
+### Aislamiento — `core/tenantdb`
+
+ADR: [`docs/adr/0002-aislamiento-por-tenant-en-la-capa-de-datos.md`](../adr/0002-aislamiento-por-tenant-en-la-capa-de-datos.md).
+Un plugin GORM agrega `tenant_id = ?` a cada consulta y estampa `TenantID` al
+crear, sobre los handles obtenidos así:
+
+| Contexto | Handle |
+|---|---|
+| Handler HTTP | `db := tenantdb.For(c, h.db)` |
+| Trabajo de fondo sobre un tenant | `tenantdb.ForTenant(db, tenantID)` |
+| Trabajo que cruza tenants (workers, migraciones, backoffice) | `tenantdb.System(db)` |
+
+- `tenantdb.TenantID(c)` devuelve el tenant de la request.
+- `TENANTDB_MODE` = `permissive` | `warn` (default) | `strict`. En `strict` una
+  consulta sobre una tabla con `tenant_id` sin handle de tenant falla.
+- `tenantdb.For` también propaga el usuario para la auditoría.
+- `tenant_middleware.TenantScope` / `AuditScope` son legado: el código nuevo usa `tenantdb`.
 
 ---
 
@@ -106,22 +131,19 @@ Todos los modelos de dominio:
 ```
 HTTP Request
     ↓
-RateLimiter (opcional)
+RateLimiter (rutas de auth)
     ↓
 AuthMiddleware (JWT → user_id)
     ↓
-TenantMiddleware (tenant_id from Environment)
+TenantMiddleware (X-Tenant-Slug → tenant_id)
     ↓
-SubscriptionMiddleware (validate subscription)
+SubscriptionMiddleware (suscripción activa → permisos permitidos por el plan)
     ↓
-RequirePermission (optional, granular RBAC)
+RequirePermission / RequireRolePermission (por ruta)
     ↓
 envelope.Handle(handler.Method)
-    ├─ handler.Method(c *gin.Context) envelope.Response
-    ├─ Procesa lógica
-    └─ Retorna envelope.Response
-    ↓
-envelope.Handle() traduce i18n
+    ├─ handler.Method(c) envelope.Response
+    └─ traduce Message (i18n key) y el error code
     ↓
 HTTP Response (JSON)
 ```
@@ -133,369 +155,296 @@ HTTP Response (JSON)
 ### Handler Pattern
 
 ```go
-type [Nombre]Handler struct {
+type KanbanHandler struct {
     db     *gorm.DB
     logger *zap.Logger
 }
 
-func New[Nombre]Handler(db *gorm.DB, logger *zap.Logger) *[Nombre]Handler {
-    return &[Nombre]Handler{db: db, logger: logger}
+func NewKanbanHandler(db *gorm.DB, logger *zap.Logger) *KanbanHandler {
+    return &KanbanHandler{db: db, logger: logger}
 }
 
-// Método siempre retorna envelope.Response, NO gin.HandlerFunc
-func (h *[Nombre]Handler) GetAll(c *gin.Context) envelope.Response {
-    var items []models.[Nombre]
-    if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Find(&items).Error; err != nil {
-        h.logger.Error("Failed to fetch", zap.Error(err))
-        return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrXxx)
+func (h *KanbanHandler) GetTasks(c *gin.Context) envelope.Response {
+    db := tenantdb.For(c, h.db)
+    var tasks []kanban_models.Task
+    if err := db.Order("position ASC").Find(&tasks).Error; err != nil {
+        h.logger.Error("failed to fetch tasks", zap.Error(err))
+        return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.tasks.fetch.error", core_errors.ErrInternal)
     }
-    return envelope.SuccessResponse(items, "i18n.key")
+    return envelope.SuccessResponse(tasks, "kanban.tasks.fetch.success")
 }
 ```
 
 **Reglas:**
-- Struct con `db` + `logger`
-- Constructor `New[X]Handler`
-- Métodos retornan `envelope.Response`
-- **NUNCA** escribir a `c` directamente
-- Log con `zap`, nunca `fmt.Println`
+- Struct con `db` + `logger`; dependencias extra (`*mailer.Mailer`,
+  `*pdfrender.Renderer`, `tenantfiles.Store`) como argumentos del constructor.
+- Constructor `New<X>Handler`.
+- Métodos retornan `envelope.Response` (excepción: descargas de binarios, ver abajo).
+- Toda consulta de datos de tenant sale de `tenantdb.For(c, h.db)`.
+- Logs con `zap`.
 
 ### DTO Pattern (Validación)
 
 ```go
-// Create: campos required, opcionales sin puntero
-type CreateItemDTO struct {
-    Name     string `json:"name" binding:"required,min=1"`
-    Email    string `json:"email" binding:"required,email"`
-    Status   string `json:"status" binding:"required,oneof=active inactive"`
+// Create: campos planos con binding
+type CreateItemRequest struct {
+    Name   string `json:"name" binding:"required,min=1"`
+    Email  string `json:"email" binding:"required,email"`
+    Status string `json:"status" binding:"required,oneof=active inactive"`
 }
 
-// Update: **TODOS** campos como punteros (partial updates)
-type UpdateItemDTO struct {
-    Name     *string `json:"name"`
-    Email    *string `json:"email" binding:"omitempty,email"`
-    Status   *string `json:"status" binding:"omitempty,oneof=active inactive"`
+// Update: todos los campos como punteros (partial updates)
+type UpdateItemRequest struct {
+    Name   *string `json:"name"`
+    Email  *string `json:"email" binding:"omitempty,email"`
+    Status *string `json:"status" binding:"omitempty,oneof=active inactive"`
 }
 ```
-
-**Binding tags:** `required`, `min`, `max`, `email`, `oneof`, `omitempty`, etc.
 
 ### Modelo Pattern (GORM)
 
 ```go
 type Item struct {
     gorm.Model
-    TenantID    uint   `json:"tenant_id"` // OBLIGATORIO
+    TenantID    uint   `gorm:"not null;index" json:"tenant_id"`
     Name        string `json:"name"`
     Description string `json:"description"`
-    CompanyID   uint   `json:"company_id"`
-    Company     *Company `gorm:"foreignKey:CompanyID; constraint:OnDelete:CASCADE"`
 }
 
-func (Item) TableName() string { return "items" }
+// Opcional: auditar create/update/delete automáticamente
 func (Item) IsAuditable() bool { return true }
 ```
+
+Lecturas sensibles (datos de paciente) se registran explícitamente con
+`audit.RecordAccess(db, c, entityType, id, patientID)`.
 
 ### Response Envelope Pattern
 
 ```go
-// Success simple
-envelope.SuccessResponse(data, "i18n.key")
-
-// Success paginado
-envelope.PagedSuccessResponse(items, total, page, limit, "i18n.key")
-
-// Error
-envelope.ErrorResponse(http.StatusBadRequest, msg, core_errors.ErrXxx)
+envelope.SuccessResponse(data, "domain.resource.action.success")
+envelope.PagedSuccessResponse(items, int(total), page, limit, "domain.resource.list.success")
+envelope.ErrorResponse(http.StatusBadRequest, "domain.resource.invalid.request", core_errors.ErrInvalidRequest)
 ```
+
+El segundo argumento es siempre una **key i18n**, nunca `err.Error()`. El
+error real va al log. `envelope.Handle` traduce la key y también reemplaza el
+mensaje del `AppError` por la traducción de su código.
+
+### Descargas de binarios (PDF, archivos)
+
+Escriben directo con `c.Data(...)` y se registran **sin** `envelope.Handle`:
+
+```go
+recordGroup.GET("/:id/prescription/download", rp(db, "UPDATE_PRESCRIPTION"), downloadHandler.DownloadPrescription)
+```
+
+PDFs: `renderer.Render(tenantdb.TenantID(c), "<name>.html", data, utils.A4Portrait)`
+de `core/pdfrender`; la plantilla default va en `features/<dominio>/templates/`
+con su `embed.go`, sumada a `documentRenderer()` en `routes/documents.go`.
+Archivos del tenant: `core/tenantfiles`. Nunca construyas rutas
+`storage/tenants/...` ni llames a Gotenberg a mano.
 
 ### Error Codes Pattern
 
 ```go
 // core/errors/codes.go
 var (
-    Err[Domain]InvalidRequest AppError = NewAppError("E-[DOM]-001", "Invalid request")
-    Err[Domain]NotFound       AppError = NewAppError("E-[Domain]-002", "Not found")
-    Err[Domain]CreateError    AppError = NewAppError("E-[DOM]-003", "Error creating")
-    Err[Domain]UpdateError    AppError = NewAppError("E-[DOM]-004", "Error updating")
-    Err[Domain]DeleteError    AppError = NewAppError("E-[DOM]-005", "Error deleting")
+    // Item Errors
+    ErrItemNotFound AppError = NewAppError("E-ITEM-001", "Item not found.")
 )
 ```
 
-**Formato código:** `E-[PREFIJO]-[NNN]`
+**Formato:** `E-<PREFIJO>-<NNN>`, numeración secuencial por prefijo. Cada código
+necesita su key en **ambos** JSON de i18n (`{"key": "E-ITEM-001", "value": "..."}`);
+si falta, el cliente ve el código literal.
 
-Prefijos existentes:
-- `INT` = Internal
-- `AUTH` = Authentication
-- `USR` = User
-- `TEN` = Tenant
-- `CLIN` = Clinical
-- `BILL` = Billing
-- `KANB` = Kanban
-- `PERM` = Permissions
+Prefijos en uso: `INT` (interno/genérico e integraciones), `AUTH`, `USR`, `COMP`,
+`TEN`, `TEAM`, `PLAN`, `PERM`, `CLIN`, `BILL`, `BO` (backoffice), `ANN`
+(anuncios), `NOTIF`, `AUDIT`, `MES`. Para errores genéricos reutiliza
+`ErrInternal` / `ErrInvalidRequest`.
 
 ### Middleware Pattern
 
-```go
-// Middleware global (en routes/index.go)
-group := router.Group(
-    "/api/v1",
-    auth_middleware.AuthMiddleware(),
-    tenant_middleware.TenantMiddleware(db),
-    subscription_middleware.SubscriptionMiddleware(db),
-)
+El orden de middleware se declara en cada archivo de rutas:
 
-// Middleware específico por ruta
-group.POST("/items", 
-    subscription_middleware.RequirePermission(db, "PERM_ITEM_CREATE"),
-    envelope.Handle(handler.Create),
-)
+```go
+func RegisterKanbanRoutes(router *gin.RouterGroup, db *gorm.DB) {
+    kanbanHandler := kanban_handlers.NewKanbanHandler(db, logger.Log)
+
+    kanbanGroup := router.Group("/kanban",
+        auth_middleware.AuthMiddleware(),
+        tenant_middleware.TenantMiddleware(db),
+        subscription_middleware.SubscriptionMiddleware(db),
+    )
+
+    rp := subscription_middleware.RequirePermission
+
+    kanbanGroup.GET("/tasks", rp(db, "READ_KANBAN"), envelope.Handle(kanbanHandler.GetTasks))
+    kanbanGroup.POST("/tasks", rp(db, "CREATE_KANBAN"), envelope.Handle(kanbanHandler.CreateTask))
+}
 ```
+
+- `RequirePermission(db, id)`: el plan de la suscripción incluye el permiso **y** el rol lo tiene.
+- `RequireRolePermission(db, id)`: solo el rol (equipo, `routes/company_routes.go`).
+- Sin permisos: el grupo lleva solo auth + tenant (`routes/notification-routes.go`).
+
+Import: `subscription_middleware "pengi-med-saas/features/companies/middleware"`.
 
 ---
 
 ## 🛠️ Cómo Implementar un Feature Nuevo
 
-### Paso 1: Crear Modelo
+La receta completa (incluidos permisos, plan, frontend y tests) es la skill
+`create-feature`. Los pasos de backend:
 
-**Archivo:** `features/[dominio]/models/[nombre].go`
+### Paso 1: Modelo
 
-```go
-package [dominio]_models
+`features/<dominio>/models/<nombre>.go` (package `<dominio>_models`), con
+`gorm.Model` + `TenantID`, como en el patrón de arriba.
 
-import "gorm.io/gorm"
+### Paso 2: DTOs
 
-type Item struct {
-    gorm.Model
-    TenantID    uint   `json:"tenant_id"`
-    Name        string `json:"name"`
-    Description string `json:"description"`
-}
+`features/<dominio>/dto/<nombre>-dto.go` (package `<dominio>_dto`):
+`Create<X>Request` / `Update<X>Request`.
 
-func (Item) IsAuditable() bool { return true }
-```
+### Paso 3: Handler
 
-### Paso 2: Crear DTOs
-
-**Archivo:** `features/[dominio]/dto/[nombre]-dto.go`
+`features/<dominio>/handlers/<nombre>-handler.go` (package `<dominio>_handlers`):
 
 ```go
-package dto
-
-type CreateItemDTO struct {
-    Name        string `json:"name" binding:"required"`
-    Description string `json:"description"`
-}
-
-type UpdateItemDTO struct {
-    Name        *string `json:"name"`
-    Description *string `json:"description"`
-}
-```
-
-### Paso 3: Crear Handler
-
-**Archivo:** `features/[dominio]/handlers/[nombre]-handler.go`
-
-```go
-package [dominio]_handlers
-
-import (
-    "net/http"
-    "pengi-med-saas/core/envelope"
-    core_errors "pengi-med-saas/core/errors"
-    [dominio]_dto "pengi-med-saas/features/[dominio]/dto"
-    [dominio]_models "pengi-med-saas/features/[dominio]/models"
-    tenant_middleware "pengi-med-saas/features/tenants/middleware"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
-    "gorm.io/gorm"
-)
-
-type ItemHandler struct {
-    db     *gorm.DB
-    logger *zap.Logger
-}
-
-func NewItemHandler(db *gorm.DB, logger *zap.Logger) *ItemHandler {
-    return &ItemHandler{db: db, logger: logger}
-}
-
-func (h *ItemHandler) GetAll(c *gin.Context) envelope.Response {
-    var items [][dominio]_models.Item
-    if err := h.db.Scopes(tenant_middleware.TenantScope(c)).Find(&items).Error; err != nil {
-        h.logger.Error("Failed to fetch items", zap.Error(err))
-        return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrItemInvalidRequest)
-    }
-    return envelope.SuccessResponse(items, "item.list.success")
-}
-
 func (h *ItemHandler) Create(c *gin.Context) envelope.Response {
-    var dto [dominio]_dto.CreateItemDTO
-    if err := c.ShouldBindJSON(&dto); err != nil {
-        return envelope.ErrorResponse(http.StatusBadRequest, err.Error(), core_errors.ErrItemInvalidRequest)
+    var req item_dto.CreateItemRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        return envelope.ErrorResponse(http.StatusBadRequest, "item.invalid.request", core_errors.ErrInvalidRequest)
     }
 
-    tenantID, _ := c.Get("tenant_id")
-    item := &[dominio]_models.Item{
-        TenantID:    tenantID.(uint),
-        Name:        dto.Name,
-        Description: dto.Description,
+    db := tenantdb.For(c, h.db)
+    item := item_models.Item{
+        TenantID:    tenantdb.TenantID(c),
+        Name:        req.Name,
+        Description: req.Description,
     }
-
-    if err := h.db.Scopes(tenant_middleware.AuditScope(c)).Create(item).Error; err != nil {
-        h.logger.Error("Failed to create item", zap.Error(err))
-        return envelope.ErrorResponse(http.StatusInternalServerError, err.Error(), core_errors.ErrItemCreateError)
+    if err := db.Create(&item).Error; err != nil {
+        h.logger.Error("failed to create item", zap.Error(err))
+        return envelope.ErrorResponse(http.StatusInternalServerError, "item.create.error", core_errors.ErrInternal)
     }
-
     return envelope.SuccessResponse(item, "item.create.success")
 }
-```
 
-### Paso 4: Agregar Error Codes
-
-**Archivo:** `core/errors/codes.go`
-
-```go
-var (
-    ErrItemInvalidRequest AppError = NewAppError("E-ITEM-001", "Invalid item request")
-    ErrItemNotFound       AppError = NewAppError("E-ITEM-002", "Item not found")
-    ErrItemCreateError    AppError = NewAppError("E-ITEM-003", "Error creating item")
-)
-```
-
-### Paso 5: Crear Rutas
-
-**Archivo:** `routes/item_routes.go`
-
-```go
-package routes
-
-import (
-    "pengi-med-saas/core/envelope"
-    "pengi-med-saas/core/logger"
-    item_handlers "pengi-med-saas/features/item/handlers"
-    tenant_middleware "pengi-med-saas/features/tenants/middleware"
-    auth_middleware "pengi-med-saas/features/users/middleware"
-    "github.com/gin-gonic/gin"
-    "gorm.io/gorm"
-)
-
-func RegisterItemRoutes(router *gin.RouterGroup, db *gorm.DB) {
-    handler := item_handlers.NewItemHandler(db, logger.Log)
-    
-    group := router.Group(
-        "/items",
-        auth_middleware.AuthMiddleware(),
-        tenant_middleware.TenantMiddleware(db),
-    )
-    {
-        group.GET("", envelope.Handle(handler.GetAll))
-        group.GET("/:id", envelope.Handle(handler.GetByID))
-        group.POST("", envelope.Handle(handler.Create))
-        group.PUT("/:id", envelope.Handle(handler.Update))
-        group.DELETE("/:id", envelope.Handle(handler.Delete))
+func (h *ItemHandler) GetByID(c *gin.Context) envelope.Response {
+    db := tenantdb.For(c, h.db)
+    var item item_models.Item
+    if err := db.First(&item, c.Param("id")).Error; err != nil {
+        return envelope.ErrorResponse(http.StatusNotFound, "item.not_found", core_errors.ErrItemNotFound)
     }
+    return envelope.SuccessResponse(item, "item.found")
 }
 ```
+
+`First` sobre un handle de tenant devuelve not found si el registro es de otro
+tenant: no hace falta filtrar a mano.
+
+### Paso 4: Error Codes
+
+En `core/errors/codes.go` + su key en ambos JSON de i18n.
+
+### Paso 5: Rutas
+
+`routes/<dominio>-routes.go` con `Register<Dominio>Routes`, siguiendo el
+patrón de middleware de arriba.
 
 ### Paso 6: Registrar en Index
 
-**Archivo:** `routes/index.go`
-
 ```go
-func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
-    // ... otras rutas
-    RegisterItemRoutes(router, db)  // ← Agregar
-}
+// routes/index.go → RegisterRoutes
+RegisterItemRoutes(router, db)
 ```
 
-### Paso 7: Agregar Migración
-
-**Archivo:** `migrations/migrate.go`
+### Paso 7: Migración de esquema
 
 ```go
-import item_models "pengi-med-saas/features/item/models"
-
-// En RunMigrations():
-err := db.AutoMigrate(
-    // ... otros
-    &item_models.Item{},
-)
+// migrations/migrate.go → RunMigrations, en la lista de modelos
+&item_models.Item{},
 ```
 
-### Paso 8: Agregar i18n Keys
+Las migraciones de **datos** (seeds, permisos) son code-migrations: archivo
+nuevo en `migrations/code-migrations/2026/` con key `DB<YYYYMMDD>_<n>` nueva.
+Una migración ya presente en `origin/main` es inmutable. Reglas en
+[`docs/backend/api-code-migration.md`](../backend/api-code-migration.md).
 
-**Archivo:** `apps/api/i18n/messages/messages_es.json`
+### Paso 8: i18n Keys
+
+`apps/api/i18n/messages/messages_es.json` y `messages_en.json` son un array plano:
 
 ```json
-{
-  "item": {
-    "list": { "success": "Lista de ítems obtenida" },
-    "found": "Ítem encontrado",
-    "create": { "success": "Ítem creado exitosamente" },
-    "update": { "success": "Ítem actualizado" },
-    "delete": { "success": "Ítem eliminado" }
-  }
+[
+  { "key": "item.list.success", "value": "Lista de ítems obtenida" },
+  { "key": "item.create.success", "value": "Ítem creado exitosamente" },
+  { "key": "E-ITEM-001", "value": "Ítem no encontrado." }
+]
+```
+
+Se siembran en la BD en cada arranque. Agrega cada key en los dos archivos.
+
+### Paso 9: Tests
+
+`features/<dominio>/handlers/<nombre>_test.go`:
+
+```go
+func TestCreateItem(t *testing.T) {
+    db := testutils.SetupTestDB(t, &item_models.Item{})
+    h := NewItemHandler(db, zap.NewNop())
+
+    c, _ := testutils.NewGinContext(1, 1)
+    body, _ := json.Marshal(item_dto.CreateItemRequest{Name: "x"})
+    c.Request = httptest.NewRequest(http.MethodPost, "/items", bytes.NewReader(body))
+    c.Request.Header.Set("Content-Type", "application/json")
+
+    res := h.Create(c)
+    if res.Code != http.StatusOK { t.Fatalf("got %d", res.Code) }
 }
 ```
 
-Y en `messages_en.json` con equivalentes en inglés.
+- `SetupTestDB` usa el Postgres del contenedor si está disponible y sqlite en
+  memoria en CI; migra solo los modelos pasados.
+- Aislamiento entre tenants: patrón `features/clinical/handlers/tenant_isolation_test.go`.
+- Correr: `just tests-api` (dentro del contenedor) o `go test ./...` en `apps/api`.
+
+---
+
+## ⚙️ Trabajo en segundo plano
+
+- **Schedulers:** `features/<dominio>/workers/<x>-scheduler.go` con `Start()`,
+  arrancado en `cmd/main.go` (`go scheduler.Start()`).
+- **Consumers RabbitMQ:** `core/brokers/rabbitmq` (`DeclareQueueWithRetry`,
+  `PublishMessage`, `StartConsumer`), lanzados con `rabbitmq.Run(...)` en `cmd/main.go`.
+- Datos: `tenantdb.System(db)` para recorrer tenants, `tenantdb.ForTenant(db, id)` para uno.
+- Comprobantes SRI: un tipo nuevo es un `Kind` nuevo en
+  `features/billing/sri-document/kinds.go` (ver ADR 0001).
 
 ---
 
 ## 📝 Logging con Zap
 
 ```go
-// Error con contexto
-h.logger.Error("Failed to create item", zap.Error(err))
-
-// Info con campos
-h.logger.Info("Item created successfully", zap.Uint("id", item.ID))
-
-// Warning
-h.logger.Warn("Unexpected behavior", zap.String("field", value))
-
-// Campos comunes
-zap.Error(err)
-zap.Uint("id", id)
-zap.String("name", name)
-zap.Bool("active", active)
+h.logger.Error("failed to create item", zap.Error(err))
+h.logger.Info("item created", zap.Uint("id", item.ID))
+h.logger.Warn("unexpected state", zap.String("field", value))
 ```
 
-**Regla:** Nunca `fmt.Println`, `log.Fatal`, `panic`. Usar zap para TODO.
+Excepción: las code-migrations imprimen progreso con `fmt.Printf("✅ ...")`.
 
 ---
 
-## 🔐 Multi-Tenancy Rules
+## ✅ Checklist para Feature Nuevo (backend)
 
-1. **Modelo:** Siempre incluir `TenantID uint`
-2. **Query:** **SIEMPRE** usar `tenant_middleware.TenantScope(c)`
-3. **Create:** Inyectar `tenantID` desde context: `tenantID, _ := c.Get("tenant_id")`
-4. **Audit:** Usar `AuditScope(c)` en Create/Update si `IsAuditable()`
-
-```go
-// ❌ MALO
-db.Find(&items)  // Sin tenant scope = datos de otros tenants
-
-// ✅ BUENO
-db.Scopes(tenant_middleware.TenantScope(c)).Find(&items)  // Filtrado por tenant
-```
-
----
-
-## ✅ Checklist para Feature Nuevo
-
-- [ ] Modelo creado con `gorm.Model` + `TenantID`
-- [ ] DTOs creados (Create normal, Update con punteros)
+- [ ] Modelo con `gorm.Model` + `TenantID`, agregado a `RunMigrations`
+- [ ] DTOs (Create plano, Update con punteros)
 - [ ] Handler con struct + constructor + métodos `envelope.Response`
-- [ ] Error codes agregados en `core/errors/codes.go`
-- [ ] Rutas creadas con `envelope.Handle()`
+- [ ] Todas las consultas vía `tenantdb.For(c, h.db)` (o `ForTenant`/`System` fuera de requests)
+- [ ] Error codes en `core/errors/codes.go`, cada uno con key i18n
+- [ ] Rutas con middleware + `RequirePermission` + `envelope.Handle()`
 - [ ] Rutas registradas en `routes/index.go`
-- [ ] Modelo en `migrations/migrate.go`
 - [ ] i18n keys en ambos JSON
-- [ ] Todos los logs con `zap`
-- [ ] Todas las queries con `TenantScope(c)`
-- [ ] `go vet ./...` sin errores
-- [ ] Siguiendo imports pattern con aliases
-
+- [ ] Tests `*_test.go` del handler
+- [ ] `go build ./... && go vet ./... && go test ./...` en `apps/api`

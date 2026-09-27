@@ -1,167 +1,63 @@
 # Pengi Med SaaS — Development Documentation
 
-Central documentation hub for all developers working on Pengi Med SaaS.
+Documentación de desarrollo de Pengi Med SaaS, válida para cualquier editor.
+Las convenciones generales del proyecto están en [`../CLAUDE.md`](../CLAUDE.md).
 
-**Whether you use Claude Code, Cursor, Copilot, VS Code, or anything else — this is where to find development guides.**
+## 🎯 Empieza aquí
 
-## 🎯 START HERE: Consolidated Skills
-
-**All documentation has been consolidated into comprehensive guides in [`docs/skills/`](skills/README.md)**
-
-### Quick Links
-
-- **[API Backend — Complete Guide](skills/api-backend-complete-guide.md)** — Architecture + patterns + how-to implement features
-- **[Web Frontend — Complete Guide](skills/web-frontend-complete-guide.md)** — Architecture + patterns + how-to implement features
-- **[Form Creation Standard](skills/form-creation-standard.md)** — Standard for creating forms with Zod + Form components
-- **[Skills Index](skills/README.md)** — Full list of all available skills
-
----
-
-## 📚 Documentation by Area (Legacy References)
-
-### Backend (Go)
-**Path:** [`apps/api/`](../apps/api)
-
-**Recommended:** [API Backend — Complete Guide](skills/api-backend-complete-guide.md)
-
-Additional references:
-- [backend/api-code-migration.md](backend/api-code-migration.md) — Code migrations & database changes
-- [backend/permissions-system.md](backend/permissions-system.md) — RBAC & granular permissions
-
-### Frontend (React — SaaS App)
-**Path:** [`apps/web/`](../apps/web)
-
-**Recommended:** [Web Frontend — Complete Guide](skills/web-frontend-complete-guide.md)
-
-Additional references:
-- [frontend/README.md](frontend/README.md) — Frontend overview
-
-### Backoffice (React — Admin Panel)
-**Path:** [`apps/backoffice/`](../apps/backoffice)
-
-See [backoffice/README.md](backoffice/README.md) for:
-- Admin panel architecture
-- Managing companies, plans, subscriptions
-- Roles, permissions, features
-- How to add new admin operations
-- Automatic features calculation
-
-Start here: [backoffice/backoffice-architecture.md](backoffice/backoffice-architecture.md)
-
-### Database
-**Path:** [`apps/api/migrations/`](../apps/api/migrations)
-
-See [database/README.md](database/README.md) for:
-- Migration strategy
-- Schema documentation
-- Multi-tenancy design
-
-*Documentation coming soon*
-
-## 🔗 IDE Integrations
-
-- **Claude Code** — Reads `/docs` automatically
-- **Cursor, VS Code, Others** — Use `/docs` folder directly (no setup needed)
-
-All documentation is IDE-agnostic and lives here.
-
-## 📖 Quick Navigation
-
-### Backend Tasks
-| What do you need? | Where to look |
+| Qué necesitas | Dónde |
 |---|---|
-| Understand the backend architecture | [backend/api-architecture-reference.md](backend/api-architecture-reference.md) |
-| Add a new API feature | [backend/api-new-feature.md](backend/api-new-feature.md) |
-| Create a database migration | [backend/api-code-migration.md](backend/api-code-migration.md) |
-| Handle errors & responses | [backend/api-errors-routes-responses.md](backend/api-errors-routes-responses.md) |
-| Manage permissions system | [backend/permissions-system.md](backend/permissions-system.md) |
+| Crear o extender una feature de punta a punta | skill [`create-feature`](../.claude/skills/create-feature/SKILL.md) |
+| Arquitectura y patrones del backend | [skills/api-backend-complete-guide.md](skills/api-backend-complete-guide.md) |
+| Arquitectura y patrones del frontend | [skills/web-frontend-complete-guide.md](skills/web-frontend-complete-guide.md) |
+| Formularios | [skills/form-creation-standard.md](skills/form-creation-standard.md) |
+| Code-migrations | [backend/api-code-migration.md](backend/api-code-migration.md) |
+| Permisos, roles y planes | [backend/permissions-system.md](backend/permissions-system.md) |
+| Panel de administración | [backoffice/README.md](backoffice/README.md) |
+| Decisiones de arquitectura | [adr/](adr/) |
+| Glosario del dominio | [`../CONTEXT.md`](../CONTEXT.md) |
 
-### Frontend Tasks
-| What do you need? | Where to look |
-|---|---|
-| Understand frontend architecture | [frontend/web-architecture-reference.md](frontend/web-architecture-reference.md) |
-| Add a new frontend feature | [frontend/web-new-feature.md](frontend/web-new-feature.md) |
-| Create API services | [frontend/web-api-services.md](frontend/web-api-services.md) |
-| Use state management | [frontend/web-state-management.md](frontend/web-state-management.md) |
-
-### Backoffice Tasks
-| What do you need? | Where to look |
-|---|---|
-| Understand backoffice architecture | [backoffice/backoffice-architecture.md](backoffice/backoffice-architecture.md) |
-| Manage companies, plans, subscriptions | [backoffice/backoffice-domains-guide.md](backoffice/backoffice-domains-guide.md) |
-| Add a new admin operation | [backoffice/backoffice-new-admin-feature.md](backoffice/backoffice-new-admin-feature.md) |
-| Understand features calculation | [backoffice/backoffice-domains-guide.md](backoffice/backoffice-domains-guide.md#-diagrama-de-relaciones) |
-
-### General
-| What do you need? | Where to look |
-|---|---|
-| General project rules | [../CLAUDE.md](../CLAUDE.md) |
-
-## 🤝 Contributing
-
-When you discover patterns, best practices, or gotchas:
-1. Update the relevant `.md` file in `/docs`
-2. Keep documentation in sync — single source of truth
-3. Add examples, not just theory
-
-## 📞 Questions?
-
-- Check `CLAUDE.md` for project conventions
-- Search this folder for related topics
-- Update docs if something is missing or outdated
-
-## 🗂️ Full Index
+## 🗂️ Índice
 
 ```
 docs/
-├── README.md                          # ← You are here
-│
+├── README.md                              # ← estás aquí
+├── skills/                                # guías de arquitectura + paso a paso
+│   ├── README.md
+│   ├── api-backend-complete-guide.md
+│   ├── web-frontend-complete-guide.md
+│   └── form-creation-standard.md
 ├── backend/
 │   ├── README.md
-│   ├── api-architecture-reference.md
-│   ├── api-new-feature.md
 │   ├── api-code-migration.md
-│   ├── api-errors-routes-responses.md
 │   └── permissions-system.md
-│
 ├── frontend/
-│   ├── README.md
-│   ├── web-architecture-reference.md
-│   ├── web-api-services.md
-│   ├── web-state-management.md
-│   └── web-new-feature.md
-│
+│   └── README.md
 ├── backoffice/
 │   ├── README.md
 │   ├── backoffice-architecture.md
 │   ├── backoffice-domains-guide.md
 │   └── backoffice-new-admin-feature.md
-│
-└── database/
-    └── (coming soon)
+├── adr/
+│   ├── 0001-clave-de-acceso-inmutable.md
+│   └── 0002-aislamiento-por-tenant-en-la-capa-de-datos.md
+└── superpowers/                           # planes y specs de features pasadas (histórico)
 ```
 
 ## 🎯 App Structure Overview
 
 ```
-Pengi Med SaaS
-├── apps/api/                 → Go backend (Gin + GORM)
-│   └── endpoints /api/v1/... → REST API
-│
-├── apps/web/                 → React frontend (SaaS app for users)
-│   └── routes                → /dashboard, /clinical, /billing, etc
-│
-├── apps/backoffice/          → React admin panel
-│   └── routes                → /companies, /plans, /subscriptions, etc
-│
-├── apps/landing/             → Astro landing page
-│
-└── docs/                      → This documentation
+apps/api/             → Go backend (Gin + GORM), REST en /api/v1
+apps/web/             → React, app de las clínicas (/clinical, /billing, /tasks...)
+apps/backoffice/      → React, panel de administración de plataforma
+apps/landing/         → Astro, landing page
+apps/sri-xml-signer/  → Node.js, firma de XML para el SRI
+packages/ui/          → @pengi/ui, componentes visuales compartidos
+packages/shared/      → @pengi/shared, cliente HTTP e i18n compartidos
 ```
 
-## 🚀 Getting Started
+## 🤝 Contributing
 
-1. **New to the project?** Start with `CLAUDE.md` for project conventions
-2. **Working on backend?** Read [backend/api-architecture-reference.md](backend/api-architecture-reference.md)
-3. **Working on frontend?** Read [frontend/web-architecture-reference.md](frontend/web-architecture-reference.md)
-4. **Working on admin panel?** Read [backoffice/backoffice-architecture.md](backoffice/backoffice-architecture.md)
+Cuando descubras un patrón o una trampa, actualiza el `.md` que corresponde
+(una sola fuente por tema). Si una doc contradice al código, gana el código:
+corrige la doc.

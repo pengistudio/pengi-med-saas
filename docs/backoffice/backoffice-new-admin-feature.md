@@ -1,505 +1,278 @@
 # Backoffice — Implementing Admin Features
 
-Guía paso a paso para agregar nuevas operaciones administrativas.
+Paso a paso para agregar una sección nueva al backoffice, de la API a la
+pantalla. El backoffice no tiene tenants, permisos por rol ni planes: se salta
+todo ese cableado (ver [`backoffice-architecture.md`](backoffice-architecture.md)).
 
-## 🎯 Ejemplo: Agregar "Feature Management"
+Ejemplo: una sección **Coupons** (cupones de descuento). Referencia real para
+copiar: la sección **Features** (`backoffice-feature-handler.go` +
+`src/api/feature-service.ts` + `src/pages/features/*`).
 
-Agregaremos una página para crear/editar/listar features administrativos.
+## Paso 1: Modelo (si es nuevo)
 
-## Paso 1: Crear Tipos (TypeScript)
+En el dominio al que pertenece el dato (no en `features/backoffice/`), p. ej.
+`apps/api/features/companies/models/coupon-model.go`:
 
-```typescript
-// apps/backoffice/src/types/feature-type.ts
-
-export interface Feature extends BaseModel {
-    code: string;           // Identificador único
-    name: string;
-    Permissions?: Permission[];
-}
-
-export interface Permission {
-    id: string;
-    name: string;
-    category: string;
-}
-
-export interface CreateFeaturePayload {
-    code: string;
-    name: string;
-    permission_ids: string[];  // Permisos a incluir
-}
-
-export interface UpdateFeaturePayload {
-    name?: string;
-    permission_ids?: string[];
+```go
+type Coupon struct {
+    gorm.Model
+    Code     string  `gorm:"not null;unique" json:"code"`
+    Discount float64 `gorm:"not null" json:"discount"`
+    Active   bool    `gorm:"not null;default:true" json:"active"`
 }
 ```
 
-## Paso 2: Crear Servicio
+Agrégalo a `RunMigrations` en `apps/api/migrations/migrate.go`. Si es un dato
+de un tenant, lleva `TenantID` como cualquier modelo de la app.
 
-```typescript
-// apps/backoffice/src/api/feature-service.ts
+## Paso 2: Handler
 
-import { createHttpService } from "./fetch";
-import { api } from "./index";
-import type { Feature, CreateFeaturePayload, UpdateFeaturePayload } from "@/types/feature-type";
+`apps/api/features/backoffice/handlers/backoffice-coupon-handler.go`:
 
-const featureService = createHttpService(api);
+```go
+type BackofficeCouponHandler struct {
+    db     *gorm.DB
+    logger *zap.Logger
+}
 
-// ── Features ────────────────────────────────────
+// System: el backoffice trabaja sobre todos los tenants (ADR 0002).
+func NewBackofficeCouponHandler(db *gorm.DB, logger *zap.Logger) *BackofficeCouponHandler {
+    return &BackofficeCouponHandler{db: tenantdb.System(db), logger: logger}
+}
 
-export const getFeatures = async () =>
-    featureService.get<Feature[]>("/backoffice/features");
+type CreateCouponRequest struct {
+    Code     string  `json:"code" binding:"required"`
+    Discount float64 `json:"discount" binding:"required,gt=0"`
+}
 
-export const getFeatureByID = async (id: number) =>
-    featureService.get<Feature>(`/backoffice/features/${id}`);
+func (h *BackofficeCouponHandler) GetCoupons(c *gin.Context) envelope.Response {
+    var coupons []company_models.Coupon
+    if err := h.db.Order("created_at DESC").Find(&coupons).Error; err != nil {
+        h.logger.Error("failed to fetch coupons", zap.Error(err))
+        return envelope.ErrorResponse(http.StatusInternalServerError, "backoffice.coupon.list.error", core_errors.ErrInternal)
+    }
+    return envelope.SuccessResponse(coupons, "backoffice.coupon.list.success")
+}
 
-export const createFeature = async (payload: CreateFeaturePayload) =>
-    featureService.post<Feature>("/backoffice/features", payload, {
-        notifySuccess: true,
-        notifyError: true,
-    });
+func (h *BackofficeCouponHandler) CreateCoupon(c *gin.Context) envelope.Response {
+    var req CreateCouponRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        return envelope.ErrorResponse(http.StatusBadRequest, "backoffice.coupon.invalid.request", core_errors.ErrBackofficeInvalidRequest)
+    }
+    coupon := company_models.Coupon{Code: req.Code, Discount: req.Discount, Active: true}
+    if err := h.db.Create(&coupon).Error; err != nil {
+        h.logger.Error("failed to create coupon", zap.Error(err))
+        return envelope.ErrorResponse(http.StatusInternalServerError, "backoffice.coupon.create.error", core_errors.ErrInternal)
+    }
+    return envelope.New(http.StatusCreated, "backoffice.coupon.create.success", coupon)
+}
 
-export const updateFeature = async (id: number, payload: UpdateFeaturePayload) =>
-    featureService.put<Feature>(`/backoffice/features/${id}`, payload, {
-        notifySuccess: true,
-        notifyError: true,
-    });
-
-export const deleteFeature = async (id: number) =>
-    featureService.delete<void>(`/backoffice/features/${id}`, {
-        notifySuccess: true,
-        notifyError: true,
-    });
+// GetCouponByID, UpdateCoupon, DeleteCoupon: igual, con c.Param("id").
 ```
 
-## Paso 3: Crear Store (si es necesario)
+- Los mensajes son **keys i18n** (algunos handlers viejos del backoffice pasan
+  texto plano; no los copies en eso).
+- DTOs: inline en el handler si son pocos (como features) o en
+  `features/backoffice/dto/`.
+- Error codes nuevos: `E-BO-NNN` en `core/errors/codes.go`, con su key i18n.
+- Tests: `backoffice-coupon-handler_test.go` con `testutils.SetupTestDB`
+  (patrón `backoffice-announcement-handler_test.go`).
 
-```typescript
-// apps/backoffice/src/store/feature-store.ts
+## Paso 3: Rutas
 
-import { create } from "zustand";
-import type { Feature } from "@/types/feature-type";
+`apps/api/routes/backoffice_routes.go`, dentro de `RegisterBackofficeRoutes`:
 
-type FeatureStore = {
-    selectedFeature?: Feature;
-    searchTerm: string;
-    
-    setSelectedFeature: (feature: Feature) => void;
-    setSearchTerm: (term: string) => void;
-    clear: () => void;
-};
-
-export const useFeatureStore = create<FeatureStore>((set) => ({
-    selectedFeature: undefined,
-    searchTerm: "",
-    
-    setSelectedFeature: (feature) => set({ selectedFeature: feature }),
-    setSearchTerm: (term) => set({ searchTerm: term }),
-    clear: () => set({ selectedFeature: undefined, searchTerm: "" }),
-}));
+```go
+backofficeCouponHandler := backoffice_handlers.NewBackofficeCouponHandler(db, logger.Log)
+backofficeCouponRoutes := router.Group("/backoffice/coupons", backofficeAuth)
+{
+    backofficeCouponRoutes.GET("", envelope.Handle(backofficeCouponHandler.GetCoupons))
+    backofficeCouponRoutes.GET("/:id", envelope.Handle(backofficeCouponHandler.GetCouponByID))
+    backofficeCouponRoutes.POST("", envelope.Handle(backofficeCouponHandler.CreateCoupon))
+    backofficeCouponRoutes.PUT("/:id", envelope.Handle(backofficeCouponHandler.UpdateCoupon))
+    backofficeCouponRoutes.DELETE("/:id", envelope.Handle(backofficeCouponHandler.DeleteCoupon))
+}
 ```
 
-## Paso 4: Crear Página Principal
+Con esas cinco rutas el recurso encaja en `lib/resource` sin código extra.
+
+## Paso 4: Servicio
+
+`apps/backoffice/src/api/coupon-service.ts`:
 
 ```typescript
-// apps/backoffice/src/pages/features/list.tsx
+import { resource } from "@/lib/resource/http-resource";
 
-import React from "react";
-import { useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+export interface Coupon {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  code: string;
+  discount: number;
+  active: boolean;
+}
+
+export interface CreateCouponRequest extends Record<string, unknown> {
+  code: string;
+  discount: number;
+}
+
+export interface UpdateCouponRequest extends Record<string, unknown> {
+  discount?: number;
+  active?: boolean;
+}
+
+export const coupons = resource<Coupon, CreateCouponRequest, UpdateCouponRequest>("coupons");
+```
+
+Endpoints fuera del CRUD (acciones, listados filtrados) son funciones extra con
+`createHttpService(api)` en el mismo archivo (patrón
+`announcement-service.ts` → `cancelAnnouncement`).
+
+## Paso 5: Listado
+
+`apps/backoffice/src/pages/coupons/coupon-list.tsx`:
+
+```typescript
+import { type Coupon, coupons } from "@/api/coupon-service";
+import { type ResourceColumn, ResourceList } from "@/lib/resource";
+
+const columns: ResourceColumn<Coupon>[] = [
+  { header: "backoffice.coupons.col.code", cell: (c) => c.code, className: "font-mono text-sm" },
+  { header: "backoffice.coupons.col.discount", cell: (c) => `${c.discount}%` },
+];
+
+const CouponList = () => (
+  <ResourceList resource={coupons} columns={columns} itemLabel={(c) => c.code} />
+);
+
+export default CouponList;
+```
+
+`ResourceList` pone título, botón crear, estados de carga y vacío, y editar /
+borrar (con confirmación) por fila. `rowActions` y `headerActions` agregan
+acciones propias.
+
+## Paso 6: Crear y editar
+
+`apps/backoffice/src/pages/coupons/create-coupon.tsx` (patrón
+`pages/features/create-feature.tsx`):
+
+```typescript
 import { useText } from "@pengi/shared";
-import { getFeatures, deleteFeature } from "@/api/feature-service";
-import { useFeatureStore } from "@/store/feature-store";
-import type { Feature } from "@/types/feature-type";
-
-function FeatureListPage() {
-    const { textGet } = useText();
-    const navigate = useNavigate();
-    const [features, setFeatures] = React.useState<Feature[]>([]);
-    const [loading, setLoading] = React.useState(true);
-    
-    const { searchTerm, setSearchTerm } = useFeatureStore();
-
-    React.useEffect(() => {
-        loadFeatures();
-    }, []);
-
-    async function loadFeatures() {
-        setLoading(true);
-        const res = await getFeatures();
-        if (res.success) {
-            setFeatures(res.data || []);
-        }
-        setLoading(false);
-    }
-
-    async function handleDelete(featureId: number) {
-        if (!confirm(textGet("backoffice.features.confirm_delete"))) return;
-        
-        const res = await deleteFeature(featureId);
-        if (res.success) {
-            await loadFeatures();
-        }
-    }
-
-    const filtered = features.filter(f => 
-        f.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (loading) {
-        return <DashboardLayout><div>Loading...</div></DashboardLayout>;
-    }
-
-    return (
-        <DashboardLayout>
-            <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                    <h1>{textGet("backoffice.features.title")}</h1>
-                    <Button onClick={() => navigate("/features/create")}>
-                        {textGet("backoffice.features.create")}
-                    </Button>
-                </div>
-
-                <input
-                    type="text"
-                    placeholder={textGet("common.search")}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="px-4 py-2 border rounded"
-                />
-
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>{textGet("backoffice.features.col.code")}</TableHead>
-                            <TableHead>{textGet("backoffice.features.col.name")}</TableHead>
-                            <TableHead>{textGet("backoffice.features.col.permissions")}</TableHead>
-                            <TableHead>{textGet("common.actions")}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filtered.map((feature) => (
-                            <TableRow key={feature.id}>
-                                <TableCell className="font-mono">{feature.code}</TableCell>
-                                <TableCell>{feature.name}</TableCell>
-                                <TableCell>{feature.Permissions?.length || 0}</TableCell>
-                                <TableCell className="space-x-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => navigate(`/features/${feature.id}/edit`)}
-                                    >
-                                        {textGet("common.edit")}
-                                    </Button>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => handleDelete(feature.id)}
-                                    >
-                                        {textGet("common.delete")}
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
-        </DashboardLayout>
-    );
-}
-
-export default FeatureListPage;
-```
-
-## Paso 5: Crear Página de Crear/Editar
-
-```typescript
-// apps/backoffice/src/pages/features/create.tsx
-
-import React from "react";
+import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, Form, FormInput, Spinner } from "@pengi/ui";
 import { useNavigate } from "react-router";
 import z from "zod";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Form } from "@/components/forms/form";
-import { FormInput } from "@/components/forms/form-input";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useText } from "@pengi/shared";
-import { createFeature, getPermissions } from "@/api/feature-service";
-import type { Permission } from "@/types/feature-type";
+import { coupons } from "@/api/coupon-service";
+import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({
-    code: z.string().min(2),
-    name: z.string().min(2),
+  code: z.string().min(2, "backoffice.coupons.error.code"),
+  discount: z.coerce.number().gt(0, "backoffice.coupons.error.discount"),
 });
 
-function CreateFeaturePage() {
-    const { textGet } = useText();
-    const navigate = useNavigate();
-    const [loading, setLoading] = React.useState(false);
-    const [permissions, setPermissions] = React.useState<Permission[]>([]);
-    const [selectedPermissions, setSelectedPermissions] = React.useState<string[]>([]);
+const CreateCoupon = () => {
+  const { textGet } = useText();
+  const navigate = useNavigate();
+  const { saving, save } = useResourceItem(coupons);
 
-    React.useEffect(() => {
-        loadPermissions();
-    }, []);
+  return (
+    <ResourceEditPage>
+      <div className="max-w-2xl mx-auto">
+        <Form schema={formSchema} onSubmit={save} defaultValues={{ code: "", discount: 0 }}>
+          {(field) => (
+            <Card>
+              <CardHeader>
+                <CardTitle>{textGet("backoffice.coupons.create.title")}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormInput field={field} name="code" label={textGet("backoffice.coupons.col.code")} />
+                <FormInput field={field} name="discount" type="number" label={textGet("backoffice.coupons.col.discount")} />
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button type="button" variant="outline" onClick={() => navigate("/coupons")}>
+                  {textGet("backoffice.common.cancel")}
+                </Button>
+                <Button type="submit" disabled={saving}>
+                  {saving && <Spinner />}
+                  {textGet("backoffice.coupons.create")}
+                </Button>
+              </CardFooter>
+            </Card>
+          )}
+        </Form>
+      </div>
+    </ResourceEditPage>
+  );
+};
 
-    async function loadPermissions() {
-        const res = await getPermissions();
-        if (res.success) {
-            setPermissions(res.data || []);
-        }
-    }
-
-    async function onSubmit(values: z.infer<typeof formSchema>) {
-        setLoading(true);
-        const res = await createFeature({
-            ...values,
-            permission_ids: selectedPermissions,
-        });
-        setLoading(false);
-        
-        if (res.success) {
-            navigate("/features");
-        }
-    }
-
-    return (
-        <DashboardLayout>
-            <div className="max-w-2xl mx-auto">
-                <Form
-                    schema={formSchema}
-                    onSubmit={onSubmit}
-                    defaultValues={{ code: "", name: "" }}
-                >
-                    {(field) => (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>{textGet("backoffice.features.create")}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <FormInput
-                                    field={field}
-                                    name="code"
-                                    label={textGet("backoffice.features.col.code")}
-                                    placeholder="feature_code"
-                                />
-                                <FormInput
-                                    field={field}
-                                    name="name"
-                                    label={textGet("backoffice.features.col.name")}
-                                    placeholder="Feature Name"
-                                />
-
-                                <div className="border-t pt-4">
-                                    <Label>{textGet("backoffice.features.col.permissions")}</Label>
-                                    <div className="space-y-2 mt-2 max-h-48 overflow-y-auto">
-                                        {permissions.map((perm) => (
-                                            <div key={perm.id} className="flex items-center gap-2">
-                                                <Checkbox
-                                                    checked={selectedPermissions.includes(perm.id)}
-                                                    onCheckedChange={(checked) => {
-                                                        if (checked) {
-                                                            setSelectedPermissions([
-                                                                ...selectedPermissions,
-                                                                perm.id,
-                                                            ]);
-                                                        } else {
-                                                            setSelectedPermissions(
-                                                                selectedPermissions.filter(
-                                                                    (id) => id !== perm.id
-                                                                )
-                                                            );
-                                                        }
-                                                    }}
-                                                />
-                                                <div>
-                                                    <Label className="cursor-pointer">
-                                                        {perm.name}
-                                                    </Label>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {perm.category}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => navigate("/features")}
-                                    >
-                                        {textGet("common.cancel")}
-                                    </Button>
-                                    <Button type="submit" disabled={loading}>
-                                        {textGet("common.create")}
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-                </Form>
-            </div>
-        </DashboardLayout>
-    );
-}
-
-export default CreateFeaturePage;
+export default CreateCoupon;
 ```
 
-## Paso 6: Registrar Rutas
+La página de editar es igual, con
+`const { item, loading, saving, save } = useResourceItem(coupons, id)`
+(`id` de `useParams`), `<ResourceEditPage loading={loading}>` y
+`defaultValues` desde `item` (patrón `pages/features/edit-feature.tsx`). `save`
+crea o actualiza según haya `id` y vuelve al listado.
+
+## Paso 7: Rutas y navegación
+
+`apps/backoffice/src/routes/routes.tsx` — dentro de los hijos de `RequireSession`:
 
 ```typescript
-// apps/backoffice/src/routes/routes.tsx
+const CouponList = lazy(() => import("@/pages/coupons/coupon-list"));
+const CreateCoupon = lazy(() => import("@/pages/coupons/create-coupon"));
+const EditCoupon = lazy(() => import("@/pages/coupons/edit-coupon"));
 
-import FeatureListPage from "@/pages/features/list";
-import CreateFeaturePage from "@/pages/features/create";
-
-export const routes = [
-    {
-        path: "/features",
-        element: <FeatureListPage />,
-    },
-    {
-        path: "/features/create",
-        element: <CreateFeaturePage />,
-    },
-    // ...más rutas
-];
+{ path: "/coupons", element: <CouponList /> },
+{ path: "/coupons/create", element: <CreateCoupon /> },
+{ path: "/coupons/edit/:id", element: <EditCoupon /> },
 ```
 
-## Paso 7: Agregar a Navegación
+Las rutas siguen `resourceRoutes("coupons")`, que es a donde navegan
+`ResourceList` y `useResourceItem`.
+
+`apps/backoffice/src/config/nav-config.ts`:
 
 ```typescript
-// apps/backoffice/src/config/nav-config.ts
-
-import { Layers } from "lucide-react";
-
-export const navItems = [
-    // ...
-    {
-        icon: Layers,
-        label: textGet("backoffice.features.title"),
-        href: "/features",
-    },
-    // ...
-];
-```
-
-## Paso 8: Agregar i18n Keys
-
-```json
-// apps/api/i18n/messages/messages_es.json
-
 {
-    "backoffice": {
-        "features": {
-            "title": "Features",
-            "create": "Crear Feature",
-            "created": "Feature creado exitosamente",
-            "updated": "Feature actualizado",
-            "deleted": "Feature eliminado",
-            "confirm_delete": "¿Eliminar este feature?",
-            "col": {
-                "code": "Código",
-                "name": "Nombre",
-                "permissions": "Permisos"
-            }
-        }
-    }
-}
+  icon: TicketPercent, // componente de lucide-react
+  label: textGet("backoffice.nav.coupons"),
+  href: "/coupons",
+},
 ```
 
-## Checklist Completo
+## Paso 8: i18n
 
-```
-Paso a paso:
+En **ambos** `apps/api/i18n/messages/messages_es.json` y `messages_en.json`:
 
-Types
-□ CreateFeaturePayload
-□ UpdateFeaturePayload
-□ Feature interface
+- Las que usa `ResourceList`/`ResourceEditPage` por convención:
+  `backoffice.coupons.title`, `backoffice.coupons.create`,
+  `backoffice.coupons.list.title`, `backoffice.coupons.list.description`,
+  `backoffice.coupons.empty`.
+- Las de tus columnas, formularios y errores de Zod
+  (`backoffice.coupons.col.*`, `backoffice.coupons.error.*`).
+- Las del backend (`backoffice.coupon.*.success|error`) y los `E-BO-NNN` nuevos.
+- `backoffice.nav.coupons`.
 
-Services
-□ getFeatures()
-□ createFeature()
-□ updateFeature()
-□ deleteFeature()
+Tras agregarlas: `localStorage.removeItem("messages")` y recarga.
 
-Store
-□ useFeatureStore creado
-□ Acciones definidas
+## Paso 9: Tests y verificación
 
-Pages
-□ List/table page
-□ Create/edit form
-□ Detail page (opcional)
+- Frontend: tests junto al código; `memoryResource` evita el HTTP
+  (patrón `lib/resource/resource-list.test.tsx`).
+- `cd apps/backoffice && pnpm run typecheck && pnpm test:run`
+- `cd apps/api && go build ./... && go vet ./... && go test ./features/backoffice/...`
+- `just check`
 
-Routing
-□ Rutas registradas en routes.tsx
-□ Links correctos
+## Checklist
 
-Navigation
-□ Agregado a nav-config.ts
-□ Icon seleccionado
-
-i18n
-□ Keys en messages_es.json
-□ Keys en messages_en.json
-
-Testing
-□ Tests básicos para servicios
-□ Tests para componentes
-```
-
-## Patrón para Operaciones CRUD
-
-```typescript
-// ── LIST ────────────────────────────────────
-async function handleList() {
-    const res = await getFeatures();
-    if (res.success) setItems(res.data || []);
-}
-
-// ── CREATE ────────────────────────────────────
-async function handleCreate(payload) {
-    const res = await createFeature(payload);
-    if (res.success) {
-        navigate("/features");
-        // Service ya mostró toast
-    }
-}
-
-// ── UPDATE ────────────────────────────────────
-async function handleUpdate(id, payload) {
-    const res = await updateFeature(id, payload);
-    if (res.success) {
-        await handleList(); // Refresca
-    }
-}
-
-// ── DELETE ────────────────────────────────────
-async function handleDelete(id) {
-    if (!confirm("¿Eliminar?")) return;
-    const res = await deleteFeature(id);
-    if (res.success) {
-        await handleList();
-    }
-}
-```
+- [ ] Modelo en su dominio y en `RunMigrations` (si es nuevo)
+- [ ] Handler con `tenantdb.System(db)`, mensajes como keys i18n
+- [ ] Error codes `E-BO-NNN` con key i18n
+- [ ] Rutas en `backoffice_routes.go` detrás de `backofficeAuth`
+- [ ] `src/api/<x>-service.ts` con `resource<T, C, U>("<x>")`
+- [ ] Listado con `ResourceList`; crear/editar con `useResourceItem` + `ResourceEditPage`
+- [ ] Rutas `lazy()` en `routes.tsx` siguiendo `resourceRoutes`; ítem en `nav-config.ts`
+- [ ] i18n de convención + propias, en es y en
+- [ ] Tests backend y frontend; typecheck, vet, `just check`

@@ -1,345 +1,232 @@
 ---
 name: Form Creation Standard
-description: Estándar para crear formularios reactivos con Zod, Form components y Zustand en la aplicación Pengi Med SaaS
+description: Estándar para crear formularios reactivos con Zod y los componentes Form de @pengi/ui en la aplicación Pengi Med SaaS
 ---
 
 # Form Creation Standard
 
-Estándar obligatorio para crear formularios en la aplicación Pengi Med SaaS. Todos los formularios deben seguir esta estructura para garantizar consistencia y mantenibilidad.
+Estándar para los formularios de `apps/web` y `apps/backoffice`: schema Zod +
+`<Form>` + componentes `Form*` de `@pengi/ui`.
+
+Ejemplo de referencia completo: `apps/web/src/sections/forms/billing/catalog-item-form.tsx`
+(usado por `pages/billing/create-catalog-item.tsx` y `edit-catalog-item.tsx`).
+
+## Dónde vive
+
+- **Web:** el formulario en `src/sections/forms/<domain>/<x>-form.tsx`, y las
+  páginas `src/pages/<domain>/create-<x>.tsx` / `edit-<x>.tsx` que lo usan.
+- **Backoffice:** CRUD estándar con `src/lib/resource`; formularios a mano solo
+  si el recurso no encaja.
+
+El formulario recibe `onSubmit`, `initialData` y `loading` por props; la
+página arma el payload, llama al servicio y navega. Así el mismo formulario
+sirve para crear y editar.
 
 ## Estructura Base
 
-### 1. Define el Schema con Zod
+### 1. Schema con Zod
+
+Los mensajes de error son **keys i18n**: los componentes los traducen al
+mostrarlos.
 
 ```typescript
 import { z } from "zod";
 
 const formSchema = z.object({
-  // Campos requeridos
-  field1: z.string().min(1, "Field is required"),
-  
-  // Campos opcionales
-  field2: z.string().optional(),
-  
-  // Enumerables
+  name: z.string().min(1, "item.form.error.required"),
+  email: z.string().email("item.form.error.email").optional(),
+  unit_price: z.coerce.number().min(0, "item.form.error.positive"),
   status: z.enum(["active", "inactive"]),
-  
-  // Fechas
-  birthDate: z.string().optional(),
 });
 
-type FormData = z.infer<typeof formSchema>;
+export type FormValues = z.infer<typeof formSchema>;
 ```
 
-### 2. Define el Handler Submit
+### 2. Componente de formulario
 
 ```typescript
-const handleSubmit = async (data: FormData) => {
-  try {
-    const res = await apiService.create(data);
-    if (res.success) {
-      // Service maneja los toasts automáticamente
-      navigate("/list");
-    }
-  } catch (error) {
-    console.error("Error submitting form:", error);
-  }
-};
-```
-
-### 3. Estructura del Componente
-
-```typescript
-import React from "react";
-import { useNavigate } from "react-router";
-import { z } from "zod";
-import { Button, FormInput, FormSelect, FormTextArea } from "@pengi/ui";
-import { Form } from "@/components/forms/form";
+// src/sections/forms/item/item-form.tsx
 import { useText } from "@pengi/shared";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Form,
+  FormInput,
+  FormSelect,
+  FormTextArea,
+} from "@pengi/ui";
+import { Loader2 } from "lucide-react";
+import { z } from "zod";
+import type { Item } from "@/api/item-service";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
-  message: z.string().optional(),
+  name: z.string().min(1, "item.form.error.required"),
+  description: z.string().optional(),
   status: z.enum(["active", "inactive"]),
 });
 
-export default function CreateForm() {
-  const navigate = useNavigate();
-  const { textGet } = useText();
-  const [loading, setLoading] = React.useState(false);
+export type FormValues = z.infer<typeof formSchema>;
 
-  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    try {
-      setLoading(true);
-      const res = await createItem(data);
-      if (res.success) {
-        navigate("/items");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
+interface ItemFormProps {
+  initialData?: Item;
+  loading?: boolean;
+  onSubmit: (values: FormValues) => void;
+}
+
+export default function ItemForm({ initialData, loading, onSubmit }: ItemFormProps) {
+  const { textGet } = useText();
+  const isEditing = Boolean(initialData);
+
+  const defaultValues: FormValues = {
+    name: initialData?.name ?? "",
+    description: initialData?.description ?? "",
+    status: initialData?.status ?? "active",
   };
 
   return (
-    <Form schema={formSchema} onSubmit={handleSubmit}>
+    <Form schema={formSchema} onSubmit={onSubmit} defaultValues={defaultValues}>
       {(field) => (
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold">{textGet("form.create.title")}</h1>
-              <p className="text-sm text-muted-foreground">{textGet("form.create.description")}</p>
-            </div>
-
-            {/* Form Fields */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput
-                  field={field}
-                  name="name"
-                  label={textGet("form.name")}
-                  placeholder={textGet("form.name.placeholder")}
-                  required
-                  autoFocus
-                />
-
-                <FormInput
-                  field={field}
-                  name="email"
-                  label={textGet("form.email")}
-                  type="email"
-                  placeholder={textGet("form.email.placeholder")}
-                />
-              </div>
-
-              <FormTextArea
+        <Card className="max-w-4xl mx-auto">
+          <CardHeader>
+            <CardTitle>
+              {textGet(isEditing ? "item.form.edit.title" : "item.form.create.title")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-4">
+              <FormInput
                 field={field}
-                name="message"
-                label={textGet("form.message")}
-                placeholder={textGet("form.message.placeholder")}
+                name="name"
+                label={textGet("item.form.name")}
+                placeholder={textGet("item.form.name.placeholder")}
               />
-
               <FormSelect
                 field={field}
                 name="status"
-                label={textGet("form.status")}
+                label={textGet("item.form.status")}
                 options={[
-                  { label: "Active", value: "active" },
-                  { label: "Inactive", value: "inactive" },
+                  { label: textGet("item.status.active"), value: "active" },
+                  { label: textGet("item.status.inactive"), value: "inactive" },
                 ]}
               />
             </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(-1)}
-              >
-                {textGet("common.cancel")}
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? textGet("common.saving") : textGet("common.save")}
-              </Button>
-            </div>
-          </div>
-        </div>
+            <FormTextArea
+              field={field}
+              name="description"
+              label={textGet("item.form.description")}
+              isOptional
+            />
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button type="submit" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {textGet("form.save")}
+            </Button>
+          </CardFooter>
+        </Card>
       )}
     </Form>
   );
 }
 ```
 
-## Reglas Obligatorias
+`Form` pasa los métodos de React Hook Form (`field`) como render prop; cada
+campo los recibe en `field={field}`. Para leer otros campos dentro del form
+(cálculos, campos condicionales) usa `useFormContext()` en un subcomponente.
+Si el submit tiene errores de validación, `Form` muestra un toast resumen.
 
-### ✅ Validación
-- Usar **Zod** para validar todos los campos
-- Mensajes de error en **i18n keys** o strings claros
-- Tipos opcionales con `.optional()`
-- Enumerables con `.enum([...])`
+### 3. Página que lo usa
 
-### ✅ Componentes
-- Usar `Form` de `@/components/forms/form` (local a cada app — web y backoffice
-  tienen su propia copia, no está en `@pengi/ui`)
-- Usar componentes especializados, importados desde **`@pengi/ui`**:
-  - `FormInput` — texto, email, número, fecha
-  - `FormInputPassword` — contraseña
-  - `FormSelect` — dropdown (con `options` array)
-  - `FormTextArea` — texto multiline
-  - `FormRadioGroup` — radio buttons
-- Componentes especializados que siguen siendo **locales a cada app** (no
-  están en `@pengi/ui`), en `@/components/forms/`:
-  - `FormCalendar` — fecha con selector visual
-  - `FormTagInput` — tags (solo existe en `apps/web`, no en `apps/backoffice`)
-  - `FormIcd11Select` — selector de diagnóstico ICD-11 (solo `apps/web`)
-- **NUNCA** usar HTML directo (`<input>`, `<select>`)
-- **`FormCheckbox` ya no existe** en el repo — si necesitas un checkbox,
-  compón uno con el primitivo `Checkbox` de `@pengi/ui` o crea uno nuevo
-  siguiendo el patrón de `form-input.tsx`; no asumas que ya está disponible.
+```typescript
+// src/pages/item/create-item.tsx
+export default function CreateItemPage() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-### ✅ Layout
-- Estructura clara: header + fields + actions
-- Grid responsive: `grid-cols-1 md:grid-cols-2 gap-4` mínimo
-- Max ancho: `max-w-4xl mx-auto` o `max-w-2xl` si es simple
-- Espaciado: `space-y-4` entre secciones, `space-y-6` para el form completo
+  const handleSubmit = async (values: FormValues) => {
+    setLoading(true);
+    const res = await createItem({ name: values.name, description: values.description });
+    if (res.success) {
+      navigate("/items"); // el servicio ya mostró el toast
+    }
+    setLoading(false);
+  };
 
-### ✅ I18n
-- Todos los labels desde `textGet()`
-- Keys pattern: `form.create.title`, `form.fieldname`, `form.fieldname.placeholder`
-- **NUNCA** hardcodear strings
-- Agregar keys a ambos `messages_es.json` y `messages_en.json`
+  return (
+    <DashboardLayout>
+      <main className="grid items-start gap-4">
+        <ItemForm onSubmit={handleSubmit} loading={loading} />
+      </main>
+    </DashboardLayout>
+  );
+}
+```
 
-### ✅ Estado
-- Usar `useState` para `loading`
-- Submit debe ser `async`
-- Manejar errores con try/catch
-- Service maneja toasts automáticamente
-
-### ✅ Tipos
-- Extraer tipo con `z.infer<typeof formSchema>`
-- Types en archivo separado si se reutiliza
-- Interfaces deben extender `BaseModel` para datos del backend
-
-### ✅ Responsive
-- Mínimo: `grid-cols-1 md:grid-cols-2 gap-4`
-- Content centered: `max-w-4xl mx-auto`
-- Padding: `p-6` para contenedores principales
+Los servicios no lanzan excepciones: devuelven `{ success: false }` y muestran
+el toast de error. No hace falta `try/catch`.
 
 ## Componentes Form Disponibles
 
-Desde `@pengi/ui` (compartidos entre web y backoffice):
+Desde `@pengi/ui` (web y backoffice):
 
-| Componente | Uso | Props |
+| Componente | Uso | Props principales |
 |-----------|-----|-------|
-| `FormInput` | Campos de texto, email, número, fecha | `field`, `name`, `label`, `placeholder`, `type`, `required`, `autoFocus`, `disabled` |
-| `FormInputPassword` | Contraseña | `field`, `name`, `label`, `placeholder`, `disabled` |
-| `FormSelect` | Dropdowns | `field`, `name`, `label`, `options: {label, value}[]`, `disabled` |
-| `FormTextArea` | Texto multiline | `field`, `name`, `label`, `placeholder`, `description`, `disabled` |
-| `FormRadioGroup` | Radio buttons | `field`, `name`, `label`, `options: {label, value}[]`, `disabled` |
+| `Form` | Contenedor con Zod + React Hook Form | `schema`, `onSubmit`, `defaultValues`, `onUpdateValuesCallback`, `className` |
+| `FormInput` | Texto, email, número, fecha | `field`, `name`, `label`, `isOptional`, `description`, `startAddon`, `endAddon` + atributos de `<input>` (`type`, `placeholder`, `disabled`...) |
+| `FormPasswordInput` | Contraseña con mostrar/ocultar | `field`, `name`, `label`, `isOptional`, `description` |
+| `FormSelect` | Dropdown | `field`, `name`, `label`, `options: {label, value}[]`, `placeholder`, `disabled`, `emptyMessage` |
+| `FormTextArea` | Texto multilínea | `field`, `name`, `label`, `isOptional`, `description` |
+| `FormRadioGroup` | Radio buttons | `field`, `name`, `label`, `options: {label, value}[]`, `isRow` |
 
-Locales a cada app, en `@/components/forms/` (no están en `@pengi/ui`):
+Solo en `apps/web`, en `@/components/forms/`:
 
-| Componente | Uso | Disponible en |
-|-----------|-----|-------|
-| `FormCalendar` | Fecha con selector visual | web, backoffice |
-| `FormTagInput` | Tags | solo web |
-| `FormIcd11Select` | Selector de diagnóstico ICD-11 | solo web |
+| Componente | Uso |
+|-----------|-----|
+| `FormCalendar` | Fecha (y hora) con selector visual |
+| `FormTagInput` | Tags |
+| `FormIcd11Select` | Selector de diagnóstico ICD-11 |
 
-## Ejemplos por Tipo
+Para booleanos no hay `FormCheckbox`: usa el primitivo `Checkbox`
+de `@pengi/ui` controlado vía `useFormContext()`, como el toggle de ICE en
+`catalog-item-form.tsx`.
 
-### Crear Item Simple
+Todo campo de formulario usa estos componentes, no `<input>`/`<select>` HTML.
 
-```typescript
-const createSchema = z.object({
-  name: z.string().min(1, "Required"),
-  description: z.string().optional(),
-});
+## Reglas
 
-export default function CreateItemForm() {
-  const { textGet } = useText();
-  const navigate = useNavigate();
+### Validación
+- Zod para todos los campos; `.optional()` para opcionales, `.enum([...])` para enumerables.
+- `z.coerce.number()` para campos numéricos que llegan como string del input.
+- Mensajes de error como keys i18n.
+- Validación cruzada con `.superRefine((data, ctx) => ctx.addIssue({ code: "custom", path: ["campo"], message: "item.form.error.x" }))`.
 
-  return (
-    <Form schema={createSchema} onSubmit={async (data) => {
-      const res = await createItem(data);
-      if (res.success) navigate("/items");
-    }}>
-      {(field) => (
-        <div className="max-w-2xl mx-auto space-y-4 p-6">
-          <h1>{textGet("item.create.title")}</h1>
-          <FormInput field={field} name="name" label="Name" required />
-          <FormTextArea field={field} name="description" label="Description" />
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
-            <Button type="submit">Create</Button>
-          </div>
-        </div>
-      )}
-    </Form>
-  );
-}
-```
+### i18n
+- Labels, placeholders, opciones y mensajes de error vía `textGet()` o keys.
+- Keys: `<domain>.form.<campo>`, `<domain>.form.<campo>.placeholder`, `<domain>.form.error.<regla>`.
+- Agregar las keys a ambos `apps/api/i18n/messages/messages_es.json` y `messages_en.json`.
 
-### Editar con Estado Inicial
+### Layout
+- `Card` con header / content / footer, `max-w-4xl mx-auto` (o `max-w-2xl` si es corto).
+- Grid responsive: `grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-4`.
+- Botón submit con estado `loading` (spinner `Loader2`).
 
-```typescript
-interface UpdateFormProps {
-  item: Item;
-}
-
-export default function UpdateItemForm({ item }: UpdateFormProps) {
-  const { textGet } = useText();
-  const navigate = useNavigate();
-
-  return (
-    <Form
-      schema={updateSchema}
-      defaultValues={{
-        name: item.name,
-        email: item.email,
-        status: item.status,
-      }}
-      onSubmit={async (data) => {
-        const res = await updateItem(item.id, data);
-        if (res.success) navigate("/items");
-      }}
-    >
-      {(field) => (
-        // ... fields igual que crear
-      )}
-    </Form>
-  );
-}
-```
-
-### Con Validación Condicional
-
-```typescript
-const schema = z.object({
-  type: z.enum(["individual", "company"]),
-  name: z.string().min(1),
-  taxId: z.string().optional(),
-  companyName: z.string().optional(),
-}).superRefine((data, ctx) => {
-  if (data.type === "company" && !data.companyName) {
-    ctx.addIssue({
-      code: "custom",
-      path: ["companyName"],
-      message: "Company name required",
-    });
-  }
-  if (data.type === "individual" && !data.taxId) {
-    ctx.addIssue({
-      code: "custom",
-      path: ["taxId"],
-      message: "Tax ID required",
-    });
-  }
-});
-```
-
-## Cuándo NO Usar Esta Estructura
-
-- **Formularios muy simples** (2-3 campos): puedes usar componentes más simples directamente
-- **Inline edits**: usar inputs inline en lugar de un formulario completo
-- **Quick actions**: diálogos con 1-2 campos simples
-
-Para esos casos, simplifica: usa componentes de Form directamente sin envoltorio, o inputs HTML simples si es realmente trivial.
+### Página o diálogo
+- Un registro que el usuario querrá volver a ver, imprimir o reenviar →
+  página + listado.
+- Edición rápida de 1-2 campos desde una fila → `Dialog` en
+  `components/features/<domain>/` (patrón `edit-prescription-dialog.tsx`), con
+  los mismos componentes `Form*`. En diálogos angostos, evita grids de 3
+  columnas con fechas largas.
 
 ## Checklist
 
-- [ ] Schema creado con Zod
-- [ ] Tipos extraídos con `z.infer`
-- [ ] Handler submit async con try/catch
-- [ ] Form component envuelve los fields
-- [ ] Todos los labels usan `textGet()`
-- [ ] i18n keys agregadas en backend
-- [ ] Grid responsive (cols-1 md:cols-2)
-- [ ] Max-width y padding aplicados
-- [ ] Actions (Cancel/Save) en footer
-- [ ] Loading state en botón submit
-- [ ] Sin HTML `<input>` directo
+- [ ] Schema Zod con mensajes como keys i18n; tipo con `z.infer`
+- [ ] Formulario en `sections/forms/<domain>/`, reutilizable para crear/editar
+- [ ] `Form` y campos de `@pengi/ui` (o `FormCalendar`/`FormTagInput` locales en web)
+- [ ] Todos los textos vía `textGet()`; keys en ambos JSON
+- [ ] Grid responsive y `max-w-*` aplicados
+- [ ] Submit con estado `loading`; la página navega si `res.success`

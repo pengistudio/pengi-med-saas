@@ -1,395 +1,167 @@
 ---
 name: create-feature
-description: Use when asked to create a new feature, add a feature, build a new domain/module, or extend an existing domain in pengi-med-saas (apps/api Go backend, apps/web React frontend, apps/backoffice React admin). End-to-end checklist covering backend scaffolding, permissions, migrations, error codes, i18n, feature-flag/plan wiring, frontend routes/nav, and tests — so no step is missed. Triggers on "crear feature", "nuevo feature", "add new domain", "nueva funcionalidad", "implement X feature".
+description: Crear o extender una feature/dominio en pengi-med-saas de punta a punta (apps/api, apps/web, apps/backoffice). Úsala al agregar un dominio nuevo, endpoints o pantallas nuevas a un dominio existente, o una sección de administración en el backoffice — "crear feature", "nueva funcionalidad", "add new domain", "agregar X a clinical".
 ---
 
-# Crear una feature nueva en pengi-med-saas
+# Crear o extender una feature
 
-Checklist de extremo a extremo. Sigue los pasos en orden — cada uno referencia
-el paso anterior cuando corresponde. Los identificadores de código (rutas,
-structs, funciones, constantes) están en inglés tal como aparecen en el repo.
+Receta en orden. Cada paso termina en un **criterio de cierre**: no pases al
+siguiente hasta cumplirlo. El detalle de cada paso vive en `references/`; abre
+solo el archivo que el paso nombra.
 
-Esta skill **orquesta**; para el detalle de "cómo se ve el código" de modelo →
-DTO → handler → página → componente, remite a las guías completas que ya
-existen en `docs/skills/`. Lo que agrega esta skill son los pasos que esas
-guías **no** cubren: permisos, feature-flags/plan, tests y pre-flight.
+Copia de un **dominio canónico**: **kanban** (backend y rutas, el más limpio)
+y el catálogo de **billing** (`catalog-item`, el frontend CRUD más completo).
+Si una doc de `docs/` contradice al código, gana el código.
 
-## 0. Antes de empezar — investigar primero
+## 0. Mapa y decisión de gating
 
-Responde esto antes de escribir código:
+Antes de escribir código, deja por escrito:
 
-- ¿Es un dominio 100% nuevo (`apps/api/features/<domain>/` no existe) o una
-  extensión de uno existente? Si ya existe, lee sus archivos actuales antes
-  de tocar nada.
-- ¿Necesita un modelo GORM nuevo, un worker en background (`workers/`), o
-  middleware propio (`middleware/`)?
-- Enumera los permisos nuevos que necesita (verbo + recurso, ej.
-  `READ_X`, `CREATE_X`, `UPDATE_X`, `DELETE_X`).
-- **¿Debe estar detrás de un plan/feature-flag, o debe estar disponible por
-  defecto?** Hay dos mecanismos distintos en este repo, no los confundas:
-  - **Enforcement real** (bloquea acceso a datos/endpoints): `Feature` ↔
-    `Plan` ↔ `Permission`, ver `apps/api/features/companies/models/feature-model.go`.
-    Si la feature debe limitarse por plan de suscripción, hay que crear un
-    `Feature` con un `Code` explícito y asociarlo a los `Plan`(s)
-    correspondientes (ver paso 7).
-  - **Cosmético** (solo oculta/muestra el ítem del menú): `Tenant.EnabledFeatures`
-    + `nav-config.ts` `item.feature`. La semántica es **opt-out**: un
-    `feature` string nuevo que no exista en `EnabledFeatures` se considera
-    HABILITADO por defecto. Si quieres que la feature nueva esté oculta hasta
-    activarse manualmente, el default debe ser `false` explícito (ver paso 7).
-  - Decide explícitamente cuál aplica (o ninguno) y anótalo — no lo dejes
-    implícito.
-- **Corrección de nombre:** el paquete base compartido es
-  `apps/api/features/companies/` (plural) — ahí viven `Company`, `Plan`,
-  `Feature`, `Subscription`, `SubscriptionMiddleware` y `RequirePermission`.
-  No existe `features/company` (singular).
-- **Si estás extendiendo un dominio existente** (ej. agregar una acción nueva
-  a `clinical`), lo más probable es que YA exista un `Feature` con ese
-  `Code` asociado al/los `Plan`(s) — no necesitas crear uno nuevo, solo
-  agregar tus permisos nuevos a ese `Feature` existente (ver paso 7). Revisa
-  qué features existen en dev antes de asumir nada:
-  ```bash
-  docker exec -i pengi-db-dev psql -U postgres -d pengi_gentoo \
-    -c "select id, code, name from features;"
-  ```
+1. **¿Dominio nuevo o extensión?** Si `apps/api/features/<domain>/` existe, lee
+   sus handlers, rutas y migraciones actuales primero.
+2. **Ramas que toca**, cada una con su referencia:
+   - Genera PDF, sirve archivos del tenant o envía email →
+     [`references/documentos.md`](references/documentos.md)
+   - Trabajo en segundo plano (scheduler, consumer RabbitMQ) →
+     sección *Segundo plano* de [`references/backend.md`](references/backend.md)
+   - Pantallas de administración de plataforma (solo admins de Pengi) →
+     [`references/backoffice.md`](references/backoffice.md). Esta rama no usa
+     permisos ni plan; salta los pasos 2 y 6.
+3. **Decisión de gating**: elige exactamente una opción y anótala en el mensaje
+   del commit o en el PR:
+   - **Plan + rol**: `RequirePermission`. Es el caso normal para funcionalidad clínica o de facturación.
+   - **Solo rol**: `RequireRolePermission`, como en team.
+   - **Sin permisos**: basta con que el usuario pertenezca al tenant, como en notifications.
 
-## 1. Backend — scaffolding del dominio
+   Las reglas de cada opción están en
+   [`references/permisos-y-plan.md`](references/permisos-y-plan.md).
 
-Sigue los pasos 1-3 de
-[`docs/skills/api-backend-complete-guide.md`](../../../docs/skills/api-backend-complete-guide.md)
-(modelo → DTOs → handler). Recordatorio rápido de la convención:
+**Criterio de cierre:** hay una lista de ramas y una decisión de gating
+escrita, y leíste el dominio canónico o el existente.
 
-```
-apps/api/features/<domain>/
-  models/       # gorm.Model + TenantID
-  dto/          # Create (campos planos) / Update (todos punteros)
-  handlers/     # struct { db *gorm.DB; logger *zap.Logger } + New<Domain>Handler
-  workers/      # opcional — consumers de RabbitMQ
-  middleware/   # opcional — solo si el dominio necesita su propio gate
-```
+## 1. Backend: modelo, DTO, handler
 
-Los handlers **siempre** devuelven `envelope.Response`, nunca escriben
-directo a `gin.Context`.
+Sigue [`references/backend.md`](references/backend.md). Lo que no se negocia:
 
-### Excepción: handlers que devuelven un binario (PDF, archivo)
+- Toda consulta de datos de tenant usa `db := tenantdb.For(c, h.db)`, y los
+  handlers devuelven `envelope.Response`.
+- El `Message` de cada respuesta es una key i18n.
 
-Un handler que hace *stream* de un PDF u otro binario **no** devuelve
-`envelope.Response` — escribe directo con `c.Data(...)`/`c.JSON(...)` y se
-registra en las rutas **sin** `envelope.Handle(...)` (llamada directa al
-método). Patrón existente: `DownloadPrescription`/`DownloadMedicalReport` en
-`apps/api/features/clinical/handlers/*.go`. No fuerces estos handlers al
-patrón `envelope.Response` — no aplica.
+**Criterio de cierre:** `go build ./...` pasa en `apps/api`, y ningún handler
+nuevo consulta `h.db` sin pasar por `tenantdb.For`
+(`grep -n 'h\.db\.' features/<domain>/handlers/*.go` solo debe devolver las
+líneas `tenantdb.For(c, h.db)`).
 
-### Generar PDFs (Gotenberg) — si el dominio necesita documentos/reportes
+## 2. Permisos
 
-No uses una librería de PDF nueva. El patrón establecido es HTML → Gotenberg:
+Solo aplica si la decisión fue **plan + rol** o **solo rol**. Sigue
+[`references/permisos-y-plan.md`](references/permisos-y-plan.md) § Permisos:
+el catálogo en `permission-data.go`, la migración que los asigna al rol admin,
+la decisión por rol canónico (doctor, recepcionista, contador) y el middleware
+en las rutas.
 
-```go
-tmpl, _ := template.ParseFiles(tmplPath) // features/<domain>/templates/<name>.html
-var buf bytes.Buffer
-tmpl.Execute(&buf, data)
-client := utils.NewGotenbergClient(os.Getenv("GOTENBERG_URL")) // default http://gotenberg:3000
-pdfBytes, err := client.GeneratePDFFromHTMLWithOptions(buf.String(), utils.A4Portrait) // o A5Landscape
-```
+**Criterio de cierre:** cada ID de permiso aparece en `permission-data.go`, en
+una migración nueva, en su ruta y en `PERMISSIONS` de
+`apps/web/src/lib/constants.ts`. En los cuatro lugares el string es idéntico
+byte a byte.
 
-Las plantillas soportan **override por tenant**: antes de usar la plantilla
-default (`features/<domain>/templates/<name>.html`), revisa si existe
-`storage/tenants/{tenantID}/<name>.html` y úsala en su lugar (ver
-`generatePrescriptionPDF` en `download-record-handler.go` para el patrón
-completo, incluyendo fallback).
+## 3. Migraciones, error codes, i18n, registro
 
-### Enviar un documento por email
+Sigue [`references/backend.md`](references/backend.md) § Cableado:
 
-`core/mailer.Mailer` ya soporta adjuntos vía
-`SendMedicalDocumentEmail(toEmail, subject, title, filename, pdfBytes)` (base64
-+ Resend API). Si necesitas un nuevo tipo de email con adjunto, sigue ese
-patrón (`sendWithAttachments`) en vez de reinventarlo. Un error
-`resend API error: status 4xx` casi siempre es una restricción del API key de
-Resend en modo sandbox (solo permite enviar a la dirección verificada del
-dueño de la cuenta) — no asumas que es un bug antes de revisar eso.
+- Los modelos nuevos se agregan a `RunMigrations`.
+- Los error codes van en `codes.go`, cada uno con su key i18n.
+- Las keys van en **ambos** `messages_es.json` y `messages_en.json`.
+- `Register<Domain>Routes` se agrega en `routes/index.go`.
+- Cada migración usa un archivo nuevo con una key nueva. Las migraciones ya
+  presentes en `origin/main` son inmutables, y el hook `guard-migrations`
+  bloquea cualquier edición.
 
-## 2. Backend — Error codes
+**Criterio de cierre:** existe cada key usada en Go y en TS, junto con cada
+error code nuevo, en los dos JSON (verificado con grep, no a ojo), y la API
+arranca en docker (`docker logs pengi-api`) con tus migraciones
+imprimiendo ✅.
 
-En `apps/api/core/errors/codes.go`, agrupados por dominio (bloque de
-comentario + numeración secuencial desde 001):
+## 4. Frontend: servicio, tipos, store, páginas
 
-```go
-// --- <DOMAIN> ---
-Err<Domain><Detail> = NewAppError("E-<DOMAIN>-001", "Mensaje.")
-```
+Sigue [`references/frontend.md`](references/frontend.md):
 
-## 3. Backend — Permisos (paso clave, no te lo saltes)
+- Servicio y tipos en `src/api/<domain>-service.ts`.
+- Páginas `lazy()` en `src/pages/<domain>/`.
+- Formularios en `src/sections/forms/<domain>/` (Zod + componentes `Form*` de
+  `@pengi/ui`).
+- Listados con `DataTable` y columnas en `src/sections/columns/<domain>/`.
+- Store Zustand solo si el estado es compartido.
 
-1. Agrega un slice nuevo en
-   `apps/api/features/permissions/data/permission-data.go`:
-   ```go
-   var <Domain>Permissions = []permission_models.Permission{
-       {
-           BaseStringID: database.BaseStringID{ID: "READ_<X>"},
-           Name:         "Read <X>",
-           Category:     "<DOMAIN>",
-           Description:  "...",
-       },
-       // CREATE_<X>, UPDATE_<X>, DELETE_<X>, etc.
-   }
-   ```
-2. Crea un code-migration nuevo en
-   `apps/api/migrations/code-migrations/2026/<domain>_permissions.go`
-   (package `y2026`), siguiendo el patrón exacto de
-   `add_kanban_permissions.go`:
-   ```go
-   func init() {
-       database.GlobalDBMap["DB<YYYYMMDD>_<n>"] = database.DBExecute{
-           ID: "DB<YYYYMMDD>_<n>",
-           Execute: func(db *gorm.DB) error {
-               var adminRole user_models.Role
-               if err := db.Where(user_models.Role{Role: "admin"}).First(&adminRole).Error; err != nil {
-                   return fmt.Errorf("failed to find admin role: %w", err)
-               }
-               for _, perm := range permission_data.<Domain>Permissions {
-                   if err := db.Where(permission_models.Permission{BaseStringID: perm.BaseStringID}).FirstOrCreate(&perm).Error; err != nil {
-                       return fmt.Errorf("failed to create permission '%s': %w", perm.ID, err)
-                   }
-                   if err := db.Model(&adminRole).Association("Permissions").Append(&perm); err != nil {
-                       return fmt.Errorf("failed to assign permission '%s' to admin role: %w", perm.ID, err)
-                   }
-               }
-               return nil
-           },
-       }
-   }
-   ```
-   **Revisa las keys ya usadas antes de elegir una** (`grep -rho
-   'GlobalDBMap\["[^"]*"\]' apps/api/migrations/code-migrations/2026/*.go`)
-   — no colisiones con una fecha/índice ya registrado.
-3. En `apps/api/routes/<domain>-routes.go`, envuelve cada endpoint con
-   `subscription_middleware.RequirePermission(db, "ACTION_RESOURCE")` usando
-   el mismo string ID exacto del paso 1.
-4. Espeja en el frontend, `apps/web/src/lib/constants.ts`, dentro de
-   `PERMISSIONS`:
-   ```ts
-   <DOMAIN>: {
-     PERMISSION_READ_<X>: "READ_<X>",
-     PERMISSION_CREATE_<X>: "CREATE_<X>",
-     // ...
-   },
-   ```
-   El string value debe ser **idéntico byte a byte** al ID del backend, no
-   solo el nombre de la constante.
-5. En `apps/web/src/routes/routes.tsx`, envuelve el grupo de rutas y cada
-   ruta individual en `<CheckPermission permissions={[PERMISSIONS.<DOMAIN>.PERMISSION_X]}>`.
-6. En `apps/web/src/config/nav-config.ts`, el nav item del dominio debe tener
-   `permission: PERMISSIONS.<DOMAIN>.PERMISSION_READ_<X>`.
+Un registro que el usuario querrá volver a ver, imprimir o reenviar vive en
+una **página + listado**. Un `Dialog` es para ediciones rápidas de uno o dos
+campos.
 
-## 4. Backend — Migraciones de esquema
+**Criterio de cierre:** `pnpm run typecheck` pasa en `apps/web`, y cada string
+visible pasa por `textGet`.
 
-Agrega el/los modelo(s) nuevo(s) a la lista explícita de
-`apps/api/migrations/migrate.go` → `RunMigrations` (GORM `AutoMigrate`). No
-confundir con el code-migration de permisos del paso 3 — son mecanismos
-distintos (schema vs. data/seed).
+## 5. Rutas y navegación (web)
 
-## 5. Backend — i18n
+Sigue [`references/frontend.md`](references/frontend.md) § Rutas y nav:
 
-Agrega las keys en **ambos** `apps/api/i18n/messages/messages_es.json` y
-`messages_en.json` (array plano `{"key": ..., "value": ...}`). Si la key
-corresponde a un error code, debe ser exactamente igual (`E-<DOMAIN>-<NNN>`).
-Verifica con grep que la key existe en los dos archivos antes de continuar.
+- Agrega el grupo al array `routes` de `routes.tsx`, con `<CheckPermission>` en
+  el grupo **y** en cada ruta.
+- Agrega el ítem de `nav-config.ts` con su `permission`.
 
-## 6. Backend — Registro final de rutas
+**Criterio de cierre:** la URL nueva carga para admin y redirige a `/` para un
+rol sin el permiso.
 
-Agrega la llamada `Register<Domain>Routes(...)` dentro de
-`apps/api/routes/index.go` → `RegisterRoutes`. Orden de middleware de grupo:
+## 6. Plan y flag de navegación
+
+Solo aplica si la decisión fue **plan + rol**. Sigue
+[`references/permisos-y-plan.md`](references/permisos-y-plan.md) § Plan:
+
+- Asocia los permisos al `Feature` del plan con una migración propia.
+- Si el nav item debe ocultarse según el plan, sigue § Flag de navegación. El
+  flag lo decide la `Category` de los permisos.
+
+Este es el paso que más se olvida, y ni el build ni el lint lo detectan. El
+síntoma es un toast 403 que dice *"Your plan does not include this feature"*,
+aunque el rol tenga el permiso.
+
+**Criterio de cierre:** con un usuario de un tenant con suscripción activa,
+el endpoint nuevo responde 200 en el navegador, no 403.
+
+## 7. Tests y verificación
+
+Sigue [`references/verificacion.md`](references/verificacion.md). CI corre
+todo esto, pero el pre-commit solo corre Biome y el typecheck de web y
+backoffice:
+
+- Backend: `go vet`, `go test` y `go build`.
+- Frontend: typecheck y `test:run` en web, backoffice y `@pengi/shared`.
+
+**Criterio de cierre:** al menos un `*_test.go` nuevo cubre el handler
+principal, incluido el aislamiento entre tenants si el modelo tiene
+`TenantID`. Todo lo que corre CI pasa localmente para los paquetes que tocaste.
+
+## 8. Smoke test en navegador
+
+- Recorre cada pantalla nueva con un usuario admin y con uno sin permiso.
+- Si agregaste keys i18n, antes de juzgar corre en la consola del navegador
+  `localStorage.removeItem("messages")` y recarga.
+- Corre `/doctor` (skill `react-doctor`) sobre el frontend.
+
+**Criterio de cierre:** ninguna pantalla muestra un `*key*` literal, la consola
+no tiene errores, no hay 403 de plan, y `/doctor` no reporta issues nuevos.
+
+## Definition of Done
 
 ```
-auth_middleware.AuthMiddleware()
-  → tenant_middleware.TenantMiddleware(db)
-  → subscription_middleware.SubscriptionMiddleware(db)
+- [ ] Ramas y decisión de gating escritas en el commit/PR (paso 0)
+- [ ] Handlers con tenantdb.For + envelope.Response; go build OK (1)
+- [ ] Permisos: data + migración admin + roles canónicos decididos + rutas + constants.ts idénticos (2)
+- [ ] Modelos en RunMigrations; migraciones nuevas con key nueva, sin editar las existentes (3)
+- [ ] Error codes con key i18n; keys en es Y en (3)
+- [ ] Routes registradas en routes/index.go (3)
+- [ ] Servicio/tipos/páginas lazy/forms/listados en su carpeta (4)
+- [ ] routes.tsx (grupo en `routes`, CheckPermission) + nav-config.ts (5)
+- [ ] Permisos asociados al Feature del plan; flag de nav si aplica (6)
+- [ ] Tests nuevos; vet/test/build + typecheck/test:run de los paquetes tocados (7)
+- [ ] Smoke test en navegador sin *key*, sin 403 de plan; /doctor limpio (8)
 ```
-
-## 7. Feature-flag / Plan wiring
-
-Retoma la decisión del paso 0. **No te lo saltes ni cuando extiendes un
-dominio existente** — es el paso que más fácil se olvida, y el síntoma solo
-aparece probando en el navegador (el linter/build no lo detecta):
-
-> **Síntoma si te lo saltas:** en el navegador ves un toast
-> `"Your plan does not include this feature"` (403) al llamar el endpoint
-> nuevo, **aunque** el usuario/rol sí tenga el permiso asignado (paso 3). Eso
-> es porque `RequirePermission` chequea dos cosas por separado — el rol del
-> usuario Y que el `Plan` de la suscripción incluya el permiso vía `Feature`
-> (`apps/api/features/companies/middleware/subscription-middleware.go`,
-> `IsPermissionAllowed`) — y solo wireaste la primera en el paso 3.
-
-- **Si es plan-gated y el `Feature` YA existe** (caso más común — ej. agregas
-  una acción a `clinical`, que ya tiene `Feature{Code: "CLINICAL"}` asociado
-  al plan PRO): agrega una migración nueva que asocie tus permisos nuevos a
-  ese `Feature` existente, igual que el paso 3 los asocia al rol admin pero
-  sobre `company_models.Feature` en vez de `user_models.Role`:
-  ```go
-  var feature company_models.Feature
-  if err := db.Where(company_models.Feature{Code: "<DOMAIN>"}).First(&feature).Error; err != nil {
-      if err == gorm.ErrRecordNotFound {
-          fmt.Println("⚠️  <DOMAIN> feature not found, skipping.")
-          return nil // no rompas el arranque en un ambiente que gestiona Features distinto
-      }
-      return fmt.Errorf("failed to find <DOMAIN> feature: %w", err)
-  }
-  for _, id := range []string{"CREATE_<X>", "..."} {
-      var perm permission_models.Permission
-      db.Where(permission_models.Permission{BaseStringID: database.BaseStringID{ID: id}}).First(&perm)
-      db.Model(&feature).Association("Permissions").Append(&perm)
-  }
-  ```
-  Ponla en su **propia key** de `GlobalDBMap` (no reuses la del paso 3) para
-  que corra después de que los permisos existan. `Association(...).Append(...)`
-  es idempotente (GORM no duplica la fila en `feature_permissions` si ya
-  existe), así que es seguro si la corres más de una vez.
-- **Si es plan-gated y el `Feature` NO existe todavía:** créalo (vía
-  backoffice UI `apps/backoffice/src/pages/features/*` o seed) con
-  `Feature{Code, Name, Permissions}`, y asócialo a el/los `Plan`(s)
-  relevantes (`apps/backoffice/src/pages/plans/*`).
-- Para depurar en dev, inspecciona la tabla directamente (no asumas por logs):
-  ```bash
-  docker exec -i pengi-db-dev psql -U postgres -d pengi_gentoo \
-    -c "select feature_id, permission_id from feature_permissions where feature_id = <id>;"
-  ```
-- **Si es toggle cosmético:** agrega el bool field en
-  `apps/api/features/tenants/models/tenant-model.go` → `EnabledFeatures`,
-  actualiza `GetEnabledFeatures`/`UpdateEnabledFeatures` si aplica, y usa
-  exactamente el mismo string en `nav-config.ts` → `item.feature`. Recuerda
-  la semántica opt-out — si debe iniciar oculta, el default debe ser `false`
-  explícito, no un zero-value implícito sin revisar.
-- **Si no aplica ninguno:** déjalo explícito en la descripción del PR/commit
-  para que quede claro que fue una decisión y no un olvido.
-
-## 8. Frontend — Tipos, servicio, store
-
-Sigue los pasos 1-3 de
-[`docs/skills/web-frontend-complete-guide.md`](../../../docs/skills/web-frontend-complete-guide.md).
-Recordatorios rápidos:
-
-- Tipos extienden `BaseModel` (`ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`,
-  PascalCase) + campos de negocio en snake_case.
-- Servicio vía `createHttpService(apiWithTenant | api | noAuthApi)`. GET =
-  `{ notifyError: true }`; writes = `{ notifySuccess: true, notifyError: true }`.
-- Store Zustand solo si el estado es compartido entre componentes:
-  `persist((set) => ({...}), { name: "<feature>-storage", storage: createJSONStorage(() => sessionStorage) })`.
-
-## 9. Frontend — Página, componentes, formularios
-
-Sigue la guía frontend para página/componentes. Para cualquier formulario,
-sigue [`docs/skills/form-creation-standard.md`](../../../docs/skills/form-creation-standard.md):
-Zod schema + `<Form schema={} onSubmit={}>` +
-`FormInput/FormSelect/FormTextArea/FormRadioGroup` (de `@pengi/ui`) +
-`FormCalendar/FormTagInput` (locales a cada app; `FormTagInput` solo existe
-en `apps/web`) — nunca inputs HTML crudos. `FormCheckbox` ya no existe.
-
-### ¿Diálogo (modal) o página independiente?
-
-Un `Dialog` (patrón `edit-prescription-dialog.tsx`) está bien para una
-edición rápida de 1-2 campos disparada desde una fila/acción puntual. Si el
-flujo genera un registro que el usuario querrá **volver a ver, imprimir o
-reenviar más tarde** (informes, documentos, cualquier cosa "generada"), usa
-una página dedicada + una página de listado, no un modal — un modal no tiene
-URL propia ni forma natural de listar lo ya guardado. Regla práctica: si te
-preguntas "¿y cómo veo los que ya generé?", es una página, no un diálogo.
-Cuidado además con grids de N columnas dentro de un `Dialog` angosto para
-mostrar fechas largas (`FormCalendar` con `format(date, "PPP")` en español
-puede desbordar una columna de 3 en un modal de 600px) — en una página con
-más ancho este problema desaparece solo.
-
-## 10. Frontend — Rutas y navegación
-
-Ya cubierto en el paso 3 (`CheckPermission` en `routes.tsx`, `permission` en
-`nav-config.ts`) y paso 7 (`feature` en `nav-config.ts` si aplica gating
-cosmético). No dupliques código, solo confirma que ambos campos están
-correctamente seteados en el nav item.
-
-## 11. Frontend — i18n
-
-Las keys son backend-owned — no hay JSON local en `apps/web`. Confirma que
-las keys usadas en `textGet(key)` existen en `messages_es.json`/`messages_en.json`
-(paso 5). `textGet` falla en silencio devolviendo `*key*` — smoke-testea
-visualmente la pantalla nueva para detectar cualquier `*key*` renderizado.
-
-**Gotcha de caché en dev:** el frontend guarda los mensajes en
-`localStorage["messages"]` (`packages/shared/src/i18n/message-store.ts`) y solo los vuelve a
-pedir al backend si cambia `__APP_VERSION__`. Si agregaste keys nuevas y las
-ves como `*key.nueva*` en el navegador aunque ya estén en el JSON y sembradas
-en la BD (verificable con
-`docker exec -i pengi-db-dev psql -U postgres -d pengi_gentoo -c "select value from messages where key='...';"`),
-no es un bug — es el caché del navegador. Limpialo antes de dar el smoke test
-por fallido:
-```js
-localStorage.removeItem("messages"); // luego recarga la página
-```
-
-## 12. Tests
-
-- **Backend:** escribe/actualiza `*_test.go` junto al handler nuevo, usando
-  `testutils.SetupTestDB` + `testutils.NewGinContext`, invocando el handler
-  directamente y asertando sobre `envelope.Response` (patrón de
-  `invoice_handler_test.go`).
-- Corre `just tests-api` y `go vet ./...` localmente — el pre-commit hook
-  (`.githooks/pre-commit`) **no** corre esto, solo Biome + `pnpm run typecheck`
-  en `apps/web`/`apps/backoffice`.
-- **Frontend:** agrega tests si el patrón del feature similar los tiene;
-  corre `just tests-web`.
-- Corre `just tests-e2e` para flujos críticos si aplica.
-
-## 13. Pre-flight / Doctor
-
-- **Entorno docker dev:** `apps/api` corre bajo `air` (`docker-compose.dev.yaml`)
-  con el código montado como volumen — cada guardado dispara un rebuild
-  automático (`docker logs pengi-api` muestra `building... / running...`).
-  No hace falta reiniciar el contenedor a mano. `RunAllMigrations` (incluidas
-  tus code-migrations nuevas) corre en cada arranque del binario, así que
-  una migración nueva se aplica sola en el siguiente rebuild — solo
-  confirma en los logs (`docker logs pengi-api | grep <tu-key>`) que
-  imprimió éxito y no quedó en loop de error.
-- **Frontend:** corre `/doctor` (skill `react-doctor`, ya existe en
-  `apps/web/.claude/skills` y `apps/backoffice/.claude/skills`) antes de dar
-  por terminado el trabajo frontend — no reinventes lint/a11y/bundle-size
-  checks a mano.
-- **Backend:** `go vet ./...`.
-- Confirma que `pnpm run typecheck` pasa (el hook ya lo corre, pero verifica
-  a mano si hiciste cambios post-commit).
-
-## 14. Definition of Done
-
-```
-- [ ] Modelo(s)/DTOs/handler creados y compilando
-- [ ] Error codes agregados en codes.go
-- [ ] Permisos agregados en permission-data.go
-- [ ] Code-migration de permisos creado y registrado en GlobalDBMap (key sin colisión)
-- [ ] RequirePermission agregado en las rutas correspondientes
-- [ ] PERMISSIONS espejado en apps/web/src/lib/constants.ts (strings idénticos)
-- [ ] CheckPermission envolviendo rutas en routes.tsx
-- [ ] permission asignado en nav-config.ts
-- [ ] Modelo(s) agregados a RunMigrations (AutoMigrate)
-- [ ] Rutas registradas en routes/index.go
-- [ ] i18n keys agregadas en messages_es.json Y messages_en.json
-- [ ] Decisión de feature-flag/plan tomada y documentada; wiring hecho si aplica
-- [ ] Si el Feature de plan ya existía (dominio extendido), permisos nuevos asociados
-      a él vía migración propia (no solo al rol admin) — probado en navegador,
-      no solo por build/lint
-- [ ] Tipos/servicio/store frontend creados
-- [ ] Página/componentes/formularios creados (Zod + Form components)
-- [ ] Si genera documentos: reutiliza Gotenberg (no libs de PDF nuevas) y el
-      handler de descarga NO usa envelope.Handle
-- [ ] Si el flujo produce registros para revisar después: página + listado,
-      no un Dialog
-- [ ] Tests backend escritos y pasando (just tests-api, go vet ./...)
-- [ ] Tests frontend pasando (just tests-web)
-- [ ] /doctor (react-doctor) corrido sin issues nuevos
-- [ ] Smoke test manual de la pantalla nueva (sin *key* renderizado — limpiar
-      localStorage["messages"] si agregaste i18n keys nuevas —, sin errores
-      de consola, y probando en navegador que el plan/feature-gate no bloquea)
-```
-
-## Referencias
-
-- [`docs/skills/api-backend-complete-guide.md`](../../../docs/skills/api-backend-complete-guide.md)
-- [`docs/skills/web-frontend-complete-guide.md`](../../../docs/skills/web-frontend-complete-guide.md)
-- [`docs/skills/form-creation-standard.md`](../../../docs/skills/form-creation-standard.md)
-- `react-doctor` skill (`/doctor`) — `apps/web/.claude/skills`, `apps/backoffice/.claude/skills`

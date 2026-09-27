@@ -5,343 +5,94 @@ description: Guía completa del frontend React incluyendo arquitectura, patrones
 
 # Web Frontend — Complete Guide
 
-Guía completa de la arquitectura y desarrollo del frontend `apps/web` (React + TypeScript + TailwindCSS + shadcn/ui).
+Guía de la arquitectura y los patrones del frontend `apps/web` (React + TypeScript + TailwindCSS).
+
+> Para crear o extender una feature de punta a punta (backend, permisos, plan,
+> tests), la receta es la skill `create-feature` (`.claude/skills/create-feature/`).
+> Dominio de referencia para copiar: el catálogo de billing (`catalog-item`).
 
 ## 📐 Arquitectura General
 
 ### Stack Técnico
 
-- **Framework:** React 19 + TypeScript
-- **Build:** Vite
-- **Styling:** TailwindCSS v4 + shadcn/ui
-- **State:** Zustand (no Redux)
-- **HTTP:** Axios + custom HttpService
-- **Forms:** React Hook Form + Zod
-- **i18n:** Custom hook `useText()`
+- **Framework:** React 19 + TypeScript, Vite
+- **Styling:** TailwindCSS v4; componentes visuales en `@pengi/ui` (`packages/ui`)
+- **State:** Zustand
+- **HTTP:** Axios + `createHttpService` de `@pengi/shared` (`packages/shared`)
+- **Forms:** React Hook Form + Zod, vía los componentes `Form*` de `@pengi/ui`
+- **Tablas:** `@tanstack/react-table` vía `DataTable`
+- **Routing:** React Router (`createBrowserRouter`, páginas con `lazy()`)
+- **i18n:** `useText()` de `@pengi/shared`
+- **Tests:** Vitest + Testing Library; e2e con Playwright
 
 ### Estructura de Directorios
 
+El código se organiza por tipo y, dentro, por dominio:
+
 ```
 apps/web/src/
-├── api/                         # Service layer
-│   ├── index.ts                # Axios instances
-│   ├── fetch.ts                # HttpService class
-│   └── [domain]-service.ts     # Domain-specific services
+├── api/
+│   ├── index.ts                 # Instancias axios: api, apiWithTenant, noAuthApi
+│   └── <domain>-service.ts      # Servicio + tipos del dominio
 ├── components/
-│   ├── ui/                     # shadcn/ui components (button, dialog, etc.)
-│   ├── forms/                  # Form components (FormInput, FormSelect, etc.)
-│   ├── access-control/         # Permission guards
-│   └── [shared components]/
-├── hooks/
-│   ├── use-text.tsx            # i18n hook (textGet)
-│   └── [custom hooks]/
-├── lib/
-│   ├── utils.ts                # cn() + utilities
-│   ├── constants.ts            # PERMISSIONS, ROUTES
-│   └── [helpers]/
-├── types/
-│   └── [domain]-type.ts        # Domain interfaces
-├── store/
-│   ├── session-store.ts        # Auth + current environment
-│   └── [domain]-store.ts       # Domain state (Zustand)
-├── pages/
-│   └── [domain]/
-│       ├── page.tsx            # Page component
-│       └── components/         # Page-specific components
-├── routes/
-│   └── routes.tsx              # Route definitions + CheckPermission
-├── config/
-│   └── nav-config.ts           # Navigation items
+│   ├── custom/                  # check-permission, page-header, table/data-table, ...
+│   ├── features/<domain>/       # Diálogos y widgets de un dominio
+│   ├── forms/                   # Solo web: FormCalendar, FormTagInput, FormIcd11Select
+│   └── ui/                      # Pocos primitivos locales (el resto está en @pengi/ui)
+├── config/nav-config.ts         # Ítems del sidebar
+├── hooks/                       # use-permission, use-auth, user-responsive, ...
+├── lib/constants.ts             # PERMISSIONS y constantes
+├── pages/<domain>/<kebab>.tsx   # Páginas (la carpeta clínica se llama `clincal/`)
+├── routes/routes.tsx            # Rutas + CheckPermission
 ├── sections/
-│   └── [template]/
-│       └── [component]/        # Shared sections
-└── App.tsx                     # Root component
+│   ├── columns/<domain>/        # Definiciones de columnas de tablas
+│   ├── forms/<domain>/          # Formularios
+│   ├── template/                # DashboardLayout
+│   └── ...                      # dashboard, settings, kanban, views
+├── store/<domain>-store.ts      # Stores Zustand
+├── types/                       # Tipos transversales (user, permission, api...)
+└── __tests__/                   # Tests (también se colocan junto al código)
 ```
 
-### Axios Instances
+Código que usan **las dos** apps (web y backoffice) va en `packages/ui`
+(visual) o `packages/shared` (no visual); ver `packages/shared/README.md`.
 
-```typescript
-// apps/web/src/api/index.ts
+### Axios Instances (`src/api/index.ts`)
 
-// Use: No auth header (public routes)
-export const noAuthApi = axios.create({...})
-
-// Use: Auth header only (login, auth routes)
-export const api = axios.create({...})
-
-// Use: Auth header + X-Tenant-Slug header (ALL tenant routes)
-export const apiWithTenant = axios.create({...})
-```
-
-**Rule:** Elige la instancia correcta según el endpoint.
+| Instancia | Headers | Uso |
+|---|---|---|
+| `noAuthApi` | ninguno (cookies) | rutas públicas |
+| `api` | Bearer + `Accept-Language` | auth, rutas sin tenant |
+| `apiWithTenant` | Bearer + `X-Tenant-Slug` + `Accept-Language` | todas las rutas de tenant |
 
 ---
 
 ## 🔄 Service Layer Pattern
 
-**NUNCA** llamar API directo desde componentes. Siempre usar service layer.
-
-### HttpService Class
+Los componentes nunca llaman a axios: siempre pasan por un servicio.
 
 ```typescript
-import { createHttpService, type ServiceResponse } from "./fetch";
-import { apiWithTenant } from "./index";
-
-const itemService = createHttpService(apiWithTenant);
-
-// GET /items
-export const getItems = async (): Promise<ServiceResponse<Item[]>> =>
-  itemService.get<Item[]>("/items", {
-    notifyError: true,
-  });
-
-// POST /items
-export const createItem = async (payload: CreateItemPayload): Promise<ServiceResponse<Item>> =>
-  itemService.post<Item>("/items", payload, {
-    notifySuccess: true,   // ← Service muestra toast automático
-    notifyError: true,
-  });
-
-// PUT /items/:id
-export const updateItem = async (id: number, payload: UpdateItemPayload): Promise<ServiceResponse<Item>> =>
-  itemService.put<Item>(`/items/${id}`, payload, {
-    notifySuccess: true,
-    notifyError: true,
-  });
-
-// DELETE /items/:id
-export const deleteItem = async (id: number): Promise<ServiceResponse<null>> =>
-  itemService.delete<null>(`/items/${id}`, {
-    notifySuccess: true,
-    notifyError: true,
-  });
-```
-
-### Response Pattern
-
-```typescript
-// Service retorna siempre ServiceResponse<T>
-interface ServiceResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
-
-// En componente, chequea success
-const res = await createItem(payload);
-if (res.success) {
-  navigate("/items");
-  // No hagas toast aquí, service ya lo hizo
-} else {
-  // Manejar error UI si es necesario
-}
-```
-
-**Reglas:**
-- Service maneja **TODOS** los toasts (notifySuccess/notifyError)
-- Componente solo chequea `res.success` para navegación/estado
-- Exception: toasts de validación UI pura (no API) pueden estar en componente
-
----
-
-## 🔐 Types Pattern
-
-Todos los tipos que reflejan modelos del API deben extender `BaseModel`:
-
-```typescript
-// apps/web/src/types/item-type.ts
-
-export interface Item extends BaseModel {
-  tenant_id: number;
-  name: string;
-  description?: string;
-  status: "active" | "inactive";
-}
-
-export interface CreateItemPayload {
-  name: string;
-  description?: string;
-  status?: "active" | "inactive";
-}
-
-export interface UpdateItemPayload {
-  name?: string;
-  description?: string;
-  status?: "active" | "inactive";
-}
-```
-
-**Reglas:**
-- Extender `BaseModel` (ID, CreatedAt, UpdatedAt, DeletedAt)
-- Usar `snake_case` para propiedades (como vienen del API)
-- Separar payloads (`CreateItemPayload`, `UpdateItemPayload`) de respuestas
-
----
-
-## 🎣 State Management with Zustand
-
-**SOLO Zustand.** No Redux, Recoil, etc.
-
-### Cuándo crear store
-
-- Estado compartido entre múltiples componentes
-- Filtros/búsqueda a nivel página
-- Estado de modal/dialog persistente
-- Selección de item
-
-### NO crear store
-
-- Estado local de un componente (`useState` es suficiente)
-- Props que pasan directamente
-
-### Store Pattern
-
-```typescript
-// apps/web/src/store/item-store.ts
-
-import { create } from "zustand";
-import type { Item } from "@/types/item-type";
-
-interface ItemStore {
-  items: Item[];
-  selectedItem?: Item;
-  searchTerm: string;
-  sortBy: "name" | "createdAt";
-  
-  setItems: (items: Item[]) => void;
-  setSelectedItem: (item: Item | undefined) => void;
-  setSearchTerm: (term: string) => void;
-  setSortBy: (sort: "name" | "createdAt") => void;
-  addItem: (item: Item) => void;
-  updateItem: (item: Item) => void;
-  removeItem: (id: number) => void;
-  reset: () => void;
-}
-
-export const useItemStore = create<ItemStore>((set) => ({
-  items: [],
-  selectedItem: undefined,
-  searchTerm: "",
-  sortBy: "name",
-
-  setItems: (items) => set({ items }),
-  setSelectedItem: (item) => set({ selectedItem: item }),
-  setSearchTerm: (term) => set({ searchTerm: term }),
-  setSortBy: (sort) => set({ sortBy: sort }),
-  addItem: (item) => set((state) => ({ items: [...state.items, item] })),
-  updateItem: (item) =>
-    set((state) => ({
-      items: state.items.map((i) => (i.id === item.id ? item : i)),
-    })),
-  removeItem: (id) =>
-    set((state) => ({
-      items: state.items.filter((i) => i.id !== id),
-    })),
-  reset: () =>
-    set({
-      items: [],
-      selectedItem: undefined,
-      searchTerm: "",
-      sortBy: "name",
-    }),
-}));
-```
-
----
-
-## 📝 i18n Pattern
-
-**NUNCA hardcodear strings.** Usar `useText()` hook siempre.
-
-```typescript
-import { useText } from "@pengi/shared";
-
-export default function ItemPage() {
-  const { textGet } = useText();
-
-  return (
-    <>
-      <h1>{textGet("item.title")}</h1>
-      <p>{textGet("item.description")}</p>
-      <Button>{textGet("item.create")}</Button>
-    </>
-  );
-}
-```
-
-**Reglas:**
-- Hook es `useText()`, NO `t` o `useTranslation()`
-- Función es `textGet(key)`, NO `t(key)`
-- Missing keys renderean como `*key*` automático
-- Keys deben estar en `apps/api/i18n/messages/messages_es.json` y `messages_en.json`
-
-### i18n Keys Pattern
-
-```json
-{
-  "item": {
-    "title": "Ítems",
-    "description": "Gestiona tus ítems",
-    "create": "Crear Ítem",
-    "edit": "Editar Ítem",
-    "delete": "Eliminar",
-    "created": "Ítem creado exitosamente",
-    "updated": "Ítem actualizado",
-    "deleted": "Ítem eliminado",
-    "empty": "No hay ítems aún",
-    "name": "Nombre",
-    "name.placeholder": "Ingresa el nombre",
-    "status": "Estado"
-  }
-}
-```
-
----
-
-## 🛠️ Cómo Implementar un Feature Nuevo
-
-### Paso 1: Crear Tipos
-
-**Archivo:** `apps/web/src/types/item-type.ts`
-
-```typescript
-export interface Item extends BaseModel {
-  tenant_id: number;
-  name: string;
-  description?: string;
-  status: "active" | "inactive";
-}
-
-export interface CreateItemPayload {
-  name: string;
-  description?: string;
-}
-
-export interface UpdateItemPayload {
-  name?: string;
-  description?: string;
-  status?: "active" | "inactive";
-}
-```
-
-### Paso 2: Crear Servicio
-
-**Archivo:** `apps/web/src/api/item-service.ts`
-
-```typescript
-import type {
-  CreateItemPayload,
-  Item,
-  UpdateItemPayload,
-} from "@/types/item-type";
-
-import { apiWithTenant } from ".";
+// src/api/item-service.ts
 import {
+  type BaseModel,
   createHttpService,
   type ServiceResponse,
-} from "./fetch";
+} from "@pengi/shared";
+import { apiWithTenant } from ".";
 
 const itemService = createHttpService(apiWithTenant);
+
+export interface Item extends BaseModel {
+  tenant_id: number;
+  name: string;
+  description?: string;
+}
+
+export type CreateItemPayload = {
+  name: string;
+  description?: string;
+};
+export type UpdateItemPayload = Partial<CreateItemPayload>;
 
 export const getItems = async (): Promise<ServiceResponse<Item[]>> =>
   itemService.get<Item[]>("/items", { notifyError: true });
@@ -370,289 +121,328 @@ export const deleteItem = async (id: number): Promise<ServiceResponse<null>> =>
   });
 ```
 
-### Paso 3: Crear Store (si necesario)
+- GET → `{ notifyError: true }`; escrituras → `{ notifySuccess: true, notifyError: true }`.
+- `notifySuccess`/`notifyError` aceptan también un string (key i18n) que
+  reemplaza el mensaje del backend.
 
-**Archivo:** `apps/web/src/store/item-store.ts`
+### Response Pattern
 
 ```typescript
+// ServiceResponse<T> = { success, code, message, data, filename? }
+// En error, data = { error_code, error_message }
+const res = await createItem(payload);
+if (res.success) {
+  navigate("/items"); // el toast ya lo mostró el servicio
+}
+```
+
+Toasts de validación puramente de UI (no resultado de una llamada) sí van en
+el componente.
+
+---
+
+## 🔐 Types Pattern
+
+Los tipos van junto a su servicio en `src/api/<domain>-service.ts`
+(`types/` queda para tipos transversales). Los que reflejan un modelo con
+`gorm.Model` extienden `BaseModel` de `@pengi/shared`:
+
+```typescript
+// BaseModel = { ID: number; CreatedAt: string; UpdatedAt: string; DeletedAt?: string | null }
+export interface Item extends BaseModel {
+  tenant_id: number;
+  name: string;
+}
+```
+
+Los nombres de los campos son los `json` tags del modelo Go: cópialos del
+modelo (`snake_case` en la mayoría; los campos de `gorm.Model` en PascalCase).
+Usa `item.ID`, no `item.id`.
+
+---
+
+## 🎣 State Management with Zustand
+
+Crea un store solo si varios componentes comparten el estado. Para estado de
+un componente, `useState`.
+
+```typescript
+// src/store/item-store.ts
 import { create } from "zustand";
-import type { Item } from "@/types/item-type";
+import type { Item } from "@/api/item-service";
 
 interface ItemStore {
-  items: Item[];
   selectedItem?: Item;
-  
-  setItems: (items: Item[]) => void;
   setSelectedItem: (item: Item | undefined) => void;
-  addItem: (item: Item) => void;
-  removeItem: (id: number) => void;
 }
 
 export const useItemStore = create<ItemStore>((set) => ({
-  items: [],
   selectedItem: undefined,
-  
-  setItems: (items) => set({ items }),
   setSelectedItem: (item) => set({ selectedItem: item }),
-  addItem: (item) => set((state) => ({ items: [...state.items, item] })),
-  removeItem: (id) =>
-    set((state) => ({
-      items: state.items.filter((i) => i.id !== id),
-    })),
 }));
 ```
 
-### Paso 4: Crear Página
+- Por defecto sin persistencia (`store/kanban-store.ts`).
+- Persiste solo lo que debe sobrevivir a un refresh:
+  `persist(..., { name: "<x>-storage", storage: createJSONStorage(() => sessionStorage) })`.
+  El logout limpia `localStorage` y `sessionStorage`.
+- Si cambias la forma de datos persistidos, versiona el `name`
+  (`notification-storage-v4`) para no leer cachés viejos.
+- Selección múltiple de filas en tablas: `useRowStore` (`store/row-store.ts`).
 
-**Archivo:** `apps/web/src/pages/item/page.tsx`
+---
+
+## 📝 i18n Pattern
 
 ```typescript
-import { useEffect, useState } from "react";
-import { deleteItem, getItems } from "@/api/item-service";
-import { Button } from "@/components/ui/button";
 import { useText } from "@pengi/shared";
+import { Text } from "@pengi/ui";
+
+const { textGet } = useText();
+<h1>{textGet("item.title")}</h1>
+<Text uuid="item.create.button" /> // equivalente en JSX
+```
+
+- Hook `useText()` y función `textGet(key)` (no `t` ni `useTranslation`).
+- Una key inexistente se renderiza como `*key*`.
+- Las keys viven en el backend: `apps/api/i18n/messages/messages_es.json` y
+  `messages_en.json`, array plano:
+
+```json
+[
+  { "key": "item.title", "value": "Ítems" },
+  { "key": "item.create.button", "value": "Crear ítem" },
+  { "key": "item.form.error.required", "value": "Campo obligatorio" }
+]
+```
+
+- **Caché:** los mensajes se guardan en `localStorage["messages"]` y solo se
+  vuelven a pedir si cambia `__APP_VERSION__` (arranque de Vite) o el idioma.
+  Tras agregar keys: `localStorage.removeItem("messages")` y recarga.
+
+---
+
+## 🛠️ Cómo Implementar un Feature Nuevo
+
+### Paso 1: Servicio y tipos
+
+`src/api/<domain>-service.ts`, como en el patrón de arriba.
+
+### Paso 2: Store (solo si hace falta)
+
+`src/store/<domain>-store.ts`.
+
+### Paso 3: Columnas de la tabla
+
+`src/sections/columns/<domain>/<x>-columns.tsx`, con versión desktop y mobile
+(patrón `sections/columns/billing/catalog-item-columns.tsx`):
+
+```typescript
+import { DataTableColumnHeader, Text } from "@pengi/ui";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { Item } from "@/api/item-service";
+
+interface ItemColumnProps {
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
+}
+
+export const getItemColumns = ({ onEdit, onDelete }: ItemColumnProps): ColumnDef<Item>[] => [
+  {
+    accessorKey: "name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={<Text uuid="item.column.name" />} />
+    ),
+  },
+  // columna "select" con Checkbox para selección múltiple, columna de acciones...
+];
+
+export const getItemColumnsMobile = (props: ItemColumnProps): ColumnDef<Item>[] => [/* ... */];
+```
+
+### Paso 4: Página de listado
+
+`src/pages/<domain>/<x>-list.tsx` (patrón `pages/billing/catalog-item-list.tsx`):
+
+```typescript
+import { useText } from "@pengi/shared";
+import { Button, Text } from "@pengi/ui";
+import { Plus } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router";
+import { deleteItem, getItems, type Item } from "@/api/item-service";
+import { PageHeader } from "@/components/custom/page-header";
+import { DataTable } from "@/components/custom/table/data-table";
+import usePermission from "@/hooks/use-permission";
+import { useResponsive } from "@/hooks/user-responsive";
+import { PERMISSIONS } from "@/lib/constants";
+import { getItemColumns, getItemColumnsMobile } from "@/sections/columns/item/item-columns";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
-import { useItemStore } from "@/store/item-store";
-import type { Item } from "@/types/item-type";
-import ItemCard from "./components/item-card";
-import CreateItemDialog from "./components/create-item-dialog";
 
-export default function ItemPage() {
+const ItemList = () => {
   const { textGet } = useText();
-  const [loading, setLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
-  const { items, setItems, selectedItem, setSelectedItem } = useItemStore();
+  const { checkPermission } = usePermission();
+  const { isMobile } = useResponsive();
+  const navigate = useNavigate();
+  const [items, setItems] = React.useState<Item[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
-    loadItems();
-  }, []);
-
-  async function loadItems() {
+  const load = React.useCallback(async () => {
     setLoading(true);
     const res = await getItems();
-    if (res.success) {
-      setItems(res.data || []);
-    }
+    if (res.success && res.data) setItems(res.data);
     setLoading(false);
-  }
+  }, []);
 
-  async function handleDelete(id: number) {
-    const res = await deleteItem(id);
-    if (res.success) {
-      await loadItems();
-      setSelectedItem(undefined);
-    }
-  }
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center space-y-2">
-            <div className="h-10 w-10 border-2 border-muted rounded-full animate-spin mx-auto" />
-            <p>{textGet("common.loading")}</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const handlers = {
+    onEdit: (id: number) => navigate(`/items/edit/${id}`),
+    onDelete: async (id: number) => {
+      const res = await deleteItem(id);
+      if (res.success) load();
+    },
+  };
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">{textGet("item.title")}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {textGet("item.description")}
-            </p>
-          </div>
-          <Button onClick={() => setShowDialog(true)}>
-            {textGet("item.create")}
-          </Button>
-        </div>
-
-        {/* Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              selected={selectedItem?.id === item.id}
-              onSelect={setSelectedItem}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-
-        {items.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">{textGet("item.empty")}</p>
-          </div>
-        )}
-
-        {/* Create Dialog */}
-        {showDialog && (
-          <CreateItemDialog
-            onClose={() => setShowDialog(false)}
-            onSuccess={() => {
-              setShowDialog(false);
-              loadItems();
-            }}
-          />
-        )}
-      </div>
+      <main className="grid items-start gap-4">
+        <PageHeader
+          title={textGet("item.title")}
+          description={textGet("item.page.description")}
+          actions={
+            checkPermission([PERMISSIONS.ITEM.PERMISSION_CREATE_ITEM]) && (
+              <Button onClick={() => navigate("/items/create")}>
+                <Plus className="mr-2 h-4 w-4" />
+                <Text uuid="item.create.button" />
+              </Button>
+            )
+          }
+        />
+        <DataTable
+          columns={isMobile ? getItemColumnsMobile(handlers) : getItemColumns(handlers)}
+          data={items}
+          loading={loading}
+        />
+      </main>
     </DashboardLayout>
   );
-}
+};
+
+export default ItemList;
 ```
 
-### Paso 5: Crear Componentes
+`DataTable` también acepta paginación (`page`, `pageCount`, `onPageChange`),
+búsqueda (`searchValue`, `onSearchChange`, `searchPlaceholder`) y
+`bulkActions`.
 
-**Archivo:** `apps/web/src/pages/item/components/item-card.tsx`
+### Paso 5: Formulario y páginas de crear/editar
+
+Formulario en `src/sections/forms/<domain>/<x>-form.tsx`, siguiendo
+[`form-creation-standard.md`](form-creation-standard.md). Las páginas
+`create-<x>.tsx` / `edit-<x>.tsx` solo arman el payload, llaman al servicio y
+navegan si `res.success` (patrón `pages/billing/create-catalog-item.tsx`).
+
+Un registro que el usuario querrá volver a ver, imprimir o reenviar vive en
+una página + listado; un `Dialog` (`components/features/<domain>/`) es para
+ediciones rápidas de uno o dos campos.
+
+### Paso 6: Rutas
+
+`src/routes/routes.tsx`:
 
 ```typescript
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Edit2 } from "lucide-react";
-import { useText } from "@pengi/shared";
-import type { Item } from "@/types/item-type";
+import { lazy } from "react";
+import CheckPermission from "@/components/custom/check-permission";
 
-interface ItemCardProps {
-  item: Item;
-  selected?: boolean;
-  onSelect?: (item: Item) => void;
-  onDelete?: (id: number) => void;
-}
+const ItemList = lazy(() => import("@/pages/item/item-list"));
+const CreateItemPage = lazy(() => import("@/pages/item/create-item"));
 
-export default function ItemCard({
-  item,
-  selected,
-  onSelect,
-  onDelete,
-}: ItemCardProps) {
-  const { textGet } = useText();
+const itemRoutes: RouteObject = {
+  path: "/items",
+  element: <CheckPermission permissions={[PERMISSIONS.ITEM.PERMISSION_READ_ITEM]} />,
+  children: [
+    { index: true, element: <ItemList /> },
+    {
+      path: "create",
+      element: (
+        <CheckPermission permissions={[PERMISSIONS.ITEM.PERMISSION_CREATE_ITEM]}>
+          <CreateItemPage />
+        </CheckPermission>
+      ),
+    },
+  ],
+};
 
-  return (
-    <Card
-      className={`cursor-pointer transition-all ${
-        selected ? "ring-2 ring-primary" : ""
-      }`}
-      onClick={() => onSelect?.(item)}
-    >
-      <CardHeader>
-        <CardTitle className="text-base">{item.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {item.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {item.description}
-          </p>
-        )}
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <Edit2 className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-red-600"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete?.(item.id);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+const routes: RouteObject[] = [clinicalRoutes, billingRoutes, itemRoutes];
 ```
 
-### Paso 6: Registrar Rutas
+- `CheckPermission` es default export, exige **todos** los permisos listados y
+  redirige a `/` si falta alguno.
+- Una página suelta sin subrutas va inline en el router, como `/team` o `/tasks`.
 
-**Archivo:** `apps/web/src/routes/routes.tsx`
+### Paso 7: Permisos y navegación
+
+`src/lib/constants.ts` — los strings son idénticos a los IDs del backend:
 
 ```typescript
-import { CheckPermission } from "@/components/access-control/check-permission";
-import { PERMISSIONS } from "@/lib/constants";
-import ItemPage from "@/pages/item/page";
-
-const routes = [
-  // ... rutas existentes
-  {
-    path: "/items",
-    element: (
-      <CheckPermission permissions={[PERMISSIONS.ITEM.READ]}>
-        <ItemPage />
-      </CheckPermission>
-    ),
+export const PERMISSIONS = {
+  // ...
+  ITEM: {
+    PERMISSION_READ_ITEM: "READ_ITEM",
+    PERMISSION_CREATE_ITEM: "CREATE_ITEM",
   },
-];
+};
 ```
 
-### Paso 7: Agregar a Navegación
-
-**Archivo:** `apps/web/src/config/nav-config.ts`
+`src/config/nav-config.ts`:
 
 ```typescript
 import { Package } from "lucide-react";
 
-export const createNavItems = (textGet: any, enabledFeatures: string[]) => [
+export const createNavItems = (textGet: (key: string) => string): NavItemType[] => [
   // ... items existentes
   {
     icon: Package,
     label: textGet("item.title"),
     href: "/items",
-    permission: PERMISSIONS.ITEM.READ,
-    feature: "item",
+    permission: PERMISSIONS.ITEM.PERMISSION_READ_ITEM,
+    feature: "clinical", // opcional: oculta el ítem si el plan no incluye esa categoría
   },
 ];
 ```
 
-### Paso 8: Agregar i18n Keys
+- Solo los ítems de primer nivel se filtran por `permission`/`feature`; los
+  `accordionItems` se muestran a quien vea el padre.
+- `feature` es una key de `EnabledFeatures` (`clinical`, `billing`, `team`,
+  `kanban`), calculada en el backend desde el plan. Una categoría nueva requiere
+  cambios en backend y frontend: ver la skill `create-feature`,
+  `references/permisos-y-plan.md` § Flag de navegación.
 
-**Archivo:** `apps/api/i18n/messages/messages_es.json`
+### Paso 8: i18n Keys
 
-```json
-{
-  "item": {
-    "title": "Ítems",
-    "description": "Gestiona tus ítems aquí",
-    "create": "Crear Ítem",
-    "created": "Ítem creado exitosamente",
-    "updated": "Ítem actualizado",
-    "deleted": "Ítem eliminado",
-    "empty": "No hay ítems aún"
-  }
-}
-```
+Agrega todas las keys usadas (textos, placeholders, mensajes de Zod) en ambos
+JSON del backend, como en el patrón de i18n.
 
-Y en `messages_en.json` con equivalentes.
+### Paso 9: Tests
+
+- Vitest: `src/__tests__/<x>.test.tsx` o `<x>.test.ts` junto al código
+  (patrón `__tests__/kanban-settings.test.tsx`).
+- e2e: `apps/web/e2e/*.spec.ts` (`just tests-e2e`, con el stack arriba).
 
 ---
 
-## ✅ Checklist para Feature Nuevo
+## ✅ Checklist para Feature Nuevo (web)
 
-- [ ] Tipos creados con `extends BaseModel`
-- [ ] Servicio creado con `createHttpService()`
-- [ ] Store creado si es necesario
-- [ ] Página creada en `pages/[domain]/page.tsx`
-- [ ] Componentes creados en `pages/[domain]/components/`
-- [ ] Rutas registradas en `routes/routes.tsx`
-- [ ] Navegación actualizada en `nav-config.ts`
-- [ ] i18n keys agregadas en ambos JSON
-- [ ] Sin hardcoded strings (todo textGet)
-- [ ] Sin console.logs en código de producción
-- [ ] `just check` pasa sin errores
-- [ ] Tipos correctos, sin `any`
-
+- [ ] Servicio + tipos en `src/api/<domain>-service.ts` (tipos con `BaseModel` si aplica)
+- [ ] Store solo si el estado es compartido
+- [ ] Columnas en `sections/columns/<domain>/` (desktop + mobile)
+- [ ] Páginas en `pages/<domain>/` con `DashboardLayout` + `PageHeader`
+- [ ] Formularios en `sections/forms/<domain>/` según `form-creation-standard.md`
+- [ ] Rutas `lazy()` con `CheckPermission`, grupo agregado a `routes`
+- [ ] `PERMISSIONS` en `constants.ts` idénticos al backend
+- [ ] Ítem en `nav-config.ts` con `permission` (y `feature` si aplica)
+- [ ] i18n keys en ambos JSON; nada hardcodeado
+- [ ] `pnpm run typecheck`, `pnpm test:run` y `just check` pasan
