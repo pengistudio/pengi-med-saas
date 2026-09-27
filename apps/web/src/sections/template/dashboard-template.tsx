@@ -37,6 +37,7 @@ import { initiatePayment } from "@/api/subscription-service";
 import NotificationBell from "@/components/custom/notification-bell";
 import useAuth from "@/hooks/use-auth";
 import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
+import { getPageTitle } from "@/lib/page-title";
 import { cn } from "@/lib/utils";
 import {
 	selectEnvironment,
@@ -98,17 +99,21 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	}, [environment?.enabled_features]);
 
 	// Use useMemo with stable reference
+	const unfilteredNavItems = useMemo(() => createNavItems(textGet), [textGet]);
 	const allNavItems = useMemo(
 		() =>
-			createNavItems(textGet).filter(
+			unfilteredNavItems.filter(
 				(item) =>
 					(!item.permission || checkPermission([item.permission])) &&
 					(!item.feature ||
 						(enabledFeatures as Record<string, boolean>)[item.feature] !==
 							false),
 			),
-		[textGet, enabledFeatures, checkPermission],
+		[unfilteredNavItems, enabledFeatures, checkPermission],
 	);
+	const pageTitle =
+		getPageTitle(unfilteredNavItems, pathname, textGet) ??
+		textGet("dashboard.title");
 	const navItems = allNavItems.filter((item) => !item.isBottom);
 	const bottomNavItems = allNavItems.filter((item) => item.isBottom);
 
@@ -230,9 +235,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 						>
 							<Menu className="h-5 w-5" />
 						</Button>
-						<span className="text-lg font-semibold">
-							{textGet("dashboard.title")}
-						</span>
+						<span className="truncate text-lg font-semibold">{pageTitle}</span>
 					</div>
 
 					<div className="flex items-center gap-2">

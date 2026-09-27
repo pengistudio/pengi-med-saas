@@ -18,6 +18,7 @@ package sri_document
 import (
 	"errors"
 	"fmt"
+	"pengi-med-saas/core/secretbox"
 	"pengi-med-saas/core/tenantdb"
 	"time"
 
@@ -116,7 +117,7 @@ func (l *Lifecycle) attempt(kind Kind, doc document) (err error) {
 	if err != nil {
 		return fail(err, ErrorCodeInternal)
 	}
-	if tenant.SriP12Path == "" || tenant.SriPassword == "" {
+	if tenant.SriP12Path == "" || !tenant.HasSriPassword() {
 		return fail(fmt.Errorf("missing SRI signature setup for tenant %d", tenant.ID), ErrorCodeMissingSignature)
 	}
 	// Checked before the access key is generated or anything is signed: a
@@ -125,6 +126,17 @@ func (l *Lifecycle) attempt(kind Kind, doc document) (err error) {
 	// once the user uploads a valid certificate and retries.
 	if signatureExpired(tenant, time.Now()) {
 		return fail(fmt.Errorf("SRI signature certificate of tenant %d expired on %s", tenant.ID, tenant.SriCertExpiration.Format(time.RFC3339)), ErrorCodeSignatureExpired)
+	}
+
+	// Opened before anything else happens to the document: one that cannot be
+	// signed with the right password must never reach the signer or the SRI.
+	password, err := tenant.OpenSriPassword()
+	if err != nil {
+		code := ErrorCodeSignaturePassword
+		if errors.Is(err, secretbox.ErrNoKey) {
+			code = ErrorCodeSignatureUnavailable
+		}
+		return fail(fmt.Errorf("open SRI signature password of tenant %d: %w", tenant.ID, err), code)
 	}
 
 	if accessKey, err = l.ensureAccessKey(kind, doc, tenant); err != nil {
@@ -138,7 +150,7 @@ func (l *Lifecycle) attempt(kind Kind, doc document) (err error) {
 	if err != nil {
 		return fail(fmt.Errorf("read P12 certificate: %w", err), ErrorCodeMissingSignature)
 	}
-	signed, err := l.gateway.Sign(p12, tenant.SriPassword, xml)
+	signed, err := l.gateway.Sign(p12, password, xml)
 	if err != nil {
 		return fail(fmt.Errorf("sign XML: %w", err), ErrorCodeInternal)
 	}

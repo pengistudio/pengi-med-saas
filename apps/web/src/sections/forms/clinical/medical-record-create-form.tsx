@@ -1,5 +1,13 @@
 import { useText } from "@pengi/shared";
 import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
 	Badge,
 	Button,
 	Card,
@@ -51,6 +59,7 @@ import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormTagInput } from "@/components/forms/form-tag-input";
 import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { dateParser } from "@/lib/utils";
 import { selectPatient, usePatientStore } from "@/store/patient-store";
 
 type VisitType = "first" | "followup";
@@ -163,11 +172,7 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 			<Form
 				schema={formSchema}
 				onSubmit={onSubmit}
-				defaultValues={{
-					date: new Date(),
-					next_appointment_status: "scheduled",
-					prescription: { items: [] },
-				}}
+				defaultValues={emptyConsultation()}
 			>
 				{(field) => (
 					<FormWithDraft
@@ -302,31 +307,79 @@ function FormWithDraft({
 	onPreviewLastRecord: () => void;
 	onClearDraftReady: (fn: () => void) => void;
 }) {
-	const { hasDraft, lastSaved, clearDraft } = useSoapDraft(patientId, field);
+	const {
+		hasDraft,
+		lastSaved,
+		clearDraft,
+		pendingDraft,
+		resumeDraft,
+		discardPendingDraft,
+	} = useSoapDraft(patientId, field);
 
 	React.useEffect(() => {
 		onClearDraftReady(clearDraft);
 	}, [clearDraft, onClearDraftReady]);
 
 	return (
-		<FormInner
-			field={field}
-			visitType={visitType}
-			loading={loading}
-			textGet={textGet}
-			prescriptionMode={prescriptionMode}
-			onPrescriptionModeChange={onPrescriptionModeChange}
-			allergies={allergies}
-			lastRecord={lastRecord}
-			onPreviewLastRecord={onPreviewLastRecord}
-			hasDraft={hasDraft}
-			lastSaved={lastSaved}
-			onDiscardDraft={() => {
-				clearDraft();
-				field.reset({ date: new Date(), prescription: { items: [] } });
-			}}
-		/>
+		<>
+			<AlertDialog open={!!pendingDraft}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{textGet("form.create_medical_record.draft.pending.title")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{textGet(
+								"form.create_medical_record.draft.pending.description",
+							).replace(
+								"{date}",
+								pendingDraft
+									? dateParser(pendingDraft.savedAt, {
+											dateStyle: "long",
+											timeStyle: "short",
+										})
+									: "",
+							)}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={discardPendingDraft}>
+							{textGet("form.create_medical_record.draft.pending.start_new")}
+						</AlertDialogCancel>
+						<AlertDialogAction onClick={resumeDraft}>
+							{textGet("form.create_medical_record.draft.pending.resume")}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+			<FormInner
+				field={field}
+				visitType={visitType}
+				loading={loading}
+				textGet={textGet}
+				prescriptionMode={prescriptionMode}
+				onPrescriptionModeChange={onPrescriptionModeChange}
+				allergies={allergies}
+				lastRecord={lastRecord}
+				onPreviewLastRecord={onPreviewLastRecord}
+				hasDraft={hasDraft}
+				lastSaved={lastSaved}
+				onDiscardDraft={() => {
+					clearDraft();
+					field.reset(emptyConsultation());
+				}}
+			/>
+		</>
 	);
+}
+
+/** The values a new consultation starts with. */
+function emptyConsultation() {
+	return {
+		date: new Date(),
+		next_appointment_status: "scheduled" as const,
+		prescription: { items: [] },
+	};
 }
 
 function parseAllergies(allergies?: string): string[] {

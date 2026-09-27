@@ -127,11 +127,15 @@ func newFixture(t *testing.T) *fixture {
 func (f *fixture) invoice(status string) billing_models.Invoice {
 	f.t.Helper()
 	inv := billing_models.Invoice{
-		TenantID:          f.tenant.ID,
-		DocumentCode:      "01",
-		EmissionType:      "1",
-		Sequential:        "000000123",
-		IssueDate:         time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC),
+		TenantID:     f.tenant.ID,
+		DocumentCode: "01",
+		EmissionType: "1",
+		Sequential:   "000000123",
+		// Noon, not midnight: Postgres returns timestamptz in the process's
+		// local zone, and the access key formats the date in that zone (as
+		// production does, with TZ=America/Guayaquil). Midnight UTC would be
+		// 31/08 anywhere west of UTC; noon UTC is 01/09 in every zone ±11h.
+		IssueDate:         time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC),
 		EstablishmentCode: "001",
 		EmissionPointCode: "001",
 		Status:            status,

@@ -15,6 +15,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/pdfsign"
+	"pengi-med-saas/core/secretbox"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	company_services "pengi-med-saas/features/companies/services"
@@ -81,6 +82,17 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "signature.error.not_yet_valid", core_errors.ErrSignatureNotYetValid)
 	}
 
+	// The password is stored sealed; without the key nothing is stored at all
+	// (never the password in plaintext).
+	box, err := secretbox.FromEnv()
+	if err != nil {
+		h.logger.Error("Cannot seal the SRI signature password", zap.Error(err))
+		if errors.Is(err, secretbox.ErrNoKey) {
+			return envelope.ErrorResponse(http.StatusServiceUnavailable, "signature.error.unavailable", core_errors.ErrSignatureKeyUnavailable)
+		}
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant signature", core_errors.ErrInternal)
+	}
+
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
@@ -101,6 +113,11 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "signature.error.ruc_mismatch", core_errors.ErrSignatureRucMismatch)
 	}
 
+	if err := tenantRecord.SealSriPassword(box, password); err != nil {
+		h.logger.Error("Failed to seal the SRI signature password", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant signature", core_errors.ErrInternal)
+	}
+
 	// Only a certificate that decoded is stored.
 	if err := h.files.Write(tenantdb.TenantID(c), signatureFileName, pfxData); err != nil {
 		h.logger.Error("Failed to save signature file", zap.Error(err))
@@ -108,7 +125,6 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 	}
 	signaturePath := h.files.Path(tenantdb.TenantID(c), signatureFileName)
 
-	tenantRecord.SriPassword = password
 	tenantRecord.SriP12Path = signaturePath
 	notAfter := cert.NotAfter()
 	tenantRecord.SriCertExpiration = &notAfter
@@ -226,7 +242,7 @@ func (h *TenantHandler) GetSriStatus(c *gin.Context) envelope.Response {
 	// An expired certificate can no longer sign documents, so it does not count
 	// as configured; expiration_date still says when it expired.
 	expired := tenantRecord.SriCertExpiration != nil && !time.Now().Before(*tenantRecord.SriCertExpiration)
-	isConfigured := tenantRecord.SriP12Path != "" && tenantRecord.SriPassword != "" && !expired
+	isConfigured := tenantRecord.SriP12Path != "" && tenantRecord.HasSriPassword() && !expired
 
 	return envelope.SuccessResponse(gin.H{
 		"is_configured":              isConfigured,
@@ -409,4 +425,52 @@ func (h *TenantHandler) GetEnabledFeatures(c *gin.Context) envelope.Response {
 	}
 
 	return envelope.SuccessResponse(features, "tenant.features.fetch.success")
+}
+
+// isDisplayPairingCode reports whether token is an 8-digit TV pairing code. Signup
+// stores a random 32-hex placeholder instead, which can't be typed on the TV.
+func isDisplayPairingCode(token string) bool {
+	if len(token) != 8 {
+		return false
+	}
+	for _, r := range token {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// GetDisplayToken returns the tenant's current TV pairing code without changing it,
+// so viewing or sharing the code never unpairs the TV. A code is created only when
+// the tenant has none yet; rotating is GenerateDisplayToken.
+func (h *TenantHandler) GetDisplayToken(c *gin.Context) envelope.Response {
+	tenantID, exists := c.Get("tenant_id")
+	if !exists {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+	}
+
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.Select("id", "display_token").First(&tenantRecord, tenantID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+	}
+	if isDisplayPairingCode(tenantRecord.DisplayToken) {
+		return envelope.SuccessResponse(gin.H{"token": tenantRecord.DisplayToken}, "tenant.display_token.fetch.success")
+	}
+
+	// Only replace the token we read: if a concurrent request already created a
+	// code, keep that one instead of overwriting it.
+	code := fmt.Sprintf("%08d", rand.IntN(100_000_000))
+	if err := h.db.Model(&tenant_models.Tenant{}).
+		Where("id = ? AND display_token = ?", tenantRecord.ID, tenantRecord.DisplayToken).
+		Update("display_token", code).Error; err != nil {
+		h.logger.Error("Failed to create display token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create display token", core_errors.ErrInternal)
+	}
+	if err := h.db.Select("id", "display_token").First(&tenantRecord, tenantRecord.ID).Error; err != nil {
+		h.logger.Error("Failed to reload display token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create display token", core_errors.ErrInternal)
+	}
+
+	return envelope.SuccessResponse(gin.H{"token": tenantRecord.DisplayToken}, "tenant.display_token.fetch.success")
 }

@@ -132,10 +132,6 @@
         "value": "Cancelar e ir al login"
     },
     {
-        "key": "dashboard.title",
-        "value": "Inicio"
-    },
-    {
         "key": "dashboard.customers",
         "value": "Clientes"
     },
@@ -314,10 +310,6 @@
     {
         "key": "subscription.card.pay_btn",
         "value": "Renovar suscripción"
-    },
-    {
-        "key": "subscription.card.renew_hint",
-        "value": "Disponible cuando esté próximo a vencer"
     },
     {
         "key": "subscription.card.renew_soon",
@@ -538,10 +530,6 @@
     {
         "key": "clinical.medical_record.new",
         "value": "Nueva Consulta"
-    },
-    {
-        "key": "clinical.medical_record.view",
-        "value": "Ver Historia Clínica"
     },
     {
         "key": "clinical.patient.generate_report",
@@ -1900,6 +1888,22 @@
         "value": "Enlace copiado"
     },
     {
+        "key": "waiting_room.tv.regenerate_warning",
+        "value": "Esto desconectará la TV actual. ¿Generar otro código?"
+    },
+    {
+        "key": "waiting_room.tv.regenerate_confirm",
+        "value": "Sí, generar otro"
+    },
+    {
+        "key": "waiting_room.tv.load_error",
+        "value": "No se pudo cargar el código"
+    },
+    {
+        "key": "tenant.display_token.fetch.success",
+        "value": "Código de TV obtenido correctamente"
+    },
+    {
         "key": "waiting_room.card.late",
         "value": "{count} min de retraso"
     },
@@ -1926,10 +1930,6 @@
     {
         "key": "waiting_room.copy_tv_link",
         "value": "Copiar enlace TV"
-    },
-    {
-        "key": "waiting_room.generate_tv_code",
-        "value": "Código TV"
     },
     {
         "key": "waiting_room.refresh",
@@ -1965,7 +1965,7 @@
     },
     {
         "key": "tenant.display_token.generate.success",
-        "value": "Enlace de TV generado correctamente"
+        "value": "Código nuevo generado. Vuelve a emparejar la TV con este código."
     },
     {
         "key": "waiting_room.display.last_updated",
@@ -3324,20 +3324,8 @@
         "value": "Archivo de Firma (.p12)"
     },
     {
-        "key": "billing.sri.info.description",
-        "value": "Configura tus credenciales para la facturación electrónica"
-    },
-    {
         "key": "billing.sri.info.p1",
         "value": "Tu firma y contraseña se almacenan de forma encriptada."
-    },
-    {
-        "key": "billing.sri.info.p2",
-        "value": "Asegúrate de que tu firma esté vigente."
-    },
-    {
-        "key": "billing.sri.info.title",
-        "value": "Información Importante"
     },
     {
         "key": "billing.sri.password.description",
@@ -3378,10 +3366,6 @@
     {
         "key": "billing.filter.pending",
         "value": "Pendientes"
-    },
-    {
-        "key": "billing.status.authorized",
-        "value": "Autorizado"
     },
     {
         "key": "billing.status.draft",
@@ -3924,6 +3908,18 @@
         "value": "ICE (Opcional)"
     },
     {
+        "key": "dialog.title.absolutely.sure",
+        "value": "¿Estás seguro?"
+    },
+    {
+        "key": "dialog.description.user.delete",
+        "value": "Se eliminará este paciente de la lista."
+    },
+    {
+        "key": "billing.catalog-item.form.ice.tax.placeholder",
+        "value": "0.00"
+    },
+    {
         "key": "billing.catalog-item.form.create.title",
         "value": "Crear Producto/Servicio"
     },
@@ -3956,7 +3952,7 @@
         "value": "El valor debe ser positivo"
     },
     {
-        "key": "billing.catalog-item.form.tax.codinue",
+        "key": "billing.catalog-item.form.tax.code",
         "value": "Tipo de Impuesto"
     },
     {
@@ -4580,6 +4576,18 @@
         "value": "Restaurar predeterminado"
     },
     {
+        "key": "settings.prescription_template.reset_confirm.title",
+        "value": "¿Restaurar el template predeterminado?"
+    },
+    {
+        "key": "settings.prescription_template.reset_confirm.description",
+        "value": "Se eliminará tu template personalizado y las recetas volverán a usar el formato predeterminado. Puedes subir otro template cuando quieras."
+    },
+    {
+        "key": "settings.prescription_template.reset_confirm.action",
+        "value": "Eliminar template personalizado"
+    },
+    {
         "key": "clinical.prescription_template.status",
         "value": "Estado del template obtenido"
     },
@@ -4764,14 +4772,6 @@
         "value": "Tareas"
     },
     {
-        "key": "tasks.count_singular",
-        "value": "tarea"
-    },
-    {
-        "key": "tasks.count_plural",
-        "value": "tareas"
-    },
-    {
         "key": "tasks.tasks.fetch.success",
         "value": "Tareas cargadas exitosamente"
     },
@@ -4892,40 +4892,16 @@
         "value": "Guardando..."
     },
     {
+        "key": "common.file_picker.choose",
+        "value": "Elegir archivo"
+    },
+    {
+        "key": "common.file_picker.none",
+        "value": "Ningún archivo elegido"
+    },
+    {
         "key": "tasks.task.invalid.due_date",
         "value": "Formato de fecha inválido. Use YYYY-MM-DD."
-    },
-    {
-        "key": "tasks.empty.todo.title",
-        "value": "Sin tareas aún"
-    },
-    {
-        "key": "tasks.empty.todo.description",
-        "value": "Crea una tarea para comenzar"
-    },
-    {
-        "key": "tasks.empty.in_progress.title",
-        "value": "Nada en progreso"
-    },
-    {
-        "key": "tasks.empty.in_progress.description",
-        "value": "Mueve tareas aquí para comenzar a trabajar"
-    },
-    {
-        "key": "tasks.empty.done.title",
-        "value": "¡Todo hecho!"
-    },
-    {
-        "key": "tasks.empty.done.description",
-        "value": "Excelente trabajo completado"
-    },
-    {
-        "key": "tasks.column.progress",
-        "value": "Progreso"
-    },
-    {
-        "key": "tasks.column.add_card",
-        "value": "Agregar tarjeta"
     },
     {
         "key": "tasks.due_date.overdue",
@@ -5054,6 +5030,22 @@
     {
         "key": "form.create_medical_record.draft.discard",
         "value": "Descartar"
+    },
+    {
+        "key": "form.create_medical_record.draft.pending.title",
+        "value": "Hay una consulta sin terminar"
+    },
+    {
+        "key": "form.create_medical_record.draft.pending.description",
+        "value": "Empezaste una consulta para este paciente el {date} y no se guardó. ¿Quieres continuarla o empezar una nueva? Si empiezas una nueva, la anterior se descarta."
+    },
+    {
+        "key": "form.create_medical_record.draft.pending.resume",
+        "value": "Continuar consulta"
+    },
+    {
+        "key": "form.create_medical_record.draft.pending.start_new",
+        "value": "Empezar una nueva"
     },
     {
         "key": "company.payment.initiate.success",
@@ -5686,6 +5678,10 @@
     {
         "key": "billing.sri_document.error.missing_signature",
         "value": "Falta configurar la firma electrónica (archivo P12 y contraseña) en Configuración."
+    },
+    {
+        "key": "billing.sri_document.error.signature_password",
+        "value": "No se pudo leer la contraseña guardada de la firma electrónica. Vuelve a subir la firma (archivo P12 y contraseña) en Configuración y reintenta."
     },
     {
         "key": "billing.sri_document.error.internal",

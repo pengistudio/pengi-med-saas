@@ -31,6 +31,7 @@ import { useNavigate } from "react-router";
 import {
 	type Appointment,
 	generateDisplayToken,
+	getDisplayToken,
 	getTodayAppointments,
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
@@ -273,7 +274,10 @@ function Lane({
 function TvScreenPopover() {
 	const { textGet } = useText();
 	const [code, setCode] = React.useState<string | null>(null);
-	const [generating, setGenerating] = React.useState(false);
+	const [loading, setLoading] = React.useState(false);
+	const [loadFailed, setLoadFailed] = React.useState(false);
+	const [rotating, setRotating] = React.useState(false);
+	const [confirmingRotate, setConfirmingRotate] = React.useState(false);
 	const [copied, setCopied] = React.useState<"code" | "link" | null>(null);
 
 	const flashCopied = (what: "code" | "link") => {
@@ -281,29 +285,46 @@ function TvScreenPopover() {
 		setTimeout(() => setCopied(null), 2000);
 	};
 
-	// Each generated code replaces the previous one and unpairs any TV using it,
-	// so the link reuses the code already on screen.
-	const generate = async () => {
-		setGenerating(true);
+	// Reading the code never changes it, so opening the popover or copying the
+	// code/link keeps the TV paired. Only an explicit rotation replaces it.
+	const loadCode = async () => {
+		setLoading(true);
+		setLoadFailed(false);
+		const res = await getDisplayToken();
+		setLoading(false);
+		if (!res.success || !res.data) {
+			setLoadFailed(true);
+			return;
+		}
+		setCode(res.data.token);
+	};
+
+	const handleOpenChange = (open: boolean) => {
+		if (open) {
+			loadCode();
+		} else {
+			setConfirmingRotate(false);
+		}
+	};
+
+	const rotate = async () => {
+		setRotating(true);
 		const res = await generateDisplayToken();
-		setGenerating(false);
-		if (!res.success || !res.data) return null;
-		const token = (res.data as { token: string }).token;
-		setCode(token);
-		return token;
+		setRotating(false);
+		setConfirmingRotate(false);
+		if (res.success && res.data) setCode(res.data.token);
 	};
 
 	const copyLink = async () => {
-		const token = code ?? (await generate());
-		if (!token) return;
+		if (!code) return;
 		await navigator.clipboard.writeText(
-			`${window.location.origin}/display/waiting-room?token=${token}`,
+			`${window.location.origin}/display/waiting-room?token=${code}`,
 		);
 		flashCopied("link");
 	};
 
 	return (
-		<Popover>
+		<Popover onOpenChange={handleOpenChange}>
 			<PopoverTrigger render={<Button variant="outline" />}>
 				<Monitor />
 				{textGet("waiting_room.tv.title")}
@@ -313,21 +334,18 @@ function TvScreenPopover() {
 					{textGet("waiting_room.tv.pair_hint")}
 				</p>
 				<div className="flex h-10 items-center justify-between gap-2 rounded-lg bg-muted px-3">
-					{code ? (
+					{loading && !code ? (
+						<Spinner />
+					) : code ? (
 						<span className="text-2xl font-semibold tracking-[0.25em] tabular-nums">
 							{code}
 						</span>
 					) : (
-						<Button
-							variant="ghost"
-							size="sm"
-							className="-ml-2"
-							onClick={generate}
-							disabled={generating}
-						>
-							{generating && <Spinner />}
-							{textGet("waiting_room.generate_tv_code")}
-						</Button>
+						loadFailed && (
+							<span className="text-xs text-muted-foreground">
+								{textGet("waiting_room.tv.load_error")}
+							</span>
+						)
 					)}
 					{code && (
 						<Button
@@ -353,7 +371,7 @@ function TvScreenPopover() {
 						size="sm"
 						className="w-full"
 						onClick={copyLink}
-						disabled={generating}
+						disabled={!code || rotating}
 					>
 						{copied === "link" ? <Check className="text-primary" /> : <Link />}
 						{textGet(
@@ -362,18 +380,45 @@ function TvScreenPopover() {
 								: "waiting_room.copy_tv_link",
 						)}
 					</Button>
-					{code && (
+					{code && !confirmingRotate && (
 						<Button
 							variant="ghost"
 							size="sm"
 							className="w-full text-muted-foreground"
-							onClick={generate}
-							disabled={generating}
+							onClick={() => setConfirmingRotate(true)}
 						>
 							{textGet("waiting_room.tv.regenerate")}
 						</Button>
 					)}
 				</div>
+				{confirmingRotate && (
+					<div className="space-y-2 rounded-lg border border-destructive/30 p-3">
+						<p className="text-xs">
+							{textGet("waiting_room.tv.regenerate_warning")}
+						</p>
+						<div className="flex flex-col gap-1">
+							<Button
+								variant="destructive"
+								size="sm"
+								className="w-full"
+								onClick={rotate}
+								disabled={rotating}
+							>
+								{rotating && <Spinner />}
+								{textGet("waiting_room.tv.regenerate_confirm")}
+							</Button>
+							<Button
+								variant="ghost"
+								size="sm"
+								className="w-full"
+								onClick={() => setConfirmingRotate(false)}
+								disabled={rotating}
+							>
+								{textGet("common.cancel")}
+							</Button>
+						</div>
+					</div>
+				)}
 			</PopoverContent>
 		</Popover>
 	);

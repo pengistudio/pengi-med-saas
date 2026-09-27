@@ -1,8 +1,9 @@
-import { Button, Input, Label, Text } from "@pengi/ui";
+import { Button, Label, Text } from "@pengi/ui";
 import { Loader2, UploadCloud } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { getLogo, uploadLogo } from "@/api/tenant-service";
+import { FilePicker } from "@/components/custom/file-picker";
 
 export function LogoUploadForm({
 	hasLogo,
@@ -68,11 +69,7 @@ export function LogoUploadForm({
 				<Label>
 					<Text uuid="billing.sri.logo.file.label" />
 				</Label>
-				<Input
-					type="file"
-					accept=".png,.jpg,.jpeg"
-					onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-				/>
+				<FilePicker accept=".png,.jpg,.jpeg" file={file} onChange={setFile} />
 			</div>
 			<Button type="submit" className="w-fit" disabled={loading || !file}>
 				{loading ? (

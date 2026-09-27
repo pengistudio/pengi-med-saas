@@ -79,7 +79,8 @@ type Tenant struct {
 	MicroenterpriseRegime    *string    `json:"microenterprise_regime"`                         // "SI" si aplica régimen de microempresas
 	WithholdingAgent         *string    `json:"withholding_agent"`                              // Nº resolución agente de retención
 	RimpeTaxpayer            *string    `json:"rimpe_taxpayer"`                                 // Leyenda RIMPE (ej. "CONTRIBUYENTE RÉGIMEN RIMPE")
-	SriPassword              string     `json:"-"`                                              // Hidden from API responses
+	SriPassword              string     `json:"-"`                                              // Legacy plaintext P12 password; see sri-password.go
+	SriPasswordEncrypted     string     `gorm:"type:text" json:"-"`                             // P12 password sealed with core/secretbox
 	SriP12Path               string     `json:"-"`                                              // Local storage path to the uploaded signature
 	SriCertExpiration        *time.Time `json:"sri_cert_expiration"`                            // Date the certificate expires
 	LogoPath                 *string    `json:"-"`                                              // Local storage path to the uploaded company logo
