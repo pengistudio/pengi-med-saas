@@ -34,9 +34,9 @@ export function KanbanSettings() {
 	};
 
 	return (
-		<div className="space-y-4">
+		<div>
 			<div>
-				<h3 className="text-sm font-semibold mb-3">
+				<h3 className="mb-3 text-sm font-medium text-muted-foreground">
 					{textGet("kanban.settings.archive_delay.label")}
 				</h3>
 				<RadioGroup

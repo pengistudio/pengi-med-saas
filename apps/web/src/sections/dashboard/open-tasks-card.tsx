@@ -7,41 +7,12 @@ import {
 	CardTitle,
 	Checkbox,
 } from "@pengi/ui";
-import { differenceInCalendarDays } from "date-fns";
 import { Plus } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import type { DashboardTask } from "@/api/clinical-service";
 import { moveTask } from "@/api/kanban-service";
-import { cn } from "@/lib/utils";
-
-function DueLabel({ dueDate }: { dueDate: string | null }) {
-	const { textGet } = useText();
-	if (!dueDate) return null;
-	const days = differenceInCalendarDays(new Date(dueDate), new Date());
-	const key =
-		days < 0
-			? "dashboard.tasks.due.overdue"
-			: days === 0
-				? "dashboard.tasks.due.today"
-				: days === 1
-					? "dashboard.tasks.due.tomorrow"
-					: "dashboard.tasks.due.in_days";
-	return (
-		<span
-			className={cn(
-				"shrink-0 text-xs",
-				days < 0
-					? "font-medium text-destructive"
-					: days <= 1
-						? "font-medium text-amber-600"
-						: "text-muted-foreground",
-			)}
-		>
-			{textGet(key).replace("{count}", String(Math.abs(days)))}
-		</span>
-	);
-}
+import { TaskDueLabel } from "@/components/custom/task-due-label";
 
 /**
  * Open tasks of the team board, nearest due date first. Ticking one moves it
@@ -125,7 +96,7 @@ export function OpenTasksCard({
 								<span className="min-w-0 flex-1 truncate text-sm">
 									{task.title}
 								</span>
-								<DueLabel dueDate={task.due_date} />
+								<TaskDueLabel dueDate={task.due_date} />
 							</li>
 						))}
 					</ul>

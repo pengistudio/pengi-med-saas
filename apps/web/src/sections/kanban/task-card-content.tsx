@@ -1,6 +1,5 @@
-import { useText } from "@pengi/shared";
 import { Avatar, AvatarFallback } from "@pengi/ui";
-import { Bookmark } from "lucide-react";
+import { TaskDueLabel } from "@/components/custom/task-due-label";
 import { generateTaskId } from "@/lib/task-id-generator";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/store/session-store";
@@ -8,29 +7,9 @@ import type { Task } from "@/types/kanban-type";
 
 interface TaskCardContentProps {
 	task: Task;
-	isDragging?: boolean;
+	/** Rendered in the drag overlay: lifted off the board. */
+	lifted?: boolean;
 }
-
-const statusConfig = {
-	todo: {
-		label: "tasks.column.todo",
-		color: "bg-blue-100 text-blue-700",
-	},
-	in_progress: {
-		label: "tasks.column.in_progress",
-		color: "bg-amber-100 text-amber-700",
-	},
-	done: {
-		label: "tasks.column.done",
-		color: "bg-emerald-100 text-emerald-700",
-	},
-};
-
-const borderColorByStatus = {
-	todo: "border-l-blue-400",
-	in_progress: "border-l-amber-400",
-	done: "border-l-emerald-400",
-};
 
 function getInitials(name?: string): string {
 	if (!name) return "U";
@@ -44,57 +23,44 @@ function getInitials(name?: string): string {
 
 export default function TaskCardContent({
 	task,
-	isDragging = false,
+	lifted = false,
 }: TaskCardContentProps) {
-	const { textGet } = useText();
 	const { environment } = useSessionStore();
-
-	const borderColor = borderColorByStatus[task.status] || "border-l-blue-400";
-	const statusStyle = statusConfig[task.status] || statusConfig.todo;
-
-	// Get company name for custom task ID
-	const companyName = environment?.trade_name || "";
-	const customTaskId = generateTaskId(companyName, task.id);
+	const customTaskId = generateTaskId(environment?.trade_name || "", task.id);
+	const isDone = task.status === "done";
 
 	return (
 		<div
 			className={cn(
-				"rounded-xl border-l-4 bg-card p-3 shadow-sm space-y-2.5 transition-all duration-300",
-				borderColor,
-				isDragging
-					? "shadow-2xl scale-105 opacity-40"
-					: "hover:shadow-lg hover:-translate-y-1",
+				"space-y-2 rounded-xl border bg-card p-3 transition-shadow",
+				lifted
+					? "shadow-xl ring-1 ring-primary/30"
+					: "shadow-xs group-hover:shadow-md",
 			)}
 		>
-			{/* Title - Prominent */}
-			<h3 className="font-bold text-sm leading-tight text-foreground line-clamp-2">
+			<h3
+				className={cn(
+					"line-clamp-2 text-sm font-medium leading-snug",
+					isDone && "text-muted-foreground",
+				)}
+			>
 				{task.title}
 			</h3>
 
-			{/* Status Badge */}
-			<div
-				className={cn(
-					"inline-block px-2.5 py-1 rounded-md text-xs font-semibold",
-					statusStyle.color,
-				)}
-			>
-				{textGet(statusStyle.label)}
-			</div>
+			{task.description && !isDone && (
+				<p className="line-clamp-2 text-xs text-muted-foreground">
+					{task.description}
+				</p>
+			)}
 
-			{/* Footer - ID and Creator */}
-			<div className="flex items-center justify-between pt-1">
-				<div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
-					<Bookmark className="h-3.5 w-3.5 flex-shrink-0" />
-					<span className="text-xs font-semibold">{customTaskId}</span>
-				</div>
-
-				{/* Creator Avatar */}
+			<div className="flex items-center gap-2 pt-0.5">
+				<span className="text-xs text-muted-foreground tabular-nums">
+					{customTaskId}
+				</span>
+				{!isDone && <TaskDueLabel dueDate={task.due_date} />}
 				{task.created_by_name && (
-					<Avatar
-						className="h-5 w-5 flex-shrink-0"
-						title={task.created_by_name}
-					>
-						<AvatarFallback className="text-xs font-semibold">
+					<Avatar className="ml-auto size-6" title={task.created_by_name}>
+						<AvatarFallback className="text-[10px] font-medium">
 							{getInitials(task.created_by_name)}
 						</AvatarFallback>
 					</Avatar>

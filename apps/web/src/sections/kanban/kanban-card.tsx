@@ -3,7 +3,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 
 import { deleteTask } from "@/api/kanban-service";
-import { cn } from "@/lib/utils";
 import { useKanbanStore } from "@/store/kanban-store";
 import type { Task } from "@/types/kanban-type";
 
@@ -23,7 +22,6 @@ export default function KanbanCard({ task }: KanbanCardProps) {
 		transform,
 		transition,
 		isDragging,
-		isOver,
 	} = useSortable({ id: task.id });
 	const { removeTask } = useKanbanStore();
 	const [isEditOpen, setIsEditOpen] = useState(false);
@@ -62,21 +60,12 @@ export default function KanbanCard({ task }: KanbanCardProps) {
 		}
 	};
 
-	const placeholderColor = {
-		todo: "border-blue-300 bg-blue-50/40",
-		in_progress: "border-amber-300 bg-amber-50/40",
-		done: "border-emerald-300 bg-emerald-50/40",
-	}[task.status];
-
 	if (isDragging) {
 		return (
 			<div
 				ref={setNodeRef}
 				style={style}
-				className={cn(
-					"w-full rounded-xl border-2 border-dashed min-h-[88px]",
-					placeholderColor,
-				)}
+				className="min-h-[76px] w-full rounded-xl border-2 border-dashed border-primary/30 bg-primary/5"
 			/>
 		);
 	}
@@ -86,11 +75,7 @@ export default function KanbanCard({ task }: KanbanCardProps) {
 			<button
 				ref={setNodeRef}
 				style={style}
-				className={cn(
-					"w-full text-left group cursor-grab active:cursor-grabbing transition-all duration-300",
-					"appearance-none bg-transparent border-none padding-0 font-inherit",
-					isOver && "ring-2 ring-blue-400/50 ring-offset-2 rounded-xl",
-				)}
+				className="group w-full cursor-grab appearance-none rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
 				{...attributes}
 				{...listeners}
 				onClick={handleCardClick}
