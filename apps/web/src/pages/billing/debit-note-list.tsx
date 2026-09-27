@@ -117,22 +117,22 @@ const DebitNoteListPage = () => {
 						)
 					}
 				/>
-				<div className="flex flex-row flex-wrap items-center justify-end gap-2">
-					{checkPermission([
-						PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS,
-					]) && (
-						<Button
-							variant="secondary"
-							disabled={rows.length === ZERO || processing}
-							onClick={handleProcessSelected}
-						>
-							<Play className="mr-2 h-4 w-4" />
-							<Text uuid="billing.debit_note.process.selected" />
-						</Button>
-					)}
-				</div>
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
 					<DataTable
+						bulkActions={
+							checkPermission([
+								PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS,
+							]) && (
+								<Button
+									variant="secondary"
+									disabled={rows.length === ZERO || processing}
+									onClick={handleProcessSelected}
+								>
+									<Play className="mr-2 h-4 w-4" />
+									<Text uuid="billing.debit_note.process.selected" />
+								</Button>
+							)
+						}
 						searchPlaceholder={textGet("billing.debit_note.search.placeholder")}
 						searchValue={searchInput}
 						onSearchChange={setSearchInput}

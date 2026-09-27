@@ -5986,5 +5986,17 @@
     {
         "key": "dashboard.tasks.due.in_days",
         "value": "In {count} days"
+    },
+    {
+        "key": "table.selection.count.one",
+        "value": "{count} selected"
+    },
+    {
+        "key": "table.selection.count.other",
+        "value": "{count} selected"
+    },
+    {
+        "key": "table.selection.clear",
+        "value": "Clear selection"
     }
 ]

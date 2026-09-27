@@ -114,42 +114,42 @@ const CatalogItemList = () => {
 						)
 					}
 				/>
-				<div className="flex flex-row flex-wrap items-center justify-end gap-2">
-					<AlertDialog>
-						{checkPermission([
-							PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
-						]) && (
-							<AlertDialogTrigger
-								render={
-									<Button variant="outline" disabled={rows.length === ZERO}>
-										<Trash className="mr-2 h-4 w-4" />
-										<Text uuid="table.button.delete.all.selected" />
-									</Button>
-								}
-							/>
-						)}
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>
-									<Text uuid="dialog.title.absolutely.sure" />
-								</AlertDialogTitle>
-								<AlertDialogDescription>
-									<Text uuid="billing.catalog-item.delete.description" />
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>
-									<Text uuid="form.cancel" />
-								</AlertDialogCancel>
-								<AlertDialogAction onClick={handleDelete}>
-									<Text uuid="form.continue" />
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</div>
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
 					<DataTable
+						bulkActions={
+							<AlertDialog>
+								{checkPermission([
+									PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+								]) && (
+									<AlertDialogTrigger
+										render={
+											<Button variant="outline" disabled={rows.length === ZERO}>
+												<Trash className="mr-2 h-4 w-4" />
+												<Text uuid="table.button.delete.all.selected" />
+											</Button>
+										}
+									/>
+								)}
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											<Text uuid="dialog.title.absolutely.sure" />
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											<Text uuid="billing.catalog-item.delete.description" />
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>
+											<Text uuid="form.cancel" />
+										</AlertDialogCancel>
+										<AlertDialogAction onClick={handleDelete}>
+											<Text uuid="form.continue" />
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						}
 						searchPlaceholder={textGet(
 							"billing.catalog-item.search.placeholder",
 						)}
