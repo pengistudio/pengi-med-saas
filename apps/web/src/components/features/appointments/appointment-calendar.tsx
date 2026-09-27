@@ -20,6 +20,7 @@ import {
 import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
+import { useSearchParams } from "react-router";
 import {
 	type Appointment,
 	getAppointments,
@@ -74,7 +75,16 @@ function computeSnappedTarget(
 }
 
 export default function AppointmentCalendar() {
-	const [currentDate, setCurrentDate] = React.useState(new Date());
+	const [searchParams] = useSearchParams();
+	// ?date=YYYY-MM-DD opens that week (the dashboard's week strip links here).
+	const [currentDate, setCurrentDate] = React.useState(() => {
+		const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(
+			searchParams.get("date") ?? "",
+		);
+		return match
+			? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+			: new Date();
+	});
 	const [appointments, setAppointments] = React.useState<Appointment[]>([]);
 	const [selectedAppointment, setSelectedAppointment] =
 		React.useState<Appointment | null>(null);

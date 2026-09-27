@@ -1957,7 +1957,7 @@
     },
     {
         "key": "dashboard.stat.total_patients",
-        "value": "Total Patients"
+        "value": "Patients"
     },
     {
         "key": "dashboard.stat.critical_patients",
@@ -1965,11 +1965,11 @@
     },
     {
         "key": "dashboard.stat.today_appointments",
-        "value": "Today's Appointments"
+        "value": "Today's appointments"
     },
     {
         "key": "dashboard.stat.monthly_completed",
-        "value": "Completed this Month"
+        "value": "Completed this month"
     },
     {
         "key": "dashboard.stat.delta.new_this_month",
@@ -2005,7 +2005,7 @@
     },
     {
         "key": "dashboard.recent_invoices.title",
-        "value": "Recent Invoices"
+        "value": "Recent invoices"
     },
     {
         "key": "dashboard.recent_invoices.view_all",
@@ -5830,5 +5830,161 @@
     {
         "key": "clinical.patient.page.description",
         "value": "Find patients and open their medical records."
+    },
+    {
+        "key": "dashboard.greeting.morning",
+        "value": "Good morning, {name}"
+    },
+    {
+        "key": "dashboard.greeting.afternoon",
+        "value": "Good afternoon, {name}"
+    },
+    {
+        "key": "dashboard.greeting.evening",
+        "value": "Good evening, {name}"
+    },
+    {
+        "key": "dashboard.actions.new_patient",
+        "value": "New patient"
+    },
+    {
+        "key": "dashboard.actions.new_invoice",
+        "value": "New invoice"
+    },
+    {
+        "key": "dashboard.attention.title",
+        "value": "Needs attention"
+    },
+    {
+        "key": "dashboard.attention.none",
+        "value": "All caught up: no critical patients, unfinished records or rejected invoices."
+    },
+    {
+        "key": "dashboard.attention.critical.one",
+        "value": "{count} critical patient"
+    },
+    {
+        "key": "dashboard.attention.critical.other",
+        "value": "{count} critical patients"
+    },
+    {
+        "key": "dashboard.attention.critical.view_all",
+        "value": "See all patients"
+    },
+    {
+        "key": "dashboard.attention.drafts.one",
+        "value": "{count} unfinished record"
+    },
+    {
+        "key": "dashboard.attention.drafts.other",
+        "value": "{count} unfinished records"
+    },
+    {
+        "key": "dashboard.attention.invoices.one",
+        "value": "{count} rejected invoice"
+    },
+    {
+        "key": "dashboard.attention.invoices.other",
+        "value": "{count} rejected invoices"
+    },
+    {
+        "key": "dashboard.attention.plan.one",
+        "value": "Your plan expires tomorrow"
+    },
+    {
+        "key": "dashboard.attention.plan.other",
+        "value": "Your plan expires in {count} days"
+    },
+    {
+        "key": "dashboard.attention.plan.expired",
+        "value": "Your plan has expired"
+    },
+    {
+        "key": "dashboard.agenda.title",
+        "value": "Today's schedule"
+    },
+    {
+        "key": "dashboard.agenda.summary.one",
+        "value": "{count} appointment, {attended} seen"
+    },
+    {
+        "key": "dashboard.agenda.summary.other",
+        "value": "{count} appointments, {attended} seen"
+    },
+    {
+        "key": "dashboard.agenda.now",
+        "value": "Now"
+    },
+    {
+        "key": "dashboard.agenda.open_calendar",
+        "value": "Open calendar"
+    },
+    {
+        "key": "dashboard.agenda.empty",
+        "value": "You have no appointments today"
+    },
+    {
+        "key": "dashboard.agenda.empty_hint",
+        "value": "Appointments you book for today show up here in time order."
+    },
+    {
+        "key": "dashboard.agenda.start",
+        "value": "Start consultation"
+    },
+    {
+        "key": "dashboard.week.title",
+        "value": "This week"
+    },
+    {
+        "key": "dashboard.week.total.one",
+        "value": "{count} appointment booked"
+    },
+    {
+        "key": "dashboard.week.total.other",
+        "value": "{count} appointments booked"
+    },
+    {
+        "key": "dashboard.subscription.manage",
+        "value": "Manage plan"
+    },
+    {
+        "key": "dashboard.tasks.title",
+        "value": "Open tasks"
+    },
+    {
+        "key": "dashboard.tasks.total.one",
+        "value": "{count} unfinished task"
+    },
+    {
+        "key": "dashboard.tasks.total.other",
+        "value": "{count} unfinished tasks"
+    },
+    {
+        "key": "dashboard.tasks.open_board",
+        "value": "Open board"
+    },
+    {
+        "key": "dashboard.tasks.empty",
+        "value": "No open tasks."
+    },
+    {
+        "key": "dashboard.tasks.complete",
+        "value": "Mark as done"
+    },
+    {
+        "key": "dashboard.tasks.due.overdue",
+        "value": "{count} d overdue"
+    },
+    {
+        "key": "dashboard.tasks.due.today",
+        "value": "Due today"
+    },
+    {
+        "key": "dashboard.tasks.due.tomorrow",
+        "value": "Due tomorrow"
+    },
+    {
+        "key": "dashboard.tasks.due.in_days",
+        "value": "In {count} days"
     }
 ]

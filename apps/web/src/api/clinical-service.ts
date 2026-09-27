@@ -703,8 +703,35 @@ export interface DashboardStats {
 	monthly_completed: number;
 	prev_month_completed: number;
 	weekly_appointments: WeekDayStat[];
-	upcoming_appointments: UpcomingAppointment[];
+	/** Every appointment of today except cancelled ones, by start time. */
+	today_agenda: UpcomingAppointment[];
+	critical_patient_list: DashboardPatientRef[];
+	/** The current user's unfinished medical records. */
+	pending_drafts: DashboardDraft[];
+	pending_drafts_count: number;
+	/** Invoices the SRI rejected or that failed. */
+	failed_invoices: number;
+	open_tasks: DashboardTask[];
+	open_tasks_count: number;
 	subscription?: SubscriptionInfo;
+}
+
+export interface DashboardPatientRef {
+	id: number;
+	name: string;
+}
+
+export interface DashboardDraft {
+	patient_id: number;
+	patient_name: string;
+	updated_at: string;
+}
+
+export interface DashboardTask {
+	id: number;
+	title: string;
+	status: string;
+	due_date: string | null;
 }
 
 export const getDashboardStats = async (): Promise<

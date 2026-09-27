@@ -1957,7 +1957,7 @@
     },
     {
         "key": "dashboard.stat.total_patients",
-        "value": "Total de Pacientes"
+        "value": "Pacientes"
     },
     {
         "key": "dashboard.stat.critical_patients",
@@ -1965,11 +1965,11 @@
     },
     {
         "key": "dashboard.stat.today_appointments",
-        "value": "Citas de Hoy"
+        "value": "Citas de hoy"
     },
     {
         "key": "dashboard.stat.monthly_completed",
-        "value": "Completadas este Mes"
+        "value": "Completadas este mes"
     },
     {
         "key": "dashboard.stat.delta.new_this_month",
@@ -2005,7 +2005,7 @@
     },
     {
         "key": "dashboard.recent_invoices.title",
-        "value": "Facturas Recientes"
+        "value": "Facturas recientes"
     },
     {
         "key": "dashboard.recent_invoices.view_all",
@@ -5830,5 +5830,161 @@
     {
         "key": "clinical.patient.page.description",
         "value": "Busca pacientes y accede a su historia clínica."
+    },
+    {
+        "key": "dashboard.greeting.morning",
+        "value": "Buenos días, {name}"
+    },
+    {
+        "key": "dashboard.greeting.afternoon",
+        "value": "Buenas tardes, {name}"
+    },
+    {
+        "key": "dashboard.greeting.evening",
+        "value": "Buenas noches, {name}"
+    },
+    {
+        "key": "dashboard.actions.new_patient",
+        "value": "Nuevo paciente"
+    },
+    {
+        "key": "dashboard.actions.new_invoice",
+        "value": "Nueva factura"
+    },
+    {
+        "key": "dashboard.attention.title",
+        "value": "Requiere atención"
+    },
+    {
+        "key": "dashboard.attention.none",
+        "value": "Todo al día: no hay pacientes críticos, historias sin terminar ni facturas rechazadas."
+    },
+    {
+        "key": "dashboard.attention.critical.one",
+        "value": "{count} paciente crítico"
+    },
+    {
+        "key": "dashboard.attention.critical.other",
+        "value": "{count} pacientes críticos"
+    },
+    {
+        "key": "dashboard.attention.critical.view_all",
+        "value": "Ver todos los pacientes"
+    },
+    {
+        "key": "dashboard.attention.drafts.one",
+        "value": "{count} historia sin terminar"
+    },
+    {
+        "key": "dashboard.attention.drafts.other",
+        "value": "{count} historias sin terminar"
+    },
+    {
+        "key": "dashboard.attention.invoices.one",
+        "value": "{count} factura rechazada"
+    },
+    {
+        "key": "dashboard.attention.invoices.other",
+        "value": "{count} facturas rechazadas"
+    },
+    {
+        "key": "dashboard.attention.plan.one",
+        "value": "Tu plan vence mañana"
+    },
+    {
+        "key": "dashboard.attention.plan.other",
+        "value": "Tu plan vence en {count} días"
+    },
+    {
+        "key": "dashboard.attention.plan.expired",
+        "value": "Tu plan venció"
+    },
+    {
+        "key": "dashboard.agenda.title",
+        "value": "Agenda de hoy"
+    },
+    {
+        "key": "dashboard.agenda.summary.one",
+        "value": "{count} cita, {attended} atendida"
+    },
+    {
+        "key": "dashboard.agenda.summary.other",
+        "value": "{count} citas, {attended} atendidas"
+    },
+    {
+        "key": "dashboard.agenda.now",
+        "value": "Ahora"
+    },
+    {
+        "key": "dashboard.agenda.open_calendar",
+        "value": "Abrir calendario"
+    },
+    {
+        "key": "dashboard.agenda.empty",
+        "value": "No tienes citas hoy"
+    },
+    {
+        "key": "dashboard.agenda.empty_hint",
+        "value": "Las citas que agendes para hoy aparecerán aquí en orden de hora."
+    },
+    {
+        "key": "dashboard.agenda.start",
+        "value": "Iniciar consulta"
+    },
+    {
+        "key": "dashboard.week.title",
+        "value": "Esta semana"
+    },
+    {
+        "key": "dashboard.week.total.one",
+        "value": "{count} cita agendada"
+    },
+    {
+        "key": "dashboard.week.total.other",
+        "value": "{count} citas agendadas"
+    },
+    {
+        "key": "dashboard.subscription.manage",
+        "value": "Gestionar plan"
+    },
+    {
+        "key": "dashboard.tasks.title",
+        "value": "Tareas pendientes"
+    },
+    {
+        "key": "dashboard.tasks.total.one",
+        "value": "{count} tarea sin terminar"
+    },
+    {
+        "key": "dashboard.tasks.total.other",
+        "value": "{count} tareas sin terminar"
+    },
+    {
+        "key": "dashboard.tasks.open_board",
+        "value": "Abrir tablero"
+    },
+    {
+        "key": "dashboard.tasks.empty",
+        "value": "No hay tareas pendientes."
+    },
+    {
+        "key": "dashboard.tasks.complete",
+        "value": "Marcar como hecha"
+    },
+    {
+        "key": "dashboard.tasks.due.overdue",
+        "value": "Venció hace {count} d"
+    },
+    {
+        "key": "dashboard.tasks.due.today",
+        "value": "Vence hoy"
+    },
+    {
+        "key": "dashboard.tasks.due.tomorrow",
+        "value": "Vence mañana"
+    },
+    {
+        "key": "dashboard.tasks.due.in_days",
+        "value": "En {count} días"
     }
 ]

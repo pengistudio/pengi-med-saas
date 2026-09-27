@@ -17,7 +17,7 @@ import {
 import type { Row } from "@tanstack/react-table";
 import { Play, Plus, Trash } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import {
 	deleteInvoice,
 	getAllInvoices,
@@ -64,7 +64,14 @@ const InvoiceListPage = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [search, setSearch] = useState("");
 	const [searchInput, setSearchInput] = useState("");
-	const [statusFilter, setStatusFilter] = useState("all");
+	const [searchParams] = useSearchParams();
+	// ?status= preselects a filter (the dashboard links to failed invoices).
+	const [statusFilter, setStatusFilter] = useState(() => {
+		const initial = searchParams.get("status");
+		return STATUS_FILTERS.some((f) => f.value === initial)
+			? (initial as string)
+			: "all";
+	});
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
 	const { isMobile } = useResponsive();
