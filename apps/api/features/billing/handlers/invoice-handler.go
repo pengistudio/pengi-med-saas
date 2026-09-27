@@ -210,7 +210,9 @@ func (h *InvoiceHandler) SRIInvoiceProcessing(c *gin.Context) envelope.Response 
 }
 
 // MultipleSRIInvoiceProcessing queues every listed invoice that can still be
-// processed; authorized and unknown ones are skipped.
+// processed; authorized and unknown ones are skipped. With an expired signature
+// only received invoices (authorization query) are queued and the request
+// answers signature_expired so the user knows the rest were not sent.
 func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.Response {
 	var idList billing_dto.InvoiceIDListDTO
 	if err := c.ShouldBindJSON(&idList); err != nil {
@@ -218,11 +220,19 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 	}
 
 	tenantDB := tenantdb.For(c, h.db)
+	signatureExpired := false
 	for _, id := range idList.IDList {
 		err := h.sriDocuments.Enqueue(tenantDB, sri_document.Invoice, uint64(id))
-		if err != nil && !errors.Is(err, sri_document.ErrNotFound) && !errors.Is(err, sri_document.ErrAlreadyAuthorized) {
+		switch {
+		case err == nil, errors.Is(err, sri_document.ErrNotFound), errors.Is(err, sri_document.ErrAlreadyAuthorized):
+		case errors.Is(err, sri_document.ErrSignatureExpired):
+			signatureExpired = true
+		default:
 			h.logger.Error("Failed to enqueue invoice for SRI processing", zap.Uint("invoice_id", uint(id)), zap.Error(err))
 		}
+	}
+	if signatureExpired {
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.error.signature_expired", core_errors.ErrBillingSignatureExpired)
 	}
 
 	return envelope.SuccessResponse(nil, "billing.invoices.processing.queued")
