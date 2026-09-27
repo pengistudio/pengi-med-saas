@@ -2,6 +2,7 @@ package clinical_handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"pengi-med-saas/core/pdfrender"
@@ -18,10 +19,13 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/mailer"
+	"pengi-med-saas/core/pdfsign"
+	"pengi-med-saas/core/tenantfiles"
 	"pengi-med-saas/core/utils"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	signature_services "pengi-med-saas/features/signatures/services"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 )
 
@@ -30,10 +34,12 @@ type MedicalDocumentHandler struct {
 	logger   *zap.Logger
 	mailer   *mailer.Mailer
 	renderer *pdfrender.Renderer
+	signer   *signature_services.Signer
+	files    tenantfiles.Store
 }
 
-func NewMedicalDocumentHandler(db *gorm.DB, logger *zap.Logger, mailer *mailer.Mailer, renderer *pdfrender.Renderer) *MedicalDocumentHandler {
-	return &MedicalDocumentHandler{db: db, logger: logger, mailer: mailer, renderer: renderer}
+func NewMedicalDocumentHandler(db *gorm.DB, logger *zap.Logger, mailer *mailer.Mailer, renderer *pdfrender.Renderer, signer *signature_services.Signer, files tenantfiles.Store) *MedicalDocumentHandler {
+	return &MedicalDocumentHandler{db: db, logger: logger, mailer: mailer, renderer: renderer, signer: signer, files: files}
 }
 
 func parseFlexibleDate(s string) (time.Time, error) {
@@ -75,7 +81,19 @@ func (h *MedicalDocumentHandler) CreateMedicalReport(c *gin.Context) envelope.Re
 			MedicalRecordID: entry.MedicalRecordID,
 			Date:            date,
 			Motive:          entry.Motive,
-			Summary:         entry.Summary,
+			VisitType:       entry.VisitType,
+			Observation:     entry.Observation,
+			Subjective:      entry.Subjective,
+			Objective:       entry.Objective,
+			Assessment:      entry.Assessment,
+			Plan:            entry.Plan,
+			APP:             entry.APP,
+			APF:             entry.APF,
+			APQX:            entry.APQX,
+			Allergies:       entry.Allergies,
+			Diagnoses:       entry.Diagnoses,
+			VitalSigns:      entry.VitalSigns,
+			Prescription:    entry.Prescription,
 		})
 	}
 
@@ -139,7 +157,9 @@ func (h *MedicalDocumentHandler) DownloadMedicalReport(c *gin.Context) {
 
 	audit.RecordAccess(h.db, c, "patients", report.PatientID, &report.PatientID)
 
-	pdfBytes, err := h.generateMedicalReportPDF(c, &report)
+	pdfBytes, err := storedOrRendered(c, h.files, report.DocumentSignature, func() ([]byte, error) {
+		return h.generateMedicalReportPDF(c, &report, nil)
+	})
 	if err != nil {
 		h.logger.Error("Failed to generate medical report PDF", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalReportError))
@@ -169,7 +189,9 @@ func (h *MedicalDocumentHandler) EmailMedicalReport(c *gin.Context) envelope.Res
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
 
-	pdfBytes, err := h.generateMedicalReportPDF(c, &report)
+	pdfBytes, err := storedOrRendered(c, h.files, report.DocumentSignature, func() ([]byte, error) {
+		return h.generateMedicalReportPDF(c, &report, nil)
+	})
 	if err != nil {
 		h.logger.Error("Failed to generate medical report PDF for email", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalReportError)
@@ -184,10 +206,64 @@ func (h *MedicalDocumentHandler) EmailMedicalReport(c *gin.Context) envelope.Res
 	return envelope.SuccessResponse(nil, "clinical.medical_report.email.success")
 }
 
+type medicalReportVitalSignView struct {
+	Label string
+	Value string
+}
+
 type medicalReportConsultationView struct {
-	Date    string
-	Motive  string
-	Summary string
+	Date         string
+	Motive       string
+	VisitType    string
+	Observation  string
+	Subjective   string
+	Objective    string
+	Assessment   string
+	Plan         string
+	APP          string
+	APF          string
+	APQX         string
+	Allergies    string
+	Diagnoses    []clinical_models.DiagnosisItem
+	VitalSigns   []medicalReportVitalSignView
+	Prescription *clinical_models.MedicalReportPrescription
+	Summary      string
+}
+
+func medicalReportVisitType(visitType string) string {
+	switch visitType {
+	case "first":
+		return "Primera vez"
+	case "followup":
+		return "Subsecuente"
+	}
+	return ""
+}
+
+func medicalReportVitalSigns(v *clinical_models.MedicalReportVitalSigns) []medicalReportVitalSignView {
+	if v == nil {
+		return nil
+	}
+	var out []medicalReportVitalSignView
+	if v.Weight != nil {
+		out = append(out, medicalReportVitalSignView{"Peso", fmt.Sprintf("%g kg", *v.Weight)})
+	}
+	if v.Height != nil {
+		out = append(out, medicalReportVitalSignView{"Talla", fmt.Sprintf("%g cm", *v.Height)})
+	}
+	if v.BloodPressure != "" {
+		out = append(out, medicalReportVitalSignView{"Presión arterial", v.BloodPressure + " mmHg"})
+	}
+	if v.Temperature != nil {
+		out = append(out, medicalReportVitalSignView{"Temperatura", fmt.Sprintf("%g °C", *v.Temperature)})
+	}
+	if v.HeartRate != nil {
+		out = append(out, medicalReportVitalSignView{"Frecuencia cardíaca", fmt.Sprintf("%d lpm", *v.HeartRate)})
+	}
+	if v.O2Saturation != nil {
+		out = append(out, medicalReportVitalSignView{"Saturación O2", fmt.Sprintf("%d %%", *v.O2Saturation)})
+	}
+	return out
 }
 
 type medicalReportTemplateData struct {
@@ -200,9 +276,10 @@ type medicalReportTemplateData struct {
 	PatientPhone    string
 	Consultations   []medicalReportConsultationView
 	Plan            string
+	Signature       *pdfsign.Stamp
 }
 
-func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report *clinical_models.MedicalReport) ([]byte, error) {
+func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report *clinical_models.MedicalReport, stamp *pdfsign.Stamp) ([]byte, error) {
 	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
 	tenantdb.For(c, h.db).First(&company)
@@ -230,10 +307,27 @@ func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report
 
 	consultations := make([]medicalReportConsultationView, 0, len(entries))
 	for _, entry := range entries {
+		prescription := entry.Prescription
+		if prescription != nil && prescription.Indications == "" && len(prescription.Items) == 0 {
+			prescription = nil
+		}
 		consultations = append(consultations, medicalReportConsultationView{
-			Date:    entry.Date.Format("02/01/2006"),
-			Motive:  entry.Motive,
-			Summary: entry.Summary,
+			Date:         entry.Date.Format("02/01/2006"),
+			Motive:       entry.Motive,
+			VisitType:    medicalReportVisitType(entry.VisitType),
+			Observation:  entry.Observation,
+			Subjective:   entry.Subjective,
+			Objective:    entry.Objective,
+			Assessment:   entry.Assessment,
+			Plan:         entry.Plan,
+			APP:          entry.APP,
+			APF:          entry.APF,
+			APQX:         entry.APQX,
+			Allergies:    entry.Allergies,
+			Diagnoses:    entry.Diagnoses,
+			VitalSigns:   medicalReportVitalSigns(entry.VitalSigns),
+			Prescription: prescription,
+			Summary:      entry.Summary,
 		})
 	}
 
@@ -247,6 +341,7 @@ func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report
 		PatientPhone:    patient.Phone,
 		Consultations:   consultations,
 		Plan:            report.Plan,
+		Signature:       stamp,
 	}
 
 	return h.renderMedicalDocumentPDF(tenantID, "medical_report_template.html", data)
@@ -329,7 +424,9 @@ func (h *MedicalDocumentHandler) DownloadMedicalCertificate(c *gin.Context) {
 
 	audit.RecordAccess(h.db, c, "patients", certificate.PatientID, &certificate.PatientID)
 
-	pdfBytes, err := h.generateMedicalCertificatePDF(c, &certificate)
+	pdfBytes, err := storedOrRendered(c, h.files, certificate.DocumentSignature, func() ([]byte, error) {
+		return h.generateMedicalCertificatePDF(c, &certificate, nil)
+	})
 	if err != nil {
 		h.logger.Error("Failed to generate medical certificate PDF", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalCertificateError))
@@ -359,7 +456,9 @@ func (h *MedicalDocumentHandler) EmailMedicalCertificate(c *gin.Context) envelop
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
 
-	pdfBytes, err := h.generateMedicalCertificatePDF(c, &certificate)
+	pdfBytes, err := storedOrRendered(c, h.files, certificate.DocumentSignature, func() ([]byte, error) {
+		return h.generateMedicalCertificatePDF(c, &certificate, nil)
+	})
 	if err != nil {
 		h.logger.Error("Failed to generate medical certificate PDF for email", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalCertificateError)
@@ -385,9 +484,10 @@ type medicalCertificateTemplateData struct {
 	Diagnosis       string
 	Observations    string
 	RestText        string
+	Signature       *pdfsign.Stamp
 }
 
-func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, certificate *clinical_models.MedicalCertificate) ([]byte, error) {
+func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, certificate *clinical_models.MedicalCertificate, stamp *pdfsign.Stamp) ([]byte, error) {
 	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
 	tenantdb.For(c, h.db).First(&company)
@@ -434,9 +534,66 @@ func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, c
 		Diagnosis:       certificate.Diagnosis,
 		Observations:    certificate.Observations,
 		RestText:        restText,
+		Signature:       stamp,
 	}
 
 	return h.renderMedicalDocumentPDF(tenantID, "medical_certificate_template.html", data)
+}
+
+// ─── ELECTRONIC SIGNATURE ──────────────────────────────────────────────────
+
+// SignMedicalReport signs the report with the current user's certificate.
+func (h *MedicalDocumentHandler) SignMedicalReport(c *gin.Context) envelope.Response {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
+	}
+	var report clinical_models.MedicalReport
+	if err := tenantdb.For(c, h.db).Preload("Patient").First(&report, id).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
+	}
+	if report.IsSigned() {
+		return signature_services.AlreadySignedResponse()
+	}
+
+	sig, err := signDocument(c, h.db, h.signer, h.files, &clinical_models.MedicalReport{}, "report", report.ID, "Informe médico",
+		func(stamp *pdfsign.Stamp) ([]byte, error) { return h.generateMedicalReportPDF(c, &report, stamp) })
+	if err != nil {
+		return h.signErrorResponse(err)
+	}
+	report.DocumentSignature = sig
+	return envelope.SuccessResponse(report, "signature.document.sign.success")
+}
+
+// SignMedicalCertificate signs the certificate with the current user's certificate.
+func (h *MedicalDocumentHandler) SignMedicalCertificate(c *gin.Context) envelope.Response {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
+	}
+	var certificate clinical_models.MedicalCertificate
+	if err := tenantdb.For(c, h.db).Preload("Patient").First(&certificate, id).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
+	}
+	if certificate.IsSigned() {
+		return signature_services.AlreadySignedResponse()
+	}
+
+	sig, err := signDocument(c, h.db, h.signer, h.files, &clinical_models.MedicalCertificate{}, "certificate", certificate.ID, "Certificado médico",
+		func(stamp *pdfsign.Stamp) ([]byte, error) { return h.generateMedicalCertificatePDF(c, &certificate, stamp) })
+	if err != nil {
+		return h.signErrorResponse(err)
+	}
+	certificate.DocumentSignature = sig
+	return envelope.SuccessResponse(certificate, "signature.document.sign.success")
+}
+
+func (h *MedicalDocumentHandler) signErrorResponse(err error) envelope.Response {
+	if errors.Is(err, errAlreadySigned) {
+		return signature_services.AlreadySignedResponse()
+	}
+	h.logger.Error("Failed to sign medical document", zap.Error(err))
+	return signature_services.ErrorResponse(err)
 }
 
 // ─── SHARED HELPERS ────────────────────────────────────────────────────────

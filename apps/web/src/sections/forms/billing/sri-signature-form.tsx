@@ -1,94 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useText } from "@pengi/shared";
-import { Button, Input, Label, Text } from "@pengi/ui";
-import { Loader2, UploadCloud } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { Text } from "@pengi/ui";
 import { uploadSriSignature } from "@/api/tenant-service";
-
-const sriSchema = z.object({
-	password: z
-		.string()
-		.min(1)
-		.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
-	file: z.any().refine((file) => file instanceof File),
-});
+import { P12UploadForm } from "@/components/forms/p12-upload-form";
 
 export function SriSignatureForm({ onSuccess }: { onSuccess?: () => void }) {
-	const { textGet } = useText();
-
-	const [loading, setLoading] = useState(false);
-
-	const form = useForm<z.infer<typeof sriSchema>>({
-		resolver: zodResolver(sriSchema),
-		defaultValues: {
-			password: "",
-			file: undefined,
-		},
-	});
-
-	async function onSubmit(values: z.infer<typeof sriSchema>) {
-		setLoading(true);
-		try {
-			const response = await uploadSriSignature(values.file, values.password);
-			if (response.success) {
-				form.reset();
-				if (onSuccess) onSuccess();
-			}
-		} finally {
-			setLoading(false);
-		}
-	}
-
 	return (
-		<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-			<div className="space-y-2">
-				<Label>
-					<Text uuid="billing.sri.file.label" />
-				</Label>
-				<Input
-					type="file"
-					accept=".p12"
-					onChange={(event) => form.setValue("file", event.target.files?.[0])}
-				/>
-				<p className="text-sm text-muted-foreground">
-					<Text uuid="billing.sri.file.description" />
-				</p>
-				{form.formState.errors.file && (
-					<p className="text-sm font-medium text-destructive">
-						{textGet(form.formState.errors.file.message as string)}
-					</p>
-				)}
-			</div>
-
-			<div className="space-y-2">
-				<Label>
-					<Text uuid="billing.sri.password.label" />
-				</Label>
-				<Input
-					type="password"
-					placeholder="••••••••"
-					{...form.register("password")}
-				/>
-				<p className="text-sm text-muted-foreground">
-					<Text uuid="billing.sri.password.description" />
-				</p>
-				{form.formState.errors.password && (
-					<p className="text-sm font-medium text-destructive">
-						{textGet(form.formState.errors.password.message as string)}
-					</p>
-				)}
-			</div>
-
-			<Button type="submit" className="w-fit" disabled={loading}>
-				{loading ? (
-					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-				) : (
-					<UploadCloud className="mr-2 h-4 w-4" />
-				)}
-				<Text uuid="billing.sri.button.save" />
-			</Button>
-		</form>
+		<P12UploadForm
+			upload={uploadSriSignature}
+			onSuccess={() => onSuccess?.()}
+			fileLabel={<Text uuid="billing.sri.file.label" />}
+			fileDescription={<Text uuid="billing.sri.file.description" />}
+			passwordLabel={<Text uuid="billing.sri.password.label" />}
+			passwordDescription={<Text uuid="billing.sri.password.description" />}
+			submitLabel={<Text uuid="billing.sri.button.save" />}
+		/>
 	);
 }

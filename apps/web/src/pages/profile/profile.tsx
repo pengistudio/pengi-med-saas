@@ -19,6 +19,9 @@ import {
 	updateProfile,
 } from "@/api/user-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { ElectronicSignatureCard } from "@/components/features/profile/electronic-signature-card";
+import usePermission from "@/hooks/use-permission";
+import { PERMISSIONS } from "@/lib/constants";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
@@ -32,6 +35,7 @@ const Profile = () => {
 	const [loading, setLoading] = React.useState(false);
 	const { textGet } = useText();
 	const environment = useSessionStore(selectEnvironment);
+	const { checkPermission } = usePermission();
 
 	React.useEffect(() => {
 		if (!environment?.id) return;
@@ -174,6 +178,10 @@ const Profile = () => {
 						</Form>
 					</CardContent>
 				</Card>
+
+				{checkPermission([
+					PERMISSIONS.MEDICAL_RECORD.PERMISSION_SIGN_MEDICAL_DOCUMENT,
+				]) && <ElectronicSignatureCard />}
 			</div>
 		</DashboardLayout>
 	);

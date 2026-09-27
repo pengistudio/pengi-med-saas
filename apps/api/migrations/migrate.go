@@ -13,6 +13,7 @@ import (
 	notifications_models "pengi-med-saas/features/notifications/models"
 	permission_models "pengi-med-saas/features/permissions/models"
 	settings_models "pengi-med-saas/features/settings/models"
+	signature_models "pengi-med-saas/features/signatures/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
 	i18n_messages "pengi-med-saas/i18n/messages"
@@ -53,6 +54,7 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.Cie10Code{},
 		clinical_models.MedicalReport{},
 		clinical_models.MedicalCertificate{},
+		signature_models.UserSignature{},
 		integration_models.TenantIntegration{},
 		backoffice_models.BackofficeUser{},
 		billing_models.Invoice{},

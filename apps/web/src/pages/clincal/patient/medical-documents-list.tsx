@@ -1,4 +1,3 @@
-import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -6,10 +5,6 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
-	Input,
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
 	Table,
 	TableBody,
 	TableCell,
@@ -18,14 +13,7 @@ import {
 	TableRow,
 	Text,
 } from "@pengi/ui";
-import {
-	ArrowLeft,
-	FileCheck,
-	FileText,
-	Loader2,
-	Mail,
-	Printer,
-} from "lucide-react";
+import { ArrowLeft, FileCheck, FileText, Loader2, Printer } from "lucide-react";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
@@ -40,6 +28,13 @@ import {
 	type MedicalReport,
 	type Patient,
 } from "@/api/clinical-service";
+import {
+	type DocumentSignature,
+	signMedicalCertificate,
+	signMedicalReport,
+} from "@/api/signature-service";
+import { SendEmailPopover } from "@/components/custom/send-email-popover";
+import { SignDocumentButton } from "@/components/custom/sign-document-button";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
@@ -50,62 +45,7 @@ interface DocumentRow {
 	id: number;
 	type: DocumentType;
 	createdAt: string;
-}
-
-function SendEmailPopover({
-	defaultEmail,
-	onSend,
-}: {
-	defaultEmail: string;
-	onSend: (email: string) => Promise<void>;
-}) {
-	const { textGet } = useText();
-	const [email, setEmail] = React.useState(defaultEmail);
-	const [sending, setSending] = React.useState(false);
-
-	async function handleSend() {
-		if (!email) return;
-		setSending(true);
-		await onSend(email);
-		setSending(false);
-	}
-
-	return (
-		<Popover>
-			<PopoverTrigger
-				render={
-					<Button variant="ghost" size="icon">
-						<Mail className="h-4 w-4" />
-					</Button>
-				}
-			/>
-			<PopoverContent className="w-72 space-y-2">
-				<p className="text-sm font-medium">
-					<Text uuid="clinical.medical_documents.send_email.title" />
-				</p>
-				<div className="flex items-center gap-2">
-					<Input
-						type="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						placeholder={textGet("dialog.medical_report.email_placeholder")}
-					/>
-					<Button
-						type="button"
-						size="icon"
-						disabled={sending || !email}
-						onClick={handleSend}
-					>
-						{sending ? (
-							<Loader2 className="h-4 w-4 animate-spin" />
-						) : (
-							<Mail className="h-4 w-4" />
-						)}
-					</Button>
-				</div>
-			</PopoverContent>
-		</Popover>
-	);
+	signature: DocumentSignature;
 }
 
 export default function MedicalDocumentsListPage() {
@@ -141,11 +81,13 @@ export default function MedicalDocumentsListPage() {
 					id: r.ID,
 					type: "report" as const,
 					createdAt: r.CreatedAt,
+					signature: r,
 				})),
 				...certificates.map((c) => ({
 					id: c.ID,
 					type: "certificate" as const,
 					createdAt: c.CreatedAt,
+					signature: c,
 				})),
 			].sort(
 				(a, b) =>
@@ -172,6 +114,22 @@ export default function MedicalDocumentsListPage() {
 			window.open(url, "_blank");
 		}
 		setPrintingId(null);
+	}
+
+	async function handleSign(row: DocumentRow) {
+		const res =
+			row.type === "report"
+				? await signMedicalReport(row.id)
+				: await signMedicalCertificate(row.id);
+		if (res.success && res.data) {
+			const signature = res.data;
+			setRows((current) =>
+				current.map((r) =>
+					r.type === row.type && r.id === row.id ? { ...r, signature } : r,
+				),
+			);
+		}
+		return res.success;
 	}
 
 	async function handleSendEmail(row: DocumentRow, email: string) {
@@ -289,6 +247,11 @@ export default function MedicalDocumentsListPage() {
 												</TableCell>
 												<TableCell className="text-right">
 													<div className="flex items-center justify-end gap-1">
+														<SignDocumentButton
+															compact
+															signature={row.signature}
+															onSign={() => handleSign(row)}
+														/>
 														<Button
 															type="button"
 															variant="ghost"

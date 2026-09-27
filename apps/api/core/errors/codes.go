@@ -42,6 +42,17 @@ var (
 	ErrClinicalMedicalCertificateError AppError = NewAppError("E-CLIN-013", "Error generating/saving the medical certificate.")
 	ErrClinicalDocumentEmailError      AppError = NewAppError("E-CLIN-014", "Error sending the document by email.")
 
+	// Electronic Signature Errors
+	ErrSignatureInvalidFile    AppError = NewAppError("E-SIGN-001", "Invalid signature file or password.")
+	ErrSignatureExpired        AppError = NewAppError("E-SIGN-002", "The signature certificate is expired.")
+	ErrSignatureNotConfigured  AppError = NewAppError("E-SIGN-003", "You have not uploaded an electronic signature.")
+	ErrSignatureAlreadySigned  AppError = NewAppError("E-SIGN-004", "The document is already signed.")
+	ErrSignatureSignFailed     AppError = NewAppError("E-SIGN-005", "Error signing the document.")
+	ErrSignatureKeyUnavailable AppError = NewAppError("E-SIGN-006", "Electronic signature is not available on this server.")
+	ErrSignatureWrongPassword  AppError = NewAppError("E-SIGN-007", "Incorrect signature password.")
+	ErrSignatureNotYetValid    AppError = NewAppError("E-SIGN-008", "The signature certificate is not valid yet.")
+	ErrSignatureRucMismatch    AppError = NewAppError("E-SIGN-009", "The signature does not belong to the company's RUC.")
+
 	// Permission Errors
 	ErrPermissionGetError AppError = NewAppError("E-PERM-001", "Error getting permissions.")
 
@@ -72,6 +83,7 @@ var (
 	ErrBillingDebitNoteCreateError  AppError = NewAppError("E-BILL-010", "Error creating debit note.")
 	ErrBillingInvoiceRideNotReady   AppError = NewAppError("E-BILL-011", "Invoice must be authorized before the RIDE can be downloaded.")
 	ErrBillingInvoiceRideGenerate   AppError = NewAppError("E-BILL-012", "Error generating the RIDE PDF.")
+	ErrBillingSignatureExpired      AppError = NewAppError("E-BILL-013", "The SRI electronic signature has expired. Upload a valid one to issue documents.")
 
 	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")

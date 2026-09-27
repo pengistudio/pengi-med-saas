@@ -19,6 +19,7 @@ type MedicalCertificate struct {
 	RestFrom      *time.Time `json:"rest_from,omitempty" gorm:"type:date"`
 	RestTo        *time.Time `json:"rest_to,omitempty" gorm:"type:date"`
 	GeneratedByID uint       `json:"generated_by_id"`
+	DocumentSignature
 }
 
 func (MedicalCertificate) IsAuditable() bool { return true }

@@ -111,6 +111,35 @@
             height: 120px;
         }
 
+        .e-signature {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: left;
+            margin-bottom: 4px;
+        }
+
+        .e-signature-qr {
+            width: 90px;
+            height: 90px;
+        }
+
+        .e-signature-label {
+            font-size: 7.5pt;
+        }
+
+        .e-signature-name {
+            font-size: 10pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .e-signature-meta {
+            font-size: 7.5pt;
+            color: #64748b;
+        }
+
         .signature-line {
             border-top: 1px solid var(--text-color);
             margin-bottom: 5px;
@@ -176,7 +205,17 @@
     {{end}}
 
     <div class="signature-section">
-        <div class="signature-box"></div>
+        {{if .Signature}}
+        <div class="e-signature">
+            <img class="e-signature-qr" src="{{.Signature.QR}}" alt="">
+            <div>
+                <div class="e-signature-label">Firmado electrónicamente por:</div>
+                <div class="e-signature-name">{{.Signature.Name}}</div>
+                <div class="e-signature-meta">{{.Signature.SignedAt}}</div>
+                {{range .Signature.Lines}}<div class="e-signature-meta">{{.}}</div>{{end}}
+            </div>
+        </div>
+        {{else}}<div class="signature-box"></div>{{end}}
         <div class="signature-line"></div>
         <div class="signature-text">Dr(a). {{.DoctorName}}</div>
         <div class="signature-caption">Firma y sello</div>
