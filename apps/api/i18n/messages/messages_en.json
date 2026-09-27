@@ -1957,7 +1957,7 @@
     },
     {
         "key": "dashboard.stat.total_patients",
-        "value": "Total Patients"
+        "value": "Patients"
     },
     {
         "key": "dashboard.stat.critical_patients",
@@ -1965,11 +1965,11 @@
     },
     {
         "key": "dashboard.stat.today_appointments",
-        "value": "Today's Appointments"
+        "value": "Today's appointments"
     },
     {
         "key": "dashboard.stat.monthly_completed",
-        "value": "Completed this Month"
+        "value": "Completed this month"
     },
     {
         "key": "dashboard.stat.delta.new_this_month",
@@ -2005,7 +2005,7 @@
     },
     {
         "key": "dashboard.recent_invoices.title",
-        "value": "Recent Invoices"
+        "value": "Recent invoices"
     },
     {
         "key": "dashboard.recent_invoices.view_all",
@@ -5590,5 +5590,413 @@
     {
         "key": "clinical.prescription_template.error.invalid",
         "value": "The template is not valid HTML: check its {{...}} tags."
+    },
+    {
+        "key": "notification.announcement",
+        "value": "{{title}}: {{body}}"
+    },
+    {
+        "key": "backoffice.announcement.list.success",
+        "value": "Announcements fetched successfully."
+    },
+    {
+        "key": "backoffice.announcement.create.success",
+        "value": "Announcement saved successfully."
+    },
+    {
+        "key": "backoffice.announcement.cancel.success",
+        "value": "Announcement cancelled."
+    },
+    {
+        "key": "E-ANN-001",
+        "value": "Announcement not found."
+    },
+    {
+        "key": "E-ANN-002",
+        "value": "The announcement target has no recipients."
+    },
+    {
+        "key": "E-ANN-003",
+        "value": "Only scheduled announcements can be cancelled."
+    },
+    {
+        "key": "E-ANN-004",
+        "value": "Error sending the announcement."
+    },
+    {
+        "key": "E-ANN-005",
+        "value": "Invalid announcement data."
+    },
+    {
+        "key": "backoffice.nav.announcements",
+        "value": "Announcements"
+    },
+    {
+        "key": "backoffice.announcements.title",
+        "value": "Announcements"
+    },
+    {
+        "key": "backoffice.announcements.create",
+        "value": "New announcement"
+    },
+    {
+        "key": "backoffice.announcements.list.title",
+        "value": "Sending history"
+    },
+    {
+        "key": "backoffice.announcements.list.description",
+        "value": "Notifications sent or scheduled to clinic users."
+    },
+    {
+        "key": "backoffice.announcements.empty",
+        "value": "No announcements have been sent yet."
+    },
+    {
+        "key": "backoffice.announcements.col.title",
+        "value": "Title"
+    },
+    {
+        "key": "backoffice.announcements.col.title.placeholder",
+        "value": "E.g. Scheduled maintenance"
+    },
+    {
+        "key": "backoffice.announcements.col.body",
+        "value": "Message"
+    },
+    {
+        "key": "backoffice.announcements.col.body.placeholder",
+        "value": "Text users will see in their notifications"
+    },
+    {
+        "key": "backoffice.announcements.col.target",
+        "value": "Target"
+    },
+    {
+        "key": "backoffice.announcements.col.scope",
+        "value": "Send to"
+    },
+    {
+        "key": "backoffice.announcements.col.company",
+        "value": "Company"
+    },
+    {
+        "key": "backoffice.announcements.col.company.placeholder",
+        "value": "Select a company"
+    },
+    {
+        "key": "backoffice.announcements.col.user",
+        "value": "User"
+    },
+    {
+        "key": "backoffice.announcements.col.user.placeholder",
+        "value": "Select a user"
+    },
+    {
+        "key": "backoffice.announcements.col.level",
+        "value": "Level"
+    },
+    {
+        "key": "backoffice.announcements.col.status",
+        "value": "Status"
+    },
+    {
+        "key": "backoffice.announcements.col.date",
+        "value": "Date"
+    },
+    {
+        "key": "backoffice.announcements.col.recipients",
+        "value": "Recipients"
+    },
+    {
+        "key": "backoffice.announcements.col.action_url",
+        "value": "Link"
+    },
+    {
+        "key": "backoffice.announcements.col.action_url.description",
+        "value": "App path (/billing) or https:// link opened on click."
+    },
+    {
+        "key": "backoffice.announcements.col.scheduled_at",
+        "value": "Schedule sending"
+    },
+    {
+        "key": "backoffice.announcements.col.scheduled_at.description",
+        "value": "Leave empty to send now. It reaches the users that exist at that time."
+    },
+    {
+        "key": "backoffice.announcements.scope.global",
+        "value": "Everyone"
+    },
+    {
+        "key": "backoffice.announcements.scope.company",
+        "value": "A company"
+    },
+    {
+        "key": "backoffice.announcements.scope.user",
+        "value": "A user"
+    },
+    {
+        "key": "backoffice.announcements.level.info",
+        "value": "Info"
+    },
+    {
+        "key": "backoffice.announcements.level.success",
+        "value": "Success"
+    },
+    {
+        "key": "backoffice.announcements.level.warning",
+        "value": "Warning"
+    },
+    {
+        "key": "backoffice.announcements.level.critical",
+        "value": "Critical"
+    },
+    {
+        "key": "backoffice.announcements.status.scheduled",
+        "value": "Scheduled"
+    },
+    {
+        "key": "backoffice.announcements.status.sent",
+        "value": "Sent"
+    },
+    {
+        "key": "backoffice.announcements.status.cancelled",
+        "value": "Cancelled"
+    },
+    {
+        "key": "backoffice.announcements.status.failed",
+        "value": "Failed"
+    },
+    {
+        "key": "backoffice.announcements.cancel",
+        "value": "Cancel sending"
+    },
+    {
+        "key": "backoffice.announcements.cancel.title",
+        "value": "Cancel this announcement?"
+    },
+    {
+        "key": "backoffice.announcements.cancel.description",
+        "value": "It will not be sent to anyone:"
+    },
+    {
+        "key": "backoffice.announcements.create.title",
+        "value": "New announcement"
+    },
+    {
+        "key": "backoffice.announcements.create.description",
+        "value": "Send a notification to every user, a company or a single user."
+    },
+    {
+        "key": "backoffice.announcements.create.submit",
+        "value": "Send"
+    },
+    {
+        "key": "backoffice.announcements.validation.action_url",
+        "value": "Must be a path starting with / or an https:// link"
+    },
+    {
+        "key": "backoffice.announcements.validation.scheduled_future",
+        "value": "The date must be in the future"
+    },
+    {
+        "key": "backoffice.announcements.validation.company_required",
+        "value": "Select a company"
+    },
+    {
+        "key": "backoffice.announcements.validation.user_required",
+        "value": "Select a user"
+    },
+    {
+        "key": "notification.page.description",
+        "value": "System alerts and announcements from the Pengi team."
+    },
+    {
+        "key": "billing.invoice.page.description",
+        "value": "Issue, send to the SRI and review your electronic invoices."
+    },
+    {
+        "key": "billing.credit_note.page.description",
+        "value": "Credit notes issued against your invoices."
+    },
+    {
+        "key": "billing.debit_note.page.description",
+        "value": "Debit notes issued against your invoices."
+    },
+    {
+        "key": "billing.catalog-item.page.description",
+        "value": "Products and services you use when invoicing."
+    },
+    {
+        "key": "clinical.patient.page.description",
+        "value": "Find patients and open their medical records."
+    },
+    {
+        "key": "dashboard.greeting.morning",
+        "value": "Good morning, {name}"
+    },
+    {
+        "key": "dashboard.greeting.afternoon",
+        "value": "Good afternoon, {name}"
+    },
+    {
+        "key": "dashboard.greeting.evening",
+        "value": "Good evening, {name}"
+    },
+    {
+        "key": "dashboard.actions.new_patient",
+        "value": "New patient"
+    },
+    {
+        "key": "dashboard.actions.new_invoice",
+        "value": "New invoice"
+    },
+    {
+        "key": "dashboard.attention.title",
+        "value": "Needs attention"
+    },
+    {
+        "key": "dashboard.attention.none",
+        "value": "All caught up: no critical patients, unfinished records or rejected invoices."
+    },
+    {
+        "key": "dashboard.attention.critical.one",
+        "value": "{count} critical patient"
+    },
+    {
+        "key": "dashboard.attention.critical.other",
+        "value": "{count} critical patients"
+    },
+    {
+        "key": "dashboard.attention.critical.view_all",
+        "value": "See all patients"
+    },
+    {
+        "key": "dashboard.attention.drafts.one",
+        "value": "{count} unfinished record"
+    },
+    {
+        "key": "dashboard.attention.drafts.other",
+        "value": "{count} unfinished records"
+    },
+    {
+        "key": "dashboard.attention.invoices.one",
+        "value": "{count} rejected invoice"
+    },
+    {
+        "key": "dashboard.attention.invoices.other",
+        "value": "{count} rejected invoices"
+    },
+    {
+        "key": "dashboard.attention.plan.one",
+        "value": "Your plan expires tomorrow"
+    },
+    {
+        "key": "dashboard.attention.plan.other",
+        "value": "Your plan expires in {count} days"
+    },
+    {
+        "key": "dashboard.attention.plan.expired",
+        "value": "Your plan has expired"
+    },
+    {
+        "key": "dashboard.agenda.title",
+        "value": "Today's schedule"
+    },
+    {
+        "key": "dashboard.agenda.summary.one",
+        "value": "{count} appointment, {attended} seen"
+    },
+    {
+        "key": "dashboard.agenda.summary.other",
+        "value": "{count} appointments, {attended} seen"
+    },
+    {
+        "key": "dashboard.agenda.now",
+        "value": "Now"
+    },
+    {
+        "key": "dashboard.agenda.open_calendar",
+        "value": "Open calendar"
+    },
+    {
+        "key": "dashboard.agenda.empty",
+        "value": "You have no appointments today"
+    },
+    {
+        "key": "dashboard.agenda.empty_hint",
+        "value": "Appointments you book for today show up here in time order."
+    },
+    {
+        "key": "dashboard.agenda.start",
+        "value": "Start consultation"
+    },
+    {
+        "key": "dashboard.week.title",
+        "value": "This week"
+    },
+    {
+        "key": "dashboard.week.total.one",
+        "value": "{count} appointment booked"
+    },
+    {
+        "key": "dashboard.week.total.other",
+        "value": "{count} appointments booked"
+    },
+    {
+        "key": "dashboard.subscription.manage",
+        "value": "Manage plan"
+    },
+    {
+        "key": "dashboard.tasks.title",
+        "value": "Open tasks"
+    },
+    {
+        "key": "dashboard.tasks.total.one",
+        "value": "{count} unfinished task"
+    },
+    {
+        "key": "dashboard.tasks.total.other",
+        "value": "{count} unfinished tasks"
+    },
+    {
+        "key": "dashboard.tasks.open_board",
+        "value": "Open board"
+    },
+    {
+        "key": "dashboard.tasks.empty",
+        "value": "No open tasks."
+    },
+    {
+        "key": "dashboard.tasks.complete",
+        "value": "Mark as done"
+    },
+    {
+        "key": "dashboard.tasks.due.overdue",
+        "value": "{count} d overdue"
+    },
+    {
+        "key": "dashboard.tasks.due.today",
+        "value": "Due today"
+    },
+    {
+        "key": "dashboard.tasks.due.tomorrow",
+        "value": "Due tomorrow"
+    },
+    {
+        "key": "dashboard.tasks.due.in_days",
+        "value": "In {count} days"
+    },
+    {
+        "key": "table.selection.count.one",
+        "value": "{count} selected"
+    },
+    {
+        "key": "table.selection.count.other",
+        "value": "{count} selected"
+    },
+    {
+        "key": "table.selection.clear",
+        "value": "Clear selection"
     }
 ]

@@ -18,6 +18,7 @@ import {
 	type ProfileData,
 	updateProfile,
 } from "@/api/user-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
@@ -69,9 +70,7 @@ const Profile = () => {
 	return (
 		<DashboardLayout>
 			<div className="max-w-2xl mx-auto space-y-6">
-				<h1 className="text-2xl font-bold tracking-tight">
-					<Text uuid="profile.title" />
-				</h1>
+				<PageHeader title={<Text uuid="profile.title" />} />
 
 				{/* User Info — read only */}
 				<Card>

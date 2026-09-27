@@ -20,12 +20,14 @@ import {
 import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
+import { useSearchParams } from "react-router";
 import {
 	type Appointment,
 	getAppointments,
 	type Patient,
 	updateAppointment,
 } from "@/api/clinical-service";
+import { PageHeader } from "@/components/custom/page-header";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
@@ -73,7 +75,16 @@ function computeSnappedTarget(
 }
 
 export default function AppointmentCalendar() {
-	const [currentDate, setCurrentDate] = React.useState(new Date());
+	const [searchParams] = useSearchParams();
+	// ?date=YYYY-MM-DD opens that week (the dashboard's week strip links here).
+	const [currentDate, setCurrentDate] = React.useState(() => {
+		const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(
+			searchParams.get("date") ?? "",
+		);
+		return match
+			? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+			: new Date();
+	});
 	const [appointments, setAppointments] = React.useState<Appointment[]>([]);
 	const [selectedAppointment, setSelectedAppointment] =
 		React.useState<Appointment | null>(null);
@@ -249,9 +260,7 @@ export default function AppointmentCalendar() {
 			{/* ── Header ─────────────────────────────────── */}
 			<div className="flex items-center justify-between pb-4 gap-4 flex-wrap">
 				<div className="flex items-center gap-4">
-					<h1 className="text-2xl font-bold tracking-tight">
-						<Text uuid="appointments.title" />
-					</h1>
+					<PageHeader title={<Text uuid="appointments.title" />} />
 					<div className="flex items-center gap-1">
 						<Button
 							variant="outline"

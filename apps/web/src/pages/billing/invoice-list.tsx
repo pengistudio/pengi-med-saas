@@ -17,7 +17,7 @@ import {
 import type { Row } from "@tanstack/react-table";
 import { Play, Plus, Trash } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import {
 	deleteInvoice,
 	getAllInvoices,
@@ -25,6 +25,7 @@ import {
 	processInvoiceSRI,
 	processMultipleInvoicesSRI,
 } from "@/api/billing-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { useResponsive } from "@/hooks/user-responsive";
@@ -63,7 +64,14 @@ const InvoiceListPage = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [search, setSearch] = useState("");
 	const [searchInput, setSearchInput] = useState("");
-	const [statusFilter, setStatusFilter] = useState("all");
+	const [searchParams] = useSearchParams();
+	// ?status= preselects a filter (the dashboard links to failed invoices).
+	const [statusFilter, setStatusFilter] = useState(() => {
+		const initial = searchParams.get("status");
+		return STATUS_FILTERS.some((f) => f.value === initial)
+			? (initial as string)
+			: "all";
+	});
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
 	const { isMobile } = useResponsive();
@@ -146,62 +154,75 @@ const InvoiceListPage = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<div className="flex flex-row items-center gap-2 sm:gap-5 sm:justify-end justify-start flex-wrap">
-					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
-						<Button onClick={() => navigate("/billing/create")}>
-							<Plus className="mr-2 h-4 w-4" />
-							<Text uuid="billing.invoice.create.button" />
-						</Button>
-					)}
-
-					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
-						<Button
-							variant="secondary"
-							disabled={rows.length === ZERO || processing}
-							onClick={handleProcessSelected}
-							className="md:ml-auto"
-						>
-							<Play className="mr-2 h-4 w-4" />
-							<Text uuid="billing.invoice.process.selected" />
-						</Button>
-					)}
-
-					<AlertDialog>
-						{checkPermission([
-							PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+			<main className="grid items-start gap-4">
+				<PageHeader
+					title={textGet("dashboard.billing.invoices")}
+					description={textGet("billing.invoice.page.description")}
+					actions={
+						checkPermission([
+							PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
 						]) && (
-							<AlertDialogTrigger
-								render={
-									<Button variant="outline" disabled={rows.length === ZERO}>
-										<Trash className="mr-2 h-4 w-4" />
-										<Text uuid="table.button.delete.all.selected" />
-									</Button>
-								}
-							/>
-						)}
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>
-									<Text uuid="dialog.title.absolutely.sure" />
-								</AlertDialogTitle>
-								<AlertDialogDescription>
-									<Text uuid="billing.invoice.delete.description" />
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>
-									<Text uuid="form.cancel" />
-								</AlertDialogCancel>
-								<AlertDialogAction onClick={handleDelete}>
-									<Text uuid="form.continue" />
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</div>
+							<Button onClick={() => navigate("/billing/create")}>
+								<Plus className="mr-2 h-4 w-4" />
+								<Text uuid="billing.invoice.create.button" />
+							</Button>
+						)
+					}
+				/>
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
 					<DataTable
+						bulkActions={
+							<>
+								{checkPermission([
+									PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
+								]) && (
+									<Button
+										variant="secondary"
+										disabled={rows.length === ZERO || processing}
+										onClick={handleProcessSelected}
+									>
+										<Play className="mr-2 h-4 w-4" />
+										<Text uuid="billing.invoice.process.selected" />
+									</Button>
+								)}
+
+								<AlertDialog>
+									{checkPermission([
+										PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+									]) && (
+										<AlertDialogTrigger
+											render={
+												<Button
+													variant="outline"
+													disabled={rows.length === ZERO}
+												>
+													<Trash className="mr-2 h-4 w-4" />
+													<Text uuid="table.button.delete.all.selected" />
+												</Button>
+											}
+										/>
+									)}
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle>
+												<Text uuid="dialog.title.absolutely.sure" />
+											</AlertDialogTitle>
+											<AlertDialogDescription>
+												<Text uuid="billing.invoice.delete.description" />
+											</AlertDialogDescription>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel>
+												<Text uuid="form.cancel" />
+											</AlertDialogCancel>
+											<AlertDialogAction onClick={handleDelete}>
+												<Text uuid="form.continue" />
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
+							</>
+						}
 						searchPlaceholder={textGet("billing.invoice.search.placeholder")}
 						searchValue={searchInput}
 						onSearchChange={setSearchInput}

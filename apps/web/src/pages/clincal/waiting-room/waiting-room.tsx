@@ -42,6 +42,7 @@ import {
 	getTodayAppointments,
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
+import { PageHeader } from "@/components/custom/page-header";
 import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
@@ -327,14 +328,12 @@ const WaitingRoomPage = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="p-4 md:p-6 pt-2 md:pt-3 space-y-4">
+			<main className="space-y-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<h1 className="text-2xl font-bold">
-							<Text uuid="waiting_room.title" />
-						</h1>
-						<p className="text-muted-foreground text-sm capitalize">{today}</p>
-					</div>
+					<PageHeader
+						title={<Text uuid="waiting_room.title" />}
+						description={<span className="capitalize">{today}</span>}
+					/>
 					<div className="flex flex-wrap items-center gap-2">
 						<Button
 							variant="outline"

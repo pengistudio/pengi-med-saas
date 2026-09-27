@@ -28,6 +28,7 @@ import {
 	type PatientSortBy,
 	type PatientSortOrder,
 } from "@/api/clinical-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { useResponsive } from "@/hooks/user-responsive";
@@ -157,56 +158,61 @@ const Clinical = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<div className="flex flex-row items-center gap-2 sm:gap-5 sm:justify-end justify-start flex-wrap">
-					{checkPermission([
-						PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
-					]) && (
-						<Button onClick={handleCreate} className="mr-auto">
-							<Plus className="mr-2 h-4 w-4" />
-							<Text uuid="clinical.patient.create" />
-						</Button>
-					)}
-					<AlertDialog>
-						{checkPermission([
-							PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT,
+			<main className="grid items-start gap-4">
+				<PageHeader
+					title={textGet("dashboard.clinical.patients")}
+					description={textGet("clinical.patient.page.description")}
+					actions={
+						checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
 						]) && (
-							<AlertDialogTrigger
-								render={
-									<Button
-										variant="outline"
-										disabled={rows.length === ZERO}
-										className="md:ml-auto"
-									>
-										<Trash className="mr-2 h-4 w-4" />
-										<Text uuid="table.button.delete.all.selected" />
-									</Button>
-								}
-							/>
-						)}
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>
-									<Text uuid="dialog.title.absolutely.sure" />
-								</AlertDialogTitle>
-								<AlertDialogDescription>
-									<Text uuid="dialog.description.user.delete" />
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>
-									<Text uuid="form.cancel" />
-								</AlertDialogCancel>
-								<AlertDialogAction onClick={handleDelete}>
-									<Text uuid="form.continue" />
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</div>
-
+							<Button onClick={handleCreate}>
+								<Plus className="mr-2 h-4 w-4" />
+								<Text uuid="clinical.patient.create" />
+							</Button>
+						)
+					}
+				/>
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
 					<DataTable
+						bulkActions={
+							<AlertDialog>
+								{checkPermission([
+									PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT,
+								]) && (
+									<AlertDialogTrigger
+										render={
+											<Button
+												variant="outline"
+												disabled={rows.length === ZERO}
+												className="md:ml-auto"
+											>
+												<Trash className="mr-2 h-4 w-4" />
+												<Text uuid="table.button.delete.all.selected" />
+											</Button>
+										}
+									/>
+								)}
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											<Text uuid="dialog.title.absolutely.sure" />
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											<Text uuid="dialog.description.user.delete" />
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>
+											<Text uuid="form.cancel" />
+										</AlertDialogCancel>
+										<AlertDialogAction onClick={handleDelete}>
+											<Text uuid="form.continue" />
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						}
 						columns={isMobile ? patientColumnsMobile : patientColumns}
 						data={patients}
 						loading={loading}

@@ -7,9 +7,12 @@ import (
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	company_services "pengi-med-saas/features/companies/services"
+	kanban_models "pengi-med-saas/features/kanban/models"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -43,6 +46,28 @@ type UpcomingAppointment struct {
 	Status      string `json:"status"`
 }
 
+// dashboardListLimit caps every "needs attention" list; the counts next to
+// them say how many there are in total.
+const dashboardListLimit = 5
+
+type DashboardPatientRef struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
+type DashboardDraft struct {
+	PatientID   uint      `json:"patient_id"`
+	PatientName string    `json:"patient_name"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type DashboardTask struct {
+	ID      uint       `json:"id"`
+	Title   string     `json:"title"`
+	Status  string     `json:"status"`
+	DueDate *time.Time `json:"due_date"`
+}
+
 type DashboardSubscriptionInfo struct {
 	PlanName          string          `json:"plan_name"`
 	PlanCode          string          `json:"plan_code"`
@@ -65,8 +90,21 @@ type DashboardStats struct {
 	MonthlyCompleted      int64                      `json:"monthly_completed"`
 	PrevMonthCompleted    int64                      `json:"prev_month_completed"`
 	WeeklyAppointments    []WeekDayStat              `json:"weekly_appointments"`
-	UpcomingAppointments  []UpcomingAppointment      `json:"upcoming_appointments"`
+	TodayAgenda           []UpcomingAppointment      `json:"today_agenda"`
+	CriticalPatientList   []DashboardPatientRef      `json:"critical_patient_list"`
+	PendingDrafts         []DashboardDraft           `json:"pending_drafts"`
+	PendingDraftsCount    int64                      `json:"pending_drafts_count"`
+	FailedInvoices        int64                      `json:"failed_invoices"`
+	OpenTasks             []DashboardTask            `json:"open_tasks"`
+	OpenTasksCount        int64                      `json:"open_tasks_count"`
 	Subscription          *DashboardSubscriptionInfo `json:"subscription"`
+}
+
+func patientDisplayName(p clinical_models.Patient) string {
+	if p.FullName != nil && *p.FullName != "" {
+		return *p.FullName
+	}
+	return p.FirstName + " " + p.LastName
 }
 
 // GetDashboardStats returns aggregated statistics for the dashboard.
@@ -151,32 +189,74 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		}
 	}
 
-	// 6. Upcoming appointments today (next 5, ordered by start_time)
-	var upcomingRaw []clinical_models.Appointment
+	// 6. Today's agenda: every appointment of the day but cancelled ones, so
+	// the timeline shows who already came and who is next.
+	var agendaRaw []clinical_models.Appointment
 	db.
-		Where("date >= ? AND date < ? AND status = ?", todayStart, todayEnd, "scheduled").
+		Where("date >= ? AND date < ? AND status <> ?", todayStart, todayEnd, "cancelled").
 		Preload("Patient").
 		Order("start_time ASC").
-		Limit(5).
-		Find(&upcomingRaw)
+		Find(&agendaRaw)
 
-	upcoming := make([]UpcomingAppointment, 0, len(upcomingRaw))
-	for _, a := range upcomingRaw {
-		name := ""
-		if a.Patient.FullName != nil {
-			name = *a.Patient.FullName
-		} else {
-			name = a.Patient.FirstName + " " + a.Patient.LastName
-		}
-		upcoming = append(upcoming, UpcomingAppointment{
+	agenda := make([]UpcomingAppointment, 0, len(agendaRaw))
+	for _, a := range agendaRaw {
+		agenda = append(agenda, UpcomingAppointment{
 			ID:          a.ID,
 			Title:       a.Title,
 			StartTime:   a.StartTime,
 			EndTime:     a.EndTime,
-			PatientName: name,
+			PatientName: patientDisplayName(a.Patient),
 			PatientID:   a.PatientID,
 			Status:      a.Status,
 		})
+	}
+
+	// 6b. Needs attention (best-effort, like the deltas above).
+	var criticalRaw []clinical_models.Patient
+	db.Where("critical = ?", true).Order("updated_at DESC").Limit(dashboardListLimit).Find(&criticalRaw)
+	criticalList := make([]DashboardPatientRef, 0, len(criticalRaw))
+	for _, p := range criticalRaw {
+		criticalList = append(criticalList, DashboardPatientRef{ID: p.ID, Name: patientDisplayName(p)})
+	}
+
+	// Unfinished medical records of the current user (drafts are per user).
+	pendingDrafts := make([]DashboardDraft, 0)
+	var pendingDraftsCount int64
+	if userID, _, ok := auth_middleware.GetUserFromContext(c); ok {
+		draftQuery := db.Model(&clinical_models.MedicalRecordDraft{}).Where("user_id = ?", userID)
+		draftQuery.Count(&pendingDraftsCount)
+
+		var draftsRaw []clinical_models.MedicalRecordDraft
+		db.Where("user_id = ?", userID).Order("updated_at DESC").Limit(dashboardListLimit).Find(&draftsRaw)
+		for _, d := range draftsRaw {
+			var patient clinical_models.Patient
+			if err := db.First(&patient, d.PatientID).Error; err != nil {
+				continue
+			}
+			pendingDrafts = append(pendingDrafts, DashboardDraft{
+				PatientID:   d.PatientID,
+				PatientName: patientDisplayName(patient),
+				UpdatedAt:   d.UpdatedAt,
+			})
+		}
+	}
+
+	// Invoices the SRI refused or that failed: they need someone to act.
+	var failedInvoices int64
+	db.Model(&billing_models.Invoice{}).Where("status IN ?", []string{"failed", "rejected"}).Count(&failedInvoices)
+
+	// Open kanban tasks, the ones with the nearest due date first.
+	var openTasksCount int64
+	openTaskQuery := db.Model(&kanban_models.Task{}).Where("status <> ? AND archived_at IS NULL", "done")
+	openTaskQuery.Count(&openTasksCount)
+	var tasksRaw []kanban_models.Task
+	db.Where("status <> ? AND archived_at IS NULL", "done").
+		Order("due_date IS NULL, due_date ASC, position ASC").
+		Limit(dashboardListLimit).
+		Find(&tasksRaw)
+	openTasks := make([]DashboardTask, 0, len(tasksRaw))
+	for _, t := range tasksRaw {
+		openTasks = append(openTasks, DashboardTask{ID: t.ID, Title: t.Title, Status: t.Status, DueDate: t.DueDate})
 	}
 
 	// 7. Subscription + enabled features for this tenant's company
@@ -234,7 +314,13 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		MonthlyCompleted:      monthlyCompleted,
 		PrevMonthCompleted:    prevMonthCompleted,
 		WeeklyAppointments:    weeklyStats,
-		UpcomingAppointments:  upcoming,
+		TodayAgenda:           agenda,
+		CriticalPatientList:   criticalList,
+		PendingDrafts:         pendingDrafts,
+		PendingDraftsCount:    pendingDraftsCount,
+		FailedInvoices:        failedInvoices,
+		OpenTasks:             openTasks,
+		OpenTasksCount:        openTasksCount,
 		Subscription:          subscriptionInfo,
 	}
 

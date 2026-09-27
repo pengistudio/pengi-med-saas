@@ -30,6 +30,7 @@ import {
 	getMedicalRecordById,
 	type MedicalRecord,
 } from "@/api/clinical-service";
+import { PageHeader } from "@/components/custom/page-header";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import {
 	buildPrescriptionWhatsAppMessage,
@@ -110,24 +111,19 @@ const ViewMedicalRecord = () => {
 
 	return (
 		<div className="space-y-4 max-w-4xl mx-auto w-full">
-			{/* Header */}
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="text-3xl font-bold">
-						<Text uuid="view.medical_record.title" />
-					</h1>
-					<p className="text-muted-foreground">
-						<Text uuid="view.medical_record.subtitle" />
-					</p>
-				</div>
-				<Button
-					variant="outline"
-					onClick={() => navigate(-1 as unknown as string)}
-				>
-					<ArrowLeft className="mr-2 h-4 w-4" />
-					<Text uuid="view.medical_record.back" />
-				</Button>
-			</div>
+			<PageHeader
+				title={<Text uuid="view.medical_record.title" />}
+				description={<Text uuid="view.medical_record.subtitle" />}
+				actions={
+					<Button
+						variant="outline"
+						onClick={() => navigate(-1 as unknown as string)}
+					>
+						<ArrowLeft className="mr-2 h-4 w-4" />
+						<Text uuid="view.medical_record.back" />
+					</Button>
+				}
+			/>
 
 			{/* Basic Info Card */}
 			<Card>

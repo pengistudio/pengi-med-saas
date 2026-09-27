@@ -19,6 +19,11 @@ import {
 	markNotificationAsRead,
 	type Notification,
 } from "@/api/notification-service";
+import { PageHeader } from "@/components/custom/page-header";
+import {
+	NotificationLevelIcon,
+	openNotificationLink,
+} from "@/lib/notification-level";
 import {
 	formatRelativeTime,
 	getNotificationText,
@@ -91,7 +96,7 @@ const NotificationsPage = () => {
 			markNotificationAsRead(notification.ID);
 		}
 		if (notification.action_url) {
-			navigate(notification.action_url);
+			openNotificationLink(notification.action_url, navigate);
 		} else {
 			refresh();
 		}
@@ -118,39 +123,40 @@ const NotificationsPage = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<h1 className="text-lg font-semibold">
-					{textGet("notification.page.title")}
-				</h1>
-				<div className="flex flex-wrap items-center gap-2">
-					<ToggleGroup
-						value={[filter]}
-						onValueChange={(value) => {
-							setFilter((value[0] as Filter | undefined) ?? "all");
-							setPage(1);
-						}}
-					>
-						{FILTERS.map((f) => (
-							<ToggleGroupItem key={f.value} value={f.value}>
-								<Text uuid={f.labelKey} />
-							</ToggleGroupItem>
-						))}
-					</ToggleGroup>
-					<div className="flex flex-wrap gap-2 sm:ml-auto">
-						<Button
-							variant="outline"
-							disabled={unreadCount === 0}
-							onClick={handleMarkAllRead}
-						>
-							<Check className="mr-2 h-4 w-4" />
-							<Text uuid="notification.page.mark_all_read" />
-						</Button>
-						<Button variant="outline" onClick={handleDeleteRead}>
-							<Trash2 className="mr-2 h-4 w-4" />
-							<Text uuid="notification.page.delete_read" />
-						</Button>
-					</div>
-				</div>
+			<div className="space-y-6">
+				<PageHeader
+					title={textGet("notification.page.title")}
+					description={textGet("notification.page.description")}
+					actions={
+						<>
+							<Button
+								variant="outline"
+								disabled={unreadCount === 0}
+								onClick={handleMarkAllRead}
+							>
+								<Check className="mr-2 h-4 w-4" />
+								<Text uuid="notification.page.mark_all_read" />
+							</Button>
+							<Button variant="outline" onClick={handleDeleteRead}>
+								<Trash2 className="mr-2 h-4 w-4" />
+								<Text uuid="notification.page.delete_read" />
+							</Button>
+						</>
+					}
+				/>
+				<ToggleGroup
+					value={[filter]}
+					onValueChange={(value) => {
+						setFilter((value[0] as Filter | undefined) ?? "all");
+						setPage(1);
+					}}
+				>
+					{FILTERS.map((f) => (
+						<ToggleGroupItem key={f.value} value={f.value}>
+							<Text uuid={f.labelKey} />
+						</ToggleGroupItem>
+					))}
+				</ToggleGroup>
 
 				<Card>
 					<CardContent className="p-0">
@@ -186,12 +192,16 @@ const NotificationsPage = () => {
 										>
 											<span
 												className={cn(
-													"text-sm",
+													"flex items-start gap-2 text-sm",
 													notification.read_at
 														? "text-muted-foreground"
 														: "font-medium",
 												)}
 											>
+												<NotificationLevelIcon
+													level={notification.level}
+													className="mt-0.5"
+												/>
 												{getNotificationText(notification, textGet, lang)}
 											</span>
 											<span className="text-xs text-muted-foreground">
@@ -255,7 +265,7 @@ const NotificationsPage = () => {
 						</Button>
 					</div>
 				)}
-			</main>
+			</div>
 		</DashboardLayout>
 	);
 };

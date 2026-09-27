@@ -96,6 +96,13 @@ var (
 	ErrNotificationUpdateError AppError = NewAppError("E-NOTIF-003", "Error updating notification.")
 	ErrNotificationDeleteError AppError = NewAppError("E-NOTIF-004", "Error deleting notification.")
 
+	// Announcement Errors
+	ErrAnnouncementNotFound       AppError = NewAppError("E-ANN-001", "Announcement not found.")
+	ErrAnnouncementInvalidTarget  AppError = NewAppError("E-ANN-002", "Invalid announcement target.")
+	ErrAnnouncementNotCancellable AppError = NewAppError("E-ANN-003", "Only scheduled announcements can be cancelled.")
+	ErrAnnouncementDispatchError  AppError = NewAppError("E-ANN-004", "Error sending announcement.")
+	ErrAnnouncementInvalidRequest AppError = NewAppError("E-ANN-005", "Invalid announcement data.")
+
 	// Team Errors
 	ErrTeamEnvironmentNotFound AppError = NewAppError("E-TEAM-001", "Team member not found in this company.")
 	ErrTeamInvalidRole         AppError = NewAppError("E-TEAM-002", "Invalid or unsupported role.")

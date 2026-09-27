@@ -20,6 +20,7 @@ import {
 	deleteCatalogItem,
 	getAllCatalogItems,
 } from "@/api/billing-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { useResponsive } from "@/hooks/user-responsive";
@@ -98,52 +99,57 @@ const CatalogItemList = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<div className="flex flex-row items-center gap-2 sm:gap-5 sm:justify-end justify-start flex-wrap">
-					{checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
-						<Button
-							onClick={() => navigate("/billing/catalog-items/create")}
-							className="mr-auto"
-						>
-							<Plus className="mr-2 h-4 w-4" />
-							<Text uuid="billing.catalog-item.create.button" />
-						</Button>
-					)}
-					<AlertDialog>
-						{checkPermission([
-							PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+			<main className="grid items-start gap-4">
+				<PageHeader
+					title={textGet("dashboard.billing.catalog-items")}
+					description={textGet("billing.catalog-item.page.description")}
+					actions={
+						checkPermission([
+							PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
 						]) && (
-							<AlertDialogTrigger
-								render={
-									<Button variant="outline" disabled={rows.length === ZERO}>
-										<Trash className="mr-2 h-4 w-4" />
-										<Text uuid="table.button.delete.all.selected" />
-									</Button>
-								}
-							/>
-						)}
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>
-									<Text uuid="dialog.title.absolutely.sure" />
-								</AlertDialogTitle>
-								<AlertDialogDescription>
-									<Text uuid="billing.catalog-item.delete.description" />
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>
-									<Text uuid="form.cancel" />
-								</AlertDialogCancel>
-								<AlertDialogAction onClick={handleDelete}>
-									<Text uuid="form.continue" />
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</div>
+							<Button onClick={() => navigate("/billing/catalog-items/create")}>
+								<Plus className="mr-2 h-4 w-4" />
+								<Text uuid="billing.catalog-item.create.button" />
+							</Button>
+						)
+					}
+				/>
 				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
 					<DataTable
+						bulkActions={
+							<AlertDialog>
+								{checkPermission([
+									PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+								]) && (
+									<AlertDialogTrigger
+										render={
+											<Button variant="outline" disabled={rows.length === ZERO}>
+												<Trash className="mr-2 h-4 w-4" />
+												<Text uuid="table.button.delete.all.selected" />
+											</Button>
+										}
+									/>
+								)}
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											<Text uuid="dialog.title.absolutely.sure" />
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											<Text uuid="billing.catalog-item.delete.description" />
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>
+											<Text uuid="form.cancel" />
+										</AlertDialogCancel>
+										<AlertDialogAction onClick={handleDelete}>
+											<Text uuid="form.continue" />
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						}
 						searchPlaceholder={textGet(
 							"billing.catalog-item.search.placeholder",
 						)}

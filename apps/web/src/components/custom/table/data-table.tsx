@@ -1,5 +1,6 @@
 import { useText } from "@pengi/shared";
 import {
+	Button,
 	DataTablePagination,
 	DataTableViewOptions,
 	Input,
@@ -42,6 +43,9 @@ interface DataTableProps<TData, TValue> {
 	onPageChange?: (page: number) => void;
 	// Extra content rendered between search and Vista button
 	toolbarRight?: React.ReactNode;
+	// Actions on the selected rows. They take the toolbar's place while at
+	// least one row is selected, so they never sit idle above the table.
+	bulkActions?: React.ReactNode;
 	// Optional per-row className
 	rowClassName?: (row: Row<TData>) => string;
 	// Optional custom empty state (replaces default "no results" text)
@@ -60,6 +64,7 @@ export function DataTable<TData, TValue>({
 	page,
 	onPageChange,
 	toolbarRight,
+	bulkActions,
 	rowClassName,
 	emptyState,
 }: DataTableProps<TData, TValue>) {
@@ -98,6 +103,12 @@ export function DataTable<TData, TValue>({
 			},
 		}),
 		enableRowSelection: true,
+		// Select by record ID, not row position: after a delete or a refetch
+		// the selection must not jump to whichever rows took those positions.
+		getRowId: (row, index) => {
+			const id = (row as { ID?: number }).ID;
+			return id === undefined ? String(index) : String(id);
+		},
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -111,43 +122,69 @@ export function DataTable<TData, TValue>({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: triggers on selection change
 	useEffect(() => {
 		setRows(table.getFilteredSelectedRowModel().rows as Row<unknown>[]);
-	}, [rowSelection, setRows, table]);
+	}, [rowSelection, data, setRows, table]);
+
+	const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+	const showBulkActions = bulkActions !== undefined && selectedCount > 0;
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-center gap-2 justify-between">
-				{onSearchChange ? (
-					<div className="flex items-center py-4 max-w-sm w-full">
-						<Input
-							placeholder={
-								searchPlaceholder || textGet("table.search.placeholder")
-							}
-							value={searchValue ?? ""}
-							onChange={(event) => onSearchChange(event.target.value)}
-							className="max-w-sm w-full"
-						/>
+			{showBulkActions ? (
+				// Same height as the search row, so the table doesn't jump.
+				<div className="flex min-h-[4.25rem] flex-wrap items-center gap-2 py-4">
+					<span className="text-sm font-medium">
+						{textGet(
+							selectedCount === 1
+								? "table.selection.count.one"
+								: "table.selection.count.other",
+						).replace("{count}", String(selectedCount))}
+					</span>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={() => table.resetRowSelection()}
+					>
+						{textGet("table.selection.clear")}
+					</Button>
+					<div className="ml-auto flex flex-wrap items-center gap-2">
+						{bulkActions}
 					</div>
-				) : searchKey ? (
-					<div className="flex items-center py-4 max-w-sm w-full">
-						<Input
-							placeholder={
-								searchPlaceholder || textGet("table.search.placeholder")
-							}
-							value={
-								(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
-							}
-							onChange={(event) =>
-								table.getColumn(searchKey)?.setFilterValue(event.target.value)
-							}
-							className="max-w-sm w-full"
-						/>
-					</div>
-				) : null}
-				<div className="flex items-center gap-2 ml-auto">
-					{toolbarRight}
-					<DataTableViewOptions table={table} />
 				</div>
-			</div>
+			) : (
+				<div className="flex items-center gap-2 justify-between">
+					{onSearchChange ? (
+						<div className="flex items-center py-4 max-w-sm w-full">
+							<Input
+								placeholder={
+									searchPlaceholder || textGet("table.search.placeholder")
+								}
+								value={searchValue ?? ""}
+								onChange={(event) => onSearchChange(event.target.value)}
+								className="max-w-sm w-full"
+							/>
+						</div>
+					) : searchKey ? (
+						<div className="flex items-center py-4 max-w-sm w-full">
+							<Input
+								placeholder={
+									searchPlaceholder || textGet("table.search.placeholder")
+								}
+								value={
+									(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
+								}
+								onChange={(event) =>
+									table.getColumn(searchKey)?.setFilterValue(event.target.value)
+								}
+								className="max-w-sm w-full"
+							/>
+						</div>
+					) : null}
+					<div className="flex items-center gap-2 ml-auto">
+						{toolbarRight}
+						<DataTableViewOptions table={table} />
+					</div>
+				</div>
+			)}
 
 			<div className="rounded-md border">
 				<Table>

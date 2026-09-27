@@ -12,6 +12,7 @@ import (
 	clinical_workers "pengi-med-saas/features/clinical/workers"
 	"pengi-med-saas/features/health"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
+	notifications_workers "pengi-med-saas/features/notifications/workers"
 	settings_models "pengi-med-saas/features/settings/models"
 	message_cache "pengi-med-saas/i18n/cache"
 	i18n_middleware "pengi-med-saas/i18n/middleware"
@@ -80,6 +81,11 @@ func main() {
 	staleDraftScheduler := clinical_workers.NewStaleDraftScheduler(DB_CONNECTION, logger.Log)
 	go staleDraftScheduler.Start()
 	logger.Log.Info("stale draft scheduler started")
+
+	// Initialize announcement scheduler (scheduled backoffice announcements)
+	announcementScheduler := notifications_workers.NewAnnouncementScheduler(DB_CONNECTION, logger.Log)
+	go announcementScheduler.Start()
+	logger.Log.Info("announcement scheduler started")
 
 	r := gin.Default()
 

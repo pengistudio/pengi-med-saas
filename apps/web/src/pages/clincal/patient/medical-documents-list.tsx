@@ -188,7 +188,7 @@ export default function MedicalDocumentsListPage() {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
+			<main className="grid items-start gap-4">
 				<Card className="max-w-4xl mx-auto w-full">
 					<CardHeader>
 						<Button

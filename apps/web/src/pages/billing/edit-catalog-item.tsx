@@ -60,7 +60,7 @@ export default function EditCatalogItemPage() {
 
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
+			<main className="grid items-start gap-4">
 				{initialLoading ? (
 					<div className="flex h-[50vh] items-center justify-center">
 						<Loader2 className="h-8 w-8 animate-spin text-primary" />

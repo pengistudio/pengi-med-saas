@@ -16,6 +16,7 @@ import {
 	getPrescriptionTemplateStatus,
 	uploadPrescriptionTemplate,
 } from "@/api/settings-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { Switch } from "@/components/ui/switch";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { cn } from "@/lib/utils";
@@ -132,10 +133,8 @@ const SettingsPage = () => {
 
 	return (
 		<DashboardLayout>
-			<main className="max-w-2xl mx-auto p-4 sm:px-6 sm:py-0 grid gap-8">
-				<h1 className="text-2xl font-semibold">
-					<Text uuid="settings.title" />
-				</h1>
+			<main className="max-w-2xl mx-auto grid gap-8">
+				<PageHeader title={<Text uuid="settings.title" />} />
 
 				{/* Clinical module */}
 				<section className="rounded-lg border bg-card p-6 grid gap-6">

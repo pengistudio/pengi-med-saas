@@ -1957,7 +1957,7 @@
     },
     {
         "key": "dashboard.stat.total_patients",
-        "value": "Total de Pacientes"
+        "value": "Pacientes"
     },
     {
         "key": "dashboard.stat.critical_patients",
@@ -1965,11 +1965,11 @@
     },
     {
         "key": "dashboard.stat.today_appointments",
-        "value": "Citas de Hoy"
+        "value": "Citas de hoy"
     },
     {
         "key": "dashboard.stat.monthly_completed",
-        "value": "Completadas este Mes"
+        "value": "Completadas este mes"
     },
     {
         "key": "dashboard.stat.delta.new_this_month",
@@ -2005,7 +2005,7 @@
     },
     {
         "key": "dashboard.recent_invoices.title",
-        "value": "Facturas Recientes"
+        "value": "Facturas recientes"
     },
     {
         "key": "dashboard.recent_invoices.view_all",
@@ -5590,5 +5590,413 @@
     {
         "key": "clinical.prescription_template.error.invalid",
         "value": "La plantilla no es un HTML válido: revisa las etiquetas {{...}}."
+    },
+    {
+        "key": "notification.announcement",
+        "value": "{{title}}: {{body}}"
+    },
+    {
+        "key": "backoffice.announcement.list.success",
+        "value": "Anuncios obtenidos correctamente."
+    },
+    {
+        "key": "backoffice.announcement.create.success",
+        "value": "Anuncio guardado correctamente."
+    },
+    {
+        "key": "backoffice.announcement.cancel.success",
+        "value": "Anuncio cancelado."
+    },
+    {
+        "key": "E-ANN-001",
+        "value": "Anuncio no encontrado."
+    },
+    {
+        "key": "E-ANN-002",
+        "value": "El destino del anuncio no tiene destinatarios."
+    },
+    {
+        "key": "E-ANN-003",
+        "value": "Solo se pueden cancelar anuncios programados."
+    },
+    {
+        "key": "E-ANN-004",
+        "value": "Error al enviar el anuncio."
+    },
+    {
+        "key": "E-ANN-005",
+        "value": "Datos del anuncio inválidos."
+    },
+    {
+        "key": "backoffice.nav.announcements",
+        "value": "Anuncios"
+    },
+    {
+        "key": "backoffice.announcements.title",
+        "value": "Anuncios"
+    },
+    {
+        "key": "backoffice.announcements.create",
+        "value": "Nuevo anuncio"
+    },
+    {
+        "key": "backoffice.announcements.list.title",
+        "value": "Historial de envíos"
+    },
+    {
+        "key": "backoffice.announcements.list.description",
+        "value": "Notificaciones enviadas o programadas a los usuarios de las clínicas."
+    },
+    {
+        "key": "backoffice.announcements.empty",
+        "value": "Aún no se ha enviado ningún anuncio."
+    },
+    {
+        "key": "backoffice.announcements.col.title",
+        "value": "Título"
+    },
+    {
+        "key": "backoffice.announcements.col.title.placeholder",
+        "value": "Ej. Mantenimiento programado"
+    },
+    {
+        "key": "backoffice.announcements.col.body",
+        "value": "Mensaje"
+    },
+    {
+        "key": "backoffice.announcements.col.body.placeholder",
+        "value": "Texto que verán los usuarios en sus notificaciones"
+    },
+    {
+        "key": "backoffice.announcements.col.target",
+        "value": "Destino"
+    },
+    {
+        "key": "backoffice.announcements.col.scope",
+        "value": "Enviar a"
+    },
+    {
+        "key": "backoffice.announcements.col.company",
+        "value": "Empresa"
+    },
+    {
+        "key": "backoffice.announcements.col.company.placeholder",
+        "value": "Selecciona una empresa"
+    },
+    {
+        "key": "backoffice.announcements.col.user",
+        "value": "Usuario"
+    },
+    {
+        "key": "backoffice.announcements.col.user.placeholder",
+        "value": "Selecciona un usuario"
+    },
+    {
+        "key": "backoffice.announcements.col.level",
+        "value": "Nivel"
+    },
+    {
+        "key": "backoffice.announcements.col.status",
+        "value": "Estado"
+    },
+    {
+        "key": "backoffice.announcements.col.date",
+        "value": "Fecha"
+    },
+    {
+        "key": "backoffice.announcements.col.recipients",
+        "value": "Destinatarios"
+    },
+    {
+        "key": "backoffice.announcements.col.action_url",
+        "value": "Enlace"
+    },
+    {
+        "key": "backoffice.announcements.col.action_url.description",
+        "value": "Ruta de la app (/billing) o enlace https:// que se abre al hacer clic."
+    },
+    {
+        "key": "backoffice.announcements.col.scheduled_at",
+        "value": "Programar envío"
+    },
+    {
+        "key": "backoffice.announcements.col.scheduled_at.description",
+        "value": "Déjalo vacío para enviarlo ahora. Se envía a los usuarios que existan en ese momento."
+    },
+    {
+        "key": "backoffice.announcements.scope.global",
+        "value": "Todos"
+    },
+    {
+        "key": "backoffice.announcements.scope.company",
+        "value": "Una empresa"
+    },
+    {
+        "key": "backoffice.announcements.scope.user",
+        "value": "Un usuario"
+    },
+    {
+        "key": "backoffice.announcements.level.info",
+        "value": "Informativo"
+    },
+    {
+        "key": "backoffice.announcements.level.success",
+        "value": "Éxito"
+    },
+    {
+        "key": "backoffice.announcements.level.warning",
+        "value": "Advertencia"
+    },
+    {
+        "key": "backoffice.announcements.level.critical",
+        "value": "Crítico"
+    },
+    {
+        "key": "backoffice.announcements.status.scheduled",
+        "value": "Programado"
+    },
+    {
+        "key": "backoffice.announcements.status.sent",
+        "value": "Enviado"
+    },
+    {
+        "key": "backoffice.announcements.status.cancelled",
+        "value": "Cancelado"
+    },
+    {
+        "key": "backoffice.announcements.status.failed",
+        "value": "Fallido"
+    },
+    {
+        "key": "backoffice.announcements.cancel",
+        "value": "Cancelar envío"
+    },
+    {
+        "key": "backoffice.announcements.cancel.title",
+        "value": "¿Cancelar este anuncio?"
+    },
+    {
+        "key": "backoffice.announcements.cancel.description",
+        "value": "No se enviará a nadie:"
+    },
+    {
+        "key": "backoffice.announcements.create.title",
+        "value": "Nuevo anuncio"
+    },
+    {
+        "key": "backoffice.announcements.create.description",
+        "value": "Envía una notificación a todos los usuarios, a una empresa o a un usuario."
+    },
+    {
+        "key": "backoffice.announcements.create.submit",
+        "value": "Enviar"
+    },
+    {
+        "key": "backoffice.announcements.validation.action_url",
+        "value": "Debe ser una ruta que empiece con / o un enlace https://"
+    },
+    {
+        "key": "backoffice.announcements.validation.scheduled_future",
+        "value": "La fecha debe estar en el futuro"
+    },
+    {
+        "key": "backoffice.announcements.validation.company_required",
+        "value": "Selecciona una empresa"
+    },
+    {
+        "key": "backoffice.announcements.validation.user_required",
+        "value": "Selecciona un usuario"
+    },
+    {
+        "key": "notification.page.description",
+        "value": "Avisos del sistema y anuncios del equipo de Pengi."
+    },
+    {
+        "key": "billing.invoice.page.description",
+        "value": "Emite, procesa en el SRI y consulta tus facturas electrónicas."
+    },
+    {
+        "key": "billing.credit_note.page.description",
+        "value": "Notas de crédito emitidas sobre tus facturas."
+    },
+    {
+        "key": "billing.debit_note.page.description",
+        "value": "Notas de débito emitidas sobre tus facturas."
+    },
+    {
+        "key": "billing.catalog-item.page.description",
+        "value": "Productos y servicios que usas al facturar."
+    },
+    {
+        "key": "clinical.patient.page.description",
+        "value": "Busca pacientes y accede a su historia clínica."
+    },
+    {
+        "key": "dashboard.greeting.morning",
+        "value": "Buenos días, {name}"
+    },
+    {
+        "key": "dashboard.greeting.afternoon",
+        "value": "Buenas tardes, {name}"
+    },
+    {
+        "key": "dashboard.greeting.evening",
+        "value": "Buenas noches, {name}"
+    },
+    {
+        "key": "dashboard.actions.new_patient",
+        "value": "Nuevo paciente"
+    },
+    {
+        "key": "dashboard.actions.new_invoice",
+        "value": "Nueva factura"
+    },
+    {
+        "key": "dashboard.attention.title",
+        "value": "Requiere atención"
+    },
+    {
+        "key": "dashboard.attention.none",
+        "value": "Todo al día: no hay pacientes críticos, historias sin terminar ni facturas rechazadas."
+    },
+    {
+        "key": "dashboard.attention.critical.one",
+        "value": "{count} paciente crítico"
+    },
+    {
+        "key": "dashboard.attention.critical.other",
+        "value": "{count} pacientes críticos"
+    },
+    {
+        "key": "dashboard.attention.critical.view_all",
+        "value": "Ver todos los pacientes"
+    },
+    {
+        "key": "dashboard.attention.drafts.one",
+        "value": "{count} historia sin terminar"
+    },
+    {
+        "key": "dashboard.attention.drafts.other",
+        "value": "{count} historias sin terminar"
+    },
+    {
+        "key": "dashboard.attention.invoices.one",
+        "value": "{count} factura rechazada"
+    },
+    {
+        "key": "dashboard.attention.invoices.other",
+        "value": "{count} facturas rechazadas"
+    },
+    {
+        "key": "dashboard.attention.plan.one",
+        "value": "Tu plan vence mañana"
+    },
+    {
+        "key": "dashboard.attention.plan.other",
+        "value": "Tu plan vence en {count} días"
+    },
+    {
+        "key": "dashboard.attention.plan.expired",
+        "value": "Tu plan venció"
+    },
+    {
+        "key": "dashboard.agenda.title",
+        "value": "Agenda de hoy"
+    },
+    {
+        "key": "dashboard.agenda.summary.one",
+        "value": "{count} cita, {attended} atendida"
+    },
+    {
+        "key": "dashboard.agenda.summary.other",
+        "value": "{count} citas, {attended} atendidas"
+    },
+    {
+        "key": "dashboard.agenda.now",
+        "value": "Ahora"
+    },
+    {
+        "key": "dashboard.agenda.open_calendar",
+        "value": "Abrir calendario"
+    },
+    {
+        "key": "dashboard.agenda.empty",
+        "value": "No tienes citas hoy"
+    },
+    {
+        "key": "dashboard.agenda.empty_hint",
+        "value": "Las citas que agendes para hoy aparecerán aquí en orden de hora."
+    },
+    {
+        "key": "dashboard.agenda.start",
+        "value": "Iniciar consulta"
+    },
+    {
+        "key": "dashboard.week.title",
+        "value": "Esta semana"
+    },
+    {
+        "key": "dashboard.week.total.one",
+        "value": "{count} cita agendada"
+    },
+    {
+        "key": "dashboard.week.total.other",
+        "value": "{count} citas agendadas"
+    },
+    {
+        "key": "dashboard.subscription.manage",
+        "value": "Gestionar plan"
+    },
+    {
+        "key": "dashboard.tasks.title",
+        "value": "Tareas pendientes"
+    },
+    {
+        "key": "dashboard.tasks.total.one",
+        "value": "{count} tarea sin terminar"
+    },
+    {
+        "key": "dashboard.tasks.total.other",
+        "value": "{count} tareas sin terminar"
+    },
+    {
+        "key": "dashboard.tasks.open_board",
+        "value": "Abrir tablero"
+    },
+    {
+        "key": "dashboard.tasks.empty",
+        "value": "No hay tareas pendientes."
+    },
+    {
+        "key": "dashboard.tasks.complete",
+        "value": "Marcar como hecha"
+    },
+    {
+        "key": "dashboard.tasks.due.overdue",
+        "value": "Venció hace {count} d"
+    },
+    {
+        "key": "dashboard.tasks.due.today",
+        "value": "Vence hoy"
+    },
+    {
+        "key": "dashboard.tasks.due.tomorrow",
+        "value": "Vence mañana"
+    },
+    {
+        "key": "dashboard.tasks.due.in_days",
+        "value": "En {count} días"
+    },
+    {
+        "key": "table.selection.count.one",
+        "value": "{count} seleccionado"
+    },
+    {
+        "key": "table.selection.count.other",
+        "value": "{count} seleccionados"
+    },
+    {
+        "key": "table.selection.clear",
+        "value": "Quitar selección"
     }
 ]

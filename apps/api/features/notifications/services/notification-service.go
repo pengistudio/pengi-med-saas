@@ -55,6 +55,7 @@ func CreateIfNotExists(db *gorm.DB, logger *zap.Logger, input CreateNotification
 		MessageKey:   input.MessageKey,
 		Params:       params,
 		ActionURL:    input.ActionURL,
+		Level:        notifications_models.NotificationLevelInfo,
 	}
 
 	if err := tenantdb.ForTenant(db, input.TenantID).Create(&notification).Error; err != nil {

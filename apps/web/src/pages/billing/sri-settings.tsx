@@ -9,6 +9,7 @@ import {
 import { CheckCircle2, Info, Loader2, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getSriStatus, type SriStatus } from "@/api/tenant-service";
+import { PageHeader } from "@/components/custom/page-header";
 import { LogoUploadForm } from "@/sections/forms/billing/logo-upload-form";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
@@ -32,12 +33,8 @@ const SriSettingsPage = () => {
 	}, [fetchStatus]);
 	return (
 		<DashboardLayout>
-			<main className="grid items-start gap-4 p-4 sm:px-6 sm:py-0">
-				<div className="flex items-center">
-					<h1 className="text-2xl font-semibold tracking-tight">
-						<Text uuid="billing.sri.settings.title" />
-					</h1>
-				</div>
+			<main className="grid items-start gap-4">
+				<PageHeader title={<Text uuid="billing.sri.settings.title" />} />
 				{loading ? (
 					<Card className="flex items-center justify-center p-8">
 						<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
