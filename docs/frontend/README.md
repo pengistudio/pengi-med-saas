@@ -1,56 +1,36 @@
 # Frontend Development Guide
 
-Guías de desarrollo para el frontend SaaS (`apps/web` y `apps/backoffice`).
+Guías de desarrollo para el frontend SaaS (`apps/web`). El panel de
+administración (`apps/backoffice`) tiene sus propias guías en
+[`../backoffice/`](../backoffice/README.md).
 
 ## 📚 Documentación
 
-### 🎯 Complete Guide (Recommended)
-**👉 [Web Frontend — Complete Guide](../skills/web-frontend-complete-guide.md)**
-
-Guía consolidada que cubre:
-- Stack: React 19 + TypeScript + Vite + TailwindCSS + Zustand
-- Estructura de directorios y patrones clave
-- Axios instances (cuál usar cuándo)
-- Service layer pattern (NUNCA API directo)
-- Types pattern (extends BaseModel, payloads)
-- Zustand state management (cuándo crear, patrones)
-- i18n pattern (useText hook)
-- Paso a paso: implementar un feature nuevo
-
-### Form Creation
-- **[Form Creation Standard](../skills/form-creation-standard.md)** — Estándar para formularios
-  - Schema con Zod
-  - Form components (Input, Select, TextArea)
-  - Validación y binding
-  - i18n integration
-  - Ejemplos por tipo
-
-## 🚀 Quick Start
-
-1. Lee [Web Frontend — Complete Guide](../skills/web-frontend-complete-guide.md) — cubre todo
-2. Para crear formularios: [Form Creation Standard](../skills/form-creation-standard.md)
-
-## 📂 Related
-- Frontend source: `apps/web/`
-- Backoffice source: `apps/backoffice/`
-- Backend guide: [../backend/README.md](../backend/README.md)
-- Main docs: [../README.md](../README.md)
+- **[Web Frontend — Complete Guide](../skills/web-frontend-complete-guide.md)** —
+  estructura, instancias axios, service layer, tipos, Zustand, i18n, listados
+  con `DataTable`, rutas y navegación, paso a paso.
+- **[Form Creation Standard](../skills/form-creation-standard.md)** — Zod +
+  `Form` y componentes `Form*` de `@pengi/ui`.
+- **Feature de punta a punta** (backend + permisos + plan + frontend + tests):
+  skill `create-feature` (`.claude/skills/create-feature/`).
+- **Código compartido entre apps:** [`packages/shared/README.md`](../../packages/shared/README.md)
+  (`@pengi/shared`, no visual) y `packages/ui` (`@pengi/ui`, visual).
 
 ## 🔑 Key Concepts
 
 ### API Requests
-Nunca uses axios directamente en componentes — usa servicios.
+Siempre a través de un servicio en `src/api/<domain>-service.ts`:
 
 ```typescript
-// ❌ NUNCA:
-const res = await apiWithTenant.get("/patients");
+// ❌
+const res = await apiWithTenant.get("/clinical/patients");
 
-// ✅ SIEMPRE:
+// ✅
 const res = await getPatients();
 ```
 
 ### i18n
-Todas las strings visibles van a través de `useText()`:
+Todas las strings visibles pasan por `useText()` de `@pengi/shared`:
 
 ```typescript
 const { textGet } = useText();
@@ -58,58 +38,62 @@ const { textGet } = useText();
 ```
 
 ### State Management
-Usa Zustand para estado compartido entre componentes:
-
-```typescript
-const { selectedItem, setSelectedItem } = useStore();
-```
+Zustand solo para estado compartido entre componentes (`src/store/`); estado
+local con `useState`.
 
 ### Permissions
-Protege rutas y componentes con `CheckPermission`:
+Rutas y acciones se protegen con los permisos **del rol**:
 
 ```typescript
+import CheckPermission from "@/components/custom/check-permission";
+
 <CheckPermission permissions={[PERMISSIONS.TEAM.PERMISSION_READ_TEAM]}>
-    <TeamContent />
+    <TeamPage />
 </CheckPermission>
+
+const { checkPermission } = usePermission();
 ```
 
-### Features Habilitados
-El frontend filtra automáticamente nav items según:
-- Permisos del usuario
-- Features habilitados en el plan
+### Features habilitados
+El sidebar oculta ítems según `permission` (rol) y `feature` (flags que el
+backend calcula desde el plan). Ver
+[`../backend/permissions-system.md`](../backend/permissions-system.md).
 
-## 📋 Stack Versions
+## 📋 Stack
 
-- React 19
-- Vite 5
-- TailwindCSS 4
-- shadcn/ui (latest)
-- Zustand 4
-- Axios (latest)
-- React Router 6
-- TypeScript 5
+React 19, TypeScript, Vite, TailwindCSS v4, componentes sobre Base UI
+(`@base-ui/react`, estilo shadcn) en `@pengi/ui`, Zustand, React Router,
+React Hook Form + Zod, TanStack Table, Vitest, Playwright. Las versiones viven
+en el `catalog` de `pnpm-workspace.yaml`.
 
 ## 🛠️ Common Patterns
 
 | Situación | Dónde copiarlo |
 |-----------|---|
-| Crear un servicio de API | `api/clinical-service.ts` |
-| Crear un componente form | `pages/clinical/components/patient-form.tsx` |
-| Crear un store | `store/billing-store.ts` |
-| Crear una página | `pages/team/page.tsx` |
-| Usar permisos | `pages/billing/page.tsx` |
+| Servicio + tipos de API | `src/api/billing-service.ts` |
+| Listado con tabla | `src/pages/billing/catalog-item-list.tsx` + `src/sections/columns/billing/catalog-item-columns.tsx` |
+| Formulario crear/editar | `src/sections/forms/billing/catalog-item-form.tsx` |
+| Páginas crear/editar | `src/pages/billing/create-catalog-item.tsx`, `edit-catalog-item.tsx` |
+| Diálogo de edición rápida | `src/components/features/patient/edit-prescription-dialog.tsx` |
+| Store | `src/store/kanban-store.ts` (sin persistencia), `src/store/billing-store.ts` (sessionStorage) |
+| Acciones según permiso | `src/pages/billing/catalog-item-list.tsx` (`usePermission`) |
+| Test de componente | `src/__tests__/kanban-settings.test.tsx` |
+
+## ⚡ Comandos
+
+```bash
+cd apps/web
+pnpm run dev          # Vite
+pnpm run typecheck    # tsc
+pnpm run test:run     # Vitest
+pnpm exec playwright test   # e2e (stack arriba), o `just tests-e2e`
+just check            # Biome desde la raíz
+```
 
 ## 📞 Debugging
 
-- **DevTools**: Redux DevTools para inspeccionar Zustand stores
-- **Network**: Inspecciona requests/responses en Network tab
-- **Console**: Busca errores de API o TypeScript
-- **React DevTools**: Inspecciona componentes y props
-
-## 📖 More Info
-
-- [TailwindCSS Docs](https://tailwindcss.com)
-- [shadcn/ui Components](https://ui.shadcn.com)
-- [Zustand Docs](https://github.com/pmndrs/zustand)
-- [React Router](https://reactrouter.com)
-- [Vite Docs](https://vitejs.dev)
+- **i18n:** una key que aparece como `*key*` recién agregada suele ser la
+  caché: `localStorage.removeItem("messages")` y recarga.
+- **403 al llamar un endpoint con el permiso del rol:** el plan no lo incluye
+  (ver `permissions-system.md`).
+- **Network / React DevTools** para requests y props.

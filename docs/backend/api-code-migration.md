@@ -56,7 +56,33 @@ func init() {
 }
 ```
 
-**Convención de ID:** `DB` + `YYYYMMDD` + `_` + número secuencial del día. Ej: `DB20260409_1`, `DB20260409_2`.
+**Convención de ID:** `DB` + `YYYYMMDD` + `_` + número secuencial del día. Ej: `DB20260409_1`, `DB20260409_2`. Antes de elegir uno, revisa los ya usados:
+
+```bash
+grep -rho 'GlobalDBMap\["[^"]*"\]' apps/api/migrations/code-migrations/2026/*.go | sort | tail -5
+```
+
+---
+
+## Cómo se ejecutan
+
+- `RunAllMigrations` (en cada arranque de la API) llama a `RunMigrations`, que
+  hace `AutoMigrate` y luego `database.ExecuteAll`.
+- `ExecuteAll` lee la tabla de migraciones ejecutadas y corre, **en una sola
+  transacción**, las que falten, ordenadas por fecha e índice del ID. Si una
+  falla, no se registra ninguna y la API no arranca.
+- El `db` que recibe `Execute` ya es `tenantdb.System(db)`: las consultas no se
+  filtran por tenant, así que la migración ve y modifica datos de todos los
+  tenants.
+- En dev (`air`), guardar el archivo recompila y ejecuta la migración nueva;
+  confirma con `docker logs pengi-api | grep <ID>`.
+- **Orden entre años:** `database.ParseFileName` interpreta la fecha del ID
+  como `DDMMYYYY`, no `YYYYMMDD`. Dentro de 2026 el orden resultante es
+  correcto, pero un ID de 2027 se ordenaría antes que los de fines de 2026.
+  Si una migración de 2027 depende de otra anterior, arregla primero
+  `ParseFileName`.
+- Sufijos no numéricos (`DB20260315_CIE10_SEED`) se ordenan como índice 0 de su
+  fecha.
 
 ---
 
@@ -101,27 +127,27 @@ Execute: func(db *gorm.DB) error {
         return fmt.Errorf("failed to find admin role: %w", err)
     }
 
-    permissions := []permission_models.Permission{
-        {BaseStringID: "CREATE_RESOURCE", Name: "Crear recurso"},
-        {BaseStringID: "READ_RESOURCE", Name: "Leer recurso"},
-        {BaseStringID: "UPDATE_RESOURCE", Name: "Actualizar recurso"},
-        {BaseStringID: "DELETE_RESOURCE", Name: "Eliminar recurso"},
-    }
-
-    for _, perm := range permissions {
+    // El catálogo vive en features/permissions/data/permission-data.go
+    for _, perm := range permission_data.ResourcePermissions {
         if err := db.Where(permission_models.Permission{BaseStringID: perm.BaseStringID}).FirstOrCreate(&perm).Error; err != nil {
-            return fmt.Errorf("failed to create permission '%s': %w", perm.BaseStringID, err)
+            return fmt.Errorf("failed to create permission '%s': %w", perm.ID, err)
         }
-        fmt.Printf("✅ Permission '%s' created/found.\n", perm.BaseStringID)
+        fmt.Printf("✅ Permission '%s' created/found.\n", perm.ID)
 
         if err := db.Model(&adminRole).Association("Permissions").Append(&perm); err != nil {
-            return fmt.Errorf("failed to assign permission '%s': %w", perm.BaseStringID, err)
+            return fmt.Errorf("failed to assign permission '%s': %w", perm.ID, err)
         }
-        fmt.Printf("✅ Assigned permission '%s' to admin role.\n", perm.BaseStringID)
+        fmt.Printf("✅ Assigned permission '%s' to admin role.\n", perm.ID)
     }
     return nil
 },
 ```
+
+Cada entrada del catálogo es
+`{BaseStringID: database.BaseStringID{ID: "CREATE_RESOURCE"}, Name: "...", Category: "...", Description: "..."}`.
+Ejemplo real: `add_kanban_permissions.go`. Los roles no-admin (doctor,
+recepcionista, contador) y la asociación a un `Feature` del plan son pasos
+aparte: ver [`permissions-system.md`](permissions-system.md).
 
 ### Actualización de datos existentes
 
@@ -146,7 +172,7 @@ Si el feature tiene un modelo nuevo, **también** hay que agregarlo en `migratio
 ```go
 import [dominio]_models "pengi-med-saas/features/[dominio]/models"
 
-// Dentro de RunMigrations, en database.MigrateDB():
+// Dentro de RunMigrations, en la lista de database.MigrateDB():
 [dominio]_models.[Nombre]{},
 ```
 

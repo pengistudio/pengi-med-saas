@@ -11,9 +11,7 @@ solo el archivo que el paso nombra.
 
 Copia de un **dominio canónico**: **kanban** (backend y rutas, el más limpio)
 y el catálogo de **billing** (`catalog-item`, el frontend CRUD más completo).
-Algunas docs de `docs/` siguen enseñando patrones abandonados; cuando
-contradigan al código, gana el código
-([`references/docs-desactualizadas.md`](references/docs-desactualizadas.md)).
+Si una doc de `docs/` contradice al código, gana el código.
 
 ## 0. Mapa y decisión de gating
 

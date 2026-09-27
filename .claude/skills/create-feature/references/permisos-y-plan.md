@@ -1,7 +1,6 @@
 # Permisos, plan y flag de navegación
 
-Contexto completo del sistema: `docs/backend/permissions-system.md` (ojo: usa el
-alias `permission_middleware`, el real es `subscription_middleware`).
+Contexto completo del sistema: `docs/backend/permissions-system.md`.
 
 ## Las tres decisiones de gating
 

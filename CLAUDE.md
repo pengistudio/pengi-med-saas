@@ -23,7 +23,18 @@ cd apps/web
 pnpm run dev                      # Dev server (port 5173)
 pnpm run build                    # Production build (tsc + vite)
 pnpm run lint                     # ESLint
+pnpm run typecheck                # tsc (the pre-commit hook runs this)
+pnpm run test:run                 # Vitest
 ```
+
+### Tests
+```bash
+just tests-api                     # go test ./... inside the api container (stack must be up)
+just tests-web                     # Vitest for apps/web
+just tests-e2e                     # Playwright (apps/web/e2e), stack must be up
+```
+
+CI (`.github/workflows/ci-biome.yml`) also runs `go vet`/`go test`/`go build` and typecheck + tests for `apps/backoffice` and `packages/shared`.
 
 ### Code quality (root — applies to all TS/JS)
 ```bash
@@ -38,7 +49,7 @@ just setup                         # Configure git hooks (run once after cloning
 
 ### Infrastructure dependencies (for local backend dev without Docker)
 ```bash
-docker compose -f docker-compose.dev.yaml up pengi-db-dev pengi-rabbitmq-dev gotenberg sri-xml-signer -d
+docker compose -f docker-compose.dev.yaml up -d db rabbitmq gotenberg sri-xml-signer
 ```
 
 ---
@@ -50,10 +61,10 @@ docker compose -f docker-compose.dev.yaml up pengi-db-dev pengi-rabbitmq-dev got
 - [`web-frontend-complete-guide.md`](docs/skills/web-frontend-complete-guide.md) — Frontend architecture + patterns + how-to
 - [`form-creation-standard.md`](docs/skills/form-creation-standard.md) — Standard for creating forms (Zod + Form components)
 
-When implementing a feature:
-1. Read the complete guide for your stack (API or Web)
-2. Follow the "Paso a paso" (step-by-step) section
-3. Use the checklist at the end
+When creating or extending a feature end to end, use the `create-feature` skill
+(`.claude/skills/create-feature/`): ordered steps with completion criteria,
+covering permissions, plan gating, migrations, i18n, frontend and tests. The
+guides above are the architecture reference it builds on.
 
 ---
 
@@ -85,9 +96,9 @@ Every handler **must** return `envelope.Response`, never write directly to `gin.
 ```go
 // Handler definition
 func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
-    tenantScope := tenant_middleware.TenantScope(c)
+    db := tenantdb.For(c, h.db)
     var invoices []billing_models.Invoice
-    if err := h.db.Scopes(tenantScope).Find(&invoices).Error; err != nil {
+    if err := db.Find(&invoices).Error; err != nil {
         h.logger.Error("failed to fetch invoices", zap.Error(err))
         return envelope.ErrorResponse(http.StatusInternalServerError, "...", core_errors.ErrInternal)
     }
@@ -95,7 +106,7 @@ func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 }
 
 // Route registration
-billingGroup.GET("/invoices", envelope.Handle(invoiceHandler.GetAllInvoices))
+billingGroup.GET("/invoices", rp(db, "READ_BILLING"), envelope.Handle(invoiceHandler.GetAllInvoices))
 ```
 
 The second argument to `SuccessResponse`/`ErrorResponse` is always an **i18n key** (never a hardcoded string). Keys live in `apps/api/i18n/messages/messages_es.json` and `messages_en.json`.
@@ -117,40 +128,63 @@ Handlers are instantiated in `apps/api/routes/` and injected with `db` + `logger
 
 ### Multi-tenancy — CRITICAL
 
-Every DB query that touches tenant data **must** apply the GORM scope:
+Tenant isolation lives in the data layer (`core/tenantdb`, see
+`docs/adr/0002-aislamiento-por-tenant-en-la-capa-de-datos.md`). A GORM plugin
+filters every statement by `tenant_id` and stamps `TenantID` on create — but
+only on a handle bound to a tenant:
 
 ```go
-tenantScope := tenant_middleware.TenantScope(c)
-h.db.Scopes(tenantScope).Find(&records)
+db := tenantdb.For(c, h.db)          // in a handler: bound to the request's tenant
+db.Find(&records)                    // filtered to that tenant
+db.First(&record, c.Param("id"))     // another tenant's row → not found
 ```
 
-**Never query without the scope.** The scope is populated by `TenantMiddleware(db)`, which reads the `X-Tenant-Slug` header from the request context.
+| Context | Handle |
+|---|---|
+| HTTP handler | `tenantdb.For(c, h.db)` |
+| Background work on one tenant | `tenantdb.ForTenant(db, tenantID)` |
+| Work across all tenants (workers, migrations, backoffice) | `tenantdb.System(db)` |
 
-Every model has `TenantID uint`. When creating records, always set it:
+`TenantMiddleware(db)` resolves the tenant from the `X-Tenant-Slug` header;
+`tenantdb.TenantID(c)` returns it. `TENANTDB_MODE` (`permissive` / `warn`
+default / `strict`) controls what happens to a query on a tenant table without
+a bound handle — in `strict` it fails. `tenant_middleware.TenantScope` is
+legacy; don't use it in new code.
+
+Every tenant model has `TenantID uint`. When creating records, set it:
 
 ```go
-tenantID, _ := c.Get("tenant_id")
-item := &models.Item{TenantID: tenantID.(uint), ...}
+item := &models.Item{TenantID: tenantdb.TenantID(c), ...}
 ```
+
+### Permissions
+
+Routes are gated per endpoint with `subscription_middleware.RequirePermission(db, "READ_X")`
+(role **and** subscription plan must include the permission) or
+`RequireRolePermission` (role only). Permission IDs live in
+`features/permissions/data/permission-data.go` and are mirrored byte-for-byte in
+`apps/web/src/lib/constants.ts` → `PERMISSIONS`. See `docs/backend/permissions-system.md`.
 
 ### Error codes
 
-Centralized in `apps/api/core/errors/codes.go`. Format: `E-{DOMAIN}-{N}`. Always use existing codes or add new ones there — never pass raw strings as error codes.
+Centralized in `apps/api/core/errors/codes.go`. Format: `E-{DOMAIN}-{NNN}`. Always use existing codes or add new ones there — never pass raw strings as error codes. `envelope.Handle` translates the code too, so every code needs an i18n key (`{"key": "E-X-001", ...}`) in both message files.
 
 ### Feature structure
 
 ```
 features/[domain]/
-  handlers/     # One file per resource (e.g. invoice-handler.go)
+  handlers/     # One file per resource (e.g. invoice-handler.go) + *_test.go
   models/       # GORM models
   dto/          # Request/response DTOs
-  workers/      # Background consumers (billing only)
+  services/     # Optional: logic shared across handlers
+  workers/      # Optional: schedulers / consumers, started in cmd/main.go
+  templates/    # Optional: default PDF templates + embed.go
   middleware/   # Feature-specific middleware (tenants, users)
 ```
 
 ### i18n Messages
 
-All user-facing strings are stored in `apps/api/i18n/messages/`:
+All user-facing strings are stored in `apps/api/i18n/messages/` (flat array of `{"key", "value"}`):
 - `messages_es.json` — Spanish
 - `messages_en.json` — English
 
@@ -223,7 +257,7 @@ Exception: pure UI validation toasts (e.g. "no patient selected") that are not t
 
 ### Types from DB
 
-All interfaces that mirror backend models extend `BaseModel` and use `snake_case` keys:
+Types live next to their service in `src/api/<domain>-service.ts`. Interfaces that mirror a backend model with `gorm.Model` extend `BaseModel` (from `@pengi/shared`); field names are the Go model's `json` tags (mostly `snake_case`):
 
 ```typescript
 export interface Invoice extends BaseModel {   // BaseModel has ID, CreatedAt, UpdatedAt, DeletedAt
@@ -246,7 +280,7 @@ const label = textGet("billing.invoice.title");
 
 Never hardcode user-visible strings. Every label, placeholder, and message must be an i18n key. Add new keys to **both** `apps/api/i18n/messages/messages_es.json` and `messages_en.json`.
 
-Keys are sourced from backend JSON and seeded into the database on startup.
+Keys are sourced from backend JSON and seeded into the database on startup. The browser caches them in `localStorage["messages"]` and only refetches when `__APP_VERSION__` (Vite start) or the language changes — after adding keys, run `localStorage.removeItem("messages")` and reload before assuming a key is missing.
 
 ### State management
 
@@ -272,11 +306,11 @@ export const useItemStore = create<ItemStore>((set) => ({
 
 ### Routing & permissions
 
-Routes are defined in `src/routes/routes.tsx` and wrapped with `<CheckPermission permissions={[...]} />`. Permission constants are in `src/lib/constants.ts` under `PERMISSIONS`.
+Routes are defined in `src/routes/routes.tsx`: pages are `lazy()` imports, wrapped with `<CheckPermission permissions={[...]} />` (default export of `@/components/custom/check-permission`; requires all listed permissions). Permission constants are in `src/lib/constants.ts` under `PERMISSIONS`.
 
-Navigation items are managed in `src/config/nav-config.ts`. Each item can be filtered by:
-- `feature` — Feature flag from backend (disabled items hide automatically)
+Navigation items are managed in `src/config/nav-config.ts`. Top-level items can be filtered by:
 - `permission` — RBAC permission requirement
+- `feature` — key of `EnabledFeatures` (`clinical`, `billing`, `team`, `kanban`). The backend computes it from the permission `Category`s in the tenant's plan (`features/companies/services/enabled-features-service.go`); the item hides only when the flag is `false`. It hides the nav item only — the backend `RequirePermission` is what protects data.
 
 ---
 
@@ -296,13 +330,13 @@ Frontend env: Vite reads `VITE_API_URL` (defaults to `http://localhost:8000/api/
 
 ## Important Patterns to Remember
 
-### 1. Never Query Without TenantScope (Backend)
+### 1. Query Tenant Data Through `tenantdb` (Backend)
 ```go
-// ❌ WRONG
+// ❌ WRONG — unbound handle, sees every tenant
 h.db.Find(&items)
 
 // ✅ CORRECT
-h.db.Scopes(tenant_middleware.TenantScope(c)).Find(&items)
+tenantdb.For(c, h.db).Find(&items)
 ```
 
 ### 2. Never Call API Directly (Frontend)

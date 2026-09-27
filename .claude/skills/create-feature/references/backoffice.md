@@ -25,6 +25,5 @@ API va detrás de `backofficeAuth`. Salta los pasos 2 y 6 de la receta.
   `Form*` de `@pengi/ui`.
 - Tests al lado del código (`*.test.tsx`), `pnpm test:run` en `apps/backoffice`.
 
-`docs/backoffice/*.md` describe carpetas (`store/`, `types/`, `pages/*/list.tsx`)
-que ya no existen; el código de `pages/features` y `pages/plans` es la referencia.
+Paso a paso con código completo: `docs/backoffice/backoffice-new-admin-feature.md`.
 Ejemplo reciente de punta a punta: commit f393d80 (anuncios, con scheduler).

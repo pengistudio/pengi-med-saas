@@ -61,8 +61,7 @@ handles obtenidos así:
 
 `tenantdb.TenantID(c)` da el tenant de la request. `TENANTDB_MODE`
 (`permissive` / `warn` por defecto / `strict`) decide qué pasa con una query
-sin handle: en `strict` falla. `tenant_middleware.TenantScope` es legado —
-CLAUDE.md todavía lo muestra.
+sin handle: en `strict` falla. `tenant_middleware.TenantScope` es legado.
 
 `tenantdb.For` también lleva los metadatos de auditoría: los modelos que
 implementan `IsAuditable() bool` quedan auditados en create/update/delete
@@ -139,8 +138,7 @@ Evita duplicar keys existentes (`grep` antes de agregar).
   archivo y key nuevos.
 - Idempotente (`FirstOrCreate`, `Association().Append`), errores con
   `fmt.Errorf("...: %w", err)`, progreso con `fmt.Printf("✅ ...")`.
-- Reglas completas: `docs/backend/api-code-migration.md` (su ejemplo de
-  `BaseStringID: "X"` es incorrecto: es un struct, `database.BaseStringID{ID: "X"}`).
+- Reglas completas y orden de ejecución: `docs/backend/api-code-migration.md`.
 
 ## Segundo plano
 
