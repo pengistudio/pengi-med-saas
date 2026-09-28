@@ -71,7 +71,7 @@ func (h *CatalogItemHandler) CreateCatalogItem(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create catalog item", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(item, "billing.catalog_item.create.success")
+	return envelope.SuccessResponse(item, "billing.catalog-item.create.success")
 }
 
 func (h *CatalogItemHandler) GetAllCatalogItems(c *gin.Context) envelope.Response {
@@ -106,7 +106,7 @@ func (h *CatalogItemHandler) GetAllCatalogItems(c *gin.Context) envelope.Respons
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to fetch catalog items", core_errors.ErrInternal)
 	}
 
-	return envelope.PagedSuccessResponse(items, int(total), page, limit, "billing.catalog_items.fetch.success")
+	return envelope.PagedSuccessResponse(items, int(total), page, limit, "billing.catalog-items.fetch.success")
 }
 
 func (h *CatalogItemHandler) GetCatalogItemByID(c *gin.Context) envelope.Response {
@@ -121,7 +121,7 @@ func (h *CatalogItemHandler) GetCatalogItemByID(c *gin.Context) envelope.Respons
 		return envelope.ErrorResponse(http.StatusNotFound, "Catalog item not found", core_errors.ErrBillingProductNotFound)
 	}
 
-	return envelope.SuccessResponse(item, "billing.catalog_item.fetch.success")
+	return envelope.SuccessResponse(item, "billing.catalog-item.fetch.success")
 }
 
 func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response {
@@ -178,7 +178,7 @@ func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update catalog item", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(item, "billing.catalog_item.update.success")
+	return envelope.SuccessResponse(item, "billing.catalog-item.update.success")
 }
 
 func (h *CatalogItemHandler) DeleteCatalogItem(c *gin.Context) envelope.Response {
@@ -198,5 +198,5 @@ func (h *CatalogItemHandler) DeleteCatalogItem(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to delete catalog item", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(item, "billing.catalog_item.delete.success")
+	return envelope.SuccessResponse(item, "billing.catalog-item.delete.success")
 }

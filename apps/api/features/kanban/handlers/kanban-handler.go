@@ -100,7 +100,7 @@ func (h *KanbanHandler) GetTasks(c *gin.Context) envelope.Response {
 func (h *KanbanHandler) CreateTask(c *gin.Context) envelope.Response {
 	var req kanban_dto.CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.request", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.request", core_errors.ErrInvalidRequest)
 	}
 
 	db := tenantdb.For(c, h.db)
@@ -122,7 +122,7 @@ func (h *KanbanHandler) CreateTask(c *gin.Context) envelope.Response {
 
 	dueDate, err := parseDateString(req.DueDate)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.due_date", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.due_date", core_errors.ErrInvalidRequest)
 	}
 
 	// Get creator name from authenticated user if not provided
@@ -148,10 +148,10 @@ func (h *KanbanHandler) CreateTask(c *gin.Context) envelope.Response {
 
 	if err := h.db.Create(&task).Error; err != nil {
 		h.logger.Error("failed to create task", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.create.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.create.error", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(toTaskResponse(task), "kanban.task.create.success")
+	return envelope.SuccessResponse(toTaskResponse(task), "tasks.task.create.success")
 }
 
 // UpdateTask updates task details (title, description, status, due_date).
@@ -159,12 +159,12 @@ func (h *KanbanHandler) UpdateTask(c *gin.Context) envelope.Response {
 	taskID := c.Param("id")
 	id, err := strconv.ParseUint(taskID, 10, 32)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.id", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.id", core_errors.ErrInvalidRequest)
 	}
 
 	var req kanban_dto.UpdateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.request", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.request", core_errors.ErrInvalidRequest)
 	}
 
 	db := tenantdb.For(c, h.db)
@@ -172,10 +172,10 @@ func (h *KanbanHandler) UpdateTask(c *gin.Context) envelope.Response {
 	var task kanban_models.Task
 	if err := db.First(&task, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return envelope.ErrorResponse(http.StatusNotFound, "kanban.task.not.found", core_errors.ErrTenantNotFound)
+			return envelope.ErrorResponse(http.StatusNotFound, "tasks.task.not.found", core_errors.ErrTenantNotFound)
 		}
 		h.logger.Error("failed to fetch task", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.fetch.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.fetch.error", core_errors.ErrInternal)
 	}
 
 	if req.Title != nil {
@@ -190,17 +190,17 @@ func (h *KanbanHandler) UpdateTask(c *gin.Context) envelope.Response {
 	if req.DueDate != nil {
 		dueDate, err := parseDateString(req.DueDate)
 		if err != nil {
-			return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.due_date", core_errors.ErrInvalidRequest)
+			return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.due_date", core_errors.ErrInvalidRequest)
 		}
 		task.DueDate = dueDate
 	}
 
 	if err := h.db.Save(&task).Error; err != nil {
 		h.logger.Error("failed to update task", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.update.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.update.error", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(toTaskResponse(task), "kanban.task.update.success")
+	return envelope.SuccessResponse(toTaskResponse(task), "tasks.task.update.success")
 }
 
 // MoveTask updates task status and position (drag & drop).
@@ -208,12 +208,12 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 	taskID := c.Param("id")
 	id, err := strconv.ParseUint(taskID, 10, 32)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.id", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.id", core_errors.ErrInvalidRequest)
 	}
 
 	var req kanban_dto.MoveTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.request", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.request", core_errors.ErrInvalidRequest)
 	}
 
 	db := tenantdb.For(c, h.db)
@@ -221,10 +221,10 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 	var task kanban_models.Task
 	if err := db.First(&task, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return envelope.ErrorResponse(http.StatusNotFound, "kanban.task.not.found", core_errors.ErrTenantNotFound)
+			return envelope.ErrorResponse(http.StatusNotFound, "tasks.task.not.found", core_errors.ErrTenantNotFound)
 		}
 		h.logger.Error("failed to fetch task", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.fetch.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.fetch.error", core_errors.ErrInternal)
 	}
 
 	oldStatus := task.Status
@@ -235,7 +235,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 			Where("status = ? AND position > ?", oldStatus, task.Position).
 			Update("position", gorm.Expr("position - 1")).Error; err != nil {
 			h.logger.Error("failed to shift positions in old status", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.move.error", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.move.error", core_errors.ErrInternal)
 		}
 
 		// Increase positions in new status column at insertion point
@@ -244,7 +244,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 			Where("status = ? AND position >= ?", req.Status, req.Position).
 			Update("position", gorm.Expr("position + 1")).Error; err != nil {
 			h.logger.Error("failed to shift positions in new status", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.move.error", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.move.error", core_errors.ErrInternal)
 		}
 	} else if task.Position != req.Position {
 		// Same column reordering
@@ -255,7 +255,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 				Where("status = ? AND position > ? AND position <= ?", req.Status, task.Position, req.Position).
 				Update("position", gorm.Expr("position - 1")).Error; err != nil {
 				h.logger.Error("failed to shift positions down", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.move.error", core_errors.ErrInternal)
+				return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.move.error", core_errors.ErrInternal)
 			}
 		} else {
 			// Moving up: shift others down
@@ -264,7 +264,7 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 				Where("status = ? AND position >= ? AND position < ?", req.Status, req.Position, task.Position).
 				Update("position", gorm.Expr("position + 1")).Error; err != nil {
 				h.logger.Error("failed to shift positions up", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.move.error", core_errors.ErrInternal)
+				return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.move.error", core_errors.ErrInternal)
 			}
 		}
 	}
@@ -273,10 +273,10 @@ func (h *KanbanHandler) MoveTask(c *gin.Context) envelope.Response {
 	task.Position = req.Position
 	if err := h.db.Save(&task).Error; err != nil {
 		h.logger.Error("failed to move task", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.move.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.move.error", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(toTaskResponse(task), "kanban.task.move.success")
+	return envelope.SuccessResponse(toTaskResponse(task), "tasks.task.move.success")
 }
 
 // DeleteTask deletes a task and reorders remaining positions.
@@ -284,7 +284,7 @@ func (h *KanbanHandler) DeleteTask(c *gin.Context) envelope.Response {
 	taskID := c.Param("id")
 	id, err := strconv.ParseUint(taskID, 10, 32)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "kanban.task.invalid.id", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "tasks.task.invalid.id", core_errors.ErrInvalidRequest)
 	}
 
 	db := tenantdb.For(c, h.db)
@@ -292,10 +292,10 @@ func (h *KanbanHandler) DeleteTask(c *gin.Context) envelope.Response {
 	var task kanban_models.Task
 	if err := db.First(&task, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return envelope.ErrorResponse(http.StatusNotFound, "kanban.task.not.found", core_errors.ErrTenantNotFound)
+			return envelope.ErrorResponse(http.StatusNotFound, "tasks.task.not.found", core_errors.ErrTenantNotFound)
 		}
 		h.logger.Error("failed to fetch task", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.fetch.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.fetch.error", core_errors.ErrInternal)
 	}
 
 	// Shift positions after deletion
@@ -304,13 +304,13 @@ func (h *KanbanHandler) DeleteTask(c *gin.Context) envelope.Response {
 		Where("status = ? AND position > ?", task.Status, task.Position).
 		Update("position", gorm.Expr("position - 1")).Error; err != nil {
 		h.logger.Error("failed to shift positions after deletion", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.delete.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.delete.error", core_errors.ErrInternal)
 	}
 
 	if err := h.db.Delete(&task).Error; err != nil {
 		h.logger.Error("failed to delete task", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "kanban.task.delete.error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "tasks.task.delete.error", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(nil, "kanban.task.delete.success")
+	return envelope.SuccessResponse(nil, "tasks.task.delete.success")
 }
