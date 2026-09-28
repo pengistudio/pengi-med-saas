@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Health(c *gin.Context) {
-	response := envelope.SuccessResponse(nil, "ok")
-	c.JSON(response.Code, response)
+func Health(c *gin.Context) envelope.Response {
+	return envelope.SuccessResponse(nil, "health.ok")
 }

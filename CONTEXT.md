@@ -51,3 +51,9 @@ Representación impresa (PDF) de un comprobante autorizado; tiene validez tribut
 
 **Consumidor Final**:
 Comprador genérico declarado cuando la factura no tiene paciente asociado.
+
+### Plataforma
+
+**Catálogo de mensajes**:
+Todos los textos de la API y de las apps (mensajes, códigos de error, etiquetas) por clave i18n e idioma, en el JSON embebido en el binario; cambiar un texto requiere un deploy. En código: `i18n/catalog`.
+_Avoid_: tabla de mensajes, traducciones (a secas)

@@ -1,0 +1,153 @@
+# Legacy envelope messages that are sentences instead of i18n keys.
+# One "file:literal" per line, file relative to apps/api. This list can only
+# shrink: replace a sentence with a key (in messages_es.json and
+# messages_en.json) and delete its line. Checked by
+# TestEmbedded_EnvelopeMessagesAreCatalogKeys.
+features/backoffice/handlers/backoffice-announcement-handler.go:Announcement is not scheduled
+features/backoffice/handlers/backoffice-announcement-handler.go:Announcement not found
+features/backoffice/handlers/backoffice-announcement-handler.go:Announcement target has no recipients
+features/backoffice/handlers/backoffice-announcement-handler.go:Error cancelling announcement
+features/backoffice/handlers/backoffice-announcement-handler.go:Error creating announcement
+features/backoffice/handlers/backoffice-announcement-handler.go:Error fetching announcements
+features/backoffice/handlers/backoffice-announcement-handler.go:Error resolving recipients
+features/backoffice/handlers/backoffice-announcement-handler.go:Error sending announcement
+features/backoffice/handlers/backoffice-announcement-handler.go:Invalid action url
+features/backoffice/handlers/backoffice-announcement-handler.go:Invalid request
+features/backoffice/handlers/backoffice-company-handler.go:Company not found
+features/backoffice/handlers/backoffice-company-handler.go:Error creating company
+features/backoffice/handlers/backoffice-company-handler.go:Error deleting company
+features/backoffice/handlers/backoffice-company-handler.go:Error deleting user
+features/backoffice/handlers/backoffice-company-handler.go:Error fetching company users
+features/backoffice/handlers/backoffice-company-handler.go:Error fetching roles
+features/backoffice/handlers/backoffice-company-handler.go:Error fetching users
+features/backoffice/handlers/backoffice-company-handler.go:Error generating password reset token
+features/backoffice/handlers/backoffice-company-handler.go:Error generating register token
+features/backoffice/handlers/backoffice-company-handler.go:Error generating signup token
+features/backoffice/handlers/backoffice-company-handler.go:Error obtaining companies
+features/backoffice/handlers/backoffice-company-handler.go:Error updating company
+features/backoffice/handlers/backoffice-company-handler.go:Invalid request
+features/backoffice/handlers/backoffice-company-handler.go:User not found
+features/backoffice/handlers/backoffice-company-handler.go:User not found in this company
+features/backoffice/handlers/backoffice-dashboard-handler.go:Error obtaining stats
+features/backoffice/handlers/backoffice-feature-handler.go:Error creating feature
+features/backoffice/handlers/backoffice-feature-handler.go:Error deleting feature
+features/backoffice/handlers/backoffice-feature-handler.go:Error obtaining features
+features/backoffice/handlers/backoffice-feature-handler.go:Feature not found
+features/backoffice/handlers/backoffice-feature-handler.go:Invalid request
+features/backoffice/handlers/backoffice-permission-handler.go:Error obtaining permissions
+features/backoffice/handlers/backoffice-plan-handler.go:Error creating plan
+features/backoffice/handlers/backoffice-plan-handler.go:Error deleting plan
+features/backoffice/handlers/backoffice-plan-handler.go:Error obtaining plans
+features/backoffice/handlers/backoffice-plan-handler.go:Error updating plan
+features/backoffice/handlers/backoffice-plan-handler.go:Invalid request
+features/backoffice/handlers/backoffice-plan-handler.go:Plan not found
+features/backoffice/handlers/backoffice-role-handler.go:Error creating role
+features/backoffice/handlers/backoffice-role-handler.go:Error deleting role
+features/backoffice/handlers/backoffice-role-handler.go:Error fetching roles
+features/backoffice/handlers/backoffice-role-handler.go:Error updating permissions
+features/backoffice/handlers/backoffice-role-handler.go:Error updating role
+features/backoffice/handlers/backoffice-role-handler.go:Role not found
+features/backoffice/handlers/backoffice-subscription-handler.go:Error creating subscription
+features/backoffice/handlers/backoffice-subscription-handler.go:Error deleting subscription
+features/backoffice/handlers/backoffice-subscription-handler.go:Error obtaining subscriptions
+features/backoffice/handlers/backoffice-subscription-handler.go:Invalid date format
+features/backoffice/handlers/backoffice-subscription-handler.go:Invalid date format, use YYYY-MM-DD
+features/backoffice/handlers/backoffice-subscription-handler.go:Invalid request
+features/backoffice/handlers/backoffice-subscription-handler.go:Subscription not found
+features/backoffice/handlers/backoffice-user-handler.go:Error deleting user
+features/backoffice/handlers/backoffice-user-handler.go:Error obtaining backoffice users
+features/backoffice/handlers/backoffice-user-handler.go:Error updating user
+features/backoffice/handlers/backoffice-user-handler.go:Invalid request
+features/backoffice/handlers/backoffice-user-handler.go:User not found
+features/billing/handlers/catalog-item-handler.go:Catalog item not found
+features/billing/handlers/catalog-item-handler.go:Failed to count catalog items
+features/billing/handlers/catalog-item-handler.go:Failed to create catalog item
+features/billing/handlers/catalog-item-handler.go:Failed to delete catalog item
+features/billing/handlers/catalog-item-handler.go:Failed to fetch catalog items
+features/billing/handlers/catalog-item-handler.go:Failed to update catalog item
+features/billing/handlers/catalog-item-handler.go:Invalid catalog item ID
+features/billing/handlers/catalog-item-handler.go:Invalid provided payload
+features/billing/handlers/catalog-item-handler.go:Tenant scope not found
+features/clinical/handlers/appointment-handler.go:Invalid status. Must be: scheduled, arrived, in_consultation, completed, or cancelled
+features/clinical/handlers/appointment-handler.go:Only scheduled, cancelled or completed appointments can be deleted
+features/clinical/handlers/download-record-handler.go:Error retrieving patient data
+features/clinical/handlers/download-record-handler.go:Invalid medical record ID format
+features/clinical/handlers/download-record-handler.go:Medical record not found
+features/clinical/handlers/download-record-handler.go:This record has no prescription
+features/clinical/handlers/icd10-handler.go:icd10 search error
+features/clinical/handlers/icd10-handler.go:query param 'q' is required
+features/clinical/handlers/icd11-handler.go:icd11 parse error
+features/clinical/handlers/icd11-handler.go:icd11 read error
+features/clinical/handlers/icd11-handler.go:icd11 request error
+features/clinical/handlers/icd11-handler.go:icd11 unavailable
+features/clinical/handlers/icd11-handler.go:query param 'q' is required
+features/clinical/handlers/patient-handler.go:Invalid patient ID format
+features/clinical/handlers/prescription-template-handler.go:Failed to delete template file
+features/clinical/handlers/prescription-template-handler.go:Failed to save template file
+features/clinical/handlers/prescription-template-handler.go:Template file is required
+features/clinical/handlers/record-handler.go:Invalid medical record ID format
+features/clinical/handlers/record-handler.go:Invalid patient ID format
+features/clinical/handlers/record-handler.go:Invalid prescription data
+features/companies/handlers/company-handler.go:Company not found
+features/companies/handlers/company-handler.go:Error fetching roles
+features/companies/handlers/company-handler.go:Error fetching team
+features/companies/handlers/company-handler.go:Error generating invite link
+features/companies/handlers/company-handler.go:Error updating role
+features/companies/handlers/company-handler.go:Invalid environment id
+features/companies/handlers/company-handler.go:Role not found
+features/companies/handlers/company-handler.go:User not found
+features/companies/handlers/company-handler.go:role_id is required
+features/companies/middleware/subscription-middleware.go:Insufficient permissions
+features/companies/middleware/subscription-middleware.go:No active subscription found
+features/companies/middleware/subscription-middleware.go:No company found for this tenant
+features/companies/middleware/subscription-middleware.go:Tenant not resolved
+features/companies/middleware/subscription-middleware.go:User has no role in this company
+features/companies/middleware/subscription-middleware.go:Your plan does not include this feature
+features/integrations/handlers/google-handler.go:Google integration not configured
+features/integrations/handlers/google-handler.go:integration not found
+features/tenants/handlers/tenant-handler.go:Error obtaining features
+features/tenants/handlers/tenant-handler.go:Failed to create display token
+features/tenants/handlers/tenant-handler.go:Failed to encode settings
+features/tenants/handlers/tenant-handler.go:Failed to fetch appointments
+features/tenants/handlers/tenant-handler.go:Failed to generate display token
+features/tenants/handlers/tenant-handler.go:Failed to read logo file
+features/tenants/handlers/tenant-handler.go:Failed to save logo file
+features/tenants/handlers/tenant-handler.go:Failed to save settings
+features/tenants/handlers/tenant-handler.go:Failed to save signature file
+features/tenants/handlers/tenant-handler.go:Failed to update tenant SRI info
+features/tenants/handlers/tenant-handler.go:Failed to update tenant logo
+features/tenants/handlers/tenant-handler.go:Failed to update tenant signature
+features/tenants/handlers/tenant-handler.go:Invalid display token
+features/tenants/handlers/tenant-handler.go:Invalid provided payload
+features/tenants/handlers/tenant-handler.go:Invalid settings payload
+features/tenants/handlers/tenant-handler.go:Logo file is required
+features/tenants/handlers/tenant-handler.go:Missing display token
+features/tenants/handlers/tenant-handler.go:Password is required
+features/tenants/handlers/tenant-handler.go:Signature file is required
+features/tenants/handlers/tenant-handler.go:Tenant not found
+features/tenants/handlers/tenant-handler.go:Tenant scope not found
+features/tenants/middleware/tenant-middleware.go:Tenant not found
+features/tenants/middleware/tenant-middleware.go:User not authenticated
+features/tenants/middleware/tenant-middleware.go:X-Tenant-Slug header is missing
+features/users/handlers/environment-handler.go:Error obtaining environments
+features/users/handlers/profile-handler.go:Company not found
+features/users/handlers/profile-handler.go:Environment not found
+features/users/handlers/profile-handler.go:Invalid environment_id
+features/users/handlers/profile-handler.go:User not found
+features/users/handlers/user-handler.go:Company not found
+features/users/handlers/user-handler.go:Error updating password
+features/users/handlers/user-handler.go:Invalid or expired signup token
+features/users/handlers/user-handler.go:Invalid or expired token
+features/users/handlers/user-handler.go:Invalid user ID in token
+features/users/handlers/user-handler.go:Invalid username in token
+features/users/handlers/user-handler.go:No roles configured
+features/users/handlers/user-handler.go:User not found
+features/users/handlers/user-handler.go:Username already exists
+features/users/middleware/auth-middleware.go:Authorization header missing
+features/users/middleware/auth-middleware.go:Exchange token missing
+features/users/middleware/auth-middleware.go:Invalid authorization header format
+features/users/middleware/auth-middleware.go:Invalid or expired exchange token
+features/users/middleware/auth-middleware.go:Invalid or expired token
+features/users/middleware/auth-middleware.go:Invalid token payload: userId missing
+features/users/middleware/auth-middleware.go:Invalid token payload: username missing
+features/users/middleware/auth-middleware.go:Token is empty

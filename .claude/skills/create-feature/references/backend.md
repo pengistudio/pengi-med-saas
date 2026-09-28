@@ -113,17 +113,16 @@ Err<Domain><Detail> = NewAppError("E-<DOM>-001", "English message.")
 ```
 
 Numera secuencialmente dentro del prefijo. Agrega `{"key": "E-<DOM>-001", "value": ...}`
-en ambos JSON de i18n. Hay ~29 códigos históricos sin key; no sumes más.
+en ambos JSON de i18n (un test lo exige para cada código de `codes.go`).
 
 ### i18n — `apps/api/i18n/messages/messages_{es,en}.json`
 
 Array plano `[{"key": "...", "value": "..."}]`, keys `{domain}.{resource}.{action}`.
-Se siembran en la BD en cada arranque (`MigrateMessages`). No hay script de
-paridad: verifica con
-
-```bash
-for k in <key1> <key2>; do grep -c "\"$k\"" apps/api/i18n/messages/messages_es.json apps/api/i18n/messages/messages_en.json; done
-```
+Es el catálogo de mensajes, embebido en el binario (no hay tabla; ADR 0003).
+Verifica con `go test ./i18n/catalog/`: paridad es/en (claves y placeholders),
+keys duplicadas, traducción de cada código de error, y que cada mensaje literal
+pasado a `envelope.*` exista como key. No uses frases como mensaje: la lista
+`i18n/catalog/testdata/legacy_messages.txt` solo puede achicarse.
 
 Evita duplicar keys existentes (`grep` antes de agregar).
 
