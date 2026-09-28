@@ -6,6 +6,7 @@ import {
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
+import { useText } from "@pengi/shared";
 import { Button, Text } from "@pengi/ui";
 import {
 	addWeeks,
@@ -17,7 +18,6 @@ import {
 	startOfWeek,
 	subWeeks,
 } from "date-fns";
-import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
 import { useSearchParams } from "react-router";
@@ -76,6 +76,7 @@ function computeSnappedTarget(
 
 export default function AppointmentCalendar() {
 	const [searchParams] = useSearchParams();
+	const { formatDate } = useText();
 	// ?date=YYYY-MM-DD opens that week (the dashboard's week strip links here).
 	const [currentDate, setCurrentDate] = React.useState(() => {
 		const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(
@@ -287,8 +288,8 @@ export default function AppointmentCalendar() {
 				</div>
 				<div className="flex items-center gap-3">
 					<p className="text-lg font-medium text-muted-foreground capitalize">
-						{format(weekStart, "d MMM", { locale: es })} —{" "}
-						{format(weekEnd, "d MMM yyyy", { locale: es })}
+						{formatDate(weekStart, "day-month")} —{" "}
+						{formatDate(weekEnd, "medium")}
 					</p>
 					<Button onClick={handleNewAppointment}>
 						<Plus className="mr-2 h-4 w-4" />
@@ -317,7 +318,7 @@ export default function AppointmentCalendar() {
 									)}
 								>
 									<p className="text-xs font-medium text-muted-foreground uppercase">
-										{format(day, "EEE", { locale: es })}
+										{formatDate(day, "weekday")}
 									</p>
 									<p
 										className={cn(

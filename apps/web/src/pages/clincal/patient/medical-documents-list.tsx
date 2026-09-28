@@ -16,7 +16,7 @@ import {
 } from "@pengi/ui";
 import { ArrowLeft, FileCheck, FileText, Loader2, Printer } from "lucide-react";
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { Navigate, useNavigate, useSearchParams } from "react-router";
 import {
 	downloadMedicalCertificatePdf,
 	downloadMedicalReportPdf,
@@ -146,6 +146,12 @@ export default function MedicalDocumentsListPage() {
 		} else {
 			await emailMedicalCertificate(row.id, email);
 		}
+	}
+
+	// The page is always opened from a patient's row (?patient_id=…). Without
+	// one there is nothing to list, so go back to the patient list.
+	if (!patientId) {
+		return <Navigate to="/clinical" replace />;
 	}
 
 	const fullName = patient

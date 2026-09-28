@@ -1,4 +1,4 @@
-import { useText } from "@pengi/shared";
+import { parseDateOnly, useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -9,8 +9,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@pengi/ui";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Ban, Check, Clock, Edit, MapPin, Trash2, User } from "lucide-react";
 import React from "react";
 import {
@@ -41,7 +39,7 @@ export function AppointmentDetailDialog({
 	onRefresh,
 }: AppointmentDetailDialogProps) {
 	const [loading, setLoading] = React.useState(false);
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 
 	if (!appointment) return null;
 
@@ -96,9 +94,7 @@ export function AppointmentDetailDialog({
 						{appointment.title}
 					</DialogTitle>
 					<DialogDescription>
-						{format(new Date(appointment.date), "EEEE, d MMMM yyyy", {
-							locale: es,
-						})}
+						{formatDate(parseDateOnly(appointment.date), "full")}
 					</DialogDescription>
 				</DialogHeader>
 
