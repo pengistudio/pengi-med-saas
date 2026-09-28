@@ -4,14 +4,15 @@ import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
 	backoffice_handlers "pengi-med-saas/features/backoffice/handlers"
+	"pengi-med-saas/i18n/catalog"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 // RegisterRoutes registers all the routes for /api/**/*
-func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB) {
-	RegisterI18nRoutes(router, db)
+func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB, messages *catalog.Catalog) {
+	RegisterI18nRoutes(router, messages)
 	RegisterCompanyRoutes(router, db)
 	RegisterUserRoutes(router, db)
 	RegisterClinicalRoutes(router, db)

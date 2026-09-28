@@ -198,7 +198,6 @@ When creating endpoints or features:
 `apps/api/migrations/migrate.go` runs on startup:
 1. GORM `AutoMigrate` for all models
 2. Code migrations in `migrations/code-migrations/` (keyed by date)
-3. Seeds i18n messages from JSON files into DB
 
 To add a migration: create a file in `migrations/code-migrations/{year}/`, register it in `GlobalDBMap`.
 
@@ -282,7 +281,7 @@ const label = textGet("billing.invoice.title");
 
 Never hardcode user-visible strings. Every label, placeholder, and message must be an i18n key. Add new keys to **both** `apps/api/i18n/messages/messages_es.json` and `messages_en.json`.
 
-Keys are sourced from backend JSON and seeded into the database on startup. The browser caches them in `localStorage["messages"]` and only refetches when `__APP_VERSION__` (Vite start) or the language changes — after adding keys, run `localStorage.removeItem("messages")` and reload before assuming a key is missing.
+Keys live in the backend JSON, embedded in the API binary (the message catalog, `docs/adr/0003-catalogo-de-mensajes-en-el-binario.md`); there is no messages table. The browser caches them in `localStorage["messages"]` with the catalog's ETag and revalidates on every load, so a reload is enough to see new keys. Tests fail on keys that don't exist: a Go test checks every literal key passed to `envelope.*Response` (plus error-code coverage and es/en parity), and a Vitest test in `@pengi/shared` checks literal `textGet`/`<Text uuid>` keys.
 
 ### State management
 

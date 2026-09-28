@@ -1,7 +1,6 @@
 package migrations
 
 import (
-	"fmt"
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/tenantdb"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
@@ -16,8 +15,6 @@ import (
 	signature_models "pengi-med-saas/features/signatures/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
-	i18n_messages "pengi-med-saas/i18n/messages"
-	message_models "pengi-med-saas/i18n/models"
 
 	"gorm.io/gorm"
 
@@ -32,7 +29,6 @@ func RunMigrations(db *gorm.DB) error {
 		database.DBExecute{},
 		tenant_models.Tenant{},
 		permission_models.Permission{},
-		message_models.Message{},
 		company_models.Company{},
 		company_models.Plan{},
 		company_models.PlanPricing{},
@@ -77,29 +73,8 @@ func RunMigrations(db *gorm.DB) error {
 	return database.ExecuteAll(db)
 }
 
-func MigrateMessages(db *gorm.DB, lang string) error {
-	if lang == "" {
-		lang = "es" // Default language
-	}
-
-	filename := fmt.Sprintf("messages_%s.json", lang)
-	return message_models.LoadMessagesFromFS(db, i18n_messages.FS, filename, lang)
-}
-
+// RunAllMigrations runs AutoMigrate and the code migrations. Messages are not
+// seeded: the message catalog is read from the binary (docs/adr/0003).
 func RunAllMigrations(db *gorm.DB) error {
-	err := RunMigrations(db)
-	if err != nil {
-		return err
-	}
-	err = MigrateMessages(db, "es") // Migrate messages for Spanish language
-	if err != nil {
-		return err
-	}
-	err = MigrateMessages(db, "en") // Migrate messages for English language
-	if err != nil {
-		return err
-	}
-
-	return nil
-
+	return RunMigrations(db)
 }

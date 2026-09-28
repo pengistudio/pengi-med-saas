@@ -32,6 +32,12 @@ func SuccessResponse(data any, message string) Response {
 	}
 }
 
+// NotModified answers a conditional request whose ETag still matches; Handle
+// sends it with no body. The action sets the ETag header itself.
+func NotModified() Response {
+	return Response{Code: http.StatusNotModified}
+}
+
 type PagedData struct {
 	Items      any `json:"items"`
 	Total      int `json:"total"`

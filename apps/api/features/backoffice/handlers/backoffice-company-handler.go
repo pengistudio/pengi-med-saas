@@ -341,7 +341,7 @@ func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Re
 
 	if txErr != nil {
 		h.logger.Error("Failed to update company user", zap.Error(txErr))
-		return envelope.ErrorResponse(http.StatusInternalServerError, txErr.Error(), core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Company user updated", zap.String("company_id", companyID), zap.String("user_id", userID))

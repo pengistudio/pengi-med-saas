@@ -7,6 +7,7 @@ import (
 
 	"pengi-med-saas/core/brokers/rabbitmq"
 	"pengi-med-saas/core/database"
+	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
 	"pengi-med-saas/core/secretbox"
 	sri_document "pengi-med-saas/features/billing/sri-document"
@@ -15,7 +16,8 @@ import (
 	kanban_workers "pengi-med-saas/features/kanban/workers"
 	notifications_workers "pengi-med-saas/features/notifications/workers"
 	settings_models "pengi-med-saas/features/settings/models"
-	message_cache "pengi-med-saas/i18n/cache"
+	"pengi-med-saas/i18n/catalog"
+	i18n_messages "pengi-med-saas/i18n/messages"
 	i18n_middleware "pengi-med-saas/i18n/middleware"
 	"pengi-med-saas/migrations"
 	"pengi-med-saas/routes"
@@ -56,11 +58,13 @@ func main() {
 		panic("Failed to run migrations: " + err.Error())
 	}
 
-	// Initialize message cache
-	if err := message_cache.Init(DB_CONNECTION); err != nil {
-		logger.Log.Warn("Failed to initialize message cache", zap.Error(err))
+	// Message catalog: the texts embedded in the binary (docs/adr/0003).
+	messages, err := catalog.Load(i18n_messages.FS)
+	if err != nil {
+		panic("Failed to load the message catalog: " + err.Error())
 	}
-	logger.Log.Info("message cache initialized")
+	messages.WithLogger(logger.Log)
+	logger.Log.Info("message catalog loaded", zap.Strings("languages", messages.Languages()))
 
 	// Initialize RabbitMQ (reconnects on its own). HTTP handlers publish on a shared
 	// channel (rabbitmq.PublishChannel); each background consumer gets its own
@@ -97,8 +101,8 @@ func main() {
 
 	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "X-tenant-Slug"},
-		ExposeHeaders:    []string{"Content-Length", "Content-Disposition"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "X-tenant-Slug", "If-None-Match"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Disposition", "ETag"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}
@@ -123,11 +127,11 @@ func main() {
 
 	r.Use(cors.New(corsConfig))
 
-	r.Use(i18n_middleware.I18nMiddleware(DB_CONNECTION))
+	r.Use(i18n_middleware.I18nMiddleware(messages))
 
-	r.GET("/health", health.Health)
+	r.GET("/health", envelope.Handle(health.Health))
 
-	routes.RegisterRoutes(r.Group("/api/v1"), DB_CONNECTION)
+	routes.RegisterRoutes(r.Group("/api/v1"), DB_CONNECTION, messages)
 
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

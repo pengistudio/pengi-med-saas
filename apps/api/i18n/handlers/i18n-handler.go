@@ -1,58 +1,61 @@
 package i18n_handlers
 
 import (
-	"fmt"
-	"net/http"
+	"strings"
+
 	"pengi-med-saas/core/envelope"
-	core_errors "pengi-med-saas/core/errors"
-	message_cache "pengi-med-saas/i18n/cache"
-	i18n_messages "pengi-med-saas/i18n/messages"
-	message_models "pengi-med-saas/i18n/models"
+	"pengi-med-saas/i18n/catalog"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type MessageHandler struct {
-	db *gorm.DB
+	messages *catalog.Catalog
 }
 
-func NewMessageHandler(db *gorm.DB) *MessageHandler {
-	return &MessageHandler{db: db}
+func NewMessageHandler(messages *catalog.Catalog) *MessageHandler {
+	return &MessageHandler{messages: messages}
 }
 
+// GetAllMessages returns every message of the request language as a flat
+// {key: value} map. The bundle's content hash travels in the ETag header; a
+// request whose If-None-Match still matches gets 304 with no body.
 func (h *MessageHandler) GetAllMessages(c *gin.Context) envelope.Response {
-	lang := c.Query("lang")
-	if lang == "" {
-		lang = "es" // Default language
+	lang := h.messages.ResolveLanguage(c.Query("lang"), c.GetHeader("Accept-Language"))
+	hash := h.messages.Hash(lang)
+
+	c.Header("ETag", `"`+hash+`"`)
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Vary", "Accept-Language")
+
+	if etagMatches(c.GetHeader("If-None-Match"), hash) {
+		return envelope.NotModified()
 	}
 
-	messages := message_cache.GetAll(lang)
-	return envelope.SuccessResponse(messages, "i18n.messages.fetch.success")
+	bundle, _ := h.messages.Bundle(lang)
+	return envelope.SuccessResponse(bundle, "i18n.messages.fetch.success")
 }
 
-func (h *MessageHandler) GetMessageVersion(c *gin.Context) envelope.Response {
-	version := "v0.1.0"
-	return envelope.SuccessResponse(version, "Version obtained successfully")
-}
+// compressionSuffixes are appended to a strong ETag by a compressing proxy
+// (Caddy's `encode` turns "<hash>" into "<hash>-gzip" / "<hash>-zstd"), so the
+// browser may send them back in If-None-Match.
+var compressionSuffixes = []string{"-gzip", "-zstd", "-br"}
 
-func (h *MessageHandler) ReloadMessages(c *gin.Context) envelope.Response {
-	logger := zap.L()
-
-	for _, lang := range []string{"es", "en"} {
-		filename := fmt.Sprintf("messages_%s.json", lang)
-		if err := message_models.LoadMessagesFromFS(h.db, i18n_messages.FS, filename, lang); err != nil {
-			logger.Error("Failed to seed messages", zap.String("lang", lang), zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to seed messages", core_errors.ErrInternal)
+// etagMatches reports whether an If-None-Match header ("*" or a list of
+// possibly weak entity tags) matches hash.
+func etagMatches(ifNoneMatch, hash string) bool {
+	for _, tag := range strings.Split(ifNoneMatch, ",") {
+		tag = strings.TrimSpace(tag)
+		if tag == "*" {
+			return true
+		}
+		tag = strings.Trim(strings.TrimPrefix(tag, "W/"), `"`)
+		for _, suffix := range compressionSuffixes {
+			tag = strings.TrimSuffix(tag, suffix)
+		}
+		if tag != "" && tag == hash {
+			return true
 		}
 	}
-
-	if err := message_cache.Reload(h.db); err != nil {
-		logger.Error("Failed to reload message cache", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to reload message cache", core_errors.ErrInternal)
-	}
-
-	logger.Info("i18n messages reloaded successfully")
-	return envelope.SuccessResponse(nil, "i18n.reload.success")
+	return false
 }

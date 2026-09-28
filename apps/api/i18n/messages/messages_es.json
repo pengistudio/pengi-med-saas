@@ -6434,5 +6434,177 @@
     {
         "key": "dialog.medical_certificate.rest.to_label",
         "value": "Hasta"
+    },
+    {
+        "key": "health.ok",
+        "value": "OK"
+    },
+    {
+        "key": "backoffice.payment.generate.success",
+        "value": "Enlaces de pago generados exitosamente"
+    },
+    {
+        "key": "backoffice.payment.fetch.success",
+        "value": "Pagos cargados exitosamente"
+    },
+    {
+        "key": "backoffice.payment.webhook.processed",
+        "value": "Notificación de pago procesada"
+    },
+    {
+        "key": "billing.catalog-item.create.success",
+        "value": "Producto/servicio creado exitosamente"
+    },
+    {
+        "key": "billing.catalog-items.fetch.success",
+        "value": "Productos y servicios cargados exitosamente"
+    },
+    {
+        "key": "billing.catalog-item.fetch.success",
+        "value": "Producto/servicio cargado exitosamente"
+    },
+    {
+        "key": "billing.catalog-item.update.success",
+        "value": "Producto/servicio actualizado exitosamente"
+    },
+    {
+        "key": "billing.catalog-item.delete.success",
+        "value": "Producto/servicio eliminado exitosamente"
+    },
+    {
+        "key": "billing.invoice.error.already_authorized",
+        "value": "Este comprobante ya está autorizado por el SRI; no hace falta enviarlo de nuevo."
+    },
+    {
+        "key": "clinical.icd10.search.success",
+        "value": "Códigos CIE-10 cargados exitosamente"
+    },
+    {
+        "key": "tenant.features.fetch.success",
+        "value": "Módulos habilitados cargados exitosamente"
+    },
+    {
+        "key": "user.company_signup.check_email.success",
+        "value": "Correo verificado"
+    },
+    {
+        "key": "user.company_signup.join.success",
+        "value": "Te uniste a la empresa exitosamente"
+    },
+    {
+        "key": "E-INT-002",
+        "value": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo."
+    },
+    {
+        "key": "E-INT-003",
+        "value": "Hiciste demasiadas solicitudes. Espera un momento e inténtalo de nuevo."
+    },
+    {
+        "key": "E-INT-004",
+        "value": "La integración no está configurada. Configúrala antes de usarla."
+    },
+    {
+        "key": "E-INT-005",
+        "value": "Integración no encontrada."
+    },
+    {
+        "key": "E-TEN-002",
+        "value": "El token de la pantalla no es válido. Vuelve a vincular la pantalla."
+    },
+    {
+        "key": "E-TEN-003",
+        "value": "El logo no es válido. Sube una imagen PNG o JPG."
+    },
+    {
+        "key": "E-TEN-004",
+        "value": "Todavía no has subido un logo."
+    },
+    {
+        "key": "E-TEN-005",
+        "value": "No tienes un rol en esta empresa. Pide a un administrador que te agregue."
+    },
+    {
+        "key": "E-CLIN-010",
+        "value": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo."
+    },
+    {
+        "key": "E-CLIN-012",
+        "value": "No se pudo generar o guardar el informe médico. Inténtalo de nuevo."
+    },
+    {
+        "key": "E-CLIN-013",
+        "value": "No se pudo generar o guardar el certificado médico. Inténtalo de nuevo."
+    },
+    {
+        "key": "E-CLIN-014",
+        "value": "No se pudo enviar el documento por correo. Revisa el correo del paciente e inténtalo de nuevo."
+    },
+    {
+        "key": "E-PERM-001",
+        "value": "No se pudieron cargar los permisos. Inténtalo de nuevo."
+    },
+    {
+        "key": "E-AUTH-008",
+        "value": "El enlace para restablecer la contraseña es inválido o expiró. Solicita uno nuevo."
+    },
+    {
+        "key": "E-PLAN-001",
+        "value": "Alcanzaste el límite de usuarios de tu plan. Mejora tu plan para agregar más."
+    },
+    {
+        "key": "E-PLAN-002",
+        "value": "Alcanzaste el límite de pacientes de tu plan. Mejora tu plan para agregar más."
+    },
+    {
+        "key": "E-TEAM-001",
+        "value": "Ese miembro no pertenece a esta empresa."
+    },
+    {
+        "key": "E-TEAM-002",
+        "value": "El rol no es válido. Elige uno de la lista."
+    },
+    {
+        "key": "E-TEAM-003",
+        "value": "No puedes quitar al último administrador. Asigna otro administrador primero."
+    },
+    {
+        "key": "E-BO-001",
+        "value": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo."
+    },
+    {
+        "key": "E-BO-002",
+        "value": "No se pudo crear la empresa. Inténtalo de nuevo."
+    },
+    {
+        "key": "E-BO-003",
+        "value": "No se pudo actualizar la empresa. Inténtalo de nuevo."
+    },
+    {
+        "key": "E-BO-004",
+        "value": "No se pudo eliminar la empresa. Inténtalo de nuevo."
+    },
+    {
+        "key": "E-BO-005",
+        "value": "Funcionalidad no encontrada."
+    },
+    {
+        "key": "E-BO-006",
+        "value": "Plan no encontrado."
+    },
+    {
+        "key": "E-BO-007",
+        "value": "Suscripción no encontrada."
+    },
+    {
+        "key": "E-BO-008",
+        "value": "No se pudo crear el pago. Inténtalo de nuevo."
+    },
+    {
+        "key": "E-BO-009",
+        "value": "Pago no encontrado."
+    },
+    {
+        "key": "E-BO-010",
+        "value": "La firma del webhook no es válida."
     }
 ]

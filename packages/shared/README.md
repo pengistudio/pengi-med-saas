@@ -6,7 +6,7 @@ Non-visual code shared by `apps/web` and `apps/backoffice`:
   `{ code, message, data }` envelope into a `ServiceResponse` and shows the
   success/error toasts.
 - `i18n`: UI messages (loaded from the API, cached in localStorage and
-  refreshed on every new build via `useMessages(__APP_VERSION__)`), `useText`,
+  revalidated on each load by content hash via `useMessages()`), `useText`,
   the language context and zod's locale.
 
 Call `initShared({ client: noAuthApi })` once in each app's `main.tsx`.

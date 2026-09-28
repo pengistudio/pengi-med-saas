@@ -1,27 +1,20 @@
 package i18n_middleware
 
 import (
-	message_cache "pengi-med-saas/i18n/cache"
+	"pengi-med-saas/i18n/catalog"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func I18nMiddleware(db *gorm.DB) gin.HandlerFunc {
-	_ = message_cache.Init(db)
-
+// I18nMiddleware resolves the request language (?lang=, then Accept-Language,
+// then es) and sets "lang" and the "translator" that envelope.Handle uses.
+func I18nMiddleware(messages *catalog.Catalog) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		lang := c.GetHeader("Accept-Language")
-		if lang == "" {
-			lang = c.Query("lang")
-		}
-		if lang == "" {
-			lang = "es"
-		}
+		lang := messages.ResolveLanguage(c.Query("lang"), c.GetHeader("Accept-Language"))
 
 		c.Set("lang", lang)
 		c.Set("translator", func(key string) string {
-			return message_cache.Get(lang, key)
+			return messages.Translate(lang, key)
 		})
 
 		c.Next()

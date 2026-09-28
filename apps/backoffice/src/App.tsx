@@ -4,7 +4,7 @@ import { RouterProvider } from "react-router";
 import { router } from "./routes/routes";
 
 export function App() {
-	useMessages(__APP_VERSION__);
+	useMessages();
 
 	return (
 		<Suspense fallback={null}>

@@ -6434,5 +6434,177 @@
     {
         "key": "dialog.medical_certificate.rest.to_label",
         "value": "To"
+    },
+    {
+        "key": "health.ok",
+        "value": "OK"
+    },
+    {
+        "key": "backoffice.payment.generate.success",
+        "value": "Payment links generated successfully"
+    },
+    {
+        "key": "backoffice.payment.fetch.success",
+        "value": "Payments loaded successfully"
+    },
+    {
+        "key": "backoffice.payment.webhook.processed",
+        "value": "Payment notification processed"
+    },
+    {
+        "key": "billing.catalog-item.create.success",
+        "value": "Product/service created successfully"
+    },
+    {
+        "key": "billing.catalog-items.fetch.success",
+        "value": "Products and services loaded successfully"
+    },
+    {
+        "key": "billing.catalog-item.fetch.success",
+        "value": "Product/service loaded successfully"
+    },
+    {
+        "key": "billing.catalog-item.update.success",
+        "value": "Product/service updated successfully"
+    },
+    {
+        "key": "billing.catalog-item.delete.success",
+        "value": "Product/service deleted successfully"
+    },
+    {
+        "key": "billing.invoice.error.already_authorized",
+        "value": "This document is already authorized by the SRI; there is no need to send it again."
+    },
+    {
+        "key": "clinical.icd10.search.success",
+        "value": "ICD-10 codes loaded successfully"
+    },
+    {
+        "key": "tenant.features.fetch.success",
+        "value": "Enabled modules loaded successfully"
+    },
+    {
+        "key": "user.company_signup.check_email.success",
+        "value": "Email checked"
+    },
+    {
+        "key": "user.company_signup.join.success",
+        "value": "You joined the company successfully"
+    },
+    {
+        "key": "E-INT-002",
+        "value": "Invalid request."
+    },
+    {
+        "key": "E-INT-003",
+        "value": "Rate limit exceeded."
+    },
+    {
+        "key": "E-INT-004",
+        "value": "Integration not configured."
+    },
+    {
+        "key": "E-INT-005",
+        "value": "Integration not found."
+    },
+    {
+        "key": "E-TEN-002",
+        "value": "Invalid or missing display token."
+    },
+    {
+        "key": "E-TEN-003",
+        "value": "Invalid logo file. Only PNG or JPG images are allowed."
+    },
+    {
+        "key": "E-TEN-004",
+        "value": "No logo has been uploaded for this tenant."
+    },
+    {
+        "key": "E-TEN-005",
+        "value": "User has no role in this tenant."
+    },
+    {
+        "key": "E-CLIN-010",
+        "value": "Invalid clinical request."
+    },
+    {
+        "key": "E-CLIN-012",
+        "value": "Error generating/saving the medical report."
+    },
+    {
+        "key": "E-CLIN-013",
+        "value": "Error generating/saving the medical certificate."
+    },
+    {
+        "key": "E-CLIN-014",
+        "value": "Error sending the document by email."
+    },
+    {
+        "key": "E-PERM-001",
+        "value": "Error getting permissions."
+    },
+    {
+        "key": "E-AUTH-008",
+        "value": "Invalid or expired password reset token."
+    },
+    {
+        "key": "E-PLAN-001",
+        "value": "User limit reached for this plan."
+    },
+    {
+        "key": "E-PLAN-002",
+        "value": "Patient limit reached for this plan."
+    },
+    {
+        "key": "E-TEAM-001",
+        "value": "Team member not found in this company."
+    },
+    {
+        "key": "E-TEAM-002",
+        "value": "Invalid or unsupported role."
+    },
+    {
+        "key": "E-TEAM-003",
+        "value": "Cannot remove the last admin from this company."
+    },
+    {
+        "key": "E-BO-001",
+        "value": "Invalid backoffice request."
+    },
+    {
+        "key": "E-BO-002",
+        "value": "Error creating company."
+    },
+    {
+        "key": "E-BO-003",
+        "value": "Error updating company."
+    },
+    {
+        "key": "E-BO-004",
+        "value": "Error deleting company."
+    },
+    {
+        "key": "E-BO-005",
+        "value": "Feature not found."
+    },
+    {
+        "key": "E-BO-006",
+        "value": "Plan not found."
+    },
+    {
+        "key": "E-BO-007",
+        "value": "Subscription not found."
+    },
+    {
+        "key": "E-BO-008",
+        "value": "Payment creation failed."
+    },
+    {
+        "key": "E-BO-009",
+        "value": "Payment not found."
+    },
+    {
+        "key": "E-BO-010",
+        "value": "Invalid webhook signature."
     }
 ]
