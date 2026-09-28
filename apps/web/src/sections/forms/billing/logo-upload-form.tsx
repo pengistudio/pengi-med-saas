@@ -16,11 +16,11 @@ export function LogoUploadForm({
 	const [loading, setLoading] = useState(false);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+	// Drop the preview once the logo is gone (adjust state during render).
+	if (!hasLogo && previewUrl !== null) setPreviewUrl(null);
+
 	useEffect(() => {
-		if (!hasLogo) {
-			setPreviewUrl(null);
-			return;
-		}
+		if (!hasLogo) return;
 
 		let objectUrl: string | null = null;
 		getLogo().then((res) => {

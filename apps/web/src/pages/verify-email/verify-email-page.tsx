@@ -15,16 +15,15 @@ import { verifyEmail } from "@/api/auth-service";
 type State = "loading" | "success" | "error";
 
 const VerifyEmailPage = () => {
-	const [state, setState] = React.useState<State>("loading");
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const token = searchParams.get("token") ?? "";
+	const [verifyState, setState] = React.useState<State>("loading");
+	// Without a token there is nothing to verify.
+	const state: State = token ? verifyState : "error";
 
 	React.useEffect(() => {
-		if (!token) {
-			setState("error");
-			return;
-		}
+		if (!token) return;
 		verifyEmail(token).then((res) => {
 			setState(res.success ? "success" : "error");
 		});

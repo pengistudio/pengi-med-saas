@@ -61,9 +61,15 @@ export default function MedicalDocumentsListPage() {
 	const [rows, setRows] = React.useState<DocumentRow[]>([]);
 	const [printingId, setPrintingId] = React.useState<string | null>(null);
 
+	// Show the spinner again when the patient changes (adjust state during render).
+	const [prevPatientId, setPrevPatientId] = React.useState(patientId);
+	if (patientId !== prevPatientId) {
+		setPrevPatientId(patientId);
+		if (patientId) setLoading(true);
+	}
+
 	const loadDocuments = React.useCallback(() => {
 		if (!patientId) return;
-		setLoading(true);
 		Promise.all([
 			getPatientById(patientId),
 			getMedicalReports(patientId),

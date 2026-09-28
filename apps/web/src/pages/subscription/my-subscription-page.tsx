@@ -445,17 +445,21 @@ const MySubscriptionPage = () => {
 	const [payingKey, setPayingKey] = React.useState<string | null>(null);
 	const [cancellingChange, setCancellingChange] = React.useState(false);
 
-	const fetchData = React.useCallback(async () => {
-		const [subRes, paymentsRes, plansRes] = await Promise.all([
-			getMySubscription(),
-			getSubscriptionPayments(),
-			getAvailablePlans(),
-		]);
-		if (subRes.success && subRes.data) setSub(subRes.data);
-		if (paymentsRes.success && paymentsRes.data) setPayments(paymentsRes.data);
-		if (plansRes.success && plansRes.data) setPlans(plansRes.data);
-		setLoading(false);
-	}, []);
+	const fetchData = React.useCallback(
+		() =>
+			Promise.all([
+				getMySubscription(),
+				getSubscriptionPayments(),
+				getAvailablePlans(),
+			]).then(([subRes, paymentsRes, plansRes]) => {
+				if (subRes.success && subRes.data) setSub(subRes.data);
+				if (paymentsRes.success && paymentsRes.data)
+					setPayments(paymentsRes.data);
+				if (plansRes.success && plansRes.data) setPlans(plansRes.data);
+				setLoading(false);
+			}),
+		[],
+	);
 
 	React.useEffect(() => {
 		fetchData();

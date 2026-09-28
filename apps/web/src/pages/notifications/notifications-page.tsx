@@ -54,30 +54,42 @@ const NotificationsPage = () => {
 
 	const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
-	const fetchNotifications = useCallback(async (p: number, f: Filter) => {
+	// Requests the page without flagging loading; callers set it first.
+	const loadNotifications = useCallback(
+		(p: number, f: Filter) =>
+			getNotifications({
+				page: p,
+				limit: PAGE_LIMIT,
+				unread: f === "unread",
+			}).then((res) => {
+				if (res.success) {
+					setItems(res.data.items);
+					setTotal(res.data.total);
+				}
+				setLoading(false);
+			}),
+		[],
+	);
+
+	// Deleting the last item of the last page leaves it empty — step back
+	// (adjust state during render).
+	if (page > totalPages) setPage(totalPages);
+
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = useState({ page, filter });
+	if (prevQuery.page !== page || prevQuery.filter !== filter) {
+		setPrevQuery({ page, filter });
 		setLoading(true);
-		const res = await getNotifications({
-			page: p,
-			limit: PAGE_LIMIT,
-			unread: f === "unread",
-		});
-		if (res.success) {
-			setItems(res.data.items);
-			setTotal(res.data.total);
-		}
-		setLoading(false);
-	}, []);
+	}
 
 	useEffect(() => {
-		fetchNotifications(page, filter);
-	}, [page, filter, fetchNotifications]);
+		loadNotifications(page, filter);
+	}, [page, filter, loadNotifications]);
 
-	// Deleting the last item of the last page leaves it empty — step back.
-	useEffect(() => {
-		if (page > totalPages) setPage(totalPages);
-	}, [page, totalPages]);
-
-	const refresh = () => fetchNotifications(page, filter);
+	const refresh = () => {
+		setLoading(true);
+		return loadNotifications(page, filter);
+	};
 
 	const handleMarkRead = async (notification: Notification) => {
 		if (notification.read_at) return;

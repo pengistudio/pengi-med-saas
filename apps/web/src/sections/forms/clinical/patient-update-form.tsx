@@ -57,6 +57,8 @@ const EditPatientForm = () => {
 	const [loading, setLoading] = React.useState(false);
 	const [loadingData, setLoadingData] = React.useState(true);
 	const [patient, setPatientState] = React.useState<Patient | null>(null);
+	// Captured once so rendering stays pure (the age is only a default value).
+	const [now] = React.useState(() => Date.now());
 	const { textGet } = useText();
 	const { settings } = useTenantSettings();
 	const setPatient = usePatientStore(selectSetPatient);
@@ -93,7 +95,7 @@ const EditPatientForm = () => {
 
 	const existingAge = patient.birth_date
 		? Math.floor(
-				(Date.now() - new Date(patient.birth_date).getTime()) /
+				(now - new Date(patient.birth_date).getTime()) /
 					(365.25 * 24 * 60 * 60 * 1000),
 			)
 		: undefined;

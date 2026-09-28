@@ -72,9 +72,15 @@ const MedicalRecords = () => {
 	const [selectedRecord, setSelectedRecord] =
 		React.useState<MedicalRecord | null>(null);
 
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = React.useState({ patient, page });
+	if (prevQuery.patient !== patient || prevQuery.page !== page) {
+		setPrevQuery({ patient, page });
+		if (patient) setLoading(true);
+	}
+
 	React.useEffect(() => {
 		if (!patient) return;
-		setLoading(true);
 		getMedicalRecords(patient.ID, { page, limit: 10 })
 			.then((res) => {
 				if (res.success && res.data) {

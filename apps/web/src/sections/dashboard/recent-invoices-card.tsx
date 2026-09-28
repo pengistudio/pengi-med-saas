@@ -23,10 +23,13 @@ export function RecentInvoicesCard({ canRetry }: { canRetry: boolean }) {
 	const navigate = useNavigate();
 	const [invoices, setInvoices] = React.useState<Invoice[]>([]);
 
-	const load = React.useCallback(async () => {
-		const res = await getAllInvoices({ limit: RECENT_LIMIT });
-		if (res.success && res.data) setInvoices(res.data.items);
-	}, []);
+	const load = React.useCallback(
+		() =>
+			getAllInvoices({ limit: RECENT_LIMIT }).then((res) => {
+				if (res.success && res.data) setInvoices(res.data.items);
+			}),
+		[],
+	);
 
 	React.useEffect(() => {
 		load();

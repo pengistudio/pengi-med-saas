@@ -31,7 +31,12 @@ export function SendEmailPopover({
 	const [email, setEmail] = React.useState(defaultEmail);
 	const [sending, setSending] = React.useState(false);
 
-	React.useEffect(() => setEmail(defaultEmail), [defaultEmail]);
+	// Reset the address when the default changes (adjust state during render).
+	const [prevDefaultEmail, setPrevDefaultEmail] = React.useState(defaultEmail);
+	if (defaultEmail !== prevDefaultEmail) {
+		setPrevDefaultEmail(defaultEmail);
+		setEmail(defaultEmail);
+	}
 
 	async function handleSend() {
 		if (!email) return;

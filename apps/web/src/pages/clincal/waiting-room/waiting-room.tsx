@@ -434,8 +434,9 @@ const WaitingRoomPage = () => {
 		useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
 	);
 
-	const load = React.useCallback(() => {
-		setLoading(true);
+	// Requests the list without flagging loading; callers set it first
+	// (it starts true for the initial load).
+	const fetchAppointments = React.useCallback(() => {
 		getTodayAppointments()
 			.then((res) => {
 				if (res.success && res.data) setAppointments(res.data as Appointment[]);
@@ -443,9 +444,14 @@ const WaitingRoomPage = () => {
 			.finally(() => setLoading(false));
 	}, []);
 
+	const load = React.useCallback(() => {
+		setLoading(true);
+		fetchAppointments();
+	}, [fetchAppointments]);
+
 	React.useEffect(() => {
-		load();
-	}, [load]);
+		fetchAppointments();
+	}, [fetchAppointments]);
 
 	const handleMove = async (id: number, status: WaitingStatus) => {
 		const previous = appointments;

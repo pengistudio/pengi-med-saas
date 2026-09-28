@@ -52,27 +52,44 @@ const DebitNoteListPage = () => {
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
-	const fetchDebitNotes = useCallback(
-		async (p: number, s: string, st: string) => {
-			setLoading(true);
-			const res = await getAllDebitNotes({
-				page: p,
-				limit: PAGE_LIMIT,
-				search: s,
-				status: st === "all" ? undefined : st,
-			});
+	// Requests the page without flagging loading; callers set it first.
+	const loadDebitNotes = useCallback((p: number, s: string, st: string) => {
+		return getAllDebitNotes({
+			page: p,
+			limit: PAGE_LIMIT,
+			search: s,
+			status: st === "all" ? undefined : st,
+		}).then((res) => {
 			if (res.success && res.data) {
 				setDebitNoteList(res.data.items);
 				setTotalPages(res.data.total_pages);
 			}
 			setLoading(false);
+		});
+	}, []);
+
+	const fetchDebitNotes = useCallback(
+		(p: number, s: string, st: string) => {
+			setLoading(true);
+			return loadDebitNotes(p, s, st);
 		},
-		[],
+		[loadDebitNotes],
 	);
 
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = useState({ page, search, statusFilter });
+	if (
+		prevQuery.page !== page ||
+		prevQuery.search !== search ||
+		prevQuery.statusFilter !== statusFilter
+	) {
+		setPrevQuery({ page, search, statusFilter });
+		setLoading(true);
+	}
+
 	useEffect(() => {
-		fetchDebitNotes(page, search, statusFilter);
-	}, [page, search, statusFilter, fetchDebitNotes]);
+		loadDebitNotes(page, search, statusFilter);
+	}, [page, search, statusFilter, loadDebitNotes]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {

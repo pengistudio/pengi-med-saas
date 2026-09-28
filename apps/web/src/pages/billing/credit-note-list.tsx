@@ -52,27 +52,44 @@ const CreditNoteListPage = () => {
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
-	const fetchCreditNotes = useCallback(
-		async (p: number, s: string, st: string) => {
-			setLoading(true);
-			const res = await getAllCreditNotes({
-				page: p,
-				limit: PAGE_LIMIT,
-				search: s,
-				status: st === "all" ? undefined : st,
-			});
+	// Requests the page without flagging loading; callers set it first.
+	const loadCreditNotes = useCallback((p: number, s: string, st: string) => {
+		return getAllCreditNotes({
+			page: p,
+			limit: PAGE_LIMIT,
+			search: s,
+			status: st === "all" ? undefined : st,
+		}).then((res) => {
 			if (res.success && res.data) {
 				setCreditNoteList(res.data.items);
 				setTotalPages(res.data.total_pages);
 			}
 			setLoading(false);
+		});
+	}, []);
+
+	const fetchCreditNotes = useCallback(
+		(p: number, s: string, st: string) => {
+			setLoading(true);
+			return loadCreditNotes(p, s, st);
 		},
-		[],
+		[loadCreditNotes],
 	);
 
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = useState({ page, search, statusFilter });
+	if (
+		prevQuery.page !== page ||
+		prevQuery.search !== search ||
+		prevQuery.statusFilter !== statusFilter
+	) {
+		setPrevQuery({ page, search, statusFilter });
+		setLoading(true);
+	}
+
 	useEffect(() => {
-		fetchCreditNotes(page, search, statusFilter);
-	}, [page, search, statusFilter, fetchCreditNotes]);
+		loadCreditNotes(page, search, statusFilter);
+	}, [page, search, statusFilter, loadCreditNotes]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {

@@ -264,11 +264,8 @@ const WaitingRoomDisplayPage = () => {
 	};
 
 	const load = React.useCallback(() => {
-		if (!token) {
-			setInvalidToken(true);
-			setLoading(false);
-			return;
-		}
+		// A missing token is rendered as invalid directly (see below).
+		if (!token) return;
 		getTodayAppointmentsPublic(token).then((res) => {
 			if (res.success && res.data) {
 				setAppointments(res.data as Appointment[]);
@@ -321,7 +318,7 @@ const WaitingRoomDisplayPage = () => {
 
 	const today = formatDate(new Date(), "full");
 
-	if (invalidToken) {
+	if (!token || invalidToken) {
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center">
 				<p className="text-2xl text-muted-foreground">

@@ -77,26 +77,28 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const subscriptionExpired = useSessionStore(selectSubscriptionExpired);
 	const graceDaysLeft = useSessionStore(selectSubscriptionGraceDaysLeft);
 
+	const environmentName = environment?.name;
 	const handleAvatarFallbackText = useCallback(() => {
-		return environment?.name
-			? environment.name
+		return environmentName
+			? environmentName
 					.split(" ")
 					.map((n) => n[0])
 					.join("")
 			: "";
-	}, [environment?.name]);
+	}, [environmentName]);
 
 	// Parse enabled features from environment
+	const rawEnabledFeatures = environment?.enabled_features;
 	const enabledFeatures: EnabledFeatures = useMemo(() => {
-		if (!environment?.enabled_features) {
+		if (!rawEnabledFeatures) {
 			return { clinical: true, billing: true, team: true };
 		}
 		try {
-			return JSON.parse(environment.enabled_features);
+			return JSON.parse(rawEnabledFeatures);
 		} catch {
 			return { clinical: true, billing: true, team: true };
 		}
-	}, [environment?.enabled_features]);
+	}, [rawEnabledFeatures]);
 
 	// Use useMemo with stable reference
 	const unfilteredNavItems = useMemo(() => createNavItems(textGet), [textGet]);

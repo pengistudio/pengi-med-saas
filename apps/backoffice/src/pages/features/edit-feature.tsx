@@ -36,10 +36,13 @@ const EditFeature = () => {
 		string[]
 	>([]);
 
-	React.useEffect(() => {
+	// Load the saved selection once the feature arrives (adjust state during render).
+	const [prevFeature, setPrevFeature] = React.useState<typeof feature>();
+	if (feature !== prevFeature) {
+		setPrevFeature(feature);
 		if (feature)
 			setSelectedPermissions(feature.permissions?.map((p) => p.ID) ?? []);
-	}, [feature]);
+	}
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		await save({

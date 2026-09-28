@@ -80,18 +80,26 @@ const SriSettingsPage = () => {
 	const [status, setStatus] = useState<SriStatus | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	const fetchStatus = useCallback(async () => {
+	// Loading starts true, so the initial load doesn't need to set it.
+	const loadStatus = useCallback(
+		() =>
+			getSriStatus().then((res) => {
+				if (res.success) {
+					setStatus(res.data);
+				}
+				setLoading(false);
+			}),
+		[],
+	);
+
+	const fetchStatus = useCallback(() => {
 		setLoading(true);
-		const res = await getSriStatus();
-		if (res.success) {
-			setStatus(res.data);
-		}
-		setLoading(false);
-	}, []);
+		return loadStatus();
+	}, [loadStatus]);
 
 	useEffect(() => {
-		fetchStatus();
-	}, [fetchStatus]);
+		loadStatus();
+	}, [loadStatus]);
 
 	return (
 		<DashboardLayout>

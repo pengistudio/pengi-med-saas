@@ -30,9 +30,12 @@ const EditRole = () => {
 		string[]
 	>([]);
 
-	React.useEffect(() => {
+	// Load the saved selection once the role arrives (adjust state during render).
+	const [prevRole, setPrevRole] = React.useState<typeof role>();
+	if (role !== prevRole) {
+		setPrevRole(role);
 		if (role) setSelectedPermissions(role.permissions?.map((p) => p.ID) ?? []);
-	}, [role]);
+	}
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		await save({
