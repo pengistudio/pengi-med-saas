@@ -47,6 +47,8 @@ just lint                          # Auto-format all TS/JS
 just setup                         # Configure git hooks (run once after cloning)
 ```
 
+`node_modules` is installed from the Linux dev containers and shared with the host through the bind mount: never run `pnpm install`/`pnpm run` on the host (it reinstalls for the host OS and breaks the containers). Run JS tooling inside `pengi-web-dev` (repo at `/workspace`); the pre-commit hook does, so the stack must be up to commit.
+
 ### Infrastructure dependencies (for local backend dev without Docker)
 ```bash
 docker compose -f docker-compose.dev.yaml up -d db rabbitmq gotenberg sri-xml-signer
