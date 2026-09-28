@@ -13,6 +13,7 @@
 	"peerDependencies": {
 		"@pengi/ui": "workspace:*",
 		"axios": "^1.18.1",
+		"date-fns": "^4.4.0",
 		"react": "^19.2.6",
 		"sonner": "^2.0.7",
 		"zod": "^4.4.3",
@@ -25,6 +26,7 @@
 		"@types/react": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
 		"axios": "catalog:",
+		"date-fns": "catalog:",
 		"jsdom": "^29.1.1",
 		"react": "catalog:",
 		"react-dom": "catalog:",

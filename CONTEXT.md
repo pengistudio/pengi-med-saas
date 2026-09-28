@@ -57,3 +57,7 @@ Comprador genérico declarado cuando la factura no tiene paciente asociado.
 **Catálogo de mensajes**:
 Todos los textos de la API y de las apps (mensajes, códigos de error, etiquetas) por clave i18n e idioma, en el JSON embebido en el binario; cambiar un texto requiere un deploy. En código: `i18n/catalog`.
 _Avoid_: tabla de mensajes, traducciones (a secas)
+
+**Idioma de la interfaz**:
+El idioma (`es`/`en`) en que el usuario ve textos, fechas y montos; cambia junto con los mensajes cargados, no al elegirlo. Define el locale de formato (`es`→`es-EC`, `en`→`en-US`); la moneda es siempre USD. En código: `useText` de `@pengi/shared`.
+_Avoid_: locale (a secas), idioma del navegador

@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { downloadInvoiceRide, type Invoice } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
+import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 
 function DownloadRideButton({ invoice }: { invoice: Invoice }) {
@@ -130,12 +131,8 @@ export function getInvoiceColumns(
 			),
 			cell: ({ row }) => {
 				const amount = parseFloat(row.getValue("total"));
-				const formatted = new Intl.NumberFormat("en-US", {
-					style: "currency",
-					currency: "USD",
-				}).format(amount);
 				return (
-					<span className="font-mono text-right font-medium">{formatted}</span>
+					<Money amount={amount} className="font-mono text-right font-medium" />
 				);
 			},
 		},
@@ -219,11 +216,6 @@ export function getInvoiceColumnsMobile(
 			),
 			cell: ({ row }) => {
 				const invoice = row.original;
-				const amount = new Intl.NumberFormat("en-US", {
-					style: "currency",
-					currency: "USD",
-				}).format(invoice.total);
-
 				return (
 					<div className="flex flex-col gap-1 py-1">
 						<div className="flex justify-between items-center">
@@ -231,7 +223,10 @@ export function getInvoiceColumnsMobile(
 								{invoice.establishment_code}-{invoice.emission_point_code}-
 								{invoice.sequential}
 							</span>
-							<span className="font-mono text-sm font-semibold">{amount}</span>
+							<Money
+								amount={invoice.total}
+								className="font-mono text-sm font-semibold"
+							/>
 						</div>
 						<div className="flex justify-between items-center text-xs text-muted-foreground">
 							<span>

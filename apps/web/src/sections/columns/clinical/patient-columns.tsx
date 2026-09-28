@@ -1,3 +1,4 @@
+import { parseDateOnly } from "@pengi/shared";
 import {
 	Avatar,
 	AvatarFallback,
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Patient } from "@/api/clinical-service";
+import { FormattedDate } from "@/components/custom/formatted";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
@@ -311,16 +313,11 @@ export const patientColumns: ColumnDef<Patient>[] = [
 							? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/40"
 							: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-400/40";
 
-				const dateLabel = apptDate.toLocaleDateString("es-EC", {
-					month: "short",
-					day: "numeric",
-				});
-
 				return (
 					<span
 						className={`inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium ${colorClass}`}
 					>
-						<span>{dateLabel}</span>
+						<FormattedDate value={apptDate} style="day-month" />
 						<span className="opacity-80">
 							{nextScheduled.start_time} – {nextScheduled.end_time}
 						</span>
@@ -330,15 +327,11 @@ export const patientColumns: ColumnDef<Patient>[] = [
 
 			// Prioridad 2: fecha sugerida por el médico
 			const lastRecord = row.original.medical_records?.[0];
-			if (lastRecord?.next_appointment_date) {
-				const suggestedDate = new Date(lastRecord.next_appointment_date);
-				const dateLabel = suggestedDate.toLocaleDateString("es-EC", {
-					month: "short",
-					day: "numeric",
-				});
+			const suggestedDate = parseDateOnly(lastRecord?.next_appointment_date);
+			if (suggestedDate) {
 				return (
 					<span className="inline-flex flex-col gap-0.5 rounded-md border px-2 py-1 text-xs font-medium bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-400/40">
-						<span>{dateLabel}</span>
+						<FormattedDate value={suggestedDate} style="day-month" />
 						<span className="opacity-80 text-[10px]">
 							<Text uuid="clinical.patient.appointment.suggested" />
 						</span>

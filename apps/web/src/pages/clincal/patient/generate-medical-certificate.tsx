@@ -64,7 +64,7 @@ function DatePicker({
 	disabled?: boolean;
 	fromDate?: Date;
 }) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const lang = useMessageStore((state) => state.lang);
 	const locale = lang === "es" ? es : enUS;
 
@@ -85,9 +85,7 @@ function DatePicker({
 				}
 			>
 				<CalendarIcon className="mr-2 size-4" />
-				{value
-					? format(value, "PP", { locale })
-					: textGet("form.calendar.pick_date")}
+				{value ? formatDate(value) : textGet("form.calendar.pick_date")}
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0" align="start">
 				<Calendar

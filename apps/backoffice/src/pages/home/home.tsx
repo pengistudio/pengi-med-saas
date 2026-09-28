@@ -27,6 +27,7 @@ import {
 	type DashboardStats,
 	getDashboardStats,
 } from "@/api/dashboard-service";
+import { ExpiryDate } from "@/lib/subscription/expiry-date";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 function StatCard({
@@ -157,7 +158,7 @@ const Home = () => {
 												</span>
 											</TableCell>
 											<TableCell className="text-muted-foreground">
-												{new Date(s.expires_at).toLocaleDateString()}
+												<ExpiryDate expiresAt={s.expires_at} />
 											</TableCell>
 											<TableCell>
 												<span

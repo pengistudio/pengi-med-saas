@@ -1,4 +1,4 @@
-import { useText } from "@pengi/shared";
+import { type AppText, toDateOnlyString, useText } from "@pengi/shared";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -59,7 +59,6 @@ import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormTagInput } from "@/components/forms/form-tag-input";
 import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
-import { dateParser } from "@/lib/utils";
 import { selectPatient, usePatientStore } from "@/store/patient-store";
 
 type VisitType = "first" | "followup";
@@ -243,7 +242,7 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 			next_appointment_date:
 				values.next_appointment_status === "scheduled" &&
 				values.next_appointment_date
-					? values.next_appointment_date.toISOString().split("T")[0]
+					? toDateOnlyString(values.next_appointment_date)
 					: undefined,
 			soap_record: values.soap_record,
 			prescription,
@@ -299,7 +298,7 @@ function FormWithDraft({
 	patientId: string | null;
 	visitType: VisitType;
 	loading: boolean;
-	textGet: (key: string) => string;
+	textGet: AppText["textGet"];
 	prescriptionMode: PrescriptionMode;
 	onPrescriptionModeChange: (mode: PrescriptionMode) => void;
 	allergies: string[];
@@ -307,6 +306,7 @@ function FormWithDraft({
 	onPreviewLastRecord: () => void;
 	onClearDraftReady: (fn: () => void) => void;
 }) {
+	const { formatDateTime } = useText();
 	const {
 		hasDraft,
 		lastSaved,
@@ -329,17 +329,9 @@ function FormWithDraft({
 							{textGet("form.create_medical_record.draft.pending.title")}
 						</AlertDialogTitle>
 						<AlertDialogDescription>
-							{textGet(
-								"form.create_medical_record.draft.pending.description",
-							).replace(
-								"{date}",
-								pendingDraft
-									? dateParser(pendingDraft.savedAt, {
-											dateStyle: "long",
-											timeStyle: "short",
-										})
-									: "",
-							)}
+							{textGet("form.create_medical_record.draft.pending.description", {
+								date: formatDateTime(pendingDraft?.savedAt),
+							})}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -411,7 +403,7 @@ function FormInner({
 	>;
 	visitType: VisitType;
 	loading: boolean;
-	textGet: (key: string) => string;
+	textGet: AppText["textGet"];
 	prescriptionMode: PrescriptionMode;
 	onPrescriptionModeChange: (mode: PrescriptionMode) => void;
 	allergies: string[];
@@ -1291,9 +1283,10 @@ function LastRecordDialog({
 	record: MedicalRecord;
 	open: boolean;
 	onClose: () => void;
-	textGet: (key: string) => string;
+	textGet: AppText["textGet"];
 }) {
-	const date = new Date(record.date).toLocaleDateString();
+	const { formatDate } = useText();
+	const date = formatDate(record.date);
 
 	return (
 		<Dialog open={open} onOpenChange={(v) => !v && onClose()}>

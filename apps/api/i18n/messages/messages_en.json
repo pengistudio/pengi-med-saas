@@ -4324,6 +4324,38 @@
         "value": "Notes"
     },
     {
+        "key": "clinical.prescription.whatsapp_message.title",
+        "value": "Medical Prescription"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.patient",
+        "value": "Patient: {name}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.doctor",
+        "value": "Doctor: {name}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.date",
+        "value": "Date: {date}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.medications",
+        "value": "Medications:"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.item_detail",
+        "value": "Dose: {dose} | Frequency: {frequency} | Duration: {duration}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.item_notes",
+        "value": "Notes: {notes}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.indications",
+        "value": "Instructions:"
+    },
+    {
         "key": "clinical.patient_card.has_allergies",
         "value": "Allergies"
     },
@@ -5573,7 +5605,7 @@
     },
     {
         "key": "notification.clinical.draft.stale",
-        "value": "You have an unsaved consultation for {{patient_name}} from {{elapsed}} ago."
+        "value": "You have an unsaved consultation for {patient_name} from {elapsed} ago."
     },
     {
         "key": "notification.bell.title",
@@ -5701,7 +5733,7 @@
     },
     {
         "key": "notification.announcement",
-        "value": "{{title}}: {{body}}"
+        "value": "{title}: {body}"
     },
     {
         "key": "backoffice.announcement.list.success",
@@ -6606,5 +6638,97 @@
     {
         "key": "E-BO-010",
         "value": "Invalid webhook signature."
+    },
+    {
+        "key": "backoffice.subscription.invalid_date",
+        "value": "Invalid date format, use YYYY-MM-DD."
+    },
+    {
+        "key": "backoffice.announcement.no_recipients",
+        "value": "The announcement target has no recipients."
+    },
+    {
+        "key": "backoffice.announcement.not_cancellable",
+        "value": "Only scheduled announcements can be cancelled."
+    },
+    {
+        "key": "E-BO-011",
+        "value": "Role not found."
+    },
+    {
+        "key": "integrations.google.error.not_configured",
+        "value": "Google integration is not configured on the server. Please contact support."
+    },
+    {
+        "key": "integrations.google.error.not_connected",
+        "value": "Google Calendar is not connected."
+    },
+    {
+        "key": "clinical.appointment.delete.invalid_status",
+        "value": "Only scheduled, cancelled or completed appointments can be deleted."
+    },
+    {
+        "key": "clinical.prescription_template.error.file_required",
+        "value": "Select the template file."
+    },
+    {
+        "key": "clinical.prescription.error.not_found",
+        "value": "This medical record has no prescription."
+    },
+    {
+        "key": "clinical.icd11.error.unavailable",
+        "value": "The ICD-11 service is unavailable. Please try again later."
+    },
+    {
+        "key": "E-CLIN-015",
+        "value": "Appointment not found."
+    },
+    {
+        "key": "E-CLIN-016",
+        "value": "This medical record has no prescription."
+    },
+    {
+        "key": "E-CLIN-017",
+        "value": "The ICD-11 service is unavailable. Please try again later."
+    },
+    {
+        "key": "subscription.error.inactive",
+        "value": "Your company has no active subscription. Renew your plan to continue."
+    },
+    {
+        "key": "subscription.error.feature_not_included",
+        "value": "Your plan does not include this feature. Upgrade your plan to use it."
+    },
+    {
+        "key": "permission.error.insufficient",
+        "value": "Your role does not have permission to perform this action."
+    },
+    {
+        "key": "E-PERM-002",
+        "value": "Your plan does not include this feature."
+    },
+    {
+        "key": "E-PERM-003",
+        "value": "You do not have the required permissions."
+    },
+    {
+        "key": "billing.sri.logo.file_required",
+        "value": "Choose a PNG or JPG image for the logo."
+    },
+    {
+        "key": "tenant.display_token.error.invalid",
+        "value": "The display code is not valid. Pair the display again."
+    },
+    {
+        "key": "auth.signup.company.invalid_token",
+        "value": "The invitation link is invalid or has expired. Ask your company administrator for a new one."
+    },
+    {
+        "key": "auth.reset_password.invalid_token",
+        "value": "The password reset link is invalid or has expired. Request a new one."
+    },
+    {
+        "key": "E-USR-002",
+        "value": "Environment not found."
     }
 ]

@@ -1,4 +1,4 @@
-import { useText } from "@pengi/shared";
+import { parseDateOnly, useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -36,7 +36,6 @@ import { SignDocumentButton } from "@/components/custom/sign-document-button";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import {
 	buildPrescriptionWhatsAppMessage,
-	dateParser,
 	generateWhatsAppLink,
 } from "@/lib/utils";
 
@@ -47,24 +46,27 @@ const ViewMedicalRecord = () => {
 		React.useState<MedicalRecord | null>(null);
 	const [showPrescription, setShowPrescription] = React.useState(false);
 	const [isDownloading, setIsDownloading] = React.useState(false);
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 
 	const handleSendWhatsApp = () => {
 		const phone = medicalRecord?.patient?.phone;
 		if (!phone) return;
-		const message = buildPrescriptionWhatsAppMessage({
-			patientName:
-				`${medicalRecord.patient?.first_name ?? ""} ${medicalRecord.patient?.last_name ?? ""}`.trim(),
-			date: dateParser(new Date(medicalRecord.date), { dateStyle: "medium" }),
-			items: medicalRecord.prescription?.items?.map((item) => ({
-				medication: item.medication,
-				dose: item.dose,
-				frequency: item.frequency,
-				duration: item.duration,
-				notes: item.notes,
-			})),
-			indications: medicalRecord.prescription?.indications,
-		});
+		const message = buildPrescriptionWhatsAppMessage(
+			{
+				patientName:
+					`${medicalRecord.patient?.first_name ?? ""} ${medicalRecord.patient?.last_name ?? ""}`.trim(),
+				date: formatDate(medicalRecord.date),
+				items: medicalRecord.prescription?.items?.map((item) => ({
+					medication: item.medication,
+					dose: item.dose,
+					frequency: item.frequency,
+					duration: item.duration,
+					notes: item.notes,
+				})),
+				indications: medicalRecord.prescription?.indications,
+			},
+			textGet,
+		);
 		window.open(generateWhatsAppLink(phone, message), "_blank");
 	};
 
@@ -160,11 +162,7 @@ const ViewMedicalRecord = () => {
 							<span className="font-medium text-muted-foreground">
 								{textGet("view.medical_record.date")}:
 							</span>
-							<span>
-								{dateParser(new Date(medicalRecord.date), {
-									dateStyle: "full",
-								})}
-							</span>
+							<span>{formatDate(medicalRecord.date, "full")}</span>
 						</div>
 						<div className="grid grid-cols-[120px_1fr] items-start">
 							<span className="font-medium text-muted-foreground">
@@ -189,13 +187,10 @@ const ViewMedicalRecord = () => {
 								</span>
 								<span className="inline-flex items-center gap-2 rounded-md bg-blue-500/15 px-2.5 py-1 text-sm font-medium text-blue-700">
 									<Calendar className="h-4 w-4" />
-									{new Date(
-										medicalRecord.next_appointment_date,
-									).toLocaleDateString("es-EC", {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-									})}
+									{formatDate(
+										parseDateOnly(medicalRecord.next_appointment_date),
+										"long",
+									)}
 								</span>
 							</div>
 						)}

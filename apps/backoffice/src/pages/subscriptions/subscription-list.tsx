@@ -1,7 +1,7 @@
 import { cn } from "@pengi/ui";
 import { type Subscription, subscriptions } from "@/api/subscription-service";
 import { type ResourceColumn, ResourceList } from "@/lib/resource";
-import { formatExpiry } from "@/lib/subscription/term";
+import { ExpiryDate } from "@/lib/subscription/expiry-date";
 
 const statusColors: Record<string, string> = {
 	active: "bg-emerald-500/10 text-emerald-600",
@@ -34,7 +34,7 @@ const columns: ResourceColumn<Subscription>[] = [
 	},
 	{
 		header: "backoffice.subscriptions.col.expires",
-		cell: (s) => formatExpiry(s.expires_at),
+		cell: (s) => <ExpiryDate expiresAt={s.expires_at} />,
 		className: "text-muted-foreground",
 	},
 ];

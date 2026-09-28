@@ -25,9 +25,9 @@ import {
 	Plus,
 } from "lucide-react";
 import type { MedicalRecord } from "@/api/clinical-service";
+import { FormattedDate } from "@/components/custom/formatted";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
-import { dateParser } from "@/lib/utils";
 
 interface ActionCellProps {
 	row: CellContext<MedicalRecord, unknown>["row"];
@@ -166,10 +166,10 @@ export const getMedicalRecordColumns = (
 		size: 50,
 	},
 	{
-		accessorFn: (row) =>
-			dateParser(new Date(row.date), { dateStyle: "medium" }),
+		accessorFn: (row) => row.date,
 		id: "date",
 		header: () => <Text uuid="clinical.medical_record.date" />,
+		cell: ({ row }) => <FormattedDate value={row.original.date} />,
 		meta: { title: "table.column.date" },
 		size: 150,
 	},

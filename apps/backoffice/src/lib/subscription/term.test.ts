@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
 	addMonths,
 	expiryDate,
-	formatExpiry,
 	sortedPricings,
 	suggestExpiry,
 	todayInEcuador,
@@ -31,7 +30,6 @@ describe("subscription term", () => {
 	it("reads an expiry timestamp as its Ecuador date", () => {
 		// End of 16 Nov in Ecuador, as the API now stores it.
 		expect(expiryDate("2026-11-17T04:59:59Z")).toBe("2026-11-16");
-		expect(formatExpiry("2026-11-17T04:59:59Z", "es-EC")).toBe("16/11/2026");
 	});
 
 	it("sorts a plan's pricings by months", () => {

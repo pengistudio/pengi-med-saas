@@ -3,7 +3,7 @@ import { Card, CardContent } from "@pengi/ui";
 import { CreditCard } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { SubscriptionInfo } from "@/api/clinical-service";
-import { cn, dateParser } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { SUBSCRIPTION_WARNING_DAYS } from "./attention-strip";
 
 /** One line about the plan; it only takes color when renewal is close. */
@@ -12,7 +12,7 @@ export function SubscriptionSummary({
 }: {
 	subscription: SubscriptionInfo;
 }) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const navigate = useNavigate();
 	const expired = subscription.days_left <= 0;
 	const status = expired ? "expired" : subscription.status;
@@ -48,7 +48,7 @@ export function SubscriptionSummary({
 					</p>
 					<p className="text-xs text-muted-foreground">
 						{textGet("dashboard.subscription.expires")}{" "}
-						{dateParser(subscription.expires_at, { dateStyle: "long" })}
+						{formatDate(subscription.expires_at, "long")}
 					</p>
 				</div>
 				<button

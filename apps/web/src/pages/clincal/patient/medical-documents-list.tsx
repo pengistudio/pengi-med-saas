@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -49,6 +50,7 @@ interface DocumentRow {
 }
 
 export default function MedicalDocumentsListPage() {
+	const { formatDateTime } = useText();
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
 	const [searchParams] = useSearchParams();
@@ -242,9 +244,7 @@ export default function MedicalDocumentsListPage() {
 														)}
 													</Badge>
 												</TableCell>
-												<TableCell>
-													{new Date(row.createdAt).toLocaleString("es-EC")}
-												</TableCell>
+												<TableCell>{formatDateTime(row.createdAt)}</TableCell>
 												<TableCell className="text-right">
 													<div className="flex items-center justify-end gap-1">
 														<SignDocumentButton

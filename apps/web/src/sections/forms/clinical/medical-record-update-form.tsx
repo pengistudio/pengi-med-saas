@@ -1,4 +1,4 @@
-import { useText } from "@pengi/shared";
+import { parseDateOnly, toDateOnlyString, useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -155,9 +155,7 @@ const UpdateMedicalRecordForm = () => {
 				next_appointment_status:
 					record.next_appointment_status ??
 					(record.next_appointment_date ? "scheduled" : "pending"),
-				next_appointment_date: record.next_appointment_date
-					? new Date(record.next_appointment_date)
-					: undefined,
+				next_appointment_date: parseDateOnly(record.next_appointment_date),
 				soap_record: {
 					subjective: record.soap_record?.subjective || "",
 					objective: record.soap_record?.objective || "",
@@ -360,7 +358,7 @@ const UpdateMedicalRecordForm = () => {
 			next_appointment_date:
 				values.next_appointment_status === "scheduled" &&
 				values.next_appointment_date
-					? values.next_appointment_date.toISOString().split("T")[0]
+					? toDateOnlyString(values.next_appointment_date)
 					: undefined,
 			soap_record: values.soap_record,
 		};

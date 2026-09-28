@@ -48,9 +48,6 @@ const statusColors: Record<string, string> = {
 	failed: "bg-red-500/10 text-red-600",
 };
 
-const formatDate = (value: string | null) =>
-	value ? new Date(value).toLocaleString() : "—";
-
 function Pill({
 	className,
 	children,
@@ -68,7 +65,7 @@ function Pill({
 }
 
 const AnnouncementList = () => {
-	const { textGet } = useText();
+	const { textGet, formatDateTime } = useText();
 	const navigate = useNavigate();
 	const { items, loading, refetch } = useResourceList(announcements);
 	const [cancelling, setCancelling] = React.useState<Announcement | null>(null);
@@ -171,7 +168,9 @@ const AnnouncementList = () => {
 												</Pill>
 											</TableCell>
 											<TableCell className="text-muted-foreground">
-												{formatDate(a.sent_at ?? a.scheduled_at ?? a.CreatedAt)}
+												{formatDateTime(
+													a.sent_at ?? a.scheduled_at ?? a.CreatedAt,
+												) || "—"}
 											</TableCell>
 											<TableCell className="text-right">
 												{a.recipient_count}

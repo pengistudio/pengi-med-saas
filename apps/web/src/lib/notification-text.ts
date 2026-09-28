@@ -1,79 +1,43 @@
-import { formatDistanceToNow } from "date-fns";
-import { enUS, es } from "date-fns/locale";
+import type { AppText } from "@pengi/shared";
 import type { Notification } from "@/api/notification-service";
 
 /**
- * Fills a `{{placeholder}}` template (an i18n string resolved via textGet)
- * with a notification's params. Kept separate from useText/textGet since
- * that hook is a plain key->string lookup with no interpolation support —
- * this is the one place today that needs it, and works for any future
- * notification type without per-type frontend code.
+ * When the draft behind a stale-draft notification was last saved: its
+ * `draft_updated_at`, or for older notifications, which only carry
+ * `minutes_elapsed` at the time they were created, that many minutes before
+ * the notification.
  */
-export function renderNotificationText(
-	template: string,
-	params: Record<string, string>,
-): string {
-	return template.replace(
-		/\{\{(\w+)\}\}/g,
-		(_, key: string) => params[key] ?? "",
+function draftUpdatedAt(
+	notification: Pick<Notification, "params"> &
+		Partial<Pick<Notification, "CreatedAt">>,
+): Date | string | undefined {
+	const { draft_updated_at, minutes_elapsed } = notification.params;
+	if (draft_updated_at) return draft_updated_at;
+	const minutes = Number(minutes_elapsed);
+	if (!notification.CreatedAt || !minutes_elapsed || Number.isNaN(minutes))
+		return undefined;
+	return new Date(
+		new Date(notification.CreatedAt).getTime() - minutes * 60_000,
 	);
 }
 
 /**
- * Renders a "3 minutes ago" style string, tolerating a missing/malformed
- * date instead of throwing — a breaking API field-shape change once left
- * stale, badly-shaped notifications sitting in a user's sessionStorage,
- * and date-fns throws RangeError on an invalid Date rather than returning
- * a fallback.
- */
-export function formatRelativeTime(
-	dateValue: string | undefined | null,
-	lang: string | undefined,
-): string {
-	if (!dateValue) return "";
-	const date = new Date(dateValue);
-	if (Number.isNaN(date.getTime())) return "";
-	return formatDistanceToNow(date, {
-		addSuffix: true,
-		locale: lang === "en" ? enUS : es,
-	});
-}
-
-/**
- * Same tolerant date handling as formatRelativeTime, but without the
- * "ago"/"hace" suffix — for templates that already supply that wording
- * around the placeholder (e.g. "...desde hace {{elapsed}}.").
- */
-export function formatElapsedDuration(
-	dateValue: string | undefined | null,
-	lang: string | undefined,
-): string {
-	if (!dateValue) return "";
-	const date = new Date(dateValue);
-	if (Number.isNaN(date.getTime())) return "";
-	return formatDistanceToNow(date, {
-		locale: lang === "en" ? enUS : es,
-	});
-}
-
-/**
- * Resolves a notification's full display text: looks up its i18n template
- * and fills it with its params, computing the live `{{elapsed}}` value for
- * notifications that carry a `draft_updated_at` timestamp.
+ * Resolves a notification's full display text: its i18n template filled with
+ * its params, computing the live `{elapsed}` value for stale-draft
+ * notifications.
  */
 export function getNotificationText(
-	notification: Pick<Notification, "message_key" | "params">,
-	textGet: (key: string) => string,
-	lang: string | undefined,
+	notification: Pick<Notification, "message_key" | "params"> &
+		Partial<Pick<Notification, "CreatedAt">>,
+	{ textGet, formatRelative }: Pick<AppText, "textGet" | "formatRelative">,
 ): string {
-	const params = notification.params.draft_updated_at
+	const updatedAt = draftUpdatedAt(notification);
+	const params = updatedAt
 		? {
 				...notification.params,
-				elapsed: formatElapsedDuration(
-					notification.params.draft_updated_at,
-					lang,
-				),
+				// The template already says "desde hace" / "ago".
+				elapsed: formatRelative(updatedAt, { suffix: false }),
 			}
 		: notification.params;
-	return renderNotificationText(textGet(notification.message_key), params);
+	return textGet(notification.message_key, params);
 }

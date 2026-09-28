@@ -91,11 +91,7 @@ export function WeekOverview({
 					{textGet("dashboard.week.title")}
 				</CardTitle>
 				<p className="text-sm text-muted-foreground">
-					{textGet(
-						weekTotal === 1
-							? "dashboard.week.total.one"
-							: "dashboard.week.total.other",
-					).replace("{count}", String(weekTotal))}
+					{textGet("dashboard.week.total", { count: weekTotal })}
 				</p>
 			</CardHeader>
 			<CardContent className="space-y-4">

@@ -46,13 +46,6 @@ export function expiryDate(expiresAt: string): string {
 	return ecuadorDate.format(new Date(expiresAt));
 }
 
-/** An expiry timestamp from the API, displayed as its Ecuador date. */
-export function formatExpiry(expiresAt: string, locale?: string): string {
-	return new Date(expiresAt).toLocaleDateString(locale, {
-		timeZone: SUBSCRIPTION_TIME_ZONE,
-	});
-}
-
 export function sortedPricings(
 	plan: { pricings?: PricingOption[] } | undefined,
 ): PricingOption[] {

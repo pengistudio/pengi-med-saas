@@ -32,7 +32,6 @@ import React from "react";
 import type { Patient } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import useTenantSettings from "@/hooks/use-tenant-settings";
-import { dateParser } from "@/lib/utils";
 
 /**
  * Extends `Patient` with optional fields that may be injected
@@ -63,7 +62,7 @@ export default function PatientCard({
 	onEditPatient,
 }: PatientCardProps) {
 	const [showPrescription, setShowPrescription] = React.useState(false);
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const { settings } = useTenantSettings();
 	const useAgeInput = settings.clinical.patient_age_input;
 	const age = patient.birth_date
@@ -158,7 +157,7 @@ export default function PatientCard({
 													<NotAvailable />
 												)
 											) : (
-												dateParser(patient.birth_date, { dateStyle: "medium" })
+												formatDate(patient.birth_date)
 											)}
 										</span>
 									</div>

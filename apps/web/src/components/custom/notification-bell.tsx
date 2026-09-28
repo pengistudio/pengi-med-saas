@@ -1,4 +1,4 @@
-import { useMessageStore, useText } from "@pengi/shared";
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	DropdownMenu,
@@ -20,18 +20,14 @@ import {
 	NotificationLevelIcon,
 	openNotificationLink,
 } from "@/lib/notification-level";
-import {
-	formatRelativeTime,
-	getNotificationText,
-} from "@/lib/notification-text";
+import { getNotificationText } from "@/lib/notification-text";
 import { useNotificationStore } from "@/store/notification-store";
 
 const UNREAD_BADGE_MAX = 9;
 
 const NotificationBell = () => {
-	const { textGet } = useText();
+	const { textGet, formatRelative } = useText();
 	const navigate = useNavigate();
-	const lang = useMessageStore((s) => s.lang);
 	const notifications = useNotificationStore((s) => s.notifications);
 	const unreadCount = useNotificationStore((s) => s.unreadCount);
 	const markReadLocally = useNotificationStore((s) => s.markReadLocally);
@@ -103,10 +99,10 @@ const NotificationBell = () => {
 									level={notification.level}
 									className="mt-0.5"
 								/>
-								{getNotificationText(notification, textGet, lang)}
+								{getNotificationText(notification, { textGet, formatRelative })}
 							</span>
 							<span className="text-xs text-muted-foreground">
-								{formatRelativeTime(notification.CreatedAt, lang)}
+								{formatRelative(notification.CreatedAt)}
 							</span>
 						</DropdownMenuItem>
 					))

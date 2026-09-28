@@ -35,7 +35,6 @@ import usePermission from "@/hooks/use-permission";
 import { EMPTY_STRING, PERMISSIONS } from "@/lib/constants";
 import {
 	buildPrescriptionWhatsAppMessage,
-	dateParser,
 	generateWhatsAppLink,
 } from "@/lib/utils";
 import { getMedicalRecordColumns } from "@/sections/columns/clinical/medical-record-columns";
@@ -60,7 +59,7 @@ const MedicalRecords = () => {
 	}, [patientId, setPatient]);
 	const { infoToast } = useToast();
 	const { checkPermission } = usePermission();
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 
 	const [medicalRecords, setMedicalRecords] = React.useState<MedicalRecord[]>(
 		[],
@@ -279,18 +278,21 @@ const MedicalRecords = () => {
 			});
 			return;
 		}
-		const message = buildPrescriptionWhatsAppMessage({
-			patientName: `${patient.first_name} ${patient.last_name}`.trim(),
-			date: dateParser(new Date(record.date), { dateStyle: "medium" }),
-			items: record.prescription?.items?.map((item) => ({
-				medication: item.medication,
-				dose: item.dose,
-				frequency: item.frequency,
-				duration: item.duration,
-				notes: item.notes,
-			})),
-			indications: record.prescription?.indications,
-		});
+		const message = buildPrescriptionWhatsAppMessage(
+			{
+				patientName: `${patient.first_name} ${patient.last_name}`.trim(),
+				date: formatDate(record.date),
+				items: record.prescription?.items?.map((item) => ({
+					medication: item.medication,
+					dose: item.dose,
+					frequency: item.frequency,
+					duration: item.duration,
+					notes: item.notes,
+				})),
+				indications: record.prescription?.indications,
+			},
+			textGet,
+		);
 		window.open(generateWhatsAppLink(patient.phone, message), "_blank");
 	}
 

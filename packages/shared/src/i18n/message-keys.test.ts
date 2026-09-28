@@ -8,6 +8,9 @@ import { describe, expect, it } from "vitest";
  * Every literal message key the frontends use must exist in both API message
  * files — otherwise the UI renders `*key*`.
  *
+ * A key read with a `count` (`textGet("a.b", { count })`) may exist as its
+ * plural forms instead: `a.b.one` and `a.b.other`.
+ *
  * Only literal keys are checked: `textGet("a.b")`, `textGet('a.b')`,
  * `uuid="a.b"` and `uuid={"a.b"}`. Keys built at runtime (template literals,
  * variables, concatenation) can't be read statically and are skipped; the
@@ -89,8 +92,10 @@ describe("message keys used by the frontends", () => {
 
 	it.each(MESSAGE_FILES)("all exist in %s", (file) => {
 		const keys = loadKeys(file);
+		const exists = (key: string) =>
+			keys.has(key) || (keys.has(`${key}.one`) && keys.has(`${key}.other`));
 		const missing = [...used]
-			.filter(([key]) => !keys.has(key))
+			.filter(([key]) => !exists(key))
 			.map(([key, where]) => `${key}  (${where})`);
 		expect(missing).toEqual([]);
 	});

@@ -1,4 +1,4 @@
-import { useMessageStore, useText } from "@pengi/shared";
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -24,10 +24,7 @@ import {
 	NotificationLevelIcon,
 	openNotificationLink,
 } from "@/lib/notification-level";
-import {
-	formatRelativeTime,
-	getNotificationText,
-} from "@/lib/notification-text";
+import { getNotificationText } from "@/lib/notification-text";
 import { cn } from "@/lib/utils";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useNotificationStore } from "@/store/notification-store";
@@ -42,9 +39,8 @@ const FILTERS: { value: Filter; labelKey: string }[] = [
 ];
 
 const NotificationsPage = () => {
-	const { textGet } = useText();
+	const { textGet, formatRelative } = useText();
 	const navigate = useNavigate();
-	const lang = useMessageStore((s) => s.lang);
 	const unreadCount = useNotificationStore((s) => s.unreadCount);
 	const markReadLocally = useNotificationStore((s) => s.markReadLocally);
 	const markAllReadLocally = useNotificationStore((s) => s.markAllReadLocally);
@@ -202,10 +198,13 @@ const NotificationsPage = () => {
 													level={notification.level}
 													className="mt-0.5"
 												/>
-												{getNotificationText(notification, textGet, lang)}
+												{getNotificationText(notification, {
+													textGet,
+													formatRelative,
+												})}
 											</span>
 											<span className="text-xs text-muted-foreground">
-												{formatRelativeTime(notification.CreatedAt, lang)}
+												{formatRelative(notification.CreatedAt)}
 											</span>
 										</button>
 										<div className="flex shrink-0 gap-1">

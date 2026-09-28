@@ -15,7 +15,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@pengi/ui";
-import { format } from "date-fns";
 import { enUS, es } from "date-fns/locale";
 import { CalendarIcon, Clock } from "lucide-react";
 import {
@@ -72,7 +71,7 @@ function FormCalendar<
 	className,
 	showMonthYearDropdowns = false,
 }: FormCalendarProps<T, Input>) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const lang = useMessageStore((state) => state.lang);
 	const locale = lang === "es" ? es : enUS;
 
@@ -155,7 +154,7 @@ function FormCalendar<
 							>
 								<CalendarIcon className="mr-2 h-4 w-4" />
 								{selectedDate ? (
-									format(selectedDate, "PPP", { locale })
+									formatDate(selectedDate, "long")
 								) : (
 									<span>
 										{textGet("form.calendar.pick_date") || "Pick a date"}

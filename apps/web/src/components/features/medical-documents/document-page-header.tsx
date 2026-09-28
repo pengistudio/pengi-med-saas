@@ -32,7 +32,7 @@ export function DocumentPageHeader({
 	description,
 }: DocumentPageHeaderProps) {
 	const navigate = useNavigate();
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const fullName = patient
 		? patient.full_name || `${patient.first_name} ${patient.last_name}`
 		: "";
@@ -89,7 +89,7 @@ export function DocumentPageHeader({
 							<Text uuid="dialog.medical_report.created_at" />
 						</dt>
 						<dd className="font-medium tabular-nums">
-							{new Date().toLocaleDateString("es-EC")}
+							{formatDate(new Date())}
 						</dd>
 					</div>
 				</dl>

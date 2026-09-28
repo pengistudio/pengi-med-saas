@@ -2,6 +2,7 @@ import { Checkbox, DataTableColumnHeader, Text } from "@pengi/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { DebitNote } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
+import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 
 export function getDebitNoteColumns(
@@ -76,12 +77,8 @@ export function getDebitNoteColumns(
 			),
 			cell: ({ row }) => {
 				const amount = parseFloat(row.getValue("total"));
-				const formatted = new Intl.NumberFormat("en-US", {
-					style: "currency",
-					currency: "USD",
-				}).format(amount);
 				return (
-					<span className="font-mono text-right font-medium">{formatted}</span>
+					<Money amount={amount} className="font-mono text-right font-medium" />
 				);
 			},
 		},
@@ -158,11 +155,6 @@ export function getDebitNoteColumnsMobile(
 			),
 			cell: ({ row }) => {
 				const debitNote = row.original;
-				const amount = new Intl.NumberFormat("en-US", {
-					style: "currency",
-					currency: "USD",
-				}).format(debitNote.total);
-
 				return (
 					<div className="flex flex-col gap-1 py-1">
 						<div className="flex justify-between items-center">
@@ -170,7 +162,10 @@ export function getDebitNoteColumnsMobile(
 								{debitNote.establishment_code}-{debitNote.emission_point_code}-
 								{debitNote.sequential}
 							</span>
-							<span className="font-mono text-sm font-semibold">{amount}</span>
+							<Money
+								amount={debitNote.total}
+								className="font-mono text-sm font-semibold"
+							/>
 						</div>
 						<div className="flex justify-between items-center text-xs text-muted-foreground">
 							<span>

@@ -22,6 +22,7 @@ vi.mock("@pengi/shared", async (importOriginal) => ({
 	...(await importOriginal<typeof import("@pengi/shared")>()),
 	useText: () => ({
 		textGet: (key: string) => key,
+		formatRelative: () => "",
 	}),
 	useMessageStore: (selector: (state: { lang: string }) => unknown) =>
 		selector({ lang: "es" }),

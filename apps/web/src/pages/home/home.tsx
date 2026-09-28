@@ -7,7 +7,6 @@ import { type DashboardStats, getDashboardStats } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
-import { dateParser } from "@/lib/utils";
 import { AttentionStrip } from "@/sections/dashboard/attention-strip";
 import { OpenTasksCard } from "@/sections/dashboard/open-tasks-card";
 import { RecentInvoicesCard } from "@/sections/dashboard/recent-invoices-card";
@@ -45,7 +44,7 @@ function DashboardSkeleton() {
 
 const Home = () => {
 	const [stats, setStats] = React.useState<DashboardStats | null>(null);
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
 	const environment = useSessionStore(selectEnvironment);
@@ -82,18 +81,16 @@ const Home = () => {
 		checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]);
 
 	const firstName = environment?.name?.trim().split(/\s+/)[0] ?? "";
-	const greeting = textGet(greetingKey(new Date().getHours()))
-		.replace("{name}", firstName)
-		.replace(/,\s*$/, "");
+	const greeting = textGet(greetingKey(new Date().getHours()), {
+		name: firstName,
+	}).replace(/,\s*$/, "");
 
 	return (
 		<DashboardLayout>
 			<div className="space-y-6">
 				<PageHeader
 					title={greeting}
-					description={capitalize(
-						dateParser(new Date(), { dateStyle: "full" }),
-					)}
+					description={capitalize(formatDate(new Date(), "full"))}
 					actions={
 						<>
 							{canCreatePatient && (
