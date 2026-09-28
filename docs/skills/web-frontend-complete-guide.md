@@ -216,9 +216,10 @@ const { textGet } = useText();
 ]
 ```
 
-- **Caché:** los mensajes se guardan en `localStorage["messages"]` y solo se
-  vuelven a pedir si cambia `__APP_VERSION__` (arranque de Vite) o el idioma.
-  Tras agregar keys: `localStorage.removeItem("messages")` y recarga.
+- **Caché:** los mensajes se guardan en `localStorage["messages"]` junto con su
+  hash (ETag). Al cargar la app se muestran los cacheados y se revalidan en
+  segundo plano con `If-None-Match` (304 = siguen vigentes); al cambiar de
+  idioma se piden los del nuevo. Tras agregar keys basta con recargar.
 
 ---
 

@@ -1,6 +1,5 @@
 import type { AxiosInstance } from "axios";
-import { createHttpService } from "./http";
-import { setMessagesService } from "./i18n/messages-service";
+import { setMessagesClient } from "./i18n/messages-service";
 
 /**
  * Wires @pengi/shared to the app. Call once at startup, before rendering.
@@ -8,7 +7,7 @@ import { setMessagesService } from "./i18n/messages-service";
  * public.
  */
 export function initShared({ client }: { client: AxiosInstance }) {
-	setMessagesService(createHttpService(client));
+	setMessagesClient(client);
 }
 
 export {
@@ -27,7 +26,7 @@ export { useMessageStore } from "./i18n/message-store";
 export {
 	getMessages,
 	type MessageMap,
-	type UIMessage,
+	type MessagesResult,
 } from "./i18n/messages-service";
 export { SelectLanguage } from "./i18n/select-language";
 export { useMessages } from "./i18n/use-messages";

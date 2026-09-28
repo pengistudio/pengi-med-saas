@@ -122,6 +122,6 @@ Solo los ítems de primer nivel se filtran por `permission`/`feature`; los
 
 `const { textGet } = useText()` de `@pengi/shared`. Las keys viven en el
 backend (`apps/api/i18n/messages/`); una key inexistente se renderiza como
-`*key*`. El navegador cachea los mensajes en `localStorage["messages"]` y solo
-los vuelve a pedir si cambia `__APP_VERSION__` (arranque de Vite) o el idioma:
-tras agregar keys, `localStorage.removeItem("messages")` y recarga.
+`*key*`. El navegador cachea los mensajes en `localStorage["messages"]` con el
+ETag del catálogo y los revalida en cada carga: tras agregar keys basta con
+recargar. Un test de `@pengi/shared` falla si una key literal no existe en el JSON.
