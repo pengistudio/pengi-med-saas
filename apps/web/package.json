@@ -62,7 +62,6 @@
 		"globals": "catalog:",
 		"jsdom": "^29.1.1",
 		"typescript": "catalog:",
-		"typescript-eslint": "catalog:",
 		"vite": "catalog:",
 		"vitest": "^4.1.10"
 	}

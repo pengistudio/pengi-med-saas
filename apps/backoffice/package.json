@@ -57,7 +57,6 @@
 		"shadcn": "catalog:",
 		"tw-animate-css": "catalog:",
 		"typescript": "catalog:",
-		"typescript-eslint": "catalog:",
 		"vite": "catalog:",
 		"vitest": "^4.1.10"
 	}
