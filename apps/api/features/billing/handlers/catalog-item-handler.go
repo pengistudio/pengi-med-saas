@@ -27,14 +27,14 @@ func NewCatalogItemHandler(db *gorm.DB, logger *zap.Logger) *CatalogItemHandler 
 func (h *CatalogItemHandler) CreateCatalogItem(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 	db := tenantdb.For(c, h.db)
 
 	var dto billing_dto.CreateCatalogItemDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		h.logger.Error("Failed to bind CreateCatalogItem DTO", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid provided payload", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBillingInvalidRequest)
 	}
 
 	item := &billing_models.CatalogItem{
@@ -68,7 +68,7 @@ func (h *CatalogItemHandler) CreateCatalogItem(c *gin.Context) envelope.Response
 
 	if err := db.Create(item).Error; err != nil {
 		h.logger.Error("Failed to create CatalogItem", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create catalog item", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(item, "billing.catalog-item.create.success")
@@ -97,13 +97,13 @@ func (h *CatalogItemHandler) GetAllCatalogItems(c *gin.Context) envelope.Respons
 	var total int64
 	if err := baseQuery.Count(&total).Error; err != nil {
 		h.logger.Error("Failed to count catalog items", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to count catalog items", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	var items []billing_models.CatalogItem
 	if err := baseQuery.Order("name ASC").Limit(limit).Offset(offset).Find(&items).Error; err != nil {
 		h.logger.Error("Failed to fetch catalog items", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to fetch catalog items", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.PagedSuccessResponse(items, int(total), page, limit, "billing.catalog-items.fetch.success")
@@ -113,12 +113,12 @@ func (h *CatalogItemHandler) GetCatalogItemByID(c *gin.Context) envelope.Respons
 	db := tenantdb.For(c, h.db)
 	itemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid catalog item ID", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var item billing_models.CatalogItem
 	if err := db.First(&item, itemID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Catalog item not found", core_errors.ErrBillingProductNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBillingProductNotFound)
 	}
 
 	return envelope.SuccessResponse(item, "billing.catalog-item.fetch.success")
@@ -128,18 +128,18 @@ func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response
 	db := tenantdb.For(c, h.db)
 	itemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid catalog item ID", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var dto billing_dto.UpdateCatalogItemDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		h.logger.Error("Failed to bind UpdateCatalogItem DTO", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid provided payload", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var item billing_models.CatalogItem
 	if err := db.First(&item, itemID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Catalog item not found", core_errors.ErrBillingProductNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBillingProductNotFound)
 	}
 
 	if dto.Name != nil {
@@ -175,7 +175,7 @@ func (h *CatalogItemHandler) UpdateCatalogItem(c *gin.Context) envelope.Response
 
 	if err := db.Save(&item).Error; err != nil {
 		h.logger.Error("Failed to update CatalogItem", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update catalog item", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(item, "billing.catalog-item.update.success")
@@ -185,17 +185,17 @@ func (h *CatalogItemHandler) DeleteCatalogItem(c *gin.Context) envelope.Response
 	db := tenantdb.For(c, h.db)
 	itemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid catalog item ID", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBillingInvalidRequest)
 	}
 
 	var item billing_models.CatalogItem
 	if err := db.First(&item, itemID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Catalog item not found", core_errors.ErrBillingProductNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBillingProductNotFound)
 	}
 
 	if err := db.Delete(&item).Error; err != nil {
 		h.logger.Error("Failed to delete CatalogItem", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to delete catalog item", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(item, "billing.catalog-item.delete.success")

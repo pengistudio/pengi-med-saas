@@ -122,14 +122,14 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 	var totalPatients int64
 	if err := db.Model(&clinical_models.Patient{}).Count(&totalPatients).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count patients", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// 2. Critical patients
 	var criticalPatients int64
 	if err := db.Model(&clinical_models.Patient{}).Where("critical = ?", true).Count(&criticalPatients).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count critical patients", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// 3. Today's appointments
@@ -138,7 +138,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		Where("date >= ? AND date < ?", todayStart, todayEnd).
 		Count(&todayAppointments).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count today appointments", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// 4. Monthly completed appointments
@@ -147,7 +147,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 		Where("status = ? AND date >= ?", "completed", monthStart).
 		Count(&monthlyCompleted).Error; err != nil {
 		h.logger.Error("Dashboard: failed to count monthly completed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// 4b. Delta queries (best-effort — don't fail the whole response on error)

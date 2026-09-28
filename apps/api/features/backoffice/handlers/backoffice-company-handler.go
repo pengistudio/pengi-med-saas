@@ -65,7 +65,7 @@ func (h *BackofficeCompanyHandler) GetCompanies(c *gin.Context) envelope.Respons
 	var companies []company_models.Company
 	if err := h.db.Preload("Tenant").Preload("Subscriptions", "status = ? AND expires_at > NOW()", "active").Find(&companies).Error; err != nil {
 		h.logger.Error("Failed to fetch companies", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining companies", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Companies fetched successfully", zap.Int("count", len(companies)))
@@ -78,7 +78,7 @@ func (h *BackofficeCompanyHandler) GetCompanyByID(c *gin.Context) envelope.Respo
 	var company company_models.Company
 	if err := h.db.Preload("Tenant").First(&company, id).Error; err != nil {
 		h.logger.Error("Company not found", zap.String("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	return envelope.SuccessResponse(company, "backoffice.company.found")
@@ -88,7 +88,7 @@ func (h *BackofficeCompanyHandler) CreateCompany(c *gin.Context) envelope.Respon
 	var req CreateCompanyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Error("Invalid request body", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	var company company_models.Company
@@ -119,7 +119,7 @@ func (h *BackofficeCompanyHandler) CreateCompany(c *gin.Context) envelope.Respon
 
 	if err != nil {
 		h.logger.Error("Failed to create company", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating company", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// Reload with Tenant
@@ -135,12 +135,12 @@ func (h *BackofficeCompanyHandler) UpdateCompany(c *gin.Context) envelope.Respon
 	var company company_models.Company
 	if err := h.db.First(&company, id).Error; err != nil {
 		h.logger.Error("Company not found for update", zap.String("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	var req UpdateCompanyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	updates := map[string]interface{}{}
@@ -156,7 +156,7 @@ func (h *BackofficeCompanyHandler) UpdateCompany(c *gin.Context) envelope.Respon
 
 	if err := h.db.Model(&company).Updates(updates).Error; err != nil {
 		h.logger.Error("Failed to update company", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating company", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.db.Preload("Tenant").First(&company, company.ID)
@@ -171,12 +171,12 @@ func (h *BackofficeCompanyHandler) DeleteCompany(c *gin.Context) envelope.Respon
 	var company company_models.Company
 	if err := h.db.First(&company, id).Error; err != nil {
 		h.logger.Error("Company not found for deletion", zap.String("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	if err := h.db.Delete(&company).Error; err != nil {
 		h.logger.Error("Failed to delete company", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting company", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Company deleted successfully", zap.String("id", id))
@@ -189,13 +189,13 @@ func (h *BackofficeCompanyHandler) GenerateCompanySignupToken(c *gin.Context) en
 	var company company_models.Company
 	if err := h.db.First(&company, id).Error; err != nil {
 		h.logger.Error("Company not found for signup token", zap.String("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	token, err := auth.GenerateCompanySignupToken(company.ID, 0)
 	if err != nil {
 		h.logger.Error("Failed to generate company signup token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating signup token", core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	h.logger.Info("Company signup token generated", zap.String("company_id", id))
@@ -212,7 +212,7 @@ func (h *BackofficeCompanyHandler) GenerateCompanyRegisterToken(c *gin.Context) 
 	token, err := auth.GenerateCompanyRegisterToken()
 	if err != nil {
 		h.logger.Error("Failed to generate company register token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating register token", core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	h.logger.Info("Company register token generated")
@@ -229,7 +229,7 @@ func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Resp
 		Preload("Role").
 		Find(&environments).Error; err != nil {
 		h.logger.Error("Failed to fetch company users", zap.String("company_id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching company users", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// Collect user IDs to fetch user details
@@ -242,7 +242,7 @@ func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Resp
 	if len(userIDs) > 0 {
 		if err := h.db.Where("id IN ?", userIDs).Find(&users).Error; err != nil {
 			h.logger.Error("Failed to fetch users for company", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching users", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 	}
 
@@ -301,14 +301,14 @@ func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Re
 
 	var req UpdateCompanyUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	// Find the environment linking this user to this company
 	var env user_models.Environment
 	if err := h.db.Where("company_id = ? AND user_id = ?", companyID, userID).First(&env).Error; err != nil {
 		h.logger.Error("Environment not found", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found in this company", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
@@ -356,13 +356,13 @@ func (h *BackofficeCompanyHandler) GenerateUserPasswordResetLink(c *gin.Context)
 	var user user_models.User
 	if err := h.db.First(&user, userID).Error; err != nil {
 		h.logger.Error("User not found for password reset", zap.String("user_id", userID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
 	token, err := auth.GeneratePasswordResetToken(user.ID)
 	if err != nil {
 		h.logger.Error("Failed to generate password reset token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating password reset token", core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	appURL := config.GetEnvWithDefault("PUBLIC_APP_URL", "http://localhost:5173")
@@ -382,7 +382,7 @@ func (h *BackofficeCompanyHandler) GetRoles(c *gin.Context) envelope.Response {
 	var roles []user_models.Role
 	if err := h.db.Find(&roles).Error; err != nil {
 		h.logger.Error("Failed to fetch roles", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching roles", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(roles, "backoffice.roles.list.success")
 }
@@ -396,7 +396,7 @@ func (h *BackofficeCompanyHandler) DeleteCompanyUser(c *gin.Context) envelope.Re
 	var env user_models.Environment
 	if err := h.db.Where("company_id = ? AND user_id = ?", companyID, userID).First(&env).Error; err != nil {
 		h.logger.Error("User not found in company", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found in this company", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
@@ -413,7 +413,7 @@ func (h *BackofficeCompanyHandler) DeleteCompanyUser(c *gin.Context) envelope.Re
 
 	if txErr != nil {
 		h.logger.Error("Failed to delete company user", zap.Error(txErr))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting user", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Company user deleted", zap.String("user_id", userID), zap.String("company_id", companyID))

@@ -30,7 +30,7 @@ func (h *BackofficeUserHandler) GetUsers(c *gin.Context) envelope.Response {
 	users := []backoffice_models.BackofficeUser{}
 	if err := h.db.Find(&users).Error; err != nil {
 		h.logger.Error("Failed to fetch backoffice users", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining backoffice users", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Backoffice users fetched successfully", zap.Int("count", len(users)))
@@ -42,7 +42,7 @@ func (h *BackofficeUserHandler) GetUserByID(c *gin.Context) envelope.Response {
 	var user backoffice_models.BackofficeUser
 	if err := h.db.First(&user, id).Error; err != nil {
 		h.logger.Error("Backoffice user not found", zap.String("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 	return envelope.SuccessResponse(user, "backoffice.users.found")
 }
@@ -57,12 +57,12 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var user backoffice_models.BackofficeUser
 	if err := h.db.First(&user, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
 	var req UpdateBackofficeUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	updates := map[string]interface{}{}
@@ -76,7 +76,7 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 		hashed, err := auth.HashPassword(req.Password)
 		if err != nil {
 			h.logger.Error("Failed to hash password", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating user", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 		updates["password"] = hashed
 		// End existing sessions: the stored refresh token no longer matches
@@ -87,7 +87,7 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 	if len(updates) > 0 {
 		if err := h.db.Model(&user).Updates(updates).Error; err != nil {
 			h.logger.Error("Failed to update backoffice user", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating user", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 	}
 
@@ -99,11 +99,11 @@ func (h *BackofficeUserHandler) DeleteUser(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var user backoffice_models.BackofficeUser
 	if err := h.db.First(&user, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 	if err := h.db.Delete(&user).Error; err != nil {
 		h.logger.Error("Failed to delete backoffice user", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting user", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(nil, "backoffice.users.delete.success")
 }

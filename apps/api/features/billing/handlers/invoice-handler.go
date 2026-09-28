@@ -246,18 +246,18 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 	db := tenantdb.For(c, h.db)
 	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.invalid_id", core_errors.ErrBillingInvalidRequest))
 		return
 	}
 
 	var invoice billing_models.Invoice
 	if err := db.Preload("Patient").Preload("Items").First(&invoice, invoiceID).Error; err != nil {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound))
 		return
 	}
 
 	if invoice.Status != billing_models.InvoiceStatusAuthorized || invoice.AccessKey == nil {
-		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.ride_not_authorized", core_errors.ErrBillingInvoiceRideNotReady))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.ride_not_authorized", core_errors.ErrBillingInvoiceRideNotReady))
 		return
 	}
 
@@ -276,7 +276,7 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 	if force || errFile != nil {
 		var tenant tenant_models.Tenant
 		if err := h.db.First(&tenant, tenantID).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
+			envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
 			return
 		}
 		address := tenant.Address
@@ -286,7 +286,7 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 		pdfBytes, errFile = sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, address, sri_services.ResolveSriEnv())
 		if errFile != nil {
 			h.logger.Error("Failed to generate RIDE on demand", zap.Uint64("invoice_id", invoiceID), zap.Error(errFile))
-			c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
+			envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
 			return
 		}
 

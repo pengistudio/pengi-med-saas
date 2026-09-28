@@ -45,25 +45,25 @@ const signatureFileName = "signature.p12"
 func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	password := c.PostForm("password")
 	if password == "" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Password is required", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "signature.form.password_required", core_errors.ErrInvalidRequest)
 	}
 
 	file, header, err := c.Request.FormFile("signature")
 	if err != nil {
 		h.logger.Error("Failed to retrieve file from form", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Signature file is required", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "signature.form.file_required", core_errors.ErrInvalidRequest)
 	}
 	defer file.Close()
 
 	pfxData, err := io.ReadAll(file)
 	if err != nil {
 		h.logger.Error("Failed to read signature file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Signature file is required", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "signature.form.file_required", core_errors.ErrInvalidRequest)
 	}
 
 	cert, err := pdfsign.Load(pfxData, password)
@@ -90,12 +90,12 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 		if errors.Is(err, secretbox.ErrNoKey) {
 			return envelope.ErrorResponse(http.StatusServiceUnavailable, "signature.error.unavailable", core_errors.ErrSignatureKeyUnavailable)
 		}
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant signature", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
 	}
 
 	// The SRI signature must belong to the company's RUC (not, say, a doctor's
@@ -115,13 +115,13 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 
 	if err := tenantRecord.SealSriPassword(box, password); err != nil {
 		h.logger.Error("Failed to seal the SRI signature password", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant signature", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// Only a certificate that decoded is stored.
 	if err := h.files.Write(tenantdb.TenantID(c), signatureFileName, pfxData); err != nil {
 		h.logger.Error("Failed to save signature file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save signature file", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	signaturePath := h.files.Path(tenantdb.TenantID(c), signatureFileName)
 
@@ -131,7 +131,7 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 
 	if err := h.db.Save(&tenantRecord).Error; err != nil {
 		h.logger.Error("Failed to update tenant signature", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant signature", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(gin.H{
@@ -146,20 +146,20 @@ func (h *TenantHandler) UploadSignature(c *gin.Context) envelope.Response {
 func (h *TenantHandler) UploadLogo(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	file, _, err := c.Request.FormFile("logo")
 	if err != nil {
 		h.logger.Error("Failed to retrieve logo file from form", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Logo file is required", core_errors.ErrTenantInvalidLogoFile)
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.logo.file_required", core_errors.ErrTenantInvalidLogoFile)
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
 		h.logger.Error("Failed to read logo file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to read logo file", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	var ext string
@@ -176,12 +176,12 @@ func (h *TenantHandler) UploadLogo(c *gin.Context) envelope.Response {
 	logoPath := h.files.Path(tenantdb.TenantID(c), logoName)
 	if err := h.files.Write(tenantdb.TenantID(c), logoName, data); err != nil {
 		h.logger.Error("Failed to save logo file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save logo file", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
 	}
 
 	// Remove a previously uploaded logo with a different extension, if any.
@@ -192,7 +192,7 @@ func (h *TenantHandler) UploadLogo(c *gin.Context) envelope.Response {
 	tenantRecord.LogoPath = &logoPath
 	if err := h.db.Save(&tenantRecord).Error; err != nil {
 		h.logger.Error("Failed to update tenant logo", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant logo", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(gin.H{"path": logoPath}, "tenant.logo.upload.success")
@@ -202,24 +202,24 @@ func (h *TenantHandler) UploadLogo(c *gin.Context) envelope.Response {
 func (h *TenantHandler) DownloadLogo(c *gin.Context) {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound))
 		return
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound))
 		return
 	}
 
 	if tenantRecord.LogoPath == nil {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.sri.logo.not_found", core_errors.ErrTenantLogoNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "billing.sri.logo.not_found", core_errors.ErrTenantLogoNotFound))
 		return
 	}
 
 	data, err := h.files.Read(tenantdb.TenantID(c), filepath.Base(*tenantRecord.LogoPath))
 	if err != nil {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "billing.sri.logo.not_found", core_errors.ErrTenantLogoNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "billing.sri.logo.not_found", core_errors.ErrTenantLogoNotFound))
 		return
 	}
 
@@ -231,12 +231,12 @@ func (h *TenantHandler) DownloadLogo(c *gin.Context) {
 func (h *TenantHandler) GetSriStatus(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
 	}
 
 	// An expired certificate can no longer sign documents, so it does not count
@@ -278,18 +278,18 @@ func nilIfEmpty(s string) *string {
 func (h *TenantHandler) UpdateSriInfo(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	var dto tenant_dto.UpdateSriInfoDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		h.logger.Error("Failed to bind UpdateSriInfo DTO", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid provided payload", core_errors.ErrBillingInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
 	}
 
 	tenantRecord.TaxID = dto.TaxID
@@ -309,7 +309,7 @@ func (h *TenantHandler) UpdateSriInfo(c *gin.Context) envelope.Response {
 
 	if err := h.db.Save(&tenantRecord).Error; err != nil {
 		h.logger.Error("Failed to update tenant SRI info", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to update tenant SRI info", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(tenantRecord, "tenant.sri_info.update.success")
@@ -319,12 +319,12 @@ func (h *TenantHandler) UpdateSriInfo(c *gin.Context) envelope.Response {
 func (h *TenantHandler) GetUISettings(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
 	}
 
 	settings := tenant_models.DefaultUISettings()
@@ -341,14 +341,14 @@ func (h *TenantHandler) GetUISettings(c *gin.Context) envelope.Response {
 func (h *TenantHandler) GenerateDisplayToken(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	code := fmt.Sprintf("%08d", rand.IntN(100_000_000))
 
 	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("display_token", code).Error; err != nil {
 		h.logger.Error("Failed to generate display token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to generate display token", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(gin.H{"token": code}, "tenant.display_token.generate.success")
@@ -359,12 +359,12 @@ func (h *TenantHandler) GenerateDisplayToken(c *gin.Context) envelope.Response {
 func (h *TenantHandler) GetTodayAppointmentsPublic(c *gin.Context) envelope.Response {
 	token := c.Query("token")
 	if token == "" {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Missing display token", core_errors.ErrTenantInvalidDisplayToken)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "tenant.display_token.error.invalid", core_errors.ErrTenantInvalidDisplayToken)
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.Where("display_token = ?", token).First(&tenantRecord).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid display token", core_errors.ErrTenantInvalidDisplayToken)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "tenant.display_token.error.invalid", core_errors.ErrTenantInvalidDisplayToken)
 	}
 
 	today := time.Now().Format("2006-01-02")
@@ -374,7 +374,7 @@ func (h *TenantHandler) GetTodayAppointmentsPublic(c *gin.Context) envelope.Resp
 		Order("start_time ASC").
 		Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get today's appointments for display", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to fetch appointments", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(appointments, "appointments.get.success")
@@ -384,22 +384,22 @@ func (h *TenantHandler) GetTodayAppointmentsPublic(c *gin.Context) envelope.Resp
 func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	var settings tenant_models.UISettings
 	if err := c.ShouldBindJSON(&settings); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid settings payload", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	raw, err := json.Marshal(settings)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to encode settings", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("ui_settings", string(raw)).Error; err != nil {
 		h.logger.Error("Failed to save UISettings", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save settings", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(settings, "tenant.settings.update.success")
@@ -410,18 +410,18 @@ func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 func (h *TenantHandler) GetEnabledFeatures(c *gin.Context) envelope.Response {
 	_, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	var company company_models.Company
 	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
 	}
 
 	features, err := company_services.EnabledFeaturesForCompany(h.db, company.ID)
 	if err != nil {
 		h.logger.Error("Failed to compute enabled features", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining features", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(features, "tenant.features.fetch.success")
@@ -447,12 +447,12 @@ func isDisplayPairingCode(token string) bool {
 func (h *TenantHandler) GetDisplayToken(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Tenant scope not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.Select("id", "display_token").First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
 	}
 	if isDisplayPairingCode(tenantRecord.DisplayToken) {
 		return envelope.SuccessResponse(gin.H{"token": tenantRecord.DisplayToken}, "tenant.display_token.fetch.success")
@@ -465,11 +465,11 @@ func (h *TenantHandler) GetDisplayToken(c *gin.Context) envelope.Response {
 		Where("id = ? AND display_token = ?", tenantRecord.ID, tenantRecord.DisplayToken).
 		Update("display_token", code).Error; err != nil {
 		h.logger.Error("Failed to create display token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create display token", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	if err := h.db.Select("id", "display_token").First(&tenantRecord, tenantRecord.ID).Error; err != nil {
 		h.logger.Error("Failed to reload display token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to create display token", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(gin.H{"token": tenantRecord.DisplayToken}, "tenant.display_token.fetch.success")

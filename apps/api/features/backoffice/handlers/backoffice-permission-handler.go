@@ -25,7 +25,7 @@ func (h *BackofficePermissionHandler) GetPermissions(c *gin.Context) envelope.Re
 	var permissions []permission_models.Permission
 	if err := h.db.Find(&permissions).Error; err != nil {
 		h.logger.Error("Failed to fetch permissions", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining permissions", core_errors.ErrPermissionGetError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrPermissionGetError)
 	}
 	return envelope.SuccessResponse(permissions, "backoffice.permission.list.success")
 }

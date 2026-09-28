@@ -42,7 +42,7 @@ func (h *BackofficeSubscriptionHandler) GetSubscriptions(c *gin.Context) envelop
 	var subscriptions []company_models.Subscription
 	if err := h.db.Preload("Plan").Preload("Company").Find(&subscriptions).Error; err != nil {
 		h.logger.Error("Failed to fetch subscriptions", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining subscriptions", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(subscriptions, "backoffice.subscription.list.success")
 }
@@ -51,7 +51,7 @@ func (h *BackofficeSubscriptionHandler) GetSubscriptionByID(c *gin.Context) enve
 	id := c.Param("id")
 	var subscription company_models.Subscription
 	if err := h.db.Preload("Plan").Preload("Company").First(&subscription, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Subscription not found", core_errors.ErrBackofficeSubscriptionNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeSubscriptionNotFound)
 	}
 	return envelope.SuccessResponse(subscription, "backoffice.subscription.found")
 }
@@ -61,7 +61,7 @@ func (h *BackofficeSubscriptionHandler) GetSubscriptionsByCompany(c *gin.Context
 	var subscriptions []company_models.Subscription
 	if err := h.db.Preload("Plan").Where("company_id = ?", companyID).Find(&subscriptions).Error; err != nil {
 		h.logger.Error("Failed to fetch subscriptions for company", zap.String("company_id", companyID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining subscriptions", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(subscriptions, "backoffice.subscription.list.success")
 }
@@ -69,12 +69,12 @@ func (h *BackofficeSubscriptionHandler) GetSubscriptionsByCompany(c *gin.Context
 func (h *BackofficeSubscriptionHandler) CreateSubscription(c *gin.Context) envelope.Response {
 	var req CreateSubscriptionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	expiresAt, err := company_models.ParseExpiry(req.ExpiresAt)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid date format, use YYYY-MM-DD", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "backoffice.subscription.invalid_date", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	subscription := company_models.Subscription{
@@ -86,7 +86,7 @@ func (h *BackofficeSubscriptionHandler) CreateSubscription(c *gin.Context) envel
 
 	if err := h.db.Create(&subscription).Error; err != nil {
 		h.logger.Error("Failed to create subscription", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating subscription", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.db.Preload("Plan").First(&subscription, subscription.ID)
@@ -98,12 +98,12 @@ func (h *BackofficeSubscriptionHandler) UpdateSubscription(c *gin.Context) envel
 	id := c.Param("id")
 	var subscription company_models.Subscription
 	if err := h.db.First(&subscription, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Subscription not found", core_errors.ErrBackofficeSubscriptionNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeSubscriptionNotFound)
 	}
 
 	var req UpdateSubscriptionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	updates := map[string]interface{}{}
@@ -116,7 +116,7 @@ func (h *BackofficeSubscriptionHandler) UpdateSubscription(c *gin.Context) envel
 	if req.ExpiresAt != "" {
 		expiresAt, err := company_models.ParseExpiry(req.ExpiresAt)
 		if err != nil {
-			return envelope.ErrorResponse(http.StatusBadRequest, "Invalid date format", core_errors.ErrBackofficeInvalidRequest)
+			return envelope.ErrorResponse(http.StatusBadRequest, "backoffice.subscription.invalid_date", core_errors.ErrBackofficeInvalidRequest)
 		}
 		updates["expires_at"] = expiresAt
 	}
@@ -133,12 +133,12 @@ func (h *BackofficeSubscriptionHandler) DeleteSubscription(c *gin.Context) envel
 	id := c.Param("id")
 	var subscription company_models.Subscription
 	if err := h.db.First(&subscription, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Subscription not found", core_errors.ErrBackofficeSubscriptionNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeSubscriptionNotFound)
 	}
 
 	if err := h.db.Delete(&subscription).Error; err != nil {
 		h.logger.Error("Failed to delete subscription", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting subscription", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(nil, "backoffice.subscription.delete.success")

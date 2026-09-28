@@ -23,18 +23,14 @@ func SubscriptionMiddleware(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tenantID := c.GetUint("tenant_id")
 		if tenantID == 0 {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(
-				http.StatusUnauthorized, "Tenant not resolved", core_errors.ErrTenantNotFound,
-			))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound))
 			return
 		}
 
 		// 1. Find company by tenant_id
 		var company company_models.Company
 		if err := tenantdb.For(c, db).First(&company).Error; err != nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
-				http.StatusForbidden, "No company found for this tenant", core_errors.ErrCompanyNotFound,
-			))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "company.not_found", core_errors.ErrCompanyNotFound))
 			return
 		}
 
@@ -48,9 +44,8 @@ func SubscriptionMiddleware(db *gorm.DB) gin.HandlerFunc {
 			First(&subscription).Error
 
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
-				http.StatusForbidden, "No active subscription found", core_errors.ErrBackofficeSubscriptionNotFound,
-			))
+			// E-BO-007 on a 403 is what the web app reads as "subscription expired".
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "subscription.error.inactive", core_errors.ErrBackofficeSubscriptionNotFound))
 			return
 		}
 
@@ -94,9 +89,7 @@ func RequirePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. Check subscription allows this permission
 		if !IsPermissionAllowed(c, permissionID) {
-			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
-				http.StatusForbidden, "Your plan does not include this feature", core_errors.ErrPermissionGetError,
-			))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "subscription.error.feature_not_included", core_errors.ErrPermissionNotInPlan))
 			return
 		}
 
@@ -123,9 +116,7 @@ func checkRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 		environmentID := c.GetUint("environment_id")
 		var env user_models.Environment
 		if environmentID == 0 || db.Preload("Role.Permissions").First(&env, environmentID).Error != nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
-				http.StatusForbidden, "User has no role in this company", core_errors.ErrPermissionGetError,
-			))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "tenant.error.forbidden", core_errors.ErrTenantForbidden))
 			return
 		}
 
@@ -137,8 +128,6 @@ func checkRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 			}
 		}
 
-		c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(
-			http.StatusForbidden, "Insufficient permissions", core_errors.ErrPermissionGetError,
-		))
+		envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "permission.error.insufficient", core_errors.ErrPermissionDenied))
 	}
 }

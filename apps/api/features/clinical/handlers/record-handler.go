@@ -97,7 +97,7 @@ func (h *MedicalRecordHandler) GetMedicalRecords(c *gin.Context) envelope.Respon
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid patient ID format", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -135,7 +135,7 @@ func (h *MedicalRecordHandler) GetMedicalRecord(c *gin.Context) envelope.Respons
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid medical record ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var record clinical_models.MedicalRecord
@@ -160,7 +160,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 	if newRecord.AppointmentID != nil && !h.inTenant(c, &clinical_models.Appointment{}, *newRecord.AppointmentID) {
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
 
 	nextAppointmentDate := (*time.Time)(nil)
@@ -231,7 +231,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid medical record ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var medicalRecord clinical_models.MedicalRecord
@@ -253,7 +253,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 	}
 	if updatedRecord.AppointmentID != nil {
 		if !h.inTenant(c, &clinical_models.Appointment{}, *updatedRecord.AppointmentID) {
-			return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+			return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 		}
 		record["appointment_id"] = *updatedRecord.AppointmentID
 		// Auto-complete the linked appointment
@@ -390,13 +390,13 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid medical record ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var prescriptionData clinical_dto.UpdatePrescriptionDTO
 	if err := c.ShouldBindJSON(&prescriptionData); err != nil {
 		h.logger.Error("Invalid update prescription request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid prescription data", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	// Find medical record

@@ -41,14 +41,14 @@ func (h *PrescriptionTemplateHandler) UploadPrescriptionTemplate(c *gin.Context)
 	file, _, err := c.Request.FormFile("template")
 	if err != nil {
 		h.logger.Error("Failed to retrieve template file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Template file is required", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.prescription_template.error.file_required", core_errors.ErrClinicalInvalidRequest)
 	}
 	defer file.Close()
 
 	src, err := io.ReadAll(file)
 	if err != nil {
 		h.logger.Error("Failed to read template file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "Template file is required", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.prescription_template.error.file_required", core_errors.ErrClinicalInvalidRequest)
 	}
 	// A template that does not parse would break every prescription download.
 	if _, err := template.New(prescriptionTemplateName).Parse(string(src)); err != nil {
@@ -56,7 +56,7 @@ func (h *PrescriptionTemplateHandler) UploadPrescriptionTemplate(c *gin.Context)
 	}
 	if err := h.files.Write(tenantdb.TenantID(c), prescriptionTemplateName, src); err != nil {
 		h.logger.Error("Failed to save template file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to save template file", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Prescription template uploaded", zap.Uint("tenant_id", tenantdb.TenantID(c)))
@@ -67,7 +67,7 @@ func (h *PrescriptionTemplateHandler) UploadPrescriptionTemplate(c *gin.Context)
 func (h *PrescriptionTemplateHandler) DeletePrescriptionTemplate(c *gin.Context) envelope.Response {
 	if err := h.files.Remove(tenantdb.TenantID(c), prescriptionTemplateName); err != nil {
 		h.logger.Error("Failed to delete template file", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Failed to delete template file", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(gin.H{"has_custom": false}, "clinical.prescription_template.deleted")

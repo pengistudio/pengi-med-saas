@@ -32,13 +32,13 @@ func (h *EnvironmentHandler) GetEnvironmentsFromUser(c *gin.Context) envelope.Re
 	userID, exists := c.Get("user_id")
 	if !exists {
 		h.logger.Error("User ID not found in context")
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest)
 	}
 
 	var user user_models.User
 	if err := h.db.Preload("Environments.Role.Permissions").Preload("Environments").First(&user, userID).Error; err != nil {
 		h.logger.Error("Failed to fetch user and environments", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining environments", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// Create custom DTO struct

@@ -74,6 +74,8 @@ automáticamente; lecturas sensibles (datos de paciente) llaman
   `envelope.ErrorResponse(status, "<i18n.key>", core_errors.Err<X>)`.
 - `envelope.Handle` traduce `Message` y reemplaza el mensaje del `AppError` por
   la traducción de su **código** — por eso cada error code necesita key i18n.
+- Middleware y handlers que devuelven binarios escriben sus errores con
+  `envelope.Abort(c, resp)` / `envelope.Write(c, resp)`, nunca `c.JSON`.
 - Handlers que devuelven binarios: ver `documentos.md`.
 
 ## Cableado

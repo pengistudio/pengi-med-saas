@@ -145,13 +145,13 @@ func (h *MedicalDocumentHandler) DownloadMedicalReport(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest))
 		return
 	}
 
 	var report clinical_models.MedicalReport
 	if err := tenantdb.For(c, h.db).Preload("Patient").First(&report, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound))
 		return
 	}
 
@@ -162,7 +162,7 @@ func (h *MedicalDocumentHandler) DownloadMedicalReport(c *gin.Context) {
 	})
 	if err != nil {
 		h.logger.Error("Failed to generate medical report PDF", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalReportError))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalReportError))
 		return
 	}
 
@@ -412,13 +412,13 @@ func (h *MedicalDocumentHandler) DownloadMedicalCertificate(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest))
 		return
 	}
 
 	var certificate clinical_models.MedicalCertificate
 	if err := tenantdb.For(c, h.db).Preload("Patient").First(&certificate, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound))
 		return
 	}
 
@@ -429,7 +429,7 @@ func (h *MedicalDocumentHandler) DownloadMedicalCertificate(c *gin.Context) {
 	})
 	if err != nil {
 		h.logger.Error("Failed to generate medical certificate PDF", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalCertificateError))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalCertificateError))
 		return
 	}
 
@@ -580,7 +580,9 @@ func (h *MedicalDocumentHandler) SignMedicalCertificate(c *gin.Context) envelope
 	}
 
 	sig, err := signDocument(c, h.db, h.signer, h.files, &clinical_models.MedicalCertificate{}, "certificate", certificate.ID, "Certificado médico",
-		func(stamp *pdfsign.Stamp) ([]byte, error) { return h.generateMedicalCertificatePDF(c, &certificate, stamp) })
+		func(stamp *pdfsign.Stamp) ([]byte, error) {
+			return h.generateMedicalCertificatePDF(c, &certificate, stamp)
+		})
 	if err != nil {
 		return h.signErrorResponse(err)
 	}

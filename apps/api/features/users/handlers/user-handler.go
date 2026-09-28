@@ -1,13 +1,13 @@
 package user_handlers
 
 import (
-	"pengi-med-saas/core/tenantdb"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	"pengi-med-saas/core/tenantdb"
 	"strings"
 	"time"
 
@@ -154,18 +154,18 @@ func (h *UserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {
 	if err != nil {
 		// ExtractAndValidateBearerToken returns error which we map
 		h.logger.Warn("Bearer token validation failed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest)
 	}
 
 	// Extraer información del token
 	userID, ok := claims["userId"].(float64)
 	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid user ID in token", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest)
 	}
 
 	username, ok := claims["username"].(string)
 	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid username in token", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest)
 	}
 
 	// Responder con la información del token validado
@@ -221,14 +221,14 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	companyID, roleID, err := auth.ParseCompanySignupToken(req.Token)
 	if err != nil {
 		h.logger.Warn("Invalid company signup token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired signup token", core_errors.ErrAuthInvalidSignupToken)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.signup.company.invalid_token", core_errors.ErrAuthInvalidSignupToken)
 	}
 
 	// 2) Verify the company exists
 	var company company_models.Company
 	if err := h.db.First(&company, companyID).Error; err != nil {
 		h.logger.Error("Company not found for signup", zap.Uint("company_id", companyID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	// 3) Check max_users plan limit
@@ -241,7 +241,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	// 4) Check if username or email already exist
 	var existingUser user_models.User
 	if err := h.db.Where("user_name = ?", req.UserName).First(&existingUser).Error; err == nil {
-		return envelope.ErrorResponse(http.StatusConflict, "Username already exists", core_errors.ErrAuthUserCreateError)
+		return envelope.ErrorResponse(http.StatusConflict, "auth.register.username_taken", core_errors.ErrAuthUsernameTaken)
 	}
 	if err := h.db.Where("email = ?", req.Email).First(&existingUser).Error; err == nil {
 		return envelope.ErrorResponse(http.StatusConflict, "auth.register.email_taken", core_errors.ErrAuthEmailTaken)
@@ -259,7 +259,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 		if err := h.db.Where("role = ?", "admin").First(&defaultRole).Error; err != nil {
 			if err := h.db.First(&defaultRole).Error; err != nil {
 				h.logger.Error("No roles available", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusInternalServerError, "No roles configured", core_errors.ErrInternal)
+				return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 			}
 		}
 	}
@@ -335,7 +335,7 @@ func (h *UserHandler) CheckCompanySignupEmail(c *gin.Context) envelope.Response 
 
 	if _, _, err := auth.ParseCompanySignupToken(token); err != nil {
 		h.logger.Warn("Invalid company signup token on email check", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired signup token", core_errors.ErrAuthInvalidSignupToken)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.signup.company.invalid_token", core_errors.ErrAuthInvalidSignupToken)
 	}
 
 	var existingUser user_models.User
@@ -360,13 +360,13 @@ func (h *UserHandler) JoinCompanyWithExistingAccount(c *gin.Context) envelope.Re
 	companyID, roleID, err := auth.ParseCompanySignupToken(req.Token)
 	if err != nil {
 		h.logger.Warn("Invalid company signup token on join", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired signup token", core_errors.ErrAuthInvalidSignupToken)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.signup.company.invalid_token", core_errors.ErrAuthInvalidSignupToken)
 	}
 
 	var company company_models.Company
 	if err := h.db.First(&company, companyID).Error; err != nil {
 		h.logger.Error("Company not found for join", zap.Uint("company_id", companyID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	var envCount int64
@@ -377,7 +377,7 @@ func (h *UserHandler) JoinCompanyWithExistingAccount(c *gin.Context) envelope.Re
 
 	var foundUser user_models.User
 	if err := h.db.Where("email = ?", req.Email).First(&foundUser).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "auth.signup.company.email_not_found", core_errors.ErrAuthUserInvalidID)
+		return envelope.ErrorResponse(http.StatusNotFound, "auth.signup.company.email_not_found", core_errors.ErrUserNotFound)
 	}
 
 	if !auth.CompareHashAndPassword(foundUser.Password, req.Password) {
@@ -401,7 +401,7 @@ func (h *UserHandler) JoinCompanyWithExistingAccount(c *gin.Context) envelope.Re
 		if err := h.db.Where("role = ?", "admin").First(&defaultRole).Error; err != nil {
 			if err := h.db.First(&defaultRole).Error; err != nil {
 				h.logger.Error("No roles available", zap.Error(err))
-				return envelope.ErrorResponse(http.StatusInternalServerError, "No roles configured", core_errors.ErrInternal)
+				return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 			}
 		}
 	}
@@ -482,9 +482,9 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
 		// 1. Tenant
 		newTenant := tenant_models.Tenant{
-			Name:         req.CompanyName,
-			Slug:         slug,
-			TradeName:    req.CompanyName,
+			Name:      req.CompanyName,
+			Slug:      slug,
+			TradeName: req.CompanyName,
 			DisplayToken: func() string {
 				b := make([]byte, 16)
 				rand.Read(b)
@@ -606,7 +606,7 @@ func (h *UserHandler) VerifyEmail(c *gin.Context) envelope.Response {
 		"email_verified_at": now,
 	}).Error; err != nil {
 		h.logger.Error("Failed to verify email", zap.Uint("user_id", userID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "auth.verify_email.invalid_token", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Email verified", zap.Uint("user_id", userID))
@@ -625,23 +625,23 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 	userID, err := auth.ParsePasswordResetToken(req.Token)
 	if err != nil {
 		h.logger.Warn("Invalid password reset token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired token", core_errors.ErrAuthInvalidPasswordResetToken)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.reset_password.invalid_token", core_errors.ErrAuthInvalidPasswordResetToken)
 	}
 
 	var user user_models.User
 	if err := h.db.First(&user, userID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
 	hashed, err := auth.HashPassword(req.NewPassword)
 	if err != nil {
 		h.logger.Error("Failed to hash password", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating password", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if err := h.db.Model(&user).Update("password", hashed).Error; err != nil {
 		h.logger.Error("Failed to update password", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating password", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Password reset successfully", zap.Uint("user_id", userID))

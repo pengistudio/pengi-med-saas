@@ -232,7 +232,10 @@ mensaje del `AppError` por la traducción de su código.
 
 ### Descargas de binarios (PDF, archivos)
 
-Escriben directo con `c.Data(...)` y se registran **sin** `envelope.Handle`:
+Escriben directo con `c.Data(...)` y se registran **sin** `envelope.Handle`.
+Sus errores van con `envelope.Write(c, envelope.ErrorResponse(...))` (y en un
+middleware, `envelope.Abort(c, ...)`), nunca con `c.JSON`, para que se
+traduzcan igual:
 
 ```go
 recordGroup.GET("/:id/prescription/download", rp(db, "UPDATE_PRESCRIPTION"), downloadHandler.DownloadPrescription)

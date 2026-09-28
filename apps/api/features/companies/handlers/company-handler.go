@@ -43,7 +43,7 @@ func (h *CompanyHandler) GetTeamMembers(c *gin.Context) envelope.Response {
 
 	var company company_models.Company
 	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	var environments []user_models.Environment
@@ -52,7 +52,7 @@ func (h *CompanyHandler) GetTeamMembers(c *gin.Context) envelope.Response {
 		Preload("Role").
 		Find(&environments).Error; err != nil {
 		h.logger.Error("Failed to fetch team members", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching team", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	userIDs := make([]uint, len(environments))
@@ -104,7 +104,7 @@ func (h *CompanyHandler) GetTeamRoles(c *gin.Context) envelope.Response {
 	var roles []user_models.Role
 	if err := h.db.Where("role IN ?", role_data.CanonicalRoles).Find(&roles).Error; err != nil {
 		h.logger.Error("Failed to fetch roles", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching roles", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(roles, "company.team.roles.success")
 }
@@ -119,13 +119,13 @@ func (h *CompanyHandler) GenerateInviteLink(c *gin.Context) envelope.Response {
 
 	var req GenerateInviteLinkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "role_id is required", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	// Verify the role exists and is part of the assignable catalog
 	var role user_models.Role
 	if err := h.db.First(&role, req.RoleID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Role not found", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.team.role.invalid", core_errors.ErrTeamInvalidRole)
 	}
 	if !role_data.IsCanonicalRole(role.Role) {
 		return envelope.ErrorResponse(http.StatusBadRequest, "company.team.role.invalid", core_errors.ErrTeamInvalidRole)
@@ -133,13 +133,13 @@ func (h *CompanyHandler) GenerateInviteLink(c *gin.Context) envelope.Response {
 
 	var company company_models.Company
 	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	token, err := auth.GenerateCompanySignupToken(company.ID, req.RoleID)
 	if err != nil {
 		h.logger.Error("Failed to generate invite token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error generating invite link", core_errors.ErrAuthTokenGenerateError)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
 	h.logger.Info("Invite link generated", zap.Uint("company_id", company.ID), zap.Uint("role_id", req.RoleID))
@@ -158,17 +158,17 @@ func (h *CompanyHandler) UpdateTeamMemberRole(c *gin.Context) envelope.Response 
 
 	environmentID, err := strconv.ParseUint(c.Param("environment_id"), 10, 64)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid environment id", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	var req UpdateTeamMemberRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "role_id is required", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	var company company_models.Company
 	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrCompanyNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	var env user_models.Environment
@@ -181,7 +181,7 @@ func (h *CompanyHandler) UpdateTeamMemberRole(c *gin.Context) envelope.Response 
 
 	var newRole user_models.Role
 	if err := h.db.First(&newRole, req.RoleID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Role not found", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.team.role.invalid", core_errors.ErrTeamInvalidRole)
 	}
 	if !role_data.IsCanonicalRole(newRole.Role) {
 		return envelope.ErrorResponse(http.StatusBadRequest, "company.team.role.invalid", core_errors.ErrTeamInvalidRole)
@@ -205,7 +205,7 @@ func (h *CompanyHandler) UpdateTeamMemberRole(c *gin.Context) envelope.Response 
 	// and silently overwrite req.RoleID.
 	if err := h.db.Model(&user_models.Environment{}).Where("id = ?", env.ID).Update("role_id", req.RoleID).Error; err != nil {
 		h.logger.Error("Failed to update team member role", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating role", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	h.logger.Info("Team member role updated",
@@ -238,7 +238,7 @@ func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Respon
 	var user user_models.User
 	if err := sys.First(&user, userID).Error; err != nil {
 		h.logger.Error("CreateAdditionalCompany: user not found", zap.Int64("user_id", userID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
 	var ownedCount int64

@@ -16,7 +16,8 @@ var (
 	ErrTenantLogoNotFound        AppError = NewAppError("E-TEN-004", "No logo has been uploaded for this tenant.")
 	ErrTenantForbidden           AppError = NewAppError("E-TEN-005", "User has no role in this tenant.")
 
-	ErrUserNotFound AppError = NewAppError("E-USR-001", "User not found.")
+	ErrUserNotFound            AppError = NewAppError("E-USR-001", "User not found.")
+	ErrUserEnvironmentNotFound AppError = NewAppError("E-USR-002", "Environment not found.")
 
 	// Auth Errors
 	ErrAuthInvalidRequest      AppError = NewAppError("E-AUTH-001", "Invalid authentication request.")
@@ -41,6 +42,9 @@ var (
 	ErrClinicalMedicalReportError      AppError = NewAppError("E-CLIN-012", "Error generating/saving the medical report.")
 	ErrClinicalMedicalCertificateError AppError = NewAppError("E-CLIN-013", "Error generating/saving the medical certificate.")
 	ErrClinicalDocumentEmailError      AppError = NewAppError("E-CLIN-014", "Error sending the document by email.")
+	ErrClinicalAppointmentNotFound     AppError = NewAppError("E-CLIN-015", "Appointment not found.")
+	ErrClinicalPrescriptionNotFound    AppError = NewAppError("E-CLIN-016", "This medical record has no prescription.")
+	ErrClinicalICD11Unavailable        AppError = NewAppError("E-CLIN-017", "The ICD-11 service is unavailable.")
 
 	// Electronic Signature Errors
 	ErrSignatureInvalidFile    AppError = NewAppError("E-SIGN-001", "Invalid signature file or password.")
@@ -54,7 +58,9 @@ var (
 	ErrSignatureRucMismatch    AppError = NewAppError("E-SIGN-009", "The signature does not belong to the company's RUC.")
 
 	// Permission Errors
-	ErrPermissionGetError AppError = NewAppError("E-PERM-001", "Error getting permissions.")
+	ErrPermissionGetError  AppError = NewAppError("E-PERM-001", "Error getting permissions.")
+	ErrPermissionNotInPlan AppError = NewAppError("E-PERM-002", "The subscription plan does not include this feature.")
+	ErrPermissionDenied    AppError = NewAppError("E-PERM-003", "The user's role lacks the required permission.")
 
 	// Backoffice Errors
 	ErrBackofficeInvalidRequest       AppError = NewAppError("E-BO-001", "Invalid backoffice request.")
@@ -67,6 +73,7 @@ var (
 	ErrBackofficePaymentCreateFailed  AppError = NewAppError("E-BO-008", "Payment creation failed.")
 	ErrBackofficePaymentNotFound      AppError = NewAppError("E-BO-009", "Payment not found.")
 	ErrBackofficeWebhookInvalidSig    AppError = NewAppError("E-BO-010", "Invalid webhook signature.")
+	ErrBackofficeRoleNotFound         AppError = NewAppError("E-BO-011", "Role not found.")
 	ErrPlanLimitUsers                 AppError = NewAppError("E-PLAN-001", "User limit reached for this plan.")
 	ErrPlanLimitPatients              AppError = NewAppError("E-PLAN-002", "Patient limit reached for this plan.")
 
