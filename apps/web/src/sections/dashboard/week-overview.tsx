@@ -79,7 +79,7 @@ export function WeekOverview({
 	stats: DashboardStats;
 	className?: string;
 }) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const navigate = useNavigate();
 	const today = todayISO();
 	const weekTotal = stats.weekly_appointments.reduce((n, d) => n + d.count, 0);
@@ -98,6 +98,7 @@ export function WeekOverview({
 				<div className="grid grid-cols-7 gap-1.5">
 					{stats.weekly_appointments.map((day) => {
 						const isToday = day.date === today;
+						const weekday = formatDate(day.date, "weekday");
 						return (
 							<button
 								key={day.date}
@@ -105,7 +106,7 @@ export function WeekOverview({
 								onClick={() =>
 									navigate(`/clinical/appointments?date=${day.date}`)
 								}
-								aria-label={`${day.day}: ${day.count}`}
+								aria-label={`${formatDate(day.date, "full")}: ${day.count}`}
 								className={cn(
 									"flex flex-col items-center gap-1 rounded-lg border py-2 transition-colors hover:bg-muted",
 									"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -116,13 +117,13 @@ export function WeekOverview({
 							>
 								<span
 									className={cn(
-										"text-xs",
+										"text-xs capitalize",
 										isToday
 											? "font-semibold text-primary"
 											: "text-muted-foreground",
 									)}
 								>
-									{day.day}
+									{weekday}
 								</span>
 								<span
 									className={cn(

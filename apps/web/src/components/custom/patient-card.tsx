@@ -32,6 +32,7 @@ import React from "react";
 import type { Patient } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { parseAllergies } from "@/lib/allergies";
 
 /**
  * Extends `Patient` with optional fields that may be injected
@@ -65,9 +66,11 @@ export default function PatientCard({
 	const { textGet, formatDate } = useText();
 	const { settings } = useTenantSettings();
 	const useAgeInput = settings.clinical.patient_age_input;
+	// Read the clock once per mount: render must stay pure (react-hooks/purity).
+	const [now] = React.useState(() => Date.now());
 	const age = patient.birth_date
 		? Math.floor(
-				(Date.now() - new Date(patient.birth_date).getTime()) /
+				(now - new Date(patient.birth_date).getTime()) /
 					(365.25 * 24 * 60 * 60 * 1000),
 			)
 		: null;
@@ -152,7 +155,7 @@ export default function PatientCard({
 										<span>
 											{useAgeInput ? (
 												age !== null ? (
-													`${age} años`
+													`${age} ${textGet("medical_document.years")}`
 												) : (
 													<NotAvailable />
 												)
@@ -388,14 +391,6 @@ export default function PatientCard({
 			/>
 		</>
 	);
-}
-
-function parseAllergies(allergies?: string): string[] {
-	if (!allergies?.trim()) return [];
-	return allergies
-		.split(",")
-		.map((a) => a.trim())
-		.filter(Boolean);
 }
 
 function formatGender(

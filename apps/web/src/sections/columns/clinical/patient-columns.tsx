@@ -56,7 +56,9 @@ function RenderActions({ row }: CellContext<Patient, unknown>) {
 					render={
 						<Button variant="ghost" size="icon">
 							<MoreVertical className="h-4 w-4" />
-							<span className="sr-only">Abrir Menu</span>
+							<span className="sr-only">
+								<Text uuid="table.button.open_menu" />
+							</span>
 						</Button>
 					}
 				/>

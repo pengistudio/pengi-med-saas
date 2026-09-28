@@ -110,6 +110,16 @@ describe("useText · formats follow the interface language", () => {
 		).toBe("16 nov 2026");
 	});
 
+	it("formats the short weekday of a bare calendar date in each language", () => {
+		const { result } = renderHook(() => useText());
+		// 2026-09-28 is a Monday, whatever the time zone of the machine.
+		expect(result.current.formatDate("2026-09-28", "weekday")).toBe("lun");
+		expect(result.current.formatDate("2026-10-04", "weekday")).toBe("dom");
+		loadLanguage("en");
+		expect(result.current.formatDate("2026-09-28", "weekday")).toBe("Mon");
+		expect(result.current.formatDate("2026-10-04", "weekday")).toBe("Sun");
+	});
+
 	it("accepts ISO strings", () => {
 		const { result } = renderHook(() => useText());
 		expect(result.current.formatDate(DATE.toISOString())).toBe("27 sept 2026");

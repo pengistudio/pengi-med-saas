@@ -57,7 +57,9 @@ function ActionsCell({
 				render={
 					<Button variant="outline" size="icon" className="ml-auto">
 						<MoreVertical className="h-4 w-4" />
-						<span className="sr-only">Abrir Menu</span>
+						<span className="sr-only">
+							<Text uuid="table.button.open_menu" />
+						</span>
 					</Button>
 				}
 			/>

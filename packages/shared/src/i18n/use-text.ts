@@ -13,9 +13,16 @@ export type DateInput = Date | string | number | null | undefined;
 
 /**
  * `medium` "27 sept 2026", `long` "27 de septiembre de 2026", `full` with the
- * weekday, `day-month` "27 sept", `month-year` "sept 2026".
+ * weekday, `day-month` "27 sept", `month-year` "sept 2026", `weekday` "dom"
+ * (short weekday only).
  */
-export type DateStyle = "medium" | "long" | "full" | "day-month" | "month-year";
+export type DateStyle =
+	| "medium"
+	| "long"
+	| "full"
+	| "day-month"
+	| "month-year"
+	| "weekday";
 
 // The interface language decides the format locale; the currency is always
 // USD (Ecuador), only its formatting follows the language.
@@ -32,6 +39,7 @@ const DATE_STYLES: Record<DateStyle, Intl.DateTimeFormatOptions> = {
 	full: { dateStyle: "full" },
 	"day-month": { day: "numeric", month: "short" },
 	"month-year": { month: "short", year: "numeric" },
+	weekday: { weekday: "short" },
 };
 
 const PLACEHOLDER = /\{(\w+)\}/g;

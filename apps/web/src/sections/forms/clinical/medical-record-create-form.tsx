@@ -59,6 +59,7 @@ import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormTagInput } from "@/components/forms/form-tag-input";
 import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { parseAllergies } from "@/lib/allergies";
 import { selectPatient, usePatientStore } from "@/store/patient-store";
 
 type VisitType = "first" | "followup";
@@ -372,14 +373,6 @@ function emptyConsultation() {
 		next_appointment_status: "scheduled" as const,
 		prescription: { items: [] },
 	};
-}
-
-function parseAllergies(allergies?: string): string[] {
-	if (!allergies?.trim()) return [];
-	return allergies
-		.split(",")
-		.map((a) => a.trim())
-		.filter(Boolean);
 }
 
 function FormInner({

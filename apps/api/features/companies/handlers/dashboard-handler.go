@@ -30,9 +30,10 @@ func NewDashboardHandler(db *gorm.DB, logger *zap.Logger) *DashboardHandler {
 
 // ─── Response DTOs ───────────────────────────────────────────────────────────
 
+// WeekDayStat is one calendar day of the week grid. Date is a bare
+// YYYY-MM-DD; the frontend formats the weekday in the interface language.
 type WeekDayStat struct {
 	Date  string `json:"date"`
-	Day   string `json:"day"`
 	Count int64  `json:"count"`
 }
 
@@ -171,7 +172,6 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 	offset := (int(weekday) + 6) % 7 // Monday = 0
 	weekStart := time.Date(now.Year(), now.Month(), now.Day()-offset, 0, 0, 0, 0, now.Location())
 
-	dayNames := []string{"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"}
 	weeklyStats := make([]WeekDayStat, 7)
 	for i := 0; i < 7; i++ {
 		day := weekStart.AddDate(0, 0, i)
@@ -184,7 +184,6 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 
 		weeklyStats[i] = WeekDayStat{
 			Date:  day.Format("2006-01-02"),
-			Day:   dayNames[i],
 			Count: count,
 		}
 	}
