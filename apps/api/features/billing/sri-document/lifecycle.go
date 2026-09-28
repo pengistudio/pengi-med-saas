@@ -78,6 +78,14 @@ func (l *Lifecycle) Process(kind Kind, id uint64) error {
 	}
 
 	if doc.Status == billing_models.InvoiceStatusValidated {
+		// A received document was sent with its access key, so it always has
+		// one. Without it there is nothing to query the SRI with: record it as
+		// failed (a retry signs it from scratch) instead of dereferencing nil.
+		if doc.AccessKey == nil || *doc.AccessKey == "" {
+			l.logger.Error("received SRI document has no access key", zap.String("kind", kind.Name), zap.Uint("id", doc.ID))
+			l.fail(kind, doc, "", fmt.Errorf("received %s %d has no access key", kind.Name, doc.ID), ErrorCodeInternal)
+			return nil
+		}
 		tenant, err := l.tenant(doc.TenantID)
 		if err != nil {
 			return err
