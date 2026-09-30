@@ -1,22 +1,21 @@
 package clinical_handlers
 
 import (
-	"pengi-med-saas/core/tenantdb"
 	"net/http"
 	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	"pengi-med-saas/core/tenantdb"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
-	company_models "pengi-med-saas/features/companies/models"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
+	company_models "pengi-med-saas/features/companies/models"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-
 )
 
 type PatientHandler struct {
@@ -56,12 +55,14 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 	fullName := newPatient.FirstName + " " + newPatient.LastName
 
 	patient := &clinical_models.Patient{
-		Document:    newPatient.Document,
-		Phone:       newPatient.Phone,
-		FirstName:   newPatient.FirstName,
-		LastName:    newPatient.LastName,
-		FullName:    &fullName,
-		BirthDate:   birthDate,
+		Document:  newPatient.Document,
+		Phone:     newPatient.Phone,
+		FirstName: newPatient.FirstName,
+		LastName:  newPatient.LastName,
+		FullName:  &fullName,
+		BirthDate: birthDate,
+		BirthDateEstimated: newPatient.BirthDate != nil &&
+			newPatient.BirthDateEstimated != nil && *newPatient.BirthDateEstimated,
 		Institution: newPatient.Institution,
 		Gender:      newPatient.Gender,
 		Notes:       newPatient.Notes,
@@ -132,6 +133,7 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	}
 	if updateData.BirthDate != nil {
 		updates["birth_date"] = *updateData.BirthDate
+		updates["birth_date_estimated"] = updateData.BirthDateEstimated != nil && *updateData.BirthDateEstimated
 	}
 	if updateData.Institution != nil {
 		updates["institution"] = *updateData.Institution

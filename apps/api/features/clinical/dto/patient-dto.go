@@ -3,31 +3,33 @@ package dto
 import "time"
 
 type CreatePatientDTO struct {
-	Document    string     `json:"document" binding:"required"`
-	Phone       string     `json:"phone"`
-	Email       string     `json:"email"`
-	FirstName   string     `json:"first_name" binding:"required"`
-	LastName    string     `json:"last_name" binding:"required"`
-	BirthDate   *time.Time `json:"birth_date"`
-	Institution string     `json:"institution" binding:"required"`
-	Gender      string     `json:"gender"`
-	Notes       string     `json:"notes"`
-	Insurance   string     `json:"insurance"`
-	Medic       string     `json:"medic"`
+	Document           string     `json:"document" binding:"required"`
+	Phone              string     `json:"phone"`
+	Email              string     `json:"email"`
+	FirstName          string     `json:"first_name" binding:"required"`
+	LastName           string     `json:"last_name" binding:"required"`
+	BirthDate          *time.Time `json:"birth_date"`
+	BirthDateEstimated *bool      `json:"birth_date_estimated"` // BirthDate derived from an age; ignored without BirthDate
+	Institution        string     `json:"institution" binding:"required"`
+	Gender             string     `json:"gender"`
+	Notes              string     `json:"notes"`
+	Insurance          string     `json:"insurance"`
+	Medic              string     `json:"medic"`
 }
 
 type UpdatePatientDTO struct {
-	Document    *string    `json:"document"`
-	Phone       *string    `json:"phone"`
-	Email       *string    `json:"email"`
-	FirstName   *string    `json:"first_name"`
-	LastName    *string    `json:"last_name"`
-	BirthDate   *time.Time `json:"birth_date"`
-	Institution *string    `json:"institution"`
-	Gender      *string    `json:"gender"`
-	Notes       *string    `json:"notes"`
-	Insurance   *string    `json:"insurance"`
-	Medic       *string    `json:"medic"`
+	Document           *string    `json:"document"`
+	Phone              *string    `json:"phone"`
+	Email              *string    `json:"email"`
+	FirstName          *string    `json:"first_name"`
+	LastName           *string    `json:"last_name"`
+	BirthDate          *time.Time `json:"birth_date"`
+	BirthDateEstimated *bool      `json:"birth_date_estimated"` // BirthDate derived from an age; ignored without BirthDate
+	Institution        *string    `json:"institution"`
+	Gender             *string    `json:"gender"`
+	Notes              *string    `json:"notes"`
+	Insurance          *string    `json:"insurance"`
+	Medic              *string    `json:"medic"`
 }
 
 type DeletePatientsDTO struct {
