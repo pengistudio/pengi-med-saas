@@ -10,6 +10,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
+	useViewport,
 } from "@pengi/ui";
 import {
 	type ColumnDef,
@@ -27,6 +28,7 @@ import {
 import * as React from "react";
 import { useEffect } from "react";
 import { useRowStore } from "@/store/row-store";
+import { DataTablePhoneList } from "./data-table-phone-list";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -69,6 +71,7 @@ export function DataTable<TData, TValue>({
 	emptyState,
 }: DataTableProps<TData, TValue>) {
 	const { textGet } = useText();
+	const { isPhone } = useViewport();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
@@ -119,7 +122,6 @@ export function DataTable<TData, TValue>({
 		getSortedRowModel: getSortedRowModel(),
 	});
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: triggers on selection change
 	useEffect(() => {
 		setRows(table.getFilteredSelectedRowModel().rows as Row<unknown>[]);
 	}, [rowSelection, data, setRows, table]);
@@ -147,9 +149,9 @@ export function DataTable<TData, TValue>({
 					</div>
 				</div>
 			) : (
-				<div className="flex items-center gap-2 justify-between">
+				<div className="flex flex-wrap items-center justify-between gap-2 py-4">
 					{onSearchChange ? (
-						<div className="flex items-center py-4 max-w-sm w-full">
+						<div className="flex w-full items-center sm:max-w-sm">
 							<Input
 								placeholder={
 									searchPlaceholder || textGet("table.search.placeholder")
@@ -160,7 +162,7 @@ export function DataTable<TData, TValue>({
 							/>
 						</div>
 					) : searchKey ? (
-						<div className="flex items-center py-4 max-w-sm w-full">
+						<div className="flex w-full items-center sm:max-w-sm">
 							<Input
 								placeholder={
 									searchPlaceholder || textGet("table.search.placeholder")
@@ -175,76 +177,84 @@ export function DataTable<TData, TValue>({
 							/>
 						</div>
 					) : null}
-					<div className="flex items-center gap-2 ml-auto">
+					{/* On a phone the filters get their own line and scroll sideways. */}
+					<div className="flex max-w-full items-center gap-2 overflow-x-auto max-sm:w-full sm:ml-auto">
 						{toolbarRight}
 						<DataTableViewOptions table={table} />
 					</div>
 				</div>
 			)}
 
-			<div className="rounded-md border">
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => {
-									return (
-										<TableHead key={header.id}>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									);
-								})}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{loading ? (
-							Array.from({ length: 6 }).map((_, i) => (
-								// biome-ignore lint/suspicious/noArrayIndexKey: skeleton rows
-								<TableRow key={i}>
-									{columns.map((_, j) => (
-										// biome-ignore lint/suspicious/noArrayIndexKey: skeleton cells
-										<TableCell key={j}>
-											<div className="h-4 w-full animate-pulse rounded bg-muted" />
-										</TableCell>
-									))}
+			{isPhone ? (
+				<DataTablePhoneList
+					table={table}
+					loading={loading}
+					rowClassName={rowClassName}
+					emptyState={emptyState}
+				/>
+			) : (
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							{table.getHeaderGroups().map((headerGroup) => (
+								<TableRow key={headerGroup.id}>
+									{headerGroup.headers.map((header) => {
+										return (
+											<TableHead key={header.id}>
+												{header.isPlaceholder
+													? null
+													: flexRender(
+															header.column.columnDef.header,
+															header.getContext(),
+														)}
+											</TableHead>
+										);
+									})}
 								</TableRow>
-							))
-						) : table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
-									className={rowClassName?.(row)}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
-									))}
+							))}
+						</TableHeader>
+						<TableBody>
+							{loading ? (
+								Array.from({ length: 6 }).map((_, i) => (
+									<TableRow key={i}>
+										{columns.map((_, j) => (
+											<TableCell key={j}>
+												<div className="h-4 w-full animate-pulse rounded bg-muted" />
+											</TableCell>
+										))}
+									</TableRow>
+								))
+							) : table.getRowModel().rows?.length ? (
+								table.getRowModel().rows.map((row) => (
+									<TableRow
+										key={row.id}
+										data-state={row.getIsSelected() && "selected"}
+										className={rowClassName?.(row)}
+									>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell key={cell.id}>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext(),
+												)}
+											</TableCell>
+										))}
+									</TableRow>
+								))
+							) : (
+								<TableRow>
+									<TableCell
+										colSpan={columns.length}
+										className="h-32 text-center"
+									>
+										{emptyState ?? textGet("table.no_results")}
+									</TableCell>
 								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-32 text-center"
-								>
-									{emptyState ?? textGet("table.no_results")}
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+							)}
+						</TableBody>
+					</Table>
+				</div>
+			)}
 			<DataTablePagination table={table} serverSide={isServerPaginated} />
 		</div>
 	);

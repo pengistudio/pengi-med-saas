@@ -2,7 +2,6 @@ import { useText } from "@pengi/shared";
 import { CreditCard, Database, Lock, Mail, Shield, User } from "lucide-react";
 import { Link } from "react-router";
 import { PageHeader } from "@/components/custom/page-header";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const SECTIONS = [
 	{
@@ -41,39 +40,37 @@ const PrivacyPage = () => {
 	const { textGet } = useText();
 
 	return (
-		<DashboardLayout>
-			<div className="max-w-2xl space-y-8">
-				<div>
-					<Link
-						to="/subscription"
-						className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-					>
-						← {textGet("subscription.page.title")}
-					</Link>
-					<PageHeader
-						className="mt-4"
-						title={textGet("privacy.page.title")}
-						description={textGet("privacy.page.subtitle")}
-					/>
-				</div>
-
-				<div className="space-y-8">
-					{SECTIONS.map(({ icon: Icon, titleKey, descKey }) => (
-						<section key={titleKey} className="flex gap-4">
-							<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted mt-0.5">
-								<Icon className="h-4 w-4 text-muted-foreground" />
-							</div>
-							<div>
-								<h2 className="font-semibold mb-1">{textGet(titleKey)}</h2>
-								<p className="text-sm text-muted-foreground leading-relaxed">
-									{textGet(descKey)}
-								</p>
-							</div>
-						</section>
-					))}
-				</div>
+		<div className="max-w-2xl space-y-8">
+			<div>
+				<Link
+					to="/subscription"
+					className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				>
+					← {textGet("subscription.page.title")}
+				</Link>
+				<PageHeader
+					className="mt-4"
+					title={textGet("privacy.page.title")}
+					description={textGet("privacy.page.subtitle")}
+				/>
 			</div>
-		</DashboardLayout>
+
+			<div className="space-y-8">
+				{SECTIONS.map(({ icon: Icon, titleKey, descKey }) => (
+					<section key={titleKey} className="flex gap-4">
+						<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted mt-0.5">
+							<Icon className="h-4 w-4 text-muted-foreground" />
+						</div>
+						<div>
+							<h2 className="font-semibold mb-1">{textGet(titleKey)}</h2>
+							<p className="text-sm text-muted-foreground leading-relaxed">
+								{textGet(descKey)}
+							</p>
+						</div>
+					</section>
+				))}
+			</div>
+		</div>
 	);
 };
 

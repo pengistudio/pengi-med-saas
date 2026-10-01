@@ -25,7 +25,6 @@ import {
 	useSavedBaseline,
 } from "@/components/features/medical-documents/document-workflow";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const BACKGROUND_FIELDS = ["app", "apf", "apqx", "allergies"] as const;
 
@@ -558,42 +557,40 @@ export default function GenerateMedicalReportPage() {
 	}
 
 	return (
-		<DashboardLayout>
-			<div className="mx-auto w-full max-w-6xl space-y-6">
-				<DocumentPageHeader
-					patientId={patientId}
-					patient={patient}
-					title="dialog.medical_report.title"
-					description="dialog.medical_report.description"
-				/>
+		<div className="mx-auto w-full max-w-6xl space-y-6">
+			<DocumentPageHeader
+				patientId={patientId}
+				patient={patient}
+				title="dialog.medical_report.title"
+				description="dialog.medical_report.description"
+			/>
 
-				{loadingRecords || !defaultValues ? (
-					<div className="flex justify-center py-16">
-						<Loader2 className="size-6 animate-spin text-muted-foreground" />
-					</div>
-				) : (
-					<Form
-						schema={reportSchema}
-						defaultValues={defaultValues}
-						onSubmit={onSubmit}
-					>
-						{(field) => (
-							<ReportEditor
-								field={field}
-								savedVersion={savedVersion}
-								saving={saving}
-								printing={printing}
-								isSaved={savedReportId !== null}
-								signature={signature}
-								patientEmail={patient?.email ?? ""}
-								onSign={handleSign}
-								onPrint={handlePrint}
-								onSendEmail={handleSendEmail}
-							/>
-						)}
-					</Form>
-				)}
-			</div>
-		</DashboardLayout>
+			{loadingRecords || !defaultValues ? (
+				<div className="flex justify-center py-16">
+					<Loader2 className="size-6 animate-spin text-muted-foreground" />
+				</div>
+			) : (
+				<Form
+					schema={reportSchema}
+					defaultValues={defaultValues}
+					onSubmit={onSubmit}
+				>
+					{(field) => (
+						<ReportEditor
+							field={field}
+							savedVersion={savedVersion}
+							saving={saving}
+							printing={printing}
+							isSaved={savedReportId !== null}
+							signature={signature}
+							patientEmail={patient?.email ?? ""}
+							onSign={handleSign}
+							onPrint={handlePrint}
+							onSendEmail={handleSendEmail}
+						/>
+					)}
+				</Form>
+			)}
+		</div>
 	);
 }

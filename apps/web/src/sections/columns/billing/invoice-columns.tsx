@@ -1,11 +1,12 @@
 import { useText } from "@pengi/shared";
-import { Button, Checkbox, DataTableColumnHeader, Text } from "@pengi/ui";
+import { Button, DataTableColumnHeader, Text } from "@pengi/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { downloadInvoiceRide, type Invoice } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
+import { selectColumn } from "@/components/custom/table/select-column";
 
 function DownloadRideButton({ invoice }: { invoice: Invoice }) {
 	const { textGet } = useText();
@@ -38,29 +39,10 @@ export function getInvoiceColumns(
 	onRetry: (id: number) => void | Promise<void>,
 ): ColumnDef<Invoice>[] {
 	return [
-		{
-			id: "select",
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected()}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-					className="translate-y-0.5"
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-					className="translate-y-0.5"
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
+		selectColumn<Invoice>(),
 		{
 			accessorKey: "sequential",
+			meta: { title: "billing.invoice.column.sequential", phone: "title" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -79,6 +61,7 @@ export function getInvoiceColumns(
 		},
 		{
 			accessorKey: "patient.document",
+			meta: { title: "billing.invoice.column.document" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -100,6 +83,7 @@ export function getInvoiceColumns(
 		},
 		{
 			accessorKey: "patient.full_name",
+			meta: { title: "billing.invoice.column.name", phone: "subtitle" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -123,6 +107,7 @@ export function getInvoiceColumns(
 		},
 		{
 			accessorKey: "total",
+			meta: { title: "billing.invoice.column.total", phone: "end" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -138,6 +123,7 @@ export function getInvoiceColumns(
 		},
 		{
 			accessorKey: "status",
+			meta: { title: "billing.invoice.column.status", phone: "status" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -161,6 +147,7 @@ export function getInvoiceColumns(
 		},
 		{
 			accessorKey: "createdAt",
+			meta: { title: "billing.invoice.column.date" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -177,76 +164,6 @@ export function getInvoiceColumns(
 			cell: ({ row }) => <DownloadRideButton invoice={row.original} />,
 			enableSorting: false,
 			enableHiding: false,
-		},
-	];
-}
-
-export function getInvoiceColumnsMobile(
-	onRetry: (id: number) => void | Promise<void>,
-): ColumnDef<Invoice>[] {
-	return [
-		{
-			id: "select",
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected()}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-					className="translate-y-0.5"
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-					className="translate-y-0.5"
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
-		{
-			accessorKey: "summary",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					title={<Text uuid="billing.invoice.column.summary" />}
-				/>
-			),
-			cell: ({ row }) => {
-				const invoice = row.original;
-				return (
-					<div className="flex flex-col gap-1 py-1">
-						<div className="flex justify-between items-center">
-							<span className="font-medium text-sm">
-								{invoice.establishment_code}-{invoice.emission_point_code}-
-								{invoice.sequential}
-							</span>
-							<Money
-								amount={invoice.total}
-								className="font-mono text-sm font-semibold"
-							/>
-						</div>
-						<div className="flex justify-between items-center text-xs text-muted-foreground">
-							<span>
-								{invoice.patient ? (
-									`${invoice.patient.first_name} ${invoice.patient.last_name}`
-								) : (
-									<Text uuid="billing.invoice.final_consumer" />
-								)}
-							</span>
-							<InvoiceStatusBadge
-								status={invoice.status}
-								errorMessage={invoice.error_message}
-								errorCode={invoice.error_code}
-								onRetry={() => onRetry(invoice.ID)}
-							/>
-						</div>
-						<DownloadRideButton invoice={invoice} />
-					</div>
-				);
-			},
 		},
 	];
 }

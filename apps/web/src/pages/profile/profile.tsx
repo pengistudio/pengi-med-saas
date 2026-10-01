@@ -8,6 +8,7 @@ import {
 	CardTitle,
 	Form,
 	FormInput,
+	FormRow,
 	Text,
 } from "@pengi/ui";
 import { Building2, Mail, Save, Shield, User } from "lucide-react";
@@ -22,7 +23,6 @@ import { PageHeader } from "@/components/custom/page-header";
 import { ElectronicSignatureCard } from "@/components/features/profile/electronic-signature-card";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
 const profileSchema = z.object({
@@ -61,129 +61,123 @@ const Profile = () => {
 
 	if (!profile) {
 		return (
-			<DashboardLayout>
-				<div className="flex items-center justify-center h-64">
-					<p className="text-muted-foreground animate-pulse">
-						{textGet("dashboard.loading")}
-					</p>
-				</div>
-			</DashboardLayout>
+			<div className="flex items-center justify-center h-64">
+				<p className="text-muted-foreground animate-pulse">
+					{textGet("dashboard.loading")}
+				</p>
+			</div>
 		);
 	}
 
 	return (
-		<DashboardLayout>
-			<div className="max-w-2xl mx-auto space-y-6">
-				<PageHeader title={<Text uuid="profile.title" />} />
+		<div className="max-w-2xl mx-auto space-y-6">
+			<PageHeader title={<Text uuid="profile.title" />} />
 
-				{/* User Info — read only */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<User className="h-5 w-5" />
-							<Text uuid="profile.user_info" />
-						</CardTitle>
-						<CardDescription>
-							<Text uuid="profile.user_info.description" />
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						<div className="grid grid-cols-2 gap-4">
-							<div>
-								<p className="text-sm font-medium text-muted-foreground">
-									{textGet("profile.username")}
+			{/* User Info — read only */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2">
+						<User className="h-5 w-5" />
+						<Text uuid="profile.user_info" />
+					</CardTitle>
+					<CardDescription>
+						<Text uuid="profile.user_info.description" />
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<FormRow>
+						<div>
+							<p className="text-sm font-medium text-muted-foreground">
+								{textGet("profile.username")}
+							</p>
+							<p className="text-sm font-semibold mt-1">{profile.user_name}</p>
+						</div>
+						<div>
+							<p className="text-sm font-medium text-muted-foreground">
+								{textGet("profile.role")}
+							</p>
+							<div className="flex items-center gap-1.5 mt-1">
+								<Shield className="h-4 w-4 text-primary" />
+								<p className="text-sm font-semibold capitalize">
+									{profile.role}
 								</p>
-								<p className="text-sm font-semibold mt-1">
-									{profile.user_name}
-								</p>
-							</div>
-							<div>
-								<p className="text-sm font-medium text-muted-foreground">
-									{textGet("profile.role")}
-								</p>
-								<div className="flex items-center gap-1.5 mt-1">
-									<Shield className="h-4 w-4 text-primary" />
-									<p className="text-sm font-semibold capitalize">
-										{profile.role}
-									</p>
-								</div>
 							</div>
 						</div>
-					</CardContent>
-				</Card>
+					</FormRow>
+				</CardContent>
+			</Card>
 
-				{/* Editable Form */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Building2 className="h-5 w-5" />
-							<Text uuid="profile.environment_info" />
-						</CardTitle>
-						<CardDescription>
-							<Text uuid="profile.environment_info.description" />
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<Form
-							schema={profileSchema}
-							defaultValues={{
-								email: profile.email,
-								environment_name: profile.environment_name,
-							}}
-							onSubmit={onSubmit}
-						>
-							{(field) => (
-								<div className="space-y-4">
-									<FormInput
-										field={field}
-										name="email"
-										label={textGet("profile.email")}
-										type="email"
-										startAddon={<Mail className="h-4 w-4" />}
-									/>
-									<FormInput
-										field={field}
-										name="environment_name"
-										label={textGet("profile.environment_name")}
-									/>
+			{/* Editable Form */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2">
+						<Building2 className="h-5 w-5" />
+						<Text uuid="profile.environment_info" />
+					</CardTitle>
+					<CardDescription>
+						<Text uuid="profile.environment_info.description" />
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<Form
+						schema={profileSchema}
+						defaultValues={{
+							email: profile.email,
+							environment_name: profile.environment_name,
+						}}
+						onSubmit={onSubmit}
+					>
+						{(field) => (
+							<div className="space-y-4">
+								<FormInput
+									field={field}
+									name="email"
+									label={textGet("profile.email")}
+									type="email"
+									startAddon={<Mail className="h-4 w-4" />}
+								/>
+								<FormInput
+									field={field}
+									name="environment_name"
+									label={textGet("profile.environment_name")}
+								/>
 
-									{/* Read-only company info */}
-									<div className="grid grid-cols-2 gap-4 pt-2 border-t">
-										<div>
-											<p className="text-sm font-medium text-muted-foreground">
-												{textGet("profile.legal_name")}
-											</p>
-											<p className="text-sm font-semibold mt-1">
-												{profile.legal_name}
-											</p>
-										</div>
-										<div>
-											<p className="text-sm font-medium text-muted-foreground">
-												{textGet("profile.trade_name")}
-											</p>
-											<p className="text-sm font-semibold mt-1">
-												{profile.trade_name}
-											</p>
-										</div>
+								{/* Read-only company info */}
+								<FormRow className="border-t pt-2">
+									<div>
+										<p className="text-sm font-medium text-muted-foreground">
+											{textGet("profile.legal_name")}
+										</p>
+										<p className="text-sm font-semibold mt-1">
+											{profile.legal_name}
+										</p>
 									</div>
-
-									<div className="flex justify-end pt-2">
-										<Button type="submit" disabled={loading}>
-											<Save className="mr-2 h-4 w-4" />
-											{textGet("profile.save")}
-										</Button>
+									<div>
+										<p className="text-sm font-medium text-muted-foreground">
+											{textGet("profile.trade_name")}
+										</p>
+										<p className="text-sm font-semibold mt-1">
+											{profile.trade_name}
+										</p>
 									</div>
+								</FormRow>
+
+								<div className="flex justify-end pt-2">
+									<Button type="submit" disabled={loading}>
+										<Save className="mr-2 h-4 w-4" />
+										{textGet("profile.save")}
+									</Button>
 								</div>
-							)}
-						</Form>
-					</CardContent>
-				</Card>
+							</div>
+						)}
+					</Form>
+				</CardContent>
+			</Card>
 
-				{checkPermission([
-					PERMISSIONS.MEDICAL_RECORD.PERMISSION_SIGN_MEDICAL_DOCUMENT,
-				]) && <ElectronicSignatureCard />}
-			</div>
-		</DashboardLayout>
+			{checkPermission([
+				PERMISSIONS.MEDICAL_RECORD.PERMISSION_SIGN_MEDICAL_DOCUMENT,
+			]) && <ElectronicSignatureCard />}
+		</div>
 	);
 };
 

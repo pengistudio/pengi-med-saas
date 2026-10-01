@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export interface PendingFollowUpsPanelProps {
 	refreshKey: number;
+	className?: string;
 	onSchedule: (patient: Patient, suggestedDate: Date) => void;
 }
 
@@ -32,6 +33,7 @@ function suggestedColorClass(date: Date): string {
 export function PendingFollowUpsPanel({
 	refreshKey,
 	onSchedule,
+	className,
 }: PendingFollowUpsPanelProps) {
 	const { textGet, formatDate } = useText();
 	const [patients, setPatients] = React.useState<Patient[]>([]);
@@ -52,7 +54,12 @@ export function PendingFollowUpsPanel({
 	}, [refreshKey]);
 
 	return (
-		<aside className="w-72 shrink-0 border rounded-xl bg-card flex flex-col max-h-[calc(100vh-16rem)]">
+		<aside
+			className={cn(
+				"flex min-h-0 w-72 shrink-0 flex-col rounded-xl border bg-card",
+				className,
+			)}
+		>
 			<div className="flex items-center gap-2 px-4 py-3 border-b">
 				<CalendarClock className="h-4 w-4 text-muted-foreground" />
 				<h2 className="text-sm font-semibold">

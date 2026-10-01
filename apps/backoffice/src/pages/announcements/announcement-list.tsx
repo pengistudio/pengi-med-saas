@@ -32,7 +32,6 @@ import {
 	cancelAnnouncement,
 } from "@/api/announcement-service";
 import { useResourceList } from "@/lib/resource";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const levelColors: Record<string, string> = {
 	info: "bg-sky-500/10 text-sky-600",
@@ -89,7 +88,7 @@ const AnnouncementList = () => {
 	};
 
 	return (
-		<DashboardLayout>
+		<>
 			<div className="space-y-6">
 				<div className="flex items-center justify-between">
 					<h1 className="text-2xl font-bold tracking-tight">
@@ -223,7 +222,7 @@ const AnnouncementList = () => {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</DashboardLayout>
+		</>
 	);
 };
 

@@ -55,12 +55,14 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 	fullName := newPatient.FirstName + " " + newPatient.LastName
 
 	patient := &clinical_models.Patient{
-		Document:    newPatient.Document,
-		Phone:       newPatient.Phone,
-		FirstName:   newPatient.FirstName,
-		LastName:    newPatient.LastName,
-		FullName:    &fullName,
-		BirthDate:   birthDate,
+		Document:  newPatient.Document,
+		Phone:     newPatient.Phone,
+		FirstName: newPatient.FirstName,
+		LastName:  newPatient.LastName,
+		FullName:  &fullName,
+		BirthDate: birthDate,
+		BirthDateEstimated: newPatient.BirthDate != nil &&
+			newPatient.BirthDateEstimated != nil && *newPatient.BirthDateEstimated,
 		Institution: newPatient.Institution,
 		Gender:      newPatient.Gender,
 		Notes:       newPatient.Notes,
@@ -131,6 +133,7 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	}
 	if updateData.BirthDate != nil {
 		updates["birth_date"] = *updateData.BirthDate
+		updates["birth_date_estimated"] = updateData.BirthDateEstimated != nil && *updateData.BirthDateEstimated
 	}
 	if updateData.Institution != nil {
 		updates["institution"] = *updateData.Institution

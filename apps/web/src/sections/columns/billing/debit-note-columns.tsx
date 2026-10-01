@@ -1,37 +1,19 @@
-import { Checkbox, DataTableColumnHeader, Text } from "@pengi/ui";
+import { DataTableColumnHeader, Text } from "@pengi/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { DebitNote } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
+import { selectColumn } from "@/components/custom/table/select-column";
 
 export function getDebitNoteColumns(
 	onRetry: (id: number) => void | Promise<void>,
 ): ColumnDef<DebitNote>[] {
 	return [
-		{
-			id: "select",
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected()}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-					className="translate-y-[2px]"
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-					className="translate-y-[2px]"
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
+		selectColumn<DebitNote>(),
 		{
 			accessorKey: "sequential",
+			meta: { title: "billing.debit_note.column.sequential", phone: "title" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -50,6 +32,7 @@ export function getDebitNoteColumns(
 		},
 		{
 			accessorKey: "invoice.sequential",
+			meta: { title: "billing.debit_note.column.invoice", phone: "subtitle" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -69,6 +52,7 @@ export function getDebitNoteColumns(
 		},
 		{
 			accessorKey: "total",
+			meta: { title: "billing.invoice.column.total", phone: "end" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -84,6 +68,7 @@ export function getDebitNoteColumns(
 		},
 		{
 			accessorKey: "status",
+			meta: { title: "billing.invoice.column.status", phone: "status" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -107,6 +92,7 @@ export function getDebitNoteColumns(
 		},
 		{
 			accessorKey: "createdAt",
+			meta: { title: "billing.invoice.column.date" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -116,74 +102,6 @@ export function getDebitNoteColumns(
 			cell: ({ row }) => (
 				<RelativeDate date={row.original.CreatedAt as string} />
 			),
-		},
-	];
-}
-
-export function getDebitNoteColumnsMobile(
-	onRetry: (id: number) => void | Promise<void>,
-): ColumnDef<DebitNote>[] {
-	return [
-		{
-			id: "select",
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected()}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-					className="translate-y-[2px]"
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-					className="translate-y-[2px]"
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
-		{
-			accessorKey: "summary",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					title={<Text uuid="billing.invoice.column.summary" />}
-				/>
-			),
-			cell: ({ row }) => {
-				const debitNote = row.original;
-				return (
-					<div className="flex flex-col gap-1 py-1">
-						<div className="flex justify-between items-center">
-							<span className="font-medium text-sm">
-								{debitNote.establishment_code}-{debitNote.emission_point_code}-
-								{debitNote.sequential}
-							</span>
-							<Money
-								amount={debitNote.total}
-								className="font-mono text-sm font-semibold"
-							/>
-						</div>
-						<div className="flex justify-between items-center text-xs text-muted-foreground">
-							<span>
-								{debitNote.motives?.[0]?.reason ?? ""}
-								{debitNote.motives && debitNote.motives.length > 1
-									? ` +${debitNote.motives.length - 1}`
-									: ""}
-							</span>
-							<InvoiceStatusBadge
-								status={debitNote.status}
-								errorMessage={debitNote.error_message}
-								errorCode={debitNote.error_code}
-								onRetry={() => onRetry(debitNote.ID)}
-							/>
-						</div>
-					</div>
-				);
-			},
 		},
 	];
 }

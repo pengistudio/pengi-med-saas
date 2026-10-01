@@ -56,6 +56,7 @@ import {
   CardTitle,
   Form,
   FormInput,
+  FormRow,
   FormSelect,
   FormTextArea,
 } from "@pengi/ui";
@@ -97,7 +98,7 @@ export default function ItemForm({ initialData, loading, onSubmit }: ItemFormPro
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-4">
+            <FormRow>
               <FormInput
                 field={field}
                 name="name"
@@ -113,7 +114,7 @@ export default function ItemForm({ initialData, loading, onSubmit }: ItemFormPro
                   { label: textGet("item.status.inactive"), value: "inactive" },
                 ]}
               />
-            </div>
+            </FormRow>
             <FormTextArea
               field={field}
               name="description"
@@ -157,11 +158,9 @@ export default function CreateItemPage() {
   };
 
   return (
-    <DashboardLayout>
-      <main className="grid items-start gap-4">
-        <ItemForm onSubmit={handleSubmit} loading={loading} />
-      </main>
-    </DashboardLayout>
+    <main className="grid items-start gap-4">
+      <ItemForm onSubmit={handleSubmit} loading={loading} />
+    </main>
   );
 }
 ```
@@ -181,6 +180,7 @@ Desde `@pengi/ui` (web y backoffice):
 | `FormSelect` | Dropdown | `field`, `name`, `label`, `options: {label, value}[]`, `placeholder`, `disabled`, `emptyMessage` |
 | `FormTextArea` | Texto multilínea | `field`, `name`, `label`, `isOptional`, `description` |
 | `FormRadioGroup` | Radio buttons | `field`, `name`, `label`, `options: {label, value}[]`, `isRow` |
+| `FormRow` | Campos lado a lado cuando caben, apilados cuando no (container query: mide su contenedor, no la pantalla) | `cols` (2 por defecto, o 3), `className` |
 
 Solo en `apps/web`, en `@/components/forms/`:
 
@@ -211,7 +211,9 @@ Todo campo de formulario usa estos componentes, no `<input>`/`<select>` HTML.
 
 ### Layout
 - `Card` con header / content / footer, `max-w-4xl mx-auto` (o `max-w-2xl` si es corto).
-- Grid responsive: `grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-4`.
+- Campos en columnas con `<FormRow>` (o `<FormRow cols={3}>`), no con
+  `grid grid-cols-N` a mano: se apila en el teléfono y en diálogos angostos
+  sin depender de recordar el prefijo `md:`.
 - Botón submit con estado `loading` (spinner `Loader2`).
 
 ### Página o diálogo
@@ -219,8 +221,8 @@ Todo campo de formulario usa estos componentes, no `<input>`/`<select>` HTML.
   página + listado.
 - Edición rápida de 1-2 campos desde una fila → `Dialog` en
   `components/features/<domain>/` (patrón `edit-prescription-dialog.tsx`), con
-  los mismos componentes `Form*`. En diálogos angostos, evita grids de 3
-  columnas con fechas largas.
+  los mismos componentes `Form*`. `FormRow` se apila solo si el diálogo es
+  angosto.
 
 ## Checklist
 
@@ -228,5 +230,5 @@ Todo campo de formulario usa estos componentes, no `<input>`/`<select>` HTML.
 - [ ] Formulario en `sections/forms/<domain>/`, reutilizable para crear/editar
 - [ ] `Form` y campos de `@pengi/ui` (o `FormCalendar`/`FormTagInput` locales en web)
 - [ ] Todos los textos vía `textGet()`; keys en ambos JSON
-- [ ] Grid responsive y `max-w-*` aplicados
+- [ ] Campos en columnas con `FormRow` y `max-w-*` aplicado
 - [ ] Submit con estado `loading`; la página navega si `res.success`

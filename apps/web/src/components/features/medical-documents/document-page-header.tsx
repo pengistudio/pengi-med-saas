@@ -3,19 +3,7 @@ import { Button, Text } from "@pengi/ui";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Patient } from "@/api/clinical-service";
-
-function ageInYears(birthDate: string | undefined): number | null {
-	if (!birthDate) return null;
-	const birth = new Date(birthDate);
-	if (Number.isNaN(birth.getTime())) return null;
-	const now = new Date();
-	let age = now.getFullYear() - birth.getFullYear();
-	const beforeBirthday =
-		now.getMonth() < birth.getMonth() ||
-		(now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate());
-	if (beforeBirthday) age--;
-	return age >= 0 ? age : null;
-}
+import { ageInYears } from "@/lib/patient-age";
 
 interface DocumentPageHeaderProps {
 	patientId: number;

@@ -15,6 +15,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
 		<Sonner
 			theme={theme as ToasterProps["theme"]}
 			className="toaster group"
+			// Below the iPhone status bar when the app runs full screen.
+			offset={{ top: "max(24px, env(safe-area-inset-top))" }}
+			mobileOffset={{ top: "max(16px, env(safe-area-inset-top))" }}
 			icons={{
 				success: <CircleCheckIcon className="size-4" />,
 				info: <InfoIcon className="size-4" />,

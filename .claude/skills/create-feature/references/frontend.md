@@ -53,11 +53,12 @@ de datos persistidos, versiona el `name` (`notification-storage-v4`).
 
 ## Páginas y listados
 
-- Envuelve la página en `<DashboardLayout>` (`sections/template/dashboard-template.tsx`)
-  con `<PageHeader>` (`components/custom/page-header`).
-- Listados: `<DataTable>` (`components/custom/table/data-table`) + columnas
-  desktop y mobile (`get<X>Columns` / `get<X>ColumnsMobile`, alternadas con
-  `useResponsive`) + `useRowStore` para selección múltiple.
+- La página NO se envuelve en `<DashboardLayout>`: `routes.tsx` lo monta una vez
+  (con `<Outlet>`) para todas las rutas autenticadas. Empieza con
+  `<PageHeader>` (`components/custom/page-header`).
+- Listados: `<DataTable>` (`components/custom/table/data-table`) + un solo juego
+  de columnas (`get<X>Columns`) con `meta.phone` para la lista del teléfono +
+  `useRowStore` para selección múltiple.
 - Acciones condicionadas por permiso dentro de la página:
   `const { checkPermission } = usePermission()`.
 

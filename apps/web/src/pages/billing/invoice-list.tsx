@@ -28,13 +28,8 @@ import {
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
-import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	getInvoiceColumns,
-	getInvoiceColumnsMobile,
-} from "@/sections/columns/billing/invoice-columns";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { getInvoiceColumns } from "@/sections/columns/billing/invoice-columns";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
@@ -74,7 +69,6 @@ const InvoiceListPage = () => {
 	});
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
@@ -164,121 +158,108 @@ const InvoiceListPage = () => {
 		[page, search, statusFilter, fetchInvoices],
 	);
 
-	const columns = useMemo(
-		() =>
-			isMobile
-				? getInvoiceColumnsMobile(handleRetry)
-				: getInvoiceColumns(handleRetry),
-		[isMobile, handleRetry],
-	);
+	const columns = useMemo(() => getInvoiceColumns(handleRetry), [handleRetry]);
 
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				<PageHeader
-					title={textGet("dashboard.billing.invoices")}
-					description={textGet("billing.invoice.page.description")}
-					actions={
-						checkPermission([
-							PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
-						]) && (
-							<Button onClick={() => navigate("/billing/create")}>
-								<Plus className="mr-2 h-4 w-4" />
-								<Text uuid="billing.invoice.create.button" />
-							</Button>
-						)
+		<main className="grid grid-cols-1 items-start gap-4">
+			<PageHeader
+				title={textGet("dashboard.billing.invoices")}
+				description={textGet("billing.invoice.page.description")}
+				actions={
+					checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
+						<Button onClick={() => navigate("/billing/create")}>
+							<Plus className="mr-2 h-4 w-4" />
+							<Text uuid="billing.invoice.create.button" />
+						</Button>
+					)
+				}
+			/>
+			<div>
+				<DataTable
+					bulkActions={
+						<>
+							{checkPermission([
+								PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
+							]) && (
+								<Button
+									variant="secondary"
+									disabled={rows.length === ZERO || processing}
+									onClick={handleProcessSelected}
+								>
+									<Play className="mr-2 h-4 w-4" />
+									<Text uuid="billing.invoice.process.selected" />
+								</Button>
+							)}
+
+							<AlertDialog>
+								{checkPermission([
+									PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+								]) && (
+									<AlertDialogTrigger
+										render={
+											<Button variant="outline" disabled={rows.length === ZERO}>
+												<Trash className="mr-2 h-4 w-4" />
+												<Text uuid="table.button.delete.all.selected" />
+											</Button>
+										}
+									/>
+								)}
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											<Text uuid="dialog.title.absolutely.sure" />
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											<Text uuid="billing.invoice.delete.description" />
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>
+											<Text uuid="form.cancel" />
+										</AlertDialogCancel>
+										<AlertDialogAction onClick={handleDelete}>
+											<Text uuid="form.continue" />
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						</>
+					}
+					searchPlaceholder={textGet("billing.invoice.search.placeholder")}
+					searchValue={searchInput}
+					onSearchChange={setSearchInput}
+					toolbarRight={
+						<ToggleGroup
+							value={[statusFilter]}
+							onValueChange={(value) => {
+								setStatusFilter(value[0] ?? "all");
+								setPage(1);
+							}}
+						>
+							{STATUS_FILTERS.map((filter) => (
+								<ToggleGroupItem key={filter.value} value={filter.value}>
+									<Text uuid={filter.labelKey} />
+								</ToggleGroupItem>
+							))}
+						</ToggleGroup>
+					}
+					columns={columns}
+					data={invoiceList}
+					loading={loading}
+					pageCount={totalPages}
+					page={page}
+					onPageChange={setPage}
+					rowClassName={(row) =>
+						row.original.status === "failed" ||
+						row.original.status === "rejected"
+							? "bg-destructive/5 hover:bg-destructive/10"
+							: row.original.status === "connection_error"
+								? "bg-amber-500/5 hover:bg-amber-500/10"
+								: ""
 					}
 				/>
-				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-					<DataTable
-						bulkActions={
-							<>
-								{checkPermission([
-									PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
-								]) && (
-									<Button
-										variant="secondary"
-										disabled={rows.length === ZERO || processing}
-										onClick={handleProcessSelected}
-									>
-										<Play className="mr-2 h-4 w-4" />
-										<Text uuid="billing.invoice.process.selected" />
-									</Button>
-								)}
-
-								<AlertDialog>
-									{checkPermission([
-										PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
-									]) && (
-										<AlertDialogTrigger
-											render={
-												<Button
-													variant="outline"
-													disabled={rows.length === ZERO}
-												>
-													<Trash className="mr-2 h-4 w-4" />
-													<Text uuid="table.button.delete.all.selected" />
-												</Button>
-											}
-										/>
-									)}
-									<AlertDialogContent>
-										<AlertDialogHeader>
-											<AlertDialogTitle>
-												<Text uuid="dialog.title.absolutely.sure" />
-											</AlertDialogTitle>
-											<AlertDialogDescription>
-												<Text uuid="billing.invoice.delete.description" />
-											</AlertDialogDescription>
-										</AlertDialogHeader>
-										<AlertDialogFooter>
-											<AlertDialogCancel>
-												<Text uuid="form.cancel" />
-											</AlertDialogCancel>
-											<AlertDialogAction onClick={handleDelete}>
-												<Text uuid="form.continue" />
-											</AlertDialogAction>
-										</AlertDialogFooter>
-									</AlertDialogContent>
-								</AlertDialog>
-							</>
-						}
-						searchPlaceholder={textGet("billing.invoice.search.placeholder")}
-						searchValue={searchInput}
-						onSearchChange={setSearchInput}
-						toolbarRight={
-							<ToggleGroup
-								value={[statusFilter]}
-								onValueChange={(value) => {
-									setStatusFilter(value[0] ?? "all");
-									setPage(1);
-								}}
-							>
-								{STATUS_FILTERS.map((filter) => (
-									<ToggleGroupItem key={filter.value} value={filter.value}>
-										<Text uuid={filter.labelKey} />
-									</ToggleGroupItem>
-								))}
-							</ToggleGroup>
-						}
-						columns={columns}
-						data={invoiceList}
-						loading={loading}
-						pageCount={totalPages}
-						page={page}
-						onPageChange={setPage}
-						rowClassName={(row) =>
-							row.original.status === "failed" ||
-							row.original.status === "rejected"
-								? "bg-destructive/5 hover:bg-destructive/10"
-								: row.original.status === "connection_error"
-									? "bg-amber-500/5 hover:bg-amber-500/10"
-									: ""
-						}
-					/>
-				</div>
-			</main>
-		</DashboardLayout>
+			</div>
+		</main>
 	);
 
 	async function handleDelete() {

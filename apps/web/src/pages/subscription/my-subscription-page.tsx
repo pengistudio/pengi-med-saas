@@ -47,7 +47,6 @@ import {
 } from "@/api/subscription-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 // ─── Privacy Modal ────────────────────────────────────────────────────────────
 
@@ -494,208 +493,204 @@ const MySubscriptionPage = () => {
 	};
 
 	return (
-		<DashboardLayout>
-			<div className="space-y-6">
-				{paymentSuccess && (
-					<div className="flex items-center gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3">
-						<CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" />
-						<p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-							{textGet("subscription.payment.success_banner")}
-						</p>
-					</div>
-				)}
-				<PageHeader
-					title={textGet("subscription.page.title")}
-					description={textGet("subscription.page.description")}
-				/>
+		<div className="space-y-6">
+			{paymentSuccess && (
+				<div className="flex items-center gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3">
+					<CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" />
+					<p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+						{textGet("subscription.payment.success_banner")}
+					</p>
+				</div>
+			)}
+			<PageHeader
+				title={textGet("subscription.page.title")}
+				description={textGet("subscription.page.description")}
+			/>
 
-				{/* Subscription overview — informational only */}
-				<Card>
-					<CardContent>
-						{loading ? (
-							<div className="space-y-2">
-								<div className="h-7 w-40 rounded bg-muted animate-pulse" />
-								<div className="h-4 w-72 rounded bg-muted animate-pulse" />
-							</div>
-						) : sub ? (
-							<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-								<div className="space-y-1">
-									<div className="flex flex-wrap items-center gap-2">
-										<h2 className="text-2xl font-bold">{sub.plan_name}</h2>
-										<StatusBadge status={sub.status} />
-									</div>
-									<p className="text-sm">
-										{textGet("subscription.card.expires_on", {
-											date: formatDate(sub.expires_at, "long"),
-										})}{" "}
-										<span
-											className={cn("tabular-nums", daysColor(sub.days_left))}
-										>
-											(
-											{sub.days_left <= 0
-												? textGet("subscription.status.expired")
-												: `${sub.days_left} ${textGet("subscription.card.days_left")}`}
-											)
-										</span>
-									</p>
-									{sub.last_payment_amount > 0 && (
-										<p className="text-sm text-muted-foreground tabular-nums">
-											{textGet("subscription.card.last_payment")}{" "}
-											{textGet(
-												`subscription.plans.period.${sub.last_payment_months}`,
-											)}
-											, {formatMoney(sub.last_payment_amount)}
-										</p>
-									)}
+			{/* Subscription overview — informational only */}
+			<Card>
+				<CardContent>
+					{loading ? (
+						<div className="space-y-2">
+							<div className="h-7 w-40 rounded bg-muted animate-pulse" />
+							<div className="h-4 w-72 rounded bg-muted animate-pulse" />
+						</div>
+					) : sub ? (
+						<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<div className="space-y-1">
+								<div className="flex flex-wrap items-center gap-2">
+									<h2 className="text-2xl font-bold">{sub.plan_name}</h2>
+									<StatusBadge status={sub.status} />
 								</div>
-								{sub.days_left <= RENEW_WINDOW_DAYS ? (
-									<div className="flex items-start gap-2 text-amber-600 sm:max-w-xs dark:text-amber-400">
-										<AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-										<p className="text-sm font-medium">
-											{textGet("subscription.card.renew_soon")}
-										</p>
-									</div>
-								) : (
-									<p className="text-sm text-muted-foreground sm:max-w-xs sm:text-right">
-										{textGet("subscription.card.renew_from", {
-											date: formatDate(
-												new Date(
-													new Date(sub.expires_at).getTime() -
-														RENEW_WINDOW_DAYS * 86_400_000,
-												),
-												"long",
-											),
-										})}
+								<p className="text-sm">
+									{textGet("subscription.card.expires_on", {
+										date: formatDate(sub.expires_at, "long"),
+									})}{" "}
+									<span
+										className={cn("tabular-nums", daysColor(sub.days_left))}
+									>
+										(
+										{sub.days_left <= 0
+											? textGet("subscription.status.expired")
+											: `${sub.days_left} ${textGet("subscription.card.days_left")}`}
+										)
+									</span>
+								</p>
+								{sub.last_payment_amount > 0 && (
+									<p className="text-sm text-muted-foreground tabular-nums">
+										{textGet("subscription.card.last_payment")}{" "}
+										{textGet(
+											`subscription.plans.period.${sub.last_payment_months}`,
+										)}
+										, {formatMoney(sub.last_payment_amount)}
 									</p>
 								)}
 							</div>
-						) : (
-							<p className="text-sm text-muted-foreground">—</p>
-						)}
-					</CardContent>
-				</Card>
-
-				{/* Available Plans */}
-				{!loading && plans.length > 0 && sub && (
-					<div className="space-y-4">
-						<div className="flex items-start justify-between gap-4">
-							<div>
-								<h2 className="text-lg font-semibold">
-									{textGet("subscription.plans.section.title")}
-								</h2>
-								<p className="text-sm text-muted-foreground">
-									{textGet("subscription.plans.section.description")}
-								</p>
-							</div>
-							<PrivacyModal />
-						</div>
-						<div
-							className={cn(
-								"grid gap-4 sm:grid-cols-2",
-								plans.length > 2 && "xl:grid-cols-3",
-							)}
-						>
-							{[...plans]
-								.sort((a, b) => {
-									if (a.code === sub.plan_code) return -1;
-									if (b.code === sub.plan_code) return 1;
-									return 0;
-								})
-								.map((plan) => (
-									<PlanCard
-										key={plan.code}
-										plan={plan}
-										currentPlanCode={sub.plan_code}
-										currentPlanTier={sub.plan_tier}
-										daysLeft={sub.days_left}
-										onSelect={handlePay}
-										payingKey={payingKey}
-										pendingChangePlanCode={sub.next_plan_code ?? ""}
-										onCancelChange={handleCancelChange}
-										cancellingChange={cancellingChange}
-									/>
-								))}
-						</div>
-					</div>
-				)}
-
-				{/* Payment History */}
-				<Card>
-					<CardHeader>
-						<CardTitle>{textGet("subscription.payments.title")}</CardTitle>
-						<CardDescription>
-							{textGet("subscription.payments.description")}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						{loading ? (
-							<div className="space-y-2">
-								{[1, 2, 3].map((i) => (
-									<div
-										key={i}
-										className="h-10 w-full bg-muted animate-pulse rounded"
-									/>
-								))}
-							</div>
-						) : payments.length === 0 ? (
-							<p className="text-sm text-muted-foreground text-center py-8">
-								{textGet("subscription.payments.empty")}
-							</p>
-						) : (
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>
-											{textGet("subscription.payments.col.date")}
-										</TableHead>
-										<TableHead className="text-right">
-											{textGet("subscription.payments.col.amount")}
-										</TableHead>
-										<TableHead>
-											{textGet("subscription.payments.col.status")}
-										</TableHead>
-										<TableHead className="hidden sm:table-cell">
-											{textGet("subscription.payments.col.order")}
-										</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{payments.map((p) => {
-										const inactive = INACTIVE_PAYMENT_STATUSES.includes(
-											p.status,
-										);
-										return (
-											<TableRow
-												key={p.ID}
-												className={cn(inactive && "text-muted-foreground")}
-											>
-												<TableCell className="text-sm">
-													{formatDate(p.CreatedAt)}
-												</TableCell>
-												<TableCell
-													className={cn(
-														"text-right text-sm tabular-nums",
-														!inactive && "font-medium",
-													)}
-												>
-													{formatMoney(p.amount)}
-												</TableCell>
-												<TableCell>
-													<PaymentStatus status={p.status} />
-												</TableCell>
-												<TableCell className="hidden text-xs text-muted-foreground font-mono sm:table-cell">
-													{p.order_id.slice(0, 8)}
-												</TableCell>
-											</TableRow>
-										);
+							{sub.days_left <= RENEW_WINDOW_DAYS ? (
+								<div className="flex items-start gap-2 text-amber-600 sm:max-w-xs dark:text-amber-400">
+									<AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+									<p className="text-sm font-medium">
+										{textGet("subscription.card.renew_soon")}
+									</p>
+								</div>
+							) : (
+								<p className="text-sm text-muted-foreground sm:max-w-xs sm:text-right">
+									{textGet("subscription.card.renew_from", {
+										date: formatDate(
+											new Date(
+												new Date(sub.expires_at).getTime() -
+													RENEW_WINDOW_DAYS * 86_400_000,
+											),
+											"long",
+										),
 									})}
-								</TableBody>
-							</Table>
+								</p>
+							)}
+						</div>
+					) : (
+						<p className="text-sm text-muted-foreground">—</p>
+					)}
+				</CardContent>
+			</Card>
+
+			{/* Available Plans */}
+			{!loading && plans.length > 0 && sub && (
+				<div className="space-y-4">
+					<div className="flex items-start justify-between gap-4">
+						<div>
+							<h2 className="text-lg font-semibold">
+								{textGet("subscription.plans.section.title")}
+							</h2>
+							<p className="text-sm text-muted-foreground">
+								{textGet("subscription.plans.section.description")}
+							</p>
+						</div>
+						<PrivacyModal />
+					</div>
+					<div
+						className={cn(
+							"grid gap-4 sm:grid-cols-2",
+							plans.length > 2 && "xl:grid-cols-3",
 						)}
-					</CardContent>
-				</Card>
-			</div>
-		</DashboardLayout>
+					>
+						{[...plans]
+							.sort((a, b) => {
+								if (a.code === sub.plan_code) return -1;
+								if (b.code === sub.plan_code) return 1;
+								return 0;
+							})
+							.map((plan) => (
+								<PlanCard
+									key={plan.code}
+									plan={plan}
+									currentPlanCode={sub.plan_code}
+									currentPlanTier={sub.plan_tier}
+									daysLeft={sub.days_left}
+									onSelect={handlePay}
+									payingKey={payingKey}
+									pendingChangePlanCode={sub.next_plan_code ?? ""}
+									onCancelChange={handleCancelChange}
+									cancellingChange={cancellingChange}
+								/>
+							))}
+					</div>
+				</div>
+			)}
+
+			{/* Payment History */}
+			<Card>
+				<CardHeader>
+					<CardTitle>{textGet("subscription.payments.title")}</CardTitle>
+					<CardDescription>
+						{textGet("subscription.payments.description")}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					{loading ? (
+						<div className="space-y-2">
+							{[1, 2, 3].map((i) => (
+								<div
+									key={i}
+									className="h-10 w-full bg-muted animate-pulse rounded"
+								/>
+							))}
+						</div>
+					) : payments.length === 0 ? (
+						<p className="text-sm text-muted-foreground text-center py-8">
+							{textGet("subscription.payments.empty")}
+						</p>
+					) : (
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>
+										{textGet("subscription.payments.col.date")}
+									</TableHead>
+									<TableHead className="text-right">
+										{textGet("subscription.payments.col.amount")}
+									</TableHead>
+									<TableHead>
+										{textGet("subscription.payments.col.status")}
+									</TableHead>
+									<TableHead className="hidden sm:table-cell">
+										{textGet("subscription.payments.col.order")}
+									</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{payments.map((p) => {
+									const inactive = INACTIVE_PAYMENT_STATUSES.includes(p.status);
+									return (
+										<TableRow
+											key={p.ID}
+											className={cn(inactive && "text-muted-foreground")}
+										>
+											<TableCell className="text-sm">
+												{formatDate(p.CreatedAt)}
+											</TableCell>
+											<TableCell
+												className={cn(
+													"text-right text-sm tabular-nums",
+													!inactive && "font-medium",
+												)}
+											>
+												{formatMoney(p.amount)}
+											</TableCell>
+											<TableCell>
+												<PaymentStatus status={p.status} />
+											</TableCell>
+											<TableCell className="hidden text-xs text-muted-foreground font-mono sm:table-cell">
+												{p.order_id.slice(0, 8)}
+											</TableCell>
+										</TableRow>
+									);
+								})}
+							</TableBody>
+						</Table>
+					)}
+				</CardContent>
+			</Card>
+		</div>
 	);
 };
 

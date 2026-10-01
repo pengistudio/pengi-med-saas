@@ -1337,7 +1337,7 @@ function LastRecordDialog({
 							<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
 								<Text uuid="form.create_medical_record.vital_signs.title" />
 							</p>
-							<div className="grid grid-cols-3 gap-2 text-sm">
+							<div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
 								{record.vital_signs.weight && (
 									<span>
 										{textGet("form.create_medical_record.vital_signs.weight")}:{" "}

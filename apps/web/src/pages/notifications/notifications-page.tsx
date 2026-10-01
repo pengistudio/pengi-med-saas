@@ -26,7 +26,6 @@ import {
 } from "@/lib/notification-level";
 import { getNotificationText } from "@/lib/notification-text";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useNotificationStore } from "@/store/notification-store";
 
 const PAGE_LIMIT = 20;
@@ -130,154 +129,152 @@ const NotificationsPage = () => {
 	};
 
 	return (
-		<DashboardLayout>
-			<div className="space-y-6">
-				<PageHeader
-					title={textGet("notification.page.title")}
-					description={textGet("notification.page.description")}
-					actions={
-						<>
-							<Button
-								variant="outline"
-								disabled={unreadCount === 0}
-								onClick={handleMarkAllRead}
-							>
-								<Check className="mr-2 h-4 w-4" />
-								<Text uuid="notification.page.mark_all_read" />
-							</Button>
-							<Button variant="outline" onClick={handleDeleteRead}>
-								<Trash2 className="mr-2 h-4 w-4" />
-								<Text uuid="notification.page.delete_read" />
-							</Button>
-						</>
-					}
-				/>
-				<ToggleGroup
-					value={[filter]}
-					onValueChange={(value) => {
-						setFilter((value[0] as Filter | undefined) ?? "all");
-						setPage(1);
-					}}
-				>
-					{FILTERS.map((f) => (
-						<ToggleGroupItem key={f.value} value={f.value}>
-							<Text uuid={f.labelKey} />
-						</ToggleGroupItem>
-					))}
-				</ToggleGroup>
+		<div className="space-y-6">
+			<PageHeader
+				title={textGet("notification.page.title")}
+				description={textGet("notification.page.description")}
+				actions={
+					<>
+						<Button
+							variant="outline"
+							disabled={unreadCount === 0}
+							onClick={handleMarkAllRead}
+						>
+							<Check className="mr-2 h-4 w-4" />
+							<Text uuid="notification.page.mark_all_read" />
+						</Button>
+						<Button variant="outline" onClick={handleDeleteRead}>
+							<Trash2 className="mr-2 h-4 w-4" />
+							<Text uuid="notification.page.delete_read" />
+						</Button>
+					</>
+				}
+			/>
+			<ToggleGroup
+				value={[filter]}
+				onValueChange={(value) => {
+					setFilter((value[0] as Filter | undefined) ?? "all");
+					setPage(1);
+				}}
+			>
+				{FILTERS.map((f) => (
+					<ToggleGroupItem key={f.value} value={f.value}>
+						<Text uuid={f.labelKey} />
+					</ToggleGroupItem>
+				))}
+			</ToggleGroup>
 
-				<Card>
-					<CardContent className="p-0">
-						{loading ? (
-							<div className="flex justify-center py-10">
-								<Spinner />
-							</div>
-						) : items.length === 0 ? (
-							<p className="py-10 text-center text-sm text-muted-foreground">
-								{textGet(
-									filter === "unread"
-										? "notification.page.empty_unread"
-										: "notification.page.empty",
-								)}
-							</p>
-						) : (
-							<ul className="divide-y">
-								{items.map((notification) => (
-									<li
-										key={notification.ID}
-										className="flex items-start gap-3 px-4 py-3"
+			<Card>
+				<CardContent className="p-0">
+					{loading ? (
+						<div className="flex justify-center py-10">
+							<Spinner />
+						</div>
+					) : items.length === 0 ? (
+						<p className="py-10 text-center text-sm text-muted-foreground">
+							{textGet(
+								filter === "unread"
+									? "notification.page.empty_unread"
+									: "notification.page.empty",
+							)}
+						</p>
+					) : (
+						<ul className="divide-y">
+							{items.map((notification) => (
+								<li
+									key={notification.ID}
+									className="flex items-start gap-3 px-4 py-3"
+								>
+									<span
+										className={cn(
+											"mt-2 h-2 w-2 shrink-0 rounded-full",
+											notification.read_at ? "bg-transparent" : "bg-primary",
+										)}
+									/>
+									<button
+										type="button"
+										className="flex flex-1 flex-col items-start gap-1 text-left"
+										onClick={() => handleOpen(notification)}
 									>
 										<span
 											className={cn(
-												"mt-2 h-2 w-2 shrink-0 rounded-full",
-												notification.read_at ? "bg-transparent" : "bg-primary",
+												"flex items-start gap-2 text-sm",
+												notification.read_at
+													? "text-muted-foreground"
+													: "font-medium",
 											)}
-										/>
-										<button
-											type="button"
-											className="flex flex-1 flex-col items-start gap-1 text-left"
-											onClick={() => handleOpen(notification)}
 										>
-											<span
-												className={cn(
-													"flex items-start gap-2 text-sm",
-													notification.read_at
-														? "text-muted-foreground"
-														: "font-medium",
-												)}
-											>
-												<NotificationLevelIcon
-													level={notification.level}
-													className="mt-0.5"
-												/>
-												{getNotificationText(notification, {
-													textGet,
-													formatRelative,
-												})}
-											</span>
-											<span className="text-xs text-muted-foreground">
-												{formatRelative(notification.CreatedAt)}
-											</span>
-										</button>
-										<div className="flex shrink-0 gap-1">
-											{!notification.read_at && (
-												<Button
-													variant="ghost"
-													size="icon"
-													aria-label={textGet("notification.page.mark_read")}
-													title={textGet("notification.page.mark_read")}
-													onClick={() => handleMarkRead(notification)}
-												>
-													<Check className="h-4 w-4" />
-												</Button>
-											)}
+											<NotificationLevelIcon
+												level={notification.level}
+												className="mt-0.5"
+											/>
+											{getNotificationText(notification, {
+												textGet,
+												formatRelative,
+											})}
+										</span>
+										<span className="text-xs text-muted-foreground">
+											{formatRelative(notification.CreatedAt)}
+										</span>
+									</button>
+									<div className="flex shrink-0 gap-1">
+										{!notification.read_at && (
 											<Button
 												variant="ghost"
 												size="icon"
-												aria-label={textGet("notification.page.delete")}
-												title={textGet("notification.page.delete")}
-												onClick={() => handleDelete(notification)}
+												aria-label={textGet("notification.page.mark_read")}
+												title={textGet("notification.page.mark_read")}
+												onClick={() => handleMarkRead(notification)}
 											>
-												<Trash2 className="h-4 w-4" />
+												<Check className="h-4 w-4" />
 											</Button>
-										</div>
-									</li>
-								))}
-							</ul>
-						)}
-					</CardContent>
-				</Card>
+										)}
+										<Button
+											variant="ghost"
+											size="icon"
+											aria-label={textGet("notification.page.delete")}
+											title={textGet("notification.page.delete")}
+											onClick={() => handleDelete(notification)}
+										>
+											<Trash2 className="h-4 w-4" />
+										</Button>
+									</div>
+								</li>
+							))}
+						</ul>
+					)}
+				</CardContent>
+			</Card>
 
-				{totalPages > 1 && (
-					<div className="flex items-center justify-end gap-2 text-sm">
-						<span className="text-muted-foreground">
-							{textGet("table.pagination.page")}
-							{page}
-							{textGet("table.pagination.of")}
-							{totalPages}
-						</span>
-						<Button
-							variant="outline"
-							size="icon"
-							aria-label={textGet("table.pagination.previous_page")}
-							disabled={page <= 1}
-							onClick={() => setPage((p) => p - 1)}
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</Button>
-						<Button
-							variant="outline"
-							size="icon"
-							aria-label={textGet("table.pagination.next_page")}
-							disabled={page >= totalPages}
-							onClick={() => setPage((p) => p + 1)}
-						>
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
-				)}
-			</div>
-		</DashboardLayout>
+			{totalPages > 1 && (
+				<div className="flex items-center justify-end gap-2 text-sm">
+					<span className="text-muted-foreground">
+						{textGet("table.pagination.page")}
+						{page}
+						{textGet("table.pagination.of")}
+						{totalPages}
+					</span>
+					<Button
+						variant="outline"
+						size="icon"
+						aria-label={textGet("table.pagination.previous_page")}
+						disabled={page <= 1}
+						onClick={() => setPage((p) => p - 1)}
+					>
+						<ChevronLeft className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="outline"
+						size="icon"
+						aria-label={textGet("table.pagination.next_page")}
+						disabled={page >= totalPages}
+						onClick={() => setPage((p) => p + 1)}
+					>
+						<ChevronRight className="h-4 w-4" />
+					</Button>
+				</div>
+			)}
+		</div>
 	);
 };
 

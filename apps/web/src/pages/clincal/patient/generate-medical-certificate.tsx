@@ -34,7 +34,6 @@ import {
 	useSavedBaseline,
 } from "@/components/features/medical-documents/document-workflow";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const MAX_REST_DAYS = 365;
 
@@ -413,46 +412,44 @@ export default function GenerateMedicalCertificatePage() {
 	}
 
 	return (
-		<DashboardLayout>
-			<div className="mx-auto w-full max-w-6xl space-y-6">
-				<DocumentPageHeader
-					patientId={patientId}
-					patient={patient}
-					title="dialog.medical_certificate.title"
-					description="dialog.medical_certificate.description"
-				/>
+		<div className="mx-auto w-full max-w-6xl space-y-6">
+			<DocumentPageHeader
+				patientId={patientId}
+				patient={patient}
+				title="dialog.medical_certificate.title"
+				description="dialog.medical_certificate.description"
+			/>
 
-				{loadingPatient || !patient ? (
-					<div className="flex justify-center py-16">
-						<Loader2 className="size-6 animate-spin text-muted-foreground" />
-					</div>
-				) : (
-					<Form
-						schema={certificateSchema}
-						defaultValues={{
-							diagnosis: patient.diagnosis || "",
-							observations: "",
-							rest_days: 0,
-						}}
-						onSubmit={onSubmit}
-					>
-						{(field) => (
-							<CertificateEditor
-								field={field}
-								savedVersion={savedVersion}
-								saving={saving}
-								printing={printing}
-								isSaved={savedCertificateId !== null}
-								signature={signature}
-								patientEmail={patient.email ?? ""}
-								onSign={handleSign}
-								onPrint={handlePrint}
-								onSendEmail={handleSendEmail}
-							/>
-						)}
-					</Form>
-				)}
-			</div>
-		</DashboardLayout>
+			{loadingPatient || !patient ? (
+				<div className="flex justify-center py-16">
+					<Loader2 className="size-6 animate-spin text-muted-foreground" />
+				</div>
+			) : (
+				<Form
+					schema={certificateSchema}
+					defaultValues={{
+						diagnosis: patient.diagnosis || "",
+						observations: "",
+						rest_days: 0,
+					}}
+					onSubmit={onSubmit}
+				>
+					{(field) => (
+						<CertificateEditor
+							field={field}
+							savedVersion={savedVersion}
+							saving={saving}
+							printing={printing}
+							isSaved={savedCertificateId !== null}
+							signature={signature}
+							patientEmail={patient.email ?? ""}
+							onSign={handleSign}
+							onPrint={handlePrint}
+							onSendEmail={handleSendEmail}
+						/>
+					)}
+				</Form>
+			)}
+		</div>
 	);
 }

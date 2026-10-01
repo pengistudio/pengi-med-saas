@@ -25,6 +25,7 @@ import {
 } from "@/api/clinical-service";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { ageInYears, birthDateFromAge } from "@/lib/patient-age";
 import { selectSetPatient, usePatientStore } from "@/store/patient-store";
 
 const STATIC_INSTITUTIONS = [
@@ -57,13 +58,14 @@ const EditPatientForm = () => {
 	const [loading, setLoading] = React.useState(false);
 	const [loadingData, setLoadingData] = React.useState(true);
 	const [patient, setPatientState] = React.useState<Patient | null>(null);
-	// Captured once so rendering stays pure (the age is only a default value).
-	const [now] = React.useState(() => Date.now());
 	const { textGet } = useText();
 	const { settings } = useTenantSettings();
 	const setPatient = usePatientStore(selectSetPatient);
 	const navigate = useNavigate();
 	const useAgeInput = settings.clinical.patient_age_input;
+	// With age input on, a patient with a real birth date keeps the date picker
+	// so the exact date isn't replaced by an estimate.
+	const [exactDate, setExactDate] = React.useState(false);
 
 	React.useEffect(() => {
 		if (!id) return;
@@ -75,7 +77,12 @@ const EditPatientForm = () => {
 					return;
 				}
 				if (res.data) {
-					setPatientState(res.data as Patient);
+					const loaded = res.data as Patient;
+					setPatientState(loaded);
+					setExactDate(
+						!loaded.birth_date_estimated &&
+							ageInYears(loaded.birth_date) !== null,
+					);
 				}
 			})
 			.finally(() => setLoadingData(false));
@@ -93,12 +100,9 @@ const EditPatientForm = () => {
 		);
 	}
 
-	const existingAge = patient.birth_date
-		? Math.floor(
-				(now - new Date(patient.birth_date).getTime()) /
-					(365.25 * 24 * 60 * 60 * 1000),
-			)
-		: undefined;
+	const existingAge = ageInYears(patient.birth_date) ?? undefined;
+	const existingBirthDate =
+		existingAge !== undefined ? new Date(patient.birth_date) : undefined;
 
 	const defaultValues = {
 		document: patient.document,
@@ -106,8 +110,8 @@ const EditPatientForm = () => {
 		email: patient.email || "",
 		first_name: patient.first_name,
 		last_name: patient.last_name,
-		birth_date: patient.birth_date ? new Date(patient.birth_date) : undefined,
-		age: useAgeInput ? existingAge : undefined,
+		birth_date: existingBirthDate,
+		age: existingAge,
 		notes: patient.notes || "",
 		insurance: patient.insurance || "",
 		medic: patient.medic,
@@ -167,23 +171,48 @@ const EditPatientForm = () => {
 								isOptional
 							/>
 
-							{useAgeInput ? (
-								<FormInput
-									field={field}
-									name="age"
-									type="number"
-									placeholder={textGet("form.patient.age.placeholder")}
-									label={textGet("form.patient.age")}
-									isOptional
-								/>
+							{useAgeInput && !exactDate ? (
+								<div className="space-y-1.5">
+									<FormInput
+										field={field}
+										name="age"
+										type="number"
+										placeholder={textGet("form.patient.age.placeholder")}
+										label={textGet("form.patient.age")}
+										isOptional
+									/>
+									<button
+										type="button"
+										onClick={() => setExactDate(true)}
+										className="text-xs text-primary underline-offset-4 hover:underline"
+									>
+										{textGet("form.patient.enter_exact_birth_date")}
+									</button>
+								</div>
 							) : (
-								<FormCalendar
-									field={field}
-									name="birth_date"
-									label={textGet("form.edit_patient.birth_date")}
-									isOptional
-									showMonthYearDropdowns
-								/>
+								<div className="space-y-1.5">
+									<FormCalendar
+										field={field}
+										name="birth_date"
+										label={textGet("form.edit_patient.birth_date")}
+										isOptional
+										showMonthYearDropdowns
+									/>
+									{useAgeInput && (
+										<button
+											type="button"
+											onClick={() => setExactDate(false)}
+											className="text-xs text-primary underline-offset-4 hover:underline"
+										>
+											{textGet("form.patient.enter_age_only")}
+										</button>
+									)}
+									{patient.birth_date_estimated && (
+										<p className="text-xs text-muted-foreground">
+											{textGet("form.patient.birth_date_estimated_hint")}
+										</p>
+									)}
+								</div>
 							)}
 
 							<FormRadioGroup
@@ -243,20 +272,29 @@ const EditPatientForm = () => {
 		if (!id) return;
 		setLoading(true);
 
-		const birth_date =
-			useAgeInput && values.age !== undefined
-				? (() => {
-						const now = new Date();
-						return new Date(
-							now.getFullYear() - values.age,
-							now.getMonth(),
-							now.getDate(),
-						);
-					})()
-				: values.birth_date;
+		// Send the birth date only when it changed, so saving other fields never
+		// moves it or turns an exact date into an estimate.
+		const byAge = useAgeInput && !exactDate;
+		let birthDateChange = {};
+		if (byAge) {
+			if (values.age !== undefined && values.age !== existingAge) {
+				birthDateChange = {
+					birth_date: birthDateFromAge(values.age),
+					birth_date_estimated: true,
+				};
+			}
+		} else if (
+			values.birth_date &&
+			values.birth_date.getTime() !== existingBirthDate?.getTime()
+		) {
+			birthDateChange = {
+				birth_date: values.birth_date,
+				birth_date_estimated: false,
+			};
+		}
 
-		const { age: _age, ...rest } = values;
-		const payload = { ...rest, birth_date };
+		const { age: _age, birth_date: _birthDate, ...rest } = values;
+		const payload = { ...rest, ...birthDateChange };
 
 		try {
 			const res = await updatePatient(Number(id), payload);

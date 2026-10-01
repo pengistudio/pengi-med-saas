@@ -21,6 +21,7 @@ import { z } from "zod";
 import { createPatient } from "@/api/clinical-service";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { birthDateFromAge } from "@/lib/patient-age";
 
 const STATIC_INSTITUTIONS = [
 	{ label: "Solca", value: "Solca" },
@@ -47,17 +48,13 @@ const formSchema = z.object({
 	institution: z.string(),
 });
 
-function ageToDate(age: number): Date {
-	const now = new Date();
-	return new Date(now.getFullYear() - age, now.getMonth(), now.getDate());
-}
-
 const CreatePatientForm = () => {
 	const [loading, setLoading] = React.useState(false);
 	const navigate = useNavigate();
 	const { settings } = useTenantSettings();
 	const { textGet } = useText();
 	const useAgeInput = settings.clinical.patient_age_input;
+	const [exactDate, setExactDate] = React.useState(false);
 
 	return (
 		<Form
@@ -117,23 +114,43 @@ const CreatePatientForm = () => {
 								isOptional
 							/>
 
-							{useAgeInput ? (
-								<FormInput
-									field={field}
-									name="age"
-									type="number"
-									placeholder={textGet("form.patient.age.placeholder")}
-									label={textGet("form.patient.age")}
-									isOptional
-								/>
+							{useAgeInput && !exactDate ? (
+								<div className="space-y-1.5">
+									<FormInput
+										field={field}
+										name="age"
+										type="number"
+										placeholder={textGet("form.patient.age.placeholder")}
+										label={textGet("form.patient.age")}
+										isOptional
+									/>
+									<button
+										type="button"
+										onClick={() => setExactDate(true)}
+										className="text-xs text-primary underline-offset-4 hover:underline"
+									>
+										{textGet("form.patient.enter_exact_birth_date")}
+									</button>
+								</div>
 							) : (
-								<FormCalendar
-									field={field}
-									name="birth_date"
-									label={textGet("form.edit_patient.birth_date")}
-									isOptional
-									showMonthYearDropdowns
-								/>
+								<div className="space-y-1.5">
+									<FormCalendar
+										field={field}
+										name="birth_date"
+										label={textGet("form.edit_patient.birth_date")}
+										isOptional
+										showMonthYearDropdowns
+									/>
+									{useAgeInput && (
+										<button
+											type="button"
+											onClick={() => setExactDate(false)}
+											className="text-xs text-primary underline-offset-4 hover:underline"
+										>
+											{textGet("form.patient.enter_age_only")}
+										</button>
+									)}
+								</div>
 							)}
 
 							<FormRadioGroup
@@ -192,13 +209,19 @@ const CreatePatientForm = () => {
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoading(true);
 
-		const birth_date =
-			useAgeInput && values.age !== undefined
-				? ageToDate(values.age)
-				: values.birth_date;
+		const byAge = useAgeInput && !exactDate;
+		const birth_date = byAge
+			? values.age !== undefined
+				? birthDateFromAge(values.age)
+				: undefined
+			: values.birth_date;
 
 		const { age: _age, ...rest } = values;
-		const payload = { ...rest, birth_date };
+		const payload = {
+			...rest,
+			birth_date,
+			birth_date_estimated: byAge && birth_date !== undefined,
+		};
 
 		try {
 			const res = await createPatient(payload);

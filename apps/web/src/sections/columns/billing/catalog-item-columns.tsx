@@ -1,6 +1,5 @@
 import {
 	Button,
-	Checkbox,
 	DataTableColumnHeader,
 	DropdownMenu,
 	DropdownMenuContent,
@@ -14,6 +13,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { CatalogItem } from "@/api/billing-service";
 import { FormattedDate, Money } from "@/components/custom/formatted";
+import { selectColumn } from "@/components/custom/table/select-column";
 
 interface CatalogItemColumnProps {
 	onEdit: (id: number) => void;
@@ -24,29 +24,10 @@ export const getCatalogItemColumns = ({
 	onEdit,
 	onDelete,
 }: CatalogItemColumnProps): ColumnDef<CatalogItem>[] => [
-	{
-		id: "select",
-		header: ({ table }) => (
-			<Checkbox
-				checked={table.getIsAllPageRowsSelected()}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-				aria-label="Select all"
-				className="translate-y-[2px]"
-			/>
-		),
-		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				aria-label="Select row"
-				className="translate-y-[2px]"
-			/>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
+	selectColumn<CatalogItem>(),
 	{
 		accessorKey: "sku",
+		meta: { title: "billing.catalog-item.column.sku", phone: "subtitle" },
 		header: ({ column }) => (
 			<DataTableColumnHeader
 				column={column}
@@ -60,6 +41,7 @@ export const getCatalogItemColumns = ({
 	},
 	{
 		accessorKey: "name",
+		meta: { title: "billing.catalog-item.column.name", phone: "title" },
 		header: ({ column }) => (
 			<DataTableColumnHeader
 				column={column}
@@ -73,6 +55,7 @@ export const getCatalogItemColumns = ({
 	},
 	{
 		accessorKey: "unit_price",
+		meta: { title: "billing.catalog-item.column.price", phone: "end" },
 		header: ({ column }) => (
 			<DataTableColumnHeader
 				column={column}
@@ -88,21 +71,20 @@ export const getCatalogItemColumns = ({
 	},
 	{
 		accessorKey: "createdAt",
+		meta: { title: "billing.catalog-item.column.date" },
 		header: ({ column }) => (
 			<DataTableColumnHeader
 				column={column}
 				title={<Text uuid="billing.catalog-item.column.date" />}
 			/>
 		),
-		cell: ({ row }) => {
-			return (
-				<FormattedDate
-					value={row.original.CreatedAt}
-					withTime
-					className="text-muted-foreground whitespace-nowrap text-sm"
-				/>
-			);
-		},
+		cell: ({ row }) => (
+			<FormattedDate
+				value={row.original.CreatedAt}
+				withTime
+				className="text-muted-foreground whitespace-nowrap text-sm"
+			/>
+		),
 	},
 	{
 		id: "actions",
@@ -135,126 +117,6 @@ export const getCatalogItemColumns = ({
 								<Text uuid="billing.catalog-item.list.action.delete" />
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			);
-		},
-	},
-];
-
-export const getCatalogItemColumnsMobile = ({
-	onEdit,
-	onDelete,
-}: CatalogItemColumnProps): ColumnDef<CatalogItem>[] => [
-	{
-		id: "select",
-		header: ({ table }) => (
-			<Checkbox
-				checked={table.getIsAllPageRowsSelected()}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-				aria-label="Select all"
-				className="translate-y-[2px]"
-			/>
-		),
-		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				aria-label="Select row"
-				className="translate-y-[2px]"
-			/>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
-	{
-		accessorKey: "sku",
-		header: ({ column }) => (
-			<DataTableColumnHeader
-				column={column}
-				title={<Text uuid="billing.catalog-item.column.sku" />}
-			/>
-		),
-		cell: ({ row }) => {
-			const catalogItem = row.original;
-			return <span className="font-medium">{catalogItem.sku}</span>;
-		},
-	},
-	{
-		accessorKey: "name",
-		header: ({ column }) => (
-			<DataTableColumnHeader
-				column={column}
-				title={<Text uuid="billing.catalog-item.column.name" />}
-			/>
-		),
-		cell: ({ row }) => {
-			const catalogItem = row.original;
-			return <span>{catalogItem.name}</span>;
-		},
-	},
-	{
-		accessorKey: "unit_price",
-		header: ({ column }) => (
-			<DataTableColumnHeader
-				column={column}
-				title={<Text uuid="billing.catalog-item.column.price" />}
-			/>
-		),
-		cell: ({ row }) => {
-			const amount = row.original.unit_price;
-			return (
-				<Money amount={amount} className="font-mono text-right font-medium" />
-			);
-		},
-	},
-	{
-		accessorKey: "createdAt",
-		header: ({ column }) => (
-			<DataTableColumnHeader
-				column={column}
-				title={<Text uuid="billing.catalog-item.column.date" />}
-			/>
-		),
-		cell: ({ row }) => {
-			return (
-				<FormattedDate
-					value={row.original.CreatedAt}
-					withTime
-					className="text-muted-foreground whitespace-nowrap text-sm"
-				/>
-			);
-		},
-	},
-	{
-		id: "actions",
-		cell: ({ row }) => {
-			const catalogItem = row.original;
-			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger
-						render={
-							<Button variant="ghost" className="h-8 w-8 p-0">
-								<Text uuid="table.button.open_menu" className="sr-only" />
-								<MoreHorizontal className="h-4 w-4" />
-							</Button>
-						}
-					/>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>
-							<Text uuid="table.actions" />
-						</DropdownMenuLabel>
-						<DropdownMenuItem onClick={() => onEdit(catalogItem.ID)}>
-							<Pencil className="mr-2 h-4 w-4" />
-							<Text uuid="billing.catalog-item.list.action.edit" />
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							onClick={() => onDelete(catalogItem.ID)}
-							className="text-red-600 focus:text-red-600 focus:bg-red-100 dark:focus:bg-red-900"
-						>
-							<Trash2 className="mr-2 h-4 w-4" />
-							<Text uuid="billing.catalog-item.list.action.delete" />
-						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);

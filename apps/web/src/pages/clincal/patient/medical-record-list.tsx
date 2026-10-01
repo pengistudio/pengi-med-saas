@@ -1,19 +1,25 @@
 import { useText } from "@pengi/shared";
 import {
+	Badge,
 	Button,
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 	Text,
 	useToast,
 } from "@pengi/ui";
 import {
-	CalendarCheck,
+	Cake,
+	ChevronRight,
 	CircleAlert,
+	IdCard,
+	MessageCircle,
+	MoreHorizontal,
 	Pencil,
+	Pill,
 	Plus,
-	Stethoscope,
 	TriangleAlert,
 } from "lucide-react";
 import React from "react";
@@ -27,18 +33,20 @@ import {
 	updateCritical,
 	updateCriticalRevert,
 } from "@/api/clinical-service";
-import PatientCard from "@/components/custom/patient-card";
+import { PageHeader } from "@/components/custom/page-header";
+import PatientCard, { formatAge } from "@/components/custom/patient-card";
 import { DataTable } from "@/components/custom/table/data-table";
 import EditPrescriptionDialog from "@/components/features/patient/edit-prescription-dialog";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import usePermission from "@/hooks/use-permission";
+import { parseAllergies } from "@/lib/allergies";
 import { EMPTY_STRING, PERMISSIONS } from "@/lib/constants";
+import { ageInYears } from "@/lib/patient-age";
 import {
 	buildPrescriptionWhatsAppMessage,
 	generateWhatsAppLink,
 } from "@/lib/utils";
 import { getMedicalRecordColumns } from "@/sections/columns/clinical/medical-record-columns";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import {
 	selectPatient,
 	selectSetPatient,
@@ -103,148 +111,195 @@ const MedicalRecords = () => {
 		return sorted[0].prescription;
 	}, [medicalRecords]);
 
+	const displayName = patient
+		? patient.full_name || `${patient.first_name} ${patient.last_name}`.trim()
+		: "";
+	const age = ageInYears(patient?.birth_date);
+	const allergies = parseAllergies(patient?.allergies);
+
 	return (
-		<DashboardLayout>
-			<main className="grid flex-1 items-start gap-4 md:gap-8 auto-rows-max">
-				{patient && (
+		<main className="grid flex-1 items-start gap-6 auto-rows-max">
+			{patient && (
+				<div className="space-y-3">
 					<nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
 						<button
 							type="button"
 							onClick={() => navigate("/clinical")}
-							className="hover:text-foreground transition-colors"
+							className="rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						>
 							<Text uuid="dashboard.clinical.patients" />
 						</button>
-						<span>/</span>
-						<span className="text-foreground font-medium">
-							{`${patient.last_name} ${patient.first_name}`.trim()}
-						</span>
+						<ChevronRight className="h-3.5 w-3.5" />
+						<span className="truncate text-foreground">{displayName}</span>
 					</nav>
-				)}
-				<div className="grid lg:grid-cols-[400px_1fr] md:grid-cols-[300px_1fr] grid-cols-1 gap-4">
-					<div className="space-y-4">
-						{patient && (
-							<PatientCard
-								patient={patient}
-								onEditPatient={handleEditPatient}
-								headerAction={
-									checkPermission([
-										PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
-									]) ? (
-										<Button size="sm" onClick={handleCreateMedicalRecord}>
-											<Plus className="w-3.5 h-3.5 mr-1.5" />
-											<Text uuid="clinical.medical_record.new_consultation" />
-										</Button>
-									) : undefined
-								}
-							/>
-						)}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<Stethoscope className="h-5 w-5" />
-									<Text uuid="clinical.medical_record.actions" />
-								</CardTitle>
-							</CardHeader>
-							<CardContent className="grid grid-cols-1 gap-4">
-								<Button
-									variant="outline"
-									onClick={() => setShowPrescription(true)}
-									disabled={!latestPrescription}
-								>
-									<Text uuid="clinical.medical_record.view_prescriptions" />
+					<PageHeader
+						title={
+							<span className="flex flex-wrap items-center gap-x-3 gap-y-2">
+								{displayName}
+								{patient.critical && (
+									<Badge variant="destructive" className="font-medium">
+										<CircleAlert />
+										<Text uuid="clinical.patient_card.critical" />
+									</Badge>
+								)}
+								{allergies.length > 0 && (
+									<Badge
+										variant="outline"
+										className="border-amber-300 bg-amber-50 font-medium text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300"
+										title={allergies.join(", ")}
+									>
+										<TriangleAlert />
+										<Text uuid="clinical.patient_card.has_allergies" />
+									</Badge>
+								)}
+							</span>
+						}
+						description={
+							<span className="flex flex-wrap items-center gap-x-5 gap-y-1">
+								<span className="inline-flex items-center gap-1.5">
+									<IdCard className="h-4 w-4" />
+									<span className="tabular-nums text-foreground">
+										{patient.document}
+									</span>
+								</span>
+								{age !== null && (
+									<span className="inline-flex items-center gap-1.5">
+										<Cake className="h-4 w-4" />
+										{formatAge(age, patient.birth_date_estimated, textGet)}
+									</span>
+								)}
+							</span>
+						}
+						actions={
+							<>
+								<Button variant="outline" onClick={handleContactWhatsApp}>
+									<MessageCircle />
+									<Text uuid="clinical.medical_record.contact_ws" />
 								</Button>
 								{checkPermission([
 									PERMISSIONS.MEDICAL_RECORD.PERMISSION_UPDATE_PATIENT,
 								]) && (
 									<Button variant="outline" onClick={handleEditPatient}>
-										<Pencil className="w-4 h-4 mr-2" />
+										<Pencil />
 										<Text uuid="clinical.medical_record.edit_patient" />
 									</Button>
 								)}
-								<Button variant="outline" onClick={handleContactWhatsApp}>
-									<Text uuid="clinical.medical_record.contact_ws" />
-								</Button>
-								<Button
-									variant={patient?.critical ? "outline" : "destructive"}
-									onClick={
-										patient?.critical ? handleCriticalRevert : handleCritical
-									}
-								>
-									{patient?.critical ? (
-										<CircleAlert className="w-4 h-4 mr-2" />
-									) : (
-										<TriangleAlert className="w-4 h-4 mr-2" />
-									)}
-									{patient?.critical ? (
-										<Text uuid="clinical.medical_record.unmark_critical" />
-									) : (
-										<Text uuid="clinical.medical_record.mark_critical" />
-									)}
-								</Button>
-							</CardContent>
-						</Card>
-					</div>
-					<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-						<h2 className="flex flex-row items-center justify-start text-xl gap-2">
-							<CalendarCheck className="w-5 h-5 text-muted-foreground" />
-							<Text uuid="clinical.medical_record.history_title" />
-						</h2>
-						<DataTable
-							searchKey="motive"
-							searchPlaceholder={textGet(
-								"clinical.medical_record.search.placeholder",
-							)}
-							columns={getMedicalRecordColumns(
-								handleView,
-								handleEdit,
-								handleViewPrescription,
-								handleEditPrescription,
-								handleDownloadPrescription,
-								handleSendWhatsAppPrescription,
-							)}
-							data={medicalRecords}
-							loading={loading}
-							pageCount={totalPages}
-							page={page}
-							onPageChange={setPage}
-							emptyState={
-								<div className="flex flex-col items-center gap-3 py-4">
-									<p className="text-sm text-muted-foreground">
-										{textGet("clinical.medical_record.empty")}
-									</p>
-									{checkPermission([
-										PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
-									]) && (
-										<button
-											type="button"
-											onClick={handleCreateMedicalRecord}
-											className="text-sm text-primary underline-offset-4 hover:underline"
+								<DropdownMenu>
+									<DropdownMenuTrigger
+										render={
+											<Button
+												variant="outline"
+												size="icon"
+												aria-label={textGet("clinical.medical_record.actions")}
+												title={textGet("clinical.medical_record.actions")}
+											>
+												<MoreHorizontal />
+											</Button>
+										}
+									/>
+									<DropdownMenuContent align="end" className="w-56">
+										<DropdownMenuItem
+											disabled={!latestPrescription}
+											onClick={() => {
+												setSelectedRecord(null);
+												setShowPrescription(true);
+											}}
 										>
-											{textGet("clinical.medical_record.new_consultation")}
-										</button>
-									)}
-								</div>
-							}
-						/>
-					</div>
+											<Pill />
+											<Text uuid="clinical.medical_record.view_prescriptions" />
+										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										{patient.critical ? (
+											<DropdownMenuItem onClick={handleCriticalRevert}>
+												<CircleAlert />
+												<Text uuid="clinical.medical_record.unmark_critical" />
+											</DropdownMenuItem>
+										) : (
+											<DropdownMenuItem
+												variant="destructive"
+												onClick={handleCritical}
+											>
+												<TriangleAlert />
+												<Text uuid="clinical.medical_record.mark_critical" />
+											</DropdownMenuItem>
+										)}
+									</DropdownMenuContent>
+								</DropdownMenu>
+								{checkPermission([
+									PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+								]) && (
+									<Button onClick={handleCreateMedicalRecord}>
+										<Plus />
+										<Text uuid="clinical.medical_record.new_consultation" />
+									</Button>
+								)}
+							</>
+						}
+					/>
 				</div>
+			)}
+			<div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+				{patient && (
+					<PatientCard patient={patient} onEditPatient={handleEditPatient} />
+				)}
+				<section className="min-w-0">
+					<h2 className="text-lg font-semibold">
+						<Text uuid="clinical.medical_record.history_title" />
+					</h2>
+					<DataTable
+						searchKey="motive"
+						searchPlaceholder={textGet(
+							"clinical.medical_record.search.placeholder",
+						)}
+						columns={getMedicalRecordColumns(
+							handleView,
+							handleEdit,
+							handleViewPrescription,
+							handleEditPrescription,
+							handleDownloadPrescription,
+							handleSendWhatsAppPrescription,
+						)}
+						data={medicalRecords}
+						loading={loading}
+						pageCount={totalPages}
+						page={page}
+						onPageChange={setPage}
+						emptyState={
+							<div className="flex flex-col items-center gap-3 py-4">
+								<p className="text-sm text-muted-foreground">
+									{textGet("clinical.medical_record.empty")}
+								</p>
+								{checkPermission([
+									PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+								]) && (
+									<button
+										type="button"
+										onClick={handleCreateMedicalRecord}
+										className="text-sm text-primary underline-offset-4 hover:underline"
+									>
+										{textGet("clinical.medical_record.new_consultation")}
+									</button>
+								)}
+							</div>
+						}
+					/>
+				</section>
+			</div>
 
-				<PrescriptionDialog
-					open={showPrescription}
-					onOpenChange={setShowPrescription}
-					prescription={selectedRecord?.prescription || latestPrescription}
-				/>
+			<PrescriptionDialog
+				open={showPrescription}
+				onOpenChange={setShowPrescription}
+				prescription={selectedRecord?.prescription || latestPrescription}
+			/>
 
-				<EditPrescriptionDialog
-					open={showEditPrescription}
-					onOpenChange={setShowEditPrescription}
-					medicalRecordId={selectedRecord?.ID || 0}
-					prescription={selectedRecord?.prescription}
-					onSuccess={reloadRecords}
-				/>
-			</main>
-		</DashboardLayout>
+			<EditPrescriptionDialog
+				open={showEditPrescription}
+				onOpenChange={setShowEditPrescription}
+				medicalRecordId={selectedRecord?.ID || 0}
+				prescription={selectedRecord?.prescription}
+				onSuccess={reloadRecords}
+			/>
+		</main>
 	);
 
 	function handleView(id: number) {

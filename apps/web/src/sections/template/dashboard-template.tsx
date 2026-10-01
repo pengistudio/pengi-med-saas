@@ -1,5 +1,6 @@
 import { SelectLanguage, useText } from "@pengi/shared";
 import {
+	AppShell,
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
@@ -16,29 +17,23 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-	NavAccordion,
-	NavItem,
-	useSidebarStore,
 } from "@pengi/ui";
 import {
 	AlertTriangle,
 	Building2,
 	CreditCard,
 	HelpCircle,
-	Menu,
-	PanelLeft,
-	PanelLeftClose,
 	Power,
 } from "lucide-react";
-import type React from "react";
-import { memo, useCallback, useMemo, useState } from "react";
-import { useLocation } from "react-router";
+import { Suspense, useCallback, useMemo, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { initiatePayment } from "@/api/subscription-service";
 import NotificationBell from "@/components/custom/notification-bell";
+import { createNavItems, type EnabledFeatures } from "@/config/nav-config";
 import useAuth from "@/hooks/use-auth";
 import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
+import usePermission from "@/hooks/use-permission";
 import { getPageTitle } from "@/lib/page-title";
-import { cn } from "@/lib/utils";
 import {
 	selectEnvironment,
 	selectSubscriptionExpired,
@@ -46,17 +41,11 @@ import {
 	useSessionStore,
 } from "@/store/session-store";
 
-interface DashboardLayoutProps {
-	children: React.ReactNode;
-}
-
-import { createNavItems, type EnabledFeatures } from "@/config/nav-config";
-import usePermission from "@/hooks/use-permission";
-
-function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
+/** The frame of every signed-in page; the route tree renders pages in its Outlet. */
+export function DashboardLayout() {
 	const { logout } = useAuth();
 	const { textGet } = useText();
-	const { isOpen: sidebarOpen, toggle, close, open } = useSidebarStore();
+	const navigate = useNavigate();
 	const [paying, setPaying] = useState(false);
 	useNotificationsPoll();
 
@@ -77,15 +66,12 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	const subscriptionExpired = useSessionStore(selectSubscriptionExpired);
 	const graceDaysLeft = useSessionStore(selectSubscriptionGraceDaysLeft);
 
-	const environmentName = environment?.name;
-	const handleAvatarFallbackText = useCallback(() => {
-		return environmentName
-			? environmentName
-					.split(" ")
-					.map((n) => n[0])
-					.join("")
-			: "";
-	}, [environmentName]);
+	const initials = environment?.name
+		? environment.name
+				.split(" ")
+				.map((n) => n[0])
+				.join("")
+		: "";
 
 	// Parse enabled features from environment
 	const rawEnabledFeatures = environment?.enabled_features;
@@ -100,7 +86,6 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 		}
 	}, [rawEnabledFeatures]);
 
-	// Use useMemo with stable reference
 	const unfilteredNavItems = useMemo(() => createNavItems(textGet), [textGet]);
 	const allNavItems = useMemo(
 		() =>
@@ -117,175 +102,64 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 		getPageTitle(unfilteredNavItems, pathname, textGet) ??
 		textGet("dashboard.title");
 	const navItems = allNavItems.filter((item) => !item.isBottom);
-	const bottomNavItems = allNavItems.filter((item) => item.isBottom);
+	const footerNavItems = [
+		...allNavItems.filter((item) => item.isBottom),
+		{
+			label: textGet("dashboard.help"),
+			href: "/",
+			icon: HelpCircle,
+			matchActive: false,
+		},
+	];
 
-	const handleLogout = useCallback(() => {
-		logout();
-	}, [logout]);
+	const showExpiredWall =
+		subscriptionExpired && !isSubscriptionPage && graceDaysLeft === 0;
 
 	return (
-		<div className="flex h-screen bg-background overflow-hidden max-h-screen">
-			{/* Sidebar */}
-			<aside
-				className={cn(
-					"flex flex-col border-r border-border bg-sidebar transition-all duration-500 ease-in-out shrink-0",
-					sidebarOpen ? "w-64" : "w-16",
-					"max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-64",
-					!sidebarOpen && "max-md:-translate-x-full",
-				)}
-			>
-				{/* Sidebar Header */}
-				<div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4 overflow-hidden">
-					{sidebarOpen ? (
-						<div className="flex flex-1 items-center justify-between min-w-0">
-							<div className="flex items-center gap-2 min-w-0 flex-1">
-								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-lg transition-all duration-300 hover:shadow-xl">
-									<Building2
-										className="h-5 w-5 text-primary-foreground"
-										strokeWidth={1.75}
-									/>
-								</div>
-								<span className="text-lg font-semibold text-sidebar-foreground truncate min-w-0">
-									{environment?.trade_name}
-								</span>
-							</div>
-							<Button
-								variant="ghost"
-								size="icon"
-								onClick={close}
-								className="h-8 w-8 shrink-0 text-sidebar-foreground hover:bg-sidebar-accent transition-colors duration-300 max-md:hidden"
-							>
-								<PanelLeftClose className="h-5 w-5" />
-							</Button>
-						</div>
-					) : (
-						<Button
-							variant="ghost"
-							size="icon"
-							onClick={open}
-							className="h-10 w-10 shrink-0 text-sidebar-foreground hover:bg-sidebar-accent transition-colors duration-300 max-md:hidden"
-						>
-							<PanelLeft className="h-6 w-6" />
-						</Button>
-					)}
-				</div>
-
-				{/* Navigation */}
-				<nav className="flex-1 space-y-1 p-2 overflow-hidden">
-					{navItems.map((items) => {
-						if (items.accordionItems) {
-							return <NavAccordion {...items} key={items.label} />;
-						}
-						return <NavItem {...items} key={items.label} />;
-					})}
-				</nav>
-
-				{/* Sidebar Footer */}
-				<div className="border-t border-sidebar-border p-2 py-4 overflow-hidden space-y-1">
-					{bottomNavItems.map((item) =>
-						"accordionItems" in item && item.accordionItems ? (
-							<NavAccordion {...item} key={item.label} />
-						) : (
-							<NavItem
-								{...(item as Parameters<typeof NavItem>[0])}
-								key={item.label}
-							/>
-						),
-					)}
-					<a
-						href="/"
-						title={!sidebarOpen ? textGet("dashboard.help") : undefined}
-						className={cn(
-							"flex items-center rounded-lg px-3 py-2 text-sidebar-foreground transition-all duration-300 hover:bg-sidebar-accent overflow-hidden",
-							sidebarOpen ? "gap-3" : "gap-0",
-						)}
-					>
-						<HelpCircle className="h-5 w-5 shrink-0" />
-						<span
-							className={cn(
-								"transition-all duration-300 truncate",
-								sidebarOpen
-									? "opacity-100 w-auto"
-									: "opacity-0 w-0 overflow-hidden ml-0",
-							)}
-						>
-							{textGet("dashboard.help")}
-						</span>
-					</a>
-				</div>
-			</aside>
-
-			{sidebarOpen && (
-				// biome-ignore lint/a11y/noStaticElementInteractions: here its fine
-				// biome-ignore lint/a11y/useKeyWithClickEvents: here its fine
-				<div
-					className="fixed inset-0 z-40 bg-black/50 md:hidden backdrop-blur-sm"
-					onClick={close}
-				/>
-			)}
-
-			{/* Main Content */}
-			<div className="flex flex-1 flex-col min-w-0 overflow-hidden">
-				{/* Navbar */}
-				<header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6 shrink-0">
-					<div className="flex items-center gap-4">
-						<Button
-							variant="ghost"
-							size="icon"
-							className="md:hidden"
-							onClick={toggle}
-						>
-							<Menu className="h-5 w-5" />
-						</Button>
-						<span className="truncate text-lg font-semibold">{pageTitle}</span>
-					</div>
-
-					<div className="flex items-center gap-2">
-						<SelectLanguage />
-						<NotificationBell />
-						<DropdownMenu>
-							<DropdownMenuTrigger>
-								<div className="relative h-10 w-10 rounded-full cursor-pointer">
-									<Avatar className="h-10 w-10">
-										<AvatarImage alt="User" />
-										<AvatarFallback>
-											{handleAvatarFallbackText()}
-										</AvatarFallback>
-									</Avatar>
-								</div>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-56">
-								<DropdownMenuGroup>
-									<DropdownMenuLabel>
-										{textGet("dashboard.dropdown.profile.title")}
-									</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<DropdownMenuItem
-										onClick={() => (window.location.href = "/profile")}
-									>
-										{textGet("dashboard.dropdown.profile")}
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={() => (window.location.href = "/settings")}
-									>
-										{textGet("dashboard.dropdown.settings")}
-									</DropdownMenuItem>
-								</DropdownMenuGroup>
+		<AppShell
+			brand={{ icon: Building2, name: environment?.trade_name }}
+			nav={navItems}
+			footerNav={footerNavItems}
+			title={pageTitle}
+			actions={
+				<>
+					<SelectLanguage />
+					<NotificationBell />
+					<DropdownMenu>
+						<DropdownMenuTrigger className="relative h-10 w-10 cursor-pointer rounded-full">
+							<Avatar className="h-10 w-10">
+								<AvatarImage alt="User" />
+								<AvatarFallback>{initials}</AvatarFallback>
+							</Avatar>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-56">
+							<DropdownMenuGroup>
+								<DropdownMenuLabel>
+									{textGet("dashboard.dropdown.profile.title")}
+								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem onClick={handleLogout} variant="destructive">
-									<Power className="w-4 h-4 text-red-500" />
-									{textGet("dashboard.dropdown.logout")}
+								<DropdownMenuItem onClick={() => navigate("/profile")}>
+									{textGet("dashboard.dropdown.profile")}
 								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-				</header>
-
-				{/* Grace period warning banner */}
-				{graceDaysLeft < 0 && !isSubscriptionPage && (
-					<div className="flex items-center justify-between gap-3 bg-amber-500/10 border-b border-amber-500/30 px-4 py-2.5 shrink-0">
+								<DropdownMenuItem onClick={() => navigate("/settings")}>
+									{textGet("dashboard.dropdown.settings")}
+								</DropdownMenuItem>
+							</DropdownMenuGroup>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem onClick={logout} variant="destructive">
+								<Power className="w-4 h-4 text-red-500" />
+								{textGet("dashboard.dropdown.logout")}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</>
+			}
+			banner={
+				graceDaysLeft < 0 &&
+				!isSubscriptionPage && (
+					<div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2.5">
 						<div className="flex items-center gap-2">
-							<AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+							<AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
 							<p className="text-sm font-medium text-amber-700 dark:text-amber-400">
 								{textGet("subscription.grace.banner")}{" "}
 								<span className="font-bold">
@@ -297,60 +171,50 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 						<Button
 							size="sm"
 							variant="outline"
-							className="border-amber-500/50 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400 shrink-0"
-							onClick={() => (window.location.href = "/subscription")}
+							className="shrink-0 border-amber-500/50 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
+							onClick={() => navigate("/subscription")}
 						>
 							{textGet("subscription.grace.cta")}
 						</Button>
 					</div>
-				)}
-
-				{/* Page Content */}
-				<main className="flex-1 overflow-auto p-4 md:p-6 relative">
-					{subscriptionExpired && !isSubscriptionPage && graceDaysLeft === 0 ? (
-						<div className="flex items-center justify-center h-full">
-							<Card className="max-w-md w-full border-destructive/50">
-								<CardHeader className="text-center">
-									<div className="flex justify-center mb-2">
-										<AlertTriangle className="h-12 w-12 text-destructive" />
-									</div>
-									<CardTitle className="text-destructive">
-										{textGet("subscription.expired.title")}
-									</CardTitle>
-									<CardDescription>
-										{textGet("subscription.expired.description")}
-									</CardDescription>
-								</CardHeader>
-								<CardContent className="text-center space-y-2">
-									<p className="text-sm text-muted-foreground">
-										{textGet("subscription.expired.contact")}
-									</p>
-									<Button
-										className="w-full"
-										onClick={handlePay}
-										disabled={paying}
-									>
-										<CreditCard className="w-4 h-4 mr-2" />
-										{textGet("dashboard.subscription.pay_now")}
-									</Button>
-									<Button
-										variant="outline"
-										className="w-full"
-										onClick={handleLogout}
-									>
-										<Power className="w-4 h-4 mr-2" />
-										{textGet("dashboard.dropdown.logout")}
-									</Button>
-								</CardContent>
-							</Card>
-						</div>
-					) : (
-						children
-					)}
-				</main>
-			</div>
-		</div>
+				)
+			}
+		>
+			{showExpiredWall ? (
+				<div className="flex h-full items-center justify-center">
+					<Card className="w-full max-w-md border-destructive/50">
+						<CardHeader className="text-center">
+							<div className="mb-2 flex justify-center">
+								<AlertTriangle className="h-12 w-12 text-destructive" />
+							</div>
+							<CardTitle className="text-destructive">
+								{textGet("subscription.expired.title")}
+							</CardTitle>
+							<CardDescription>
+								{textGet("subscription.expired.description")}
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-2 text-center">
+							<p className="text-sm text-muted-foreground">
+								{textGet("subscription.expired.contact")}
+							</p>
+							<Button className="w-full" onClick={handlePay} disabled={paying}>
+								<CreditCard className="mr-2 h-4 w-4" />
+								{textGet("dashboard.subscription.pay_now")}
+							</Button>
+							<Button variant="outline" className="w-full" onClick={logout}>
+								<Power className="mr-2 h-4 w-4" />
+								{textGet("dashboard.dropdown.logout")}
+							</Button>
+						</CardContent>
+					</Card>
+				</div>
+			) : (
+				// Lazy pages load inside the shell, so the frame stays while they do.
+				<Suspense fallback={null}>
+					<Outlet />
+				</Suspense>
+			)}
+		</AppShell>
 	);
 }
-
-export const DashboardLayout = memo(DashboardLayoutComponent);
