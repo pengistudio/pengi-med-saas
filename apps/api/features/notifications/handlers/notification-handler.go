@@ -17,6 +17,10 @@ import (
 	"gorm.io/gorm"
 )
 
+// maxNotificationsPageSize caps how many notifications one request returns;
+// the bell and /notifications page both page through at this size.
+const maxNotificationsPageSize = 10
+
 type NotificationHandler struct {
 	db     *gorm.DB
 	logger *zap.Logger
@@ -41,12 +45,12 @@ func (h *NotificationHandler) ListNotifications(c *gin.Context) envelope.Respons
 	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", strconv.Itoa(maxNotificationsPageSize)))
 	if page < 1 {
 		page = 1
 	}
-	if limit < 1 || limit > 100 {
-		limit = 20
+	if limit < 1 || limit > maxNotificationsPageSize {
+		limit = maxNotificationsPageSize
 	}
 	offset := (page - 1) * limit
 
