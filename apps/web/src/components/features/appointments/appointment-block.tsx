@@ -1,17 +1,21 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import React from "react";
 import type { Appointment } from "@/api/clinical-service";
 import { cn } from "@/lib/utils";
+import { clearLanding, peekLanding } from "./appointment-landing";
 import { getEventColor, getEventPosition } from "./appointment-utils";
 
 interface AppointmentBlockProps {
 	appointment: Appointment;
 	onClick: () => void;
+	index?: number;
 }
 
 export function AppointmentBlock({
 	appointment,
 	onClick,
+	index = 0,
 }: AppointmentBlockProps) {
 	const { attributes, listeners, setNodeRef, transform, isDragging } =
 		useDraggable({
@@ -20,6 +24,23 @@ export function AppointmentBlock({
 				appointment.status === "cancelled" ||
 				appointment.status === "completed",
 		});
+
+	// Dropped on another day, the block remounts in that column: start it where
+	// it was released and slide it into its slot instead of popping in.
+	const [landing] = React.useState(() => peekLanding(appointment.ID));
+	const ref = React.useRef<HTMLButtonElement>(null);
+	React.useLayoutEffect(() => {
+		if (!landing || !ref.current) return;
+		clearLanding(appointment.ID);
+		const to = ref.current.getBoundingClientRect();
+		ref.current.animate(
+			[
+				{ translate: `${landing.left - to.left}px ${landing.top - to.top}px` },
+				{ translate: "0 0" },
+			],
+			{ duration: 220, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+		);
+	}, [landing, appointment.ID]);
 
 	const pos = getEventPosition(appointment.start_time, appointment.end_time);
 	const color = getEventColor(appointment.color_id);
@@ -31,9 +52,14 @@ export function AppointmentBlock({
 	return (
 		<button
 			type="button"
-			ref={setNodeRef}
+			ref={(el) => {
+				setNodeRef(el);
+				ref.current = el;
+			}}
 			className={cn(
-				"absolute left-1 right-1 rounded-md border-l-[3px] px-2 py-1 cursor-pointer transition-all hover:shadow-md hover:scale-[1.02] overflow-hidden text-left z-10",
+				"absolute left-1 right-1 rounded-md border-l-[3px] px-2 py-1 cursor-pointer transition-all duration-(--motion-base) ease-out-soft hover:shadow-md hover:scale-[1.02] overflow-hidden text-left z-10",
+				!landing &&
+					"animate-in fade-in-0 zoom-in-95 [animation-fill-mode:backwards]",
 				color.bg,
 				color.border,
 				color.text,
@@ -45,6 +71,7 @@ export function AppointmentBlock({
 				height: `${pos.height}px`,
 				transform: CSS.Translate.toString(transform),
 				transition: isDragging ? "none" : undefined,
+				animationDelay: `${Math.min(index, 5) * 30}ms`,
 			}}
 			{...listeners}
 			{...attributes}

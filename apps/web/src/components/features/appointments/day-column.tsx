@@ -18,6 +18,7 @@ interface DayColumnProps {
 	hours: number[];
 	appointments: Appointment[];
 	ghost?: DragGhost | null;
+	className?: string;
 	onSlotClick: (day: Date, hour: number) => void;
 	onAppointmentClick: (appointment: Appointment) => void;
 }
@@ -27,6 +28,7 @@ export function DayColumn({
 	hours,
 	appointments,
 	ghost,
+	className,
 	onSlotClick,
 	onAppointmentClick,
 }: DayColumnProps) {
@@ -39,6 +41,7 @@ export function DayColumn({
 			className={cn(
 				"relative border-r last:border-r-0",
 				today && "bg-primary/2",
+				className,
 			)}
 		>
 			{/* Hour lines (clickable slots) */}
@@ -63,9 +66,10 @@ export function DayColumn({
 			))}
 
 			{/* Events */}
-			{appointments.map((appt) => (
+			{appointments.map((appt, index) => (
 				<AppointmentBlock
 					key={appt.ID}
+					index={index}
 					appointment={appt}
 					onClick={() => onAppointmentClick(appt)}
 				/>

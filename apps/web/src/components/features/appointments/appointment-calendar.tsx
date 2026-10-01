@@ -37,6 +37,7 @@ import useTenantSettings from "@/hooks/use-tenant-settings";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
 import { AppointmentFormDialog } from "./appointment-form-dialog";
+import { rememberLanding } from "./appointment-landing";
 import {
 	END_HOUR,
 	HOUR_HEIGHT,
@@ -120,6 +121,22 @@ export default function AppointmentCalendar() {
 	);
 	const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 	const visibleDays = isPhone ? [currentDate] : weekDays;
+	// Which way the visible range last moved, so new days slide in from that side.
+	const [shownDate, setShownDate] = React.useState(currentDate);
+	const [slideFrom, setSlideFrom] = React.useState<"left" | "right" | null>(
+		null,
+	);
+	if (!isSameDay(currentDate, shownDate)) {
+		setSlideFrom(currentDate > shownDate ? "right" : "left");
+		setShownDate(currentDate);
+	}
+	const slideIn =
+		slideFrom &&
+		cn(
+			"animate-in fade-in-0 duration-(--motion-base) ease-out-soft",
+			slideFrom === "right" ? "slide-in-from-right-4" : "slide-in-from-left-4",
+		);
+	const selectedIndex = weekDays.findIndex((d) => isSameDay(d, currentDate));
 	const step = (direction: 1 | -1) =>
 		setCurrentDate((date) =>
 			isPhone ? addDays(date, direction) : addWeeks(date, direction),
@@ -159,16 +176,56 @@ export default function AppointmentCalendar() {
 	const sensors = useDragSensors();
 	// A swipe that ends a drag must not also change the day.
 	const dragging = React.useRef(false);
-	const swipeStart = React.useRef<{ x: number; y: number } | null>(null);
+	const swipeStart = React.useRef<{
+		x: number;
+		y: number;
+		axis?: "x" | "y";
+	} | null>(null);
+	// The day follows the finger through --swipe-x, written straight to the
+	// grid so a swipe doesn't re-render the calendar on every touchmove.
+	const gridRef = React.useRef<HTMLDivElement>(null);
+
+	function setSwipeOffset(dx: number | null) {
+		const grid = gridRef.current;
+		if (!grid) return;
+		if (dx === null) {
+			delete grid.dataset.swiping;
+			grid.style.setProperty("--swipe-x", "0px");
+		} else {
+			grid.dataset.swiping = "";
+			grid.style.setProperty("--swipe-x", `${dx * 0.6}px`);
+		}
+	}
 
 	function handleTouchStart(event: React.TouchEvent) {
 		const touch = event.touches[0];
 		swipeStart.current = { x: touch.clientX, y: touch.clientY };
 	}
 
+	function handleTouchMove(event: React.TouchEvent) {
+		const start = swipeStart.current;
+		if (!isPhone || !start || dragging.current) return;
+		const touch = event.touches[0];
+		const dx = touch.clientX - start.x;
+		const dy = touch.clientY - start.y;
+		// Lock the axis once the finger has clearly moved, so scrolling the
+		// hours never drags the day sideways.
+		if (!start.axis) {
+			if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+			start.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+		}
+		if (start.axis === "x") setSwipeOffset(dx);
+	}
+
+	function handleTouchCancel() {
+		swipeStart.current = null;
+		setSwipeOffset(null);
+	}
+
 	function handleTouchEnd(event: React.TouchEvent) {
 		const start = swipeStart.current;
 		swipeStart.current = null;
+		setSwipeOffset(null);
 		if (!isPhone || !start || dragging.current) return;
 		const touch = event.changedTouches[0];
 		const dx = touch.clientX - start.x;
@@ -234,6 +291,11 @@ export default function AppointmentCalendar() {
 			appt.end_time === newEndTime
 		) {
 			return;
+		}
+
+		const released = event.active.rect.current.translated;
+		if (released && !isSameDay(new Date(appt.date), targetDay)) {
+			rememberLanding(apptId, released);
 		}
 
 		const previous = { ...appt };
@@ -368,7 +430,15 @@ export default function AppointmentCalendar() {
 
 			{/* ── Week strip (phone): pick the day, dots mark appointments ── */}
 			{isPhone && (
-				<div className="grid grid-cols-7 gap-1 pb-3">
+				<div className="relative isolate grid grid-cols-7 gap-1 pb-3">
+					{/* Selected-day pill: one element that slides between days */}
+					<span
+						aria-hidden
+						className="absolute top-0 bottom-3 -z-10 w-[calc((100%-1.5rem)/7)] rounded-xl bg-primary transition-[left] duration-(--motion-slow) ease-spring motion-reduce:transition-none"
+						style={{
+							left: `calc(${selectedIndex} * ((100% - 1.5rem) / 7 + 0.25rem))`,
+						}}
+					/>
 					{weekDays.map((day) => {
 						const selected = isSameDay(day, currentDate);
 						const busy = appointments.some((a) =>
@@ -416,11 +486,13 @@ export default function AppointmentCalendar() {
 						className="min-h-0 flex-1 overflow-auto"
 						style={{ scrollbarGutter: "stable" }}
 						onTouchStart={handleTouchStart}
+						onTouchMove={handleTouchMove}
 						onTouchEnd={handleTouchEnd}
+						onTouchCancel={handleTouchCancel}
 					>
 						{/* Day Headers (sticky); the week strip does this on a phone */}
 						{!isPhone && (
-							<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20">
+							<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20 overflow-x-clip">
 								<div className="border-r" />
 								{weekDays.map((day) => (
 									<div
@@ -428,6 +500,7 @@ export default function AppointmentCalendar() {
 										className={cn(
 											"text-center py-3 border-r last:border-r-0",
 											isToday(day) && "bg-primary/5",
+											slideIn,
 										)}
 									>
 										<p className="text-xs font-medium text-muted-foreground uppercase">
@@ -452,14 +525,16 @@ export default function AppointmentCalendar() {
 							sensors={sensors}
 							onDragStart={() => {
 								dragging.current = true;
+								setSwipeOffset(null);
 							}}
 							onDragMove={handleDragMove}
 							onDragEnd={handleDragEnd}
 							onDragCancel={handleDragCancel}
 						>
 							<div
+								ref={gridRef}
 								className={cn(
-									"grid relative",
+									"grid relative overflow-x-clip [--swipe-x:0px]",
 									isPhone
 										? "grid-cols-[48px_1fr]"
 										: "grid-cols-[60px_repeat(7,1fr)]",
@@ -495,6 +570,11 @@ export default function AppointmentCalendar() {
 											hours={hours}
 											appointments={getAppointmentsForDay(day)}
 											ghost={dragGhost?.dayKey === dayKey ? dragGhost : null}
+											className={cn(
+												slideIn,
+												isPhone &&
+													"translate-x-(--swipe-x) transition-[translate] duration-(--motion-base) ease-spring in-data-swiping:transition-none",
+											)}
 											onSlotClick={handleSlotClick}
 											onAppointmentClick={(appt) => {
 												setSelectedAppointment(appt);
