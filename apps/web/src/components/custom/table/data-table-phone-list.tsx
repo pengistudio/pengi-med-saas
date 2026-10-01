@@ -1,5 +1,5 @@
 import { useText } from "@pengi/shared";
-import { cn } from "@pengi/ui";
+import { cn, Skeleton } from "@pengi/ui";
 import {
 	type Cell,
 	flexRender,
@@ -95,12 +95,12 @@ export function DataTablePhoneList<TData>({
 				{loading ? (
 					Array.from({ length: 6 }).map((_, i) => (
 						<li key={i} className="space-y-2 px-3 py-3.5">
-							<div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
-							<div className="h-3 w-1/3 animate-pulse rounded bg-muted" />
+							<Skeleton className="h-4 w-2/3" />
+							<Skeleton className="h-3 w-1/3" />
 						</li>
 					))
 				) : rows.length ? (
-					rows.map((row) => {
+					rows.map((row, index) => {
 						const slots = slotsOf(row);
 						return (
 							<li
@@ -108,8 +108,10 @@ export function DataTablePhoneList<TData>({
 								data-state={row.getIsSelected() ? "selected" : undefined}
 								className={cn(
 									"flex gap-3 px-3 py-3 data-[state=selected]:bg-muted",
+									"animate-in fade-in-0 slide-in-from-bottom-1 duration-(--motion-base) ease-out-soft [animation-fill-mode:backwards]",
 									rowClassName?.(row),
 								)}
+								style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
 							>
 								{slots.select && (
 									<div className="flex h-5 shrink-0 items-center">

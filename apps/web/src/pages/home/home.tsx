@@ -1,5 +1,5 @@
 import { useText } from "@pengi/shared";
-import { Button } from "@pengi/ui";
+import { Button, Skeleton } from "@pengi/ui";
 import { CalendarPlus, FilePlus2, UserPlus } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -25,17 +25,17 @@ const capitalize = (text: string) =>
 	text.charAt(0).toUpperCase() + text.slice(1);
 
 function DashboardSkeleton() {
-	const block = "animate-pulse rounded-xl bg-muted/60";
+	const block = "rounded-xl bg-muted/60";
 	return (
 		<div className="space-y-6" aria-busy>
 			<div className="space-y-2">
-				<div className={`${block} h-7 w-64`} />
-				<div className={`${block} h-4 w-48`} />
+				<Skeleton className={`${block} h-7 w-64`} />
+				<Skeleton className={`${block} h-4 w-48`} />
 			</div>
-			<div className={`${block} h-14`} />
+			<Skeleton className={`${block} h-14`} />
 			<div className="grid gap-4 lg:grid-cols-3">
-				<div className={`${block} h-80 lg:col-span-2`} />
-				<div className={`${block} h-80`} />
+				<Skeleton className={`${block} h-80 lg:col-span-2`} />
+				<Skeleton className={`${block} h-80`} />
 			</div>
 		</div>
 	);

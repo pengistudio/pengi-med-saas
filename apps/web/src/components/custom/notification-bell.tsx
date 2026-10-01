@@ -10,6 +10,7 @@ import {
 	DropdownMenuTrigger,
 } from "@pengi/ui";
 import { Bell } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import {
 	markAllNotificationsAsRead,
@@ -21,6 +22,7 @@ import {
 	openNotificationLink,
 } from "@/lib/notification-level";
 import { getNotificationText } from "@/lib/notification-text";
+import { cn } from "@/lib/utils";
 import { useNotificationStore } from "@/store/notification-store";
 
 const UNREAD_BADGE_MAX = 9;
@@ -32,6 +34,15 @@ const NotificationBell = () => {
 	const unreadCount = useNotificationStore((s) => s.unreadCount);
 	const markReadLocally = useNotificationStore((s) => s.markReadLocally);
 	const markAllReadLocally = useNotificationStore((s) => s.markAllReadLocally);
+
+	// Ring the bell and pop the badge only when the count goes up. The count
+	// is restored from sessionStorage, so a reload doesn't count as an arrival.
+	const [seenCount, setSeenCount] = useState(unreadCount);
+	const [arrivals, setArrivals] = useState(0);
+	if (unreadCount !== seenCount) {
+		setSeenCount(unreadCount);
+		if (unreadCount > seenCount) setArrivals((n) => n + 1);
+	}
 
 	// The store only holds unread notifications (see useNotificationsPoll).
 	const handleSelect = (notification: Notification) => {
@@ -51,10 +62,18 @@ const NotificationBell = () => {
 		<DropdownMenu>
 			<DropdownMenuTrigger>
 				<div className="relative flex h-10 w-10 items-center justify-center rounded-lg cursor-pointer hover:bg-muted">
-					<Bell className="h-5 w-5" />
+					<Bell
+						key={`bell-${arrivals}`}
+						className={cn("h-5 w-5 origin-top", arrivals > 0 && "animate-ring")}
+					/>
 					{unreadCount > 0 && (
-						<span className="absolute -top-1 -right-1 flex h-5 min-w-5">
-							<span className="absolute inset-0.5 animate-ping rounded-full bg-destructive opacity-60" />
+						<span
+							key={`badge-${arrivals}`}
+							className={cn(
+								"absolute -top-1 -right-1 flex h-5 min-w-5",
+								arrivals > 0 && "animate-pop",
+							)}
+						>
 							<Badge
 								variant="destructive"
 								className="relative h-5 min-w-5 justify-center rounded-full bg-destructive px-1 text-xs text-white"

@@ -19,6 +19,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
+	Skeleton,
 } from "@pengi/ui";
 import {
 	Check,
@@ -145,12 +146,12 @@ function SkeletonCard() {
 	return (
 		<Card>
 			<CardContent className="pt-6 pb-5 flex flex-col items-center gap-3">
-				<div className="h-14 w-14 rounded-full bg-muted animate-pulse" />
+				<Skeleton className="h-14 w-14 rounded-full" />
 				<div className="space-y-2 w-full">
-					<div className="h-3 bg-muted rounded animate-pulse mx-auto w-24" />
-					<div className="h-3 bg-muted rounded animate-pulse mx-auto w-16" />
+					<Skeleton className="h-3 mx-auto w-24" />
+					<Skeleton className="h-3 mx-auto w-16" />
 				</div>
-				<div className="h-5 w-14 bg-muted rounded-full animate-pulse" />
+				<Skeleton className="h-5 w-14 rounded-full" />
 			</CardContent>
 		</Card>
 	);

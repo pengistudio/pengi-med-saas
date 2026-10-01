@@ -1,9 +1,11 @@
 import { useText } from "@pengi/shared";
 import {
 	Button,
+	cn,
 	DataTablePagination,
 	DataTableViewOptions,
 	Input,
+	Skeleton,
 	Table,
 	TableBody,
 	TableCell,
@@ -219,17 +221,21 @@ export function DataTable<TData, TValue>({
 									<TableRow key={i}>
 										{columns.map((_, j) => (
 											<TableCell key={j}>
-												<div className="h-4 w-full animate-pulse rounded bg-muted" />
+												<Skeleton className="h-4 w-full" />
 											</TableCell>
 										))}
 									</TableRow>
 								))
 							) : table.getRowModel().rows?.length ? (
-								table.getRowModel().rows.map((row) => (
+								table.getRowModel().rows.map((row, index) => (
 									<TableRow
 										key={row.id}
 										data-state={row.getIsSelected() && "selected"}
-										className={rowClassName?.(row)}
+										className={cn(
+											"animate-in fade-in-0 slide-in-from-bottom-1 duration-(--motion-base) ease-out-soft [animation-fill-mode:backwards]",
+											rowClassName?.(row),
+										)}
+										style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
 									>
 										{row.getVisibleCells().map((cell) => (
 											<TableCell key={cell.id}>
