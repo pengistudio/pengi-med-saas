@@ -55,6 +55,8 @@ const renderEntry = (entry: NavEntry) =>
 
 /**
  * The frame of every signed-in page: sidebar, top bar and scrolling content.
+ * It keeps clear of the iPhone notch and home indicator (`safe-area-inset-*`;
+ * the apps set `viewport-fit=cover` and pad `#root` left and right).
  * On desktop the sidebar is a rail the user expands or collapses (remembered);
  * on phones it is a drawer over the content that closes on navigation, on
  * Escape, on the backdrop, or when the screen grows to desktop.
@@ -123,10 +125,10 @@ export function AppShell({
 					// A closed drawer is off-screen: keep it out of the tab order too.
 					inert={isPhone && !drawerOpen}
 					className={cn(
-						"flex shrink-0 flex-col border-r border-border bg-sidebar outline-none transition-[width,translate] duration-300 ease-out motion-reduce:transition-none",
+						"flex shrink-0 flex-col border-r border-border bg-sidebar pb-[env(safe-area-inset-bottom)] outline-none transition-[width,translate] duration-300 ease-out motion-reduce:transition-none",
 						isPhone
 							? cn(
-									"fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] shadow-xl",
+									"fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] pl-[env(safe-area-inset-left)] shadow-xl",
 									!drawerOpen && "-translate-x-full",
 								)
 							: railOpen
@@ -134,7 +136,7 @@ export function AppShell({
 								: "w-16",
 					)}
 				>
-					<div className="flex h-16 shrink-0 items-center justify-center gap-2 overflow-hidden border-b border-sidebar-border px-4">
+					<div className="flex h-[calc(4rem+env(safe-area-inset-top))] shrink-0 items-center justify-center gap-2 overflow-hidden border-b border-sidebar-border px-4 pt-[env(safe-area-inset-top)]">
 						{expanded && (
 							<div className="flex min-w-0 flex-1 items-center gap-2">
 								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
@@ -198,7 +200,7 @@ export function AppShell({
 				)}
 
 				<div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-					<header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-2 sm:px-4 md:px-6">
+					<header className="flex h-[calc(4rem+env(safe-area-inset-top))] shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-2 pt-[env(safe-area-inset-top)] sm:px-4 md:px-6">
 						<div className="flex min-w-0 items-center gap-1">
 							{isPhone && (
 								<Button
@@ -225,7 +227,7 @@ export function AppShell({
 
 					{banner}
 
-					<main className="relative flex-1 overflow-auto p-4 md:p-6">
+					<main className="relative flex-1 overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:p-6 md:pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 						{children}
 					</main>
 				</div>

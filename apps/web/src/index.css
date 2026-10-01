@@ -124,6 +124,12 @@
 	body {
 		@apply font-sans bg-background text-foreground;
 	}
+	/* viewport-fit=cover draws under the iPhone notch: keep content beside it
+	   in landscape. Edges that touch the top or bottom pad themselves. */
+	#root {
+		padding-left: env(safe-area-inset-left);
+		padding-right: env(safe-area-inset-right);
+	}
 	html {
 		@apply font-sans;
 	}
