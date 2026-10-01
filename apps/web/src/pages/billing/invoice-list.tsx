@@ -13,7 +13,6 @@ import {
 	Text,
 	ToggleGroup,
 	ToggleGroupItem,
-	useViewport,
 } from "@pengi/ui";
 import type { Row } from "@tanstack/react-table";
 import { Play, Plus, Trash } from "lucide-react";
@@ -30,10 +29,7 @@ import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	getInvoiceColumns,
-	getInvoiceColumnsMobile,
-} from "@/sections/columns/billing/invoice-columns";
+import { getInvoiceColumns } from "@/sections/columns/billing/invoice-columns";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
@@ -73,7 +69,6 @@ const InvoiceListPage = () => {
 	});
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { isPhone } = useViewport();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
@@ -143,13 +138,7 @@ const InvoiceListPage = () => {
 		[page, search, statusFilter, fetchInvoices],
 	);
 
-	const columns = useMemo(
-		() =>
-			isPhone
-				? getInvoiceColumnsMobile(handleRetry)
-				: getInvoiceColumns(handleRetry),
-		[isPhone, handleRetry],
-	);
+	const columns = useMemo(() => getInvoiceColumns(handleRetry), [handleRetry]);
 
 	return (
 		<main className="grid grid-cols-1 items-start gap-4">

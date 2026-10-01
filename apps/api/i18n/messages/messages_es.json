@@ -6148,6 +6148,14 @@
         "value": "Quitar selección"
     },
     {
+        "key": "table.select_all",
+        "value": "Seleccionar todo"
+    },
+    {
+        "key": "table.select_row",
+        "value": "Seleccionar fila"
+    },
+    {
         "key": "signature.fetch.success",
         "value": "Firma electrónica obtenida correctamente."
     },

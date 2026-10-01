@@ -1,11 +1,5 @@
 import { useText } from "@pengi/shared";
-import {
-	Button,
-	Text,
-	ToggleGroup,
-	ToggleGroupItem,
-	useViewport,
-} from "@pengi/ui";
+import { Button, Text, ToggleGroup, ToggleGroupItem } from "@pengi/ui";
 import type { Row } from "@tanstack/react-table";
 import { Play, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,10 +13,7 @@ import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	getCreditNoteColumns,
-	getCreditNoteColumnsMobile,
-} from "@/sections/columns/billing/credit-note-columns";
+import { getCreditNoteColumns } from "@/sections/columns/billing/credit-note-columns";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
@@ -52,7 +43,6 @@ const CreditNoteListPage = () => {
 	const [statusFilter, setStatusFilter] = useState("all");
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { isPhone } = useViewport();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
@@ -97,11 +87,8 @@ const CreditNoteListPage = () => {
 	);
 
 	const columns = useMemo(
-		() =>
-			isPhone
-				? getCreditNoteColumnsMobile(handleRetry)
-				: getCreditNoteColumns(handleRetry),
-		[isPhone, handleRetry],
+		() => getCreditNoteColumns(handleRetry),
+		[handleRetry],
 	);
 
 	return (

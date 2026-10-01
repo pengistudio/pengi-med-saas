@@ -6148,6 +6148,14 @@
         "value": "Clear selection"
     },
     {
+        "key": "table.select_all",
+        "value": "Select all"
+    },
+    {
+        "key": "table.select_row",
+        "value": "Select row"
+    },
+    {
         "key": "signature.fetch.success",
         "value": "Electronic signature fetched successfully."
     },

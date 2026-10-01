@@ -16,7 +16,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 	Text,
-	useViewport,
 } from "@pengi/ui";
 import type { Row } from "@tanstack/react-table";
 import { ArrowUpDown, Plus, Trash } from "lucide-react";
@@ -33,10 +32,7 @@ import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	patientColumnsMobile,
-	usePatientColumns,
-} from "@/sections/columns/clinical/patient-columns";
+import { usePatientColumns } from "@/sections/columns/clinical/patient-columns";
 import { useClinicalListStore } from "@/store/clinical-list-store";
 import { useRowStore } from "@/store/row-store";
 
@@ -78,7 +74,6 @@ const Clinical = () => {
 
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { isPhone } = useViewport();
 	const { checkPermission } = usePermission();
 	const patientColumns = usePatientColumns();
 	const { textGet } = useText();
@@ -211,7 +206,7 @@ const Clinical = () => {
 							</AlertDialogContent>
 						</AlertDialog>
 					}
-					columns={isPhone ? patientColumnsMobile : patientColumns}
+					columns={patientColumns}
 					data={patients}
 					loading={loading}
 					searchPlaceholder={textGet("clinical.patient.search.placeholder")}

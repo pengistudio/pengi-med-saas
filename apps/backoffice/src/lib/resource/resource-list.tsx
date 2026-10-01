@@ -21,6 +21,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
+	useViewport,
 } from "@pengi/ui";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import React from "react";
@@ -59,6 +60,7 @@ export function ResourceList<T extends { ID: number }>({
 }: ResourceListProps<T>) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
+	const { isPhone } = useViewport();
 	const { items, loading, remove } = useResourceList(resource);
 	const [deleting, setDeleting] = React.useState<T | null>(null);
 	const [removing, setRemoving] = React.useState(false);
@@ -73,10 +75,32 @@ export function ResourceList<T extends { ID: number }>({
 		setDeleting(null);
 	};
 
+	const actionsFor = (item: T) => (
+		<div className="flex items-center justify-end gap-2">
+			{rowActions?.(item)}
+			<Button
+				variant="ghost"
+				size="icon"
+				aria-label={textGet("backoffice.common.edit")}
+				onClick={() => navigate(routes.edit(item.ID))}
+			>
+				<Pencil className="h-4 w-4" />
+			</Button>
+			<Button
+				variant="ghost"
+				size="icon"
+				aria-label={textGet("backoffice.common.delete")}
+				onClick={() => setDeleting(item)}
+			>
+				<Trash2 className="h-4 w-4 text-destructive" />
+			</Button>
+		</div>
+	);
+
 	return (
 		<>
 			<div className="space-y-6">
-				<div className="flex items-center justify-between">
+				<div className="flex flex-wrap items-center justify-between gap-3">
 					<h1 className="text-2xl font-bold tracking-tight">
 						{textGet(key("title"))}
 					</h1>
@@ -104,6 +128,41 @@ export function ResourceList<T extends { ID: number }>({
 							<p className="text-sm text-muted-foreground py-8 text-center">
 								{textGet(key("empty"))}
 							</p>
+						) : isPhone ? (
+							// On a phone the first column leads each row and the rest
+							// follow as labelled details.
+							<ul className="-mx-2 divide-y">
+								{items.map((item) => {
+									const [first, ...rest] = columns;
+									return (
+										<li key={item.ID} className="flex gap-3 px-2 py-3">
+											<div className="min-w-0 flex-1 space-y-1">
+												<div className="text-sm font-medium">
+													{first?.cell(item)}
+												</div>
+												{rest.length > 0 && (
+													<div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+														{rest.map((col) => (
+															<span
+																key={col.header}
+																className="flex min-w-0 gap-1.5"
+															>
+																<span className="shrink-0 text-muted-foreground">
+																	{textGet(col.header)}
+																</span>
+																<span className="min-w-0">
+																	{col.cell(item)}
+																</span>
+															</span>
+														))}
+													</div>
+												)}
+											</div>
+											<div className="-my-1 shrink-0">{actionsFor(item)}</div>
+										</li>
+									);
+								})}
+							</ul>
 						) : (
 							<Table>
 								<TableHeader>
@@ -127,25 +186,7 @@ export function ResourceList<T extends { ID: number }>({
 												</TableCell>
 											))}
 											<TableCell className="text-right">
-												<div className="flex items-center justify-end gap-2">
-													{rowActions?.(item)}
-													<Button
-														variant="ghost"
-														size="icon"
-														aria-label={textGet("backoffice.common.edit")}
-														onClick={() => navigate(routes.edit(item.ID))}
-													>
-														<Pencil className="h-4 w-4" />
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon"
-														aria-label={textGet("backoffice.common.delete")}
-														onClick={() => setDeleting(item)}
-													>
-														<Trash2 className="h-4 w-4 text-destructive" />
-													</Button>
-												</div>
+												{actionsFor(item)}
 											</TableCell>
 										</TableRow>
 									))}

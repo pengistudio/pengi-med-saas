@@ -2,7 +2,6 @@ import {
 	Avatar,
 	AvatarFallback,
 	Button,
-	Checkbox,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
@@ -28,6 +27,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Patient } from "@/api/clinical-service";
+import { selectColumn } from "@/components/custom/table/select-column";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
@@ -142,32 +142,11 @@ function RenderActions({ row }: CellContext<Patient, unknown>) {
 }
 
 export const patientColumns: ColumnDef<Patient>[] = [
-	{
-		cell: ({ row }) => (
-			<Checkbox
-				aria-label="Select row"
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				onClick={(e) => e.stopPropagation()}
-			/>
-		),
-		enableHiding: false,
-		enableSorting: false,
-		header: ({ table }) => (
-			<Checkbox
-				aria-label="Select all"
-				checked={table.getIsAllPageRowsSelected()}
-				indeterminate={table.getIsSomePageRowsSelected()}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-			/>
-		),
-		id: "select",
-		size: 50,
-	},
+	selectColumn<Patient>(),
 	{
 		id: "patient",
 		header: () => <Text uuid="clinical.patient.name" />,
-		meta: { title: "table.column.patient" },
+		meta: { title: "table.column.patient", phone: "title" },
 		size: 220,
 		cell: ({ row }) => {
 			const p = row.original;
@@ -207,7 +186,7 @@ export const patientColumns: ColumnDef<Patient>[] = [
 	{
 		accessorKey: "document",
 		header: () => <Text uuid="clinical.patient.document" />,
-		meta: { title: "table.column.document" },
+		meta: { title: "table.column.document", phone: "subtitle" },
 		size: 130,
 	},
 	{
@@ -287,7 +266,7 @@ export const patientColumns: ColumnDef<Patient>[] = [
 				</TooltipProvider>
 			</div>
 		),
-		meta: { title: "table.column.next_appointment" },
+		meta: { title: "table.column.next_appointment", phone: "status" },
 		size: 120,
 		cell: ({ row }) => {
 			const appointments = row.original.appointments;
@@ -396,37 +375,3 @@ export function usePatientColumns(): ColumnDef<Patient>[] {
 		return clinical[settingKey as keyof typeof clinical] !== false;
 	});
 }
-
-export const patientColumnsMobile: ColumnDef<Patient>[] = [
-	{
-		cell: ({ row }) => (
-			<Checkbox
-				aria-label="Select row"
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				onClick={(e) => e.stopPropagation()}
-			/>
-		),
-		enableHiding: false,
-		enableSorting: false,
-		header: ({ table }) => (
-			<Checkbox
-				aria-label="Select all"
-				checked={table.getIsAllPageRowsSelected()}
-				indeterminate={table.getIsSomePageRowsSelected()}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-			/>
-		),
-		id: "select",
-		size: 50,
-	},
-	{
-		accessorKey: "full_name",
-		header: () => <Text uuid="clinical.patient.name" />,
-	},
-	{
-		cell: (props) => <RenderActions {...props} />,
-		id: "actions",
-		size: 50,
-	},
-];

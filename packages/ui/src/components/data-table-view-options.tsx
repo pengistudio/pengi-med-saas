@@ -3,7 +3,15 @@ import { SlidersHorizontal } from "lucide-react";
 
 declare module "@tanstack/react-table" {
 	interface ColumnMeta<TData extends RowData, TValue> {
+		/** i18n key with the column's name, where its header can't render (Vista menu, phone labels). */
 		title?: string;
+		/**
+		 * Where the column goes when the table reflows into a phone list:
+		 * `title` and `end` share the first line, `subtitle` and `status` the
+		 * second, `detail` (the default) wraps below with its `title` as label.
+		 * The `select` and `actions` columns are placed by id.
+		 */
+		phone?: "title" | "end" | "subtitle" | "status" | "detail" | "hidden";
 	}
 }
 

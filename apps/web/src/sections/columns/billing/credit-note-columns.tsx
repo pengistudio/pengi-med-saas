@@ -1,36 +1,18 @@
-import { Checkbox, DataTableColumnHeader, Text } from "@pengi/ui";
+import { DataTableColumnHeader, Text } from "@pengi/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { CreditNote } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { RelativeDate } from "@/components/custom/relative-date";
+import { selectColumn } from "@/components/custom/table/select-column";
 
 export function getCreditNoteColumns(
 	onRetry: (id: number) => void | Promise<void>,
 ): ColumnDef<CreditNote>[] {
 	return [
-		{
-			id: "select",
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected()}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-					className="translate-y-[2px]"
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-					className="translate-y-[2px]"
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
+		selectColumn<CreditNote>(),
 		{
 			accessorKey: "sequential",
+			meta: { title: "billing.credit_note.column.sequential", phone: "title" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -49,6 +31,7 @@ export function getCreditNoteColumns(
 		},
 		{
 			accessorKey: "invoice.sequential",
+			meta: { title: "billing.credit_note.column.invoice" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -68,6 +51,7 @@ export function getCreditNoteColumns(
 		},
 		{
 			accessorKey: "reason",
+			meta: { title: "billing.credit_note.column.reason", phone: "subtitle" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -82,6 +66,7 @@ export function getCreditNoteColumns(
 		},
 		{
 			accessorKey: "total",
+			meta: { title: "billing.invoice.column.total", phone: "end" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -101,6 +86,7 @@ export function getCreditNoteColumns(
 		},
 		{
 			accessorKey: "status",
+			meta: { title: "billing.invoice.column.status", phone: "status" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -124,6 +110,7 @@ export function getCreditNoteColumns(
 		},
 		{
 			accessorKey: "createdAt",
+			meta: { title: "billing.invoice.column.date" },
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
@@ -133,71 +120,6 @@ export function getCreditNoteColumns(
 			cell: ({ row }) => (
 				<RelativeDate date={row.original.CreatedAt as string} />
 			),
-		},
-	];
-}
-
-export function getCreditNoteColumnsMobile(
-	onRetry: (id: number) => void | Promise<void>,
-): ColumnDef<CreditNote>[] {
-	return [
-		{
-			id: "select",
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected()}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-					className="translate-y-[2px]"
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-					className="translate-y-[2px]"
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
-		{
-			accessorKey: "summary",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					title={<Text uuid="billing.invoice.column.summary" />}
-				/>
-			),
-			cell: ({ row }) => {
-				const creditNote = row.original;
-				const amount = new Intl.NumberFormat("en-US", {
-					style: "currency",
-					currency: "USD",
-				}).format(creditNote.total);
-
-				return (
-					<div className="flex flex-col gap-1 py-1">
-						<div className="flex justify-between items-center">
-							<span className="font-medium text-sm">
-								{creditNote.establishment_code}-{creditNote.emission_point_code}
-								-{creditNote.sequential}
-							</span>
-							<span className="font-mono text-sm font-semibold">{amount}</span>
-						</div>
-						<div className="flex justify-between items-center text-xs text-muted-foreground">
-							<span className="line-clamp-1">{creditNote.reason}</span>
-							<InvoiceStatusBadge
-								status={creditNote.status}
-								errorMessage={creditNote.error_message}
-								errorCode={creditNote.error_code}
-								onRetry={() => onRetry(creditNote.ID)}
-							/>
-						</div>
-					</div>
-				);
-			},
 		},
 	];
 }

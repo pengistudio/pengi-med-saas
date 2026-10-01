@@ -11,7 +11,6 @@ import {
 	AlertDialogTrigger,
 	Button,
 	Text,
-	useViewport,
 } from "@pengi/ui";
 import { Plus, Trash } from "lucide-react";
 import React from "react";
@@ -25,10 +24,7 @@ import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	getCatalogItemColumns,
-	getCatalogItemColumnsMobile,
-} from "@/sections/columns/billing/catalog-item-columns";
+import { getCatalogItemColumns } from "@/sections/columns/billing/catalog-item-columns";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
@@ -38,7 +34,6 @@ const CatalogItemList = () => {
 	const navigate = useNavigate();
 	const [loading, setLoading] = React.useState(true);
 	const { rows } = useRowStore();
-	const { isPhone } = useViewport();
 	const { textGet } = useText();
 	const [itemList, setItemList] = React.useState<CatalogItem[]>([]);
 	const [page, setPage] = React.useState(1);
@@ -149,17 +144,10 @@ const CatalogItemList = () => {
 					searchPlaceholder={textGet("billing.catalog-item.search.placeholder")}
 					searchValue={searchInput}
 					onSearchChange={setSearchInput}
-					columns={
-						isPhone
-							? getCatalogItemColumnsMobile({
-									onEdit: handleEdit,
-									onDelete: handleDeleteRow,
-								})
-							: getCatalogItemColumns({
-									onEdit: handleEdit,
-									onDelete: handleDeleteRow,
-								})
-					}
+					columns={getCatalogItemColumns({
+						onEdit: handleEdit,
+						onDelete: handleDeleteRow,
+					})}
 					data={itemList}
 					loading={loading}
 					pageCount={totalPages}

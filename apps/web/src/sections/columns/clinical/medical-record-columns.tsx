@@ -1,6 +1,5 @@
 import {
 	Button,
-	Checkbox,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
@@ -25,6 +24,7 @@ import {
 	Plus,
 } from "lucide-react";
 import type { MedicalRecord } from "@/api/clinical-service";
+import { selectColumn } from "@/components/custom/table/select-column";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { dateParser } from "@/lib/utils";
@@ -143,40 +143,19 @@ export const getMedicalRecordColumns = (
 	onDownloadPrescription?: (record: MedicalRecord) => void,
 	onSendWhatsApp?: (record: MedicalRecord) => void,
 ): ColumnDef<MedicalRecord>[] => [
-	{
-		cell: ({ row }) => (
-			<Checkbox
-				aria-label="Select row"
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				onClick={(e) => e.stopPropagation()}
-			/>
-		),
-		enableHiding: false,
-		enableSorting: false,
-		header: ({ table }) => (
-			<Checkbox
-				aria-label="Select all"
-				checked={table.getIsAllPageRowsSelected()}
-				indeterminate={table.getIsSomePageRowsSelected()}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-			/>
-		),
-		id: "select",
-		size: 50,
-	},
+	selectColumn<MedicalRecord>(),
 	{
 		accessorFn: (row) =>
 			dateParser(new Date(row.date), { dateStyle: "medium" }),
 		id: "date",
 		header: () => <Text uuid="clinical.medical_record.date" />,
-		meta: { title: "table.column.date" },
+		meta: { title: "table.column.date", phone: "title" },
 		size: 150,
 	},
 	{
 		accessorKey: "motive",
 		header: () => <Text uuid="clinical.medical_record.motive" />,
-		meta: { title: "table.column.motive" },
+		meta: { title: "table.column.motive", phone: "subtitle" },
 		size: 200,
 	},
 	{
