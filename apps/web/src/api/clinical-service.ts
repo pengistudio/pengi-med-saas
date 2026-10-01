@@ -713,8 +713,8 @@ export const downloadPrescription = async (
 // ─── Dashboard API ───────────────────────────────────────────────────────────
 
 export interface WeekDayStat {
+	/** Calendar day, `YYYY-MM-DD`; the weekday label is formatted in the UI language. */
 	date: string;
-	day: string;
 	count: number;
 }
 

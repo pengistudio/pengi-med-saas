@@ -36,7 +36,7 @@ export function PlanTermFields({
 	/** For tests: the moment "today" is taken from. */
 	now?: Date;
 }) {
-	const { textGet } = useText();
+	const { textGet, formatMoney } = useText();
 	const expiresId = React.useId();
 	const pricings = sortedPricings(plans.find((p) => p.code === value.planCode));
 	const suggested = (months: number) => suggestExpiry(months, now);
@@ -94,8 +94,8 @@ export function PlanTermFields({
 										: "bg-muted text-muted-foreground border-transparent hover:bg-muted/80",
 								)}
 							>
-								{textGet(`subscription.plans.period.${p.months}`)} — $
-								{p.price.toFixed(2)}
+								{textGet(`subscription.plans.period.${p.months}`)} —{" "}
+								{formatMoney(p.price)}
 							</button>
 						))}
 					</div>

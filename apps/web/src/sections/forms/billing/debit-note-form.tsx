@@ -112,7 +112,7 @@ function DebitNoteFormInner({
 		name: "motives",
 		control: form.control,
 	});
-	const { textGet } = useText();
+	const { textGet, formatMoney } = useText();
 	const navigate = useNavigate();
 
 	const motivesWatch: z.infer<typeof debitNoteMotiveSchema>[] =
@@ -174,7 +174,7 @@ function DebitNoteFormInner({
 					</div>
 					<div className="flex items-center gap-4">
 						<span className="text-sm font-medium whitespace-nowrap">
-							<Text uuid="billing.invoice.total" />: ${total.toFixed(2)}
+							<Text uuid="billing.invoice.total" />: {formatMoney(total)}
 						</span>
 						<Button
 							type="button"
@@ -238,7 +238,7 @@ function DebitNoteFormInner({
 											{textGet("billing.invoice.item.total")}
 										</FieldLabel>
 										<div className="h-9 flex items-center px-3 text-sm font-medium border rounded-md bg-muted/30">
-											${lineTotal.toFixed(2)}
+											{formatMoney(lineTotal)}
 										</div>
 									</Field>
 								</div>
@@ -267,19 +267,19 @@ function DebitNoteFormInner({
 								<span>
 									<Text uuid="billing.invoice.subtotal" />
 								</span>
-								<span>${subtotal.toFixed(2)}</span>
+								<span>{formatMoney(subtotal)}</span>
 							</div>
 							<div className="flex justify-between text-muted-foreground">
 								<span>
 									<Text uuid="billing.invoice.tax" />
 								</span>
-								<span>${totalTax.toFixed(2)}</span>
+								<span>{formatMoney(totalTax)}</span>
 							</div>
 							<div className="flex justify-between text-lg font-bold border-t pt-2">
 								<span>
 									<Text uuid="billing.invoice.total" />
 								</span>
-								<span>${total.toFixed(2)}</span>
+								<span>{formatMoney(total)}</span>
 							</div>
 						</div>
 					</div>

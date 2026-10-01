@@ -53,11 +53,7 @@ export function OpenTasksCard({
 					</CardTitle>
 					{total > 0 && (
 						<p className="text-sm text-muted-foreground">
-							{textGet(
-								total === 1
-									? "dashboard.tasks.total.one"
-									: "dashboard.tasks.total.other",
-							).replace("{count}", String(total))}
+							{textGet("dashboard.tasks.total", { count: total })}
 						</p>
 					)}
 				</div>

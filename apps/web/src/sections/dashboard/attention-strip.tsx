@@ -1,4 +1,4 @@
-import { useMessageStore, useText } from "@pengi/shared";
+import { useText } from "@pengi/shared";
 import { Popover, PopoverContent, PopoverTrigger } from "@pengi/ui";
 import {
 	AlertTriangle,
@@ -16,7 +16,6 @@ import type {
 	DashboardPatientRef,
 	SubscriptionInfo,
 } from "@/api/clinical-service";
-import { formatRelativeTime } from "@/lib/notification-text";
 import { cn } from "@/lib/utils";
 
 /** Days before expiry from which the plan shows up here. */
@@ -41,16 +40,6 @@ const chipClass = (tone: Tone) =>
 		"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 		TONE_STYLES[tone].chip,
 	);
-
-/** "{count}" filled into the singular or plural form of a key. */
-function useCountLabel() {
-	const { textGet } = useText();
-	return (key: string, count: number) =>
-		textGet(`${key}.${count === 1 ? "one" : "other"}`).replace(
-			"{count}",
-			String(count),
-		);
-}
 
 function ChipContent({
 	icon: Icon,
@@ -150,10 +139,8 @@ export function AttentionStrip({
 	failedInvoices,
 	subscription,
 }: AttentionStripProps) {
-	const { textGet } = useText();
-	const countLabel = useCountLabel();
+	const { textGet, formatRelative } = useText();
 	const navigate = useNavigate();
-	const lang = useMessageStore((s) => s.lang);
 
 	const planExpiring =
 		subscription !== undefined &&
@@ -187,7 +174,9 @@ export function AttentionStrip({
 					<ListChip
 						icon={AlertTriangle}
 						tone="danger"
-						label={countLabel("dashboard.attention.critical", criticalCount)}
+						label={textGet("dashboard.attention.critical", {
+							count: criticalCount,
+						})}
 					>
 						{criticalPatients.map((p) => (
 							<ListLink
@@ -209,13 +198,15 @@ export function AttentionStrip({
 					<ListChip
 						icon={FilePen}
 						tone="warning"
-						label={countLabel("dashboard.attention.drafts", draftsCount)}
+						label={textGet("dashboard.attention.drafts", {
+							count: draftsCount,
+						})}
 					>
 						{drafts.map((d) => (
 							<ListLink
 								key={d.patient_id}
 								primary={d.patient_name}
-								secondary={formatRelativeTime(d.updated_at, lang)}
+								secondary={formatRelative(d.updated_at)}
 								onClick={() =>
 									navigate(`/clinical/medical-records/${d.patient_id}`)
 								}
@@ -233,10 +224,9 @@ export function AttentionStrip({
 						<ChipContent
 							icon={XCircle}
 							tone="danger"
-							label={countLabel(
-								"dashboard.attention.invoices",
-								failedInvoices ?? 0,
-							)}
+							label={textGet("dashboard.attention.invoices", {
+								count: failedInvoices ?? 0,
+							})}
 							trailing={
 								<ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
 							}
@@ -258,10 +248,9 @@ export function AttentionStrip({
 							label={
 								subscription.days_left === 0
 									? textGet("dashboard.attention.plan.expired")
-									: countLabel(
-											"dashboard.attention.plan",
-											subscription.days_left,
-										)
+									: textGet("dashboard.attention.plan", {
+											count: subscription.days_left,
+										})
 							}
 							trailing={
 								<ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />

@@ -176,7 +176,7 @@ func (h *AppointmentHandler) GetAppointment(c *gin.Context) envelope.Response {
 	var appointment clinical_models.Appointment
 	if err := tenantdb.For(c, h.db).Preload("Patient").First(&appointment, id).Error; err != nil {
 		h.logger.Error("Failed to get appointment", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
 
 	return envelope.SuccessResponse(appointment, "appointments.get.success")
@@ -251,7 +251,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 	var appointment clinical_models.Appointment
 	if err := tenantdb.For(c, h.db).First(&appointment, id).Error; err != nil {
 		h.logger.Error("Appointment not found", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
 
 	var dto clinical_dto.UpdateAppointmentDTO
@@ -349,12 +349,12 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 		"cancelled":       true,
 	}
 	if !validStatuses[dto.Status] {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid status. Must be: scheduled, arrived, in_consultation, completed, or cancelled", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var appointment clinical_models.Appointment
 	if err := tenantdb.For(c, h.db).First(&appointment, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
 
 	if err := tenantdb.For(c, h.db).Model(&appointment).Update("status", dto.Status).Error; err != nil {
@@ -386,11 +386,11 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 
 	var appointment clinical_models.Appointment
 	if err := tenantdb.For(c, h.db).First(&appointment, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
 
 	if appointment.Status != "scheduled" && appointment.Status != "cancelled" && appointment.Status != "completed" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Only scheduled, cancelled or completed appointments can be deleted", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.appointment.delete.invalid_status", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	if err := tenantdb.For(c, h.db).Delete(&appointment).Error; err != nil {

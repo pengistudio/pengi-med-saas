@@ -36,7 +36,7 @@ func (h *BackofficeRoleHandler) GetRoles(c *gin.Context) envelope.Response {
 	var roles []user_models.Role
 	if err := h.db.Preload("Permissions").Find(&roles).Error; err != nil {
 		h.logger.Error("Failed to fetch roles", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error fetching roles", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(roles, "backoffice.roles.list.success")
 }
@@ -45,7 +45,7 @@ func (h *BackofficeRoleHandler) GetRoleByID(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var role user_models.Role
 	if err := h.db.Preload("Permissions").First(&role, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Role not found", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeRoleNotFound)
 	}
 	return envelope.SuccessResponse(role, "backoffice.roles.get.success")
 }
@@ -62,7 +62,7 @@ func (h *BackofficeRoleHandler) CreateRole(c *gin.Context) envelope.Response {
 	}
 	if err := h.db.Create(&role).Error; err != nil {
 		h.logger.Error("Failed to create role", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating role", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	h.db.Preload("Permissions").First(&role, role.ID)
 	return envelope.SuccessResponse(role, "backoffice.roles.create.success")
@@ -77,20 +77,20 @@ func (h *BackofficeRoleHandler) UpdateRole(c *gin.Context) envelope.Response {
 
 	var role user_models.Role
 	if err := h.db.First(&role, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Role not found", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeRoleNotFound)
 	}
 
 	if req.Role != nil {
 		if err := h.db.Model(&role).Update("role", *req.Role).Error; err != nil {
 			h.logger.Error("Failed to update role name", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating role", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 	}
 
 	if req.PermissionIDs != nil {
 		if err := h.db.Model(&role).Association("Permissions").Replace(h.findPermissionsByIDs(req.PermissionIDs)); err != nil {
 			h.logger.Error("Failed to update role permissions", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating permissions", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 	}
 
@@ -102,12 +102,12 @@ func (h *BackofficeRoleHandler) DeleteRole(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var role user_models.Role
 	if err := h.db.First(&role, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Role not found", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeRoleNotFound)
 	}
 	h.db.Model(&role).Association("Permissions").Clear()
 	if err := h.db.Delete(&role).Error; err != nil {
 		h.logger.Error("Failed to delete role", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting role", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(nil, "backoffice.roles.delete.success")
 }

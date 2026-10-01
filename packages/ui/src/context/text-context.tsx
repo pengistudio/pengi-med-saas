@@ -1,7 +1,8 @@
 import { createContext, type ReactNode, useContext } from "react";
 
 export interface TextApi {
-	textGet: (key: string) => string;
+	/** The message for `key`, with `{name}` placeholders filled from `values`. */
+	textGet: (key: string, values?: Record<string, string | number>) => string;
 	/** Current UI language; forms revalidate when it changes to refresh their messages. */
 	language?: string;
 }

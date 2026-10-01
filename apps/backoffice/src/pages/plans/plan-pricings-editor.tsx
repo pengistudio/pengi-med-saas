@@ -39,7 +39,7 @@ export function PlanPricingsEditor({
 	pricings,
 	onChange,
 }: PlanPricingsEditorProps) {
-	const { textGet } = useText();
+	const { textGet, formatMoney } = useText();
 
 	const isEnabled = (months: PeriodMonths) =>
 		pricings[months] !== null && pricings[months] !== undefined;
@@ -64,9 +64,7 @@ export function PlanPricingsEditor({
 			<div className="border rounded-md divide-y">
 				{PERIOD_MONTHS.map((months) => {
 					const enabled = isEnabled(months);
-					const perMonth = enabled
-						? ((pricings[months] ?? 0) / months).toFixed(2)
-						: null;
+					const perMonth = enabled ? (pricings[months] ?? 0) / months : null;
 					return (
 						<div key={months} className="flex items-center gap-4 px-4 py-3">
 							<div className="flex items-center gap-2 w-28 shrink-0">
@@ -94,9 +92,10 @@ export function PlanPricingsEditor({
 										placeholder="0.00"
 									/>
 								</div>
-								{enabled && perMonth && months > 1 && (
+								{perMonth !== null && months > 1 && (
 									<span className="text-xs text-muted-foreground whitespace-nowrap">
-										≈ ${perMonth} / mes
+										≈ {formatMoney(perMonth)}{" "}
+										{textGet("subscription.plans.per_month")}
 									</span>
 								)}
 							</div>

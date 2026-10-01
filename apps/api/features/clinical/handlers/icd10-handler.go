@@ -29,7 +29,7 @@ type icd10SearchResult struct {
 func (h *ICD10Handler) Search(c *gin.Context) envelope.Response {
 	q := c.Query("q")
 	if q == "" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "query param 'q' is required", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	var codes []clinical_models.Cie10Code
@@ -39,7 +39,7 @@ func (h *ICD10Handler) Search(c *gin.Context) envelope.Response {
 		Limit(50).
 		Find(&codes).Error; err != nil {
 		h.logger.Error("Failed to search ICD-10 codes", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "icd10 search error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	results := make([]icd10SearchResult, len(codes))

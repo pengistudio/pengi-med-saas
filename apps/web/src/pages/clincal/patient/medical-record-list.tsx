@@ -34,19 +34,16 @@ import {
 	updateCriticalRevert,
 } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
-import PatientCard, {
-	formatAge,
-	parseAllergies,
-} from "@/components/custom/patient-card";
+import PatientCard, { formatAge } from "@/components/custom/patient-card";
 import { DataTable } from "@/components/custom/table/data-table";
 import EditPrescriptionDialog from "@/components/features/patient/edit-prescription-dialog";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import usePermission from "@/hooks/use-permission";
+import { parseAllergies } from "@/lib/allergies";
 import { EMPTY_STRING, PERMISSIONS } from "@/lib/constants";
 import { ageInYears } from "@/lib/patient-age";
 import {
 	buildPrescriptionWhatsAppMessage,
-	dateParser,
 	generateWhatsAppLink,
 } from "@/lib/utils";
 import { getMedicalRecordColumns } from "@/sections/columns/clinical/medical-record-columns";
@@ -70,7 +67,7 @@ const MedicalRecords = () => {
 	}, [patientId, setPatient]);
 	const { infoToast } = useToast();
 	const { checkPermission } = usePermission();
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 
 	const [medicalRecords, setMedicalRecords] = React.useState<MedicalRecord[]>(
 		[],
@@ -83,9 +80,15 @@ const MedicalRecords = () => {
 	const [selectedRecord, setSelectedRecord] =
 		React.useState<MedicalRecord | null>(null);
 
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = React.useState({ patient, page });
+	if (prevQuery.patient !== patient || prevQuery.page !== page) {
+		setPrevQuery({ patient, page });
+		if (patient) setLoading(true);
+	}
+
 	React.useEffect(() => {
 		if (!patient) return;
-		setLoading(true);
 		getMedicalRecords(patient.ID, { page, limit: 10 })
 			.then((res) => {
 				if (res.success && res.data) {
@@ -336,18 +339,21 @@ const MedicalRecords = () => {
 			});
 			return;
 		}
-		const message = buildPrescriptionWhatsAppMessage({
-			patientName: `${patient.first_name} ${patient.last_name}`.trim(),
-			date: dateParser(new Date(record.date), { dateStyle: "medium" }),
-			items: record.prescription?.items?.map((item) => ({
-				medication: item.medication,
-				dose: item.dose,
-				frequency: item.frequency,
-				duration: item.duration,
-				notes: item.notes,
-			})),
-			indications: record.prescription?.indications,
-		});
+		const message = buildPrescriptionWhatsAppMessage(
+			{
+				patientName: `${patient.first_name} ${patient.last_name}`.trim(),
+				date: formatDate(record.date),
+				items: record.prescription?.items?.map((item) => ({
+					medication: item.medication,
+					dose: item.dose,
+					frequency: item.frequency,
+					duration: item.duration,
+					notes: item.notes,
+				})),
+				indications: record.prescription?.indications,
+			},
+			textGet,
+		);
 		window.open(generateWhatsAppLink(patient.phone, message), "_blank");
 	}
 

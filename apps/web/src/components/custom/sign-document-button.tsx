@@ -44,7 +44,7 @@ export function SignDocumentButton({
 	compact,
 	className,
 }: SignDocumentButtonProps) {
-	const { textGet } = useText();
+	const { textGet, formatDateTime } = useText();
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
 	const canSign = checkPermission([
@@ -55,9 +55,7 @@ export function SignDocumentButton({
 	const [signing, setSigning] = React.useState(false);
 
 	if (isSigned) {
-		const signedAt = new Date(signature?.signed_at ?? "").toLocaleString(
-			"es-EC",
-		);
+		const signedAt = formatDateTime(signature?.signed_at);
 		const label = `${textGet("signature.signed_by")} ${signature?.signer_name ?? ""}`;
 		return (
 			<Badge

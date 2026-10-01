@@ -60,7 +60,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 	idParam := c.Param("id")
 	recordID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "Invalid medical record ID format", core_errors.ErrClinicalInvalidRequest))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest))
 		return
 	}
 
@@ -71,12 +71,12 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 		First(&record, recordID).Error
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "Medical record not found", core_errors.ErrClinicalRecordNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound))
 		return
 	}
 
 	if record.Prescription == nil || (record.Prescription.Content == "" && record.Prescription.Indications == "") {
-		c.JSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "This record has no prescription", core_errors.ErrClinicalRecordNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "clinical.prescription.error.not_found", core_errors.ErrClinicalPrescriptionNotFound))
 		return
 	}
 
@@ -84,7 +84,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 	var patient clinical_models.Patient
 	err = tenantdb.For(c, h.db).First(&patient, record.PatientID).Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "Error retrieving patient data", core_errors.ErrClinicalPatientNotFound))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound))
 		return
 	}
 
@@ -95,7 +95,7 @@ func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
 		return generatePrescriptionPDF(h.db, h.renderer, c, &record, &patient, nil)
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalReportGenerateError))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalReportGenerateError))
 		return
 	}
 
@@ -175,7 +175,7 @@ func (h *DownloadRecordHandler) SignPrescription(c *gin.Context) envelope.Respon
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
 	if record.Prescription == nil || (record.Prescription.Content == "" && record.Prescription.Indications == "") {
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "clinical.prescription.error.not_found", core_errors.ErrClinicalPrescriptionNotFound)
 	}
 	if record.Prescription.IsSigned() {
 		return signature_services.AlreadySignedResponse()

@@ -69,6 +69,24 @@ export function AppointmentFormDialog({
 					setPatients(res.data.items);
 				}
 			});
+		}
+	}, [open, isEdit]);
+
+	// Reset the selected patient when the dialog opens or its inputs change
+	// (adjust state during render instead of in an effect).
+	const [prevInputs, setPrevInputs] = React.useState<{
+		open: boolean;
+		appointment: Appointment | null | undefined;
+		defaultPatient: Patient | null | undefined;
+	} | null>(null);
+	if (
+		prevInputs === null ||
+		prevInputs.open !== open ||
+		prevInputs.appointment !== appointment ||
+		prevInputs.defaultPatient !== defaultPatient
+	) {
+		setPrevInputs({ open, appointment, defaultPatient });
+		if (open && !isEdit) {
 			setSelectedPatient(defaultPatient ?? null);
 			setPatientSearch(
 				defaultPatient
@@ -84,7 +102,7 @@ export function AppointmentFormDialog({
 					`${appointment.patient.first_name} ${appointment.patient.last_name}`,
 			);
 		}
-	}, [open, isEdit, appointment, defaultPatient]);
+	}
 
 	const filteredPatients = patients.filter((p) => {
 		const name = (

@@ -9,16 +9,32 @@ export function useResourceList<T extends { ID: number }>(
 	const [items, setItems] = React.useState<T[]>([]);
 	const [loading, setLoading] = React.useState(true);
 
-	const refetch = React.useCallback(async () => {
+	// Loads without flagging loading; callers set it first. (.then rather than
+	// await: the React Compiler lint treats setState in async code as sync.)
+	const load = React.useCallback(
+		() =>
+			resource.list().then((res) => {
+				if (res.success) setItems(res.data ?? []);
+				setLoading(false);
+			}),
+		[resource],
+	);
+
+	// Show loading again when the resource changes (adjust state during render).
+	const [prevResource, setPrevResource] = React.useState(resource);
+	if (resource !== prevResource) {
+		setPrevResource(resource);
 		setLoading(true);
-		const res = await resource.list();
-		if (res.success) setItems(res.data ?? []);
-		setLoading(false);
-	}, [resource]);
+	}
 
 	React.useEffect(() => {
-		refetch();
-	}, [refetch]);
+		load();
+	}, [load]);
+
+	const refetch = React.useCallback(() => {
+		setLoading(true);
+		return load();
+	}, [load]);
 
 	const remove = React.useCallback(
 		async (id: ID) => {
@@ -46,10 +62,16 @@ export function useResourceItem<T extends { ID: number }, C, U>(
 	const [loading, setLoading] = React.useState(id !== undefined);
 	const [saving, setSaving] = React.useState(false);
 
+	// Show loading again when the item changes (adjust state during render).
+	const [prevKey, setPrevKey] = React.useState({ resource, id });
+	if (prevKey.resource !== resource || prevKey.id !== id) {
+		setPrevKey({ resource, id });
+		if (id !== undefined) setLoading(true);
+	}
+
 	React.useEffect(() => {
 		if (id === undefined) return;
 		let cancelled = false;
-		setLoading(true);
 		resource.get(id).then((res) => {
 			if (cancelled) return;
 			if (res.success) setItem(res.data);

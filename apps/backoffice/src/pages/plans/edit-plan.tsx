@@ -65,27 +65,33 @@ const EditPlan = () => {
 		});
 	}, []);
 
-	React.useEffect(() => {
-		if (!plan) return;
-		const loadedTier = plan.tier ?? 1;
-		setTier((loadedTier >= 1 && loadedTier <= 3 ? loadedTier : 1) as 1 | 2 | 3);
-		setSelectedFeatures(plan.Features?.map((f) => f.code) ?? []);
+	// Load the saved values once the plan arrives (adjust state during render).
+	const [prevPlan, setPrevPlan] = React.useState<typeof plan>();
+	if (plan !== prevPlan) {
+		setPrevPlan(plan);
+		if (plan) {
+			const loadedTier = plan.tier ?? 1;
+			setTier(
+				(loadedTier >= 1 && loadedTier <= 3 ? loadedTier : 1) as 1 | 2 | 3,
+			);
+			setSelectedFeatures(plan.Features?.map((f) => f.code) ?? []);
 
-		const props = plan.Properties ?? {};
-		const loaded: PlanLimits = {};
-		for (const key of PLAN_LIMIT_KEYS) {
-			const val = props[key];
-			loaded[key] = val === undefined || val === null ? -1 : Number(val);
-		}
-		setLimits(loaded);
+			const props = plan.Properties ?? {};
+			const loaded: PlanLimits = {};
+			for (const key of PLAN_LIMIT_KEYS) {
+				const val = props[key];
+				loaded[key] = val === undefined || val === null ? -1 : Number(val);
+			}
+			setLimits(loaded);
 
-		const existingPricings = plan.pricings ?? [];
-		if (existingPricings.length === 0 && plan.price > 0) {
-			setPricings(arrayToPricingsState([{ months: 1, price: plan.price }]));
-		} else {
-			setPricings(arrayToPricingsState(existingPricings));
+			const existingPricings = plan.pricings ?? [];
+			if (existingPricings.length === 0 && plan.price > 0) {
+				setPricings(arrayToPricingsState([{ months: 1, price: plan.price }]));
+			} else {
+				setPricings(arrayToPricingsState(existingPricings));
+			}
 		}
-	}, [plan]);
+	}
 
 	const toggleFeature = (featureCode: string) => {
 		setSelectedFeatures((prev) =>

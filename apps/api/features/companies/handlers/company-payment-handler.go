@@ -405,7 +405,7 @@ func (h *CompanyPaymentHandler) CancelPlanChange(c *gin.Context) envelope.Respon
 	}
 
 	if sub.NextPlanCode == "" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "subscription.plan.no_pending_change", core_errors.ErrBackofficeSubscriptionNotFound)
+		return envelope.ErrorResponse(http.StatusBadRequest, "subscription.plan.no_pending_change", core_errors.ErrInvalidRequest)
 	}
 
 	sub.NextPlanCode = ""
@@ -432,7 +432,7 @@ func (h *CompanyPaymentHandler) GetSubscriptionPayments(c *gin.Context) envelope
 
 	var payments []company_models.SubscriptionPayment
 	if err := h.db.Where("company_id = ?", company.ID).Order("created_at DESC").Find(&payments).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "company.subscription.payments.fetch.error", core_errors.ErrBackofficePaymentNotFound)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "company.subscription.payments.fetch.error", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(payments, "company.subscription.payments.fetch.success")

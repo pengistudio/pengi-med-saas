@@ -1,4 +1,4 @@
-import { useMessageStore, useText } from "@pengi/shared";
+import { useText } from "@pengi/shared";
 import {
 	Button,
 	Card,
@@ -24,10 +24,7 @@ import {
 	NotificationLevelIcon,
 	openNotificationLink,
 } from "@/lib/notification-level";
-import {
-	formatRelativeTime,
-	getNotificationText,
-} from "@/lib/notification-text";
+import { getNotificationText } from "@/lib/notification-text";
 import { cn } from "@/lib/utils";
 import { useNotificationStore } from "@/store/notification-store";
 
@@ -41,9 +38,8 @@ const FILTERS: { value: Filter; labelKey: string }[] = [
 ];
 
 const NotificationsPage = () => {
-	const { textGet } = useText();
+	const { textGet, formatRelative } = useText();
 	const navigate = useNavigate();
-	const lang = useMessageStore((s) => s.lang);
 	const unreadCount = useNotificationStore((s) => s.unreadCount);
 	const markReadLocally = useNotificationStore((s) => s.markReadLocally);
 	const markAllReadLocally = useNotificationStore((s) => s.markAllReadLocally);
@@ -57,30 +53,42 @@ const NotificationsPage = () => {
 
 	const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
-	const fetchNotifications = useCallback(async (p: number, f: Filter) => {
+	// Requests the page without flagging loading; callers set it first.
+	const loadNotifications = useCallback(
+		(p: number, f: Filter) =>
+			getNotifications({
+				page: p,
+				limit: PAGE_LIMIT,
+				unread: f === "unread",
+			}).then((res) => {
+				if (res.success) {
+					setItems(res.data.items);
+					setTotal(res.data.total);
+				}
+				setLoading(false);
+			}),
+		[],
+	);
+
+	// Deleting the last item of the last page leaves it empty — step back
+	// (adjust state during render).
+	if (page > totalPages) setPage(totalPages);
+
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = useState({ page, filter });
+	if (prevQuery.page !== page || prevQuery.filter !== filter) {
+		setPrevQuery({ page, filter });
 		setLoading(true);
-		const res = await getNotifications({
-			page: p,
-			limit: PAGE_LIMIT,
-			unread: f === "unread",
-		});
-		if (res.success) {
-			setItems(res.data.items);
-			setTotal(res.data.total);
-		}
-		setLoading(false);
-	}, []);
+	}
 
 	useEffect(() => {
-		fetchNotifications(page, filter);
-	}, [page, filter, fetchNotifications]);
+		loadNotifications(page, filter);
+	}, [page, filter, loadNotifications]);
 
-	// Deleting the last item of the last page leaves it empty — step back.
-	useEffect(() => {
-		if (page > totalPages) setPage(totalPages);
-	}, [page, totalPages]);
-
-	const refresh = () => fetchNotifications(page, filter);
+	const refresh = () => {
+		setLoading(true);
+		return loadNotifications(page, filter);
+	};
 
 	const handleMarkRead = async (notification: Notification) => {
 		if (notification.read_at) return;
@@ -200,10 +208,13 @@ const NotificationsPage = () => {
 												level={notification.level}
 												className="mt-0.5"
 											/>
-											{getNotificationText(notification, textGet, lang)}
+											{getNotificationText(notification, {
+												textGet,
+												formatRelative,
+											})}
 										</span>
 										<span className="text-xs text-muted-foreground">
-											{formatRelativeTime(notification.CreatedAt, lang)}
+											{formatRelative(notification.CreatedAt)}
 										</span>
 									</button>
 									<div className="flex shrink-0 gap-1">

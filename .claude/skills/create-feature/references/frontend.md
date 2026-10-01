@@ -121,7 +121,11 @@ Solo los ítems de primer nivel se filtran por `permission`/`feature`; los
 
 ## i18n
 
-`const { textGet } = useText()` de `@pengi/shared`. Las keys viven en el
+`const { textGet, formatDate, formatMoney } = useText()` de `@pengi/shared`:
+`textGet(key, { name })` interpola `{name}` y con `count` elige `key.one` /
+`key.other`; fechas y montos solo con los formateadores del hook (o
+`<Money>` / `<FormattedDate>` en columnas) — un test prohíbe
+`toLocale*String`, `Intl.*Format` y `.replace("{x}")`. Las keys viven en el
 backend (`apps/api/i18n/messages/`); una key inexistente se renderiza como
 `*key*`. El navegador cachea los mensajes en `localStorage["messages"]` con el
 ETag del catálogo y los revalida en cada carga: tras agregar keys basta con

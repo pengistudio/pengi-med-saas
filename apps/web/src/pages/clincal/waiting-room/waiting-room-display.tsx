@@ -18,7 +18,6 @@ import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
-import { dateParser } from "@/lib/utils";
 
 type DisplayStatus = "scheduled" | "arrived" | "in_consultation";
 
@@ -71,6 +70,7 @@ function buildEmbedUrl(videoId: string): string {
 }
 
 function LiveClock() {
+	const { formatTime } = useText();
 	const [now, setNow] = React.useState(new Date());
 
 	React.useEffect(() => {
@@ -78,12 +78,7 @@ function LiveClock() {
 		return () => clearInterval(id);
 	}, []);
 
-	const time = now.toLocaleTimeString("es-EC", {
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-		hour12: false,
-	});
+	const time = formatTime(now);
 
 	return <span className="tabular-nums">{time}</span>;
 }
@@ -236,7 +231,7 @@ function VideoConfigModal({
 
 const WaitingRoomDisplayPage = () => {
 	useWakeLock();
-	const { textGet } = useText();
+	const { textGet, formatDate, formatTime } = useText();
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get("token") ?? "";
 	const [appointments, setAppointments] = React.useState<Appointment[]>([]);
@@ -269,11 +264,8 @@ const WaitingRoomDisplayPage = () => {
 	};
 
 	const load = React.useCallback(() => {
-		if (!token) {
-			setInvalidToken(true);
-			setLoading(false);
-			return;
-		}
+		// A missing token is rendered as invalid directly (see below).
+		if (!token) return;
 		getTodayAppointmentsPublic(token).then((res) => {
 			if (res.success && res.data) {
 				setAppointments(res.data as Appointment[]);
@@ -324,9 +316,9 @@ const WaitingRoomDisplayPage = () => {
 		return map;
 	}, [appointments]);
 
-	const today = dateParser(new Date(), { dateStyle: "full" });
+	const today = formatDate(new Date(), "full");
 
-	if (invalidToken) {
+	if (!token || invalidToken) {
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center">
 				<p className="text-2xl text-muted-foreground">
@@ -431,13 +423,7 @@ const WaitingRoomDisplayPage = () => {
 					<RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
 					<span>
 						{textGet("waiting_room.display.last_updated")}{" "}
-						{lastUpdated
-							? lastUpdated.toLocaleTimeString("es-EC", {
-									hour: "2-digit",
-									minute: "2-digit",
-									second: "2-digit",
-								})
-							: "—"}
+						{lastUpdated ? formatTime(lastUpdated) : "—"}
 					</span>
 				</div>
 				<span>

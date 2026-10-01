@@ -1,5 +1,4 @@
-import { useMessageStore } from "@pengi/shared";
-import { formatRelativeTime } from "@/lib/notification-text";
+import { useText } from "@pengi/shared";
 
 interface RelativeDateProps {
 	date: string;
@@ -10,11 +9,11 @@ export function RelativeDate({
 	date,
 	className = "text-muted-foreground whitespace-nowrap text-sm",
 }: RelativeDateProps) {
-	const lang = useMessageStore((s) => s.lang);
+	const { formatDateTime, formatRelative } = useText();
 
 	return (
-		<span className={className} title={new Date(date).toLocaleString()}>
-			{formatRelativeTime(date, lang)}
+		<span className={className} title={formatDateTime(date)}>
+			{formatRelative(date)}
 		</span>
 	);
 }

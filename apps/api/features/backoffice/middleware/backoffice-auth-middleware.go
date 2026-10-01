@@ -21,7 +21,7 @@ func BackofficeAuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 	db = tenantdb.System(db)
 	return func(c *gin.Context) {
 		unauthorized := func() {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 		}
 
 		token, ok := strings.CutPrefix(c.GetHeader("Authorization"), "Bearer ")

@@ -21,6 +21,7 @@ export {
 	type SuccessResponse,
 } from "./http";
 export { AppTextBridge } from "./i18n/app-text-bridge";
+export { parseDateOnly, toDateOnlyString } from "./i18n/date-only";
 export { LanguageProvider, useLanguage } from "./i18n/language-context";
 export { useMessageStore } from "./i18n/message-store";
 export {
@@ -30,7 +31,13 @@ export {
 } from "./i18n/messages-service";
 export { SelectLanguage } from "./i18n/select-language";
 export { useMessages } from "./i18n/use-messages";
-export { useText } from "./i18n/use-text";
+export {
+	type AppText,
+	type DateInput,
+	type DateStyle,
+	type TextValues,
+	useText,
+} from "./i18n/use-text";
 export {
 	type SupportedLocale,
 	updateZodLocale,

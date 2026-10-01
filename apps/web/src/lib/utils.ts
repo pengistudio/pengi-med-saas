@@ -1,3 +1,4 @@
+import type { AppText } from "@pengi/shared";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -5,12 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-/**
- * Le da formato a la fecha según lo que se especifica
- * @param date - Fecha
- * @param options  - opciones en formato Intl.DateTimeFormatOptions (opcional)
- * @returns `string` con el formato de la fecha
- */
 export function generateWhatsAppLink(
 	phoneNumber: string,
 	message?: string,
@@ -22,52 +17,61 @@ export function generateWhatsAppLink(
 	return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
 
-export function buildPrescriptionWhatsAppMessage(params: {
-	patientName: string;
-	doctorName?: string;
-	date: string;
-	items?: Array<{
-		medication: string;
-		dose: string;
-		frequency: string;
-		duration: string;
-		notes?: string;
-	}>;
-	indications?: string;
-}): string {
+/**
+ * The WhatsApp text for a prescription, in the interface language.
+ * `params.date` is already formatted by the caller (`formatDate`).
+ */
+export function buildPrescriptionWhatsAppMessage(
+	params: {
+		patientName: string;
+		doctorName?: string;
+		date: string;
+		items?: Array<{
+			medication: string;
+			dose: string;
+			frequency: string;
+			duration: string;
+			notes?: string;
+		}>;
+		indications?: string;
+	},
+	textGet: AppText["textGet"],
+): string {
 	const lines: string[] = [];
-	lines.push(`🏥 *Receta Médica*`);
-	lines.push(`👤 Paciente: ${params.patientName}`);
-	if (params.doctorName) lines.push(`👨‍⚕️ Médico: ${params.doctorName}`);
-	lines.push(`📅 Fecha: ${params.date}`);
+	lines.push(`🏥 *${textGet("clinical.prescription.whatsapp_message.title")}*`);
+	lines.push(
+		`👤 ${textGet("clinical.prescription.whatsapp_message.patient", { name: params.patientName })}`,
+	);
+	if (params.doctorName)
+		lines.push(
+			`👨‍⚕️ ${textGet("clinical.prescription.whatsapp_message.doctor", { name: params.doctorName })}`,
+		);
+	lines.push(
+		`📅 ${textGet("clinical.prescription.whatsapp_message.date", { date: params.date })}`,
+	);
 	if (params.items && params.items.length > 0) {
-		lines.push(`\n💊 *Medicamentos:*`);
+		lines.push(
+			`\n💊 *${textGet("clinical.prescription.whatsapp_message.medications")}*`,
+		);
 		for (const item of params.items) {
 			lines.push(`• *${item.medication}*`);
 			lines.push(
-				`  Dosis: ${item.dose} | Frecuencia: ${item.frequency} | Duración: ${item.duration}`,
+				`  ${textGet("clinical.prescription.whatsapp_message.item_detail", {
+					dose: item.dose,
+					frequency: item.frequency,
+					duration: item.duration,
+				})}`,
 			);
-			if (item.notes) lines.push(`  Notas: ${item.notes}`);
+			if (item.notes)
+				lines.push(
+					`  ${textGet("clinical.prescription.whatsapp_message.item_notes", { notes: item.notes })}`,
+				);
 		}
 	}
 	if (params.indications) {
-		lines.push(`\n📋 *Indicaciones:*\n${params.indications}`);
+		lines.push(
+			`\n📋 *${textGet("clinical.prescription.whatsapp_message.indications")}*\n${params.indications}`,
+		);
 	}
 	return lines.join("\n");
-}
-
-export function dateParser(
-	date: Date | string,
-	options?: Intl.DateTimeFormatOptions,
-) {
-	let transformDate = new Date();
-	if (typeof date === "string") transformDate = new Date(date);
-	else {
-		transformDate = date;
-	}
-	if (options)
-		return Intl.DateTimeFormat("es-EC", options).format(transformDate);
-	return Intl.DateTimeFormat("es-EC", { dateStyle: "medium" }).format(
-		transformDate,
-	);
 }

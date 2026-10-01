@@ -1,5 +1,24 @@
+import { useText } from "@pengi/shared";
 import { type Plan, plans } from "@/api/plan-service";
 import { type ResourceColumn, ResourceList } from "@/lib/resource";
+
+function MonthlyPrice({ price }: { price: number }) {
+	const { textGet, formatMoney } = useText();
+	return (
+		<span className="text-sm text-muted-foreground">
+			{formatMoney(price)} {textGet("subscription.plans.per_month")}
+		</span>
+	);
+}
+
+function PricingChip({ months, price }: { months: number; price: number }) {
+	const { formatMoney } = useText();
+	return (
+		<span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-mono">
+			{months}m · {formatMoney(price)}
+		</span>
+	);
+}
 
 const columns: ResourceColumn<Plan>[] = [
 	{
@@ -28,18 +47,15 @@ const columns: ResourceColumn<Plan>[] = [
 					{[...p.pricings]
 						.sort((a, b) => a.months - b.months)
 						.map((pr) => (
-							<span
+							<PricingChip
 								key={pr.months}
-								className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-mono"
-							>
-								{pr.months}m · ${pr.price.toFixed(0)}
-							</span>
+								months={pr.months}
+								price={pr.price}
+							/>
 						))}
 				</div>
 			) : (
-				<span className="text-sm text-muted-foreground">
-					${p.price.toFixed(2)}/mes
-				</span>
+				<MonthlyPrice price={p.price} />
 			),
 	},
 	{

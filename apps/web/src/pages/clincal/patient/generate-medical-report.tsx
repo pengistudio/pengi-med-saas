@@ -227,7 +227,7 @@ function ConsultationEntry({
 	readOnly,
 	isLast,
 }: ConsultationEntryProps) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const date = new Date(consultation.date);
 	const bodyId = `consultation-${consultation.medical_record_id}`;
 	const placeholder = textGet("view.medical_record.not_registered");
@@ -240,10 +240,7 @@ function ConsultationEntry({
 					{date.getDate()}
 				</div>
 				<div className="mt-1 text-xs text-muted-foreground capitalize">
-					{date.toLocaleDateString("es-EC", {
-						month: "short",
-						year: "numeric",
-					})}
+					{formatDate(date, "month-year")}
 				</div>
 			</div>
 

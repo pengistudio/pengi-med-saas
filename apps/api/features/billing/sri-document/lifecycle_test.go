@@ -410,6 +410,22 @@ func TestProcess_MissingDocumentIsSkipped(t *testing.T) {
 	}
 }
 
+func TestProcess_ReceivedDocumentWithoutAccessKey_FailsInsteadOfPanicking(t *testing.T) {
+	f := newFixture(t)
+	inv := f.invoice(billing_models.InvoiceStatusValidated)
+
+	if err := f.process(inv.ID); err != nil {
+		t.Fatalf("process: %v, want nil (nothing to retry)", err)
+	}
+	got := f.reload(inv.ID)
+	if got.Status != billing_models.InvoiceStatusFailed || got.ErrorCode == nil || *got.ErrorCode != ErrorCodeInternal {
+		t.Fatalf("status=%q error_code=%v, want failed/%s", got.Status, got.ErrorCode, ErrorCodeInternal)
+	}
+	if f.gateway.authCalls != 0 {
+		t.Fatalf("queried the SRI without an access key")
+	}
+}
+
 func TestProcess_TenantWithoutSignature_Fails(t *testing.T) {
 	f := newFixture(t)
 	f.db.Model(&f.tenant).Update("sri_p12_path", "")

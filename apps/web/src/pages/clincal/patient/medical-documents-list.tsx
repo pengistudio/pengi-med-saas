@@ -1,3 +1,4 @@
+import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
@@ -15,7 +16,7 @@ import {
 } from "@pengi/ui";
 import { ArrowLeft, FileCheck, FileText, Loader2, Printer } from "lucide-react";
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { Navigate, useNavigate, useSearchParams } from "react-router";
 import {
 	downloadMedicalCertificatePdf,
 	downloadMedicalReportPdf,
@@ -48,6 +49,7 @@ interface DocumentRow {
 }
 
 export default function MedicalDocumentsListPage() {
+	const { formatDateTime } = useText();
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
 	const [searchParams] = useSearchParams();
@@ -58,9 +60,15 @@ export default function MedicalDocumentsListPage() {
 	const [rows, setRows] = React.useState<DocumentRow[]>([]);
 	const [printingId, setPrintingId] = React.useState<string | null>(null);
 
+	// Show the spinner again when the patient changes (adjust state during render).
+	const [prevPatientId, setPrevPatientId] = React.useState(patientId);
+	if (patientId !== prevPatientId) {
+		setPrevPatientId(patientId);
+		if (patientId) setLoading(true);
+	}
+
 	const loadDocuments = React.useCallback(() => {
 		if (!patientId) return;
-		setLoading(true);
 		Promise.all([
 			getPatientById(patientId),
 			getMedicalReports(patientId),
@@ -137,6 +145,12 @@ export default function MedicalDocumentsListPage() {
 		} else {
 			await emailMedicalCertificate(row.id, email);
 		}
+	}
+
+	// The page is always opened from a patient's row (?patient_id=…). Without
+	// one there is nothing to list, so go back to the patient list.
+	if (!patientId) {
+		return <Navigate to="/clinical" replace />;
 	}
 
 	const fullName = patient
@@ -239,9 +253,7 @@ export default function MedicalDocumentsListPage() {
 													)}
 												</Badge>
 											</TableCell>
-											<TableCell>
-												{new Date(row.createdAt).toLocaleString("es-EC")}
-											</TableCell>
+											<TableCell>{formatDateTime(row.createdAt)}</TableCell>
 											<TableCell className="text-right">
 												<div className="flex items-center justify-end gap-1">
 													<SignDocumentButton

@@ -50,25 +50,25 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) envelope.Response {
 	envIDParam := c.Query("environment_id")
 	envID, err := strconv.ParseUint(envIDParam, 10, 32)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid environment_id", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	var user user_models.User
 	if err := h.db.First(&user, userID).Error; err != nil {
 		h.logger.Error("Profile: user not found", zap.Int64("user_id", userID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "User not found", core_errors.ErrUserNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
 	var env user_models.Environment
 	if err := h.db.Preload("Role").Where("id = ? AND user_id = ?", envID, userID).First(&env).Error; err != nil {
 		h.logger.Error("Profile: environment not found", zap.Uint64("env_id", envID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Environment not found", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserEnvironmentNotFound)
 	}
 
 	var company company_models.Company
 	if err := h.db.First(&company, env.CompanyID).Error; err != nil {
 		h.logger.Error("Profile: company not found", zap.Uint("company_id", env.CompanyID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Company not found", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusNotFound, "company.not_found", core_errors.ErrCompanyNotFound)
 	}
 
 	profile := ProfileResponse{
@@ -97,14 +97,14 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) envelope.Response {
 	envIDParam := c.Query("environment_id")
 	envID, err := strconv.ParseUint(envIDParam, 10, 32)
 	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid environment_id", core_errors.ErrInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
 	// Update user email
 	if payload.Email != nil {
 		if err := h.db.Model(&user_models.User{}).Where("id = ?", userID).Update("email", *payload.Email).Error; err != nil {
 			h.logger.Error("Profile: failed to update email", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInvalidRequest)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 	}
 
@@ -112,7 +112,7 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) envelope.Response {
 	if payload.EnvName != nil {
 		if err := h.db.Model(&user_models.Environment{}).Where("id = ? AND user_id = ?", envID, userID).Update("name", *payload.EnvName).Error; err != nil {
 			h.logger.Error("Profile: failed to update environment name", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInvalidRequest)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 	}
 

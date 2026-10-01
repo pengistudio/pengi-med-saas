@@ -6,11 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go.uber.org/zap"
 	"pengi-med-saas/core/auth"
 	user_dto "pengi-med-saas/features/users/dto"
 	user_models "pengi-med-saas/features/users/models"
 	"pengi-med-saas/testutils"
-	"go.uber.org/zap"
 )
 
 func TestLogin_Success(t *testing.T) {

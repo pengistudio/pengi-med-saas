@@ -20,4 +20,14 @@ export default defineConfig([
 			globals: globals.browser,
 		},
 	},
+	{
+		// Playwright tests: fixtures' `use` callback is not a React hook.
+		files: ["e2e/**"],
+		rules: Object.fromEntries(
+			Object.keys(reactHooks.rules).map((rule) => [
+				`react-hooks/${rule}`,
+				"off",
+			]),
+		),
+	},
 ]);

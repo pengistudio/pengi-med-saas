@@ -22,7 +22,6 @@ import {
 	isToday,
 	startOfWeek,
 } from "date-fns";
-import { es } from "date-fns/locale";
 import { CalendarClock, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
 import { useSearchParams } from "react-router";
@@ -105,7 +104,7 @@ export default function AppointmentCalendar() {
 		React.useState<Patient | null>(null);
 	const [pendingRefreshKey, setPendingRefreshKey] = React.useState(0);
 	const { settings } = useTenantSettings();
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	// A phone shows one day (moved by arrows, the week strip or a swipe); a
 	// desktop shows the week.
 	const { isPhone } = useViewport();
@@ -151,9 +150,10 @@ export default function AppointmentCalendar() {
 	const scrollRef = React.useRef<HTMLDivElement>(null);
 	React.useEffect(() => {
 		const hour = isToday(currentDate) ? new Date().getHours() - 1 : 8;
-		scrollRef.current?.scrollTo({
-			top: Math.max(0, hour - START_HOUR) * HOUR_HEIGHT,
-		});
+		if (scrollRef.current) {
+			scrollRef.current.scrollTop =
+				Math.max(0, hour - START_HOUR) * HOUR_HEIGHT;
+		}
 	}, [currentDate]);
 
 	const sensors = useDragSensors();
@@ -346,8 +346,8 @@ export default function AppointmentCalendar() {
 				<div className="flex items-center gap-2 sm:gap-3">
 					<p className="font-medium text-muted-foreground capitalize max-sm:text-sm sm:text-lg">
 						{isPhone
-							? format(currentDate, "EEEE d MMM", { locale: es })
-							: `${format(weekStart, "d MMM", { locale: es })} — ${format(weekEnd, "d MMM yyyy", { locale: es })}`}
+							? formatDate(currentDate, "weekday-day-month")
+							: `${formatDate(weekStart, "day-month")} — ${formatDate(weekEnd, "medium")}`}
 					</p>
 					{isPhone && showPending && (
 						<Button
@@ -379,7 +379,7 @@ export default function AppointmentCalendar() {
 								key={day.toISOString()}
 								type="button"
 								aria-pressed={selected}
-								aria-label={format(day, "EEEE d MMMM", { locale: es })}
+								aria-label={formatDate(day, "full")}
 								onClick={() => setCurrentDate(day)}
 								className={cn(
 									"flex flex-col items-center gap-1 rounded-xl py-2 outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:transition-none",
@@ -390,7 +390,7 @@ export default function AppointmentCalendar() {
 								)}
 							>
 								<span className="text-[11px] uppercase opacity-70">
-									{format(day, "EEEEE", { locale: es })}
+									{formatDate(day, "weekday-narrow")}
 								</span>
 								<span className="text-base font-semibold leading-none">
 									{format(day, "d")}
@@ -431,7 +431,7 @@ export default function AppointmentCalendar() {
 										)}
 									>
 										<p className="text-xs font-medium text-muted-foreground uppercase">
-											{format(day, "EEE", { locale: es })}
+											{formatDate(day, "weekday")}
 										</p>
 										<p
 											className={cn(

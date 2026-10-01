@@ -72,27 +72,47 @@ const InvoiceListPage = () => {
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
-	const fetchInvoices = useCallback(
-		async (p: number, s: string, st: string, silent = false) => {
-			if (!silent) setLoading(true);
-			const res = await getAllInvoices({
+	// Requests the page; a non-silent load clears the spinner the caller set.
+	const loadInvoices = useCallback(
+		(p: number, s: string, st: string, silent = false) => {
+			return getAllInvoices({
 				page: p,
 				limit: PAGE_LIMIT,
 				search: s,
 				status: st === "all" ? undefined : st,
+			}).then((res) => {
+				if (res.success && res.data) {
+					setInvoiceList(res.data.items);
+					setTotalPages(res.data.total_pages);
+				}
+				if (!silent) setLoading(false);
 			});
-			if (res.success && res.data) {
-				setInvoiceList(res.data.items);
-				setTotalPages(res.data.total_pages);
-			}
-			if (!silent) setLoading(false);
 		},
 		[],
 	);
 
+	const fetchInvoices = useCallback(
+		(p: number, s: string, st: string, silent = false) => {
+			if (!silent) setLoading(true);
+			return loadInvoices(p, s, st, silent);
+		},
+		[loadInvoices],
+	);
+
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = useState({ page, search, statusFilter });
+	if (
+		prevQuery.page !== page ||
+		prevQuery.search !== search ||
+		prevQuery.statusFilter !== statusFilter
+	) {
+		setPrevQuery({ page, search, statusFilter });
+		setLoading(true);
+	}
+
 	useEffect(() => {
-		fetchInvoices(page, search, statusFilter);
-	}, [page, search, statusFilter, fetchInvoices]);
+		loadInvoices(page, search, statusFilter);
+	}, [page, search, statusFilter, loadInvoices]);
 
 	// Invoice processing is async (RabbitMQ worker). Poll while any row is in a
 	// transient status so the table reflects progress without a manual reload.

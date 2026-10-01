@@ -93,8 +93,14 @@ const CreateAnnouncement = () => {
 		});
 	}, []);
 
-	React.useEffect(() => {
+	// Clear the users of the previous company (adjust state during render).
+	const [prevTarget, setPrevTarget] = React.useState({ scope, companyId });
+	if (prevTarget.scope !== scope || prevTarget.companyId !== companyId) {
+		setPrevTarget({ scope, companyId });
 		setCompanyUsers([]);
+	}
+
+	React.useEffect(() => {
 		if (scope !== "user" || !companyId) return;
 		let cancelled = false;
 		getCompanyUsers(companyId).then((res) => {

@@ -8,7 +8,6 @@ import {
 	processInvoiceSRI,
 } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
-import { dateParser } from "@/lib/utils";
 
 const RECENT_LIMIT = 5;
 
@@ -20,14 +19,17 @@ const invoiceNumber = (i: Invoice) =>
  * status badge without leaving the dashboard.
  */
 export function RecentInvoicesCard({ canRetry }: { canRetry: boolean }) {
-	const { textGet } = useText();
+	const { textGet, formatDate, formatMoney } = useText();
 	const navigate = useNavigate();
 	const [invoices, setInvoices] = React.useState<Invoice[]>([]);
 
-	const load = React.useCallback(async () => {
-		const res = await getAllInvoices({ limit: RECENT_LIMIT });
-		if (res.success && res.data) setInvoices(res.data.items);
-	}, []);
+	const load = React.useCallback(
+		() =>
+			getAllInvoices({ limit: RECENT_LIMIT }).then((res) => {
+				if (res.success && res.data) setInvoices(res.data.items);
+			}),
+		[],
+	);
 
 	React.useEffect(() => {
 		load();
@@ -74,11 +76,11 @@ export function RecentInvoicesCard({ canRetry }: { canRetry: boolean }) {
 											{patientName}
 										</p>
 										<p className="text-xs text-muted-foreground tabular-nums">
-											{invoiceNumber(invoice)}, {dateParser(invoice.CreatedAt)}
+											{invoiceNumber(invoice)}, {formatDate(invoice.CreatedAt)}
 										</p>
 									</div>
 									<span className="text-sm font-semibold tabular-nums">
-										${invoice.total.toFixed(2)}
+										{formatMoney(invoice.total)}
 									</span>
 									<InvoiceStatusBadge
 										status={invoice.status}

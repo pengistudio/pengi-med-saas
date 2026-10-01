@@ -1,4 +1,4 @@
-import { useText } from "@pengi/shared";
+import { parseDateOnly, useText } from "@pengi/shared";
 import { differenceInCalendarDays } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -11,8 +11,9 @@ export function TaskDueLabel({
 	className?: string;
 }) {
 	const { textGet } = useText();
-	if (!dueDate) return null;
-	const days = differenceInCalendarDays(new Date(dueDate), new Date());
+	const due = parseDateOnly(dueDate);
+	if (!due) return null;
+	const days = differenceInCalendarDays(due, new Date());
 	const key =
 		days < 0
 			? "dashboard.tasks.due.overdue"
@@ -33,7 +34,7 @@ export function TaskDueLabel({
 				className,
 			)}
 		>
-			{textGet(key).replace("{count}", String(Math.abs(days)))}
+			{textGet(key, { count: Math.abs(days) })}
 		</span>
 	);
 }

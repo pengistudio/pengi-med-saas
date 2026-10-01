@@ -47,6 +47,8 @@ just lint                          # Auto-format all TS/JS
 just setup                         # Configure git hooks (run once after cloning)
 ```
 
+`node_modules` is installed from the Linux dev containers and shared with the host through the bind mount: never run `pnpm install`/`pnpm run` on the host (it reinstalls for the host OS and breaks the containers). Run JS tooling inside `pengi-web-dev` (repo at `/workspace`); the pre-commit hook does, so the stack must be up to commit.
+
 ### Infrastructure dependencies (for local backend dev without Docker)
 ```bash
 docker compose -f docker-compose.dev.yaml up -d db rabbitmq gotenberg sri-xml-signer
@@ -91,7 +93,7 @@ Justfile            # Dev shortcuts
 
 ### Request/Response — the envelope pattern
 
-Every handler **must** return `envelope.Response`, never write directly to `gin.Context`. Routes are wrapped with `envelope.Handle()`, which translates the i18n key in `Message` and serializes to JSON.
+Every handler **must** return `envelope.Response`, never write directly to `gin.Context`. Routes are wrapped with `envelope.Handle()`, which translates the i18n key in `Message` and serializes to JSON. Code that can't return a `Response` — middleware and handlers that stream files — writes errors with `envelope.Abort(c, resp)` (also stops the chain) or `envelope.Write(c, resp)`, never `c.JSON`/`c.AbortWithStatusJSON`, so they're translated too. Messages stay plain strings; the catalog test is the guard (`docs/adr/0004-mensajes-de-respuesta-sin-tipar.md`).
 
 ```go
 // Handler definition
@@ -274,10 +276,16 @@ export interface Invoice extends BaseModel {   // BaseModel has ID, CreatedAt, U
 ### i18n
 
 ```typescript
-const { textGet } = useText();   // from @pengi/shared (never use `t` or `useTranslation`)
+const { textGet, formatDate, formatMoney } = useText();   // from @pengi/shared (never use `t` or `useTranslation`)
 const label = textGet("billing.invoice.title");
 // Missing keys render as *billing.invoice.title* — no fallback needed
+textGet("billing.sri.status.expires_on", { date, days });   // fills {date} and {days}
+textGet("dashboard.tasks.total", { count });                // reads dashboard.tasks.total.one / .other
+formatDate(invoice.CreatedAt, "long");                      // also formatDateTime, formatTime, formatRelative
+formatMoney(invoice.total);                                 // USD, formatted for the language
 ```
+
+`useText` is the only place that interpolates or formats: it follows the interface language (`es`→`es-EC`, `en`→`en-US`, see `CONTEXT.md`). Never write `toLocaleDateString`, `Intl.*Format`, `.replace("{x}", …)` or `$${x.toFixed(2)}` — a test in `@pengi/shared` (`formatting-guard.test.ts`) fails on them. Column definitions (memoized, no hooks) render `<Money>` / `<FormattedDate>` from `@/components/custom/formatted`.
 
 Never hardcode user-visible strings. Every label, placeholder, and message must be an i18n key. Add new keys to **both** `apps/api/i18n/messages/messages_es.json` and `messages_en.json`.
 

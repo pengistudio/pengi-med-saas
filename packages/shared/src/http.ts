@@ -55,6 +55,21 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 	notifyError?: boolean | string;
 }
 
+/**
+ * The envelope of a failed request. A download (`responseType: "blob"`) gets
+ * its JSON error body as a Blob; read it so the user sees the API's message.
+ */
+async function readErrorBody(
+	data: BackendResponse<ResponseError> | Blob | undefined,
+): Promise<BackendResponse<ResponseError> | undefined> {
+	if (!(data instanceof Blob)) return data;
+	try {
+		return JSON.parse(await data.text()) as BackendResponse<ResponseError>;
+	} catch {
+		return undefined;
+	}
+}
+
 export class HttpService {
 	private client: AxiosInstance;
 
@@ -190,9 +205,11 @@ export class HttpService {
 			let errorObj: ErrorResponse;
 
 			if (axios.isAxiosError(error)) {
-				const axiosError = error as AxiosError<BackendResponse<ResponseError>>;
+				const axiosError = error as AxiosError<
+					BackendResponse<ResponseError> | Blob
+				>;
 				const errorResponse = axiosError.response;
-				const responseData = errorResponse?.data;
+				const responseData = await readErrorBody(errorResponse?.data);
 				const errorMessage =
 					responseData?.message || axiosError.message || "Unknown error";
 

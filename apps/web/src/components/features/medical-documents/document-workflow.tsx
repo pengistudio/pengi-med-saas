@@ -23,7 +23,7 @@ export function useSavedBaseline<T extends FieldValues>(
 
 /** Who signed and when, as wrapping text: signer names are often long. */
 function SignedBy({ signature }: { signature: DocumentSignature }) {
-	const { textGet } = useText();
+	const { textGet, formatDateTime } = useText();
 	return (
 		<>
 			{textGet("signature.signed_by")}{" "}
@@ -32,10 +32,7 @@ function SignedBy({ signature }: { signature: DocumentSignature }) {
 			</span>
 			{signature.signed_at && (
 				<span className="block tabular-nums">
-					{new Date(signature.signed_at).toLocaleString("es-EC", {
-						dateStyle: "short",
-						timeStyle: "short",
-					})}
+					{formatDateTime(signature.signed_at)}
 				</span>
 			)}
 		</>

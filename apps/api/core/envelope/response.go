@@ -13,10 +13,6 @@ type Response struct {
 }
 
 func New(code int, message string, data interface{}) Response {
-	if message == "" {
-		message = http.StatusText(code)
-	}
-
 	return Response{
 		Code:    code,
 		Message: message,

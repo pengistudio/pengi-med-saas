@@ -13,9 +13,7 @@ export default function BoardProgress({ tasks }: { tasks: Task[] }) {
 	const summary =
 		total === 0
 			? textGet("tasks.board.empty")
-			: textGet("tasks.board.summary")
-					.replace("{done}", String(done))
-					.replace("{total}", String(total));
+			: textGet("tasks.board.summary", { done, total });
 
 	return (
 		<SegmentedProgress

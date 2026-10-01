@@ -122,18 +122,6 @@ const CreateCompany = () => {
 		});
 	}, []);
 
-	// Step 3: auto-fetch link when we arrive
-	React.useEffect(() => {
-		if (step !== "acceso" || !company) return;
-		setLinkLoading(true);
-		getCompanySignupToken(company.ID).then((res) => {
-			if (res.success && res.data) {
-				setSignupLink(companySignupLink(res.data.token));
-			}
-			setLinkLoading(false);
-		});
-	}, [step, company]);
-
 	async function handleCompanySubmit(values: z.infer<typeof companySchema>) {
 		setLoading(true);
 		const res = await companies.create(values);
@@ -156,6 +144,13 @@ const CreateCompany = () => {
 		setLoading(false);
 		if (res.success) {
 			setStep("acceso");
+			// Step 3: fetch the signup link as we arrive.
+			setLinkLoading(true);
+			const linkRes = await getCompanySignupToken(company.ID);
+			if (linkRes.success && linkRes.data) {
+				setSignupLink(companySignupLink(linkRes.data.token));
+			}
+			setLinkLoading(false);
 		}
 	}
 

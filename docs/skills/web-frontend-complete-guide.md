@@ -203,8 +203,21 @@ const { textGet } = useText();
 <Text uuid="item.create.button" /> // equivalente en JSX
 ```
 
-- Hook `useText()` y función `textGet(key)` (no `t` ni `useTranslation`).
+- Hook `useText()` y función `textGet(key, values?)` (no `t` ni `useTranslation`).
 - Una key inexistente se renderiza como `*key*`.
+- Interpolación: `textGet("k", { date, days })` llena `{date}` y `{days}`;
+  `<Text uuid="k" values={{ count }} />` en JSX.
+- Plural: con `count`, `textGet("k", { count })` lee `k.one` / `k.other`.
+- Fechas y montos: `formatDate(v, "medium" | "long" | "full" | "day-month" |
+  "month-year")`, `formatDateTime`, `formatTime`, `formatRelative` y
+  `formatMoney` (USD) del mismo `useText()`. Siguen el idioma de la interfaz
+  (`es`→`es-EC`, `en`→`en-US`) y devuelven `""` con un valor vacío o inválido.
+  Para una fecha que pertenece al calendario de un lugar (vencimiento de
+  suscripciones), `formatDate(v, "medium", { timeZone: "America/Guayaquil" })`.
+  Nunca `toLocaleDateString`, `Intl.*Format`, `.replace("{x}", …)` ni
+  `$${x.toFixed(2)}`: `formatting-guard.test.ts` falla.
+- En definiciones de columnas (sin hooks) usa `<Money amount={…} />` y
+  `<FormattedDate value={…} />` de `@/components/custom/formatted`.
 - Las keys viven en el backend: `apps/api/i18n/messages/messages_es.json` y
   `messages_en.json`, array plano:
 

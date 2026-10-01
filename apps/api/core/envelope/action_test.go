@@ -69,3 +69,34 @@ func TestHandle_NotModifiedHasNoBody(t *testing.T) {
 		t.Errorf("status = %d, body = %q", w.Code, w.Body.String())
 	}
 }
+
+func TestAbort_TranslatesAndStopsTheChain(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.Use(func(c *gin.Context) {
+		c.Set("translator", func(key string) string {
+			if key == "error.unauthorized" {
+				return "No autorizado"
+			}
+			return key
+		})
+	})
+	r.Use(func(c *gin.Context) {
+		envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.NewAppError("E-X-401", "English default.")))
+	})
+	reached := false
+	r.GET("/", func(c *gin.Context) { reached = true })
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/", nil))
+
+	if reached {
+		t.Error("the handler after Abort ran")
+	}
+	var body map[string]any
+	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode %q: %v", w.Body.String(), err)
+	}
+	if w.Code != http.StatusUnauthorized || body["message"] != "No autorizado" {
+		t.Errorf("status = %d, message = %v", w.Code, body["message"])
+	}
+}

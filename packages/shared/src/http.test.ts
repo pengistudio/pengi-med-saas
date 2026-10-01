@@ -78,6 +78,31 @@ describe("HttpService (the API envelope)", () => {
 		expect(toast.error).not.toHaveBeenCalled();
 	});
 
+	it("reads the error envelope of a failed download (blob body)", async () => {
+		const body = new Blob(
+			[
+				JSON.stringify({
+					code: 404,
+					message: "Documento no encontrado",
+					data: { error_code: "E-CLIN-010", error_message: "No existe" },
+				}),
+			],
+			{ type: "application/json" },
+		);
+		const res = await api(404, body).get("/records/1/pdf", {
+			responseType: "blob",
+			notifyError: true,
+		});
+
+		expect(res).toMatchObject({
+			success: false,
+			code: 404,
+			message: "Documento no encontrado",
+			data: { error_code: "E-CLIN-010" },
+		});
+		expect(toast.error).toHaveBeenCalledWith("Documento no encontrado");
+	});
+
 	it("uses a given toast text instead of the API's message", async () => {
 		await api(200, { code: 200, message: "ok", data: null }).delete(
 			"/plans/1",

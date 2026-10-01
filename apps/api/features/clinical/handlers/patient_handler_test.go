@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/testutils"
-	"go.uber.org/zap"
 )
 
 func TestCreatePatient_Success(t *testing.T) {
@@ -20,7 +20,7 @@ func TestCreatePatient_Success(t *testing.T) {
 	logger := zap.NewNop()
 
 	// Create test tenant with unique slug and token
-	now := time.Now().UnixNano() % 1000000  // Use last 6 digits to keep slug short
+	now := time.Now().UnixNano() % 1000000 // Use last 6 digits to keep slug short
 	slug := fmt.Sprintf("pat-create-s-%d", now)
 	token := fmt.Sprintf("tok-create-s-%d", now)
 	tenant := &tenant_models.Tenant{
@@ -77,7 +77,7 @@ func TestCreatePatient_MissingFields(t *testing.T) {
 	logger := zap.NewNop()
 
 	// Create test tenant with unique slug and token
-	now := time.Now().UnixNano() % 1000000  // Use last 6 digits to keep slug short
+	now := time.Now().UnixNano() % 1000000 // Use last 6 digits to keep slug short
 	slug := fmt.Sprintf("pat-missing-%d", now)
 	token := fmt.Sprintf("tok-missing-%d", now)
 	tenant := &tenant_models.Tenant{
@@ -96,8 +96,8 @@ func TestCreatePatient_MissingFields(t *testing.T) {
 	// Create patient payload WITHOUT first_name (required field)
 	docNum := fmt.Sprintf("DOC-M-%d", now)
 	payload := clinical_dto.CreatePatientDTO{
-		Document:    docNum,
-		Phone:       "5551234567",
+		Document: docNum,
+		Phone:    "5551234567",
 		// FirstName is missing (required)
 		LastName:    "Doe",
 		Institution: "Hospital Central",
@@ -130,7 +130,7 @@ func TestGetAllPatients_TenantIsolation(t *testing.T) {
 	logger := zap.NewNop()
 
 	// Create two test tenants with unique slugs and tokens
-	now := time.Now().UnixNano() % 1000000  // Use last 6 digits to keep slug short
+	now := time.Now().UnixNano() % 1000000 // Use last 6 digits to keep slug short
 	tenant1 := &tenant_models.Tenant{
 		Name:         "Tenant 1",
 		Slug:         fmt.Sprintf("pat-t1-%d", now),

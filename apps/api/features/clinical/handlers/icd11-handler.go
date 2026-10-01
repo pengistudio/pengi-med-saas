@@ -52,7 +52,7 @@ type icd11ApiResponse struct {
 func (h *ICD11Handler) Search(c *gin.Context) envelope.Response {
 	q := c.Query("q")
 	if q == "" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "query param 'q' is required", core_errors.ErrClinicalInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
 	lang := c.Query("lang")
@@ -69,7 +69,7 @@ func (h *ICD11Handler) Search(c *gin.Context) envelope.Response {
 	req, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, searchURL+"?"+params.Encode(), nil)
 	if err != nil {
 		h.logger.Error("Failed to build ICD-11 request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "icd11 request error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	req.Header.Set("Api-Version", "v2")
 	req.Header.Set("Accept-Language", lang)
@@ -77,20 +77,20 @@ func (h *ICD11Handler) Search(c *gin.Context) envelope.Response {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		h.logger.Error("Failed to call ICD-11 API", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusServiceUnavailable, "icd11 unavailable", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusServiceUnavailable, "clinical.icd11.error.unavailable", core_errors.ErrClinicalICD11Unavailable)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		h.logger.Error("Failed to read ICD-11 response", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "icd11 read error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	var apiResp icd11ApiResponse
 	if err := json.Unmarshal(body, &apiResp); err != nil {
 		h.logger.Error("Failed to parse ICD-11 response", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "icd11 parse error", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	results := make([]icd11SearchResult, 0, len(apiResp.DestinationEntities))

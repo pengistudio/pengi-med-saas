@@ -46,7 +46,7 @@ import {
 	type SubscriptionPaymentRecord,
 } from "@/api/subscription-service";
 import { PageHeader } from "@/components/custom/page-header";
-import { cn, dateParser } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 // ─── Privacy Modal ────────────────────────────────────────────────────────────
 
@@ -204,7 +204,7 @@ function PlanCard({
 	onCancelChange: () => void;
 	cancellingChange: boolean;
 }) {
-	const { textGet } = useText();
+	const { textGet, formatMoney } = useText();
 	const isCurrent = plan.code === currentPlanCode;
 	const isPendingTarget = plan.code === pendingChangePlanCode;
 	const hasPendingChange = pendingChangePlanCode !== "";
@@ -295,7 +295,7 @@ function PlanCard({
 				<div className="pt-1">
 					<div className="flex items-baseline gap-1">
 						<span className="text-3xl font-bold tabular-nums">
-							${perMonth.toFixed(2)}
+							{formatMoney(perMonth)}
 						</span>
 						<span className="text-sm text-muted-foreground">
 							{textGet("subscription.plans.per_month")}
@@ -305,7 +305,7 @@ function PlanCard({
 						<p className="text-xs text-muted-foreground mt-0.5">
 							{textGet("subscription.plans.total")}{" "}
 							<span className="font-medium text-foreground">
-								${selectedPricing.price.toFixed(2)}
+								{formatMoney(selectedPricing.price)}
 							</span>
 						</p>
 					)}
@@ -430,7 +430,7 @@ function PlanCard({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const MySubscriptionPage = () => {
-	const { textGet } = useText();
+	const { textGet, formatDate, formatMoney } = useText();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const paymentSuccess = searchParams.get("status") === "success";
@@ -444,17 +444,21 @@ const MySubscriptionPage = () => {
 	const [payingKey, setPayingKey] = React.useState<string | null>(null);
 	const [cancellingChange, setCancellingChange] = React.useState(false);
 
-	const fetchData = React.useCallback(async () => {
-		const [subRes, paymentsRes, plansRes] = await Promise.all([
-			getMySubscription(),
-			getSubscriptionPayments(),
-			getAvailablePlans(),
-		]);
-		if (subRes.success && subRes.data) setSub(subRes.data);
-		if (paymentsRes.success && paymentsRes.data) setPayments(paymentsRes.data);
-		if (plansRes.success && plansRes.data) setPlans(plansRes.data);
-		setLoading(false);
-	}, []);
+	const fetchData = React.useCallback(
+		() =>
+			Promise.all([
+				getMySubscription(),
+				getSubscriptionPayments(),
+				getAvailablePlans(),
+			]).then(([subRes, paymentsRes, plansRes]) => {
+				if (subRes.success && subRes.data) setSub(subRes.data);
+				if (paymentsRes.success && paymentsRes.data)
+					setPayments(paymentsRes.data);
+				if (plansRes.success && plansRes.data) setPlans(plansRes.data);
+				setLoading(false);
+			}),
+		[],
+	);
 
 	React.useEffect(() => {
 		fetchData();
@@ -519,10 +523,9 @@ const MySubscriptionPage = () => {
 									<StatusBadge status={sub.status} />
 								</div>
 								<p className="text-sm">
-									{textGet("subscription.card.expires_on").replace(
-										"{date}",
-										dateParser(sub.expires_at, { dateStyle: "long" }),
-									)}{" "}
+									{textGet("subscription.card.expires_on", {
+										date: formatDate(sub.expires_at, "long"),
+									})}{" "}
 									<span
 										className={cn("tabular-nums", daysColor(sub.days_left))}
 									>
@@ -539,7 +542,7 @@ const MySubscriptionPage = () => {
 										{textGet(
 											`subscription.plans.period.${sub.last_payment_months}`,
 										)}
-										, ${sub.last_payment_amount.toFixed(2)}
+										, {formatMoney(sub.last_payment_amount)}
 									</p>
 								)}
 							</div>
@@ -552,16 +555,15 @@ const MySubscriptionPage = () => {
 								</div>
 							) : (
 								<p className="text-sm text-muted-foreground sm:max-w-xs sm:text-right">
-									{textGet("subscription.card.renew_from").replace(
-										"{date}",
-										dateParser(
+									{textGet("subscription.card.renew_from", {
+										date: formatDate(
 											new Date(
 												new Date(sub.expires_at).getTime() -
 													RENEW_WINDOW_DAYS * 86_400_000,
 											),
-											{ dateStyle: "long" },
+											"long",
 										),
-									)}
+									})}
 								</p>
 							)}
 						</div>
@@ -664,7 +666,7 @@ const MySubscriptionPage = () => {
 											className={cn(inactive && "text-muted-foreground")}
 										>
 											<TableCell className="text-sm">
-												{dateParser(p.CreatedAt)}
+												{formatDate(p.CreatedAt)}
 											</TableCell>
 											<TableCell
 												className={cn(
@@ -672,7 +674,7 @@ const MySubscriptionPage = () => {
 													!inactive && "font-medium",
 												)}
 											>
-												${p.amount.toFixed(2)}
+												{formatMoney(p.amount)}
 											</TableCell>
 											<TableCell>
 												<PaymentStatus status={p.status} />

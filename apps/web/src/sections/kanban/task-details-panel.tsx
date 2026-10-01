@@ -57,20 +57,6 @@ function getInitials(name?: string): string {
 		.slice(0, 2);
 }
 
-function formatDate(dateString?: string | null): string {
-	if (!dateString) return "—";
-	try {
-		const date = new Date(dateString);
-		return date.toLocaleDateString("es-ES", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
-	} catch {
-		return "—";
-	}
-}
-
 export default function TaskDetailsPanel({
 	open,
 	onOpenChange,
@@ -78,7 +64,7 @@ export default function TaskDetailsPanel({
 	onEdit,
 	onDelete,
 }: TaskDetailsPanelProps) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const { environment } = useSessionStore();
 
 	if (!task) return null;
@@ -151,7 +137,7 @@ export default function TaskDetailsPanel({
 										{textGet("tasks.task.due_date")}
 									</h4>
 									<p className="text-sm font-medium text-foreground">
-										{formatDate(task.due_date)}
+										{formatDate(task.due_date, "long") || "—"}
 									</p>
 								</div>
 							)}
@@ -163,7 +149,7 @@ export default function TaskDetailsPanel({
 										{textGet("tasks.task.created_at")}
 									</h4>
 									<p className="text-sm font-medium text-foreground">
-										{formatDate(task.created_at)}
+										{formatDate(task.created_at, "long") || "—"}
 									</p>
 								</div>
 
@@ -193,7 +179,7 @@ export default function TaskDetailsPanel({
 									{textGet("tasks.task.updated_at")}
 								</h4>
 								<p className="text-sm font-medium text-foreground">
-									{formatDate(task.updated_at)}
+									{formatDate(task.updated_at, "long") || "—"}
 								</p>
 							</div>
 						</div>

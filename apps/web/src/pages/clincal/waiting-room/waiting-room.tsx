@@ -41,7 +41,7 @@ import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
-import { cn, dateParser } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type WaitingStatus = "scheduled" | "arrived" | "in_consultation" | "completed";
 
@@ -145,10 +145,7 @@ function AppointmentCard({
 					)}
 					{late >= LATE_AFTER_MINUTES && (
 						<p className="mt-0.5 text-xs font-medium text-destructive">
-							{textGet("waiting_room.card.late").replace(
-								"{count}",
-								String(late),
-							)}
+							{textGet("waiting_room.card.late", { count: late })}
 						</p>
 					)}
 				</div>
@@ -424,7 +421,7 @@ function TvScreenPopover() {
 }
 
 const WaitingRoomPage = () => {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const now = useNow();
 	const [appointments, setAppointments] = React.useState<Appointment[]>([]);
 	const [loading, setLoading] = React.useState(true);
@@ -436,8 +433,9 @@ const WaitingRoomPage = () => {
 		useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
 	);
 
-	const load = React.useCallback(() => {
-		setLoading(true);
+	// Requests the list without flagging loading; callers set it first
+	// (it starts true for the initial load).
+	const fetchAppointments = React.useCallback(() => {
 		getTodayAppointments()
 			.then((res) => {
 				if (res.success && res.data) setAppointments(res.data as Appointment[]);
@@ -445,9 +443,14 @@ const WaitingRoomPage = () => {
 			.finally(() => setLoading(false));
 	}, []);
 
+	const load = React.useCallback(() => {
+		setLoading(true);
+		fetchAppointments();
+	}, [fetchAppointments]);
+
 	React.useEffect(() => {
-		load();
-	}, [load]);
+		fetchAppointments();
+	}, [fetchAppointments]);
 
 	const handleMove = async (id: number, status: WaitingStatus) => {
 		const previous = appointments;
@@ -497,11 +500,12 @@ const WaitingRoomPage = () => {
 	const summary =
 		total === 0
 			? textGet("waiting_room.summary.empty")
-			: textGet("waiting_room.summary")
-					.replace("{done}", String(byStatus.completed.length))
-					.replace("{total}", String(total));
+			: textGet("waiting_room.summary", {
+					done: byStatus.completed.length,
+					total,
+				});
 
-	const today = dateParser(new Date(), { dateStyle: "full" });
+	const today = formatDate(new Date(), "full");
 
 	return (
 		<div className="space-y-5">

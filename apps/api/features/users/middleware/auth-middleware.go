@@ -15,34 +15,34 @@ func AuthMiddleware() gin.HandlerFunc {
 		// 1) Verificar que el header Authorization esté presente
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Authorization header missing", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		// 2) Verificar que tenga el formato "Bearer {token}"
 		if !strings.HasPrefix(authHeader, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid authorization header format", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		// 3) Extraer el token
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 		if token == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Token is empty", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		// 4) Validar el token
 		claims, err := auth.ParseToken(token)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired token", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		// 5) Only clinic access tokens: not refresh or exchange tokens, and not
 		// backoffice tokens (same signing key, different audience).
 		if claims["type"] != "access_token" || auth.IsBackofficeToken(claims) {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired token", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
@@ -51,13 +51,13 @@ func AuthMiddleware() gin.HandlerFunc {
 		// We expect "userId" (float64) and "username" (string).
 		userID, ok := claims["userId"].(float64)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid token payload: userId missing", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		username, ok := claims["username"].(string)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid token payload: username missing", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
@@ -91,25 +91,25 @@ func ExchangeAuthMiddleware() gin.HandlerFunc {
 		}
 
 		if token == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Exchange token missing", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		claims, err := auth.ParseExchangeToken(token)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid or expired exchange token", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		userID, ok := claims["userId"].(float64)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid token payload: userId missing", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 
 		username, ok := claims["username"].(string)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "Invalid token payload: username missing", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 

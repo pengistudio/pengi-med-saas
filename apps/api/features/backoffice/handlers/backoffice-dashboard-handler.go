@@ -47,27 +47,27 @@ func (h *BackofficeDashboardHandler) GetDashboardStats(c *gin.Context) envelope.
 
 	if err := h.db.Model(&company_models.Company{}).Count(&stats.TotalCompanies).Error; err != nil {
 		h.logger.Error("Failed to count companies", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining stats", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if err := h.db.Model(&backoffice_models.BackofficeUser{}).Count(&stats.TotalUsers).Error; err != nil {
 		h.logger.Error("Failed to count users", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining stats", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if err := h.db.Model(&company_models.Plan{}).Count(&stats.TotalPlans).Error; err != nil {
 		h.logger.Error("Failed to count plans", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining stats", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if err := h.db.Model(&company_models.Feature{}).Count(&stats.TotalFeatures).Error; err != nil {
 		h.logger.Error("Failed to count features", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining stats", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if err := h.db.Model(&company_models.Subscription{}).Where("status = ?", "active").Count(&stats.ActiveSubscriptions).Error; err != nil {
 		h.logger.Error("Failed to count active subscriptions", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining stats", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// Recent 5 companies with active subscription

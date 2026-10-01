@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { downloadInvoiceRide, type Invoice } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
+import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 import { selectColumn } from "@/components/custom/table/select-column";
 
@@ -115,12 +116,8 @@ export function getInvoiceColumns(
 			),
 			cell: ({ row }) => {
 				const amount = parseFloat(row.getValue("total"));
-				const formatted = new Intl.NumberFormat("en-US", {
-					style: "currency",
-					currency: "USD",
-				}).format(amount);
 				return (
-					<span className="font-mono text-right font-medium">{formatted}</span>
+					<Money amount={amount} className="font-mono text-right font-medium" />
 				);
 			},
 		},

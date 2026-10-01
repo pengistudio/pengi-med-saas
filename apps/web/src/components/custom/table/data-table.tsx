@@ -135,11 +135,7 @@ export function DataTable<TData, TValue>({
 				// Same height as the search row, so the table doesn't jump.
 				<div className="flex min-h-[4.25rem] flex-wrap items-center gap-2 py-4">
 					<span className="text-sm font-medium">
-						{textGet(
-							selectedCount === 1
-								? "table.selection.count.one"
-								: "table.selection.count.other",
-						).replace("{count}", String(selectedCount))}
+						{textGet("table.selection.count", { count: selectedCount })}
 					</span>
 					<Button
 						variant="ghost"

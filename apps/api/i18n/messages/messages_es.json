@@ -4392,6 +4392,38 @@
         "value": "Notas"
     },
     {
+        "key": "clinical.prescription.whatsapp_message.title",
+        "value": "Receta Médica"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.patient",
+        "value": "Paciente: {name}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.doctor",
+        "value": "Médico: {name}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.date",
+        "value": "Fecha: {date}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.medications",
+        "value": "Medicamentos:"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.item_detail",
+        "value": "Dosis: {dose} | Frecuencia: {frequency} | Duración: {duration}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.item_notes",
+        "value": "Notas: {notes}"
+    },
+    {
+        "key": "clinical.prescription.whatsapp_message.indications",
+        "value": "Indicaciones:"
+    },
+    {
         "key": "clinical.patient_card.has_allergies",
         "value": "Alergias"
     },
@@ -5641,7 +5673,7 @@
     },
     {
         "key": "notification.clinical.draft.stale",
-        "value": "Tienes una consulta sin guardar para {{patient_name}} desde hace {{elapsed}}."
+        "value": "Tienes una consulta sin guardar para {patient_name} desde hace {elapsed}."
     },
     {
         "key": "notification.bell.title",
@@ -5769,7 +5801,7 @@
     },
     {
         "key": "notification.announcement",
-        "value": "{{title}}: {{body}}"
+        "value": "{title}: {body}"
     },
     {
         "key": "backoffice.announcement.list.success",
@@ -6682,5 +6714,97 @@
     {
         "key": "E-BO-010",
         "value": "La firma del webhook no es válida."
+    },
+    {
+        "key": "backoffice.subscription.invalid_date",
+        "value": "Formato de fecha inválido, usa AAAA-MM-DD."
+    },
+    {
+        "key": "backoffice.announcement.no_recipients",
+        "value": "El destino del anuncio no tiene destinatarios."
+    },
+    {
+        "key": "backoffice.announcement.not_cancellable",
+        "value": "Solo se pueden cancelar anuncios programados."
+    },
+    {
+        "key": "E-BO-011",
+        "value": "Rol no encontrado."
+    },
+    {
+        "key": "integrations.google.error.not_configured",
+        "value": "La integración con Google no está configurada en el servidor. Contacta al soporte."
+    },
+    {
+        "key": "integrations.google.error.not_connected",
+        "value": "Google Calendar no está conectado."
+    },
+    {
+        "key": "clinical.appointment.delete.invalid_status",
+        "value": "Solo se pueden eliminar citas agendadas, canceladas o completadas."
+    },
+    {
+        "key": "clinical.prescription_template.error.file_required",
+        "value": "Selecciona el archivo de la plantilla."
+    },
+    {
+        "key": "clinical.prescription.error.not_found",
+        "value": "Esta consulta no tiene receta."
+    },
+    {
+        "key": "clinical.icd11.error.unavailable",
+        "value": "El servicio de CIE-11 no está disponible. Inténtalo más tarde."
+    },
+    {
+        "key": "E-CLIN-015",
+        "value": "Cita no encontrada."
+    },
+    {
+        "key": "E-CLIN-016",
+        "value": "Esta consulta no tiene receta."
+    },
+    {
+        "key": "E-CLIN-017",
+        "value": "El servicio de CIE-11 no está disponible. Inténtalo más tarde."
+    },
+    {
+        "key": "subscription.error.inactive",
+        "value": "Tu empresa no tiene una suscripción activa. Renueva tu plan para continuar."
+    },
+    {
+        "key": "subscription.error.feature_not_included",
+        "value": "Tu plan no incluye esta funcionalidad. Mejora tu plan para usarla."
+    },
+    {
+        "key": "permission.error.insufficient",
+        "value": "Tu rol no tiene permiso para realizar esta acción."
+    },
+    {
+        "key": "E-PERM-002",
+        "value": "Tu plan no incluye esta funcionalidad."
+    },
+    {
+        "key": "E-PERM-003",
+        "value": "No tienes los permisos necesarios."
+    },
+    {
+        "key": "billing.sri.logo.file_required",
+        "value": "Elige una imagen PNG o JPG para el logo."
+    },
+    {
+        "key": "tenant.display_token.error.invalid",
+        "value": "El código de la pantalla no es válido. Vuelve a vincular la pantalla."
+    },
+    {
+        "key": "auth.signup.company.invalid_token",
+        "value": "El enlace de invitación no es válido o ha expirado. Pide uno nuevo al administrador de tu empresa."
+    },
+    {
+        "key": "auth.reset_password.invalid_token",
+        "value": "El enlace para restablecer la contraseña es inválido o expiró. Solicita uno nuevo."
+    },
+    {
+        "key": "E-USR-002",
+        "value": "Entorno no encontrado."
     }
 ]

@@ -41,23 +41,35 @@ const CatalogItemList = () => {
 	const [search, setSearch] = React.useState("");
 	const [searchInput, setSearchInput] = React.useState("");
 
-	const fetchItems = React.useCallback(async (p: number, s: string) => {
+	// Requests the page without flagging loading; callers set it first.
+	// (.then instead of await: the React Compiler lint treats every setState in
+	// an async function as synchronous.)
+	const loadItems = React.useCallback(
+		(p: number, s: string) =>
+			getAllCatalogItems({
+				page: p,
+				limit: PAGE_LIMIT,
+				search: s,
+			}).then((res) => {
+				if (res.success && res.data) {
+					setItemList(res.data.items);
+					setTotalPages(res.data.total_pages);
+				}
+				setLoading(false);
+			}),
+		[],
+	);
+
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = React.useState({ page, search });
+	if (prevQuery.page !== page || prevQuery.search !== search) {
+		setPrevQuery({ page, search });
 		setLoading(true);
-		const res = await getAllCatalogItems({
-			page: p,
-			limit: PAGE_LIMIT,
-			search: s,
-		});
-		if (res.success && res.data) {
-			setItemList(res.data.items);
-			setTotalPages(res.data.total_pages);
-		}
-		setLoading(false);
-	}, []);
+	}
 
 	React.useEffect(() => {
-		fetchItems(page, search);
-	}, [page, search, fetchItems]);
+		loadItems(page, search);
+	}, [page, search, loadItems]);
 
 	// Debounce search
 	React.useEffect(() => {
@@ -68,8 +80,9 @@ const CatalogItemList = () => {
 		return () => clearTimeout(timer);
 	}, [searchInput]);
 
-	const loadItems = async () => {
-		fetchItems(page, search);
+	const reloadItems = async () => {
+		setLoading(true);
+		loadItems(page, search);
 	};
 
 	const handleEdit = (id: number) => {
@@ -79,7 +92,7 @@ const CatalogItemList = () => {
 	const handleDeleteRow = async (id: number) => {
 		const res = await deleteCatalogItem(id);
 		if (res.success) {
-			loadItems();
+			reloadItems();
 		}
 	};
 
@@ -88,7 +101,7 @@ const CatalogItemList = () => {
 		for (const id of rows) {
 			await deleteCatalogItem(Number(id));
 		}
-		loadItems();
+		reloadItems();
 	};
 
 	return (

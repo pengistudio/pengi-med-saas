@@ -86,25 +86,36 @@ const Clinical = () => {
 	};
 
 	const fetchPatients = React.useCallback(
-		async (p: number, s: string, sv: SortValue) => {
-			setLoading(true);
+		(p: number, s: string, sv: SortValue) => {
 			const { sort_by, sort_order } = parseSortValue(sv);
-			const res = await getAllPatientsWithLastFollowUp({
+			return getAllPatientsWithLastFollowUp({
 				page: p,
 				limit: PAGE_LIMIT,
 				search: s,
 				sort_by,
 				sort_order,
+			}).then((res) => {
+				if (res.success && res.data) {
+					setPatients(res.data.items);
+					setTotal(res.data.total);
+					setTotalPages(res.data.total_pages);
+				}
+				setLoading(false);
 			});
-			if (res.success && res.data) {
-				setPatients(res.data.items);
-				setTotal(res.data.total);
-				setTotalPages(res.data.total_pages);
-			}
-			setLoading(false);
 		},
 		[],
 	);
+
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = React.useState({ page, search, sortValue });
+	if (
+		prevQuery.page !== page ||
+		prevQuery.search !== search ||
+		prevQuery.sortValue !== sortValue
+	) {
+		setPrevQuery({ page, search, sortValue });
+		setLoading(true);
+	}
 
 	React.useEffect(() => {
 		fetchPatients(page, search, sortValue);

@@ -84,13 +84,10 @@ export function TodayAgenda({
 		(a) => a.status !== "completed" && timeToMinutes(a.end_time) > now,
 	)?.id;
 
-	const summary = textGet(
-		appointments.length === 1
-			? "dashboard.agenda.summary.one"
-			: "dashboard.agenda.summary.other",
-	)
-		.replace("{count}", String(appointments.length))
-		.replace("{attended}", String(attended));
+	const summary = textGet("dashboard.agenda.summary", {
+		count: appointments.length,
+		attended,
+	});
 
 	return (
 		<Card className={className}>

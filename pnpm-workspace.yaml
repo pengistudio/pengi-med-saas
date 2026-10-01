@@ -42,6 +42,18 @@ catalog:
   zod: "^4.4.3"
   zustand: "^5.0.14"
 
+# typescript-eslint needs the TypeScript compiler API, which TS 7 (the native
+# Go port) no longer ships as JS: typescript-eslint 8.x declares
+# `typescript: <6.1.0` and throws "does not support TS 7.0". It resolves
+# `typescript` as a peer from whoever depends on it, so it lives in the ROOT
+# package.json next to TS 6 (apps keep TS 7 for tsc/vite). The apps'
+# eslint.config.js reach it through the root node_modules. When a
+# typescript-eslint release supports TS 7, move it back to the catalog and
+# drop this one.
+catalogs:
+  lint:
+    typescript: "~6.0.3"
+
 allowBuilds:
   esbuild: true
   msw: true

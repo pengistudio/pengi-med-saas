@@ -33,7 +33,7 @@ func NewGoogleIntegrationHandler(db *gorm.DB, logger *zap.Logger) *GoogleIntegra
 // GetAuthURL returns the Google OAuth authorization URL for the current tenant.
 func (h *GoogleIntegrationHandler) GetAuthURL(c *gin.Context) envelope.Response {
 	if !h.googleSvc.IsConfigured() {
-		return envelope.ErrorResponse(http.StatusServiceUnavailable, "Google integration not configured", core_errors.ErrIntegrationNotConfigured)
+		return envelope.ErrorResponse(http.StatusServiceUnavailable, "integrations.google.error.not_configured", core_errors.ErrIntegrationNotConfigured)
 	}
 
 	tenantID, _ := c.Get("tenant_id")
@@ -137,7 +137,7 @@ func (h *GoogleIntegrationHandler) Disconnect(c *gin.Context) envelope.Response 
 
 	var integration integration_models.TenantIntegration
 	if err := tenantdb.For(c, h.db).First(&integration).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "integration not found", core_errors.ErrIntegrationNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "integrations.google.error.not_connected", core_errors.ErrIntegrationNotFound)
 	}
 
 	expiry := time.Time{}

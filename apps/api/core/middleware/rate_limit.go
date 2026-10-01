@@ -68,8 +68,7 @@ func (rl *RateLimiter) Middleware() gin.HandlerFunc {
 		ip := c.ClientIP()
 		if !rl.get(ip).Allow() {
 			resp := envelope.ErrorResponse(http.StatusTooManyRequests, "error.rate_limit_exceeded", core_errors.ErrRateLimitExceeded)
-			c.JSON(resp.Code, resp)
-			c.Abort()
+			envelope.Abort(c, resp)
 			return
 		}
 		c.Next()

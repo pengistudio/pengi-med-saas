@@ -4,18 +4,31 @@ set -e
 REPO_ROOT=$(git rev-parse --show-toplevel)
 cd "$REPO_ROOT"
 
+# node_modules is installed from the Linux dev containers and shared with the
+# host through the bind mount. Running pnpm here would reinstall it for the
+# host OS and break the containers, so the checks run inside pengi-web-dev
+# (the repo is mounted at /workspace). Start the stack first: `just dev`.
+CONTAINER=pengi-web-dev
+if ! docker exec "$CONTAINER" true >/dev/null 2>&1; then
+  echo "✗ $CONTAINER is not running; start the stack (just dev) to run the pre-commit checks."
+  exit 1
+fi
+in_container() {
+  docker exec -e CI=true -w "/workspace/$1" "$CONTAINER" sh -c "$2"
+}
+
 echo "▶ Biome check --write..."
 # Run biome, then re-stage any files it auto-fixed that were already staged
 STAGED=$(git diff --name-only --cached)
-npx @biomejs/biome check --write ./apps/web ./apps/backoffice
+in_container . "npx @biomejs/biome check --write ./apps/web ./apps/backoffice"
 if [ -n "$STAGED" ]; then
   echo "$STAGED" | xargs git add 2>/dev/null || true
 fi
 
 echo "▶ TypeScript (apps/web)..."
-cd "$REPO_ROOT/apps/web" && CI=true pnpm run typecheck
+in_container apps/web "pnpm run typecheck"
 
 echo "▶ TypeScript (apps/backoffice)..."
-cd "$REPO_ROOT/apps/backoffice" && CI=true pnpm run typecheck
+in_container apps/backoffice "pnpm run typecheck"
 
 echo "✓ All checks passed."

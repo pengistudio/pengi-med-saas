@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getSriStatus, type SriStatus } from "@/api/tenant-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { SettingsSection } from "@/components/custom/settings-section";
-import { cn, dateParser } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { LogoUploadForm } from "@/sections/forms/billing/logo-upload-form";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
@@ -19,7 +19,7 @@ const EXPIRY_WARNING_DAYS = 30;
  * not configured but keeps its date, so the date is read first.
  */
 function SignatureStatus({ status }: { status: SriStatus | null }) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 
 	let tone: "ok" | "warn" | "error" = "error";
 	let title = textGet("billing.sri.status.unconfigured");
@@ -28,13 +28,10 @@ function SignatureStatus({ status }: { status: SriStatus | null }) {
 	if (status?.expiration_date) {
 		const expires = new Date(status.expiration_date);
 		const days = differenceInCalendarDays(expires, new Date());
-		const date = dateParser(expires, { dateStyle: "long" });
+		const date = formatDate(expires, "long");
 		if (days < 0) {
 			title = textGet("billing.sri.status.expired");
-			detail = textGet("billing.sri.status.expired_desc").replace(
-				"{date}",
-				date,
-			);
+			detail = textGet("billing.sri.status.expired_desc", { date });
 		} else {
 			tone = days <= EXPIRY_WARNING_DAYS ? "warn" : "ok";
 			title = textGet(
@@ -42,9 +39,7 @@ function SignatureStatus({ status }: { status: SriStatus | null }) {
 					? "billing.sri.status.expiring"
 					: "billing.sri.status.configured",
 			);
-			detail = textGet("billing.sri.status.expires_on")
-				.replace("{date}", date)
-				.replace("{days}", String(days));
+			detail = textGet("billing.sri.status.expires_on", { date, days });
 		}
 	} else if (status?.is_configured) {
 		tone = "ok";
@@ -84,18 +79,26 @@ const SriSettingsPage = () => {
 	const [status, setStatus] = useState<SriStatus | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	const fetchStatus = useCallback(async () => {
+	// Loading starts true, so the initial load doesn't need to set it.
+	const loadStatus = useCallback(
+		() =>
+			getSriStatus().then((res) => {
+				if (res.success) {
+					setStatus(res.data);
+				}
+				setLoading(false);
+			}),
+		[],
+	);
+
+	const fetchStatus = useCallback(() => {
 		setLoading(true);
-		const res = await getSriStatus();
-		if (res.success) {
-			setStatus(res.data);
-		}
-		setLoading(false);
-	}, []);
+		return loadStatus();
+	}, [loadStatus]);
 
 	useEffect(() => {
-		fetchStatus();
-	}, [fetchStatus]);
+		loadStatus();
+	}, [loadStatus]);
 
 	return (
 		<div className="grid max-w-5xl gap-8">

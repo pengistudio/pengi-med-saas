@@ -74,16 +74,17 @@ export function DashboardLayout() {
 		: "";
 
 	// Parse enabled features from environment
+	const rawEnabledFeatures = environment?.enabled_features;
 	const enabledFeatures: EnabledFeatures = useMemo(() => {
-		if (!environment?.enabled_features) {
+		if (!rawEnabledFeatures) {
 			return { clinical: true, billing: true, team: true };
 		}
 		try {
-			return JSON.parse(environment.enabled_features);
+			return JSON.parse(rawEnabledFeatures);
 		} catch {
 			return { clinical: true, billing: true, team: true };
 		}
-	}, [environment?.enabled_features]);
+	}, [rawEnabledFeatures]);
 
 	const unfilteredNavItems = useMemo(() => createNavItems(textGet), [textGet]);
 	const allNavItems = useMemo(

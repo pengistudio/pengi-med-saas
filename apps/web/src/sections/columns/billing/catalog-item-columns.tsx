@@ -10,9 +10,9 @@ import {
 	Text,
 } from "@pengi/ui";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { CatalogItem } from "@/api/billing-service";
+import { FormattedDate, Money } from "@/components/custom/formatted";
 import { selectColumn } from "@/components/custom/table/select-column";
 
 interface CatalogItemColumnProps {
@@ -64,12 +64,8 @@ export const getCatalogItemColumns = ({
 		),
 		cell: ({ row }) => {
 			const amount = row.original.unit_price;
-			const formatted = new Intl.NumberFormat("en-US", {
-				style: "currency",
-				currency: "USD",
-			}).format(amount);
 			return (
-				<span className="font-mono text-right font-medium">{formatted}</span>
+				<Money amount={amount} className="font-mono text-right font-medium" />
 			);
 		},
 	},
@@ -82,18 +78,13 @@ export const getCatalogItemColumns = ({
 				title={<Text uuid="billing.catalog-item.column.date" />}
 			/>
 		),
-		cell: ({ row }) => {
-			const raw = row.original.CreatedAt;
-			if (!raw) return <span className="text-muted-foreground text-sm">—</span>;
-			const date = new Date(raw);
-			if (Number.isNaN(date.getTime()))
-				return <span className="text-muted-foreground text-sm">—</span>;
-			return (
-				<span className="text-muted-foreground whitespace-nowrap text-sm">
-					{format(date, "dd/MMM/yyyy HH:mm")}
-				</span>
-			);
-		},
+		cell: ({ row }) => (
+			<FormattedDate
+				value={row.original.CreatedAt}
+				withTime
+				className="text-muted-foreground whitespace-nowrap text-sm"
+			/>
+		),
 	},
 	{
 		id: "actions",

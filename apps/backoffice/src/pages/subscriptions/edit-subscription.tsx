@@ -51,14 +51,19 @@ const EditSubscription = () => {
 		});
 	}, []);
 
-	React.useEffect(() => {
-		if (!subscription) return;
-		setTerm({
-			planCode: subscription.plan_code,
-			expiresAt: expiryDate(subscription.expires_at),
-		});
-		setStatus(subscription.status);
-	}, [subscription]);
+	// Load the saved values once the subscription arrives (adjust state during render).
+	const [prevSubscription, setPrevSubscription] =
+		React.useState<typeof subscription>();
+	if (subscription !== prevSubscription) {
+		setPrevSubscription(subscription);
+		if (subscription) {
+			setTerm({
+				planCode: subscription.plan_code,
+				expiresAt: expiryDate(subscription.expires_at),
+			});
+			setStatus(subscription.status);
+		}
+	}
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();

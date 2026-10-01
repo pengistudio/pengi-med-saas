@@ -17,13 +17,13 @@ func TenantMiddleware(db *gorm.DB) gin.HandlerFunc {
 		slug := c.GetHeader("X-Tenant-Slug")
 
 		if slug == "" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, envelope.ErrorResponse(http.StatusBadRequest, "X-Tenant-Slug header is missing", core_errors.ErrTenantNotFound))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest))
 			return
 		}
 
 		var tenant tenant_models.Tenant
 		if err := db.Where("slug = ?", slug).First(&tenant).Error; err != nil {
-			c.AbortWithStatusJSON(http.StatusNotFound, envelope.ErrorResponse(http.StatusNotFound, "Tenant not found", core_errors.ErrTenantNotFound))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound))
 			return
 		}
 
@@ -31,7 +31,7 @@ func TenantMiddleware(db *gorm.DB) gin.HandlerFunc {
 		// a role (Environment) in the tenant's company.
 		userID, _, ok := auth_middleware.GetUserFromContext(c)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, envelope.ErrorResponse(http.StatusUnauthorized, "User not authenticated", core_errors.ErrAuthInvalidRequest))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
 		var membership struct {
@@ -44,7 +44,7 @@ func TenantMiddleware(db *gorm.DB) gin.HandlerFunc {
 			Where("companies.tenant_id = ? AND environments.user_id = ?", tenant.ID, userID).
 			Take(&membership).Error
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, envelope.ErrorResponse(http.StatusForbidden, "tenant.error.forbidden", core_errors.ErrTenantForbidden))
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "tenant.error.forbidden", core_errors.ErrTenantForbidden))
 			return
 		}
 

@@ -29,10 +29,8 @@ import { P12UploadForm } from "@/components/forms/p12-upload-form";
 import { useMySignature, useSignatureStore } from "@/store/signature-store";
 
 function SignatureStatus({ signature }: { signature: MySignature }) {
-	const { textGet } = useText();
-	const notAfter = signature.not_after
-		? new Date(signature.not_after).toLocaleDateString("es-EC")
-		: "";
+	const { textGet, formatDate } = useText();
+	const notAfter = formatDate(signature.not_after);
 
 	return (
 		<div className="rounded-md border p-4 space-y-3">

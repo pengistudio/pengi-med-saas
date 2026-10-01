@@ -41,7 +41,7 @@ func (h *BackofficeFeatureHandler) GetFeatures(c *gin.Context) envelope.Response
 	var features []company_models.Feature
 	if err := h.db.Preload("Permissions").Find(&features).Error; err != nil {
 		h.logger.Error("Failed to fetch features", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining features", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(features, "backoffice.feature.list.success")
 }
@@ -51,7 +51,7 @@ func (h *BackofficeFeatureHandler) GetFeatureByID(c *gin.Context) envelope.Respo
 	var feature company_models.Feature
 	if err := h.db.Preload("Permissions").First(&feature, id).Error; err != nil {
 		h.logger.Error("Feature not found", zap.String("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Feature not found", core_errors.ErrBackofficeFeatureNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeFeatureNotFound)
 	}
 	return envelope.SuccessResponse(feature, "backoffice.feature.found")
 }
@@ -59,7 +59,7 @@ func (h *BackofficeFeatureHandler) GetFeatureByID(c *gin.Context) envelope.Respo
 func (h *BackofficeFeatureHandler) CreateFeature(c *gin.Context) envelope.Response {
 	var req CreateFeatureRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	feature := company_models.Feature{
@@ -69,7 +69,7 @@ func (h *BackofficeFeatureHandler) CreateFeature(c *gin.Context) envelope.Respon
 
 	if err := h.db.Create(&feature).Error; err != nil {
 		h.logger.Error("Failed to create feature", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating feature", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	// Attach permissions if provided
@@ -88,12 +88,12 @@ func (h *BackofficeFeatureHandler) UpdateFeature(c *gin.Context) envelope.Respon
 	id := c.Param("id")
 	var feature company_models.Feature
 	if err := h.db.First(&feature, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Feature not found", core_errors.ErrBackofficeFeatureNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeFeatureNotFound)
 	}
 
 	var req UpdateFeatureRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	if req.Name != "" {
@@ -114,7 +114,7 @@ func (h *BackofficeFeatureHandler) DeleteFeature(c *gin.Context) envelope.Respon
 	id := c.Param("id")
 	var feature company_models.Feature
 	if err := h.db.First(&feature, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Feature not found", core_errors.ErrBackofficeFeatureNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficeFeatureNotFound)
 	}
 
 	// Clear associations first
@@ -122,7 +122,7 @@ func (h *BackofficeFeatureHandler) DeleteFeature(c *gin.Context) envelope.Respon
 
 	if err := h.db.Delete(&feature).Error; err != nil {
 		h.logger.Error("Failed to delete feature", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting feature", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(nil, "backoffice.feature.delete.success")

@@ -119,7 +119,7 @@ func (h *BackofficePlanHandler) GetPlans(c *gin.Context) envelope.Response {
 	var plans []company_models.Plan
 	if err := h.db.Preload("Features").Preload("Pricings").Find(&plans).Error; err != nil {
 		h.logger.Error("Failed to fetch plans", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error obtaining plans", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 	return envelope.SuccessResponse(plans, "backoffice.plan.list.success")
 }
@@ -129,7 +129,7 @@ func (h *BackofficePlanHandler) GetPlanByID(c *gin.Context) envelope.Response {
 	var plan company_models.Plan
 	if err := h.db.Preload("Features.Permissions").Preload("Pricings").First(&plan, id).Error; err != nil {
 		h.logger.Error("Plan not found", zap.String("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusNotFound, "Plan not found", core_errors.ErrBackofficePlanNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficePlanNotFound)
 	}
 	return envelope.SuccessResponse(plan, "backoffice.plan.found")
 }
@@ -137,13 +137,13 @@ func (h *BackofficePlanHandler) GetPlanByID(c *gin.Context) envelope.Response {
 func (h *BackofficePlanHandler) CreatePlan(c *gin.Context) envelope.Response {
 	var req CreatePlanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	enabledFeatures, err := h.calculateEnabledFeatures(req.FeatureCodes)
 	if err != nil {
 		h.logger.Error("Failed to calculate enabled features", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating plan", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if req.Properties == nil {
@@ -166,7 +166,7 @@ func (h *BackofficePlanHandler) CreatePlan(c *gin.Context) envelope.Response {
 
 	if err := h.db.Create(&plan).Error; err != nil {
 		h.logger.Error("Failed to create plan", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error creating plan", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	if len(req.FeatureCodes) > 0 {
@@ -188,12 +188,12 @@ func (h *BackofficePlanHandler) UpdatePlan(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var plan company_models.Plan
 	if err := h.db.First(&plan, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Plan not found", core_errors.ErrBackofficePlanNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficePlanNotFound)
 	}
 
 	var req UpdatePlanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "Invalid request", core_errors.ErrBackofficeInvalidRequest)
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
 	updates := map[string]interface{}{}
@@ -214,7 +214,7 @@ func (h *BackofficePlanHandler) UpdatePlan(c *gin.Context) envelope.Response {
 		enabledFeatures, err := h.calculateEnabledFeatures(req.FeatureCodes)
 		if err != nil {
 			h.logger.Error("Failed to calculate enabled features", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "Error updating plan", core_errors.ErrInternal)
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		}
 		if req.Properties == nil {
 			req.Properties = make(map[string]interface{})
@@ -250,7 +250,7 @@ func (h *BackofficePlanHandler) DeletePlan(c *gin.Context) envelope.Response {
 	id := c.Param("id")
 	var plan company_models.Plan
 	if err := h.db.First(&plan, id).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "Plan not found", core_errors.ErrBackofficePlanNotFound)
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrBackofficePlanNotFound)
 	}
 
 	h.db.Model(&plan).Association("Features").Clear()
@@ -258,7 +258,7 @@ func (h *BackofficePlanHandler) DeletePlan(c *gin.Context) envelope.Response {
 
 	if err := h.db.Delete(&plan).Error; err != nil {
 		h.logger.Error("Failed to delete plan", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "Error deleting plan", core_errors.ErrInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
 	return envelope.SuccessResponse(nil, "backoffice.plan.delete.success")

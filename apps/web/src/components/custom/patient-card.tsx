@@ -27,8 +27,8 @@ import React from "react";
 import type { Patient } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { parseAllergies } from "@/lib/allergies";
 import { ageInYears } from "@/lib/patient-age";
-import { dateParser } from "@/lib/utils";
 
 /**
  * Extends `Patient` with optional fields that may be injected
@@ -57,7 +57,7 @@ export default function PatientCard({
 	onEditPatient,
 }: PatientCardProps) {
 	const [showPrescription, setShowPrescription] = React.useState(false);
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const { settings } = useTenantSettings();
 	const useAgeInput = settings.clinical.patient_age_input;
 	const age = ageInYears(patient.birth_date);
@@ -111,7 +111,7 @@ export default function PatientCard({
 											) : showAge ? (
 												formatAge(age, patient.birth_date_estimated, textGet)
 											) : (
-												dateParser(patient.birth_date, { dateStyle: "medium" })
+												formatDate(patient.birth_date)
 											)}
 										</span>
 									</div>
@@ -348,32 +348,14 @@ export default function PatientCard({
 export function formatAge(
 	age: number,
 	estimated: boolean | undefined,
-	textGet: (key: string) => string,
+	textGet: (key: string, values?: { count: number }) => string,
 ): string {
 	return textGet(
 		estimated
 			? "clinical.patient_card.age_years_estimated"
 			: "clinical.patient_card.age_years",
-	).replace("{count}", String(age));
-}
-
-export function parseAllergies(allergies?: string): string[] {
-	if (!allergies?.trim()) return [];
-	// Stored either as a JSON array (current form) or comma-separated (older rows).
-	if (allergies.trim().startsWith("[")) {
-		try {
-			const parsed: unknown = JSON.parse(allergies);
-			if (Array.isArray(parsed)) {
-				return parsed.map((a) => String(a).trim()).filter(Boolean);
-			}
-		} catch {
-			// Not valid JSON: fall through to the comma-separated format.
-		}
-	}
-	return allergies
-		.split(",")
-		.map((a) => a.trim())
-		.filter(Boolean);
+		{ count: age },
+	);
 }
 
 function formatGender(

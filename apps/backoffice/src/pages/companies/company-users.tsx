@@ -89,32 +89,42 @@ const CompanyUsers = () => {
 		React.useState<PasswordResetLinkResponse | null>(null);
 	const [generatingLink, setGeneratingLink] = React.useState(false);
 
-	const fetchData = React.useCallback(async () => {
+	// Loads without flagging loading; callers set it first.
+	const loadData = React.useCallback(() => {
 		if (!id) return;
-		setLoading(true);
+		Promise.all([getCompanyUsers(id), getRoles(), companies.get(id)]).then(
+			([usersRes, rolesRes, companyRes]) => {
+				if (usersRes.success && usersRes.data) {
+					setUsers(usersRes.data as CompanyUser[]);
+				}
+				if (rolesRes.success && rolesRes.data) {
+					setRoles(rolesRes.data as Role[]);
+				}
+				if (companyRes.success && companyRes.data) {
+					setCompanyName(companyRes.data.trade_name);
+				}
 
-		const [usersRes, rolesRes, companyRes] = await Promise.all([
-			getCompanyUsers(id),
-			getRoles(),
-			companies.get(id),
-		]);
-
-		if (usersRes.success && usersRes.data) {
-			setUsers(usersRes.data as CompanyUser[]);
-		}
-		if (rolesRes.success && rolesRes.data) {
-			setRoles(rolesRes.data as Role[]);
-		}
-		if (companyRes.success && companyRes.data) {
-			setCompanyName(companyRes.data.trade_name);
-		}
-
-		setLoading(false);
+				setLoading(false);
+			},
+		);
 	}, [id]);
 
+	const fetchData = () => {
+		if (!id) return;
+		setLoading(true);
+		loadData();
+	};
+
+	// Show loading again when the company changes (adjust state during render).
+	const [prevId, setPrevId] = React.useState(id);
+	if (id !== prevId) {
+		setPrevId(id);
+		if (id) setLoading(true);
+	}
+
 	React.useEffect(() => {
-		fetchData();
-	}, [fetchData]);
+		loadData();
+	}, [loadData]);
 
 	const handleEdit = (user: CompanyUser) => {
 		setEditingUser(user);

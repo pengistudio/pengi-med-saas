@@ -107,10 +107,14 @@ const SettingsPage = () => {
 	const [resetConfirmOpen, setResetConfirmOpen] = React.useState(false);
 	const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-	const [googleStatus, setGoogleStatus] =
-		React.useState<GoogleIntegrationStatus | null>(null);
-	const [googleLoading, setGoogleLoading] = React.useState(false);
 	const [searchParams, setSearchParams] = useSearchParams();
+	// Returning from the OAuth flow (?google=connected, a fresh page load) shows
+	// the integration as connected until the real status arrives.
+	const [googleStatus, setGoogleStatus] =
+		React.useState<GoogleIntegrationStatus | null>(() =>
+			searchParams.get("google") === "connected" ? { connected: true } : null,
+		);
+	const [googleLoading, setGoogleLoading] = React.useState(false);
 	const { successToast, errorToast } = useToast();
 
 	React.useEffect(() => {
@@ -126,7 +130,6 @@ const SettingsPage = () => {
 		const googleParam = searchParams.get("google");
 		if (googleParam === "connected") {
 			successToast("settings.integrations.google.connected");
-			setGoogleStatus((prev) => ({ ...prev, connected: true }));
 			setSearchParams({});
 		} else if (googleParam === "error") {
 			errorToast(null, textGet("settings.integrations.google.error"));

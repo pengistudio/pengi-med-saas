@@ -1,4 +1,4 @@
-import { useText } from "@pengi/shared";
+import { parseDateOnly, useText } from "@pengi/shared";
 import { Text } from "@pengi/ui";
 import { CalendarClock } from "lucide-react";
 import React from "react";
@@ -35,7 +35,7 @@ export function PendingFollowUpsPanel({
 	onSchedule,
 	className,
 }: PendingFollowUpsPanelProps) {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const [patients, setPatients] = React.useState<Patient[]>([]);
 	const [loading, setLoading] = React.useState(false);
 
@@ -74,12 +74,11 @@ export function PendingFollowUpsPanel({
 				)}
 				{patients.map((patient) => {
 					const lastRecord = patient.medical_records?.[0];
-					if (!lastRecord?.next_appointment_date) return null;
-					const suggestedDate = new Date(lastRecord.next_appointment_date);
-					const dateLabel = suggestedDate.toLocaleDateString("es-EC", {
-						month: "short",
-						day: "numeric",
-					});
+					const suggestedDate = parseDateOnly(
+						lastRecord?.next_appointment_date,
+					);
+					if (!suggestedDate) return null;
+					const dateLabel = formatDate(suggestedDate, "day-month");
 					const name =
 						patient.full_name || `${patient.first_name} ${patient.last_name}`;
 
