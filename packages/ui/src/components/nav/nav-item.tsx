@@ -21,6 +21,7 @@ const NavItem = ({ label, href, icon, matchActive = true }: Props) => {
 	return (
 		<Link
 			to={href}
+			viewTransition
 			title={!expanded ? label : undefined}
 			aria-current={isActive ? "page" : undefined}
 			className={cn(
