@@ -28,7 +28,7 @@ import { getNotificationText } from "@/lib/notification-text";
 import { cn } from "@/lib/utils";
 import { useNotificationStore } from "@/store/notification-store";
 
-const PAGE_LIMIT = 20;
+const PAGE_LIMIT = 10;
 
 type Filter = "all" | "unread";
 
