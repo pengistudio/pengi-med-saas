@@ -5,6 +5,8 @@ import {
 	type DragOverEvent,
 	DragOverlay,
 	type DragStartEvent,
+	type DropAnimation,
+	defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import { useText } from "@pengi/shared";
 import { Button } from "@pengi/ui";
@@ -20,6 +22,19 @@ import TaskCardContent from "@/sections/kanban/task-card-content";
 import TaskFormDialog from "@/sections/kanban/task-form-dialog";
 import { useKanbanStore } from "@/store/kanban-store";
 import type { TaskStatus } from "@/types/kanban-type";
+
+// The card settles into its slot; .is-dropping lets the overlay undo its lift.
+const dropAnimation: DropAnimation = {
+	duration: 220,
+	easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+	sideEffects: defaultDropAnimationSideEffects({
+		className: { dragOverlay: "is-dropping" },
+	}),
+};
+
+const prefersReducedMotion = () =>
+	typeof window.matchMedia === "function" &&
+	window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export default function KanbanPage() {
 	const { textGet } = useText();
@@ -220,9 +235,11 @@ export default function KanbanPage() {
 				</div>
 
 				{/* Drag Overlay */}
-				<DragOverlay dropAnimation={null}>
+				<DragOverlay
+					dropAnimation={prefersReducedMotion() ? null : dropAnimation}
+				>
 					{activeTask ? (
-						<div className="w-72 rotate-1">
+						<div className="w-72 rotate-[1.5deg] scale-[1.03] transition-[scale,rotate] duration-(--motion-base) ease-spring starting:rotate-0 starting:scale-100 in-[.is-dropping]:rotate-0 in-[.is-dropping]:scale-100 in-[.is-dropping]:ease-out-soft">
 							<TaskCardContent task={activeTask} lifted />
 						</div>
 					) : null}

@@ -29,6 +29,7 @@ import { Suspense, useCallback, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { initiatePayment } from "@/api/subscription-service";
 import NotificationBell from "@/components/custom/notification-bell";
+import { PageSkeleton } from "@/components/custom/page-skeleton";
 import { createNavItems, type EnabledFeatures } from "@/config/nav-config";
 import useAuth from "@/hooks/use-auth";
 import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
@@ -211,7 +212,7 @@ export function DashboardLayout() {
 				</div>
 			) : (
 				// Lazy pages load inside the shell, so the frame stays while they do.
-				<Suspense fallback={null}>
+				<Suspense fallback={<PageSkeleton />}>
 					<Outlet />
 				</Suspense>
 			)}
