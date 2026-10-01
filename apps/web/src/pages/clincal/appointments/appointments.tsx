@@ -2,7 +2,7 @@ import AppointmentCalendar from "@/components/features/appointments/appointment-
 
 const AppointmentsPage = () => {
 	return (
-		<main className="grid grid-cols-1 items-start gap-4">
+		<main className="h-full">
 			<AppointmentCalendar />
 		</main>
 	);

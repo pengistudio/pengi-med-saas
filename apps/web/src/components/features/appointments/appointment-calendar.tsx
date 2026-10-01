@@ -2,12 +2,18 @@ import {
 	DndContext,
 	type DragEndEvent,
 	type DragMoveEvent,
-	PointerSensor,
-	useSensor,
-	useSensors,
 } from "@dnd-kit/core";
-import { Button, Text } from "@pengi/ui";
+import { useText } from "@pengi/shared";
 import {
+	Button,
+	Sheet,
+	SheetContent,
+	SheetTitle,
+	Text,
+	useViewport,
+} from "@pengi/ui";
+import {
+	addDays,
 	addWeeks,
 	eachDayOfInterval,
 	endOfWeek,
@@ -15,10 +21,9 @@ import {
 	isSameDay,
 	isToday,
 	startOfWeek,
-	subWeeks,
 } from "date-fns";
 import { es } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { CalendarClock, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import React from "react";
 import { useSearchParams } from "react-router";
 import {
@@ -28,6 +33,7 @@ import {
 	updateAppointment,
 } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { useDragSensors } from "@/hooks/use-drag-sensors";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
@@ -49,10 +55,10 @@ function computeSnappedTarget(
 	appt: Appointment,
 	over: { id: string | number } | null | undefined,
 	delta: { x: number; y: number },
-	weekDays: Date[],
+	days: Date[],
 ): { day: Date; startTime: string; endTime: string } | null {
 	if (!over) return null;
-	const targetDay = weekDays.find(
+	const targetDay = days.find(
 		(d) => format(d, "yyyy-MM-dd") === String(over.id),
 	);
 	if (!targetDay) return null;
@@ -99,6 +105,11 @@ export default function AppointmentCalendar() {
 		React.useState<Patient | null>(null);
 	const [pendingRefreshKey, setPendingRefreshKey] = React.useState(0);
 	const { settings } = useTenantSettings();
+	const { textGet } = useText();
+	// A phone shows one day (moved by arrows, the week strip or a swipe); a
+	// desktop shows the week.
+	const { isPhone } = useViewport();
+	const [pendingOpen, setPendingOpen] = React.useState(false);
 
 	const weekStart = React.useMemo(
 		() => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -109,6 +120,11 @@ export default function AppointmentCalendar() {
 		[currentDate],
 	);
 	const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+	const visibleDays = isPhone ? [currentDate] : weekDays;
+	const step = (direction: 1 | -1) =>
+		setCurrentDate((date) =>
+			isPhone ? addDays(date, direction) : addWeeks(date, direction),
+		);
 	const hours = Array.from(
 		{ length: END_HOUR - START_HOUR },
 		(_, i) => START_HOUR + i,
@@ -130,9 +146,37 @@ export default function AppointmentCalendar() {
 
 	const [dragGhost, setDragGhost] = React.useState<DragGhost | null>(null);
 
-	const sensors = useSensors(
-		useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-	);
+	// Open each day (or week) where the work is: today an hour before now,
+	// any other day at 08:00, instead of at the top of the grid.
+	const scrollRef = React.useRef<HTMLDivElement>(null);
+	React.useEffect(() => {
+		const hour = isToday(currentDate) ? new Date().getHours() - 1 : 8;
+		scrollRef.current?.scrollTo({
+			top: Math.max(0, hour - START_HOUR) * HOUR_HEIGHT,
+		});
+	}, [currentDate]);
+
+	const sensors = useDragSensors();
+	// A swipe that ends a drag must not also change the day.
+	const dragging = React.useRef(false);
+	const swipeStart = React.useRef<{ x: number; y: number } | null>(null);
+
+	function handleTouchStart(event: React.TouchEvent) {
+		const touch = event.touches[0];
+		swipeStart.current = { x: touch.clientX, y: touch.clientY };
+	}
+
+	function handleTouchEnd(event: React.TouchEvent) {
+		const start = swipeStart.current;
+		swipeStart.current = null;
+		if (!isPhone || !start || dragging.current) return;
+		const touch = event.changedTouches[0];
+		const dx = touch.clientX - start.x;
+		const dy = touch.clientY - start.y;
+		if (Math.abs(dx) > 60 && Math.abs(dx) > 2 * Math.abs(dy)) {
+			step(dx < 0 ? 1 : -1);
+		}
+	}
 
 	function getAppointmentsForDay(day: Date) {
 		return appointments.filter((a) => isSameDay(new Date(a.date), day));
@@ -146,7 +190,7 @@ export default function AppointmentCalendar() {
 			return;
 		}
 
-		const target = computeSnappedTarget(appt, over, delta, weekDays);
+		const target = computeSnappedTarget(appt, over, delta, visibleDays);
 		if (!target) {
 			setDragGhost(null);
 			return;
@@ -161,10 +205,12 @@ export default function AppointmentCalendar() {
 	}
 
 	function handleDragCancel() {
+		dragging.current = false;
 		setDragGhost(null);
 	}
 
 	function handleDragEnd(event: DragEndEvent) {
+		dragging.current = false;
 		setDragGhost(null);
 		const { active, over, delta } = event;
 		if (!over) return;
@@ -173,7 +219,7 @@ export default function AppointmentCalendar() {
 		const appt = appointments.find((a) => a.ID === apptId);
 		if (!appt) return;
 
-		const target = computeSnappedTarget(appt, over, delta, weekDays);
+		const target = computeSnappedTarget(appt, over, delta, visibleDays);
 		if (!target) return;
 		const {
 			day: targetDay,
@@ -244,6 +290,7 @@ export default function AppointmentCalendar() {
 	}
 
 	function handleScheduleFromSuggestion(patient: Patient, date: Date) {
+		setPendingOpen(false);
 		setEditTarget(null);
 		setCreateDefaults({ date });
 		setSuggestedPatient(patient);
@@ -255,17 +302,27 @@ export default function AppointmentCalendar() {
 		setPendingRefreshKey((k) => k + 1);
 	}
 
+	const showPending = settings.clinical.show_next_appointment;
+	const pendingPanel = (className?: string) => (
+		<PendingFollowUpsPanel
+			refreshKey={pendingRefreshKey}
+			onSchedule={handleScheduleFromSuggestion}
+			className={className}
+		/>
+	);
+
 	return (
-		<div className="flex flex-col max-h-[calc(100vh-8rem)]">
+		<div className="flex h-full min-h-0 flex-col">
 			{/* ── Header ─────────────────────────────────── */}
-			<div className="flex items-center justify-between pb-4 gap-4 flex-wrap">
+			<div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pb-4">
 				<div className="flex items-center gap-4">
 					<PageHeader title={<Text uuid="appointments.title" />} />
 					<div className="flex items-center gap-1">
 						<Button
 							variant="outline"
 							size="icon"
-							onClick={() => setCurrentDate(subWeeks(currentDate, 1))}
+							aria-label={textGet("appointments.nav.previous")}
+							onClick={() => step(-1)}
 						>
 							<ChevronLeft className="h-4 w-4" />
 						</Button>
@@ -279,17 +336,29 @@ export default function AppointmentCalendar() {
 						<Button
 							variant="outline"
 							size="icon"
-							onClick={() => setCurrentDate(addWeeks(currentDate, 1))}
+							aria-label={textGet("appointments.nav.next")}
+							onClick={() => step(1)}
 						>
 							<ChevronRight className="h-4 w-4" />
 						</Button>
 					</div>
 				</div>
-				<div className="flex items-center gap-3">
-					<p className="text-lg font-medium text-muted-foreground capitalize">
-						{format(weekStart, "d MMM", { locale: es })} —{" "}
-						{format(weekEnd, "d MMM yyyy", { locale: es })}
+				<div className="flex items-center gap-2 sm:gap-3">
+					<p className="font-medium text-muted-foreground capitalize max-sm:text-sm sm:text-lg">
+						{isPhone
+							? format(currentDate, "EEEE d MMM", { locale: es })
+							: `${format(weekStart, "d MMM", { locale: es })} — ${format(weekEnd, "d MMM yyyy", { locale: es })}`}
 					</p>
+					{isPhone && showPending && (
+						<Button
+							variant="outline"
+							size="icon"
+							aria-label={textGet("appointments.pending.title")}
+							onClick={() => setPendingOpen(true)}
+						>
+							<CalendarClock className="h-4 w-4" />
+						</Button>
+					)}
 					<Button onClick={handleNewAppointment}>
 						<Plus className="mr-2 h-4 w-4" />
 						<Text uuid="appointments.new" />
@@ -297,50 +366,104 @@ export default function AppointmentCalendar() {
 				</div>
 			</div>
 
+			{/* ── Week strip (phone): pick the day, dots mark appointments ── */}
+			{isPhone && (
+				<div className="grid grid-cols-7 gap-1 pb-3">
+					{weekDays.map((day) => {
+						const selected = isSameDay(day, currentDate);
+						const busy = appointments.some((a) =>
+							isSameDay(new Date(a.date), day),
+						);
+						return (
+							<button
+								key={day.toISOString()}
+								type="button"
+								aria-pressed={selected}
+								aria-label={format(day, "EEEE d MMMM", { locale: es })}
+								onClick={() => setCurrentDate(day)}
+								className={cn(
+									"flex flex-col items-center gap-1 rounded-xl py-2 outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:transition-none",
+									selected
+										? "bg-primary text-primary-foreground"
+										: "hover:bg-muted",
+									!selected && isToday(day) && "text-primary",
+								)}
+							>
+								<span className="text-[11px] uppercase opacity-70">
+									{format(day, "EEEEE", { locale: es })}
+								</span>
+								<span className="text-base font-semibold leading-none">
+									{format(day, "d")}
+								</span>
+								<span
+									className={cn(
+										"size-1 rounded-full",
+										busy && (selected ? "bg-primary-foreground" : "bg-primary"),
+									)}
+								/>
+							</button>
+						);
+					})}
+				</div>
+			)}
+
 			{/* ── Calendar Grid + Pending Panel ───────────── */}
-			<div className="flex-1 flex gap-4 min-h-0">
-				<div className="flex-1 min-w-0 border rounded-xl overflow-hidden bg-card">
+			<div className="flex min-h-0 flex-1 gap-4">
+				<div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border bg-card">
 					{/* Scrollable area with headers inside */}
 					<div
-						className="overflow-auto flex-1 max-h-[calc(100vh-16rem)]"
+						ref={scrollRef}
+						className="min-h-0 flex-1 overflow-auto"
 						style={{ scrollbarGutter: "stable" }}
+						onTouchStart={handleTouchStart}
+						onTouchEnd={handleTouchEnd}
 					>
-						{/* Day Headers (sticky) */}
-						<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20">
-							<div className="border-r" />
-							{weekDays.map((day) => (
-								<div
-									key={day.toISOString()}
-									className={cn(
-										"text-center py-3 border-r last:border-r-0",
-										isToday(day) && "bg-primary/5",
-									)}
-								>
-									<p className="text-xs font-medium text-muted-foreground uppercase">
-										{format(day, "EEE", { locale: es })}
-									</p>
-									<p
+						{/* Day Headers (sticky); the week strip does this on a phone */}
+						{!isPhone && (
+							<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20">
+								<div className="border-r" />
+								{weekDays.map((day) => (
+									<div
+										key={day.toISOString()}
 										className={cn(
-											"text-lg font-semibold mt-0.5 leading-none",
-											isToday(day) &&
-												"bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto",
+											"text-center py-3 border-r last:border-r-0",
+											isToday(day) && "bg-primary/5",
 										)}
 									>
-										{format(day, "d")}
-									</p>
-								</div>
-							))}
-						</div>
+										<p className="text-xs font-medium text-muted-foreground uppercase">
+											{format(day, "EEE", { locale: es })}
+										</p>
+										<p
+											className={cn(
+												"text-lg font-semibold mt-0.5 leading-none",
+												isToday(day) &&
+													"bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto",
+											)}
+										>
+											{format(day, "d")}
+										</p>
+									</div>
+								))}
+							</div>
+						)}
 
 						{/* Time Grid */}
 						<DndContext
 							sensors={sensors}
+							onDragStart={() => {
+								dragging.current = true;
+							}}
 							onDragMove={handleDragMove}
 							onDragEnd={handleDragEnd}
 							onDragCancel={handleDragCancel}
 						>
 							<div
-								className="grid grid-cols-[60px_repeat(7,1fr)] relative"
+								className={cn(
+									"grid relative",
+									isPhone
+										? "grid-cols-[48px_1fr]"
+										: "grid-cols-[60px_repeat(7,1fr)]",
+								)}
 								style={{
 									height: `${hours.length * HOUR_HEIGHT}px`,
 								}}
@@ -363,7 +486,7 @@ export default function AppointmentCalendar() {
 								</div>
 
 								{/* Day Columns */}
-								{weekDays.map((day) => {
+								{visibleDays.map((day) => {
 									const dayKey = format(day, "yyyy-MM-dd");
 									return (
 										<DayColumn
@@ -385,13 +508,19 @@ export default function AppointmentCalendar() {
 					</div>
 				</div>
 
-				{settings.clinical.show_next_appointment && (
-					<PendingFollowUpsPanel
-						refreshKey={pendingRefreshKey}
-						onSchedule={handleScheduleFromSuggestion}
-					/>
-				)}
+				{showPending && !isPhone && pendingPanel()}
 			</div>
+
+			{showPending && isPhone && (
+				<Sheet open={pendingOpen} onOpenChange={setPendingOpen}>
+					<SheetContent side="bottom" className="p-0">
+						<SheetTitle className="sr-only">
+							{textGet("appointments.pending.title")}
+						</SheetTitle>
+						{pendingPanel("w-full max-h-[70dvh] rounded-none border-0")}
+					</SheetContent>
+				</Sheet>
+			)}
 
 			{/* ── Dialogs ─────────────────────────────────── */}
 			<AppointmentDetailDialog

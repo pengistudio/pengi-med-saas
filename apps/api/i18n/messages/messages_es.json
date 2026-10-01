@@ -1768,6 +1768,14 @@
         "value": "Hoy"
     },
     {
+        "key": "appointments.nav.previous",
+        "value": "Anterior"
+    },
+    {
+        "key": "appointments.nav.next",
+        "value": "Siguiente"
+    },
+    {
         "key": "appointments.new",
         "value": "Nueva Cita"
     },

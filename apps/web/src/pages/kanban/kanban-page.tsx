@@ -5,9 +5,6 @@ import {
 	type DragOverEvent,
 	DragOverlay,
 	type DragStartEvent,
-	PointerSensor,
-	useSensor,
-	useSensors,
 } from "@dnd-kit/core";
 import { useText } from "@pengi/shared";
 import { Button } from "@pengi/ui";
@@ -15,6 +12,7 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTasks, moveTask } from "@/api/kanban-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { useDragSensors } from "@/hooks/use-drag-sensors";
 import BoardProgress from "@/sections/kanban/board-progress";
 import KanbanColumn from "@/sections/kanban/kanban-column";
 import { TASK_STATUSES as STATUSES } from "@/sections/kanban/status-config";
@@ -34,13 +32,7 @@ export default function KanbanPage() {
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<TaskStatus>("todo");
 
-	const sensors = useSensors(
-		useSensor(PointerSensor, {
-			activationConstraint: {
-				distance: 8,
-			},
-		}),
-	);
+	const sensors = useDragSensors();
 
 	useEffect(() => {
 		const loadTasks = async () => {
@@ -215,7 +207,7 @@ export default function KanbanPage() {
 				onDragEnd={handleDragEnd}
 				sensors={sensors}
 			>
-				<div className="-mx-4 grid min-h-0 flex-1 items-start auto-cols-[minmax(17rem,1fr)] grid-flow-col gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+				<div className="-mx-4 grid min-h-0 flex-1 items-start auto-cols-[minmax(17rem,1fr)] grid-flow-col gap-3 overflow-x-auto px-4 pb-2 max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-px-4 max-sm:*:snap-start sm:mx-0 sm:px-0">
 					{STATUSES.map((status) => (
 						<KanbanColumn
 							key={status}

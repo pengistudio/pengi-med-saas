@@ -1768,6 +1768,14 @@
         "value": "Today"
     },
     {
+        "key": "appointments.nav.previous",
+        "value": "Previous"
+    },
+    {
+        "key": "appointments.nav.next",
+        "value": "Next"
+    },
+    {
         "key": "appointments.new",
         "value": "New Appointment"
     },
