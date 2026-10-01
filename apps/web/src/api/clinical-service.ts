@@ -18,6 +18,8 @@ export interface Patient extends BaseModel {
 	last_name: string;
 	full_name?: string;
 	birth_date: string;
+	/** The birth date was derived from a reported age: show the age, not the date. */
+	birth_date_estimated?: boolean;
 	institution: string;
 	gender: string;
 	notes: string;
@@ -238,6 +240,7 @@ export type CreatePatientPayload = {
 	first_name: string;
 	last_name: string;
 	birth_date?: Date;
+	birth_date_estimated?: boolean;
 	institution: string;
 	gender?: string;
 	notes?: string;

@@ -204,7 +204,7 @@ export const getMedicalRecordColumns = (
 			return row.original.vital_signs ? (
 				<Activity className="w-5 h-5 text-rose-500" />
 			) : (
-				<span className="text-muted-foreground">-</span>
+				<span className="text-muted-foreground">—</span>
 			);
 		},
 	},
@@ -221,7 +221,7 @@ export const getMedicalRecordColumns = (
 					<span className="text-xs font-medium">{count}</span>
 				</span>
 			) : (
-				<span className="text-muted-foreground">-</span>
+				<span className="text-muted-foreground">—</span>
 			);
 		},
 	},
@@ -234,7 +234,7 @@ export const getMedicalRecordColumns = (
 			return row.original.prescription ? (
 				<CopyPlus className="w-5 h-5 text-primary" />
 			) : (
-				<span className="text-muted-foreground">-</span>
+				<span className="text-muted-foreground">—</span>
 			);
 		},
 	},

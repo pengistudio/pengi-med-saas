@@ -989,7 +989,7 @@
     },
     {
         "key": "clinical.patient_card.personal_info",
-        "value": "PERSONAL INFORMATION"
+        "value": "Personal information"
     },
     {
         "key": "clinical.patient_card.birth_date",
@@ -998,6 +998,26 @@
     {
         "key": "clinical.patient_card.age",
         "value": "Age:"
+    },
+    {
+        "key": "clinical.patient_card.age_years",
+        "value": "{count} years old"
+    },
+    {
+        "key": "clinical.patient_card.age_years_estimated",
+        "value": "{count} years old (approx.)"
+    },
+    {
+        "key": "form.patient.enter_exact_birth_date",
+        "value": "Enter the exact date of birth"
+    },
+    {
+        "key": "form.patient.enter_age_only",
+        "value": "Enter age only"
+    },
+    {
+        "key": "form.patient.birth_date_estimated_hint",
+        "value": "Estimated from the age. Correct it if you know the exact date."
     },
     {
         "key": "clinical.patient_card.gender",
@@ -1021,7 +1041,7 @@
     },
     {
         "key": "clinical.patient_card.medical_info",
-        "value": "MEDICAL INFORMATION"
+        "value": "Medical information"
     },
     {
         "key": "clinical.patient_card.insurance",
@@ -1113,23 +1133,23 @@
     },
     {
         "key": "clinical.medical_record.actions",
-        "value": "Actions"
+        "value": "More actions"
     },
     {
         "key": "clinical.medical_record.new_consultation",
-        "value": "New Consultation"
+        "value": "New consultation"
     },
     {
         "key": "clinical.medical_record.view_prescriptions",
-        "value": "View Prescriptions"
+        "value": "View latest prescription"
     },
     {
         "key": "clinical.medical_record.edit_patient",
-        "value": "Edit Patient"
+        "value": "Edit patient"
     },
     {
         "key": "clinical.medical_record.contact_ws",
-        "value": "Contact via WS"
+        "value": "WhatsApp"
     },
     {
         "key": "clinical.medical_record.mark_critical",
@@ -1141,7 +1161,7 @@
     },
     {
         "key": "clinical.medical_record.history_title",
-        "value": "Medical Consultation History"
+        "value": "Consultation history"
     },
     {
         "key": "clinical.medical_record.contact_error.title",

@@ -989,7 +989,7 @@
     },
     {
         "key": "clinical.patient_card.personal_info",
-        "value": "INFORMACIÓN PERSONAL"
+        "value": "Información personal"
     },
     {
         "key": "clinical.patient_card.birth_date",
@@ -998,6 +998,26 @@
     {
         "key": "clinical.patient_card.age",
         "value": "Edad:"
+    },
+    {
+        "key": "clinical.patient_card.age_years",
+        "value": "{count} años"
+    },
+    {
+        "key": "clinical.patient_card.age_years_estimated",
+        "value": "{count} años (aprox.)"
+    },
+    {
+        "key": "form.patient.enter_exact_birth_date",
+        "value": "Ingresar la fecha de nacimiento exacta"
+    },
+    {
+        "key": "form.patient.enter_age_only",
+        "value": "Ingresar solo la edad"
+    },
+    {
+        "key": "form.patient.birth_date_estimated_hint",
+        "value": "Fecha estimada a partir de la edad. Corrígela si conoces la exacta."
     },
     {
         "key": "clinical.patient_card.gender",
@@ -1021,7 +1041,7 @@
     },
     {
         "key": "clinical.patient_card.medical_info",
-        "value": "INFORMACIÓN MÉDICA"
+        "value": "Información médica"
     },
     {
         "key": "clinical.patient_card.insurance",
@@ -1113,23 +1133,23 @@
     },
     {
         "key": "clinical.medical_record.actions",
-        "value": "Acciones"
+        "value": "Más acciones"
     },
     {
         "key": "clinical.medical_record.new_consultation",
-        "value": "Nueva Consulta"
+        "value": "Nueva consulta"
     },
     {
         "key": "clinical.medical_record.view_prescriptions",
-        "value": "Ver Recetas"
+        "value": "Ver última receta"
     },
     {
         "key": "clinical.medical_record.edit_patient",
-        "value": "Editar Paciente"
+        "value": "Editar paciente"
     },
     {
         "key": "clinical.medical_record.contact_ws",
-        "value": "Contactar a WS"
+        "value": "WhatsApp"
     },
     {
         "key": "clinical.medical_record.mark_critical",
@@ -1141,7 +1161,7 @@
     },
     {
         "key": "clinical.medical_record.history_title",
-        "value": "Historial de Consultas Médicas"
+        "value": "Historial de consultas"
     },
     {
         "key": "clinical.medical_record.contact_error.title",

@@ -122,7 +122,7 @@ function DashboardLayoutComponent({ children }: DashboardLayoutProps) {
 	}, [logout]);
 
 	return (
-		<div className="flex h-screen bg-background overflow-hidden max-h-screen">
+		<div className="flex h-dvh bg-background overflow-hidden">
 			{/* Sidebar */}
 			<aside
 				className={cn(

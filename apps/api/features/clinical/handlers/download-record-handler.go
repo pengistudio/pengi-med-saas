@@ -203,7 +203,8 @@ func (h *DownloadRecordHandler) SignPrescription(c *gin.Context) envelope.Respon
 func calculateAge(birthDate time.Time) int {
 	now := time.Now()
 	age := now.Year() - birthDate.Year()
-	if now.YearDay() < birthDate.YearDay() {
+	if now.Month() < birthDate.Month() ||
+		(now.Month() == birthDate.Month() && now.Day() < birthDate.Day()) {
 		age--
 	}
 	return age

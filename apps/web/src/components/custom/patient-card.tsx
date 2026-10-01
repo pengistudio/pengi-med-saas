@@ -8,9 +8,6 @@ import {
 	Button,
 	Card,
 	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
 	Separator,
 	Tabs,
 	TabsContent,
@@ -19,9 +16,7 @@ import {
 	Text,
 } from "@pengi/ui";
 import {
-	AlertCircle,
 	AlertTriangle,
-	FileText,
 	Pencil,
 	Phone,
 	Pill,
@@ -32,6 +27,7 @@ import React from "react";
 import type { Patient } from "@/api/clinical-service";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { ageInYears } from "@/lib/patient-age";
 import { dateParser } from "@/lib/utils";
 
 /**
@@ -51,7 +47,6 @@ interface PatientCardData extends Patient {
 
 interface PatientCardProps {
 	patient: PatientCardData;
-	headerAction?: React.ReactNode;
 	onEditPatient?: () => void;
 }
 
@@ -59,22 +54,15 @@ const NotAvailable = () => <span className="text-muted-foreground">—</span>;
 
 export default function PatientCard({
 	patient,
-	headerAction,
 	onEditPatient,
 }: PatientCardProps) {
 	const [showPrescription, setShowPrescription] = React.useState(false);
 	const { textGet } = useText();
 	const { settings } = useTenantSettings();
 	const useAgeInput = settings.clinical.patient_age_input;
-	const age = patient.birth_date
-		? Math.floor(
-				(Date.now() - new Date(patient.birth_date).getTime()) /
-					(365.25 * 24 * 60 * 60 * 1000),
-			)
-		: null;
-
-	const displayName =
-		patient.full_name || `${patient.last_name} ${patient.first_name}`;
+	const age = ageInYears(patient.birth_date);
+	// An estimated birth date only means an age: never show it as a day.
+	const showAge = useAgeInput || !!patient.birth_date_estimated;
 
 	const allergies = parseAllergies(patient.allergies);
 	const hasMedicalHistory = !!(
@@ -85,41 +73,8 @@ export default function PatientCard({
 
 	return (
 		<>
-			<Card className="h-fit border-l-4 border-l-primary">
-				<CardHeader className="space-y-4">
-					<div className="flex items-start justify-between gap-4">
-						<div className="space-y-2 min-w-0">
-							<CardTitle className="text-2xl leading-tight wrap-break-word max-w-[250px]">
-								{displayName}
-							</CardTitle>
-							<CardDescription className="flex items-center gap-2">
-								<FileText className="h-4 w-4 shrink-0" />
-								<Text uuid="clinical.patient_card.document" />{" "}
-								<span className="text-foreground">{patient.document}</span>
-							</CardDescription>
-						</div>
-						<div className="flex flex-col items-end gap-2 shrink-0">
-							{patient.critical && (
-								<Badge
-									variant="destructive"
-									className="px-4 py-1 shrink-0 hover:cursor-default"
-								>
-									<AlertCircle className="h-4 w-4 mr-1" />
-									<Text uuid="clinical.patient_card.critical" />
-								</Badge>
-							)}
-							{allergies.length > 0 && (
-								<Badge className="px-4 py-1 shrink-0 hover:cursor-default bg-amber-500 hover:bg-amber-500 text-white">
-									<AlertTriangle className="h-4 w-4 mr-1" />
-									<Text uuid="clinical.patient_card.has_allergies" />
-								</Badge>
-							)}
-							{headerAction}
-						</div>
-					</div>
-				</CardHeader>
-
-				<CardContent className="pb-4">
+			<Card className="h-fit">
+				<CardContent>
 					<Tabs defaultValue="resumen">
 						<TabsList className="w-full mb-4">
 							<TabsTrigger value="resumen" className="flex-1">
@@ -137,26 +92,24 @@ export default function PatientCard({
 						<TabsContent value="resumen" className="space-y-5 mt-0">
 							{/* Personal */}
 							<div className="space-y-3">
-								<h3 className="font-semibold flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
-									<UserRound className="h-3.5 w-3.5" />
+								<h3 className="flex items-center gap-2 text-sm font-medium">
+									<UserRound className="h-4 w-4 text-muted-foreground" />
 									<Text uuid="clinical.patient_card.personal_info" />
 								</h3>
 								<div className="grid gap-2.5 text-sm">
 									<div className="grid grid-cols-[110px_1fr] items-center">
 										<span className="text-muted-foreground">
-											{useAgeInput ? (
+											{showAge ? (
 												<Text uuid="clinical.patient_card.age" />
 											) : (
 												<Text uuid="clinical.patient_card.birth_date" />
 											)}
 										</span>
 										<span>
-											{useAgeInput ? (
-												age !== null ? (
-													`${age} años`
-												) : (
-													<NotAvailable />
-												)
+											{age === null ? (
+												<NotAvailable />
+											) : showAge ? (
+												formatAge(age, patient.birth_date_estimated, textGet)
 											) : (
 												dateParser(patient.birth_date, { dateStyle: "medium" })
 											)}
@@ -206,8 +159,8 @@ export default function PatientCard({
 
 							{/* Médica */}
 							<div className="space-y-3">
-								<h3 className="font-semibold flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
-									<Stethoscope className="h-3.5 w-3.5" />
+								<h3 className="flex items-center gap-2 text-sm font-medium">
+									<Stethoscope className="h-4 w-4 text-muted-foreground" />
 									<Text uuid="clinical.patient_card.medical_info" />
 								</h3>
 								<div className="grid gap-2.5 text-sm">
@@ -251,8 +204,8 @@ export default function PatientCard({
 								<>
 									<Separator />
 									<div className="space-y-2.5">
-										<h3 className="font-semibold flex items-center gap-2 text-xs text-amber-600 uppercase tracking-wide">
-											<AlertTriangle className="h-3.5 w-3.5" />
+										<h3 className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-500">
+											<AlertTriangle className="h-4 w-4" />
 											<Text uuid="clinical.patient_card.allergies" />
 										</h3>
 										<div className="flex flex-wrap gap-2">
@@ -275,8 +228,8 @@ export default function PatientCard({
 								<>
 									<Separator />
 									<div className="space-y-3">
-										<h3 className="font-semibold flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wide">
-											<Pill className="h-3.5 w-3.5" />
+										<h3 className="flex items-center gap-2 text-sm font-medium">
+											<Pill className="h-4 w-4 text-muted-foreground" />
 											<Text uuid="clinical.patient_card.latest_prescription" />
 										</h3>
 										<Button
@@ -391,8 +344,32 @@ export default function PatientCard({
 	);
 }
 
-function parseAllergies(allergies?: string): string[] {
+/** "57 años", or "57 años (aprox.)" when the birth date was estimated. */
+export function formatAge(
+	age: number,
+	estimated: boolean | undefined,
+	textGet: (key: string) => string,
+): string {
+	return textGet(
+		estimated
+			? "clinical.patient_card.age_years_estimated"
+			: "clinical.patient_card.age_years",
+	).replace("{count}", String(age));
+}
+
+export function parseAllergies(allergies?: string): string[] {
 	if (!allergies?.trim()) return [];
+	// Stored either as a JSON array (current form) or comma-separated (older rows).
+	if (allergies.trim().startsWith("[")) {
+		try {
+			const parsed: unknown = JSON.parse(allergies);
+			if (Array.isArray(parsed)) {
+				return parsed.map((a) => String(a).trim()).filter(Boolean);
+			}
+		} catch {
+			// Not valid JSON: fall through to the comma-separated format.
+		}
+	}
 	return allergies
 		.split(",")
 		.map((a) => a.trim())

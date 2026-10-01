@@ -99,6 +99,21 @@ services:
     networks:
       - gentoo_network
 
+  # Installs the pnpm workspace (web, backoffice, packages/*) once. web and
+  # backoffice share the bind-mounted node_modules, so installing from both
+  # concurrently races on the same files (ENOENT on chmod of bins).
+  workspace-deps:
+    image: node:24-alpine
+    container_name: pengi-workspace-deps
+    working_dir: /workspace
+    environment:
+      - CI=true
+      - PNPM_HOME=/pnpm/store
+    volumes:
+      - ./:/workspace
+      - pnpm_store_workspace:/pnpm/store
+    command: sh -c "corepack enable && pnpm install"
+
   web:
     image: node:24-alpine
     container_name: pengi-web-dev
@@ -110,8 +125,11 @@ services:
       - PNPM_HOME=/pnpm/store
     volumes:
       - ./:/workspace
-      - pnpm_store_web:/pnpm/store
-    command: sh -c "corepack enable && pnpm install --dir /workspace && pnpm run dev --host"
+      - pnpm_store_workspace:/pnpm/store
+    depends_on:
+      workspace-deps:
+        condition: service_completed_successfully
+    command: sh -c "corepack enable && pnpm run dev --host"
     networks:
       - gentoo_network
 
@@ -126,8 +144,11 @@ services:
       - PNPM_HOME=/pnpm/store
     volumes:
       - ./:/workspace
-      - pnpm_store_backoffice:/pnpm/store
-    command: sh -c "corepack enable && pnpm install --dir /workspace && pnpm run dev --host"
+      - pnpm_store_workspace:/pnpm/store
+    depends_on:
+      workspace-deps:
+        condition: service_completed_successfully
+    command: sh -c "corepack enable && pnpm run dev --host"
     networks:
       - gentoo_network
 
@@ -149,8 +170,7 @@ services:
 
 volumes:
   postgres_data:
-  pnpm_store_web:
-  pnpm_store_backoffice:
+  pnpm_store_workspace:
   pnpm_store_sri:
   pnpm_store_landing:
 
