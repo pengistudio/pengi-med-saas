@@ -57,3 +57,6 @@ playwright-report
 graphify-out
 # TypeScript incremental build cache (tsc -b)
 *.tsbuildinfo
+
+# Material promocional local (no versionar)
+promo/
