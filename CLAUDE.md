@@ -70,6 +70,29 @@ guides above are the architecture reference it builds on.
 
 ---
 
+## Subagents (`.claude/agents/`)
+
+Pattern: **orchestrator-subagent** + **generator-verifier**
+([multi-agent coordination patterns](https://claude.com/blog/multi-agent-coordination-patterns)).
+The main session plans, delegates and integrates; it doesn't spend its own
+context on bulk reading or mechanical edits.
+
+| Agent | Model | Use for |
+|---|---|---|
+| `scout` | Sonnet, effort low, read-only | Locating code: files, symbols, call sites, i18n keys. Returns `path:line`. |
+| `worker` | Sonnet, effort medium | Fully specified work: scoped edits, mechanical changes, tests, running checks. |
+| `engineer` | Opus, effort medium | Long or hard work: features end to end, multi-file refactors, debugging, tenant/SRI/signature/migration code. |
+| `verifier` | Sonnet, effort medium, read-only | Checks a change against acceptance criteria; returns PASS/FAIL + issues. |
+
+- **Delegating is the default** (standing request from the user): any task that involves code changes, searches across the codebase or running checks goes through these agents without being asked each time. Only trivial work stays inline — answering a question, a one-line edit, a git command.
+- Pick the cheapest agent that can do the job; escalate (`worker` → `engineer`) only when it reports a blocker.
+- Briefs are self-contained: goal, exact paths, constraints, acceptance criteria, which checks to run. Point to files instead of pasting them.
+- Independent subtasks run in parallel with disjoint file scopes; never two agents on the same file.
+- Generator-verifier for non-trivial changes: generator (`worker`/`engineer`) → `verifier` with the same criteria → on FAIL, send its issues back to the generator. Max 2 rounds, then stop and ask the user.
+- Don't use `fork` for delegated work (it ignores the agent's model).
+
+---
+
 ## Architecture
 
 ### Monorepo structure
