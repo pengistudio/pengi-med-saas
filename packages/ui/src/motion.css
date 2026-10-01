@@ -1,7 +1,20 @@
 /* Shared motion tokens: curves and durations for every @pengi/ui primitive.
    Imported by apps/web and apps/backoffice. */
 @theme {
-	--ease-spring: linear(0, 0.06 2.4%, 0.23 5.4%, 0.62 11.7%, 0.84 16.4%, 0.96 21.6%, 1.02 27.2%, 1.035 32%, 1.03 38%, 1.01 48%, 0.998 62%, 1);
+	--ease-spring: linear(
+		0,
+		0.06 2.4%,
+		0.23 5.4%,
+		0.62 11.7%,
+		0.84 16.4%,
+		0.96 21.6%,
+		1.02 27.2%,
+		1.035 32%,
+		1.03 38%,
+		1.01 48%,
+		0.998 62%,
+		1
+	);
 	--ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 	--animate-check-draw: check-draw var(--motion-base) var(--ease-out-soft) both;
 	--animate-pop: pop var(--motion-slow) var(--ease-spring) both;
@@ -63,6 +76,7 @@
 	animation-timing-function: var(--ease-out-soft);
 }
 
+/* biome-ignore-start lint/complexity/noImportantStyles: reduced motion must override every utility and inline animation */
 @media (prefers-reduced-motion: reduce) {
 	::view-transition-group(*),
 	::view-transition-old(*),
@@ -79,3 +93,4 @@
 		scroll-behavior: auto !important;
 	}
 }
+/* biome-ignore-end lint/complexity/noImportantStyles: reduced motion must override every utility and inline animation */
