@@ -81,7 +81,7 @@ Piezas de `@/lib/resource`:
 |---|---|
 | `ResourceList` | página de listado completa: título, botón crear, carga, vacío, tabla con `columns`, borrar con confirmación, `rowActions`, `headerActions` |
 | `useResourceItem(resource, id?)` | carga el ítem (si hay `id`) y da `save`, que crea o actualiza y vuelve al listado |
-| `ResourceEditPage` | marco de crear/editar: `DashboardLayout` + estado de carga |
+| `ResourceEditPage` | marco de crear/editar: estado de carga (el `DashboardLayout` lo monta `routes.tsx`) |
 | `useResourceList` | listado sin `ResourceList` |
 | `memoryResource` | adaptador en memoria para tests |
 

@@ -12,13 +12,8 @@ import {
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
-import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	getCreditNoteColumns,
-	getCreditNoteColumnsMobile,
-} from "@/sections/columns/billing/credit-note-columns";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { getCreditNoteColumns } from "@/sections/columns/billing/credit-note-columns";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
@@ -48,7 +43,6 @@ const CreditNoteListPage = () => {
 	const [statusFilter, setStatusFilter] = useState("all");
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
 
@@ -93,84 +87,75 @@ const CreditNoteListPage = () => {
 	);
 
 	const columns = useMemo(
-		() =>
-			isMobile
-				? getCreditNoteColumnsMobile(handleRetry)
-				: getCreditNoteColumns(handleRetry),
-		[isMobile, handleRetry],
+		() => getCreditNoteColumns(handleRetry),
+		[handleRetry],
 	);
 
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				<PageHeader
-					title={textGet("dashboard.billing.credit-notes")}
-					description={textGet("billing.credit_note.page.description")}
-					actions={
+		<main className="grid grid-cols-1 items-start gap-4">
+			<PageHeader
+				title={textGet("dashboard.billing.credit-notes")}
+				description={textGet("billing.credit_note.page.description")}
+				actions={
+					checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
+						<Button onClick={() => navigate("/billing/credit-notes/create")}>
+							<Plus className="mr-2 h-4 w-4" />
+							<Text uuid="billing.credit_note.create.button" />
+						</Button>
+					)
+				}
+			/>
+			<div>
+				<DataTable
+					bulkActions={
 						checkPermission([
-							PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
+							PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS,
 						]) && (
-							<Button onClick={() => navigate("/billing/credit-notes/create")}>
-								<Plus className="mr-2 h-4 w-4" />
-								<Text uuid="billing.credit_note.create.button" />
+							<Button
+								variant="secondary"
+								disabled={rows.length === ZERO || processing}
+								onClick={handleProcessSelected}
+							>
+								<Play className="mr-2 h-4 w-4" />
+								<Text uuid="billing.credit_note.process.selected" />
 							</Button>
 						)
 					}
+					searchPlaceholder={textGet("billing.credit_note.search.placeholder")}
+					searchValue={searchInput}
+					onSearchChange={setSearchInput}
+					toolbarRight={
+						<ToggleGroup
+							value={[statusFilter]}
+							onValueChange={(value) => {
+								setStatusFilter(value[0] ?? "all");
+								setPage(1);
+							}}
+						>
+							{STATUS_FILTERS.map((filter) => (
+								<ToggleGroupItem key={filter.value} value={filter.value}>
+									<Text uuid={filter.labelKey} />
+								</ToggleGroupItem>
+							))}
+						</ToggleGroup>
+					}
+					columns={columns}
+					data={creditNoteList}
+					loading={loading}
+					pageCount={totalPages}
+					page={page}
+					onPageChange={setPage}
+					rowClassName={(row) =>
+						row.original.status === "failed" ||
+						row.original.status === "rejected"
+							? "bg-destructive/5 hover:bg-destructive/10"
+							: row.original.status === "connection_error"
+								? "bg-amber-500/5 hover:bg-amber-500/10"
+								: ""
+					}
 				/>
-				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-					<DataTable
-						bulkActions={
-							checkPermission([
-								PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS,
-							]) && (
-								<Button
-									variant="secondary"
-									disabled={rows.length === ZERO || processing}
-									onClick={handleProcessSelected}
-								>
-									<Play className="mr-2 h-4 w-4" />
-									<Text uuid="billing.credit_note.process.selected" />
-								</Button>
-							)
-						}
-						searchPlaceholder={textGet(
-							"billing.credit_note.search.placeholder",
-						)}
-						searchValue={searchInput}
-						onSearchChange={setSearchInput}
-						toolbarRight={
-							<ToggleGroup
-								value={[statusFilter]}
-								onValueChange={(value) => {
-									setStatusFilter(value[0] ?? "all");
-									setPage(1);
-								}}
-							>
-								{STATUS_FILTERS.map((filter) => (
-									<ToggleGroupItem key={filter.value} value={filter.value}>
-										<Text uuid={filter.labelKey} />
-									</ToggleGroupItem>
-								))}
-							</ToggleGroup>
-						}
-						columns={columns}
-						data={creditNoteList}
-						loading={loading}
-						pageCount={totalPages}
-						page={page}
-						onPageChange={setPage}
-						rowClassName={(row) =>
-							row.original.status === "failed" ||
-							row.original.status === "rejected"
-								? "bg-destructive/5 hover:bg-destructive/10"
-								: row.original.status === "connection_error"
-									? "bg-amber-500/5 hover:bg-amber-500/10"
-									: ""
-						}
-					/>
-				</div>
-			</main>
-		</DashboardLayout>
+			</div>
+		</main>
 	);
 
 	async function handleProcessSelected() {

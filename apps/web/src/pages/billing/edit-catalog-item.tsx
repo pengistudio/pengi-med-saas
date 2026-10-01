@@ -10,7 +10,6 @@ import {
 import CatalogItemForm, {
 	type FormValues,
 } from "@/sections/forms/billing/catalog-item-form";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 export default function EditCatalogItemPage() {
 	const navigate = useNavigate();
@@ -59,20 +58,18 @@ export default function EditCatalogItemPage() {
 	};
 
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				{initialLoading ? (
-					<div className="flex h-[50vh] items-center justify-center">
-						<Loader2 className="h-8 w-8 animate-spin text-primary" />
-					</div>
-				) : (
-					<CatalogItemForm
-						initialData={itemData}
-						onSubmit={handleSubmit}
-						loading={loading}
-					/>
-				)}
-			</main>
-		</DashboardLayout>
+		<main className="grid grid-cols-1 items-start gap-4">
+			{initialLoading ? (
+				<div className="flex h-[50vh] items-center justify-center">
+					<Loader2 className="h-8 w-8 animate-spin text-primary" />
+				</div>
+			) : (
+				<CatalogItemForm
+					initialData={itemData}
+					onSubmit={handleSubmit}
+					loading={loading}
+				/>
+			)}
+		</main>
 	);
 }

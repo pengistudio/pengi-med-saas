@@ -23,13 +23,8 @@ import {
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
-import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	getCatalogItemColumns,
-	getCatalogItemColumnsMobile,
-} from "@/sections/columns/billing/catalog-item-columns";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { getCatalogItemColumns } from "@/sections/columns/billing/catalog-item-columns";
 import { useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
@@ -39,7 +34,6 @@ const CatalogItemList = () => {
 	const navigate = useNavigate();
 	const [loading, setLoading] = React.useState(true);
 	const { rows } = useRowStore();
-	const { isMobile } = useResponsive();
 	const { textGet } = useText();
 	const [itemList, setItemList] = React.useState<CatalogItem[]>([]);
 	const [page, setPage] = React.useState(1);
@@ -98,83 +92,70 @@ const CatalogItemList = () => {
 	};
 
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				<PageHeader
-					title={textGet("dashboard.billing.catalog-items")}
-					description={textGet("billing.catalog-item.page.description")}
-					actions={
-						checkPermission([
-							PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
-						]) && (
-							<Button onClick={() => navigate("/billing/catalog-items/create")}>
-								<Plus className="mr-2 h-4 w-4" />
-								<Text uuid="billing.catalog-item.create.button" />
-							</Button>
-						)
+		<main className="grid grid-cols-1 items-start gap-4">
+			<PageHeader
+				title={textGet("dashboard.billing.catalog-items")}
+				description={textGet("billing.catalog-item.page.description")}
+				actions={
+					checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
+						<Button onClick={() => navigate("/billing/catalog-items/create")}>
+							<Plus className="mr-2 h-4 w-4" />
+							<Text uuid="billing.catalog-item.create.button" />
+						</Button>
+					)
+				}
+			/>
+			<div>
+				<DataTable
+					bulkActions={
+						<AlertDialog>
+							{checkPermission([
+								PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+							]) && (
+								<AlertDialogTrigger
+									render={
+										<Button variant="outline" disabled={rows.length === ZERO}>
+											<Trash className="mr-2 h-4 w-4" />
+											<Text uuid="table.button.delete.all.selected" />
+										</Button>
+									}
+								/>
+							)}
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										<Text uuid="dialog.title.absolutely.sure" />
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										<Text uuid="billing.catalog-item.delete.description" />
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>
+										<Text uuid="form.cancel" />
+									</AlertDialogCancel>
+									<AlertDialogAction onClick={handleDelete}>
+										<Text uuid="form.continue" />
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					}
+					searchPlaceholder={textGet("billing.catalog-item.search.placeholder")}
+					searchValue={searchInput}
+					onSearchChange={setSearchInput}
+					columns={getCatalogItemColumns({
+						onEdit: handleEdit,
+						onDelete: handleDeleteRow,
+					})}
+					data={itemList}
+					loading={loading}
+					pageCount={totalPages}
+					page={page}
+					onPageChange={setPage}
 				/>
-				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-					<DataTable
-						bulkActions={
-							<AlertDialog>
-								{checkPermission([
-									PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
-								]) && (
-									<AlertDialogTrigger
-										render={
-											<Button variant="outline" disabled={rows.length === ZERO}>
-												<Trash className="mr-2 h-4 w-4" />
-												<Text uuid="table.button.delete.all.selected" />
-											</Button>
-										}
-									/>
-								)}
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											<Text uuid="dialog.title.absolutely.sure" />
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											<Text uuid="billing.catalog-item.delete.description" />
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>
-											<Text uuid="form.cancel" />
-										</AlertDialogCancel>
-										<AlertDialogAction onClick={handleDelete}>
-											<Text uuid="form.continue" />
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
-						}
-						searchPlaceholder={textGet(
-							"billing.catalog-item.search.placeholder",
-						)}
-						searchValue={searchInput}
-						onSearchChange={setSearchInput}
-						columns={
-							isMobile
-								? getCatalogItemColumnsMobile({
-										onEdit: handleEdit,
-										onDelete: handleDeleteRow,
-									})
-								: getCatalogItemColumns({
-										onEdit: handleEdit,
-										onDelete: handleDeleteRow,
-									})
-						}
-						data={itemList}
-						loading={loading}
-						pageCount={totalPages}
-						page={page}
-						onPageChange={setPage}
-					/>
-				</div>
-			</main>
-		</DashboardLayout>
+			</div>
+		</main>
 	);
 };
 

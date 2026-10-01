@@ -48,7 +48,6 @@ import {
 	type UpdateCompanyUserRequest,
 	updateCompanyUser,
 } from "@/api/company-service";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const editUserSchema = z.object({
 	user_name: z.string().min(2).regex(/^\S+$/, {
@@ -185,207 +184,203 @@ const CompanyUsers = () => {
 
 	return (
 		<>
-			<DashboardLayout>
-				<div className="space-y-6">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-3">
-							<Button
-								variant="ghost"
-								size="icon"
-								onClick={() => navigate("/companies")}
-							>
-								<ArrowLeft className="h-4 w-4" />
-							</Button>
-							<div>
-								<h1 className="text-2xl font-bold tracking-tight">
-									{textGet("backoffice.company_users.title")}
-								</h1>
-								{companyName && (
-									<p className="text-sm text-muted-foreground">{companyName}</p>
-								)}
-							</div>
+			<div className="space-y-6">
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-3">
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => navigate("/companies")}
+						>
+							<ArrowLeft className="h-4 w-4" />
+						</Button>
+						<div>
+							<h1 className="text-2xl font-bold tracking-tight">
+								{textGet("backoffice.company_users.title")}
+							</h1>
+							{companyName && (
+								<p className="text-sm text-muted-foreground">{companyName}</p>
+							)}
 						</div>
 					</div>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>
-								{textGet("backoffice.company_users.list.title")}
-							</CardTitle>
-							<CardDescription>
-								{textGet("backoffice.company_users.list.description")}
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							{loading ? (
-								<p className="text-sm text-muted-foreground py-8 text-center animate-pulse">
-									{textGet("backoffice.company_users.loading")}
-								</p>
-							) : users.length === 0 ? (
-								<p className="text-sm text-muted-foreground py-8 text-center">
-									{textGet("backoffice.company_users.empty")}
-								</p>
-							) : (
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>
-												{textGet("backoffice.company_users.col.username")}
-											</TableHead>
-											<TableHead>
-												{textGet("backoffice.company_users.col.email")}
-											</TableHead>
-											<TableHead>
-												{textGet("backoffice.company_users.col.role")}
-											</TableHead>
-											<TableHead>
-												{textGet("backoffice.company_users.col.environment")}
-											</TableHead>
-											<TableHead>
-												{textGet(
-													"backoffice.company_users.col.owned_companies",
-												)}
-											</TableHead>
-											<TableHead className="text-right">
-												{textGet("table.actions")}
-											</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{users.map((user) => (
-											<TableRow key={user.environment_id}>
-												<TableCell className="font-medium">
-													{user.user_name}
-												</TableCell>
-												<TableCell>{user.email}</TableCell>
-												<TableCell>
-													<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-														{user.role_name}
-													</span>
-												</TableCell>
-												<TableCell className="text-muted-foreground">
-													{user.environment_name}
-												</TableCell>
-												<TableCell className="text-muted-foreground">
-													{user.owned_companies} / {user.max_owned_companies}
-												</TableCell>
-												<TableCell className="text-right">
-													<Button
-														variant="ghost"
-														size="icon"
-														onClick={() => handleEdit(user)}
-													>
-														<Pencil className="h-4 w-4" />
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon"
-														disabled={generatingLink}
-														onClick={() => handleGenerateResetLink(user)}
-														title={textGet(
-															"backoffice.company_users.password_reset.button_title",
-														)}
-													>
-														<KeyRound className="h-4 w-4" />
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon"
-														onClick={() => handleDeleteClick(user)}
-														title={textGet(
-															"backoffice.company_users.delete.button_title",
-														)}
-													>
-														<Trash2 className="h-4 w-4 text-destructive" />
-													</Button>
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							)}
-						</CardContent>
-					</Card>
 				</div>
 
-				{/* Edit User Dialog */}
-				<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-					<DialogContent className="sm:max-w-md">
-						<DialogHeader>
-							<DialogTitle>
-								{textGet("backoffice.company_users.edit.title")}
-							</DialogTitle>
-							<DialogDescription>
-								{textGet("backoffice.company_users.edit.description")}
-							</DialogDescription>
-						</DialogHeader>
-						{editingUser && (
-							<Form<typeof editUserSchema>
-								schema={editUserSchema}
-								onSubmit={handleSave}
-								defaultValues={{
-									user_name: editingUser.user_name,
-									email: editingUser.email,
-									role_id: String(editingUser.role_id),
-									max_owned_companies: String(editingUser.max_owned_companies),
-								}}
-							>
-								{(field) => (
-									<>
-										<div className="space-y-4 py-2">
-											<FormInput
-												field={field}
-												name="user_name"
-												type="text"
-												label={textGet("backoffice.company_users.col.username")}
-											/>
-											<FormInput
-												field={field}
-												name="email"
-												type="email"
-												label={textGet("backoffice.company_users.col.email")}
-											/>
-											<FormSelect
-												field={field}
-												name="role_id"
-												label={textGet("backoffice.company_users.col.role")}
-												placeholder={textGet(
-													"backoffice.company_users.select_role",
-												)}
-												options={roleOptions}
-											/>
-											<FormInput
-												field={field}
-												name="max_owned_companies"
-												type="number"
-												label={textGet(
-													"backoffice.company_users.max_owned_companies",
-												)}
-												description={textGet(
-													"backoffice.company_users.max_owned_companies.description",
-												)}
-											/>
-										</div>
-										<DialogFooter>
-											<Button
-												type="button"
-												variant="outline"
-												onClick={() => setEditDialogOpen(false)}
-											>
-												{textGet("backoffice.company_users.cancel")}
-											</Button>
-											<Button type="submit" disabled={saving}>
-												{saving && <Spinner />}
-												{textGet("backoffice.company_users.save")}
-											</Button>
-										</DialogFooter>
-									</>
-								)}
-							</Form>
+				<Card>
+					<CardHeader>
+						<CardTitle>
+							{textGet("backoffice.company_users.list.title")}
+						</CardTitle>
+						<CardDescription>
+							{textGet("backoffice.company_users.list.description")}
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{loading ? (
+							<p className="text-sm text-muted-foreground py-8 text-center animate-pulse">
+								{textGet("backoffice.company_users.loading")}
+							</p>
+						) : users.length === 0 ? (
+							<p className="text-sm text-muted-foreground py-8 text-center">
+								{textGet("backoffice.company_users.empty")}
+							</p>
+						) : (
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>
+											{textGet("backoffice.company_users.col.username")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.company_users.col.email")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.company_users.col.role")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.company_users.col.environment")}
+										</TableHead>
+										<TableHead>
+											{textGet("backoffice.company_users.col.owned_companies")}
+										</TableHead>
+										<TableHead className="text-right">
+											{textGet("table.actions")}
+										</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{users.map((user) => (
+										<TableRow key={user.environment_id}>
+											<TableCell className="font-medium">
+												{user.user_name}
+											</TableCell>
+											<TableCell>{user.email}</TableCell>
+											<TableCell>
+												<span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+													{user.role_name}
+												</span>
+											</TableCell>
+											<TableCell className="text-muted-foreground">
+												{user.environment_name}
+											</TableCell>
+											<TableCell className="text-muted-foreground">
+												{user.owned_companies} / {user.max_owned_companies}
+											</TableCell>
+											<TableCell className="text-right">
+												<Button
+													variant="ghost"
+													size="icon"
+													onClick={() => handleEdit(user)}
+												>
+													<Pencil className="h-4 w-4" />
+												</Button>
+												<Button
+													variant="ghost"
+													size="icon"
+													disabled={generatingLink}
+													onClick={() => handleGenerateResetLink(user)}
+													title={textGet(
+														"backoffice.company_users.password_reset.button_title",
+													)}
+												>
+													<KeyRound className="h-4 w-4" />
+												</Button>
+												<Button
+													variant="ghost"
+													size="icon"
+													onClick={() => handleDeleteClick(user)}
+													title={textGet(
+														"backoffice.company_users.delete.button_title",
+													)}
+												>
+													<Trash2 className="h-4 w-4 text-destructive" />
+												</Button>
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
 						)}
-					</DialogContent>
-				</Dialog>
-			</DashboardLayout>
+					</CardContent>
+				</Card>
+			</div>
+
+			{/* Edit User Dialog */}
+			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>
+							{textGet("backoffice.company_users.edit.title")}
+						</DialogTitle>
+						<DialogDescription>
+							{textGet("backoffice.company_users.edit.description")}
+						</DialogDescription>
+					</DialogHeader>
+					{editingUser && (
+						<Form<typeof editUserSchema>
+							schema={editUserSchema}
+							onSubmit={handleSave}
+							defaultValues={{
+								user_name: editingUser.user_name,
+								email: editingUser.email,
+								role_id: String(editingUser.role_id),
+								max_owned_companies: String(editingUser.max_owned_companies),
+							}}
+						>
+							{(field) => (
+								<>
+									<div className="space-y-4 py-2">
+										<FormInput
+											field={field}
+											name="user_name"
+											type="text"
+											label={textGet("backoffice.company_users.col.username")}
+										/>
+										<FormInput
+											field={field}
+											name="email"
+											type="email"
+											label={textGet("backoffice.company_users.col.email")}
+										/>
+										<FormSelect
+											field={field}
+											name="role_id"
+											label={textGet("backoffice.company_users.col.role")}
+											placeholder={textGet(
+												"backoffice.company_users.select_role",
+											)}
+											options={roleOptions}
+										/>
+										<FormInput
+											field={field}
+											name="max_owned_companies"
+											type="number"
+											label={textGet(
+												"backoffice.company_users.max_owned_companies",
+											)}
+											description={textGet(
+												"backoffice.company_users.max_owned_companies.description",
+											)}
+										/>
+									</div>
+									<DialogFooter>
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => setEditDialogOpen(false)}
+										>
+											{textGet("backoffice.company_users.cancel")}
+										</Button>
+										<Button type="submit" disabled={saving}>
+											{saving && <Spinner />}
+											{textGet("backoffice.company_users.save")}
+										</Button>
+									</DialogFooter>
+								</>
+							)}
+						</Form>
+					)}
+				</DialogContent>
+			</Dialog>
 
 			{/* Password Reset Link Dialog */}
 			<Dialog open={resetLinkDialogOpen} onOpenChange={setResetLinkDialogOpen}>

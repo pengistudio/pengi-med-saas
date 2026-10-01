@@ -30,7 +30,6 @@ import {
 	type PlanTerm,
 	PlanTermFields,
 } from "@/lib/subscription/plan-term-fields";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const companySchema = z.object({
 	trade_name: z.string().min(2),
@@ -167,157 +166,153 @@ const CreateCompany = () => {
 	}
 
 	return (
-		<DashboardLayout>
-			<div className="max-w-2xl mx-auto">
-				<StepIndicator current={step} textGet={textGet} />
+		<div className="max-w-2xl mx-auto">
+			<StepIndicator current={step} textGet={textGet} />
 
-				{step === "empresa" && (
-					<Form<typeof companySchema>
-						schema={companySchema}
-						onSubmit={handleCompanySubmit}
-						defaultValues={{ trade_name: "", legal_name: "" }}
-					>
-						{(field) => (
-							<Card>
-								<CardHeader>
-									<CardTitle>
-										{textGet("backoffice.onboarding.company.title")}
-									</CardTitle>
-									<CardDescription>
-										{textGet("backoffice.onboarding.company.description")}
-									</CardDescription>
-								</CardHeader>
-								<CardContent className="space-y-4">
-									<FormInput
-										field={field}
-										name="trade_name"
-										type="text"
-										label={textGet("backoffice.companies.col.trade_name")}
-										placeholder={textGet(
-											"backoffice.companies.col.trade_name.placeholder",
-										)}
+			{step === "empresa" && (
+				<Form<typeof companySchema>
+					schema={companySchema}
+					onSubmit={handleCompanySubmit}
+					defaultValues={{ trade_name: "", legal_name: "" }}
+				>
+					{(field) => (
+						<Card>
+							<CardHeader>
+								<CardTitle>
+									{textGet("backoffice.onboarding.company.title")}
+								</CardTitle>
+								<CardDescription>
+									{textGet("backoffice.onboarding.company.description")}
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<FormInput
+									field={field}
+									name="trade_name"
+									type="text"
+									label={textGet("backoffice.companies.col.trade_name")}
+									placeholder={textGet(
+										"backoffice.companies.col.trade_name.placeholder",
+									)}
+								/>
+								<FormInput
+									field={field}
+									name="legal_name"
+									type="text"
+									label={textGet("backoffice.companies.col.legal_name")}
+									placeholder={textGet(
+										"backoffice.companies.col.legal_name.placeholder",
+									)}
+								/>
+							</CardContent>
+							<CardFooter className="flex justify-between">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => navigate("/companies")}
+								>
+									{textGet("backoffice.companies.cancel")}
+								</Button>
+								<Button type="submit" disabled={loading}>
+									{loading && <Spinner />}
+									{textGet("backoffice.onboarding.next")}
+								</Button>
+							</CardFooter>
+						</Card>
+					)}
+				</Form>
+			)}
+
+			{step === "suscripcion" && (
+				<Card>
+					<CardHeader>
+						<CardTitle>
+							{textGet("backoffice.onboarding.subscription.title")}
+						</CardTitle>
+						<CardDescription>
+							{textGet("backoffice.onboarding.subscription.description")}
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<PlanTermFields plans={plans} value={term} onChange={setTerm} />
+					</CardContent>
+					<CardFooter className="flex justify-between">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => setStep("empresa")}
+						>
+							{textGet("backoffice.onboarding.back")}
+						</Button>
+						<Button
+							onClick={handleSubscriptionSubmit}
+							disabled={loading || !term.planCode || !term.expiresAt}
+						>
+							{loading && <Spinner />}
+							{textGet("backoffice.onboarding.next")}
+						</Button>
+					</CardFooter>
+				</Card>
+			)}
+
+			{step === "acceso" && (
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<Check className="w-5 h-5 text-emerald-500" />
+							{textGet("backoffice.onboarding.access.title")}
+						</CardTitle>
+						<CardDescription>
+							{textGet("backoffice.onboarding.access.description")}{" "}
+							<strong>{company?.trade_name}</strong>
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<div className="space-y-2">
+							<Label>{textGet("backoffice.companies.signup_link.title")}</Label>
+							{linkLoading ? (
+								<p className="text-sm text-muted-foreground animate-pulse">
+									{textGet("backoffice.companies.signup_link.generating")}
+								</p>
+							) : signupLink ? (
+								<div className="flex gap-2">
+									<Input
+										value={signupLink}
+										readOnly
+										className="flex-1 text-xs"
 									/>
-									<FormInput
-										field={field}
-										name="legal_name"
-										type="text"
-										label={textGet("backoffice.companies.col.legal_name")}
-										placeholder={textGet(
-											"backoffice.companies.col.legal_name.placeholder",
-										)}
-									/>
-								</CardContent>
-								<CardFooter className="flex justify-between">
 									<Button
 										type="button"
 										variant="outline"
-										onClick={() => navigate("/companies")}
+										size="icon"
+										onClick={handleCopy}
 									>
-										{textGet("backoffice.companies.cancel")}
+										{copied ? (
+											<Check className="w-4 h-4 text-emerald-500" />
+										) : (
+											<Copy className="w-4 h-4" />
+										)}
 									</Button>
-									<Button type="submit" disabled={loading}>
-										{loading && <Spinner />}
-										{textGet("backoffice.onboarding.next")}
-									</Button>
-								</CardFooter>
-							</Card>
-						)}
-					</Form>
-				)}
-
-				{step === "suscripcion" && (
-					<Card>
-						<CardHeader>
-							<CardTitle>
-								{textGet("backoffice.onboarding.subscription.title")}
-							</CardTitle>
-							<CardDescription>
-								{textGet("backoffice.onboarding.subscription.description")}
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<PlanTermFields plans={plans} value={term} onChange={setTerm} />
-						</CardContent>
-						<CardFooter className="flex justify-between">
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setStep("empresa")}
-							>
-								{textGet("backoffice.onboarding.back")}
-							</Button>
-							<Button
-								onClick={handleSubscriptionSubmit}
-								disabled={loading || !term.planCode || !term.expiresAt}
-							>
-								{loading && <Spinner />}
-								{textGet("backoffice.onboarding.next")}
-							</Button>
-						</CardFooter>
-					</Card>
-				)}
-
-				{step === "acceso" && (
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Check className="w-5 h-5 text-emerald-500" />
-								{textGet("backoffice.onboarding.access.title")}
-							</CardTitle>
-							<CardDescription>
-								{textGet("backoffice.onboarding.access.description")}{" "}
-								<strong>{company?.trade_name}</strong>
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label>
-									{textGet("backoffice.companies.signup_link.title")}
-								</Label>
-								{linkLoading ? (
-									<p className="text-sm text-muted-foreground animate-pulse">
-										{textGet("backoffice.companies.signup_link.generating")}
-									</p>
-								) : signupLink ? (
-									<div className="flex gap-2">
-										<Input
-											value={signupLink}
-											readOnly
-											className="flex-1 text-xs"
-										/>
-										<Button
-											type="button"
-											variant="outline"
-											size="icon"
-											onClick={handleCopy}
-										>
-											{copied ? (
-												<Check className="w-4 h-4 text-emerald-500" />
-											) : (
-												<Copy className="w-4 h-4" />
-											)}
-										</Button>
-									</div>
-								) : (
-									<p className="text-sm text-destructive">
-										{textGet("backoffice.companies.signup_link.error")}
-									</p>
-								)}
-							</div>
-							<p className="text-xs text-muted-foreground flex items-start gap-1.5">
-								<Link className="w-3 h-3 mt-0.5 shrink-0" />
-								{textGet("backoffice.onboarding.access.hint")}
-							</p>
-						</CardContent>
-						<CardFooter className="flex justify-end">
-							<Button onClick={() => navigate("/companies")}>
-								{textGet("backoffice.onboarding.finish")}
-							</Button>
-						</CardFooter>
-					</Card>
-				)}
-			</div>
-		</DashboardLayout>
+								</div>
+							) : (
+								<p className="text-sm text-destructive">
+									{textGet("backoffice.companies.signup_link.error")}
+								</p>
+							)}
+						</div>
+						<p className="text-xs text-muted-foreground flex items-start gap-1.5">
+							<Link className="w-3 h-3 mt-0.5 shrink-0" />
+							{textGet("backoffice.onboarding.access.hint")}
+						</p>
+					</CardContent>
+					<CardFooter className="flex justify-end">
+						<Button onClick={() => navigate("/companies")}>
+							{textGet("backoffice.onboarding.finish")}
+						</Button>
+					</CardFooter>
+				</Card>
+			)}
+		</div>
 	);
 };
 

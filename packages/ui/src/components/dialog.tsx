@@ -3,6 +3,9 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 import type * as React from "react";
+import { createContext, useContext } from "react";
+import { useUiText } from "../context/text-context";
+import { phoneSheet, phoneSheetFooter } from "../lib/phone-sheet";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
 
@@ -38,6 +41,29 @@ function DialogOverlay({
 	);
 }
 
+// Lets DialogHeader carry the close button, so it stays in view while the
+// dialog scrolls; dialogs without a header keep it in the corner.
+const DialogCloseContext = createContext(false);
+
+function DialogCloseButton({ className }: { className?: string }) {
+	const { textGet } = useUiText();
+	return (
+		<DialogPrimitive.Close
+			data-slot="dialog-close"
+			render={
+				<Button
+					variant="ghost"
+					className={cn("absolute top-2 right-2 max-sm:size-9", className)}
+					size="icon-sm"
+				/>
+			}
+		>
+			<XIcon />
+			<span className="sr-only">{textGet("dialog.close")}</span>
+		</DialogPrimitive.Close>
+	);
+}
+
 function DialogContent({
 	className,
 	children,
@@ -52,39 +78,45 @@ function DialogContent({
 			<DialogPrimitive.Popup
 				data-slot="dialog-content"
 				className={cn(
-					"bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid max-w-[calc(100%-2rem)] gap-4 rounded-xl p-4 text-sm ring-1 duration-100 sm:max-w-sm fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+					"group/dialog bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid max-w-[calc(100%-2rem)] gap-4 rounded-xl p-4 text-sm ring-1 duration-100 sm:max-w-sm fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+					// Taller than the screen: scroll inside, header and footer pinned.
+					"max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain",
+					phoneSheet,
 					className,
 				)}
 				{...props}
 			>
-				{children}
+				<DialogCloseContext.Provider value={showCloseButton}>
+					{children}
+				</DialogCloseContext.Provider>
 				{showCloseButton && (
-					<DialogPrimitive.Close
-						data-slot="dialog-close"
-						render={
-							<Button
-								variant="ghost"
-								className="absolute top-2 right-2"
-								size="icon-sm"
-							/>
-						}
-					>
-						<XIcon />
-						<span className="sr-only">Close</span>
-					</DialogPrimitive.Close>
+					<DialogCloseButton className="group-has-[[data-slot=dialog-header]]/dialog:hidden" />
 				)}
 			</DialogPrimitive.Popup>
 		</DialogPortal>
 	);
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({
+	className,
+	children,
+	...props
+}: React.ComponentProps<"div">) {
+	const showCloseButton = useContext(DialogCloseContext);
 	return (
 		<div
 			data-slot="dialog-header"
-			className={cn("gap-2 flex flex-col", className)}
+			className={cn(
+				// Pinned to the top of a scrolling dialog (past its p-4).
+				"sticky -top-4 z-10 -mx-4 -mt-4 -mb-2 bg-background px-4 pt-4 pb-2 gap-2 flex flex-col",
+				showCloseButton && "pr-12",
+				className,
+			)}
 			{...props}
-		/>
+		>
+			{children}
+			{showCloseButton && <DialogCloseButton />}
+		</div>
 	);
 }
 
@@ -96,11 +128,15 @@ function DialogFooter({
 }: React.ComponentProps<"div"> & {
 	showCloseButton?: boolean;
 }) {
+	const { textGet } = useUiText();
 	return (
 		<div
 			data-slot="dialog-footer"
 			className={cn(
-				"bg-muted/50 -mx-4 -mb-4 rounded-b-xl border-t p-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+				// Pinned to the bottom of a scrolling dialog (past its p-4), so its tint
+				// must be opaque.
+				"sticky -bottom-4 z-10 bg-[color-mix(in_oklab,var(--muted)_50%,var(--background))] -mx-4 -mb-4 rounded-b-xl border-t p-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+				phoneSheetFooter,
 				className,
 			)}
 			{...props}
@@ -108,7 +144,7 @@ function DialogFooter({
 			{children}
 			{showCloseButton && (
 				<DialogPrimitive.Close render={<Button variant="outline" />}>
-					Close
+					{textGet("dialog.close")}
 				</DialogPrimitive.Close>
 			)}
 		</div>

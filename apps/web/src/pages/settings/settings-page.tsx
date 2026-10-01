@@ -37,7 +37,6 @@ import { Switch } from "@/components/ui/switch";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { cn } from "@/lib/utils";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 /** A labelled group of rows inside a section. */
 function SettingsGroup({
@@ -210,221 +209,215 @@ const SettingsPage = () => {
 	];
 
 	return (
-		<DashboardLayout>
-			<div className="grid max-w-5xl gap-8">
-				<PageHeader title={<Text uuid="settings.title" />} />
+		<div className="grid max-w-5xl gap-8">
+			<PageHeader title={<Text uuid="settings.title" />} />
 
-				<SettingsSection
-					title={<Text uuid="settings.clinical.title" />}
-					description={<Text uuid="settings.clinical.description" />}
-				>
-					<SettingsGroup
-						title={<Text uuid="settings.clinical.section.table" />}
-					>
-						{tableToggles.map(({ key, labelKey }) => (
-							<SwitchRow
-								key={key}
-								id={`setting-${key}`}
-								label={<Text uuid={labelKey} />}
-								checked={settings.clinical[key] as boolean}
-								onToggle={() => toggleClinical(key)}
-							/>
-						))}
-					</SettingsGroup>
+			<SettingsSection
+				title={<Text uuid="settings.clinical.title" />}
+				description={<Text uuid="settings.clinical.description" />}
+			>
+				<SettingsGroup title={<Text uuid="settings.clinical.section.table" />}>
+					{tableToggles.map(({ key, labelKey }) => (
+						<SwitchRow
+							key={key}
+							id={`setting-${key}`}
+							label={<Text uuid={labelKey} />}
+							checked={settings.clinical[key] as boolean}
+							onToggle={() => toggleClinical(key)}
+						/>
+					))}
+				</SettingsGroup>
 
-					<SettingsGroup title={<Text uuid="settings.clinical.section.form" />}>
-						{formToggles.map(({ key, labelKey }) => (
-							<SwitchRow
-								key={key}
-								id={`setting-${key}`}
-								label={<Text uuid={labelKey} />}
-								checked={settings.clinical[key] as boolean}
-								onToggle={() => toggleClinical(key)}
-							/>
-						))}
+				<SettingsGroup title={<Text uuid="settings.clinical.section.form" />}>
+					{formToggles.map(({ key, labelKey }) => (
+						<SwitchRow
+							key={key}
+							id={`setting-${key}`}
+							label={<Text uuid={labelKey} />}
+							checked={settings.clinical[key] as boolean}
+							onToggle={() => toggleClinical(key)}
+						/>
+					))}
 
-						{/* Diagnosis system: only matters while diagnoses are on */}
-						{settings.clinical.show_diagnoses && (
-							<div className="grid gap-2 py-2.5">
-								<div className="flex items-center justify-between gap-4">
-									<span className="text-sm" id="diagnosis-system-label">
-										<Text uuid="settings.clinical.diagnosis_system" />
-									</span>
-									<fieldset
-										aria-labelledby="diagnosis-system-label"
-										className="inline-flex rounded-lg bg-muted p-0.5"
-									>
-										{(["cie11", "cie10"] as const).map((sys) => (
-											<label
-												key={sys}
-												className="cursor-pointer rounded-md px-3 py-1 text-sm font-medium tabular-nums text-muted-foreground transition-colors hover:text-foreground has-checked:bg-background has-checked:text-foreground has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-ring"
-											>
-												<input
-													type="radio"
-													name="diagnosis-system"
-													value={sys}
-													checked={settings.clinical.diagnosis_system === sys}
-													onChange={() => setDiagnosisSystem(sys)}
-													className="sr-only"
-												/>
-												{sys === "cie11" ? "CIE-11" : "CIE-10"}
-											</label>
-										))}
-									</fieldset>
-								</div>
-								{settings.clinical.diagnosis_system === "cie10" && (
-									<p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-										<AlertTriangle className="mt-px size-3.5 shrink-0" />
-										<Text uuid="settings.clinical.cie10_lang_warning" />
-									</p>
-								)}
-							</div>
-						)}
-					</SettingsGroup>
-				</SettingsSection>
-
-				<SettingsSection
-					title={<Text uuid="settings.prescription_template.title" />}
-					description={
-						<Text uuid="settings.prescription_template.description" />
-					}
-				>
-					<div className="flex flex-wrap items-center justify-between gap-3">
-						<StatusPill active={!!hasCustomTemplate}>
-							{hasCustomTemplate ? (
-								<Text uuid="settings.prescription_template.status.custom" />
-							) : (
-								<Text uuid="settings.prescription_template.status.default" />
-							)}
-						</StatusPill>
-						<div className="flex gap-2">
-							<input
-								ref={fileInputRef}
-								type="file"
-								accept=".html"
-								className="hidden"
-								onChange={handleUploadTemplate}
-							/>
-							{hasCustomTemplate && (
-								<AlertDialog
-									open={resetConfirmOpen}
-									onOpenChange={setResetConfirmOpen}
+					{/* Diagnosis system: only matters while diagnoses are on */}
+					{settings.clinical.show_diagnoses && (
+						<div className="grid gap-2 py-2.5">
+							<div className="flex items-center justify-between gap-4">
+								<span className="text-sm" id="diagnosis-system-label">
+									<Text uuid="settings.clinical.diagnosis_system" />
+								</span>
+								<fieldset
+									aria-labelledby="diagnosis-system-label"
+									className="inline-flex rounded-lg bg-muted p-0.5"
 								>
-									<AlertDialogTrigger
-										disabled={templateLoading}
-										render={
-											<Button
-												variant="ghost"
-												size="sm"
-												className="text-destructive hover:text-destructive"
+									{(["cie11", "cie10"] as const).map((sys) => (
+										<label
+											key={sys}
+											className="cursor-pointer rounded-md px-3 py-1 text-sm font-medium tabular-nums text-muted-foreground transition-colors hover:text-foreground has-checked:bg-background has-checked:text-foreground has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-ring"
+										>
+											<input
+												type="radio"
+												name="diagnosis-system"
+												value={sys}
+												checked={settings.clinical.diagnosis_system === sys}
+												onChange={() => setDiagnosisSystem(sys)}
+												className="sr-only"
 											/>
-										}
-									>
-										<Text uuid="settings.prescription_template.reset" />
-									</AlertDialogTrigger>
-									<AlertDialogContent>
-										<AlertDialogHeader>
-											<AlertDialogTitle>
-												<Text uuid="settings.prescription_template.reset_confirm.title" />
-											</AlertDialogTitle>
-											<AlertDialogDescription>
-												<Text uuid="settings.prescription_template.reset_confirm.description" />
-											</AlertDialogDescription>
-										</AlertDialogHeader>
-										<AlertDialogFooter>
-											<AlertDialogCancel>
-												<Text uuid="common.cancel" />
-											</AlertDialogCancel>
-											<AlertDialogAction
-												variant="destructive"
-												disabled={templateLoading}
-												onClick={handleDeleteTemplate}
-											>
-												<Text uuid="settings.prescription_template.reset_confirm.action" />
-											</AlertDialogAction>
-										</AlertDialogFooter>
-									</AlertDialogContent>
-								</AlertDialog>
+											{sys === "cie11" ? "CIE-11" : "CIE-10"}
+										</label>
+									))}
+								</fieldset>
+							</div>
+							{settings.clinical.diagnosis_system === "cie10" && (
+								<p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+									<AlertTriangle className="mt-px size-3.5 shrink-0" />
+									<Text uuid="settings.clinical.cie10_lang_warning" />
+								</p>
 							)}
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={templateLoading}
-								onClick={() => fileInputRef.current?.click()}
-							>
-								<Text uuid="settings.prescription_template.upload" />
-							</Button>
-						</div>
-					</div>
-				</SettingsSection>
-
-				<SettingsSection title={<Text uuid="settings.integrations.title" />}>
-					<div className="flex flex-wrap items-start justify-between gap-4">
-						<div className="grid gap-1">
-							<p className="text-sm font-medium">
-								<Text uuid="settings.integrations.google.title" />
-							</p>
-							<p className="text-sm text-muted-foreground">
-								<Text uuid="settings.integrations.google.description" />
-							</p>
-							<StatusPill active={!!googleStatus?.connected}>
-								{googleStatus?.connected ? (
-									<Text uuid="settings.integrations.google.connected" />
-								) : (
-									<Text uuid="settings.integrations.google.disconnected" />
-								)}
-							</StatusPill>
-						</div>
-
-						{googleStatus?.connected ? (
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={googleLoading}
-								onClick={handleDisconnectGoogle}
-							>
-								<Text uuid="settings.integrations.google.disconnect" />
-							</Button>
-						) : (
-							<Button
-								size="sm"
-								disabled={googleLoading}
-								onClick={handleConnectGoogle}
-							>
-								<Text uuid="settings.integrations.google.connect" />
-							</Button>
-						)}
-					</div>
-
-					{/* Steps: only while not connected */}
-					{!googleStatus?.connected && (
-						<div className="grid gap-3 rounded-lg bg-muted/50 p-4">
-							<p className="text-sm font-medium">
-								<Text uuid="settings.integrations.google.tutorial.title" />
-							</p>
-							<ol className="grid gap-2">
-								{[1, 2, 3].map((step) => (
-									<li key={step} className="flex gap-3 text-sm">
-										<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-											{step}
-										</span>
-										<span className="text-muted-foreground">
-											<Text
-												uuid={`settings.integrations.google.tutorial.step${step}`}
-											/>
-										</span>
-									</li>
-								))}
-							</ol>
 						</div>
 					)}
-				</SettingsSection>
+				</SettingsGroup>
+			</SettingsSection>
 
-				<SettingsSection title={<Text uuid="tasks.title" />}>
-					<KanbanSettings />
-				</SettingsSection>
-			</div>
-		</DashboardLayout>
+			<SettingsSection
+				title={<Text uuid="settings.prescription_template.title" />}
+				description={<Text uuid="settings.prescription_template.description" />}
+			>
+				<div className="flex flex-wrap items-center justify-between gap-3">
+					<StatusPill active={!!hasCustomTemplate}>
+						{hasCustomTemplate ? (
+							<Text uuid="settings.prescription_template.status.custom" />
+						) : (
+							<Text uuid="settings.prescription_template.status.default" />
+						)}
+					</StatusPill>
+					<div className="flex gap-2">
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept=".html"
+							className="hidden"
+							onChange={handleUploadTemplate}
+						/>
+						{hasCustomTemplate && (
+							<AlertDialog
+								open={resetConfirmOpen}
+								onOpenChange={setResetConfirmOpen}
+							>
+								<AlertDialogTrigger
+									disabled={templateLoading}
+									render={
+										<Button
+											variant="ghost"
+											size="sm"
+											className="text-destructive hover:text-destructive"
+										/>
+									}
+								>
+									<Text uuid="settings.prescription_template.reset" />
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											<Text uuid="settings.prescription_template.reset_confirm.title" />
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											<Text uuid="settings.prescription_template.reset_confirm.description" />
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>
+											<Text uuid="common.cancel" />
+										</AlertDialogCancel>
+										<AlertDialogAction
+											variant="destructive"
+											disabled={templateLoading}
+											onClick={handleDeleteTemplate}
+										>
+											<Text uuid="settings.prescription_template.reset_confirm.action" />
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						)}
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={templateLoading}
+							onClick={() => fileInputRef.current?.click()}
+						>
+							<Text uuid="settings.prescription_template.upload" />
+						</Button>
+					</div>
+				</div>
+			</SettingsSection>
+
+			<SettingsSection title={<Text uuid="settings.integrations.title" />}>
+				<div className="flex flex-wrap items-start justify-between gap-4">
+					<div className="grid gap-1">
+						<p className="text-sm font-medium">
+							<Text uuid="settings.integrations.google.title" />
+						</p>
+						<p className="text-sm text-muted-foreground">
+							<Text uuid="settings.integrations.google.description" />
+						</p>
+						<StatusPill active={!!googleStatus?.connected}>
+							{googleStatus?.connected ? (
+								<Text uuid="settings.integrations.google.connected" />
+							) : (
+								<Text uuid="settings.integrations.google.disconnected" />
+							)}
+						</StatusPill>
+					</div>
+
+					{googleStatus?.connected ? (
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={googleLoading}
+							onClick={handleDisconnectGoogle}
+						>
+							<Text uuid="settings.integrations.google.disconnect" />
+						</Button>
+					) : (
+						<Button
+							size="sm"
+							disabled={googleLoading}
+							onClick={handleConnectGoogle}
+						>
+							<Text uuid="settings.integrations.google.connect" />
+						</Button>
+					)}
+				</div>
+
+				{/* Steps: only while not connected */}
+				{!googleStatus?.connected && (
+					<div className="grid gap-3 rounded-lg bg-muted/50 p-4">
+						<p className="text-sm font-medium">
+							<Text uuid="settings.integrations.google.tutorial.title" />
+						</p>
+						<ol className="grid gap-2">
+							{[1, 2, 3].map((step) => (
+								<li key={step} className="flex gap-3 text-sm">
+									<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+										{step}
+									</span>
+									<span className="text-muted-foreground">
+										<Text
+											uuid={`settings.integrations.google.tutorial.step${step}`}
+										/>
+									</span>
+								</li>
+							))}
+						</ol>
+					</div>
+				)}
+			</SettingsSection>
+
+			<SettingsSection title={<Text uuid="tasks.title" />}>
+				<KanbanSettings />
+			</SettingsSection>
+		</div>
 	);
 };
 

@@ -235,8 +235,11 @@ const { textGet } = useText();
 
 ### Paso 3: Columnas de la tabla
 
-`src/sections/columns/<domain>/<x>-columns.tsx`, con versión desktop y mobile
-(patrón `sections/columns/billing/catalog-item-columns.tsx`):
+`src/sections/columns/<domain>/<x>-columns.tsx`, un solo juego de columnas. En el
+teléfono `DataTable` las reacomoda como lista según `meta.phone` (`title`, `end`,
+`subtitle`, `status`, `detail` por defecto con `meta.title` como etiqueta, o
+`hidden`); `select` y `actions` se ubican solos. Sin `meta.phone` la primera
+columna encabeza la fila (patrón `sections/columns/billing/catalog-item-columns.tsx`):
 
 ```typescript
 import { DataTableColumnHeader, Text } from "@pengi/ui";
@@ -251,14 +254,13 @@ interface ItemColumnProps {
 export const getItemColumns = ({ onEdit, onDelete }: ItemColumnProps): ColumnDef<Item>[] => [
   {
     accessorKey: "name",
+    meta: { title: "item.column.name", phone: "title" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={<Text uuid="item.column.name" />} />
     ),
   },
   // columna "select" con Checkbox para selección múltiple, columna de acciones...
 ];
-
-export const getItemColumnsMobile = (props: ItemColumnProps): ColumnDef<Item>[] => [/* ... */];
 ```
 
 ### Paso 4: Página de listado
@@ -275,15 +277,12 @@ import { deleteItem, getItems, type Item } from "@/api/item-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
-import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS } from "@/lib/constants";
-import { getItemColumns, getItemColumnsMobile } from "@/sections/columns/item/item-columns";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { getItemColumns } from "@/sections/columns/item/item-columns";
 
 const ItemList = () => {
   const { textGet } = useText();
   const { checkPermission } = usePermission();
-  const { isMobile } = useResponsive();
   const navigate = useNavigate();
   const [items, setItems] = React.useState<Item[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -308,27 +307,25 @@ const ItemList = () => {
   };
 
   return (
-    <DashboardLayout>
-      <main className="grid items-start gap-4">
-        <PageHeader
-          title={textGet("item.title")}
-          description={textGet("item.page.description")}
-          actions={
-            checkPermission([PERMISSIONS.ITEM.PERMISSION_CREATE_ITEM]) && (
-              <Button onClick={() => navigate("/items/create")}>
-                <Plus className="mr-2 h-4 w-4" />
-                <Text uuid="item.create.button" />
-              </Button>
-            )
-          }
-        />
-        <DataTable
-          columns={isMobile ? getItemColumnsMobile(handlers) : getItemColumns(handlers)}
-          data={items}
-          loading={loading}
-        />
-      </main>
-    </DashboardLayout>
+    <main className="grid items-start gap-4">
+      <PageHeader
+        title={textGet("item.title")}
+        description={textGet("item.page.description")}
+        actions={
+          checkPermission([PERMISSIONS.ITEM.PERMISSION_CREATE_ITEM]) && (
+            <Button onClick={() => navigate("/items/create")}>
+              <Plus className="mr-2 h-4 w-4" />
+              <Text uuid="item.create.button" />
+            </Button>
+          )
+        }
+      />
+      <DataTable
+        columns={getItemColumns(handlers)}
+        data={items}
+        loading={loading}
+      />
+    </main>
   );
 };
 
@@ -439,8 +436,8 @@ JSON del backend, como en el patrón de i18n.
 
 - [ ] Servicio + tipos en `src/api/<domain>-service.ts` (tipos con `BaseModel` si aplica)
 - [ ] Store solo si el estado es compartido
-- [ ] Columnas en `sections/columns/<domain>/` (desktop + mobile)
-- [ ] Páginas en `pages/<domain>/` con `DashboardLayout` + `PageHeader`
+- [ ] Columnas en `sections/columns/<domain>/` (con `meta.phone` para el teléfono)
+- [ ] Páginas en `pages/<domain>/` con `PageHeader` (el `DashboardLayout` lo monta `routes.tsx`, no la página)
 - [ ] Formularios en `sections/forms/<domain>/` según `form-creation-standard.md`
 - [ ] Rutas `lazy()` con `CheckPermission`, grupo agregado a `routes`
 - [ ] `PERMISSIONS` en `constants.ts` idénticos al backend

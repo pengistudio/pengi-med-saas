@@ -152,6 +152,26 @@
         "value": "Ayuda"
     },
     {
+        "key": "shell.nav",
+        "value": "Navegación principal"
+    },
+    {
+        "key": "shell.menu.open",
+        "value": "Abrir menú"
+    },
+    {
+        "key": "shell.menu.close",
+        "value": "Cerrar menú"
+    },
+    {
+        "key": "shell.rail.collapse",
+        "value": "Contraer menú"
+    },
+    {
+        "key": "shell.rail.expand",
+        "value": "Expandir menú"
+    },
+    {
         "key": "dashboard.dropdown.profile.title",
         "value": "Mi cuenta"
     },
@@ -610,6 +630,10 @@
     {
         "key": "clinical.medical_documents.send_email.title",
         "value": "Enviar documento por correo"
+    },
+    {
+        "key": "dialog.close",
+        "value": "Cerrar"
     },
     {
         "key": "dialog.medical_report.title",
@@ -1684,6 +1708,22 @@
         "value": "Editar Receta"
     },
     {
+        "key": "dialog.prescription.title",
+        "value": "Receta médica"
+    },
+    {
+        "key": "dialog.prescription.description",
+        "value": "Detalles de la última prescripción emitida para este paciente."
+    },
+    {
+        "key": "dialog.prescription.content",
+        "value": "Contenido"
+    },
+    {
+        "key": "dialog.prescription.indications",
+        "value": "Indicaciones"
+    },
+    {
         "key": "dialog.edit_prescription.title",
         "value": "Editar Receta Médica"
     },
@@ -1726,6 +1766,14 @@
     {
         "key": "appointments.today",
         "value": "Hoy"
+    },
+    {
+        "key": "appointments.nav.previous",
+        "value": "Anterior"
+    },
+    {
+        "key": "appointments.nav.next",
+        "value": "Siguiente"
     },
     {
         "key": "appointments.new",
@@ -6126,6 +6174,14 @@
     {
         "key": "table.selection.clear",
         "value": "Quitar selección"
+    },
+    {
+        "key": "table.select_all",
+        "value": "Seleccionar todo"
+    },
+    {
+        "key": "table.select_row",
+        "value": "Seleccionar fila"
     },
     {
         "key": "signature.fetch.success",

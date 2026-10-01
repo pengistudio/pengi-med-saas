@@ -10,7 +10,6 @@ import { cn, dateParser } from "@/lib/utils";
 import { LogoUploadForm } from "@/sections/forms/billing/logo-upload-form";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 /** Warn about the signature this many days before it expires. */
 const EXPIRY_WARNING_DAYS = 30;
@@ -99,54 +98,52 @@ const SriSettingsPage = () => {
 	}, [fetchStatus]);
 
 	return (
-		<DashboardLayout>
-			<div className="grid max-w-5xl gap-8">
-				<div className="grid gap-4">
-					<PageHeader title={<Text uuid="billing.sri.settings.title" />} />
-					{loading && !status ? (
-						<div className="flex h-12 items-center">
-							<Loader2 className="size-5 animate-spin text-muted-foreground" />
-						</div>
-					) : (
-						<SignatureStatus status={status} />
-					)}
-				</div>
-
-				<SettingsSection
-					title={<Text uuid="billing.sri.signature.title" />}
-					description={
-						<>
-							<p>
-								<Text uuid="billing.sri.signature.description" />
-							</p>
-							<p>
-								<Text uuid="billing.sri.info.p1" />
-							</p>
-						</>
-					}
-				>
-					<SriSignatureForm onSuccess={fetchStatus} />
-				</SettingsSection>
-
-				{status && (
-					<SettingsSection
-						title={<Text uuid="billing.sri.company_info.title" />}
-						description={<Text uuid="billing.sri.company_info.description" />}
-					>
-						<SriInfoForm initialData={status} onSuccess={fetchStatus} />
-					</SettingsSection>
-				)}
-
-				{status && (
-					<SettingsSection
-						title={<Text uuid="billing.sri.logo.title" />}
-						description={<Text uuid="billing.sri.logo.description" />}
-					>
-						<LogoUploadForm hasLogo={status.has_logo} onSuccess={fetchStatus} />
-					</SettingsSection>
+		<div className="grid max-w-5xl gap-8">
+			<div className="grid gap-4">
+				<PageHeader title={<Text uuid="billing.sri.settings.title" />} />
+				{loading && !status ? (
+					<div className="flex h-12 items-center">
+						<Loader2 className="size-5 animate-spin text-muted-foreground" />
+					</div>
+				) : (
+					<SignatureStatus status={status} />
 				)}
 			</div>
-		</DashboardLayout>
+
+			<SettingsSection
+				title={<Text uuid="billing.sri.signature.title" />}
+				description={
+					<>
+						<p>
+							<Text uuid="billing.sri.signature.description" />
+						</p>
+						<p>
+							<Text uuid="billing.sri.info.p1" />
+						</p>
+					</>
+				}
+			>
+				<SriSignatureForm onSuccess={fetchStatus} />
+			</SettingsSection>
+
+			{status && (
+				<SettingsSection
+					title={<Text uuid="billing.sri.company_info.title" />}
+					description={<Text uuid="billing.sri.company_info.description" />}
+				>
+					<SriInfoForm initialData={status} onSuccess={fetchStatus} />
+				</SettingsSection>
+			)}
+
+			{status && (
+				<SettingsSection
+					title={<Text uuid="billing.sri.logo.title" />}
+					description={<Text uuid="billing.sri.logo.description" />}
+				>
+					<LogoUploadForm hasLogo={status.has_logo} onSuccess={fetchStatus} />
+				</SettingsSection>
+			)}
+		</div>
 	);
 };
 

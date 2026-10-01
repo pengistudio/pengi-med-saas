@@ -135,13 +135,11 @@ function RetryableStatusBadge({
 	return (
 		<div className="flex items-center gap-1">
 			<Popover>
-				<PopoverTrigger
-					render={
-						<Badge variant={badgeVariant} className={badgeClassName}>
-							<Text uuid={statusKey} />
-						</Badge>
-					}
-				/>
+				<PopoverTrigger className="cursor-pointer rounded-4xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+					<Badge variant={badgeVariant} className={badgeClassName}>
+						<Text uuid={statusKey} />
+					</Badge>
+				</PopoverTrigger>
 				<PopoverContent>
 					<PopoverTitle>
 						<Text uuid={detailTitleKey} />

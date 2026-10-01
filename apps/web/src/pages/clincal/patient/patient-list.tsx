@@ -31,13 +31,8 @@ import {
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import usePermission from "@/hooks/use-permission";
-import { useResponsive } from "@/hooks/user-responsive";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
-import {
-	patientColumnsMobile,
-	usePatientColumns,
-} from "@/sections/columns/clinical/patient-columns";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
+import { usePatientColumns } from "@/sections/columns/clinical/patient-columns";
 import { useClinicalListStore } from "@/store/clinical-list-store";
 import { useRowStore } from "@/store/row-store";
 
@@ -79,7 +74,6 @@ const Clinical = () => {
 
 	const { rows } = useRowStore();
 	const navigate = useNavigate();
-	const { isMobile } = useResponsive();
 	const { checkPermission } = usePermission();
 	const patientColumns = usePatientColumns();
 	const { textGet } = useText();
@@ -157,82 +151,80 @@ const Clinical = () => {
 	);
 
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				<PageHeader
-					title={textGet("dashboard.clinical.patients")}
-					description={textGet("clinical.patient.page.description")}
-					actions={
-						checkPermission([
-							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
-						]) && (
-							<Button onClick={handleCreate}>
-								<Plus className="mr-2 h-4 w-4" />
-								<Text uuid="clinical.patient.create" />
-							</Button>
-						)
+		<main className="grid grid-cols-1 items-start gap-4">
+			<PageHeader
+				title={textGet("dashboard.clinical.patients")}
+				description={textGet("clinical.patient.page.description")}
+				actions={
+					checkPermission([
+						PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
+					]) && (
+						<Button onClick={handleCreate}>
+							<Plus className="mr-2 h-4 w-4" />
+							<Text uuid="clinical.patient.create" />
+						</Button>
+					)
+				}
+			/>
+			<div>
+				<DataTable
+					bulkActions={
+						<AlertDialog>
+							{checkPermission([
+								PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT,
+							]) && (
+								<AlertDialogTrigger
+									render={
+										<Button
+											variant="outline"
+											disabled={rows.length === ZERO}
+											className="md:ml-auto"
+										>
+											<Trash className="mr-2 h-4 w-4" />
+											<Text uuid="table.button.delete.all.selected" />
+										</Button>
+									}
+								/>
+							)}
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										<Text uuid="dialog.title.absolutely.sure" />
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										<Text uuid="dialog.description.user.delete" />
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>
+										<Text uuid="form.cancel" />
+									</AlertDialogCancel>
+									<AlertDialogAction onClick={handleDelete}>
+										<Text uuid="form.continue" />
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					}
+					columns={patientColumns}
+					data={patients}
+					loading={loading}
+					searchPlaceholder={textGet("clinical.patient.search.placeholder")}
+					searchValue={searchInput}
+					onSearchChange={setSearchInput}
+					pageCount={totalPages}
+					page={page}
+					onPageChange={setPage}
+					toolbarRight={sortSelect}
+					rowClassName={(row) => {
+						const p = row.original as Patient;
+						return p.critical
+							? "border-l-2 border-l-destructive bg-destructive/5"
+							: "";
+					}}
 				/>
-				<div className="sm:max-w-[calc(100vw-6.5rem)] max-w-[calc(100vw-2rem)]">
-					<DataTable
-						bulkActions={
-							<AlertDialog>
-								{checkPermission([
-									PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT,
-								]) && (
-									<AlertDialogTrigger
-										render={
-											<Button
-												variant="outline"
-												disabled={rows.length === ZERO}
-												className="md:ml-auto"
-											>
-												<Trash className="mr-2 h-4 w-4" />
-												<Text uuid="table.button.delete.all.selected" />
-											</Button>
-										}
-									/>
-								)}
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											<Text uuid="dialog.title.absolutely.sure" />
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											<Text uuid="dialog.description.user.delete" />
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>
-											<Text uuid="form.cancel" />
-										</AlertDialogCancel>
-										<AlertDialogAction onClick={handleDelete}>
-											<Text uuid="form.continue" />
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
-						}
-						columns={isMobile ? patientColumnsMobile : patientColumns}
-						data={patients}
-						loading={loading}
-						searchPlaceholder={textGet("clinical.patient.search.placeholder")}
-						searchValue={searchInput}
-						onSearchChange={setSearchInput}
-						pageCount={totalPages}
-						page={page}
-						onPageChange={setPage}
-						toolbarRight={sortSelect}
-						rowClassName={(row) => {
-							const p = row.original as Patient;
-							return p.critical
-								? "border-l-2 border-l-destructive bg-destructive/5"
-								: "";
-						}}
-					/>
-				</div>
-			</main>
-		</DashboardLayout>
+			</div>
+		</main>
 	);
 
 	async function handleDelete() {
