@@ -1,8 +1,10 @@
 import { useText } from "@pengi/shared";
-import { Button, Form, FormInput, FormSelect, FormTextArea } from "@pengi/ui";
-import { z } from "zod";
-import { createTask, updateTask as updateTaskAPI } from "@/api/kanban-service";
 import {
+	Button,
+	Form,
+	FormInput,
+	FormSelect,
+	FormTextArea,
 	Sheet,
 	SheetBody,
 	SheetContent,
@@ -10,7 +12,9 @@ import {
 	SheetFooter,
 	SheetHeader,
 	SheetTitle,
-} from "@/components/ui/sheet";
+} from "@pengi/ui";
+import { z } from "zod";
+import { createTask, updateTask as updateTaskAPI } from "@/api/kanban-service";
 import { useKanbanStore } from "@/store/kanban-store";
 import { useSessionStore } from "@/store/session-store";
 import type { Task, TaskStatus } from "@/types/kanban-type";

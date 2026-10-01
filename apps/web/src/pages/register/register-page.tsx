@@ -8,6 +8,7 @@ import {
 	Form,
 	FormInput,
 	FormPasswordInput,
+	FormRow,
 	Spinner,
 	Text,
 } from "@pengi/ui";
@@ -358,7 +359,7 @@ const RegisterPage = () => {
 										label={textGet("register.email")}
 										autoComplete="email"
 									/>
-									<div className="grid grid-cols-2 gap-4">
+									<FormRow>
 										<FormPasswordInput
 											field={field}
 											name="password"
@@ -373,7 +374,7 @@ const RegisterPage = () => {
 											)}
 											label={textGet("register.confirm_password")}
 										/>
-									</div>
+									</FormRow>
 								</div>
 
 								{/* Actions */}

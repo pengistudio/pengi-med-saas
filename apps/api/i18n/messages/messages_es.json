@@ -632,6 +632,10 @@
         "value": "Enviar documento por correo"
     },
     {
+        "key": "dialog.close",
+        "value": "Cerrar"
+    },
+    {
         "key": "dialog.medical_report.title",
         "value": "Generar Informe Médico"
     },
@@ -1702,6 +1706,22 @@
     {
         "key": "clinical.medical_record.edit_prescription",
         "value": "Editar Receta"
+    },
+    {
+        "key": "dialog.prescription.title",
+        "value": "Receta médica"
+    },
+    {
+        "key": "dialog.prescription.description",
+        "value": "Detalles de la última prescripción emitida para este paciente."
+    },
+    {
+        "key": "dialog.prescription.content",
+        "value": "Contenido"
+    },
+    {
+        "key": "dialog.prescription.indications",
+        "value": "Indicaciones"
     },
     {
         "key": "dialog.edit_prescription.title",

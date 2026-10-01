@@ -8,6 +8,7 @@ import {
 	CardTitle,
 	Form,
 	FormInput,
+	FormRow,
 	Text,
 } from "@pengi/ui";
 import { Building2, Mail, Save, Shield, User } from "lucide-react";
@@ -84,7 +85,7 @@ const Profile = () => {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<div className="grid grid-cols-2 gap-4">
+					<FormRow>
 						<div>
 							<p className="text-sm font-medium text-muted-foreground">
 								{textGet("profile.username")}
@@ -102,7 +103,7 @@ const Profile = () => {
 								</p>
 							</div>
 						</div>
-					</div>
+					</FormRow>
 				</CardContent>
 			</Card>
 
@@ -142,7 +143,7 @@ const Profile = () => {
 								/>
 
 								{/* Read-only company info */}
-								<div className="grid grid-cols-2 gap-4 pt-2 border-t">
+								<FormRow className="border-t pt-2">
 									<div>
 										<p className="text-sm font-medium text-muted-foreground">
 											{textGet("profile.legal_name")}
@@ -159,7 +160,7 @@ const Profile = () => {
 											{profile.trade_name}
 										</p>
 									</div>
-								</div>
+								</FormRow>
 
 								<div className="flex justify-end pt-2">
 									<Button type="submit" disabled={loading}>
