@@ -12,6 +12,7 @@ interface SidebarState {
 // starts closed; the persisted preference only applies to the desktop rail.
 const isMobile = () =>
 	typeof window !== "undefined" &&
+	typeof window.matchMedia === "function" &&
 	window.matchMedia("(max-width: 767px)").matches;
 
 export const useSidebarStore = create<SidebarState>()(
