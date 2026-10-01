@@ -42,7 +42,6 @@ import {
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
 import { cn, dateParser } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 type WaitingStatus = "scheduled" | "arrived" | "in_consultation" | "completed";
 
@@ -505,84 +504,82 @@ const WaitingRoomPage = () => {
 	const today = dateParser(new Date(), { dateStyle: "full" });
 
 	return (
-		<DashboardLayout>
-			<div className="space-y-5">
-				<PageHeader
-					title={<Text uuid="waiting_room.title" />}
-					description={<span className="capitalize">{today}</span>}
-					actions={
-						<>
-							<TvScreenPopover />
-							<Button
-								variant="outline"
-								size="icon"
-								onClick={load}
-								disabled={loading}
-								aria-label={textGet("waiting_room.refresh")}
-								title={textGet("waiting_room.refresh")}
-							>
-								<RefreshCw className={cn(loading && "animate-spin")} />
-							</Button>
-						</>
+		<div className="space-y-5">
+			<PageHeader
+				title={<Text uuid="waiting_room.title" />}
+				description={<span className="capitalize">{today}</span>}
+				actions={
+					<>
+						<TvScreenPopover />
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={load}
+							disabled={loading}
+							aria-label={textGet("waiting_room.refresh")}
+							title={textGet("waiting_room.refresh")}
+						>
+							<RefreshCw className={cn(loading && "animate-spin")} />
+						</Button>
+					</>
+				}
+			/>
+
+			<SegmentedProgress
+				summary={summary}
+				segments={FLOW.map((status) => ({
+					key: status,
+					count: byStatus[status].length,
+					className: STATUS_COLORS[status].dot,
+				}))}
+			/>
+
+			{loading && appointments.length === 0 ? (
+				<div className="flex h-48 items-center justify-center">
+					<Spinner className="h-8 w-8" />
+				</div>
+			) : (
+				<DndContext
+					sensors={sensors}
+					onDragStart={(e) =>
+						setDraggedAppointment(e.active.data.current?.appointment ?? null)
 					}
-				/>
-
-				<SegmentedProgress
-					summary={summary}
-					segments={FLOW.map((status) => ({
-						key: status,
-						count: byStatus[status].length,
-						className: STATUS_COLORS[status].dot,
-					}))}
-				/>
-
-				{loading && appointments.length === 0 ? (
-					<div className="flex h-48 items-center justify-center">
-						<Spinner className="h-8 w-8" />
-					</div>
-				) : (
-					<DndContext
-						sensors={sensors}
-						onDragStart={(e) =>
-							setDraggedAppointment(e.active.data.current?.appointment ?? null)
-						}
-						onDragEnd={handleDragEnd}
-						onDragCancel={() => setDraggedAppointment(null)}
-					>
-						<div className="grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-4">
-							{FLOW.map((status) => (
-								<Lane
-									key={status}
-									status={status}
-									count={byStatus[status].length}
-								>
-									{byStatus[status].map((a) => (
-										<DraggableCard
-											key={a.ID}
-											appointment={a}
-											now={now}
-											onMove={handleMove}
-											moving={moving === a.ID}
-										/>
-									))}
-								</Lane>
-							))}
-						</div>
-						<DragOverlay dropAnimation={null}>
-							{draggedAppointment && (
-								<div className="rotate-1">
-									<AppointmentCard
-										appointment={draggedAppointment}
+					onDragEnd={handleDragEnd}
+					onDragCancel={() => setDraggedAppointment(null)}
+				>
+					<div className="grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-4">
+						{FLOW.map((status) => (
+							<Lane
+								key={status}
+								status={status}
+								count={byStatus[status].length}
+							>
+								{byStatus[status].map((a) => (
+									<DraggableCard
+										key={a.ID}
+										appointment={a}
 										now={now}
-										lifted
+										onMove={handleMove}
+										moving={moving === a.ID}
 									/>
-								</div>
-							)}
-						</DragOverlay>
-					</DndContext>
-				)}
-			</div>
-		</DashboardLayout>
+								))}
+							</Lane>
+						))}
+					</div>
+					<DragOverlay dropAnimation={null}>
+						{draggedAppointment && (
+							<div className="rotate-1">
+								<AppointmentCard
+									appointment={draggedAppointment}
+									now={now}
+									lifted
+								/>
+							</div>
+						)}
+					</DragOverlay>
+				</DndContext>
+			)}
+		</div>
 	);
 };
 

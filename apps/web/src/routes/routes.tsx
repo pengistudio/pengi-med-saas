@@ -4,6 +4,7 @@ import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
 import { PERMISSIONS } from "@/lib/constants";
 import ErrorPage from "@/pages/error/error-page";
+import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const CatalogItemList = lazy(() => import("@/pages/billing/catalog-item-list"));
 const CreateCatalogItemPage = lazy(
@@ -347,7 +348,7 @@ const router = createBrowserRouter([
 			{
 				element: (
 					<CheckAuth>
-						<Outlet />
+						<DashboardLayout />
 					</CheckAuth>
 				),
 				children: [

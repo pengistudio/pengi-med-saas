@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { cn } from "../../lib/utils";
-import { useSidebarStore } from "../../stores/sidebar-store";
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from "../accordion";
+import { useAppShell } from "../app-shell/app-shell-context";
 import NavItem from "./nav-item";
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 };
 
 const NavAccordion = (props: Props) => {
-	const { isOpen: sidebarOpen, open } = useSidebarStore();
+	const { expanded, expand } = useAppShell();
 	const location = useLocation();
 	const { label, icon, accordionItems } = props;
 
@@ -35,14 +35,14 @@ const NavAccordion = (props: Props) => {
 		isAnyItemActive ? ["item-1"] : [],
 	);
 
-	// Close all accordions when sidebar closes
+	// Close all accordions when the rail collapses
 	useEffect(() => {
-		if (!sidebarOpen) {
+		if (!expanded) {
 			setAccordionValue([]);
 		} else if (isAnyItemActive) {
 			setAccordionValue(["item-1"]);
 		}
-	}, [sidebarOpen, isAnyItemActive]);
+	}, [expanded, isAnyItemActive]);
 
 	const Icon = icon;
 	return (
@@ -55,14 +55,14 @@ const NavAccordion = (props: Props) => {
 				<AccordionTrigger
 					className={cn(
 						"flex items-center rounded-lg px-3 py-2 transition-all duration-300 overflow-hidden justify-start hover:no-underline hover:cursor-pointer",
-						sidebarOpen ? "gap-3" : "gap-0",
+						expanded ? "gap-3" : "gap-0",
 						isAnyItemActive
 							? "bg-sidebar-accent text-sidebar-accent-foreground"
 							: "text-sidebar-foreground hover:bg-sidebar-accent",
 					)}
 					onClick={() => {
-						if (!sidebarOpen) {
-							open();
+						if (!expanded) {
+							expand();
 						}
 					}}
 				>
@@ -76,7 +76,7 @@ const NavAccordion = (props: Props) => {
 						<span
 							className={cn(
 								"transition-all duration-300 truncate text-base font-normal",
-								sidebarOpen
+								expanded
 									? "opacity-100 w-auto"
 									: "opacity-0 w-0 overflow-hidden ml-0",
 							)}

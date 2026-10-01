@@ -14,7 +14,6 @@ import { RecentInvoicesCard } from "@/sections/dashboard/recent-invoices-card";
 import { SubscriptionSummary } from "@/sections/dashboard/subscription-summary";
 import { TodayAgenda } from "@/sections/dashboard/today-agenda";
 import { WeekOverview } from "@/sections/dashboard/week-overview";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
 function greetingKey(hour: number) {
@@ -57,11 +56,7 @@ const Home = () => {
 	}, []);
 
 	if (!stats) {
-		return (
-			<DashboardLayout>
-				<DashboardSkeleton />
-			</DashboardLayout>
-		);
+		return <DashboardSkeleton />;
 	}
 
 	// A feature missing from the plan info counts as enabled, as in the nav.
@@ -87,95 +82,91 @@ const Home = () => {
 		.replace(/,\s*$/, "");
 
 	return (
-		<DashboardLayout>
-			<div className="space-y-6">
-				<PageHeader
-					title={greeting}
-					description={capitalize(
-						dateParser(new Date(), { dateStyle: "full" }),
+		<div className="space-y-6">
+			<PageHeader
+				title={greeting}
+				description={capitalize(dateParser(new Date(), { dateStyle: "full" }))}
+				actions={
+					<>
+						{canCreatePatient && (
+							<Button
+								variant="outline"
+								onClick={() => navigate("/clinical/create")}
+							>
+								<UserPlus className="mr-2 h-4 w-4" />
+								{textGet("dashboard.actions.new_patient")}
+							</Button>
+						)}
+						{canCreateInvoice && (
+							<Button
+								variant="outline"
+								onClick={() => navigate("/billing/create")}
+							>
+								<FilePlus2 className="mr-2 h-4 w-4" />
+								{textGet("dashboard.actions.new_invoice")}
+							</Button>
+						)}
+						{clinicalOn && (
+							<Button onClick={() => navigate("/clinical/appointments")}>
+								<CalendarPlus className="mr-2 h-4 w-4" />
+								{textGet("dashboard.upcoming.schedule_btn")}
+							</Button>
+						)}
+					</>
+				}
+			/>
+
+			<AttentionStrip
+				criticalCount={clinicalOn ? stats.critical_patients : 0}
+				criticalPatients={stats.critical_patient_list}
+				draftsCount={clinicalOn ? stats.pending_drafts_count : 0}
+				drafts={stats.pending_drafts}
+				failedInvoices={billingOn ? stats.failed_invoices : undefined}
+				subscription={stats.subscription}
+			/>
+
+			<div className="grid gap-4 lg:grid-cols-3">
+				{clinicalOn && (
+					<TodayAgenda
+						className="lg:col-span-2"
+						appointments={stats.today_agenda}
+						canStartConsultation={checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+						])}
+					/>
+				)}
+				<div className="space-y-4">
+					{clinicalOn && <WeekOverview stats={stats} />}
+					{stats.subscription && (
+						<SubscriptionSummary subscription={stats.subscription} />
 					)}
-					actions={
-						<>
-							{canCreatePatient && (
-								<Button
-									variant="outline"
-									onClick={() => navigate("/clinical/create")}
-								>
-									<UserPlus className="mr-2 h-4 w-4" />
-									{textGet("dashboard.actions.new_patient")}
-								</Button>
-							)}
-							{canCreateInvoice && (
-								<Button
-									variant="outline"
-									onClick={() => navigate("/billing/create")}
-								>
-									<FilePlus2 className="mr-2 h-4 w-4" />
-									{textGet("dashboard.actions.new_invoice")}
-								</Button>
-							)}
-							{clinicalOn && (
-								<Button onClick={() => navigate("/clinical/appointments")}>
-									<CalendarPlus className="mr-2 h-4 w-4" />
-									{textGet("dashboard.upcoming.schedule_btn")}
-								</Button>
-							)}
-						</>
-					}
-				/>
+				</div>
+			</div>
 
-				<AttentionStrip
-					criticalCount={clinicalOn ? stats.critical_patients : 0}
-					criticalPatients={stats.critical_patient_list}
-					draftsCount={clinicalOn ? stats.pending_drafts_count : 0}
-					drafts={stats.pending_drafts}
-					failedInvoices={billingOn ? stats.failed_invoices : undefined}
-					subscription={stats.subscription}
-				/>
-
-				<div className="grid gap-4 lg:grid-cols-3">
-					{clinicalOn && (
-						<TodayAgenda
-							className="lg:col-span-2"
-							appointments={stats.today_agenda}
-							canStartConsultation={checkPermission([
-								PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+			{(kanbanOn || billingOn) && (
+				<div className="grid gap-4 lg:grid-cols-2">
+					{kanbanOn && (
+						<OpenTasksCard
+							tasks={stats.open_tasks}
+							total={stats.open_tasks_count}
+							canComplete={checkPermission([
+								PERMISSIONS.KANBAN.PERMISSION_UPDATE_KANBAN,
+							])}
+							canCreate={checkPermission([
+								PERMISSIONS.KANBAN.PERMISSION_CREATE_KANBAN,
 							])}
 						/>
 					)}
-					<div className="space-y-4">
-						{clinicalOn && <WeekOverview stats={stats} />}
-						{stats.subscription && (
-							<SubscriptionSummary subscription={stats.subscription} />
-						)}
-					</div>
+					{billingOn && (
+						<RecentInvoicesCard
+							canRetry={checkPermission([
+								PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS,
+							])}
+						/>
+					)}
 				</div>
-
-				{(kanbanOn || billingOn) && (
-					<div className="grid gap-4 lg:grid-cols-2">
-						{kanbanOn && (
-							<OpenTasksCard
-								tasks={stats.open_tasks}
-								total={stats.open_tasks_count}
-								canComplete={checkPermission([
-									PERMISSIONS.KANBAN.PERMISSION_UPDATE_KANBAN,
-								])}
-								canCreate={checkPermission([
-									PERMISSIONS.KANBAN.PERMISSION_CREATE_KANBAN,
-								])}
-							/>
-						)}
-						{billingOn && (
-							<RecentInvoicesCard
-								canRetry={checkPermission([
-									PERMISSIONS.BILLING.PERMISSION_MANAGE_SRI_SETTINGS,
-								])}
-							/>
-						)}
-					</div>
-				)}
-			</div>
-		</DashboardLayout>
+			)}
+		</div>
 	);
 };
 

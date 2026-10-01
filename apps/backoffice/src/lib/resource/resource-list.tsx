@@ -25,7 +25,6 @@ import {
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { type Resource, resourceRoutes } from "./resource";
 import { useResourceList } from "./use-resource";
 
@@ -75,7 +74,7 @@ export function ResourceList<T extends { ID: number }>({
 	};
 
 	return (
-		<DashboardLayout>
+		<>
 			<div className="space-y-6">
 				<div className="flex items-center justify-between">
 					<h1 className="text-2xl font-bold tracking-tight">
@@ -188,6 +187,6 @@ export function ResourceList<T extends { ID: number }>({
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</DashboardLayout>
+		</>
 	);
 }

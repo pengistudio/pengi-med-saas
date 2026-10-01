@@ -152,6 +152,26 @@
         "value": "Ayuda"
     },
     {
+        "key": "shell.nav",
+        "value": "Navegación principal"
+    },
+    {
+        "key": "shell.menu.open",
+        "value": "Abrir menú"
+    },
+    {
+        "key": "shell.menu.close",
+        "value": "Cerrar menú"
+    },
+    {
+        "key": "shell.rail.collapse",
+        "value": "Contraer menú"
+    },
+    {
+        "key": "shell.rail.expand",
+        "value": "Expandir menú"
+    },
+    {
         "key": "dashboard.dropdown.profile.title",
         "value": "Mi cuenta"
     },

@@ -1,5 +1,8 @@
 export * from "./components/accordion";
 export * from "./components/alert-dialog";
+export * from "./components/app-shell/app-shell";
+export { useAppShell } from "./components/app-shell/app-shell-context";
+export { navTitle } from "./components/app-shell/nav-title";
 export * from "./components/avatar";
 export * from "./components/badge";
 export * from "./components/button";
@@ -23,8 +26,6 @@ export * from "./components/forms/form-textarea";
 export * from "./components/input";
 export * from "./components/input-group";
 export * from "./components/label";
-export { default as NavAccordion } from "./components/nav/nav-accordion";
-export { default as NavItem } from "./components/nav/nav-item";
 export * from "./components/navigation-menu";
 export * from "./components/popover";
 export * from "./components/radio-group";
@@ -46,5 +47,5 @@ export {
 	useUiText,
 } from "./context/text-context";
 export { default as useToast, type ResponseError } from "./hooks/use-toast";
+export { isPhoneViewport, useViewport } from "./hooks/use-viewport";
 export { cn } from "./lib/utils";
-export { useSidebarStore } from "./stores/sidebar-store";

@@ -2,15 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type React from "react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { memoryResource } from "./memory-resource";
 import { ResourceList } from "./resource-list";
-
-vi.mock("@/sections/template/dashboard-template", () => ({
-	DashboardLayout: ({ children }: { children: React.ReactNode }) => (
-		<>{children}</>
-	),
-}));
 
 type Plan = { ID: number; name: string; code: string };
 

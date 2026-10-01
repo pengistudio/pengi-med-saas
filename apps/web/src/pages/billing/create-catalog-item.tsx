@@ -7,7 +7,6 @@ import {
 import CatalogItemForm, {
 	type FormValues,
 } from "@/sections/forms/billing/catalog-item-form";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 export default function CreateCatalogItemPage() {
 	const navigate = useNavigate();
@@ -36,10 +35,8 @@ export default function CreateCatalogItemPage() {
 	};
 
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				<CatalogItemForm onSubmit={handleSubmit} loading={loading} />
-			</main>
-		</DashboardLayout>
+		<main className="grid grid-cols-1 items-start gap-4">
+			<CatalogItemForm onSubmit={handleSubmit} loading={loading} />
+		</main>
 	);
 }

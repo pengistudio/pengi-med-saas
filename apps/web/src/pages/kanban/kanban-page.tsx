@@ -20,7 +20,6 @@ import KanbanColumn from "@/sections/kanban/kanban-column";
 import { TASK_STATUSES as STATUSES } from "@/sections/kanban/status-config";
 import TaskCardContent from "@/sections/kanban/task-card-content";
 import TaskFormDialog from "@/sections/kanban/task-form-dialog";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import { useKanbanStore } from "@/store/kanban-store";
 import type { TaskStatus } from "@/types/kanban-type";
 
@@ -181,72 +180,68 @@ export default function KanbanPage() {
 
 	if (loading) {
 		return (
-			<DashboardLayout>
-				<div className="flex items-center justify-center h-full">
-					<div className="text-center space-y-3">
-						<div className="inline-flex items-center justify-center w-10 h-10">
-							<div className="w-10 h-10 border-2 border-muted-foreground/20 border-t-foreground rounded-full animate-spin"></div>
-						</div>
-						<p className="text-sm text-muted-foreground">
-							{textGet("common.loading")}
-						</p>
+			<div className="flex items-center justify-center h-full">
+				<div className="text-center space-y-3">
+					<div className="inline-flex items-center justify-center w-10 h-10">
+						<div className="w-10 h-10 border-2 border-muted-foreground/20 border-t-foreground rounded-full animate-spin"></div>
 					</div>
+					<p className="text-sm text-muted-foreground">
+						{textGet("common.loading")}
+					</p>
 				</div>
-			</DashboardLayout>
+			</div>
 		);
 	}
 
 	return (
-		<DashboardLayout>
-			<div className="flex h-full min-h-0 flex-col gap-5">
-				<PageHeader
-					title={textGet("tasks.title")}
-					description={textGet("tasks.page.description")}
-					actions={
-						<Button onClick={() => setIsFormOpen(true)}>
-							<Plus className="h-4 w-4 mr-2" />
-							{textGet("tasks.task.create.title")}
-						</Button>
-					}
-				/>
+		<div className="flex h-full min-h-0 flex-col gap-5">
+			<PageHeader
+				title={textGet("tasks.title")}
+				description={textGet("tasks.page.description")}
+				actions={
+					<Button onClick={() => setIsFormOpen(true)}>
+						<Plus className="h-4 w-4 mr-2" />
+						{textGet("tasks.task.create.title")}
+					</Button>
+				}
+			/>
 
-				<BoardProgress tasks={tasks} />
+			<BoardProgress tasks={tasks} />
 
-				<DndContext
-					collisionDetection={closestCenter}
-					onDragStart={handleDragStart}
-					onDragOver={handleDragOver}
-					onDragEnd={handleDragEnd}
-					sensors={sensors}
-				>
-					<div className="-mx-4 grid min-h-0 flex-1 items-start auto-cols-[minmax(17rem,1fr)] grid-flow-col gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-						{STATUSES.map((status) => (
-							<KanbanColumn
-								key={status}
-								status={status}
-								tasks={getTasksByStatus(status)}
-								isDropTarget={dropTargetStatus === status}
-								onAddTask={() => handleAddTaskInColumn(status)}
-							/>
-						))}
-					</div>
+			<DndContext
+				collisionDetection={closestCenter}
+				onDragStart={handleDragStart}
+				onDragOver={handleDragOver}
+				onDragEnd={handleDragEnd}
+				sensors={sensors}
+			>
+				<div className="-mx-4 grid min-h-0 flex-1 items-start auto-cols-[minmax(17rem,1fr)] grid-flow-col gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+					{STATUSES.map((status) => (
+						<KanbanColumn
+							key={status}
+							status={status}
+							tasks={getTasksByStatus(status)}
+							isDropTarget={dropTargetStatus === status}
+							onAddTask={() => handleAddTaskInColumn(status)}
+						/>
+					))}
+				</div>
 
-					{/* Drag Overlay */}
-					<DragOverlay dropAnimation={null}>
-						{activeTask ? (
-							<div className="w-72 rotate-1">
-								<TaskCardContent task={activeTask} lifted />
-							</div>
-						) : null}
-					</DragOverlay>
-				</DndContext>
+				{/* Drag Overlay */}
+				<DragOverlay dropAnimation={null}>
+					{activeTask ? (
+						<div className="w-72 rotate-1">
+							<TaskCardContent task={activeTask} lifted />
+						</div>
+					) : null}
+				</DragOverlay>
+			</DndContext>
 
-				<TaskFormDialog
-					open={isFormOpen}
-					onOpenChange={setIsFormOpen}
-					initialStatus={selectedStatus}
-				/>
-			</div>
-		</DashboardLayout>
+			<TaskFormDialog
+				open={isFormOpen}
+				onOpenChange={setIsFormOpen}
+				initialStatus={selectedStatus}
+			/>
+		</div>
 	);
 }

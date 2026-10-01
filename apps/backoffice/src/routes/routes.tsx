@@ -1,6 +1,7 @@
 import { lazy } from "react";
-import { createBrowserRouter, Outlet } from "react-router";
+import { createBrowserRouter } from "react-router";
 import { RequireSession, session } from "@/lib/session";
+import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const AnnouncementList = lazy(
 	() => import("@/pages/announcements/announcement-list"),
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
 	{
 		element: (
 			<RequireSession session={session}>
-				<Outlet />
+				<DashboardLayout />
 			</RequireSession>
 		),
 		children: [

@@ -1,7 +1,6 @@
 import { useSearchParams } from "react-router";
 import CreateMedicalRecordForm from "@/sections/forms/clinical/medical-record-create-form";
 import VisitTypeChooser from "@/sections/forms/clinical/visit-type-chooser";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const CreateMedicalRecordPage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -12,21 +11,19 @@ const CreateMedicalRecordPage = () => {
 			: null;
 
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				{visitType ? (
-					<CreateMedicalRecordForm visitType={visitType} />
-				) : (
-					<VisitTypeChooser
-						onSelect={(v) => {
-							const next = new URLSearchParams(searchParams);
-							next.set("visit_type", v);
-							setSearchParams(next);
-						}}
-					/>
-				)}
-			</main>
-		</DashboardLayout>
+		<main className="grid grid-cols-1 items-start gap-4">
+			{visitType ? (
+				<CreateMedicalRecordForm visitType={visitType} />
+			) : (
+				<VisitTypeChooser
+					onSelect={(v) => {
+						const next = new URLSearchParams(searchParams);
+						next.set("visit_type", v);
+						setSearchParams(next);
+					}}
+				/>
+			)}
+		</main>
 	);
 };
 

@@ -1,13 +1,10 @@
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 import ViewMedicalRecord from "@/sections/views/clinical/view-medical-record";
 
 const ViewMedicalRecordPage = () => {
 	return (
-		<DashboardLayout>
-			<main className="grid items-start gap-4">
-				<ViewMedicalRecord />
-			</main>
-		</DashboardLayout>
+		<main className="grid grid-cols-1 items-start gap-4">
+			<ViewMedicalRecord />
+		</main>
 	);
 };
 

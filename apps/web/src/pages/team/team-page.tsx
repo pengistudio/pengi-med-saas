@@ -42,7 +42,6 @@ import { PageHeader } from "@/components/custom/page-header";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { DashboardLayout } from "@/sections/template/dashboard-template";
 
 const ROLE_COLORS: Record<string, string> = {
 	admin: "bg-primary/10 text-primary border-primary/20",
@@ -232,7 +231,7 @@ const TeamPage = () => {
 	};
 
 	return (
-		<DashboardLayout>
+		<>
 			<div className="space-y-6">
 				<PageHeader
 					title={textGet("team.title")}
@@ -426,7 +425,7 @@ const TeamPage = () => {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</DashboardLayout>
+		</>
 	);
 };
 
