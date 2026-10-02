@@ -4741,7 +4741,7 @@
     },
     {
         "key": "team.invite_dialog.description",
-        "value": "Comparte este enlace para que la persona pueda registrarse en tu empresa. El enlace expira en 24 horas."
+        "value": "Envía este enlace a la persona que quieres sumar. Al registrarse entrará con ese rol."
     },
     {
         "key": "team.invite_dialog.close",
@@ -4765,7 +4765,7 @@
     },
     {
         "key": "team.role_dialog.description",
-        "value": "Elige qué rol tendrá la persona que se registre con este enlace."
+        "value": "Elige qué podrá hacer la persona que se registre con el enlace."
     },
     {
         "key": "team.role_dialog.role_label",
@@ -4778,6 +4778,78 @@
     {
         "key": "team.role_dialog.generate",
         "value": "Generar enlace"
+    },
+    {
+        "key": "team.members.total.one",
+        "value": "{count} miembro"
+    },
+    {
+        "key": "team.members.total.other",
+        "value": "{count} miembros"
+    },
+    {
+        "key": "team.filter.all",
+        "value": "Todos"
+    },
+    {
+        "key": "team.filter.label",
+        "value": "Filtrar por rol"
+    },
+    {
+        "key": "team.search.placeholder",
+        "value": "Buscar por nombre, usuario o correo"
+    },
+    {
+        "key": "team.search.empty",
+        "value": "Nadie del equipo coincide con «{query}»."
+    },
+    {
+        "key": "team.search.clear",
+        "value": "Limpiar búsqueda"
+    },
+    {
+        "key": "team.you",
+        "value": "Tú"
+    },
+    {
+        "key": "team.role.own_locked",
+        "value": "Otro administrador debe cambiar tu rol."
+    },
+    {
+        "key": "team.role.change_label",
+        "value": "Cambiar rol de {name}"
+    },
+    {
+        "key": "team.role_name.admin",
+        "value": "Administrador"
+    },
+    {
+        "key": "team.role_name.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "team.role_name.recepcionista",
+        "value": "Recepcionista"
+    },
+    {
+        "key": "team.role_name.contador",
+        "value": "Contador"
+    },
+    {
+        "key": "team.role_hint.admin",
+        "value": "Acceso completo, incluido el equipo y la configuración."
+    },
+    {
+        "key": "team.role_hint.doctor",
+        "value": "Pacientes, historia clínica, recetas y firma de documentos."
+    },
+    {
+        "key": "team.role_hint.recepcionista",
+        "value": "Pacientes, citas y facturación del día a día."
+    },
+    {
+        "key": "team.role_hint.contador",
+        "value": "Facturación, comprobantes SRI y consulta de pacientes."
     },
     {
         "key": "company.team.roles.success",
