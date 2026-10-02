@@ -4741,7 +4741,7 @@
     },
     {
         "key": "team.invite_dialog.description",
-        "value": "Share this link so the person can register to your company. The link expires in 24 hours."
+        "value": "Send this link to the person you want to add. They'll join with that role when they sign up."
     },
     {
         "key": "team.invite_dialog.close",
@@ -4765,7 +4765,7 @@
     },
     {
         "key": "team.role_dialog.description",
-        "value": "Choose which role the person who registers with this link will have."
+        "value": "Choose what the person who signs up with the link will be able to do."
     },
     {
         "key": "team.role_dialog.role_label",
@@ -4778,6 +4778,78 @@
     {
         "key": "team.role_dialog.generate",
         "value": "Generate link"
+    },
+    {
+        "key": "team.members.total.one",
+        "value": "{count} member"
+    },
+    {
+        "key": "team.members.total.other",
+        "value": "{count} members"
+    },
+    {
+        "key": "team.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "team.filter.label",
+        "value": "Filter by role"
+    },
+    {
+        "key": "team.search.placeholder",
+        "value": "Search by name, username or email"
+    },
+    {
+        "key": "team.search.empty",
+        "value": "No team member matches “{query}”."
+    },
+    {
+        "key": "team.search.clear",
+        "value": "Clear search"
+    },
+    {
+        "key": "team.you",
+        "value": "You"
+    },
+    {
+        "key": "team.role.own_locked",
+        "value": "Another administrator has to change your role."
+    },
+    {
+        "key": "team.role.change_label",
+        "value": "Change role for {name}"
+    },
+    {
+        "key": "team.role_name.admin",
+        "value": "Administrator"
+    },
+    {
+        "key": "team.role_name.doctor",
+        "value": "Doctor"
+    },
+    {
+        "key": "team.role_name.recepcionista",
+        "value": "Receptionist"
+    },
+    {
+        "key": "team.role_name.contador",
+        "value": "Accountant"
+    },
+    {
+        "key": "team.role_hint.admin",
+        "value": "Full access, including team and settings."
+    },
+    {
+        "key": "team.role_hint.doctor",
+        "value": "Patients, medical records, prescriptions and document signing."
+    },
+    {
+        "key": "team.role_hint.recepcionista",
+        "value": "Patients, appointments and day-to-day billing."
+    },
+    {
+        "key": "team.role_hint.contador",
+        "value": "Billing, SRI documents and read-only patients."
     },
     {
         "key": "company.team.roles.success",
