@@ -6,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe Médico - {{.TradeName}}</title>
     <style>
-        :root {
-            --primary-color: #0ea5e9;
-            --primary-light: #e0f2fe;
-            --text-color: #334155;
-            --border-color: #cbd5e1;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -25,69 +18,69 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            font-size: 10pt;
-            line-height: 1.4;
-            color: var(--text-color);
-            background: white;
+            font-family: "Times New Roman", Times, Georgia, serif;
+            font-size: 11pt;
+            line-height: 1.45;
+            color: #000;
+            background: #fff;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            margin-bottom: 12px;
+            align-items: baseline;
+            border-bottom: 1px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
         }
 
         .header-title {
-            font-size: 16pt;
+            font-size: 15pt;
             font-weight: bold;
-            color: var(--primary-color);
+            letter-spacing: 1px;
+            color: #000;
             text-transform: uppercase;
         }
 
         .header-date {
-            font-size: 9pt;
-            color: var(--text-color);
+            font-size: 10pt;
+            color: #444;
+        }
+
+        .field-label {
+            font-weight: bold;
+            color: #000;
+            margin-right: 4px;
         }
 
         .section-title {
             font-size: 11pt;
             font-weight: bold;
-            color: white;
-            background-color: var(--primary-color);
-            padding: 6px 10px;
-            margin: 14px 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #000;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2px;
+            margin: 20px 0 10px;
         }
 
         .patient-info {
-            background-color: var(--primary-light);
-            padding: 10px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 4px 20px;
         }
 
-        .field-label {
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-right: 4px;
-        }
-
         .consultation {
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 8px 10px;
-            margin-bottom: 8px;
+            border-bottom: 1px solid #999;
+            padding: 0 0 10px;
+            margin-bottom: 12px;
+            page-break-inside: auto;
         }
 
         .consultation-header {
             font-weight: bold;
-            color: var(--primary-color);
+            color: #000;
             margin-bottom: 4px;
-            font-size: 9.5pt;
         }
 
         .consultation-summary {
@@ -95,26 +88,22 @@
             word-wrap: break-word;
         }
 
-        .consultation {
-            page-break-inside: auto;
-        }
-
         .visit-type {
             font-weight: normal;
-            color: var(--text-color);
+            color: #444;
         }
 
         .block {
-            margin-top: 6px;
+            margin-top: 8px;
             page-break-inside: avoid;
         }
 
         .block-title {
             font-weight: bold;
-            font-size: 9pt;
+            font-size: 9.5pt;
             text-transform: uppercase;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--primary-light);
+            letter-spacing: 0.5px;
+            color: #000;
             margin-bottom: 2px;
         }
 
@@ -130,42 +119,41 @@
         }
 
         .diagnoses {
-            padding-left: 16px;
+            padding-left: 18px;
         }
 
         .rx {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9pt;
+            font-size: 10pt;
             margin-bottom: 4px;
         }
 
         .rx th,
         .rx td {
-            border: 1px solid var(--border-color);
+            border-bottom: 1px solid #999;
             padding: 3px 5px;
             text-align: left;
             vertical-align: top;
         }
 
         .rx th {
-            background-color: var(--primary-light);
+            border-bottom: 1px solid #000;
+            font-weight: bold;
         }
 
         .plan-content {
             white-space: pre-wrap;
             word-wrap: break-word;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 10px;
         }
 
         .signature-section {
-            margin-top: 30px;
+            margin-top: 36px;
             text-align: center;
             width: 70%;
             margin-left: auto;
             margin-right: auto;
+            page-break-inside: avoid;
         }
 
         .signature-box {
@@ -176,9 +164,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             text-align: left;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .e-signature-qr {
@@ -187,7 +175,7 @@
         }
 
         .e-signature-label {
-            font-size: 7.5pt;
+            font-size: 8pt;
         }
 
         .e-signature-name {
@@ -197,30 +185,32 @@
         }
 
         .e-signature-meta {
-            font-size: 7.5pt;
-            color: #64748b;
+            font-size: 8pt;
+            color: #444;
         }
 
         .signature-line {
-            border-top: 1px solid var(--text-color);
+            border-top: 1px solid #000;
             margin-bottom: 5px;
         }
 
         .signature-text {
-            font-size: 9pt;
+            font-size: 10pt;
             font-weight: bold;
         }
 
         .signature-caption {
-            font-size: 7.5pt;
-            color: #94a3b8;
+            font-size: 8pt;
+            color: #444;
             margin-top: 2px;
         }
 
         .footer-note {
-            margin-top: 20px;
-            font-size: 7.5pt;
-            color: #94a3b8;
+            margin-top: 24px;
+            padding-top: 6px;
+            border-top: 1px solid #999;
+            font-size: 8pt;
+            color: #444;
             text-align: center;
         }
 

@@ -6,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificado Médico - {{.TradeName}}</title>
     <style>
-        :root {
-            --primary-color: #0ea5e9;
-            --primary-light: #e0f2fe;
-            --text-color: #334155;
-            --border-color: #cbd5e1;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -25,56 +18,59 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            font-size: 10pt;
+            font-family: "Times New Roman", Times, Georgia, serif;
+            font-size: 11pt;
             line-height: 1.6;
-            color: var(--text-color);
-            background: white;
+            color: #000;
+            background: #fff;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            margin-bottom: 12px;
+            align-items: baseline;
+            border-bottom: 1px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
         }
 
         .header-title {
-            font-size: 16pt;
+            font-size: 15pt;
             font-weight: bold;
-            color: var(--primary-color);
+            letter-spacing: 1px;
+            color: #000;
             text-transform: uppercase;
         }
 
         .header-date {
-            font-size: 9pt;
-            color: var(--text-color);
-        }
-
-        .certificate-title {
-            text-align: center;
-            font-size: 14pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 20px 0;
-            color: var(--primary-color);
-        }
-
-        .patient-info {
-            background-color: var(--primary-light);
-            padding: 10px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px 20px;
-            margin-bottom: 16px;
+            font-size: 10pt;
+            color: #444;
         }
 
         .field-label {
             font-weight: bold;
-            color: var(--primary-color);
+            color: #000;
             margin-right: 4px;
+        }
+
+        .certificate-title {
+            text-align: center;
+            font-size: 15pt;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 26px 0;
+            color: #000;
+        }
+
+        .patient-info {
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999;
+            padding: 10px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 20px;
+            margin-bottom: 20px;
         }
 
         .body-text {
@@ -83,7 +79,7 @@
         }
 
         .field-block {
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
 
         .field-block .field-label {
@@ -94,17 +90,16 @@
         .field-value {
             white-space: pre-wrap;
             word-wrap: break-word;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 8px 10px;
+            text-align: justify;
         }
 
         .signature-section {
-            margin-top: 40px;
+            margin-top: 48px;
             text-align: center;
             width: 70%;
             margin-left: auto;
             margin-right: auto;
+            page-break-inside: avoid;
         }
 
         .signature-box {
@@ -115,9 +110,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             text-align: left;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .e-signature-qr {
@@ -126,7 +121,7 @@
         }
 
         .e-signature-label {
-            font-size: 7.5pt;
+            font-size: 8pt;
         }
 
         .e-signature-name {
@@ -136,30 +131,32 @@
         }
 
         .e-signature-meta {
-            font-size: 7.5pt;
-            color: #64748b;
+            font-size: 8pt;
+            color: #444;
         }
 
         .signature-line {
-            border-top: 1px solid var(--text-color);
+            border-top: 1px solid #000;
             margin-bottom: 5px;
         }
 
         .signature-text {
-            font-size: 9pt;
+            font-size: 10pt;
             font-weight: bold;
         }
 
         .signature-caption {
-            font-size: 7.5pt;
-            color: #94a3b8;
+            font-size: 8pt;
+            color: #444;
             margin-top: 2px;
         }
 
         .footer-note {
-            margin-top: 20px;
-            font-size: 7.5pt;
-            color: #94a3b8;
+            margin-top: 24px;
+            padding-top: 6px;
+            border-top: 1px solid #999;
+            font-size: 8pt;
+            color: #444;
             text-align: center;
         }
 
