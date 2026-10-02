@@ -21,9 +21,9 @@ import (
 	"pengi-med-saas/core/mailer"
 	"pengi-med-saas/core/pdfsign"
 	"pengi-med-saas/core/tenantfiles"
-	"pengi-med-saas/core/utils"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	clinical_templates "pengi-med-saas/features/clinical/templates"
 	company_models "pengi-med-saas/features/companies/models"
 	signature_services "pengi-med-saas/features/signatures/services"
 	auth_middleware "pengi-med-saas/features/users/middleware"
@@ -103,10 +103,8 @@ func (h *MedicalDocumentHandler) CreateMedicalReport(c *gin.Context) envelope.Re
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalReportError)
 	}
 
-	tenantID, _ := c.Get("tenant_id")
-
 	report := &clinical_models.MedicalReport{
-		TenantID:      tenantID.(uint),
+		TenantID:      tenantdb.TenantID(c),
 		PatientID:     uint(patientID),
 		Consultations: consultationsJSON,
 		Plan:          dto.Plan,
@@ -206,30 +204,6 @@ func (h *MedicalDocumentHandler) EmailMedicalReport(c *gin.Context) envelope.Res
 	return envelope.SuccessResponse(nil, "clinical.medical_report.email.success")
 }
 
-type medicalReportVitalSignView struct {
-	Label string
-	Value string
-}
-
-type medicalReportConsultationView struct {
-	Date         string
-	Motive       string
-	VisitType    string
-	Observation  string
-	Subjective   string
-	Objective    string
-	Assessment   string
-	Plan         string
-	APP          string
-	APF          string
-	APQX         string
-	Allergies    string
-	Diagnoses    []clinical_models.DiagnosisItem
-	VitalSigns   []medicalReportVitalSignView
-	Prescription *clinical_models.MedicalReportPrescription
-	Summary      string
-}
-
 func medicalReportVisitType(visitType string) string {
 	switch visitType {
 	case "first":
@@ -240,47 +214,33 @@ func medicalReportVisitType(visitType string) string {
 	return ""
 }
 
-func medicalReportVitalSigns(v *clinical_models.MedicalReportVitalSigns) []medicalReportVitalSignView {
+func medicalReportVitalSigns(v *clinical_models.MedicalReportVitalSigns) []clinical_templates.ReportVitalSign {
 	if v == nil {
 		return nil
 	}
-	var out []medicalReportVitalSignView
+	var out []clinical_templates.ReportVitalSign
 	if v.Weight != nil {
-		out = append(out, medicalReportVitalSignView{"Peso", fmt.Sprintf("%g kg", *v.Weight)})
+		out = append(out, clinical_templates.ReportVitalSign{Label: "Peso", Value: fmt.Sprintf("%g kg", *v.Weight)})
 	}
 	if v.Height != nil {
-		out = append(out, medicalReportVitalSignView{"Talla", fmt.Sprintf("%g cm", *v.Height)})
+		out = append(out, clinical_templates.ReportVitalSign{Label: "Talla", Value: fmt.Sprintf("%g cm", *v.Height)})
 	}
 	if v.BloodPressure != "" {
-		out = append(out, medicalReportVitalSignView{"Presión arterial", v.BloodPressure + " mmHg"})
+		out = append(out, clinical_templates.ReportVitalSign{Label: "Presión arterial", Value: v.BloodPressure + " mmHg"})
 	}
 	if v.Temperature != nil {
-		out = append(out, medicalReportVitalSignView{"Temperatura", fmt.Sprintf("%g °C", *v.Temperature)})
+		out = append(out, clinical_templates.ReportVitalSign{Label: "Temperatura", Value: fmt.Sprintf("%g °C", *v.Temperature)})
 	}
 	if v.HeartRate != nil {
-		out = append(out, medicalReportVitalSignView{"Frecuencia cardíaca", fmt.Sprintf("%d lpm", *v.HeartRate)})
+		out = append(out, clinical_templates.ReportVitalSign{Label: "Frecuencia cardíaca", Value: fmt.Sprintf("%d lpm", *v.HeartRate)})
 	}
 	if v.O2Saturation != nil {
-		out = append(out, medicalReportVitalSignView{"Saturación O2", fmt.Sprintf("%d %%", *v.O2Saturation)})
+		out = append(out, clinical_templates.ReportVitalSign{Label: "Saturación O2", Value: fmt.Sprintf("%d %%", *v.O2Saturation)})
 	}
 	return out
 }
 
-type medicalReportTemplateData struct {
-	TradeName       string
-	DoctorName      string
-	Date            string
-	PatientName     string
-	PatientDocument string
-	PatientAge      int
-	PatientPhone    string
-	Consultations   []medicalReportConsultationView
-	Plan            string
-	Signature       *pdfsign.Stamp
-}
-
 func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report *clinical_models.MedicalReport, stamp *pdfsign.Stamp) ([]byte, error) {
-	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
 	tenantdb.For(c, h.db).First(&company)
 
@@ -305,13 +265,13 @@ func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report
 	var entries []clinical_models.MedicalReportConsultationEntry
 	_ = json.Unmarshal(report.Consultations, &entries)
 
-	consultations := make([]medicalReportConsultationView, 0, len(entries))
+	consultations := make([]clinical_templates.ReportConsultation, 0, len(entries))
 	for _, entry := range entries {
 		prescription := entry.Prescription
 		if prescription != nil && prescription.Indications == "" && len(prescription.Items) == 0 {
 			prescription = nil
 		}
-		consultations = append(consultations, medicalReportConsultationView{
+		consultations = append(consultations, clinical_templates.ReportConsultation{
 			Date:         entry.Date.Format("02/01/2006"),
 			Motive:       entry.Motive,
 			VisitType:    medicalReportVisitType(entry.VisitType),
@@ -331,7 +291,7 @@ func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report
 		})
 	}
 
-	data := medicalReportTemplateData{
+	data := clinical_templates.ReportData{
 		TradeName:       tradeName,
 		DoctorName:      doctorName,
 		Date:            report.CreatedAt.Format("02/01/2006 15:04"),
@@ -344,7 +304,7 @@ func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report
 		Signature:       stamp,
 	}
 
-	return h.renderMedicalDocumentPDF(tenantID, "medical_report_template.html", data)
+	return h.renderer.Render(tenantdb.TenantID(c), clinical_templates.Report, data)
 }
 
 // ─── MEDICAL CERTIFICATE ───────────────────────────────────────────────────
@@ -367,10 +327,8 @@ func (h *MedicalDocumentHandler) CreateMedicalCertificate(c *gin.Context) envelo
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
-	tenantID, _ := c.Get("tenant_id")
-
 	certificate := &clinical_models.MedicalCertificate{
-		TenantID:     tenantID.(uint),
+		TenantID:     tenantdb.TenantID(c),
 		PatientID:    uint(patientID),
 		Diagnosis:    dto.Diagnosis,
 		Observations: dto.Observations,
@@ -473,22 +431,7 @@ func (h *MedicalDocumentHandler) EmailMedicalCertificate(c *gin.Context) envelop
 	return envelope.SuccessResponse(nil, "clinical.medical_certificate.email.success")
 }
 
-type medicalCertificateTemplateData struct {
-	TradeName       string
-	DoctorName      string
-	Date            string
-	PatientName     string
-	PatientDocument string
-	PatientAge      int
-	PatientPhone    string
-	Diagnosis       string
-	Observations    string
-	RestText        string
-	Signature       *pdfsign.Stamp
-}
-
 func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, certificate *clinical_models.MedicalCertificate, stamp *pdfsign.Stamp) ([]byte, error) {
-	tenantID, _ := c.Get("tenant_id")
 	var company company_models.Company
 	tenantdb.For(c, h.db).First(&company)
 
@@ -523,7 +466,7 @@ func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, c
 		}
 	}
 
-	data := medicalCertificateTemplateData{
+	data := clinical_templates.CertificateData{
 		TradeName:       tradeName,
 		DoctorName:      doctorName,
 		Date:            certificate.CreatedAt.Format("02/01/2006"),
@@ -537,7 +480,7 @@ func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, c
 		Signature:       stamp,
 	}
 
-	return h.renderMedicalDocumentPDF(tenantID, "medical_certificate_template.html", data)
+	return h.renderer.Render(tenantdb.TenantID(c), clinical_templates.Certificate, data)
 }
 
 // ─── ELECTRONIC SIGNATURE ──────────────────────────────────────────────────
@@ -599,11 +542,6 @@ func (h *MedicalDocumentHandler) signErrorResponse(err error) envelope.Response 
 }
 
 // ─── SHARED HELPERS ────────────────────────────────────────────────────────
-
-func (h *MedicalDocumentHandler) renderMedicalDocumentPDF(tenantID interface{}, templateName string, data interface{}) ([]byte, error) {
-	id, _ := tenantID.(uint)
-	return h.renderer.Render(id, templateName, data, utils.A4Portrait)
-}
 
 func patientAge(patient *clinical_models.Patient) int {
 	if patient == nil || patient.BirthDate.IsZero() {

@@ -22,7 +22,6 @@ import (
 	"pengi-med-saas/core/tenantfiles"
 	"pengi-med-saas/core/utils"
 	clinical_models "pengi-med-saas/features/clinical/models"
-	clinical_templates "pengi-med-saas/features/clinical/templates"
 	company_models "pengi-med-saas/features/companies/models"
 	signature_models "pengi-med-saas/features/signatures/models"
 	signature_services "pengi-med-saas/features/signatures/services"
@@ -61,7 +60,7 @@ func newSigningFixture(t *testing.T) *signingFixture {
 		&clinical_models.MedicalReport{}, &clinical_models.MedicalCertificate{}, &signature_models.UserSignature{})
 	files := tenantfiles.Memory()
 	conv := &pdfConverter{}
-	renderer := pdfrender.New(files, conv, clinical_templates.FS)
+	renderer := pdfrender.New(files, conv)
 	signer := signature_services.NewSigner(db, files)
 
 	now := time.Now().UnixNano()

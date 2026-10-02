@@ -6,30 +6,35 @@ Ambos resuelven las rutas `storage/tenants/...` y el cliente de Gotenberg.
 
 ## PDF — `core/pdfrender`
 
+Cada documento imprimible es un `pdfrender.Document` declarado junto a su
+plantilla default (`features/<domain>/templates/documents.go`): `ID` (slug en
+URLs), `File` (nombre de la plantilla y del archivo del tenant: nunca lo
+renombres), `Defaults` (el FS embebido), `Paper`, `Feature` (`clinical` |
+`billing`), `Sample` (datos de ejemplo realistas, del tipo de datos de la
+plantilla), `Variants` (otras formas de los datos, p. ej. sin firmar) y
+`Required` (valores que la salida debe mostrar). El tipo de datos vive en el
+mismo paquete (`data.go`); el handler solo lo construye:
+
 ```go
-pdf, err := h.renderer.Render(tenantdb.TenantID(c), "<name>.html", data, utils.A4Portrait) // o utils.A5Landscape
+pdf, err := h.renderer.Render(tenantdb.TenantID(c), clinical_templates.Report, data)
 ```
 
-`Render` usa la plantilla que el tenant subió con ese nombre si existe; si no,
-la default embebida. Para agregar defaults de un dominio nuevo:
+`Render` usa la plantilla que el tenant subió (Ajustes → Plantillas de
+documentos, `/document-templates`) si existe; si no, la default. Para un
+documento nuevo:
 
-1. `features/<domain>/templates/<name>.html` (sintaxis `html/template`).
-2. `features/<domain>/templates/embed.go`:
-   ```go
-   package <domain>_templates
-
-   import "embed"
-
-   //go:embed *.html
-   var FS embed.FS
-   ```
-3. Suma `<domain>_templates.FS` a `documentRenderer()` en `routes/documents.go`.
+1. `features/<domain>/templates/<name>.html` (sintaxis `html/template`) y, si
+   el dominio no lo tiene, `embed.go` con `//go:embed *.html` + `var FS embed.FS`.
+2. El tipo de datos en `data.go` y el `pdfrender.Document` con su `Sample` en
+   `documents.go`.
+3. Súmalo a `printableDocuments` en `routes/documents.go` (aparece en Ajustes)
+   y a la tabla de `core/pdfrender/catalog_test.go`, que valida y renderiza
+   cada default con su `Sample`.
 4. Inyecta `documentRenderer()` en el constructor del handler desde el archivo
-   de rutas.
+   de rutas, y agrega las keys `document_templates.doc.<id>`.
 
-El nombre de plantilla es único entre todos los FS (gana el primero que lo
-tenga). El embed reemplaza cualquier `COPY` en Dockerfiles: una plantilla fuera
-del embed es la causa del incidente de producción b74f2f2.
+El embed reemplaza cualquier `COPY` en Dockerfiles: una plantilla fuera del
+embed es la causa del incidente de producción b74f2f2.
 
 Ejemplos: `generatePrescriptionPDF` en
 `features/clinical/handlers/download-record-handler.go`,

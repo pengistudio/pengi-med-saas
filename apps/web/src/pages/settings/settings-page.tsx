@@ -1,18 +1,5 @@
 import { useText } from "@pengi/shared";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-	Button,
-	Text,
-	useToast,
-} from "@pengi/ui";
+import { Button, Text, useToast } from "@pengi/ui";
 import { AlertTriangle } from "lucide-react";
 import React from "react";
 import { useSearchParams } from "react-router";
@@ -26,16 +13,14 @@ import type {
 	ClinicalSettings,
 	TenantUISettings,
 } from "@/api/settings-service";
-import {
-	deletePrescriptionTemplate,
-	getPrescriptionTemplateStatus,
-	uploadPrescriptionTemplate,
-} from "@/api/settings-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { SettingsSection } from "@/components/custom/settings-section";
 import { Switch } from "@/components/ui/switch";
+import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { DocumentTemplatesSettings } from "@/sections/settings/document-templates-settings";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
 
 /** A labelled group of rows inside a section. */
@@ -100,13 +85,10 @@ function StatusPill({
 const SettingsPage = () => {
 	const { textGet } = useText();
 	const { settings, saveSettings } = useTenantSettings();
-	const [hasCustomTemplate, setHasCustomTemplate] = React.useState<
-		boolean | null
-	>(null);
-	const [templateLoading, setTemplateLoading] = React.useState(false);
-	const [resetConfirmOpen, setResetConfirmOpen] = React.useState(false);
-	const fileInputRef = React.useRef<HTMLInputElement>(null);
-
+	const { checkPermission } = usePermission();
+	const canManageTemplates = checkPermission([
+		PERMISSIONS.DOCUMENTS.PERMISSION_MANAGE_DOCUMENT_TEMPLATES,
+	]);
 	const [searchParams, setSearchParams] = useSearchParams();
 	// Returning from the OAuth flow (?google=connected, a fresh page load) shows
 	// the integration as connected until the real status arrives.
@@ -118,9 +100,6 @@ const SettingsPage = () => {
 	const { successToast, errorToast } = useToast();
 
 	React.useEffect(() => {
-		getPrescriptionTemplateStatus().then((res) => {
-			if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
-		});
 		getGoogleIntegrationStatus().then((res) => {
 			if (res.success && res.data) setGoogleStatus(res.data);
 		});
@@ -136,16 +115,6 @@ const SettingsPage = () => {
 			setSearchParams({});
 		}
 	}, [searchParams, errorToast, setSearchParams, successToast, textGet]);
-
-	async function handleUploadTemplate(e: React.ChangeEvent<HTMLInputElement>) {
-		const file = e.target.files?.[0];
-		if (!file) return;
-		setTemplateLoading(true);
-		const res = await uploadPrescriptionTemplate(file);
-		if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
-		setTemplateLoading(false);
-		if (fileInputRef.current) fileInputRef.current.value = "";
-	}
 
 	async function handleConnectGoogle() {
 		setGoogleLoading(true);
@@ -163,14 +132,6 @@ const SettingsPage = () => {
 			setGoogleStatus((prev) => ({ ...prev, connected: false }));
 		}
 		setGoogleLoading(false);
-	}
-
-	async function handleDeleteTemplate() {
-		setTemplateLoading(true);
-		const res = await deletePrescriptionTemplate();
-		if (res.success && res.data) setHasCustomTemplate(res.data.has_custom);
-		setTemplateLoading(false);
-		setResetConfirmOpen(false);
 	}
 
 	function toggleClinical(key: keyof ClinicalSettings) {
@@ -282,78 +243,14 @@ const SettingsPage = () => {
 				</SettingsGroup>
 			</SettingsSection>
 
-			<SettingsSection
-				title={<Text uuid="settings.prescription_template.title" />}
-				description={<Text uuid="settings.prescription_template.description" />}
-			>
-				<div className="flex flex-wrap items-center justify-between gap-3">
-					<StatusPill active={!!hasCustomTemplate}>
-						{hasCustomTemplate ? (
-							<Text uuid="settings.prescription_template.status.custom" />
-						) : (
-							<Text uuid="settings.prescription_template.status.default" />
-						)}
-					</StatusPill>
-					<div className="flex gap-2">
-						<input
-							ref={fileInputRef}
-							type="file"
-							accept=".html"
-							className="hidden"
-							onChange={handleUploadTemplate}
-						/>
-						{hasCustomTemplate && (
-							<AlertDialog
-								open={resetConfirmOpen}
-								onOpenChange={setResetConfirmOpen}
-							>
-								<AlertDialogTrigger
-									disabled={templateLoading}
-									render={
-										<Button
-											variant="ghost"
-											size="sm"
-											className="text-destructive hover:text-destructive"
-										/>
-									}
-								>
-									<Text uuid="settings.prescription_template.reset" />
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											<Text uuid="settings.prescription_template.reset_confirm.title" />
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											<Text uuid="settings.prescription_template.reset_confirm.description" />
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>
-											<Text uuid="common.cancel" />
-										</AlertDialogCancel>
-										<AlertDialogAction
-											variant="destructive"
-											disabled={templateLoading}
-											onClick={handleDeleteTemplate}
-										>
-											<Text uuid="settings.prescription_template.reset_confirm.action" />
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
-						)}
-						<Button
-							variant="outline"
-							size="sm"
-							disabled={templateLoading}
-							onClick={() => fileInputRef.current?.click()}
-						>
-							<Text uuid="settings.prescription_template.upload" />
-						</Button>
-					</div>
-				</div>
-			</SettingsSection>
+			{canManageTemplates && (
+				<SettingsSection
+					title={<Text uuid="settings.document_templates.title" />}
+					description={<Text uuid="settings.document_templates.description" />}
+				>
+					<DocumentTemplatesSettings />
+				</SettingsSection>
+			)}
 
 			<SettingsSection title={<Text uuid="settings.integrations.title" />}>
 				<div className="flex flex-wrap items-start justify-between gap-4">

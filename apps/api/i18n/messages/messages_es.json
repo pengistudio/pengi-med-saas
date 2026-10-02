@@ -4652,54 +4652,6 @@
         "value": "ID de paciente inválido."
     },
     {
-        "key": "settings.prescription_template.title",
-        "value": "Template de receta"
-    },
-    {
-        "key": "settings.prescription_template.description",
-        "value": "Sube un archivo HTML personalizado para el formato de tus recetas médicas."
-    },
-    {
-        "key": "settings.prescription_template.status.custom",
-        "value": "Template personalizado activo"
-    },
-    {
-        "key": "settings.prescription_template.status.default",
-        "value": "Template predeterminado"
-    },
-    {
-        "key": "settings.prescription_template.upload",
-        "value": "Subir template (.html)"
-    },
-    {
-        "key": "settings.prescription_template.reset",
-        "value": "Restaurar predeterminado"
-    },
-    {
-        "key": "settings.prescription_template.reset_confirm.title",
-        "value": "¿Restaurar el template predeterminado?"
-    },
-    {
-        "key": "settings.prescription_template.reset_confirm.description",
-        "value": "Se eliminará tu template personalizado y las recetas volverán a usar el formato predeterminado. Puedes subir otro template cuando quieras."
-    },
-    {
-        "key": "settings.prescription_template.reset_confirm.action",
-        "value": "Eliminar template personalizado"
-    },
-    {
-        "key": "clinical.prescription_template.status",
-        "value": "Estado del template obtenido"
-    },
-    {
-        "key": "clinical.prescription_template.uploaded",
-        "value": "Template de receta actualizado correctamente"
-    },
-    {
-        "key": "clinical.prescription_template.deleted",
-        "value": "Template restaurado al predeterminado"
-    },
-    {
         "key": "pagination.showing",
         "value": "Mostrando"
     },
@@ -5868,10 +5820,6 @@
         "value": "No tienes acceso a esta empresa."
     },
     {
-        "key": "clinical.prescription_template.error.invalid",
-        "value": "La plantilla no es un HTML válido: revisa las etiquetas {{...}}."
-    },
-    {
         "key": "notification.announcement",
         "value": "{title}: {body}"
     },
@@ -6816,10 +6764,6 @@
         "value": "Solo se pueden eliminar citas agendadas, canceladas o completadas."
     },
     {
-        "key": "clinical.prescription_template.error.file_required",
-        "value": "Selecciona el archivo de la plantilla."
-    },
-    {
         "key": "clinical.prescription.error.not_found",
         "value": "Esta consulta no tiene receta."
     },
@@ -6878,5 +6822,173 @@
     {
         "key": "E-USR-002",
         "value": "Entorno no encontrado."
+    },
+    {
+        "key": "document_templates.list.success",
+        "value": "Plantillas de documentos obtenidas."
+    },
+    {
+        "key": "document_templates.upload.success",
+        "value": "Plantilla guardada. Se usará en los documentos que se generen desde ahora."
+    },
+    {
+        "key": "document_templates.delete.success",
+        "value": "Se restauró la plantilla por defecto."
+    },
+    {
+        "key": "document_templates.error.not_found",
+        "value": "Documento no encontrado."
+    },
+    {
+        "key": "document_templates.error.no_custom",
+        "value": "Este documento no tiene una plantilla personalizada."
+    },
+    {
+        "key": "document_templates.error.file_required",
+        "value": "Selecciona un archivo HTML de plantilla."
+    },
+    {
+        "key": "document_templates.error.too_large",
+        "value": "La plantilla supera el tamaño máximo permitido."
+    },
+    {
+        "key": "document_templates.error.parse",
+        "value": "La plantilla tiene un error de sintaxis."
+    },
+    {
+        "key": "document_templates.error.execute",
+        "value": "La plantilla usa un campo que este documento no tiene."
+    },
+    {
+        "key": "document_templates.error.required",
+        "value": "La plantilla no muestra un dato obligatorio del documento."
+    },
+    {
+        "key": "document_templates.error.external_url",
+        "value": "La plantilla carga recursos externos (URLs). Incrusta imágenes y fuentes como data: URI."
+    },
+    {
+        "key": "document_templates.error.preview",
+        "value": "No se pudo generar la vista previa."
+    },
+    {
+        "key": "E-DOCTPL-001",
+        "value": "Documento no encontrado."
+    },
+    {
+        "key": "E-DOCTPL-002",
+        "value": "No hay una plantilla personalizada para este documento."
+    },
+    {
+        "key": "E-DOCTPL-003",
+        "value": "Se requiere un archivo de plantilla."
+    },
+    {
+        "key": "E-DOCTPL-004",
+        "value": "La plantilla es demasiado grande."
+    },
+    {
+        "key": "E-DOCTPL-005",
+        "value": "La plantilla tiene un error de sintaxis."
+    },
+    {
+        "key": "E-DOCTPL-006",
+        "value": "La plantilla usa un campo que el documento no tiene."
+    },
+    {
+        "key": "E-DOCTPL-007",
+        "value": "La plantilla no muestra un dato obligatorio."
+    },
+    {
+        "key": "E-DOCTPL-008",
+        "value": "La plantilla carga un recurso externo."
+    },
+    {
+        "key": "E-DOCTPL-009",
+        "value": "No se pudo generar la vista previa."
+    },
+    {
+        "key": "document_templates.doc.prescription",
+        "value": "Receta médica"
+    },
+    {
+        "key": "document_templates.doc.medical_report",
+        "value": "Informe médico"
+    },
+    {
+        "key": "document_templates.doc.medical_certificate",
+        "value": "Certificado médico"
+    },
+    {
+        "key": "document_templates.doc.invoice_ride",
+        "value": "Factura (RIDE)"
+    },
+    {
+        "key": "document_templates.paper.a4_portrait",
+        "value": "A4 vertical"
+    },
+    {
+        "key": "document_templates.paper.a5_landscape",
+        "value": "A5 horizontal"
+    },
+    {
+        "key": "document_templates.paper.custom",
+        "value": "Personalizado"
+    },
+    {
+        "key": "settings.document_templates.title",
+        "value": "Plantillas de documentos"
+    },
+    {
+        "key": "settings.document_templates.description",
+        "value": "Personaliza el diseño de los documentos que imprime tu consultorio: descarga la plantilla por defecto, edítala y súbela."
+    },
+    {
+        "key": "settings.document_templates.note",
+        "value": "Los cambios aplican solo a los documentos que se generen desde ahora. No se permiten recursos externos (URLs): incrusta imágenes y fuentes como data: URI."
+    },
+    {
+        "key": "settings.document_templates.empty",
+        "value": "Tu plan no incluye documentos imprimibles."
+    },
+    {
+        "key": "settings.document_templates.status.custom",
+        "value": "Personalizada"
+    },
+    {
+        "key": "settings.document_templates.status.default",
+        "value": "Por defecto"
+    },
+    {
+        "key": "settings.document_templates.download_default",
+        "value": "Descargar por defecto"
+    },
+    {
+        "key": "settings.document_templates.download_custom",
+        "value": "Descargar personalizada"
+    },
+    {
+        "key": "settings.document_templates.upload",
+        "value": "Subir plantilla"
+    },
+    {
+        "key": "settings.document_templates.preview",
+        "value": "Vista previa"
+    },
+    {
+        "key": "settings.document_templates.restore",
+        "value": "Restaurar por defecto"
+    },
+    {
+        "key": "settings.document_templates.restore_confirm.title",
+        "value": "¿Restaurar la plantilla por defecto?"
+    },
+    {
+        "key": "settings.document_templates.restore_confirm.description",
+        "value": "Se eliminará tu plantilla personalizada de este documento. Los documentos ya generados no cambian."
+    },
+    {
+        "key": "settings.document_templates.restore_confirm.action",
+        "value": "Restaurar"
     }
 ]

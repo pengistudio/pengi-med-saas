@@ -10,7 +10,7 @@ import (
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 )
 
-func renderMedicalReportTemplate(t *testing.T, data medicalReportTemplateData) string {
+func renderMedicalReportTemplate(t *testing.T, data clinical_templates.ReportData) string {
 	t.Helper()
 	tmpl, err := template.ParseFS(clinical_templates.FS, "medical_report_template.html")
 	if err != nil {
@@ -26,8 +26,8 @@ func renderMedicalReportTemplate(t *testing.T, data medicalReportTemplateData) s
 func TestMedicalReportTemplate_RendersFullConsultation(t *testing.T) {
 	weight := 70.5
 	heartRate := uint(72)
-	html := renderMedicalReportTemplate(t, medicalReportTemplateData{
-		Consultations: []medicalReportConsultationView{{
+	html := renderMedicalReportTemplate(t, clinical_templates.ReportData{
+		Consultations: []clinical_templates.ReportConsultation{{
 			Date:        "12/08/2026",
 			Motive:      "Dolor lumbar",
 			VisitType:   medicalReportVisitType("first"),
@@ -63,8 +63,8 @@ func TestMedicalReportTemplate_RendersFullConsultation(t *testing.T) {
 }
 
 func TestMedicalReportTemplate_LegacySummaryOnly(t *testing.T) {
-	html := renderMedicalReportTemplate(t, medicalReportTemplateData{
-		Consultations: []medicalReportConsultationView{{Date: "01/01/2026", Motive: "Control", Summary: "legacy-summary"}},
+	html := renderMedicalReportTemplate(t, clinical_templates.ReportData{
+		Consultations: []clinical_templates.ReportConsultation{{Date: "01/01/2026", Motive: "Control", Summary: "legacy-summary"}},
 	})
 	if !strings.Contains(html, "legacy-summary") {
 		t.Errorf("legacy summary not rendered")

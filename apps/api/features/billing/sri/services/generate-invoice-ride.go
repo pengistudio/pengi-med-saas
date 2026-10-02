@@ -8,69 +8,19 @@ import (
 	"os"
 
 	"pengi-med-saas/core/pdfrender"
-	"pengi-med-saas/core/utils"
 	billing_models "pengi-med-saas/features/billing/models"
+	billing_templates "pengi-med-saas/features/billing/templates"
 	tenant "pengi-med-saas/features/tenants/models"
 )
 
-type InvoiceRideItem struct {
-	Description string
-	Quantity    string
-	UnitPrice   string
-	Discount    string
-	Total       string
-}
-
-type InvoiceRideTaxSummary struct {
-	Label string // e.g. "IVA 12%"
-	Base  string
-	Value string
-}
-
-// InvoiceRideTemplateData is the model passed to invoice_ride_template.html.
-type InvoiceRideTemplateData struct {
-	// Emisor
-	TradeName            string
-	CorporateName        string
-	TaxID                string
-	MainAddress          string
-	EstablishmentAddress string
-	Establishment        string
-	EmissionPoint        string
-	SpecialContributor   string
-	LogoDataURI          template.URL // e.g. "data:image/png;base64,..." — empty if the tenant has no logo. template.URL (built here from the tenant's own file, not user text) so html/template keeps the data: URI instead of replacing it with #ZgotmplZ
-
-	// Documento
-	Environment       string // "PRUEBAS" | "PRODUCCIÓN"
-	AccessKey         string
-	AuthorizationDate string
-	IssueDate         string
-	Sequential        string
-	BarcodeBase64     string
-
-	// Receptor
-	BuyerName           string
-	BuyerIdentification string
-
-	// Detalle
-	Items []InvoiceRideItem
-
-	// Totales
-	Subtotal      string
-	Discount      string
-	TaxSummary    []InvoiceRideTaxSummary
-	Total         string
-	PaymentMethod string
-}
-
-func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenant, establishmentAddress string, sriEnv string) (InvoiceRideTemplateData, error) {
+func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenant, establishmentAddress string, sriEnv string) (billing_templates.InvoiceRideData, error) {
 	if invoice.AccessKey == nil {
-		return InvoiceRideTemplateData{}, fmt.Errorf("invoice %d has no access key yet", invoice.ID)
+		return billing_templates.InvoiceRideData{}, fmt.Errorf("invoice %d has no access key yet", invoice.ID)
 	}
 
 	bcBase64, err := GenerateBarcodeBase64(*invoice.AccessKey)
 	if err != nil {
-		return InvoiceRideTemplateData{}, err
+		return billing_templates.InvoiceRideData{}, err
 	}
 
 	environment := "PRUEBAS"
@@ -83,9 +33,9 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		authDate = invoice.AuthorizedAt.Format("02/01/2006 15:04:05")
 	}
 
-	var items []InvoiceRideItem
+	var items []billing_templates.InvoiceRideItem
 	for _, item := range invoice.Items {
-		items = append(items, InvoiceRideItem{
+		items = append(items, billing_templates.InvoiceRideItem{
 			Description: item.Description,
 			Quantity:    fmt.Sprintf("%.2f", item.Quantity),
 			UnitPrice:   fmt.Sprintf("%.2f", item.UnitPrice),
@@ -106,13 +56,13 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		key := taxKey{code: item.TaxCode, percentageCode: item.TaxPercentage}
 		grouped[key] += item.Subtotal * item.TaxRate
 	}
-	var taxSummary []InvoiceRideTaxSummary
+	var taxSummary []billing_templates.InvoiceRideTaxSummary
 	for key, value := range grouped {
 		label := "IVA"
 		if key.code == "3" {
 			label = "ICE"
 		}
-		taxSummary = append(taxSummary, InvoiceRideTaxSummary{
+		taxSummary = append(taxSummary, billing_templates.InvoiceRideTaxSummary{
 			Label: label,
 			Base:  fmt.Sprintf("%.2f", invoice.Subtotal),
 			Value: fmt.Sprintf("%.2f", value),
@@ -134,7 +84,7 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		}
 	}
 
-	return InvoiceRideTemplateData{
+	return billing_templates.InvoiceRideData{
 		TradeName:            tenantObj.TradeName,
 		CorporateName:        tenantObj.CorporateName,
 		TaxID:                tenantObj.TaxID,
@@ -168,5 +118,5 @@ func GenerateInvoiceRide(renderer *pdfrender.Renderer, invoice billing_models.In
 	if err != nil {
 		return nil, err
 	}
-	return renderer.Render(tenantObj.ID, "invoice_ride_template.html", data, utils.A4Portrait)
+	return renderer.Render(tenantObj.ID, billing_templates.InvoiceRide, data)
 }

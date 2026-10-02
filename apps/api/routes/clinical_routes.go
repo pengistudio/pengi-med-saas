@@ -24,7 +24,6 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 
 	signer := signature_services.NewSigner(db, tenantFiles)
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db, logger.Log, documentRenderer(), signer, tenantFiles)
-	prescriptionTemplateHandler := clinical_handlers.NewPrescriptionTemplateHandler(db, logger.Log, tenantFiles)
 	draftHandler := clinical_handlers.NewMedicalRecordDraftHandler(db, logger.Log)
 	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer(), documentRenderer(), signer, tenantFiles)
 
@@ -79,11 +78,6 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.PUT("/draft/:patient_id", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(draftHandler.SaveDraft))
 			recordGroup.DELETE("/draft/:patient_id", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(draftHandler.DeleteDraft))
 		}
-
-		// Prescription template routes
-		clinicalGroup.GET("/prescription-template/status", envelope.Handle(prescriptionTemplateHandler.GetPrescriptionTemplateStatus))
-		clinicalGroup.POST("/prescription-template", envelope.Handle(prescriptionTemplateHandler.UploadPrescriptionTemplate))
-		clinicalGroup.DELETE("/prescription-template", envelope.Handle(prescriptionTemplateHandler.DeletePrescriptionTemplate))
 
 		// Appointment routes
 		appointmentGroup := clinicalGroup.Group("/appointments")

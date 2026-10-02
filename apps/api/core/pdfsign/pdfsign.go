@@ -121,7 +121,12 @@ const validationURL = "www.firmadigital.gob.ec"
 // NewStamp builds the FirmaEC-style stamp: a QR carrying the signer data plus
 // the text lines printed beside it.
 func NewStamp(c *Certificate, opts Options) (*Stamp, error) {
-	name := c.SubjectName()
+	return PreviewStamp(c.SubjectName(), opts)
+}
+
+// PreviewStamp builds the stamp NewStamp would for a signer named name, without
+// a certificate: for sample data in template previews and validation.
+func PreviewStamp(name string, opts Options) (*Stamp, error) {
 	signedAt := opts.SignedAt.Format("2006-01-02T15:04:05-07:00")
 	qrText := strings.Join([]string{
 		"FIRMADO POR: " + name,

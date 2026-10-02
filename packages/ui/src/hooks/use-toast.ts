@@ -7,6 +7,8 @@ const TEN_SECONDS = 10000;
 export type ResponseError = {
 	error_code: string;
 	error_message: string;
+	/** Untranslated context for the user, e.g. the field a template failed on. */
+	detail?: string;
 };
 
 const useToast = () => {

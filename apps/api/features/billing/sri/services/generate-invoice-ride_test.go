@@ -8,7 +8,6 @@ import (
 	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/tenantfiles"
 	"pengi-med-saas/core/utils"
-	billing_templates "pengi-med-saas/features/billing/templates"
 	"strings"
 	"testing"
 	"time"
@@ -167,7 +166,7 @@ func TestGenerateInvoiceRide_EmbedsTheTenantLogo(t *testing.T) {
 		IssueDate: time.Now(), AccessKey: &accessKey, Patient: &patient, Total: 112}
 
 	conv := &capturingConverter{}
-	renderer := pdfrender.New(tenantfiles.Memory(), conv, billing_templates.FS)
+	renderer := pdfrender.New(tenantfiles.Memory(), conv)
 	if _, err := GenerateInvoiceRide(renderer, invoice, tenantObj, "Dir", "1"); err != nil {
 		t.Fatalf("GenerateInvoiceRide: %v", err)
 	}

@@ -19,8 +19,8 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/pdfsign"
 	"pengi-med-saas/core/tenantfiles"
-	"pengi-med-saas/core/utils"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	clinical_templates "pengi-med-saas/features/clinical/templates"
 	company_models "pengi-med-saas/features/companies/models"
 	signature_services "pengi-med-saas/features/signatures/services"
 )
@@ -38,22 +38,6 @@ func NewDownloadRecordHandler(db *gorm.DB, logger *zap.Logger, renderer *pdfrend
 }
 
 // ─── PRESCRIPTION DOWNLOAD VIA GOTENBERG ──────────────────────────────────────
-
-type PrescriptionTemplateData struct {
-	DoctorName          string
-	Date                string
-	PatientName         string
-	PatientDocument     string
-	PatientAge          int
-	MedicalRecordID     uint
-	Diagnosis           string
-	PrescriptionContent string
-	Indications         string
-	Phone               string
-	TradeName           string
-	Address             string
-	Signature           *pdfsign.Stamp
-}
 
 // DownloadPrescription generates and downloads a prescription PDF using Gotenberg
 func (h *DownloadRecordHandler) DownloadPrescription(c *gin.Context) {
@@ -145,7 +129,7 @@ func generatePrescriptionPDF(db *gorm.DB, renderer *pdfrender.Renderer, c *gin.C
 		age = 0
 	}
 
-	data := PrescriptionTemplateData{
+	data := clinical_templates.PrescriptionData{
 		DoctorName:          doctorName,
 		Date:                record.Date.Format("02/01/2006"),
 		PatientName:         fullName,
@@ -161,7 +145,7 @@ func generatePrescriptionPDF(db *gorm.DB, renderer *pdfrender.Renderer, c *gin.C
 		Signature:           stamp,
 	}
 
-	return renderer.Render(tenantdb.TenantID(c), "prescription_template.html", data, utils.A5Landscape)
+	return renderer.Render(tenantdb.TenantID(c), clinical_templates.Prescription, data)
 }
 
 // SignPrescription signs the record's prescription with the current user's certificate.

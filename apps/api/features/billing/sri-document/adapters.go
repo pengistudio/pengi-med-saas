@@ -19,7 +19,7 @@ func NewDefault(db *gorm.DB, logger *zap.Logger) *Lifecycle {
 	files := tenantfiles.Disk(tenantfiles.DefaultRoot)
 	docs := Documents{
 		Files:    files,
-		Renderer: pdfrender.New(files, pdfrender.Gotenberg(), billing_templates.FS),
+		Renderer: pdfrender.New(files, pdfrender.Gotenberg(), billing_templates.InvoiceRide),
 	}
 	return New(db, logger, NewHTTPGateway(), RabbitPublisher{}, docs, sri_services.ResolveSriEnv())
 }
