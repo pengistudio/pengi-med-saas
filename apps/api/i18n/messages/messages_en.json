@@ -4652,54 +4652,6 @@
         "value": "Invalid patient ID."
     },
     {
-        "key": "settings.prescription_template.title",
-        "value": "Prescription template"
-    },
-    {
-        "key": "settings.prescription_template.description",
-        "value": "Upload a custom HTML file to define the format of your prescription documents."
-    },
-    {
-        "key": "settings.prescription_template.status.custom",
-        "value": "Custom template active"
-    },
-    {
-        "key": "settings.prescription_template.status.default",
-        "value": "Default template"
-    },
-    {
-        "key": "settings.prescription_template.upload",
-        "value": "Upload template (.html)"
-    },
-    {
-        "key": "settings.prescription_template.reset",
-        "value": "Restore default"
-    },
-    {
-        "key": "settings.prescription_template.reset_confirm.title",
-        "value": "Restore the default template?"
-    },
-    {
-        "key": "settings.prescription_template.reset_confirm.description",
-        "value": "Your custom template will be removed and prescriptions will go back to the default format. You can upload another template at any time."
-    },
-    {
-        "key": "settings.prescription_template.reset_confirm.action",
-        "value": "Remove custom template"
-    },
-    {
-        "key": "clinical.prescription_template.status",
-        "value": "Template status retrieved"
-    },
-    {
-        "key": "clinical.prescription_template.uploaded",
-        "value": "Prescription template updated successfully"
-    },
-    {
-        "key": "clinical.prescription_template.deleted",
-        "value": "Template restored to default"
-    },
-    {
         "key": "pagination.showing",
         "value": "Showing"
     },
@@ -5868,10 +5820,6 @@
         "value": "You do not have access to this company."
     },
     {
-        "key": "clinical.prescription_template.error.invalid",
-        "value": "The template is not valid HTML: check its {{...}} tags."
-    },
-    {
         "key": "notification.announcement",
         "value": "{title}: {body}"
     },
@@ -6816,10 +6764,6 @@
         "value": "Only scheduled, cancelled or completed appointments can be deleted."
     },
     {
-        "key": "clinical.prescription_template.error.file_required",
-        "value": "Select the template file."
-    },
-    {
         "key": "clinical.prescription.error.not_found",
         "value": "This medical record has no prescription."
     },
@@ -6878,5 +6822,173 @@
     {
         "key": "E-USR-002",
         "value": "Environment not found."
+    },
+    {
+        "key": "document_templates.list.success",
+        "value": "Document templates fetched."
+    },
+    {
+        "key": "document_templates.upload.success",
+        "value": "Template saved. Documents generated from now on will use it."
+    },
+    {
+        "key": "document_templates.delete.success",
+        "value": "The default template was restored."
+    },
+    {
+        "key": "document_templates.error.not_found",
+        "value": "Document not found."
+    },
+    {
+        "key": "document_templates.error.no_custom",
+        "value": "This document has no custom template."
+    },
+    {
+        "key": "document_templates.error.file_required",
+        "value": "Select an HTML template file."
+    },
+    {
+        "key": "document_templates.error.too_large",
+        "value": "The template exceeds the maximum allowed size."
+    },
+    {
+        "key": "document_templates.error.parse",
+        "value": "The template has a syntax error."
+    },
+    {
+        "key": "document_templates.error.execute",
+        "value": "The template uses a field this document doesn't have."
+    },
+    {
+        "key": "document_templates.error.required",
+        "value": "The template doesn't show a required field of the document."
+    },
+    {
+        "key": "document_templates.error.external_url",
+        "value": "The template loads external resources (URLs). Embed images and fonts as data: URIs."
+    },
+    {
+        "key": "document_templates.error.preview",
+        "value": "The preview could not be generated."
+    },
+    {
+        "key": "E-DOCTPL-001",
+        "value": "Document not found."
+    },
+    {
+        "key": "E-DOCTPL-002",
+        "value": "There is no custom template for this document."
+    },
+    {
+        "key": "E-DOCTPL-003",
+        "value": "A template file is required."
+    },
+    {
+        "key": "E-DOCTPL-004",
+        "value": "The template is too large."
+    },
+    {
+        "key": "E-DOCTPL-005",
+        "value": "The template has a syntax error."
+    },
+    {
+        "key": "E-DOCTPL-006",
+        "value": "The template uses a field the document doesn't have."
+    },
+    {
+        "key": "E-DOCTPL-007",
+        "value": "The template doesn't show a required field."
+    },
+    {
+        "key": "E-DOCTPL-008",
+        "value": "The template loads an external resource."
+    },
+    {
+        "key": "E-DOCTPL-009",
+        "value": "The preview could not be generated."
+    },
+    {
+        "key": "document_templates.doc.prescription",
+        "value": "Prescription"
+    },
+    {
+        "key": "document_templates.doc.medical_report",
+        "value": "Medical report"
+    },
+    {
+        "key": "document_templates.doc.medical_certificate",
+        "value": "Medical certificate"
+    },
+    {
+        "key": "document_templates.doc.invoice_ride",
+        "value": "Invoice (RIDE)"
+    },
+    {
+        "key": "document_templates.paper.a4_portrait",
+        "value": "A4 portrait"
+    },
+    {
+        "key": "document_templates.paper.a5_landscape",
+        "value": "A5 landscape"
+    },
+    {
+        "key": "document_templates.paper.custom",
+        "value": "Custom"
+    },
+    {
+        "key": "settings.document_templates.title",
+        "value": "Document templates"
+    },
+    {
+        "key": "settings.document_templates.description",
+        "value": "Customize the design of the documents your practice prints: download the default template, edit it and upload it."
+    },
+    {
+        "key": "settings.document_templates.note",
+        "value": "Changes apply only to documents generated from now on. External resources (URLs) are not allowed: embed images and fonts as data: URIs."
+    },
+    {
+        "key": "settings.document_templates.empty",
+        "value": "Your plan includes no printable documents."
+    },
+    {
+        "key": "settings.document_templates.status.custom",
+        "value": "Custom"
+    },
+    {
+        "key": "settings.document_templates.status.default",
+        "value": "Default"
+    },
+    {
+        "key": "settings.document_templates.download_default",
+        "value": "Download default"
+    },
+    {
+        "key": "settings.document_templates.download_custom",
+        "value": "Download custom"
+    },
+    {
+        "key": "settings.document_templates.upload",
+        "value": "Upload template"
+    },
+    {
+        "key": "settings.document_templates.preview",
+        "value": "Preview"
+    },
+    {
+        "key": "settings.document_templates.restore",
+        "value": "Restore default"
+    },
+    {
+        "key": "settings.document_templates.restore_confirm.title",
+        "value": "Restore the default template?"
+    },
+    {
+        "key": "settings.document_templates.restore_confirm.description",
+        "value": "Your custom template for this document will be deleted. Documents already generated don't change."
+    },
+    {
+        "key": "settings.document_templates.restore_confirm.action",
+        "value": "Restore"
     }
 ]

@@ -9,16 +9,16 @@ import (
 
 	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/tenantfiles"
-	"pengi-med-saas/core/utils"
 	billing_templates "pengi-med-saas/features/billing/templates"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 )
 
 // Run against a real Gotenberg: GOTENBERG_URL=http://localhost:8001 go test -tags smoke ./core/pdfrender/
 func TestSmoke_RealGotenbergRendersEveryDefaultTemplate(t *testing.T) {
-	r := pdfrender.New(tenantfiles.Memory(), pdfrender.Gotenberg(), clinical_templates.FS, billing_templates.FS)
-	for _, name := range []string{"prescription_template.html", "medical_report_template.html", "medical_certificate_template.html", "invoice_ride_template.html"} {
-		pdf, err := r.Render(1, name, nil, utils.A4Portrait)
+	r := pdfrender.New(tenantfiles.Memory(), pdfrender.Gotenberg())
+	for _, doc := range []pdfrender.Document{clinical_templates.Prescription, clinical_templates.Report, clinical_templates.Certificate, billing_templates.InvoiceRide} {
+		name := doc.File
+		pdf, err := r.Preview(1, doc, nil)
 		if err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}

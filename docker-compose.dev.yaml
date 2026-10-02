@@ -59,6 +59,16 @@ services:
     container_name: gotenberg-gentoo
     image: gotenberg/gotenberg:8
     restart: on-failure
+    # Tenants upload their own HTML templates, so Chromium must not fetch
+    # anything but the document Gotenberg writes to /tmp and data: URIs (our
+    # templates embed logo and QR as data:). Without this a template could
+    # load http://api:8080, rabbitmq, etc. (SSRF). Keep in sync with
+    # deploy/docker-compose.prod.yaml.
+    command:
+      - gotenberg
+      - "--chromium-allow-list=^(file:///tmp/|data:)"
+      - "--chromium-deny-private-ips"
+      - "--chromium-disable-javascript"
     ports:
       - "8001:3000"
     networks:

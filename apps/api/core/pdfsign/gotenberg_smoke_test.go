@@ -14,7 +14,6 @@ import (
 	"pengi-med-saas/core/pdfsign"
 	"pengi-med-saas/core/pdfsign/pdfsigntest"
 	"pengi-med-saas/core/tenantfiles"
-	"pengi-med-saas/core/utils"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 )
 
@@ -26,18 +25,11 @@ func TestSmoke_SignsRealGotenbergPDFs(t *testing.T) {
 		t.Fatal(err)
 	}
 	opts := pdfsign.Options{Reason: "Smoke", Location: "Ecuador", SignedAt: time.Now()}
-	stamp, err := pdfsign.NewStamp(cert, opts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	r := pdfrender.New(tenantfiles.Memory(), pdfrender.Gotenberg(), clinical_templates.FS)
-	for name, paper := range map[string]utils.PDFOptions{
-		"medical_report_template.html":      utils.A4Portrait,
-		"medical_certificate_template.html": utils.A4Portrait,
-		"prescription_template.html":        utils.A5Landscape,
-	} {
-		pdf, err := r.Render(1, name, map[string]any{"Signature": stamp, "DoctorName": "Ana Perez", "TradeName": "Clinica"}, paper)
+	r := pdfrender.New(tenantfiles.Memory(), pdfrender.Gotenberg())
+	// The samples already carry a visible stamp; the PDF signature is independent of it.
+	for _, doc := range []pdfrender.Document{clinical_templates.Report, clinical_templates.Certificate, clinical_templates.Prescription} {
+		name := doc.File
+		pdf, err := r.Preview(1, doc, nil)
 		if err != nil {
 			t.Fatalf("%s: render: %v", name, err)
 		}

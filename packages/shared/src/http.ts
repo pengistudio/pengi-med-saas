@@ -235,11 +235,14 @@ export class HttpService {
 			}
 
 			if (config?.notifyError) {
-				toast.error(
+				const message =
 					typeof config.notifyError === "string"
 						? config.notifyError
-						: errorObj.message,
-				);
+						: errorObj.message;
+				// detail: untranslated context from the API (e.g. the failing field).
+				const detail = errorObj.data?.detail;
+				if (detail) toast.error(message, { description: detail });
+				else toast.error(message);
 			}
 
 			return errorObj;

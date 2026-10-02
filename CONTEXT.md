@@ -61,3 +61,11 @@ _Avoid_: tabla de mensajes, traducciones (a secas)
 **Idioma de la interfaz**:
 El idioma (`es`/`en`) en que el usuario ve textos, fechas y montos; cambia junto con los mensajes cargados, no al elegirlo. Define el locale de formato (`es`→`es-EC`, `en`→`en-US`); la moneda es siempre USD. En código: `useText` de `@pengi/shared`.
 _Avoid_: locale (a secas), idioma del navegador
+
+**Documento imprimible**:
+Documento que el sistema genera como PDF a partir de una plantilla: receta, informe médico, certificado médico, RIDE. Cada uno tiene un tamaño de papel fijo y depende de un módulo del plan (clínico o facturación). Un documento ya emitido (RIDE autorizado, documento firmado) no se vuelve a generar al cambiar la plantilla. En código: `pdfrender.Document`.
+_Avoid_: reporte, PDF (a secas)
+
+**Plantilla**:
+El HTML con que se genera un documento imprimible. La **por defecto** viene en el binario; la **del tenant**, si existe, la reemplaza para todo ese tenant. Una plantilla del tenant no puede pedir recursos externos y debe mostrar los datos obligatorios de su documento (clave de acceso en el RIDE, firma en los documentos clínicos).
+_Avoid_: template, formato
