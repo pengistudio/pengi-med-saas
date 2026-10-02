@@ -155,6 +155,19 @@ var AuditPermissions = []permission_models.Permission{
 	},
 }
 
+// DocumentTemplatePermissions guard the tenant's custom templates for printable
+// documents (prescription today; every printable document soon). Category
+// DOCUMENTS is cross-domain and maps to no nav flag, so the permission can sit
+// in both the CLINICAL and BILLING Features without enabling either flag.
+var DocumentTemplatePermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_DOCUMENT_TEMPLATES"},
+		Name:         "Manage Document Templates",
+		Category:     "DOCUMENTS",
+		Description:  "Upload, replace or reset the custom templates used to print documents",
+	},
+}
+
 var KanbanPermissions = []permission_models.Permission{
 	{
 		BaseStringID: database.BaseStringID{ID: "READ_KANBAN"},

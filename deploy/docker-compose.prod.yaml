@@ -71,6 +71,16 @@ services:
     image: gotenberg/gotenberg:8
     container_name: pengi-gotenberg
     restart: unless-stopped
+    # Tenants upload their own HTML templates, so Chromium must not fetch
+    # anything but the document Gotenberg writes to /tmp and data: URIs (our
+    # templates embed logo and QR as data:). Without this a template could
+    # load http://api:8080, rabbitmq, etc. (SSRF). Keep in sync with
+    # docker-compose.dev.yaml.
+    command:
+      - gotenberg
+      - "--chromium-allow-list=^(file:///tmp/|data:)"
+      - "--chromium-deny-private-ips"
+      - "--chromium-disable-javascript"
     networks:
       - app
 
