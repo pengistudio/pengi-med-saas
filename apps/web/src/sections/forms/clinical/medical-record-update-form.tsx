@@ -27,6 +27,7 @@ import {
 	type MedicalRecord,
 	updateMedicalRecord,
 } from "@/api/clinical-service";
+import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import { FormCalendar } from "@/components/forms/form-calendar";
 
 const formSchema = z
@@ -136,6 +137,7 @@ const UpdateMedicalRecordForm = () => {
 	const [initialData, setInitialData] = React.useState<z.infer<
 		typeof formSchema
 	> | null>(null);
+	const [patientId, setPatientId] = React.useState<number | null>(null);
 	const { textGet } = useText();
 	const navigate = useNavigate();
 
@@ -148,6 +150,7 @@ const UpdateMedicalRecordForm = () => {
 				return;
 			}
 			const record = res.data as MedicalRecord;
+			setPatientId(record.patient_id);
 			setInitialData({
 				date: new Date(record.date),
 				motive: record.motive,
@@ -334,6 +337,13 @@ const UpdateMedicalRecordForm = () => {
 							/>
 						</CardContent>
 					</Card>
+
+					{patientId && (
+						<MedicalRecordAttachments
+							patientId={patientId}
+							medicalRecordId={Number(id)}
+						/>
+					)}
 
 					<div className="flex justify-end">
 						<Button type="submit" disabled={loading}>

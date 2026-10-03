@@ -20,6 +20,11 @@ function PricingChip({ months, price }: { months: number; price: number }) {
 	);
 }
 
+function StorageQuota({ mb }: { mb: number }) {
+	const { formatFileSize } = useText();
+	return <>{formatFileSize(mb * 1024 * 1024)}</>;
+}
+
 const columns: ResourceColumn<Plan>[] = [
 	{
 		header: "backoffice.plans.col.name",
@@ -57,6 +62,11 @@ const columns: ResourceColumn<Plan>[] = [
 			) : (
 				<MonthlyPrice price={p.price} />
 			),
+	},
+	{
+		header: "backoffice.plans.col.storage_quota",
+		cell: (p) => <StorageQuota mb={p.storage_quota_mb ?? 0} />,
+		className: "text-sm text-muted-foreground",
 	},
 	{
 		header: "backoffice.plans.col.features",

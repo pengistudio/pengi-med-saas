@@ -34,6 +34,7 @@ import { signPrescription } from "@/api/signature-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { SignDocumentButton } from "@/components/custom/sign-document-button";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
+import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import {
 	buildPrescriptionWhatsAppMessage,
 	generateWhatsAppLink,
@@ -552,6 +553,11 @@ const ViewMedicalRecord = () => {
 					</Card>
 				</>
 			)}
+
+			<MedicalRecordAttachments
+				patientId={medicalRecord.patient_id}
+				medicalRecordId={medicalRecord.ID}
+			/>
 
 			<PrescriptionDialog
 				open={showPrescription}

@@ -45,6 +45,14 @@ var (
 	ErrClinicalAppointmentNotFound     AppError = NewAppError("E-CLIN-015", "Appointment not found.")
 	ErrClinicalPrescriptionNotFound    AppError = NewAppError("E-CLIN-016", "This medical record has no prescription.")
 	ErrClinicalICD11Unavailable        AppError = NewAppError("E-CLIN-017", "The ICD-11 service is unavailable.")
+	ErrClinicalAttachmentNotFound      AppError = NewAppError("E-CLIN-018", "Attachment not found.")
+	ErrClinicalAttachmentTooLarge      AppError = NewAppError("E-CLIN-019", "The file exceeds the 15 MB limit.")
+	ErrClinicalAttachmentType          AppError = NewAppError("E-CLIN-020", "Only PDF, JPEG and PNG files are accepted.")
+	ErrClinicalAttachmentCategory      AppError = NewAppError("E-CLIN-021", "Invalid attachment category.")
+	ErrClinicalAttachmentUnavailable   AppError = NewAppError("E-CLIN-022", "Patient attachments are not available on this server.")
+	ErrClinicalAttachmentSaveError     AppError = NewAppError("E-CLIN-023", "Error saving the attachment.")
+	ErrClinicalAttachmentReadError     AppError = NewAppError("E-CLIN-024", "Error reading the attachment.")
+	ErrClinicalAttachmentRecordPatient AppError = NewAppError("E-CLIN-025", "The consultation belongs to another patient.")
 
 	// Electronic Signature Errors
 	ErrSignatureInvalidFile    AppError = NewAppError("E-SIGN-001", "Invalid signature file or password.")
@@ -76,6 +84,7 @@ var (
 	ErrBackofficeRoleNotFound         AppError = NewAppError("E-BO-011", "Role not found.")
 	ErrPlanLimitUsers                 AppError = NewAppError("E-PLAN-001", "User limit reached for this plan.")
 	ErrPlanLimitPatients              AppError = NewAppError("E-PLAN-002", "Patient limit reached for this plan.")
+	ErrPlanStorageQuota               AppError = NewAppError("E-PLAN-003", "Attachment storage quota reached for this plan.")
 
 	// Billing Errors
 	ErrBillingInvalidRequest        AppError = NewAppError("E-BILL-001", "Invalid billing request.")

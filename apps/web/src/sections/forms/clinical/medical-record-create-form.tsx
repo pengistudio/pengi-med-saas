@@ -54,6 +54,11 @@ import {
 	getMedicalRecords,
 	type MedicalRecord,
 } from "@/api/clinical-service";
+import {
+	linkPatientAttachment,
+	type PatientAttachment,
+} from "@/api/patient-attachment-service";
+import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormIcd11Select } from "@/components/forms/form-icd11-select";
 import { FormTagInput } from "@/components/forms/form-tag-input";
@@ -157,6 +162,11 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 	const patient = usePatientStore(selectPatient);
 	const allergies = parseAllergies(patient?.allergies);
 	const clearDraftRef = React.useRef<() => void>(() => {});
+	// Files uploaded or picked while writing: the consultation has no ID yet,
+	// so they are stored unlinked and linked right after it is created.
+	const [pendingAttachments, setPendingAttachments] = React.useState<
+		PatientAttachment[]
+	>([]);
 
 	React.useEffect(() => {
 		if (!patientId) return;
@@ -189,6 +199,15 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 						onClearDraftReady={(fn) => {
 							clearDraftRef.current = fn;
 						}}
+						attachments={
+							patientId ? (
+								<MedicalRecordAttachments
+									patientId={Number(patientId)}
+									pendingAttachments={pendingAttachments}
+									onPendingChange={setPendingAttachments}
+								/>
+							) : null
+						}
 					/>
 				)}
 			</Form>
@@ -269,6 +288,21 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 		try {
 			const res = await createMedicalRecord(payload);
 			if (res.success) {
+				const recordId = res.data?.ID;
+				if (recordId && pendingAttachments.length > 0) {
+					// A failed link toasts its error; the file stays in the
+					// patient's Archivos, linkable later from the consultation.
+					await Promise.all(
+						pendingAttachments.map((attachment) =>
+							linkPatientAttachment(
+								Number(patientId),
+								attachment.ID,
+								recordId,
+								{ notifySuccess: false },
+							),
+						),
+					);
+				}
 				clearDraftRef.current();
 				navigate(`/clinical/medical-records/${patientId}`);
 			}
@@ -290,6 +324,7 @@ function FormWithDraft({
 	lastRecord,
 	onPreviewLastRecord,
 	onClearDraftReady,
+	attachments,
 }: {
 	field: UseFormReturn<
 		z.input<typeof formSchema>,
@@ -306,6 +341,7 @@ function FormWithDraft({
 	lastRecord: MedicalRecord | null;
 	onPreviewLastRecord: () => void;
 	onClearDraftReady: (fn: () => void) => void;
+	attachments: React.ReactNode;
 }) {
 	const { formatDateTime } = useText();
 	const {
@@ -361,6 +397,7 @@ function FormWithDraft({
 					clearDraft();
 					field.reset(emptyConsultation());
 				}}
+				attachments={attachments}
 			/>
 		</>
 	);
@@ -388,6 +425,7 @@ function FormInner({
 	hasDraft,
 	lastSaved,
 	onDiscardDraft,
+	attachments,
 }: {
 	field: UseFormReturn<
 		z.input<typeof formSchema>,
@@ -405,6 +443,7 @@ function FormInner({
 	hasDraft: boolean;
 	lastSaved: Date | null;
 	onDiscardDraft: () => void;
+	attachments: React.ReactNode;
 }) {
 	const [activeTab, setActiveTab] = React.useState<TabId>("consulta");
 	const [footerStuck, setFooterStuck] = React.useState(false);
@@ -1160,6 +1199,8 @@ function FormInner({
 							</Tabs>
 						</CardContent>
 					</Card>
+
+					{attachments}
 				</TabsContent>
 			</Tabs>
 

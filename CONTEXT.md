@@ -52,6 +52,12 @@ Representación impresa (PDF) de un comprobante autorizado; tiene validez tribut
 **Consumidor Final**:
 Comprador genérico declarado cuando la factura no tiene paciente asociado.
 
+### Clínico
+
+**Adjunto**:
+Archivo (PDF o imagen) que pertenece a un paciente y puede vincularse a una consulta del mismo paciente: resultado de laboratorio, imagen, informe externo, foto clínica, consentimiento u otro. Se guarda cifrado, nunca se reemplaza y no se borra físicamente: se oculta con motivo y se puede restaurar. En código: `PatientAttachment`.
+_Avoid_: documento (se confunde con documento imprimible), archivo médico
+
 ### Plataforma
 
 **Catálogo de mensajes**:

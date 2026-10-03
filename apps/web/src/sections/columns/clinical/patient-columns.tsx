@@ -23,6 +23,7 @@ import {
 	FolderOpen,
 	HelpCircle,
 	MoreVertical,
+	Paperclip,
 	Pencil,
 	Plus,
 } from "lucide-react";
@@ -138,6 +139,23 @@ function RenderActions({ row }: CellContext<Patient, unknown>) {
 							<FolderOpen className="w-4 h-4 mr-2" />
 							<Text uuid="clinical.patient.generate_documents" />
 						</DropdownMenuItem>
+						{(checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_PATIENT_ATTACHMENT,
+						]) ||
+							checkPermission([
+								PERMISSIONS.MEDICAL_RECORD.PERMISSION_UPLOAD_PATIENT_ATTACHMENT,
+							])) && (
+							<DropdownMenuItem
+								onClick={() =>
+									navigate(
+										`/clinical/medical-documents?${params.toString()}&tab=files`,
+									)
+								}
+							>
+								<Paperclip className="w-4 h-4 mr-2" />
+								<Text uuid="clinical.patient.files" />
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuGroup>
 				</DropdownMenuContent>
 			</DropdownMenu>

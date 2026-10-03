@@ -15,6 +15,15 @@ type Plan struct {
 	Price      float64           `gorm:"not null" json:"price"`
 	Properties datatypes.JSONMap `gorm:"type:jsonb;default:'{}'"`
 	Pricings   []PlanPricing     `gorm:"foreignKey:PlanID" json:"pricings"`
+	// StorageQuotaMB is how much space the tenant's patient attachments may
+	// take, in MB (1 MB = 1024*1024 bytes). 0 means no attachments allowed
+	// (plans without the clinical module).
+	StorageQuotaMB int64 `gorm:"not null;default:0" json:"storage_quota_mb"`
+}
+
+// StorageQuotaBytes is the attachment quota in bytes.
+func (p *Plan) StorageQuotaBytes() int64 {
+	return p.StorageQuotaMB << 20
 }
 
 func (p *Plan) Save(db *gorm.DB) error {

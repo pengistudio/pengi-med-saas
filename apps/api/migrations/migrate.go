@@ -50,6 +50,7 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.Cie10Code{},
 		clinical_models.MedicalReport{},
 		clinical_models.MedicalCertificate{},
+		clinical_models.PatientAttachment{},
 		signature_models.UserSignature{},
 		integration_models.TenantIntegration{},
 		backoffice_models.BackofficeUser{},
