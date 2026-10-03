@@ -4,6 +4,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
 	"pengi-med-saas/core/mailer"
+	"pengi-med-saas/core/tenantfiles"
 	clinical_handlers "pengi-med-saas/features/clinical/handlers"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	signature_services "pengi-med-saas/features/signatures/services"
@@ -11,6 +12,7 @@ import (
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -26,6 +28,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db, logger.Log, documentRenderer(), signer, tenantFiles)
 	draftHandler := clinical_handlers.NewMedicalRecordDraftHandler(db, logger.Log)
 	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer(), documentRenderer(), signer, tenantFiles)
+	attachmentHandler := clinical_handlers.NewPatientAttachmentHandler(db, logger.Log, attachmentFiles())
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 	{
@@ -52,6 +55,9 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			patientGroup.GET("/:id/reports", rp(db, "CREATE_MEDICAL_REPORT"), envelope.Handle(medicalDocumentHandler.ListMedicalReports))
 			patientGroup.POST("/:id/certificates", rp(db, "CREATE_MEDICAL_CERTIFICATE"), envelope.Handle(medicalDocumentHandler.CreateMedicalCertificate))
 			patientGroup.GET("/:id/certificates", rp(db, "CREATE_MEDICAL_CERTIFICATE"), envelope.Handle(medicalDocumentHandler.ListMedicalCertificates))
+
+			// Patient attachments (Adjuntos): upload, list, download
+			attachmentHandler.Mount(patientGroup, func(permissionID string) gin.HandlerFunc { return rp(db, permissionID) })
 		}
 
 		// Medical report / certificate document routes (generate, download, email)
@@ -92,4 +98,16 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			appointmentGroup.DELETE("/:id", envelope.Handle(appointmentHandler.DeleteAppointment))
 		}
 	}
+}
+
+// attachmentFiles is the encrypted store for patient attachments, or nil when
+// ATTACHMENT_ENCRYPTION_KEY is missing or invalid: the attachment routes then
+// answer 503 and the rest of the API keeps working.
+func attachmentFiles() tenantfiles.Store {
+	files, err := tenantfiles.EncryptedFromEnv(tenantFiles)
+	if err != nil {
+		logger.Log.Error("patient attachments disabled: "+tenantfiles.AttachmentKeyEnv+" is missing or invalid", zap.Error(err))
+		return nil
+	}
+	return files
 }

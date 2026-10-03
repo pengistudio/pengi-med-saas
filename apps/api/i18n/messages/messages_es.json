@@ -6990,5 +6990,481 @@
     {
         "key": "settings.document_templates.restore_confirm.action",
         "value": "Restaurar"
+    },
+    {
+        "key": "E-CLIN-018",
+        "value": "Archivo no encontrado."
+    },
+    {
+        "key": "E-CLIN-019",
+        "value": "El archivo supera el límite de 15 MB."
+    },
+    {
+        "key": "E-CLIN-020",
+        "value": "Solo se aceptan archivos PDF, JPG o PNG."
+    },
+    {
+        "key": "E-CLIN-021",
+        "value": "Categoría de archivo no válida."
+    },
+    {
+        "key": "E-CLIN-022",
+        "value": "Los archivos del paciente no están disponibles en este servidor."
+    },
+    {
+        "key": "E-CLIN-023",
+        "value": "No se pudo guardar el archivo."
+    },
+    {
+        "key": "E-CLIN-024",
+        "value": "No se pudo leer el archivo."
+    },
+    {
+        "key": "clinical.attachment.unavailable",
+        "value": "Los archivos del paciente no están disponibles en este servidor."
+    },
+    {
+        "key": "clinical.attachment.too_large",
+        "value": "El archivo supera el límite de 15 MB."
+    },
+    {
+        "key": "clinical.attachment.file.required",
+        "value": "Adjunta un archivo."
+    },
+    {
+        "key": "clinical.attachment.type.unsupported",
+        "value": "Solo se aceptan archivos PDF, JPG o PNG."
+    },
+    {
+        "key": "clinical.attachment.category.invalid",
+        "value": "Categoría de archivo no válida."
+    },
+    {
+        "key": "clinical.attachment.taken_at.invalid",
+        "value": "Fecha del examen no válida."
+    },
+    {
+        "key": "clinical.attachment.description.too_long",
+        "value": "La descripción admite hasta 255 caracteres."
+    },
+    {
+        "key": "clinical.attachment.upload.error",
+        "value": "No se pudo guardar el archivo."
+    },
+    {
+        "key": "clinical.attachment.upload.success",
+        "value": "Archivo subido."
+    },
+    {
+        "key": "clinical.attachment.update.success",
+        "value": "Archivo actualizado."
+    },
+    {
+        "key": "clinical.attachment.list.success",
+        "value": "Archivos obtenidos."
+    },
+    {
+        "key": "clinical.medical_documents.tab.documents",
+        "value": "Documentos"
+    },
+    {
+        "key": "clinical.medical_documents.tab.files",
+        "value": "Archivos"
+    },
+    {
+        "key": "clinical.patient.files",
+        "value": "Archivos"
+    },
+    {
+        "key": "clinical.attachment.upload",
+        "value": "Subir archivo"
+    },
+    {
+        "key": "clinical.attachment.empty.title",
+        "value": "Aún no hay archivos"
+    },
+    {
+        "key": "clinical.attachment.empty.description",
+        "value": "Sube resultados de laboratorio, imágenes, informes externos, fotos clínicas o consentimientos en PDF, JPG o PNG de hasta 15 MB."
+    },
+    {
+        "key": "clinical.attachment.empty.filtered",
+        "value": "No hay archivos de esta categoría."
+    },
+    {
+        "key": "clinical.attachment.no_read",
+        "value": "Puedes subir archivos a este paciente, pero no tienes permiso para verlos."
+    },
+    {
+        "key": "clinical.attachment.filter.all",
+        "value": "Todas las categorías"
+    },
+    {
+        "key": "clinical.attachment.column.taken_at",
+        "value": "Fecha del examen"
+    },
+    {
+        "key": "clinical.attachment.column.category",
+        "value": "Categoría"
+    },
+    {
+        "key": "clinical.attachment.column.file",
+        "value": "Archivo"
+    },
+    {
+        "key": "clinical.attachment.column.size",
+        "value": "Tamaño"
+    },
+    {
+        "key": "clinical.attachment.download",
+        "value": "Descargar"
+    },
+    {
+        "key": "clinical.attachment.category.lab_result",
+        "value": "Resultado de laboratorio"
+    },
+    {
+        "key": "clinical.attachment.category.imaging",
+        "value": "Imagen"
+    },
+    {
+        "key": "clinical.attachment.category.external_report",
+        "value": "Informe externo"
+    },
+    {
+        "key": "clinical.attachment.category.clinical_photo",
+        "value": "Foto clínica"
+    },
+    {
+        "key": "clinical.attachment.category.consent",
+        "value": "Consentimiento"
+    },
+    {
+        "key": "clinical.attachment.category.other",
+        "value": "Otro"
+    },
+    {
+        "key": "clinical.attachment.form.title",
+        "value": "Subir archivo"
+    },
+    {
+        "key": "clinical.attachment.form.subtitle",
+        "value": "PDF, JPG, PNG o HEIC (iPhone), hasta 15 MB cada uno."
+    },
+    {
+        "key": "clinical.attachment.form.file",
+        "value": "Archivo"
+    },
+    {
+        "key": "clinical.attachment.form.category",
+        "value": "Categoría"
+    },
+    {
+        "key": "clinical.attachment.form.category.placeholder",
+        "value": "Selecciona una categoría"
+    },
+    {
+        "key": "clinical.attachment.form.taken_at",
+        "value": "Fecha del examen"
+    },
+    {
+        "key": "clinical.attachment.form.taken_at.description",
+        "value": "Si la dejas vacía se usa la fecha de hoy."
+    },
+    {
+        "key": "clinical.attachment.form.description",
+        "value": "Descripción"
+    },
+    {
+        "key": "clinical.attachment.form.description.placeholder",
+        "value": "Ej.: Hemograma Lab. X"
+    },
+    {
+        "key": "clinical.attachment.form.submit",
+        "value": "Subir"
+    },
+    {
+        "key": "clinical.attachment.form.error.file_required",
+        "value": "Selecciona un archivo"
+    },
+    {
+        "key": "clinical.attachment.form.error.too_large",
+        "value": "El archivo supera los 15 MB"
+    },
+    {
+        "key": "clinical.attachment.form.error.type",
+        "value": "Solo se aceptan archivos PDF, JPG o PNG"
+    },
+    {
+        "key": "clinical.attachment.form.error.category",
+        "value": "Selecciona una categoría"
+    },
+    {
+        "key": "clinical.attachment.form.error.description_long",
+        "value": "La descripción admite hasta 255 caracteres"
+    },
+    {
+        "key": "clinical.attachment.edit",
+        "value": "Editar"
+    },
+    {
+        "key": "clinical.attachment.edit.title",
+        "value": "Editar datos del archivo"
+    },
+    {
+        "key": "clinical.attachment.form.save",
+        "value": "Guardar cambios"
+    },
+    {
+        "key": "clinical.attachment.view",
+        "value": "Ver"
+    },
+    {
+        "key": "clinical.attachment.viewer.description",
+        "value": "Vista previa del archivo adjunto. No se ejecuta ningún contenido activo."
+    },
+    {
+        "key": "clinical.attachment.viewer.loading",
+        "value": "Cargando archivo..."
+    },
+    {
+        "key": "clinical.attachment.viewer.error",
+        "value": "No se pudo cargar el archivo."
+    },
+    {
+        "key": "clinical.attachment.delete.reason.required",
+        "value": "Indique el motivo de la eliminación."
+    },
+    {
+        "key": "clinical.attachment.delete.reason.too_long",
+        "value": "El motivo no puede superar 500 caracteres."
+    },
+    {
+        "key": "clinical.attachment.delete.error",
+        "value": "No se pudo actualizar el adjunto."
+    },
+    {
+        "key": "clinical.attachment.delete.success",
+        "value": "Adjunto eliminado."
+    },
+    {
+        "key": "clinical.attachment.restore.success",
+        "value": "Adjunto restaurado."
+    },
+    {
+        "key": "clinical.attachment.deleted.list.success",
+        "value": "Adjuntos eliminados obtenidos."
+    },
+    {
+        "key": "clinical.attachment.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "clinical.attachment.delete.title",
+        "value": "Eliminar adjunto"
+    },
+    {
+        "key": "clinical.attachment.delete.description",
+        "value": "El adjunto dejará de mostrarse, pero queda registrado y se puede restaurar."
+    },
+    {
+        "key": "clinical.attachment.delete.reason",
+        "value": "Motivo de la eliminación"
+    },
+    {
+        "key": "clinical.attachment.delete.reason.placeholder",
+        "value": "Por qué se elimina este adjunto"
+    },
+    {
+        "key": "clinical.attachment.delete.confirm",
+        "value": "Eliminar adjunto"
+    },
+    {
+        "key": "clinical.attachment.delete.error.reason_required",
+        "value": "El motivo es obligatorio."
+    },
+    {
+        "key": "clinical.attachment.delete.error.reason_long",
+        "value": "El motivo no puede superar 500 caracteres."
+    },
+    {
+        "key": "clinical.attachment.deleted.show",
+        "value": "Eliminados"
+    },
+    {
+        "key": "clinical.attachment.deleted.hide",
+        "value": "Ver adjuntos"
+    },
+    {
+        "key": "clinical.attachment.deleted.empty",
+        "value": "No hay adjuntos eliminados."
+    },
+    {
+        "key": "clinical.attachment.deleted.column.by",
+        "value": "Eliminado por"
+    },
+    {
+        "key": "clinical.attachment.deleted.column.at",
+        "value": "Fecha de eliminación"
+    },
+    {
+        "key": "clinical.attachment.deleted.column.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "clinical.attachment.restore",
+        "value": "Restaurar"
+    },
+    {
+        "key": "plan.limit.storage",
+        "value": "Alcanzaste el límite de espacio para archivos de tu plan. Mejora tu plan para subir más."
+    },
+    {
+        "key": "E-PLAN-003",
+        "value": "Alcanzaste el límite de espacio para archivos de tu plan. Mejora tu plan para subir más."
+    },
+    {
+        "key": "backoffice.plans.storage_quota",
+        "value": "Espacio para archivos (MB)"
+    },
+    {
+        "key": "backoffice.plans.storage_quota.desc",
+        "value": "Espacio total para los archivos de pacientes de cada clínica, en MB (1024 MB = 1 GB). 0 = no se permiten archivos."
+    },
+    {
+        "key": "backoffice.plans.col.storage_quota",
+        "value": "Espacio"
+    },
+    {
+        "key": "clinical.attachment.usage.title",
+        "value": "Espacio usado"
+    },
+    {
+        "key": "clinical.attachment.usage.amount",
+        "value": "{used} de {quota}"
+    },
+    {
+        "key": "clinical.attachment.usage.warning",
+        "value": "Ya usas el {percent}% del espacio para archivos de tu plan. Considera mejorar tu plan antes de que se llene."
+    },
+    {
+        "key": "clinical.attachment.usage.full",
+        "value": "Se llenó el espacio para archivos de tu plan. Mejora tu plan para subir más archivos."
+    },
+    {
+        "key": "clinical.attachment.usage.not_included",
+        "value": "Tu plan no incluye espacio para archivos. Mejora tu plan para subir archivos."
+    },
+    {
+        "key": "clinical.attachment.form.choose_files",
+        "value": "Elegir archivos"
+    },
+    {
+        "key": "clinical.attachment.form.take_photo",
+        "value": "Tomar foto"
+    },
+    {
+        "key": "clinical.attachment.form.remove_file",
+        "value": "Quitar archivo"
+    },
+    {
+        "key": "clinical.attachment.upload.status.pending",
+        "value": "En espera"
+    },
+    {
+        "key": "clinical.attachment.upload.status.converting",
+        "value": "Convirtiendo a JPEG…"
+    },
+    {
+        "key": "clinical.attachment.upload.status.uploading",
+        "value": "Subiendo {percent}%"
+    },
+    {
+        "key": "clinical.attachment.upload.status.done",
+        "value": "Subido"
+    },
+    {
+        "key": "clinical.attachment.upload.status.duplicate",
+        "value": "Subido. Este archivo ya fue subido el {date}"
+    },
+    {
+        "key": "clinical.attachment.upload.status.skipped",
+        "value": "No subido: se alcanzó el límite de espacio"
+    },
+    {
+        "key": "clinical.attachment.upload.error.convert",
+        "value": "No se pudo convertir la foto HEIC a JPEG"
+    },
+    {
+        "key": "clinical.attachment.upload.summary.success.one",
+        "value": "{count} archivo subido"
+    },
+    {
+        "key": "clinical.attachment.upload.summary.success.other",
+        "value": "{count} archivos subidos"
+    },
+    {
+        "key": "clinical.attachment.upload.summary.partial",
+        "value": "{uploaded} subidos, {failed} con error"
+    },
+    {
+        "key": "clinical.attachment.upload.close",
+        "value": "Cerrar"
+    },
+    {
+        "key": "E-CLIN-025",
+        "value": "La consulta pertenece a otro paciente."
+    },
+    {
+        "key": "clinical.attachment.medical_record.not_found",
+        "value": "No se encontró la consulta."
+    },
+    {
+        "key": "clinical.attachment.medical_record.other_patient",
+        "value": "La consulta pertenece a otro paciente; el archivo solo puede vincularse a una consulta del mismo paciente."
+    },
+    {
+        "key": "clinical.attachment.linked_consultation",
+        "value": "Consulta del {date}"
+    },
+    {
+        "key": "clinical.attachment.consultation.title",
+        "value": "Adjuntos de la consulta"
+    },
+    {
+        "key": "clinical.attachment.consultation.description",
+        "value": "Resultados y documentos vinculados a esta consulta."
+    },
+    {
+        "key": "clinical.attachment.consultation.pending_hint",
+        "value": "Los archivos que subas o elijas se vincularán a la consulta al guardarla."
+    },
+    {
+        "key": "clinical.attachment.consultation.empty",
+        "value": "No hay archivos vinculados a esta consulta."
+    },
+    {
+        "key": "clinical.attachment.consultation.link_existing",
+        "value": "Vincular existente"
+    },
+    {
+        "key": "clinical.attachment.consultation.link",
+        "value": "Vincular"
+    },
+    {
+        "key": "clinical.attachment.consultation.unlink",
+        "value": "Desvincular de la consulta"
+    },
+    {
+        "key": "clinical.attachment.consultation.picker.title",
+        "value": "Vincular un archivo del paciente"
+    },
+    {
+        "key": "clinical.attachment.consultation.picker.description",
+        "value": "Archivos del paciente que aún no están vinculados a ninguna consulta."
+    },
+    {
+        "key": "clinical.attachment.consultation.picker.empty",
+        "value": "El paciente no tiene archivos sin vincular."
     }
 ]

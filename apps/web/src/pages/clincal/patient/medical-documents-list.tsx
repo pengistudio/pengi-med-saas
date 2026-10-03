@@ -12,6 +12,10 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
 	Text,
 } from "@pengi/ui";
 import { ArrowLeft, FileCheck, FileText, Loader2, Printer } from "lucide-react";
@@ -36,6 +40,7 @@ import {
 } from "@/api/signature-service";
 import { SendEmailPopover } from "@/components/custom/send-email-popover";
 import { SignDocumentButton } from "@/components/custom/sign-document-button";
+import { PatientAttachmentsPanel } from "@/components/features/patient-attachments/patient-attachments-panel";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 
@@ -52,8 +57,31 @@ export default function MedicalDocumentsListPage() {
 	const { formatDateTime } = useText();
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
-	const [searchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const patientId = Number(searchParams.get("patient_id"));
+	const canReadFiles = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_PATIENT_ATTACHMENT,
+	]);
+	const canUploadFiles = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_UPLOAD_PATIENT_ATTACHMENT,
+	]);
+	const canDeleteFiles = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT_ATTACHMENT,
+	]);
+	const showFiles = canReadFiles || canUploadFiles;
+	const tab =
+		showFiles && searchParams.get("tab") === "files" ? "files" : "documents";
+
+	function handleTabChange(value: unknown) {
+		setSearchParams(
+			(params) => {
+				if (value === "files") params.set("tab", "files");
+				else params.delete("tab");
+				return params;
+			},
+			{ replace: true },
+		);
+	}
 
 	const [patient, setPatient] = React.useState<Patient | null>(null);
 	const [loading, setLoading] = React.useState(true);
@@ -178,114 +206,139 @@ export default function MedicalDocumentsListPage() {
 					<p className="text-sm text-muted-foreground">
 						<Text uuid="clinical.medical_documents.description" />
 					</p>
-					<div className="flex flex-wrap gap-2 pt-2">
-						{checkPermission([
-							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_REPORT,
-						]) && (
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() =>
-									navigate(
-										`/clinical/medical-reports/create?patient_id=${patientId}`,
-									)
-								}
-							>
-								<FileText className="mr-2 h-4 w-4" />
-								<Text uuid="clinical.medical_documents.new_report" />
-							</Button>
-						)}
-						{checkPermission([
-							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_CERTIFICATE,
-						]) && (
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() =>
-									navigate(
-										`/clinical/medical-certificates/create?patient_id=${patientId}`,
-									)
-								}
-							>
-								<FileCheck className="mr-2 h-4 w-4" />
-								<Text uuid="clinical.medical_documents.new_certificate" />
-							</Button>
-						)}
-					</div>
 				</CardHeader>
 				<CardContent>
-					{loading ? (
-						<div className="flex justify-center py-8">
-							<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-						</div>
-					) : rows.length === 0 ? (
-						<p className="text-sm text-muted-foreground text-center py-8">
-							<Text uuid="clinical.medical_documents.empty" />
-						</p>
-					) : (
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>
-										<Text uuid="clinical.medical_documents.type" />
-									</TableHead>
-									<TableHead>
-										<Text uuid="clinical.medical_documents.created_at" />
-									</TableHead>
-									<TableHead className="text-right">
-										<Text uuid="table.actions" />
-									</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{rows.map((row) => {
-									const key = `${row.type}-${row.id}`;
-									return (
-										<TableRow key={key}>
-											<TableCell>
-												<Badge variant="secondary">
-													{row.type === "report" ? (
-														<Text uuid="clinical.medical_documents.type.report" />
-													) : (
-														<Text uuid="clinical.medical_documents.type.certificate" />
-													)}
-												</Badge>
-											</TableCell>
-											<TableCell>{formatDateTime(row.createdAt)}</TableCell>
-											<TableCell className="text-right">
-												<div className="flex items-center justify-end gap-1">
-													<SignDocumentButton
-														compact
-														signature={row.signature}
-														onSign={() => handleSign(row)}
-													/>
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon"
-														disabled={printingId === key}
-														onClick={() => handlePrint(row)}
-													>
-														{printingId === key ? (
-															<Loader2 className="h-4 w-4 animate-spin" />
-														) : (
-															<Printer className="h-4 w-4" />
-														)}
-													</Button>
-													<SendEmailPopover
-														defaultEmail={patient?.email ?? ""}
-														onSend={(email) => handleSendEmail(row, email)}
-													/>
-												</div>
-											</TableCell>
+					<Tabs value={tab} onValueChange={handleTabChange}>
+						{showFiles && (
+							<TabsList>
+								<TabsTrigger value="documents">
+									<Text uuid="clinical.medical_documents.tab.documents" />
+								</TabsTrigger>
+								<TabsTrigger value="files">
+									<Text uuid="clinical.medical_documents.tab.files" />
+								</TabsTrigger>
+							</TabsList>
+						)}
+						<TabsContent value="documents" className="space-y-4">
+							<div className="flex flex-wrap gap-2">
+								{checkPermission([
+									PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_REPORT,
+								]) && (
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											navigate(
+												`/clinical/medical-reports/create?patient_id=${patientId}`,
+											)
+										}
+									>
+										<FileText className="mr-2 h-4 w-4" />
+										<Text uuid="clinical.medical_documents.new_report" />
+									</Button>
+								)}
+								{checkPermission([
+									PERMISSIONS.MEDICAL_RECORD
+										.PERMISSION_CREATE_MEDICAL_CERTIFICATE,
+								]) && (
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											navigate(
+												`/clinical/medical-certificates/create?patient_id=${patientId}`,
+											)
+										}
+									>
+										<FileCheck className="mr-2 h-4 w-4" />
+										<Text uuid="clinical.medical_documents.new_certificate" />
+									</Button>
+								)}
+							</div>
+							{loading ? (
+								<div className="flex justify-center py-8">
+									<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+								</div>
+							) : rows.length === 0 ? (
+								<p className="text-sm text-muted-foreground text-center py-8">
+									<Text uuid="clinical.medical_documents.empty" />
+								</p>
+							) : (
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>
+												<Text uuid="clinical.medical_documents.type" />
+											</TableHead>
+											<TableHead>
+												<Text uuid="clinical.medical_documents.created_at" />
+											</TableHead>
+											<TableHead className="text-right">
+												<Text uuid="table.actions" />
+											</TableHead>
 										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
-					)}
+									</TableHeader>
+									<TableBody>
+										{rows.map((row) => {
+											const key = `${row.type}-${row.id}`;
+											return (
+												<TableRow key={key}>
+													<TableCell>
+														<Badge variant="secondary">
+															{row.type === "report" ? (
+																<Text uuid="clinical.medical_documents.type.report" />
+															) : (
+																<Text uuid="clinical.medical_documents.type.certificate" />
+															)}
+														</Badge>
+													</TableCell>
+													<TableCell>{formatDateTime(row.createdAt)}</TableCell>
+													<TableCell className="text-right">
+														<div className="flex items-center justify-end gap-1">
+															<SignDocumentButton
+																compact
+																signature={row.signature}
+																onSign={() => handleSign(row)}
+															/>
+															<Button
+																type="button"
+																variant="ghost"
+																size="icon"
+																disabled={printingId === key}
+																onClick={() => handlePrint(row)}
+															>
+																{printingId === key ? (
+																	<Loader2 className="h-4 w-4 animate-spin" />
+																) : (
+																	<Printer className="h-4 w-4" />
+																)}
+															</Button>
+															<SendEmailPopover
+																defaultEmail={patient?.email ?? ""}
+																onSend={(email) => handleSendEmail(row, email)}
+															/>
+														</div>
+													</TableCell>
+												</TableRow>
+											);
+										})}
+									</TableBody>
+								</Table>
+							)}
+						</TabsContent>
+						{showFiles && (
+							<TabsContent value="files">
+								<PatientAttachmentsPanel
+									patientId={patientId}
+									canRead={canReadFiles}
+									canUpload={canUploadFiles}
+									canDelete={canDeleteFiles}
+								/>
+							</TabsContent>
+						)}
+					</Tabs>
 				</CardContent>
 			</Card>
 		</main>

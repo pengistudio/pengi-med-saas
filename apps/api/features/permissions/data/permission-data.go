@@ -78,6 +78,24 @@ var ClinicalPermissions = []permission_models.Permission{
 		Category:     "CLINICAL",
 		Description:  "Upload an electronic signature (P12) and sign medical reports, certificates and prescriptions",
 	},
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_PATIENT_ATTACHMENT"},
+		Name:         "Read Patient Attachment",
+		Category:     "CLINICAL",
+		Description:  "List, view and download a patient's attached files",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "UPLOAD_PATIENT_ATTACHMENT"},
+		Name:         "Upload Patient Attachment",
+		Category:     "CLINICAL",
+		Description:  "Upload files (results, images, external reports) to a patient's record",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "DELETE_PATIENT_ATTACHMENT"},
+		Name:         "Delete Patient Attachment",
+		Category:     "CLINICAL",
+		Description:  "Delete a patient's attached files with a reason, see the deleted ones and restore them",
+	},
 }
 
 var BillingPermissions = []permission_models.Permission{

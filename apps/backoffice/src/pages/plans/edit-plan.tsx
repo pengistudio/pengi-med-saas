@@ -30,6 +30,7 @@ import {
 	PLAN_LIMIT_KEYS,
 	type PlanLimits,
 	PlanLimitsEditor,
+	PlanStorageQuotaInput,
 } from "./plan-limits-editor";
 import {
 	arrayToPricingsState,
@@ -57,6 +58,7 @@ const EditPlan = () => {
 		max_offices: -1,
 	});
 	const [tier, setTier] = React.useState<1 | 2 | 3>(1);
+	const [storageQuotaMb, setStorageQuotaMb] = React.useState(0);
 	const [pricings, setPricings] = React.useState<PricingsState>({});
 
 	React.useEffect(() => {
@@ -83,6 +85,7 @@ const EditPlan = () => {
 				loaded[key] = val === undefined || val === null ? -1 : Number(val);
 			}
 			setLimits(loaded);
+			setStorageQuotaMb(plan.storage_quota_mb ?? 0);
 
 			const existingPricings = plan.pricings ?? [];
 			if (existingPricings.length === 0 && plan.price > 0) {
@@ -107,6 +110,7 @@ const EditPlan = () => {
 			tier,
 			feature_codes: selectedFeatures,
 			properties: { ...limits } as Record<string, unknown>,
+			storage_quota_mb: storageQuotaMb,
 			pricings: pricingsStateToArray(pricings),
 		});
 	}
@@ -169,6 +173,11 @@ const EditPlan = () => {
 								</div>
 
 								<PlanLimitsEditor limits={limits} onChange={setLimits} />
+
+								<PlanStorageQuotaInput
+									value={storageQuotaMb}
+									onChange={setStorageQuotaMb}
+								/>
 
 								<PlanPricingsEditor
 									pricings={pricings}

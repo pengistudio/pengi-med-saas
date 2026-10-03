@@ -61,13 +61,55 @@ func FromEnv() (*Box, error) {
 	return New(key)
 }
 
-// Seal encrypts plaintext and returns base64(nonce || ciphertext).
-func (b *Box) Seal(plaintext string) (string, error) {
+// FromEnvVar builds a Box from the named variable (32 bytes, base64). Unlike
+// FromEnv there is no dev fallback: a missing or invalid key is always an error.
+func FromEnvVar(name string) (*Box, error) {
+	raw := os.Getenv(name)
+	if raw == "" {
+		return nil, errors.New("secretbox: " + name + " is not set")
+	}
+	key, err := base64.StdEncoding.DecodeString(raw)
+	if err != nil {
+		return nil, fmt.Errorf("secretbox: %s is not valid base64: %w", name, err)
+	}
+	return New(key)
+}
+
+// SealBytes encrypts data and returns nonce || ciphertext.
+func (b *Box) SealBytes(data []byte) ([]byte, error) { return b.SealBytesAAD(data, nil) }
+
+// SealBytesAAD is SealBytes with additional authenticated data: the value only
+// opens with the same aad. With nil aad the output format is that of SealBytes.
+func (b *Box) SealBytesAAD(data, aad []byte) ([]byte, error) {
 	nonce := make([]byte, b.aead.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
+	}
+	return b.aead.Seal(nonce, nonce, data, aad), nil
+}
+
+// OpenBytes decrypts a value produced by SealBytes.
+func (b *Box) OpenBytes(sealed []byte) ([]byte, error) { return b.OpenBytesAAD(sealed, nil) }
+
+// OpenBytesAAD decrypts a value produced by SealBytesAAD with the same aad.
+func (b *Box) OpenBytesAAD(sealed, aad []byte) ([]byte, error) {
+	n := b.aead.NonceSize()
+	if len(sealed) < n {
+		return nil, errors.New("secretbox: ciphertext too short")
+	}
+	plain, err := b.aead.Open(nil, sealed[:n], sealed[n:], aad)
+	if err != nil {
+		return nil, fmt.Errorf("secretbox: %w", err)
+	}
+	return plain, nil
+}
+
+// Seal encrypts plaintext and returns base64(nonce || ciphertext).
+func (b *Box) Seal(plaintext string) (string, error) {
+	sealed, err := b.SealBytes([]byte(plaintext))
+	if err != nil {
 		return "", err
 	}
-	sealed := b.aead.Seal(nonce, nonce, []byte(plaintext), nil)
 	return base64.StdEncoding.EncodeToString(sealed), nil
 }
 
@@ -77,13 +119,9 @@ func (b *Box) Open(sealed string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("secretbox: %w", err)
 	}
-	n := b.aead.NonceSize()
-	if len(data) < n {
-		return "", errors.New("secretbox: ciphertext too short")
-	}
-	plain, err := b.aead.Open(nil, data[:n], data[n:], nil)
+	plain, err := b.OpenBytes(data)
 	if err != nil {
-		return "", fmt.Errorf("secretbox: %w", err)
+		return "", err
 	}
 	return string(plain), nil
 }

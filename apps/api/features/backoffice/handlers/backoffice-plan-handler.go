@@ -37,6 +37,8 @@ type CreatePlanRequest struct {
 	Properties   map[string]interface{} `json:"properties"`
 	FeatureCodes []string               `json:"feature_codes"`
 	Pricings     []PricingInput         `json:"pricings"`
+	// StorageQuotaMB is the attachment quota in MB; 0 (or omitted) = none.
+	StorageQuotaMB *int64 `json:"storage_quota_mb" binding:"omitempty,min=0"`
 }
 
 type UpdatePlanRequest struct {
@@ -46,6 +48,8 @@ type UpdatePlanRequest struct {
 	Properties   map[string]interface{} `json:"properties"`
 	FeatureCodes []string               `json:"feature_codes"`
 	Pricings     []PricingInput         `json:"pricings"`
+	// StorageQuotaMB is left as it was when omitted.
+	StorageQuotaMB *int64 `json:"storage_quota_mb" binding:"omitempty,min=0"`
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -163,6 +167,9 @@ func (h *BackofficePlanHandler) CreatePlan(c *gin.Context) envelope.Response {
 		Price:      basePriceFromPricings(req.Pricings),
 		Properties: req.Properties,
 	}
+	if req.StorageQuotaMB != nil {
+		plan.StorageQuotaMB = *req.StorageQuotaMB
+	}
 
 	if err := h.db.Create(&plan).Error; err != nil {
 		h.logger.Error("Failed to create plan", zap.Error(err))
@@ -208,6 +215,9 @@ func (h *BackofficePlanHandler) UpdatePlan(c *gin.Context) envelope.Response {
 	}
 	if req.Pricings != nil {
 		updates["price"] = basePriceFromPricings(req.Pricings)
+	}
+	if req.StorageQuotaMB != nil {
+		updates["storage_quota_mb"] = *req.StorageQuotaMB
 	}
 
 	if req.FeatureCodes != nil {

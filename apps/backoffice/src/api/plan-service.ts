@@ -15,6 +15,8 @@ export interface Plan {
 	Properties: Record<string, unknown>;
 	Features: { ID: number; code: string; name: string }[];
 	pricings: PricingOption[];
+	/** Patient attachment storage quota, in MB; 0 = no attachments. */
+	storage_quota_mb: number;
 }
 
 export interface CreatePlanRequest extends Record<string, unknown> {
@@ -25,6 +27,7 @@ export interface CreatePlanRequest extends Record<string, unknown> {
 	properties?: Record<string, unknown>;
 	feature_codes?: string[];
 	pricings?: PricingOption[];
+	storage_quota_mb?: number;
 }
 
 export interface UpdatePlanRequest extends Record<string, unknown> {
@@ -34,6 +37,7 @@ export interface UpdatePlanRequest extends Record<string, unknown> {
 	properties?: Record<string, unknown>;
 	feature_codes?: string[];
 	pricings?: PricingOption[];
+	storage_quota_mb?: number;
 }
 
 export const plans = resource<Plan, CreatePlanRequest, UpdatePlanRequest>(

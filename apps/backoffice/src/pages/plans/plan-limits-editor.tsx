@@ -93,3 +93,41 @@ export function PlanLimitsEditor({ limits, onChange }: PlanLimitsEditorProps) {
 		</div>
 	);
 }
+
+interface PlanStorageQuotaInputProps {
+	/** MB; 0 = the plan allows no patient attachments. */
+	value: number;
+	onChange: (value: number) => void;
+}
+
+/** The plan's attachment storage quota, in MB (never negative). */
+export function PlanStorageQuotaInput({
+	value,
+	onChange,
+}: PlanStorageQuotaInputProps) {
+	const { textGet } = useText();
+	return (
+		<div className="flex items-center gap-4 rounded-md border px-4 py-3">
+			<div className="flex-1 min-w-0">
+				<Label htmlFor="storage_quota_mb">
+					{textGet("backoffice.plans.storage_quota")}
+				</Label>
+				<p className="text-xs text-muted-foreground">
+					{textGet("backoffice.plans.storage_quota.desc")}
+				</p>
+			</div>
+			<Input
+				id="storage_quota_mb"
+				type="number"
+				min={0}
+				step={1}
+				className="w-28 text-center shrink-0"
+				value={value}
+				onChange={(e) => {
+					const parsed = Number.parseInt(e.target.value, 10);
+					onChange(Number.isNaN(parsed) ? 0 : Math.max(0, parsed));
+				}}
+			/>
+		</div>
+	);
+}
