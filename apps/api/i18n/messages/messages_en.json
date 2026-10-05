@@ -5241,7 +5241,7 @@
     },
     {
         "key": "backoffice.plans.tier.hint",
-        "value": "Tier 1 = base, Tier 2 = mid, Tier 3 = premium. Controls upgrade/downgrade flow between plans."
+        "value": "Sets the upgrade and downgrade order between plans."
     },
     {
         "key": "subscription.plan.no_pending_change",
@@ -7353,11 +7353,11 @@
     },
     {
         "key": "backoffice.plans.storage_quota",
-        "value": "File storage (MB)"
+        "value": "File storage"
     },
     {
         "key": "backoffice.plans.storage_quota.desc",
-        "value": "Total space for each clinic's patient files, in MB (1024 MB = 1 GB). 0 = no files allowed."
+        "value": "For each clinic's patient files."
     },
     {
         "key": "backoffice.plans.col.storage_quota",
@@ -8266,5 +8266,41 @@
     {
         "key": "display.invalid_link",
         "value": "Invalid or expired link. Open the current waiting room link on the TV."
+    },
+    {
+        "key": "backoffice.plans.tier.1",
+        "value": "Basic"
+    },
+    {
+        "key": "backoffice.plans.tier.2",
+        "value": "Intermediate"
+    },
+    {
+        "key": "backoffice.plans.tier.3",
+        "value": "Premium"
+    },
+    {
+        "key": "backoffice.plans.storage_quota.none",
+        "value": "0 = no files"
+    },
+    {
+        "key": "backoffice.plans.pricings.savings",
+        "value": "Save {percent}%"
+    },
+    {
+        "key": "backoffice.plans.section.general.title",
+        "value": "General"
+    },
+    {
+        "key": "backoffice.plans.section.general.description",
+        "value": "The plan's name and identification."
+    },
+    {
+        "key": "backoffice.plans.section.limits.description",
+        "value": "How much each clinic can use on this plan."
+    },
+    {
+        "key": "backoffice.plans.section.features.description",
+        "value": "Features included in the plan."
     }
 ]

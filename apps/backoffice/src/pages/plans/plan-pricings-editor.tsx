@@ -1,5 +1,5 @@
 import { useText } from "@pengi/shared";
-import { Checkbox, Input, Label } from "@pengi/ui";
+import { Checkbox, Input } from "@pengi/ui";
 
 export const PERIOD_MONTHS = [1, 3, 6, 9, 12] as const;
 export type PeriodMonths = (typeof PERIOD_MONTHS)[number];
@@ -54,55 +54,59 @@ export function PlanPricingsEditor({
 	};
 
 	return (
-		<div className="space-y-3 border-t pt-4">
-			<div>
-				<Label>{textGet("backoffice.plans.pricings.title")}</Label>
-				<p className="text-xs text-muted-foreground mt-0.5">
-					{textGet("backoffice.plans.pricings.description")}
-				</p>
-			</div>
-			<div className="border rounded-md divide-y">
-				{PERIOD_MONTHS.map((months) => {
-					const enabled = isEnabled(months);
-					const perMonth = enabled ? (pricings[months] ?? 0) / months : null;
-					return (
-						<div key={months} className="flex items-center gap-4 px-4 py-3">
-							<div className="flex items-center gap-2 w-28 shrink-0">
-								<Checkbox
-									checked={enabled}
-									onCheckedChange={(checked) => handleToggle(months, !!checked)}
-								/>
-								<span className="text-sm font-medium">
-									{textGet(`subscription.plans.period.${months}`)}
-								</span>
-							</div>
-							<div className="flex-1 flex items-center gap-2">
-								<div className="relative w-32">
-									<span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-										$
-									</span>
-									<Input
-										type="number"
-										min={0}
-										step={0.01}
-										disabled={!enabled}
-										value={enabled ? pricings[months] || "" : ""}
-										onChange={(e) => handlePrice(months, e.target.value)}
-										className="pl-6 w-32"
-										placeholder="0.00"
-									/>
-								</div>
-								{perMonth !== null && months > 1 && (
-									<span className="text-xs text-muted-foreground whitespace-nowrap">
-										≈ {formatMoney(perMonth)}{" "}
-										{textGet("subscription.plans.per_month")}
-									</span>
-								)}
-							</div>
+		<div className="border rounded-md divide-y">
+			{PERIOD_MONTHS.map((months) => {
+				const enabled = isEnabled(months);
+				const perMonth = enabled ? (pricings[months] ?? 0) / months : null;
+				const monthly = pricings[1] ?? 0;
+				const savingsPercent =
+					perMonth !== null && months > 1 && monthly > 0 && perMonth < monthly
+						? Math.round((1 - perMonth / monthly) * 100)
+						: 0;
+				return (
+					<div key={months} className="flex items-center gap-4 px-4 py-3">
+						<div className="flex items-center gap-2 w-32 shrink-0">
+							<Checkbox
+								checked={enabled}
+								onCheckedChange={(checked) => handleToggle(months, !!checked)}
+							/>
+							<span className="text-sm font-medium">
+								{textGet(`subscription.plans.period.${months}`)}
+							</span>
 						</div>
-					);
-				})}
-			</div>
+						<div className="flex-1 flex items-center gap-2">
+							<div className="relative w-32">
+								<span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+									$
+								</span>
+								<Input
+									type="number"
+									min={0}
+									step={0.01}
+									disabled={!enabled}
+									value={enabled ? pricings[months] || "" : ""}
+									onChange={(e) => handlePrice(months, e.target.value)}
+									className="pl-6 w-32"
+									placeholder="0.00"
+								/>
+							</div>
+							{perMonth !== null && months > 1 && (
+								<span className="text-xs text-muted-foreground whitespace-nowrap">
+									≈ {formatMoney(perMonth)}{" "}
+									{textGet("subscription.plans.per_month")}
+								</span>
+							)}
+							{savingsPercent > 0 && (
+								<span className="text-xs font-medium text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
+									{textGet("backoffice.plans.pricings.savings", {
+										percent: savingsPercent,
+									})}
+								</span>
+							)}
+						</div>
+					</div>
+				);
+			})}
 		</div>
 	);
 }

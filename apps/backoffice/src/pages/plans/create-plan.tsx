@@ -8,10 +8,8 @@ import {
 	CardHeader,
 	CardTitle,
 	Checkbox,
-	cn,
 	Form,
 	FormInput,
-	Label,
 	Spinner,
 } from "@pengi/ui";
 import React from "react";
@@ -23,18 +21,13 @@ import {
 } from "@/api/feature-service";
 import { plans } from "@/api/plan-service";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
-import {
-	type PlanLimits,
-	PlanLimitsEditor,
-	PlanStorageQuotaInput,
-} from "./plan-limits-editor";
+import { FormSection, type Tier, TierSelect } from "./form-section";
+import { type PlanLimits, PlanLimitsEditor } from "./plan-limits-editor";
 import {
 	PlanPricingsEditor,
 	type PricingsState,
 	pricingsStateToArray,
 } from "./plan-pricings-editor";
-
-const TIERS = [1, 2, 3] as const;
 
 const formSchema = z.object({
 	name: z.string().min(2),
@@ -52,7 +45,7 @@ const CreatePlan = () => {
 		max_patients: -1,
 		max_offices: -1,
 	});
-	const [tier, setTier] = React.useState<1 | 2 | 3>(1);
+	const [tier, setTier] = React.useState<Tier>(1);
 	const [storageQuotaMb, setStorageQuotaMb] = React.useState(0);
 	const [pricings, setPricings] = React.useState<PricingsState>({});
 
@@ -99,61 +92,63 @@ const CreatePlan = () => {
 									{textGet("backoffice.plans.create.description")}
 								</CardDescription>
 							</CardHeader>
-							<CardContent className="space-y-4">
-								<FormInput
-									field={field}
-									name="name"
-									type="text"
-									label={textGet("backoffice.plans.col.name")}
-									placeholder={textGet("backoffice.plans.col.name.placeholder")}
-								/>
-								<FormInput
-									field={field}
-									name="code"
-									type="text"
-									label={textGet("backoffice.plans.col.code")}
-									placeholder="ENT, PRO, BASIC..."
-								/>
+							<CardContent className="space-y-6">
+								<FormSection
+									title={textGet("backoffice.plans.section.general.title")}
+									description={textGet(
+										"backoffice.plans.section.general.description",
+									)}
+								>
+									<FormInput
+										field={field}
+										name="name"
+										type="text"
+										label={textGet("backoffice.plans.col.name")}
+										placeholder={textGet(
+											"backoffice.plans.col.name.placeholder",
+										)}
+									/>
+									<FormInput
+										field={field}
+										name="code"
+										type="text"
+										label={textGet("backoffice.plans.col.code")}
+										placeholder="ENT, PRO, BASIC..."
+									/>
+									<TierSelect value={tier} onChange={setTier} />
+								</FormSection>
 
-								<div className="space-y-2">
-									<Label>{textGet("backoffice.plans.col.tier")}</Label>
-									<div className="flex gap-2">
-										{TIERS.map((t) => (
-											<button
-												key={t}
-												type="button"
-												onClick={() => setTier(t)}
-												className={cn(
-													"w-12 h-10 rounded-md border text-sm font-semibold transition-colors",
-													tier === t
-														? "bg-primary text-primary-foreground border-primary"
-														: "bg-background text-muted-foreground border-border hover:bg-muted",
-												)}
-											>
-												{t}
-											</button>
-										))}
-									</div>
-									<p className="text-xs text-muted-foreground">
-										{textGet("backoffice.plans.tier.hint")}
-									</p>
-								</div>
+								<FormSection
+									title={textGet("backoffice.plans.limits.title")}
+									description={textGet(
+										"backoffice.plans.section.limits.description",
+									)}
+								>
+									<PlanLimitsEditor
+										limits={limits}
+										onChange={setLimits}
+										storageQuotaMb={storageQuotaMb}
+										onStorageQuotaChange={setStorageQuotaMb}
+									/>
+								</FormSection>
 
-								<PlanLimitsEditor limits={limits} onChange={setLimits} />
-
-								<PlanStorageQuotaInput
-									value={storageQuotaMb}
-									onChange={setStorageQuotaMb}
-								/>
-
-								<PlanPricingsEditor
-									pricings={pricings}
-									onChange={setPricings}
-								/>
+								<FormSection
+									title={textGet("backoffice.plans.pricings.title")}
+									description={textGet("backoffice.plans.pricings.description")}
+								>
+									<PlanPricingsEditor
+										pricings={pricings}
+										onChange={setPricings}
+									/>
+								</FormSection>
 
 								{features.length > 0 && (
-									<div className="space-y-3 border-t pt-4">
-										<Label>{textGet("backoffice.plans.col.features")}</Label>
+									<FormSection
+										title={textGet("backoffice.plans.col.features")}
+										description={textGet(
+											"backoffice.plans.section.features.description",
+										)}
+									>
 										<div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto border rounded-md p-3">
 											{features.map((f) => (
 												<span
@@ -179,7 +174,7 @@ const CreatePlan = () => {
 											{selectedFeatures.length}{" "}
 											{textGet("backoffice.linking.selected")}
 										</p>
-									</div>
+									</FormSection>
 								)}
 							</CardContent>
 							<CardFooter className="flex justify-between">
