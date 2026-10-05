@@ -19,8 +19,11 @@ interface DayColumnProps {
 	appointments: Appointment[];
 	ghost?: DragGhost | null;
 	className?: string;
-	onSlotClick: (day: Date, hour: number) => void;
+	/** Absent when the user can't schedule: the slots are then inert. */
+	onSlotClick?: (day: Date, hour: number) => void;
 	onAppointmentClick: (appointment: Appointment) => void;
+	/** Whether appointments can be dragged to another slot. */
+	canReschedule?: boolean;
 }
 
 export function DayColumn({
@@ -31,6 +34,7 @@ export function DayColumn({
 	className,
 	onSlotClick,
 	onAppointmentClick,
+	canReschedule = true,
 }: DayColumnProps) {
 	const { setNodeRef } = useDroppable({ id: format(day, "yyyy-MM-dd") });
 	const today = isToday(day);
@@ -49,12 +53,17 @@ export function DayColumn({
 				<button
 					type="button"
 					key={hour}
-					className="absolute w-full border-t border-border/50 cursor-pointer hover:bg-primary/5 transition-colors"
+					disabled={!onSlotClick}
+					className={cn(
+						"absolute w-full border-t border-border/50",
+						onSlotClick &&
+							"cursor-pointer hover:bg-primary/5 transition-colors",
+					)}
 					style={{
 						top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
 						height: `${HOUR_HEIGHT}px`,
 					}}
-					onClick={() => onSlotClick(day, hour)}
+					onClick={() => onSlotClick?.(day, hour)}
 				>
 					<div
 						className="absolute w-full border-t border-border/20"
@@ -71,6 +80,7 @@ export function DayColumn({
 					key={appt.ID}
 					index={index}
 					appointment={appt}
+					draggable={canReschedule}
 					onClick={() => onAppointmentClick(appt)}
 				/>
 			))}

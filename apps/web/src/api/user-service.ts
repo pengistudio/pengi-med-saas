@@ -12,6 +12,13 @@ export const getEnvironmentsFromUser = async (
 	);
 };
 
+/** Environments of the signed-in user (access token), read silently. */
+export const getMyEnvironments = async (): Promise<
+	ServiceResponse<EnvironmentWithCompany[]>
+> => {
+	return httpService.get<EnvironmentWithCompany[]>("/users/me/environments");
+};
+
 export interface CreateAdditionalCompanyPayload
 	extends Record<string, unknown> {
 	company_name: string;

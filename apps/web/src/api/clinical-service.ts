@@ -669,30 +669,55 @@ export const deleteAppointment = async (
 	});
 };
 
-/** Current TV pairing code; created only if the tenant has none. Never unpairs the TV. */
+/** The TV display token and its full link, built by the API from FRONTEND_URL (the same link the QR encodes). */
+export interface DisplayToken {
+	token: string;
+	display_url: string;
+}
+
+/** Current TV display token and link; the token is created only if the tenant has none. Never unlinks the TV. */
 export const getDisplayToken = async (): Promise<
-	ServiceResponse<{ token: string }>
+	ServiceResponse<DisplayToken>
 > => {
-	return clinicalService.get<{ token: string }>("/tenants/display-token", {
+	return clinicalService.get<DisplayToken>("/tenants/display-token", {
 		notifyError: true,
 	});
 };
 
-/** Replaces the TV pairing code, which unpairs the TV using the current one. */
+/** PNG QR code of the TV link, built by the API from its configured web URL. A credential: never cached. */
+export const getDisplayTokenQr = async (): Promise<ServiceResponse<Blob>> => {
+	return clinicalService.get<Blob>("/tenants/display-token/qr", {
+		responseType: "blob",
+		notifySuccess: false,
+		notifyError: false,
+	});
+};
+
+/** Replaces the TV display token, which unlinks the TV using the current link. */
 export const generateDisplayToken = async (): Promise<
-	ServiceResponse<{ token: string }>
+	ServiceResponse<DisplayToken>
 > => {
-	return clinicalService.post<{ token: string }>(
+	return clinicalService.post<DisplayToken>(
 		"/tenants/display-token",
 		{},
 		{ notifySuccess: true, notifyError: true },
 	);
 };
 
+/** One appointment as the public waiting-room TV receives it: no patient record. */
+export interface PublicAppointment {
+	id: number;
+	start_time: string;
+	end_time: string;
+	status: string;
+	/** First name plus last-name initial ("Juan P."). */
+	patient_name: string;
+}
+
 export const getTodayAppointmentsPublic = async (
 	token: string,
-): Promise<ServiceResponse<Appointment[]>> => {
-	return publicService.get<Appointment[]>(
+): Promise<ServiceResponse<PublicAppointment[]>> => {
+	return publicService.get<PublicAppointment[]>(
 		`/public/appointments/today?token=${encodeURIComponent(token)}`,
 		{ notifyError: false },
 	);

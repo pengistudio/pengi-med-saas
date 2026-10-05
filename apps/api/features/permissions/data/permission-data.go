@@ -96,7 +96,62 @@ var ClinicalPermissions = []permission_models.Permission{
 		Category:     "CLINICAL",
 		Description:  "Delete a patient's attached files with a reason, see the deleted ones and restore them",
 	},
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_EXAM_ORDER"},
+		Name:         "Read Exam Orders",
+		Category:     "CLINICAL",
+		Description:  "View exam orders, their results and the exam catalog",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "CREATE_EXAM_ORDER"},
+		Name:         "Create Exam Orders",
+		Category:     "CLINICAL",
+		Description:  "Create, edit, void, close, print and email exam orders",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "UPLOAD_EXAM_RESULTS"},
+		Name:         "Upload Exam Results",
+		Category:     "CLINICAL",
+		Description:  "Upload and delete exam result files",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "REVIEW_EXAM_RESULTS"},
+		Name:         "Review Exam Results",
+		Category:     "CLINICAL",
+		Description:  "Mark exam results as reviewed",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_EXAM_CATALOG"},
+		Name:         "Manage Exam Catalog",
+		Category:     "CLINICAL",
+		Description:  "Create, edit and restore the exam catalog and profiles",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_APPOINTMENT"},
+		Name:         "Read Appointments",
+		Category:     "CLINICAL",
+		Description:  "View the agenda and the waiting room",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_APPOINTMENT"},
+		Name:         "Manage Appointments",
+		Category:     "CLINICAL",
+		Description:  "Create, update, change the status of and delete appointments",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "RECORD_VITAL_SIGNS"},
+		Name:         "Record Vital Signs",
+		Category:     "CLINICAL",
+		Description:  "Record a consultation's vital signs without editing the medical record",
+	},
 }
+
+// ExamOrderPermissionIDs are the exam order permissions (part of ClinicalPermissions).
+var ExamOrderPermissionIDs = []string{"READ_EXAM_ORDER", "CREATE_EXAM_ORDER", "UPLOAD_EXAM_RESULTS", "REVIEW_EXAM_RESULTS", "MANAGE_EXAM_CATALOG"}
+
+// AppointmentPermissionIDs are the agenda/waiting room and triage permissions
+// (part of ClinicalPermissions).
+var AppointmentPermissionIDs = []string{"READ_APPOINTMENT", "MANAGE_APPOINTMENT", "RECORD_VITAL_SIGNS"}
 
 var BillingPermissions = []permission_models.Permission{
 	{

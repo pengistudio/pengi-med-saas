@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"pengi-med-saas/core/auth"
+	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	permission_models "pengi-med-saas/features/permissions/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -43,6 +44,8 @@ func TestRegister_ReusesCanonicalAdminRole(t *testing.T) {
 		&user_models.User{}, &user_models.Environment{}, &user_models.Role{},
 		&permission_models.Permission{}, &company_models.Company{}, &company_models.Subscription{},
 		&tenant_models.Tenant{},
+		// Signup seeds the new tenant's exam catalog.
+		&clinical_models.ExamCatalogItem{}, &clinical_models.ExamProfile{},
 	)
 	logger := zap.NewNop()
 

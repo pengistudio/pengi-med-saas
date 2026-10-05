@@ -9,6 +9,7 @@ import (
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
+	core_middleware "pengi-med-saas/core/middleware"
 	"pengi-med-saas/core/secretbox"
 	sri_document "pengi-med-saas/features/billing/sri-document"
 	clinical_workers "pengi-med-saas/features/clinical/workers"
@@ -97,7 +98,20 @@ func main() {
 	go announcementScheduler.Start()
 	logger.Log.Info("announcement scheduler started")
 
-	r := gin.Default()
+	// gin.Default() minus the query string in the access log (it carries the
+	// waiting-room TV token).
+	r := gin.New()
+	r.Use(core_middleware.AccessLogger(nil), gin.Recovery())
+
+	// c.ClientIP() (per-IP rate limits) trusts X-Forwarded-For only from these
+	// peers: Caddy in production, see core_middleware.DefaultTrustedProxies.
+	trustedProxies := core_middleware.TrustedProxiesFromEnv()
+	if err := core_middleware.ConfigureClientIP(r, trustedProxies); err != nil {
+		panic("Invalid TRUSTED_PROXIES: " + err.Error())
+	}
+	logger.Log.Info("trusted proxies configured",
+		zap.Strings("trusted_proxies", trustedProxies),
+		zap.Strings("remote_ip_headers", r.RemoteIPHeaders))
 
 	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},

@@ -9,29 +9,12 @@ import {
 	useSensors,
 } from "@dnd-kit/core";
 import { useText } from "@pengi/shared";
-import {
-	Button,
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-	Spinner,
-	Text,
-} from "@pengi/ui";
-import {
-	ArrowLeft,
-	ArrowRight,
-	Check,
-	Copy,
-	Link,
-	Monitor,
-	RefreshCw,
-} from "lucide-react";
+import { Button, Spinner, Text } from "@pengi/ui";
+import { ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import {
 	type Appointment,
-	generateDisplayToken,
-	getDisplayToken,
 	getTodayAppointments,
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
@@ -41,7 +24,10 @@ import {
 	STATUS_COLORS,
 	STATUS_I18N_KEYS,
 } from "@/components/features/appointments/appointment-utils";
+import usePermission from "@/hooks/use-permission";
+import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { TvScreenPopover } from "./tv-screen-popover";
 
 type WaitingStatus = "scheduled" | "arrived" | "in_consultation" | "completed";
 
@@ -85,12 +71,16 @@ function AppointmentCard({
 	onMove,
 	moving,
 	lifted = false,
+	canOpenRecords = false,
 }: {
 	appointment: Appointment;
 	now: Date;
+	/** Absent without MANAGE_APPOINTMENT: the card can't change status. */
 	onMove?: (id: number, status: WaitingStatus) => void;
 	moving?: boolean;
 	lifted?: boolean;
+	/** The records shortcut needs READ_MEDICAL_RECORD. */
+	canOpenRecords?: boolean;
 }) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
@@ -151,9 +141,9 @@ function AppointmentCard({
 				</div>
 			</div>
 
-			{onMove && (
+			{(onMove || canOpenRecords) && (
 				<div className="flex items-center gap-1">
-					{appointment.patient && (
+					{canOpenRecords && appointment.patient && (
 						<Button
 							variant="ghost"
 							size="sm"
@@ -166,7 +156,7 @@ function AppointmentCard({
 						</Button>
 					)}
 					<div className="ml-auto flex items-center gap-1">
-						{prevStatus && (
+						{onMove && prevStatus && (
 							<Button
 								variant="ghost"
 								size="icon-sm"
@@ -179,7 +169,7 @@ function AppointmentCard({
 								<ArrowLeft />
 							</Button>
 						)}
-						{nextStatus && (
+						{onMove && nextStatus && (
 							<Button
 								size="sm"
 								disabled={moving}
@@ -267,159 +257,6 @@ function Lane({
 	);
 }
 
-function TvScreenPopover() {
-	const { textGet } = useText();
-	const [code, setCode] = React.useState<string | null>(null);
-	const [loading, setLoading] = React.useState(false);
-	const [loadFailed, setLoadFailed] = React.useState(false);
-	const [rotating, setRotating] = React.useState(false);
-	const [confirmingRotate, setConfirmingRotate] = React.useState(false);
-	const [copied, setCopied] = React.useState<"code" | "link" | null>(null);
-
-	const flashCopied = (what: "code" | "link") => {
-		setCopied(what);
-		setTimeout(() => setCopied(null), 2000);
-	};
-
-	// Reading the code never changes it, so opening the popover or copying the
-	// code/link keeps the TV paired. Only an explicit rotation replaces it.
-	const loadCode = async () => {
-		setLoading(true);
-		setLoadFailed(false);
-		const res = await getDisplayToken();
-		setLoading(false);
-		if (!res.success || !res.data) {
-			setLoadFailed(true);
-			return;
-		}
-		setCode(res.data.token);
-	};
-
-	const handleOpenChange = (open: boolean) => {
-		if (open) {
-			loadCode();
-		} else {
-			setConfirmingRotate(false);
-		}
-	};
-
-	const rotate = async () => {
-		setRotating(true);
-		const res = await generateDisplayToken();
-		setRotating(false);
-		setConfirmingRotate(false);
-		if (res.success && res.data) setCode(res.data.token);
-	};
-
-	const copyLink = async () => {
-		if (!code) return;
-		await navigator.clipboard.writeText(
-			`${window.location.origin}/display/waiting-room?token=${code}`,
-		);
-		flashCopied("link");
-	};
-
-	return (
-		<Popover onOpenChange={handleOpenChange}>
-			<PopoverTrigger render={<Button variant="outline" />}>
-				<Monitor />
-				{textGet("waiting_room.tv.title")}
-			</PopoverTrigger>
-			<PopoverContent align="end" className="w-72 space-y-3 p-4">
-				<p className="text-xs text-muted-foreground">
-					{textGet("waiting_room.tv.pair_hint")}
-				</p>
-				<div className="flex h-10 items-center justify-between gap-2 rounded-lg bg-muted px-3">
-					{loading && !code ? (
-						<Spinner />
-					) : code ? (
-						<span className="text-2xl font-semibold tracking-[0.25em] tabular-nums">
-							{code}
-						</span>
-					) : (
-						loadFailed && (
-							<span className="text-xs text-muted-foreground">
-								{textGet("waiting_room.tv.load_error")}
-							</span>
-						)
-					)}
-					{code && (
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							aria-label={textGet("waiting_room.tv.copy_code")}
-							onClick={async () => {
-								await navigator.clipboard.writeText(code);
-								flashCopied("code");
-							}}
-						>
-							{copied === "code" ? (
-								<Check className="text-primary" />
-							) : (
-								<Copy />
-							)}
-						</Button>
-					)}
-				</div>
-				<div className="flex flex-col gap-1">
-					<Button
-						variant="outline"
-						size="sm"
-						className="w-full"
-						onClick={copyLink}
-						disabled={!code || rotating}
-					>
-						{copied === "link" ? <Check className="text-primary" /> : <Link />}
-						{textGet(
-							copied === "link"
-								? "waiting_room.tv.link_copied"
-								: "waiting_room.copy_tv_link",
-						)}
-					</Button>
-					{code && !confirmingRotate && (
-						<Button
-							variant="ghost"
-							size="sm"
-							className="w-full text-muted-foreground"
-							onClick={() => setConfirmingRotate(true)}
-						>
-							{textGet("waiting_room.tv.regenerate")}
-						</Button>
-					)}
-				</div>
-				{confirmingRotate && (
-					<div className="space-y-2 rounded-lg border border-destructive/30 p-3">
-						<p className="text-xs">
-							{textGet("waiting_room.tv.regenerate_warning")}
-						</p>
-						<div className="flex flex-col gap-1">
-							<Button
-								variant="destructive"
-								size="sm"
-								className="w-full"
-								onClick={rotate}
-								disabled={rotating}
-							>
-								{rotating && <Spinner />}
-								{textGet("waiting_room.tv.regenerate_confirm")}
-							</Button>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="w-full"
-								onClick={() => setConfirmingRotate(false)}
-								disabled={rotating}
-							>
-								{textGet("common.cancel")}
-							</Button>
-						</div>
-					</div>
-				)}
-			</PopoverContent>
-		</Popover>
-	);
-}
-
 const WaitingRoomPage = () => {
 	const { textGet, formatDate } = useText();
 	const now = useNow();
@@ -428,6 +265,19 @@ const WaitingRoomPage = () => {
 	const [moving, setMoving] = React.useState<number | null>(null);
 	const [draggedAppointment, setDraggedAppointment] =
 		React.useState<Appointment | null>(null);
+	const { checkPermission } = usePermission();
+	// Moving a patient between lanes changes the appointment's status.
+	// The TV link is the display's only credential: managing it is account
+	// administration (the backend requires MANAGE_TEAM_MEMBERS).
+	const canManageDisplay = checkPermission([
+		PERMISSIONS.TEAM.PERMISSION_MANAGE_TEAM_MEMBERS,
+	]);
+	const canManage = checkPermission([
+		PERMISSIONS.APPOINTMENTS.PERMISSION_MANAGE_APPOINTMENT,
+	]);
+	const canOpenRecords = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_MEDICAL_RECORD,
+	]);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -514,7 +364,7 @@ const WaitingRoomPage = () => {
 				description={<span className="capitalize">{today}</span>}
 				actions={
 					<>
-						<TvScreenPopover />
+						{canManageDisplay && <TvScreenPopover />}
 						<Button
 							variant="outline"
 							size="icon"
@@ -558,15 +408,25 @@ const WaitingRoomPage = () => {
 								status={status}
 								count={byStatus[status].length}
 							>
-								{byStatus[status].map((a) => (
-									<DraggableCard
-										key={a.ID}
-										appointment={a}
-										now={now}
-										onMove={handleMove}
-										moving={moving === a.ID}
-									/>
-								))}
+								{byStatus[status].map((a) =>
+									canManage ? (
+										<DraggableCard
+											key={a.ID}
+											appointment={a}
+											now={now}
+											onMove={handleMove}
+											moving={moving === a.ID}
+											canOpenRecords={canOpenRecords}
+										/>
+									) : (
+										<AppointmentCard
+											key={a.ID}
+											appointment={a}
+											now={now}
+											canOpenRecords={canOpenRecords}
+										/>
+									),
+								)}
 							</Lane>
 						))}
 					</div>

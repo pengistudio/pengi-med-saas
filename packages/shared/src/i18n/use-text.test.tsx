@@ -78,6 +78,7 @@ describe("useText · formats follow the interface language", () => {
 			/^3,2\s?MB$/,
 		);
 		expect(result.current.formatFileSize(10 * 1024 ** 3)).toMatch(/^10\s?GB$/);
+		expect(result.current.formatFileSize(685)).toBe("685 bytes");
 	});
 
 	it("switches every format when the messages of another language arrive", () => {
@@ -89,7 +90,8 @@ describe("useText · formats follow the interface language", () => {
 		expect(result.current.formatTime(DATE)).toBe("2:05:00 PM");
 		expect(result.current.formatMoney(1234.5)).toBe("$1,234.50");
 		expect(result.current.formatFileSize(12.4 * 1024)).toMatch(/^12\.4\s?kB$/);
-		expect(result.current.formatFileSize(512)).toMatch(/^512\s?byte/);
+		expect(result.current.formatFileSize(512)).toBe("512 bytes");
+		expect(result.current.formatFileSize(1)).toBe("1 byte");
 	});
 
 	it("formats relative time in the interface language", () => {

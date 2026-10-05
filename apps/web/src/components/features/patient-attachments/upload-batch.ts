@@ -44,22 +44,43 @@ export interface BatchResult {
 	attachments: UploadedAttachment[];
 }
 
+/** What one file's upload returns: success, a message and the duplicate warning. */
+export interface UploadOneResult<T> {
+	success: boolean;
+	message?: string;
+	data?: T;
+	errorCode?: string;
+	duplicate?: AttachmentDuplicate;
+}
+
+export interface GenericBatchResult<T> {
+	uploaded: number;
+	failed: number;
+	quotaReached: boolean;
+	/** What each successful upload returned, in upload order. */
+	results: T[];
+}
+
 /**
- * Uploads the files one request each, one after another, sharing the metadata.
- * A failure doesn't stop the others, except the plan's storage quota: then the
- * rest is skipped. HEIC files are converted to JPEG first.
+ * Runs `upload` for each file, one request each, one after another. A failure
+ * doesn't stop the others, except the plan's storage quota: then the rest is
+ * skipped. Invalid files are rejected without a request; HEIC files are
+ * converted to JPEG first. Shared by the patient attachments and the exam
+ * results uploads.
  */
-export async function uploadBatch(
-	patientId: number,
+export async function runUploadBatch<T>(
 	files: File[],
-	meta: BatchMeta,
+	upload: (
+		file: File,
+		onProgress: (percent: number) => void,
+	) => Promise<UploadOneResult<T>>,
 	onUpdate: (id: number, patch: Partial<UploadItem>) => void,
-): Promise<BatchResult> {
-	const result: BatchResult = {
+): Promise<GenericBatchResult<T>> {
+	const result: GenericBatchResult<T> = {
 		uploaded: 0,
 		failed: 0,
 		quotaReached: false,
-		attachments: [],
+		results: [],
 	};
 	for (let id = 0; id < files.length; id++) {
 		if (result.quotaReached) {
@@ -87,26 +108,53 @@ export async function uploadBatch(
 			}
 		}
 		onUpdate(id, { status: "uploading", progress: 0 });
-		const res = await uploadPatientAttachment(
-			patientId,
-			{ file, ...meta },
-			{ notify: false, onProgress: (progress) => onUpdate(id, { progress }) },
-		);
+		const res = await upload(file, (progress) => onUpdate(id, { progress }));
 		if (res.success) {
 			result.uploaded++;
-			if (res.data) result.attachments.push(res.data);
-			const duplicate = res.data?.duplicate_of;
+			if (res.data !== undefined) result.results.push(res.data);
 			onUpdate(id, {
-				status: duplicate ? "duplicate" : "done",
+				status: res.duplicate ? "duplicate" : "done",
 				progress: 100,
-				duplicate,
+				duplicate: res.duplicate,
 			});
 		} else {
 			result.failed++;
-			if (res.data?.error_code === STORAGE_QUOTA_ERROR_CODE)
+			if (res.errorCode === STORAGE_QUOTA_ERROR_CODE)
 				result.quotaReached = true;
 			onUpdate(id, { status: "error", errorMessage: res.message });
 		}
 	}
 	return result;
+}
+
+/**
+ * Uploads the files one request each, one after another, sharing the metadata.
+ * A failure doesn't stop the others, except the plan's storage quota: then the
+ * rest is skipped. HEIC files are converted to JPEG first.
+ */
+export async function uploadBatch(
+	patientId: number,
+	files: File[],
+	meta: BatchMeta,
+	onUpdate: (id: number, patch: Partial<UploadItem>) => void,
+): Promise<BatchResult> {
+	const { results, ...counts } = await runUploadBatch<UploadedAttachment>(
+		files,
+		async (file, onProgress) => {
+			const res = await uploadPatientAttachment(
+				patientId,
+				{ file, ...meta },
+				{ notify: false, onProgress },
+			);
+			return res.success
+				? { success: true, data: res.data, duplicate: res.data?.duplicate_of }
+				: {
+						success: false,
+						message: res.message,
+						errorCode: res.data?.error_code,
+					};
+		},
+		onUpdate,
+	);
+	return { ...counts, attachments: results };
 }

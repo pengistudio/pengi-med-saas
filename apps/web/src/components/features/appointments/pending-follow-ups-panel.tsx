@@ -11,7 +11,8 @@ import { cn } from "@/lib/utils";
 export interface PendingFollowUpsPanelProps {
 	refreshKey: number;
 	className?: string;
-	onSchedule: (patient: Patient, suggestedDate: Date) => void;
+	/** Absent when the user can't schedule: the list is then read-only. */
+	onSchedule?: (patient: Patient, suggestedDate: Date) => void;
 }
 
 function suggestedColorClass(date: Date): string {
@@ -86,8 +87,12 @@ export function PendingFollowUpsPanel({
 						<button
 							type="button"
 							key={patient.ID}
-							onClick={() => onSchedule(patient, suggestedDate)}
-							className="w-full text-left rounded-lg border p-2.5 hover:bg-accent transition-colors"
+							disabled={!onSchedule}
+							onClick={() => onSchedule?.(patient, suggestedDate)}
+							className={cn(
+								"w-full text-left rounded-lg border p-2.5",
+								onSchedule && "hover:bg-accent transition-colors",
+							)}
 						>
 							<div className="flex items-center justify-between gap-2">
 								<span className="text-sm font-medium truncate">{name}</span>

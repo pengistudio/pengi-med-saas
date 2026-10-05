@@ -14,6 +14,7 @@ var tenantFiles = tenantfiles.Disk(tenantfiles.DefaultRoot)
 // their own template, in the order Settings lists them.
 var printableDocuments = []pdfrender.Document{
 	clinical_templates.Prescription,
+	clinical_templates.ExamOrder,
 	clinical_templates.Report,
 	clinical_templates.Certificate,
 	billing_templates.InvoiceRide,

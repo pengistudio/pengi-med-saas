@@ -11,8 +11,8 @@ import {
 import React from "react";
 import { useSearchParams } from "react-router";
 import {
-	type Appointment,
 	getTodayAppointmentsPublic,
+	type PublicAppointment,
 } from "@/api/clinical-service";
 import {
 	STATUS_COLORS,
@@ -83,13 +83,11 @@ function LiveClock() {
 	return <span className="tabular-nums">{time}</span>;
 }
 
-function PatientCard({ appointment }: { appointment: Appointment }) {
+function PatientCard({ appointment }: { appointment: PublicAppointment }) {
 	const colors =
 		STATUS_COLORS[appointment.status as keyof typeof STATUS_COLORS] ??
 		STATUS_COLORS.scheduled;
-	const name = appointment.patient
-		? `${appointment.patient.first_name} ${appointment.patient.last_name}`
-		: "—";
+	const name = appointment.patient_name || "—";
 
 	return (
 		<div
@@ -99,9 +97,6 @@ function PatientCard({ appointment }: { appointment: Appointment }) {
 			<p className={`text-base font-medium ${colors.text}`}>
 				{appointment.start_time} – {appointment.end_time}
 			</p>
-			{appointment.title && (
-				<p className="text-base text-muted-foreground">{appointment.title}</p>
-			)}
 		</div>
 	);
 }
@@ -234,7 +229,9 @@ const WaitingRoomDisplayPage = () => {
 	const { textGet, formatDate, formatTime } = useText();
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get("token") ?? "";
-	const [appointments, setAppointments] = React.useState<Appointment[]>([]);
+	const [appointments, setAppointments] = React.useState<PublicAppointment[]>(
+		[],
+	);
 	const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null);
 	const [countdown, setCountdown] = React.useState(REFRESH_INTERVAL_MS / 1000);
 	const [loading, setLoading] = React.useState(true);
@@ -268,9 +265,9 @@ const WaitingRoomDisplayPage = () => {
 		if (!token) return;
 		getTodayAppointmentsPublic(token).then((res) => {
 			if (res.success && res.data) {
-				setAppointments(res.data as Appointment[]);
+				setAppointments(res.data);
 				setInvalidToken(false);
-			} else if (res.code === 401 || res.code === 403) {
+			} else if (res.code === 404) {
 				setInvalidToken(true);
 			}
 			setLastUpdated(new Date());
@@ -305,7 +302,7 @@ const WaitingRoomDisplayPage = () => {
 	}, []);
 
 	const byStatus = React.useMemo(() => {
-		const map: Record<DisplayStatus, Appointment[]> = {
+		const map: Record<DisplayStatus, PublicAppointment[]> = {
 			scheduled: [],
 			arrived: [],
 			in_consultation: [],
@@ -322,7 +319,7 @@ const WaitingRoomDisplayPage = () => {
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center">
 				<p className="text-2xl text-muted-foreground">
-					Enlace inválido o expirado.
+					{textGet("display.invalid_link")}
 				</p>
 			</div>
 		);
@@ -401,7 +398,7 @@ const WaitingRoomDisplayPage = () => {
 											{textGet("waiting_room.empty_column")}
 										</div>
 									) : (
-										items.map((a) => <PatientCard key={a.ID} appointment={a} />)
+										items.map((a) => <PatientCard key={a.id} appointment={a} />)
 									)}
 								</div>
 							</div>

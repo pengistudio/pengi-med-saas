@@ -12,7 +12,7 @@ import type { BatchResult } from "./upload-batch";
  * progress list.
  */
 export function toastBatchResult(
-	result: BatchResult,
+	result: Pick<BatchResult, "uploaded" | "failed" | "quotaReached">,
 	textGet: AppText["textGet"],
 ) {
 	if (result.quotaReached) {

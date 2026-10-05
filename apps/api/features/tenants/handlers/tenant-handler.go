@@ -3,13 +3,14 @@ package tenant_handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
-	"math/rand/v2"
 	"net/http"
+	"net/url"
+	"os"
 	"path/filepath"
 	"pengi-med-saas/core/tenantdb"
 	"pengi-med-saas/core/tenantfiles"
+	"strings"
 	"time"
 
 	"pengi-med-saas/core/envelope"
@@ -23,6 +24,7 @@ import (
 	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/skip2/go-qrcode"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -337,47 +339,79 @@ func (h *TenantHandler) GetUISettings(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(settings, "tenant.settings.fetch.success")
 }
 
-// GenerateDisplayToken creates or replaces the 8-digit pairing code for the tenant TV display.
+// GenerateDisplayToken replaces the tenant's TV display token, which unlinks
+// the TV using the previous link.
 func (h *TenantHandler) GenerateDisplayToken(c *gin.Context) envelope.Response {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
-	code := fmt.Sprintf("%08d", rand.IntN(100_000_000))
+	// Check the link base first: rotating and then failing would unlink the TV
+	// without giving the new link.
+	base, errResp := h.displayBase()
+	if errResp != nil {
+		return *errResp
+	}
 
-	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("display_token", code).Error; err != nil {
+	token := tenant_models.NewDisplayToken()
+
+	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).Update("display_token", token).Error; err != nil {
 		h.logger.Error("Failed to generate display token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(gin.H{"token": code}, "tenant.display_token.generate.success")
+	return envelope.SuccessResponse(displayTokenData(base, token), "tenant.display_token.generate.success")
 }
 
-// GetTodayAppointmentsPublic is a public endpoint that returns today's appointments
-// for the tenant identified by the display token query parameter.
+// GetTodayAppointmentsPublic is the public endpoint behind the waiting-room TV:
+// today's appointments of the tenant whose display token is the token query
+// parameter. It needs no login, so it answers with tenant_dto.PublicAppointment
+// only, and every rejected token (missing, malformed or unknown) gets the same 404.
 func (h *TenantHandler) GetTodayAppointmentsPublic(c *gin.Context) envelope.Response {
+	invalid := envelope.ErrorResponse(http.StatusNotFound, "tenant.display_token.error.invalid", core_errors.ErrTenantInvalidDisplayToken)
+
 	token := c.Query("token")
-	if token == "" {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "tenant.display_token.error.invalid", core_errors.ErrTenantInvalidDisplayToken)
+	if !tenant_models.IsDisplayToken(token) {
+		return invalid
 	}
 
 	var tenantRecord tenant_models.Tenant
-	if err := h.db.Where("display_token = ?", token).First(&tenantRecord).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "tenant.display_token.error.invalid", core_errors.ErrTenantInvalidDisplayToken)
+	if err := h.db.Select("id").Where("display_token = ?", token).First(&tenantRecord).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			h.logger.Error("Failed to resolve display token", zap.Error(err))
+		}
+		return invalid
 	}
 
 	today := time.Now().Format("2006-01-02")
 	var appointments []clinical_models.Appointment
-	if err := tenantdb.ForTenant(h.db, tenantRecord.ID).Where("DATE(date) = ?", today).
-		Preload("Patient").
+	if err := tenantdb.ForTenant(h.db, tenantRecord.ID).
+		Select("id", "patient_id", "start_time", "end_time", "status").
+		Where("DATE(date) = ?", today).
+		Preload("Patient", func(db *gorm.DB) *gorm.DB { return db.Select("id", "first_name", "last_name") }).
 		Order("start_time ASC").
 		Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get today's appointments for display", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
-	return envelope.SuccessResponse(appointments, "appointments.get.success")
+	return envelope.SuccessResponse(toPublicAppointments(appointments), "appointments.get.success")
+}
+
+// toPublicAppointments keeps only what the public TV renders.
+func toPublicAppointments(appointments []clinical_models.Appointment) []tenant_dto.PublicAppointment {
+	out := make([]tenant_dto.PublicAppointment, 0, len(appointments))
+	for _, a := range appointments {
+		out = append(out, tenant_dto.PublicAppointment{
+			ID:          a.ID,
+			StartTime:   a.StartTime,
+			EndTime:     a.EndTime,
+			Status:      a.Status,
+			PatientName: tenant_dto.PatientDisplayName(a.Patient.FirstName, a.Patient.LastName),
+		})
+	}
+	return out
 }
 
 // UpdateUISettings saves new UI settings for the tenant.
@@ -427,50 +461,107 @@ func (h *TenantHandler) GetEnabledFeatures(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(features, "tenant.features.fetch.success")
 }
 
-// isDisplayPairingCode reports whether token is an 8-digit TV pairing code. Signup
-// stores a random 32-hex placeholder instead, which can't be typed on the TV.
-func isDisplayPairingCode(token string) bool {
-	if len(token) != 8 {
-		return false
+// GetDisplayToken returns the tenant's current TV display token without
+// changing it, so viewing or sharing the link never unlinks the TV. A token is
+// created only when the tenant has none in the current format; rotating is
+// GenerateDisplayToken.
+func (h *TenantHandler) GetDisplayToken(c *gin.Context) envelope.Response {
+	base, errResp := h.displayBase()
+	if errResp != nil {
+		return *errResp
 	}
-	for _, r := range token {
-		if r < '0' || r > '9' {
-			return false
-		}
+	token, errResp := h.currentDisplayToken(c)
+	if errResp != nil {
+		return *errResp
 	}
-	return true
+	return envelope.SuccessResponse(displayTokenData(base, token), "tenant.display_token.fetch.success")
 }
 
-// GetDisplayToken returns the tenant's current TV pairing code without changing it,
-// so viewing or sharing the code never unpairs the TV. A code is created only when
-// the tenant has none yet; rotating is GenerateDisplayToken.
-func (h *TenantHandler) GetDisplayToken(c *gin.Context) envelope.Response {
+// displayTokenData is the body of the display-token responses: the token and
+// the TV link the web app shows and copies (the same link the QR encodes).
+func displayTokenData(base, token string) gin.H {
+	return gin.H{"token": token, "display_url": DisplayURL(base, token)}
+}
+
+// displayBase is FRONTEND_URL, the web app base of the TV link (never the
+// request Host). Missing or not an absolute http(s) URL is a server error.
+func (h *TenantHandler) displayBase() (string, *envelope.Response) {
+	base := strings.TrimSpace(os.Getenv("FRONTEND_URL"))
+	if parsed, err := url.Parse(base); base == "" || err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
+		h.logger.Error("FRONTEND_URL is missing or invalid; cannot build the TV link", zap.String("frontend_url", base))
+		r := envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+		return "", &r
+	}
+	return base, nil
+}
+
+// currentDisplayToken is GetDisplayToken's logic: the tenant's token, created
+// when it has none in the current format. On failure it returns the response.
+func (h *TenantHandler) currentDisplayToken(c *gin.Context) (string, *envelope.Response) {
+	fail := func(r envelope.Response) (string, *envelope.Response) { return "", &r }
+
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
+		return fail(envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound))
 	}
 
 	var tenantRecord tenant_models.Tenant
 	if err := h.db.Select("id", "display_token").First(&tenantRecord, tenantID).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
+		return fail(envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound))
 	}
-	if isDisplayPairingCode(tenantRecord.DisplayToken) {
-		return envelope.SuccessResponse(gin.H{"token": tenantRecord.DisplayToken}, "tenant.display_token.fetch.success")
+	if tenant_models.IsDisplayToken(tenantRecord.DisplayToken) {
+		return tenantRecord.DisplayToken, nil
 	}
 
 	// Only replace the token we read: if a concurrent request already created a
-	// code, keep that one instead of overwriting it.
-	code := fmt.Sprintf("%08d", rand.IntN(100_000_000))
+	// token, keep that one instead of overwriting it.
 	if err := h.db.Model(&tenant_models.Tenant{}).
 		Where("id = ? AND display_token = ?", tenantRecord.ID, tenantRecord.DisplayToken).
-		Update("display_token", code).Error; err != nil {
+		Update("display_token", tenant_models.NewDisplayToken()).Error; err != nil {
 		h.logger.Error("Failed to create display token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+		return fail(envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal))
 	}
 	if err := h.db.Select("id", "display_token").First(&tenantRecord, tenantRecord.ID).Error; err != nil {
 		h.logger.Error("Failed to reload display token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+		return fail(envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal))
+	}
+	return tenantRecord.DisplayToken, nil
+}
+
+// DisplayURL is the waiting-room TV link for token on the web app at base
+// (FRONTEND_URL): what the display-token responses return and the QR encodes.
+func DisplayURL(base, token string) string {
+	return strings.TrimRight(base, "/") + "/display/waiting-room?token=" + url.QueryEscape(token)
+}
+
+// displayQRSize is the side of the QR PNG in pixels: readable from a phone
+// held to the screen and from a TV camera.
+const displayQRSize = 320
+
+// GetDisplayTokenQR streams a PNG QR code of the waiting-room TV link, so the
+// TV can be paired by scanning instead of typing. The link base is
+// FRONTEND_URL, never the request Host. The QR is a credential (anyone holding
+// it sees today's appointments), so it is not cached.
+func (h *TenantHandler) GetDisplayTokenQR(c *gin.Context) {
+	base, errResp := h.displayBase()
+	if errResp != nil {
+		envelope.Write(c, *errResp)
+		return
 	}
 
-	return envelope.SuccessResponse(gin.H{"token": tenantRecord.DisplayToken}, "tenant.display_token.fetch.success")
+	token, errResp := h.currentDisplayToken(c)
+	if errResp != nil {
+		envelope.Write(c, *errResp)
+		return
+	}
+
+	png, err := qrcode.Encode(DisplayURL(base, token), qrcode.Medium, displayQRSize)
+	if err != nil {
+		h.logger.Error("Failed to encode display QR", zap.Error(err))
+		envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal))
+		return
+	}
+
+	c.Header("Cache-Control", "no-store")
+	c.Data(http.StatusOK, "image/png", png)
 }

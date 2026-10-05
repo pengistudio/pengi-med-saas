@@ -40,6 +40,7 @@ import {
 } from "@/api/signature-service";
 import { SendEmailPopover } from "@/components/custom/send-email-popover";
 import { SignDocumentButton } from "@/components/custom/sign-document-button";
+import { ExamOrdersSection } from "@/components/features/exam-orders/exam-orders-section";
 import { PatientAttachmentsPanel } from "@/components/features/patient-attachments/patient-attachments-panel";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
@@ -186,8 +187,8 @@ export default function MedicalDocumentsListPage() {
 		: "";
 
 	return (
-		<main className="grid grid-cols-1 items-start gap-4">
-			<Card className="max-w-4xl mx-auto w-full">
+		<main className="mx-auto grid w-full max-w-4xl grid-cols-1 items-start gap-4">
+			<Card className="w-full">
 				<CardHeader>
 					<Button
 						type="button"
@@ -341,6 +342,7 @@ export default function MedicalDocumentsListPage() {
 					</Tabs>
 				</CardContent>
 			</Card>
+			<ExamOrdersSection patientId={patientId} />
 		</main>
 	);
 }

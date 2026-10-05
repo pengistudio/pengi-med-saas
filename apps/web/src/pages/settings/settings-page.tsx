@@ -1,8 +1,8 @@
 import { useText } from "@pengi/shared";
 import { Button, Text, useToast } from "@pengi/ui";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, FlaskConical } from "lucide-react";
 import React from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import {
 	disconnectGoogle,
 	type GoogleIntegrationStatus,
@@ -88,6 +88,10 @@ const SettingsPage = () => {
 	const { checkPermission } = usePermission();
 	const canManageTemplates = checkPermission([
 		PERMISSIONS.DOCUMENTS.PERMISSION_MANAGE_DOCUMENT_TEMPLATES,
+	]);
+	const navigate = useNavigate();
+	const canManageExamCatalog = checkPermission([
+		PERMISSIONS.EXAM_ORDERS.PERMISSION_MANAGE_EXAM_CATALOG,
 	]);
 	const [searchParams, setSearchParams] = useSearchParams();
 	// Returning from the OAuth flow (?google=connected, a fresh page load) shows
@@ -249,6 +253,28 @@ const SettingsPage = () => {
 					description={<Text uuid="settings.document_templates.description" />}
 				>
 					<DocumentTemplatesSettings />
+				</SettingsSection>
+			)}
+
+			{canManageExamCatalog && (
+				<SettingsSection
+					title={<Text uuid="clinical.exam_catalog.title" />}
+					description={
+						<Text uuid="clinical.exam_catalog.settings.description" />
+					}
+				>
+					<div className="flex flex-wrap items-center justify-between gap-4">
+						<p className="text-sm text-muted-foreground">
+							<Text uuid="clinical.exam_catalog.settings.hint" />
+						</p>
+						<Button
+							variant="outline"
+							onClick={() => navigate("/settings/exam-catalog")}
+						>
+							<FlaskConical className="mr-2 h-4 w-4" />
+							<Text uuid="clinical.exam_catalog.settings.open" />
+						</Button>
+					</div>
 				</SettingsSection>
 			)}
 

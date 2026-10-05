@@ -33,6 +33,7 @@ import {
 import { signPrescription } from "@/api/signature-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { SignDocumentButton } from "@/components/custom/sign-document-button";
+import { ExamOrdersSection } from "@/components/features/exam-orders/exam-orders-section";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import {
@@ -555,6 +556,11 @@ const ViewMedicalRecord = () => {
 			)}
 
 			<MedicalRecordAttachments
+				patientId={medicalRecord.patient_id}
+				medicalRecordId={medicalRecord.ID}
+			/>
+
+			<ExamOrdersSection
 				patientId={medicalRecord.patient_id}
 				medicalRecordId={medicalRecord.ID}
 			/>

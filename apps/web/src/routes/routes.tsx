@@ -92,6 +92,73 @@ const VerifyEmailPage = lazy(
 	() => import("@/pages/verify-email/verify-email-page"),
 );
 
+const ExamOrderListPage = lazy(
+	() => import("@/pages/clincal/exam-orders/exam-order-list"),
+);
+const ExamOrderDetailPage = lazy(
+	() => import("@/pages/clincal/exam-orders/exam-order-detail"),
+);
+const ExamOrderEditorPage = lazy(
+	() => import("@/pages/clincal/exam-orders/exam-order-editor"),
+);
+const ExamCatalogSettingsPage = lazy(
+	() => import("@/pages/settings/exam-catalog-settings"),
+);
+
+// Its own group (not under /clinical, which requires READ_PATIENT): whoever
+// uploads results may only have the exam order permissions. The results
+// notification links to /clinical/exam-orders/:id.
+const examOrderRoutes: RouteObject = {
+	path: "/clinical/exam-orders",
+	element: (
+		<CheckPermission
+			permissions={[PERMISSIONS.EXAM_ORDERS.PERMISSION_READ_EXAM_ORDER]}
+		/>
+	),
+	children: [
+		{
+			index: true,
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.EXAM_ORDERS.PERMISSION_READ_EXAM_ORDER]}
+				>
+					<ExamOrderListPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "new",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.EXAM_ORDERS.PERMISSION_CREATE_EXAM_ORDER]}
+				>
+					<ExamOrderEditorPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: ":id",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.EXAM_ORDERS.PERMISSION_READ_EXAM_ORDER]}
+				>
+					<ExamOrderDetailPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: ":id/edit",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.EXAM_ORDERS.PERMISSION_CREATE_EXAM_ORDER]}
+				>
+					<ExamOrderEditorPage />
+				</CheckPermission>
+			),
+		},
+	],
+};
+
 const clinicalRoutes: RouteObject = {
 	path: "/clinical",
 	element: (
@@ -199,11 +266,23 @@ const clinicalRoutes: RouteObject = {
 		},
 		{
 			path: "appointments",
-			element: <AppointmentsPage />,
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT]}
+				>
+					<AppointmentsPage />
+				</CheckPermission>
+			),
 		},
 		{
 			path: "waiting-room",
-			element: <WaitingRoomPage />,
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT]}
+				>
+					<WaitingRoomPage />
+				</CheckPermission>
+			),
 		},
 	],
 };
@@ -310,7 +389,7 @@ const billingRoutes: RouteObject = {
 	],
 };
 
-const routes: RouteObject[] = [clinicalRoutes, billingRoutes];
+const routes: RouteObject[] = [clinicalRoutes, examOrderRoutes, billingRoutes];
 
 const router = createBrowserRouter([
 	{
@@ -363,6 +442,18 @@ const router = createBrowserRouter([
 					{
 						path: "/settings",
 						element: <SettingsPage />,
+					},
+					{
+						path: "/settings/exam-catalog",
+						element: (
+							<CheckPermission
+								permissions={[
+									PERMISSIONS.EXAM_ORDERS.PERMISSION_MANAGE_EXAM_CATALOG,
+								]}
+							>
+								<ExamCatalogSettingsPage />
+							</CheckPermission>
+						),
 					},
 					{
 						path: "/notifications",

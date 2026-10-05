@@ -1,9 +1,12 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/tenantdb"
@@ -11,7 +14,29 @@ import (
 	_ "github.com/lib/pq" // driver PostgreSQL
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gorm_logger "gorm.io/gorm/logger"
+	"time"
 )
+
+// NewSQLLogger is GORM's default logger (Warn level, 200ms slow threshold,
+// colorful, same prefix) writing to out, except that logged SQL keeps its
+// placeholders instead of the bound values, and a missing row is not an error.
+// Values are credentials (display tokens), patient data and password hashes,
+// and must not reach the logs.
+func NewSQLLogger(out io.Writer) gorm_logger.Interface {
+	// db.Scan logs through GORM's global Recorder, which ignores
+	// ParameterizedQueries and calls this filter instead (process-wide).
+	gorm_logger.RecorderParamsFilter = func(_ context.Context, sql string, _ ...interface{}) (string, []interface{}) {
+		return sql, nil
+	}
+	return gorm_logger.New(log.New(out, "\r\n", log.LstdFlags), gorm_logger.Config{
+		SlowThreshold:             200 * time.Millisecond,
+		LogLevel:                  gorm_logger.Warn,
+		IgnoreRecordNotFoundError: true,
+		ParameterizedQueries:      true,
+		Colorful:                  true,
+	})
+}
 
 /*
 Connect establishes a connection to the database using environment variables.
@@ -41,7 +66,7 @@ func Connect() (*gorm.DB, error) {
 
 	sslmode := config.GetEnvWithDefault("DB_SSL_MODE", "disable")
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, dbname, sslmode)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: NewSQLLogger(os.Stdout)})
 	if err != nil {
 		return nil, err
 	}

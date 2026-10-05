@@ -265,6 +265,23 @@ describe("PatientAttachmentsPanel", () => {
 		).not.toBeInTheDocument();
 	});
 
+	it("disables delete for the result of a reviewed exam", async () => {
+		mocks.getPatientAttachments.mockResolvedValue(
+			listed([{ ...attachment, locked_by_review: true }]),
+		);
+		renderPanel({ canRead: true, canUpload: true, canDelete: true });
+
+		await screen.findByText("hemograma.pdf");
+		expect(
+			screen.queryByRole("button", { name: /clinical\.attachment\.delete\*$/ }),
+		).not.toBeInTheDocument();
+		expect(
+			screen.getByRole("button", {
+				name: /clinical\.attachment\.delete\.locked_by_review/,
+			}),
+		).toBeDisabled();
+	});
+
 	describe("storage usage", () => {
 		const uploadButton = () =>
 			screen.getByRole("button", { name: /clinical\.attachment\.upload/ });

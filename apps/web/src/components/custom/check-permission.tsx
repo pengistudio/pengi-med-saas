@@ -2,8 +2,10 @@ import { useText } from "@pengi/shared";
 import { useToast } from "@pengi/ui";
 import React from "react";
 import { Outlet, useNavigate } from "react-router";
+import { PageSkeleton } from "@/components/custom/page-skeleton";
 import useAuth from "@/hooks/use-auth";
 import usePermission from "@/hooks/use-permission";
+import { selectPermissionsFresh, useSessionStore } from "@/store/session-store";
 
 type CheckPermissionProps = {
 	children?: React.ReactNode;
@@ -15,6 +17,10 @@ const CheckPermission = (props: CheckPermissionProps) => {
 	const { checkPermission } = usePermission();
 	const { token } = useAuth();
 	const hasPermissions = checkPermission(permissions);
+	const permissionsFresh = useSessionStore(selectPermissionsFresh);
+	// Persisted permissions may predate a deploy: don't deny until the
+	// bootstrap refresh has had its say.
+	const waitingForRefresh = !hasPermissions && !permissionsFresh && !!token;
 	const navigate = useNavigate();
 	const { infoToast } = useToast();
 	const { textGet } = useText();
@@ -22,7 +28,7 @@ const CheckPermission = (props: CheckPermissionProps) => {
 	React.useEffect(() => {
 		// Only show permission error if user has a token (is logged in)
 		// If no token, user is logging out or already logged out
-		if (!hasPermissions && token) {
+		if (!hasPermissions && token && permissionsFresh) {
 			infoToast(
 				textGet("error.permission.title") || "No puedes acceder a esta ruta",
 				{
@@ -33,8 +39,9 @@ const CheckPermission = (props: CheckPermissionProps) => {
 			);
 			navigate("/");
 		}
-	}, [hasPermissions, navigate, infoToast, token, textGet]);
+	}, [hasPermissions, permissionsFresh, navigate, infoToast, token, textGet]);
 
+	if (waitingForRefresh) return <PageSkeleton />;
 	if (!hasPermissions) return null;
 
 	return (

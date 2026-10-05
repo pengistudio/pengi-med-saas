@@ -8,6 +8,13 @@ vi.mock("@/api/clinical-service", () => ({
 	getAppointments: vi.fn().mockResolvedValue({ success: true, data: [] }),
 	updateAppointment: vi.fn(),
 }));
+let granted: string[] = [];
+vi.mock("@/hooks/use-permission", () => ({
+	default: () => ({
+		checkPermission: (needed: string[]) =>
+			needed.every((p) => granted.includes(p)),
+	}),
+}));
 vi.mock("@/hooks/use-tenant-settings", () => ({
 	default: () => ({ settings: { clinical: { show_next_appointment: false } } }),
 }));
@@ -53,6 +60,20 @@ describe("AppointmentCalendar", () => {
 
 		expect(screen.getByText(/^lun/)).toBeInTheDocument();
 		expect(screen.queryByText("Mon")).not.toBeInTheDocument();
+		await act(async () => {});
+	});
+
+	it("hides scheduling without MANAGE_APPOINTMENT", async () => {
+		granted = ["READ_APPOINTMENT"];
+		renderWeek("es");
+		expect(screen.queryByText("appointments.new")).not.toBeInTheDocument();
+		await act(async () => {});
+	});
+
+	it("offers scheduling with MANAGE_APPOINTMENT", async () => {
+		granted = ["READ_APPOINTMENT", "MANAGE_APPOINTMENT"];
+		renderWeek("es");
+		expect(screen.getByText("appointments.new")).toBeInTheDocument();
 		await act(async () => {});
 	});
 });

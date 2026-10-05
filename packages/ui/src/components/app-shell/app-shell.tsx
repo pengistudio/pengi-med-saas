@@ -1,13 +1,14 @@
-import { Menu, PanelLeft, PanelLeftClose, X } from "lucide-react";
+import { Ellipsis, Menu, PanelLeft, PanelLeftClose, X } from "lucide-react";
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation } from "react-router";
 import { useUiText } from "../../context/text-context";
 import { useViewport } from "../../hooks/use-viewport";
 import { cn } from "../../lib/utils";
 import { useSidebarStore } from "../../stores/sidebar-store";
 import { Button } from "../button";
 import NavAccordion from "../nav/nav-accordion";
+import { NavBadge } from "../nav/nav-badge";
 import NavItem from "../nav/nav-item";
 import { AppShellContext, type AppShellState } from "./app-shell-context";
 
@@ -19,10 +20,15 @@ export type NavLinkEntry = {
 	icon: Icon;
 	/** Highlight while its href is the current page (default true). */
 	matchActive?: boolean;
+	/** Title of the section this entry opens; entries following it share it. */
+	section?: string;
+	/** Pending count next to the label; hidden at 0, shown as "99+" above 99. */
+	badge?: number;
 };
 export type NavGroupEntry = {
 	label: string;
 	icon: Icon;
+	section?: string;
 	accordionItems: NavLinkEntry[];
 };
 export type NavEntry = NavLinkEntry | NavGroupEntry;
@@ -35,6 +41,16 @@ interface AppShellProps {
 	nav: NavEntry[];
 	/** Entries pinned to the bottom of the sidebar (settings, help). */
 	footerNav?: NavEntry[];
+	/**
+	 * Highlight the link whose href is the longest prefix of the current page
+	 * (so `/clinical/exam-orders/1` lights up its list). Off: exact match only.
+	 */
+	matchNested?: boolean;
+	/**
+	 * Phone-only tab bar fixed to the bottom: these links plus a "Más" button
+	 * that opens the drawer (the full menu). Omit it for no bar.
+	 */
+	bottomNav?: NavLinkEntry[];
 	/** Page title in the top bar. */
 	title: React.ReactNode;
 	/** Right side of the top bar (language, notifications, user menu). */
@@ -46,12 +62,71 @@ interface AppShellProps {
 
 const DRAWER_ID = "app-shell-nav";
 
-const renderEntry = (entry: NavEntry) =>
-	"accordionItems" in entry && entry.accordionItems ? (
-		<NavAccordion {...entry} key={entry.label} />
-	) : (
-		<NavItem {...(entry as NavLinkEntry)} key={entry.label} />
-	);
+const linksOf = (entry: NavEntry): NavLinkEntry[] =>
+	"accordionItems" in entry && entry.accordionItems
+		? entry.accordionItems
+		: [entry as NavLinkEntry];
+
+/** Longest-prefix match of `pathname` among the links, as in `navTitle`. */
+function activeHrefFor(entries: NavEntry[], pathname: string) {
+	let best: string | undefined;
+	for (const link of entries.flatMap(linksOf)) {
+		if (link.matchActive === false) continue;
+		const hit =
+			link.href === "/"
+				? pathname === "/"
+				: pathname === link.href || pathname.startsWith(`${link.href}/`);
+		if (hit && (!best || link.href.length > best.length)) best = link.href;
+	}
+	return best;
+}
+
+const renderEntries = (
+	entries: NavEntry[],
+	expanded: boolean,
+	activeHref: string | undefined,
+	matchNested: boolean,
+) => {
+	let currentSection: string | undefined;
+	return entries.map((entry, index) => {
+		const title =
+			entry.section && entry.section !== currentSection
+				? entry.section
+				: undefined;
+		currentSection = entry.section;
+		return (
+			<Fragment key={entry.label}>
+				{title && !expanded && index > 0 && (
+					<hr className="mx-3 my-2 border-0 border-t border-sidebar-border" />
+				)}
+				{title && (
+					<div
+						role="presentation"
+						className={cn(
+							"mt-3 px-3 pt-2 pb-1 text-xs font-medium tracking-wide text-sidebar-foreground/60 uppercase",
+							!expanded && "hidden",
+						)}
+					>
+						{title}
+					</div>
+				)}
+				{"accordionItems" in entry && entry.accordionItems ? (
+					<NavAccordion {...entry} />
+				) : (
+					<NavItem
+						{...(entry as NavLinkEntry)}
+						active={
+							matchNested
+								? activeHref === (entry as NavLinkEntry).href &&
+									(entry as NavLinkEntry).matchActive !== false
+								: undefined
+						}
+					/>
+				)}
+			</Fragment>
+		);
+	});
+};
 
 /**
  * The frame of every signed-in page: sidebar, top bar and scrolling content.
@@ -65,6 +140,8 @@ export function AppShell({
 	brand,
 	nav,
 	footerNav = [],
+	matchNested = false,
+	bottomNav,
 	title,
 	actions,
 	banner,
@@ -84,10 +161,13 @@ export function AppShell({
 
 	const drawerRef = useRef<HTMLElement>(null);
 	const menuButtonRef = useRef<HTMLButtonElement>(null);
+	const moreButtonRef = useRef<HTMLButtonElement>(null);
+	const openerRef = useRef<HTMLButtonElement | null>(null);
+	const showBottomBar = isPhone && !!bottomNav?.length;
 
 	useEffect(() => {
 		if (!drawerOpen) return;
-		const menuButton = menuButtonRef.current;
+		const menuButton = openerRef.current ?? menuButtonRef.current;
 		drawerRef.current?.focus();
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key === "Escape") setDrawerOpenAt(null);
@@ -111,6 +191,13 @@ export function AppShell({
 	);
 
 	const BrandIcon = brand.icon;
+	const activeHref = useMemo(
+		() =>
+			matchNested || bottomNav
+				? activeHrefFor([...nav, ...footerNav, ...(bottomNav ?? [])], pathname)
+				: undefined,
+		[matchNested, nav, footerNav, bottomNav, pathname],
+	);
 
 	return (
 		<AppShellContext.Provider value={shell}>
@@ -181,15 +268,67 @@ export function AppShell({
 					</div>
 
 					<nav className="flex-1 space-y-1 overflow-x-hidden overflow-y-auto overscroll-contain p-2">
-						{nav.map(renderEntry)}
+						{renderEntries(nav, expanded, activeHref, matchNested)}
 					</nav>
 
 					{footerNav.length > 0 && (
 						<div className="shrink-0 space-y-1 overflow-hidden border-t border-sidebar-border p-2 py-4">
-							{footerNav.map(renderEntry)}
+							{renderEntries(footerNav, expanded, activeHref, matchNested)}
 						</div>
 					)}
 				</aside>
+
+				{showBottomBar && bottomNav && (
+					<nav
+						aria-label={textGet("shell.nav.primary")}
+						className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-card pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+					>
+						{bottomNav.map((item) => {
+							const Icon = item.icon;
+							const isActive = activeHref === item.href;
+							return (
+								<Link
+									key={item.href}
+									to={item.href}
+									viewTransition
+									aria-current={isActive ? "page" : undefined}
+									className={cn(
+										"relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[0.6875rem] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+										isActive
+											? "font-medium text-primary"
+											: "text-muted-foreground",
+									)}
+								>
+									<Icon className="h-5 w-5 shrink-0" />
+									<span className="max-w-full truncate">{item.label}</span>
+									<NavBadge
+										count={item.badge}
+										className="absolute top-1 left-1/2 ml-2 h-4 min-w-4"
+									/>
+								</Link>
+							);
+						})}
+						<button
+							ref={moreButtonRef}
+							type="button"
+							onClick={() => {
+								openerRef.current = moreButtonRef.current;
+								setDrawerOpenAt(pathname);
+							}}
+							aria-expanded={drawerOpen}
+							aria-controls={DRAWER_ID}
+							className={cn(
+								"flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[0.6875rem] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+								!bottomNav.some((i) => i.href === activeHref)
+									? "font-medium text-primary"
+									: "text-muted-foreground",
+							)}
+						>
+							<Ellipsis className="h-5 w-5 shrink-0" />
+							<span className="max-w-full truncate">{textGet("nav.more")}</span>
+						</button>
+					</nav>
+				)}
 
 				{drawerOpen && (
 					<div
@@ -208,7 +347,10 @@ export function AppShell({
 									variant="ghost"
 									size="icon"
 									className="size-10"
-									onClick={() => setDrawerOpenAt(pathname)}
+									onClick={() => {
+										openerRef.current = menuButtonRef.current;
+										setDrawerOpenAt(pathname);
+									}}
 									aria-label={textGet("shell.menu.open")}
 									aria-expanded={drawerOpen}
 									aria-controls={DRAWER_ID}
@@ -227,7 +369,12 @@ export function AppShell({
 
 					{banner}
 
-					<main className="relative flex-1 overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:p-6 md:pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+					<main
+						className={cn(
+							"relative flex-1 overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:p-6 md:pb-[max(1.5rem,env(safe-area-inset-bottom))]",
+							showBottomBar && "pb-[calc(5rem+env(safe-area-inset-bottom))]",
+						)}
+					>
 						{children}
 					</main>
 				</div>
