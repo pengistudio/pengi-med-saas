@@ -148,6 +148,18 @@ function make401Interceptor(instance: ReturnType<typeof axios.create>) {
 			) {
 				useSessionStore.getState().setSubscriptionExpired(true);
 			}
+			if (
+				status === 403 &&
+				["E-PERM-002", "E-PERM-003"].includes(
+					error.response?.data?.data?.error_code,
+				)
+			) {
+				// Permission or plan feature missing: the stored environment may be
+				// stale. Imported lazily because that module imports this one.
+				import("@/lib/refresh-environment").then((m) =>
+					m.refreshEnvironmentThrottled(),
+				);
+			}
 			return Promise.reject(error);
 		},
 	);

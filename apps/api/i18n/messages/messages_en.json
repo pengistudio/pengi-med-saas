@@ -492,20 +492,44 @@
         "value": "Too many requests. Please wait a moment and try again."
     },
     {
-        "key": "dashboard.clinical",
-        "value": "Journal"
+        "key": "nav.item.home",
+        "value": "Home"
+    },
+    {
+        "key": "nav.more",
+        "value": "More"
+    },
+    {
+        "key": "shell.nav.primary",
+        "value": "Mobile main navigation"
+    },
+    {
+        "key": "nav.section.care",
+        "value": "Care"
+    },
+    {
+        "key": "nav.section.finance",
+        "value": "Finance"
+    },
+    {
+        "key": "nav.section.admin",
+        "value": "Administration"
+    },
+    {
+        "key": "nav.item.agenda",
+        "value": "Schedule"
+    },
+    {
+        "key": "nav.item.exams",
+        "value": "Exams"
     },
     {
         "key": "dashboard.clinical.patients",
         "value": "Patients"
     },
     {
-        "key": "dashboard.clinical.appointments",
-        "value": "Appointments"
-    },
-    {
         "key": "dashboard.clinical.waiting_room",
-        "value": "Waiting Room"
+        "value": "Waiting room"
     },
     {
         "key": "E-CLIN-001",
@@ -1941,15 +1965,15 @@
     },
     {
         "key": "waiting_room.tv.pair_hint",
-        "value": "On the TV, open /display/pair and enter this code:"
+        "value": "Open this link in the TV's browser. Anyone with the link sees today's agenda: don't share it."
     },
     {
         "key": "waiting_room.tv.regenerate",
-        "value": "Generate new code"
+        "value": "Generate new link"
     },
     {
         "key": "waiting_room.tv.copy_code",
-        "value": "Copy code"
+        "value": "Copy link"
     },
     {
         "key": "waiting_room.tv.link_copied",
@@ -1957,7 +1981,7 @@
     },
     {
         "key": "waiting_room.tv.regenerate_warning",
-        "value": "This disconnects the current TV. Generate a new code?"
+        "value": "This disconnects the current TV. Generate a new link?"
     },
     {
         "key": "waiting_room.tv.regenerate_confirm",
@@ -1965,11 +1989,19 @@
     },
     {
         "key": "waiting_room.tv.load_error",
-        "value": "Couldn't load the code"
+        "value": "Couldn't load the link"
+    },
+    {
+        "key": "waiting_room.tv.qr_alt",
+        "value": "QR code of the waiting-room screen link"
+    },
+    {
+        "key": "waiting_room.tv.qr_hint",
+        "value": "Scan it with your phone and open it on the TV, or with the TV's camera."
     },
     {
         "key": "tenant.display_token.fetch.success",
-        "value": "TV code loaded successfully"
+        "value": "TV link loaded successfully"
     },
     {
         "key": "waiting_room.card.late",
@@ -2033,7 +2065,7 @@
     },
     {
         "key": "tenant.display_token.generate.success",
-        "value": "New code generated. Pair the TV again with this code."
+        "value": "New link generated. Open the new link on the TV."
     },
     {
         "key": "waiting_room.display.last_updated",
@@ -3485,11 +3517,7 @@
     },
     {
         "key": "dashboard.billing.settings",
-        "value": "SRI Settings"
-    },
-    {
-        "key": "dashboard.billing",
-        "value": "Billing"
+        "value": "SRI settings"
     },
     {
         "key": "form.cancel",
@@ -3773,11 +3801,11 @@
     },
     {
         "key": "dashboard.billing.debit-notes",
-        "value": "Debit Notes"
+        "value": "Debit notes"
     },
     {
         "key": "dashboard.billing.credit-notes",
-        "value": "Credit Notes"
+        "value": "Credit notes"
     },
     {
         "key": "billing.sri.invalid_file",
@@ -3949,7 +3977,7 @@
     },
     {
         "key": "dashboard.billing.catalog-items",
-        "value": "Products and Services"
+        "value": "Products and services"
     },
     {
         "key": "billing.catalog-item.form.name",
@@ -6809,7 +6837,7 @@
     },
     {
         "key": "tenant.display_token.error.invalid",
-        "value": "The display code is not valid. Pair the display again."
+        "value": "The display link is not valid. Open the current waiting room link on the TV."
     },
     {
         "key": "auth.signup.company.invalid_token",
@@ -7466,5 +7494,777 @@
     {
         "key": "clinical.attachment.consultation.picker.empty",
         "value": "The patient has no unlinked files."
+    },
+    {
+        "key": "clinical.exam_catalog.fetch.success",
+        "value": "Exam catalog retrieved."
+    },
+    {
+        "key": "clinical.exam_catalog.fetch.error",
+        "value": "Could not retrieve the exam catalog."
+    },
+    {
+        "key": "clinical.exam_catalog.save.error",
+        "value": "Could not save the exam catalog."
+    },
+    {
+        "key": "clinical.exam_catalog.create.success",
+        "value": "Exam added to the catalog."
+    },
+    {
+        "key": "clinical.exam_catalog.update.success",
+        "value": "Catalog exam updated."
+    },
+    {
+        "key": "clinical.exam_catalog.delete.success",
+        "value": "Exam removed from the catalog."
+    },
+    {
+        "key": "clinical.exam_catalog.restore.success",
+        "value": "Initial catalog restored."
+    },
+    {
+        "key": "clinical.exam_catalog.error.not_found",
+        "value": "The exam is not in the catalog."
+    },
+    {
+        "key": "clinical.exam_profile.fetch.success",
+        "value": "Profiles retrieved."
+    },
+    {
+        "key": "clinical.exam_profile.create.success",
+        "value": "Profile created."
+    },
+    {
+        "key": "clinical.exam_profile.update.success",
+        "value": "Profile updated."
+    },
+    {
+        "key": "clinical.exam_profile.delete.success",
+        "value": "Profile deleted."
+    },
+    {
+        "key": "clinical.exam_profile.error.not_found",
+        "value": "The profile does not exist."
+    },
+    {
+        "key": "clinical.exam_order.fetch.success",
+        "value": "Exam orders retrieved."
+    },
+    {
+        "key": "clinical.exam_order.fetch.error",
+        "value": "Could not retrieve the exam orders."
+    },
+    {
+        "key": "clinical.exam_order.create.success",
+        "value": "Exam order created."
+    },
+    {
+        "key": "clinical.exam_order.update.success",
+        "value": "Exam order updated."
+    },
+    {
+        "key": "clinical.exam_order.void.success",
+        "value": "Exam order voided."
+    },
+    {
+        "key": "clinical.exam_order.close.success",
+        "value": "Order closed with complete results."
+    },
+    {
+        "key": "clinical.exam_order.email.success",
+        "value": "Exam order sent by email."
+    },
+    {
+        "key": "clinical.exam_order.save.error",
+        "value": "Could not save the exam order."
+    },
+    {
+        "key": "clinical.exam_order.pdf.error",
+        "value": "Could not generate the exam order PDF."
+    },
+    {
+        "key": "clinical.exam_order.error.not_found",
+        "value": "The exam order does not exist."
+    },
+    {
+        "key": "clinical.exam_order.error.voided",
+        "value": "The exam order is voided."
+    },
+    {
+        "key": "clinical.exam_order.error.invalid_items",
+        "value": "Some exams do not belong to the order or to the catalog."
+    },
+    {
+        "key": "clinical.exam_order.error.locked",
+        "value": "The order already has results: you can only add exams or void it."
+    },
+    {
+        "key": "clinical.exam_result.upload.success",
+        "value": "Results uploaded."
+    },
+    {
+        "key": "clinical.exam_result.delete.success",
+        "value": "Result deleted."
+    },
+    {
+        "key": "clinical.exam_result.review.success",
+        "value": "Exams marked as reviewed."
+    },
+    {
+        "key": "clinical.exam_result.error.reviewed",
+        "value": "A result whose exams were already reviewed cannot be deleted."
+    },
+    {
+        "key": "clinical.exam_result.error.missing",
+        "value": "Only exams with results can be marked as reviewed."
+    },
+    {
+        "key": "notification.clinical.exam_order.results_uploaded",
+        "value": "Results arrived for order {order_code} of {patient_name}."
+    },
+    {
+        "key": "document_templates.doc.exam_order",
+        "value": "Exam order"
+    },
+    {
+        "key": "E-CLIN-040",
+        "value": "Exam not found in the catalog."
+    },
+    {
+        "key": "E-CLIN-041",
+        "value": "Error saving the exam catalog."
+    },
+    {
+        "key": "E-CLIN-042",
+        "value": "Exam profile not found."
+    },
+    {
+        "key": "E-CLIN-043",
+        "value": "Exam order not found."
+    },
+    {
+        "key": "E-CLIN-044",
+        "value": "Error saving the exam order."
+    },
+    {
+        "key": "E-CLIN-045",
+        "value": "This exam order has results: exams can only be added, or the order voided."
+    },
+    {
+        "key": "E-CLIN-046",
+        "value": "This exam order is voided."
+    },
+    {
+        "key": "E-CLIN-047",
+        "value": "Some exams do not belong to this order or to the catalog."
+    },
+    {
+        "key": "E-CLIN-048",
+        "value": "A result whose exams were reviewed cannot be deleted."
+    },
+    {
+        "key": "E-CLIN-049",
+        "value": "Only exams with results can be marked as reviewed."
+    },
+    {
+        "key": "E-CLIN-050",
+        "value": "Error generating the exam order PDF."
+    },
+    {
+        "key": "clinical.attachment.viewer.next",
+        "value": "Next file"
+    },
+    {
+        "key": "clinical.attachment.viewer.previous",
+        "value": "Previous file"
+    },
+    {
+        "key": "clinical.exam_catalog.title",
+        "value": "Exam catalog"
+    },
+    {
+        "key": "clinical.exam_catalog.description",
+        "value": "The exams and profiles that can be ordered."
+    },
+    {
+        "key": "clinical.exam_catalog.settings.description",
+        "value": "Exams and profiles available when issuing exam orders."
+    },
+    {
+        "key": "clinical.exam_catalog.settings.hint",
+        "value": "Activate, edit or add exams and build profiles."
+    },
+    {
+        "key": "clinical.exam_catalog.settings.open",
+        "value": "Manage catalog"
+    },
+    {
+        "key": "clinical.exam_catalog.tab.exams",
+        "value": "Exams"
+    },
+    {
+        "key": "clinical.exam_catalog.tab.profiles",
+        "value": "Profiles"
+    },
+    {
+        "key": "clinical.exam_catalog.action.edit",
+        "value": "Edit"
+    },
+    {
+        "key": "clinical.exam_catalog.action.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "clinical.exam_catalog.column.active",
+        "value": "Active"
+    },
+    {
+        "key": "clinical.exam_catalog.field.name",
+        "value": "Name"
+    },
+    {
+        "key": "clinical.exam_catalog.field.subgroup",
+        "value": "Subgroup"
+    },
+    {
+        "key": "clinical.exam_catalog.field.default_indications",
+        "value": "Default instructions"
+    },
+    {
+        "key": "clinical.exam_catalog.filter.all_categories",
+        "value": "All categories"
+    },
+    {
+        "key": "clinical.exam_catalog.filter.all_subgroups",
+        "value": "All subgroups"
+    },
+    {
+        "key": "clinical.exam_catalog.form.error.category",
+        "value": "Select a category."
+    },
+    {
+        "key": "clinical.exam_catalog.form.error.name_required",
+        "value": "The name is required."
+    },
+    {
+        "key": "clinical.exam_catalog.form.save",
+        "value": "Save"
+    },
+    {
+        "key": "clinical.exam_catalog.new_exam",
+        "value": "New exam"
+    },
+    {
+        "key": "clinical.exam_catalog.edit_exam",
+        "value": "Edit exam"
+    },
+    {
+        "key": "clinical.exam_catalog.new_profile",
+        "value": "New profile"
+    },
+    {
+        "key": "clinical.exam_catalog.edit_profile",
+        "value": "Edit profile"
+    },
+    {
+        "key": "clinical.exam_catalog.profile.error.items_required",
+        "value": "Select at least one exam."
+    },
+    {
+        "key": "clinical.exam_catalog.profile.exams.one",
+        "value": "Exams ({count} selected)"
+    },
+    {
+        "key": "clinical.exam_catalog.profile.exams.other",
+        "value": "Exams ({count} selected)"
+    },
+    {
+        "key": "clinical.exam_catalog.restore",
+        "value": "Restore default catalog"
+    },
+    {
+        "key": "clinical.exam_catalog.restore.title",
+        "value": "Restore the default catalog?"
+    },
+    {
+        "key": "clinical.exam_catalog.restore.description",
+        "value": "The default exams and profiles are re-activated or re-created. Your own exams and profiles don't change."
+    },
+    {
+        "key": "clinical.exam_catalog.delete.title",
+        "value": "Delete \"{name}\"?"
+    },
+    {
+        "key": "clinical.exam_catalog.delete.exam_description",
+        "value": "Orders already issued keep the exam; it is no longer available for new orders and profiles. To hide it for a while, deactivate it."
+    },
+    {
+        "key": "clinical.exam_catalog.delete.profile_description",
+        "value": "The profile is no longer available. Orders already issued don't change."
+    },
+    {
+        "key": "clinical.exam_orders.title",
+        "value": "Exam orders"
+    },
+    {
+        "key": "clinical.exam_orders.description",
+        "value": "Issued orders, pending results and results to review."
+    },
+    {
+        "key": "clinical.exam_orders.section.description",
+        "value": "Exams ordered for the patient and their results."
+    },
+    {
+        "key": "clinical.exam_orders.new",
+        "value": "New order"
+    },
+    {
+        "key": "clinical.exam_orders.empty",
+        "value": "There are no exam orders."
+    },
+    {
+        "key": "clinical.exam_orders.not_found",
+        "value": "The exam order was not found."
+    },
+    {
+        "key": "clinical.exam_orders.back",
+        "value": "Back"
+    },
+    {
+        "key": "clinical.exam_orders.patient",
+        "value": "Patient: {name}"
+    },
+    {
+        "key": "clinical.exam_orders.create.title",
+        "value": "New exam order"
+    },
+    {
+        "key": "clinical.exam_orders.edit.title",
+        "value": "Edit order {code}"
+    },
+    {
+        "key": "clinical.exam_orders.detail.title",
+        "value": "Order {code}"
+    },
+    {
+        "key": "clinical.exam_orders.exam_count.one",
+        "value": "{count} exam"
+    },
+    {
+        "key": "clinical.exam_orders.exam_count.other",
+        "value": "{count} exams"
+    },
+    {
+        "key": "clinical.exam_orders.pending_review",
+        "value": "To review"
+    },
+    {
+        "key": "clinical.exam_orders.status.issued",
+        "value": "Issued"
+    },
+    {
+        "key": "clinical.exam_orders.status.partial_results",
+        "value": "Partial results"
+    },
+    {
+        "key": "clinical.exam_orders.status.complete_results",
+        "value": "Complete results"
+    },
+    {
+        "key": "clinical.exam_orders.status.voided",
+        "value": "Voided"
+    },
+    {
+        "key": "clinical.exam_orders.category.laboratory",
+        "value": "Laboratory"
+    },
+    {
+        "key": "clinical.exam_orders.category.imaging",
+        "value": "Imaging"
+    },
+    {
+        "key": "clinical.exam_orders.category.other",
+        "value": "Other"
+    },
+    {
+        "key": "clinical.exam_orders.priority.routine",
+        "value": "Routine"
+    },
+    {
+        "key": "clinical.exam_orders.priority.urgent",
+        "value": "Urgent"
+    },
+    {
+        "key": "clinical.exam_orders.tab.pending_results",
+        "value": "Awaiting results"
+    },
+    {
+        "key": "clinical.exam_orders.tab.to_review",
+        "value": "To review"
+    },
+    {
+        "key": "clinical.exam_orders.tab.all",
+        "value": "All"
+    },
+    {
+        "key": "clinical.exam_orders.filter.all_doctors",
+        "value": "Show every doctor's orders"
+    },
+    {
+        "key": "clinical.exam_orders.column.code",
+        "value": "Order"
+    },
+    {
+        "key": "clinical.exam_orders.column.patient",
+        "value": "Patient"
+    },
+    {
+        "key": "clinical.exam_orders.column.date",
+        "value": "Date"
+    },
+    {
+        "key": "clinical.exam_orders.column.status",
+        "value": "Status"
+    },
+    {
+        "key": "clinical.exam_orders.column.exams",
+        "value": "Exams"
+    },
+    {
+        "key": "clinical.exam_orders.column.ordered_by",
+        "value": "Ordered by"
+    },
+    {
+        "key": "clinical.exam_orders.field.category",
+        "value": "Category"
+    },
+    {
+        "key": "clinical.exam_orders.field.date",
+        "value": "Date"
+    },
+    {
+        "key": "clinical.exam_orders.field.diagnoses",
+        "value": "Diagnoses (ICD-10)"
+    },
+    {
+        "key": "clinical.exam_orders.field.priority",
+        "value": "Priority"
+    },
+    {
+        "key": "clinical.exam_orders.field.destination_lab",
+        "value": "Destination lab"
+    },
+    {
+        "key": "clinical.exam_orders.field.destination_lab.placeholder",
+        "value": "E.g. Central Clinical Lab"
+    },
+    {
+        "key": "clinical.exam_orders.field.notes",
+        "value": "Notes"
+    },
+    {
+        "key": "clinical.exam_orders.field.notes.placeholder",
+        "value": "General instructions for the patient or the lab"
+    },
+    {
+        "key": "clinical.exam_orders.field.indications",
+        "value": "Instructions"
+    },
+    {
+        "key": "clinical.exam_orders.field.indications.placeholder",
+        "value": "Exam instructions (fasting, preparation…)"
+    },
+    {
+        "key": "clinical.exam_orders.field.ordered_by",
+        "value": "Ordered by"
+    },
+    {
+        "key": "clinical.exam_orders.field.record",
+        "value": "Consultation"
+    },
+    {
+        "key": "clinical.exam_orders.field.record.open",
+        "value": "View consultation"
+    },
+    {
+        "key": "clinical.exam_orders.form.exams",
+        "value": "Exams"
+    },
+    {
+        "key": "clinical.exam_orders.form.exams.description",
+        "value": "Pick from the catalog, add a profile or write an exam that isn't in the catalog."
+    },
+    {
+        "key": "clinical.exam_orders.form.locked",
+        "value": "The order already has results: existing exams can't change; you can only add new ones."
+    },
+    {
+        "key": "clinical.exam_orders.form.selected",
+        "value": "Selected exams"
+    },
+    {
+        "key": "clinical.exam_orders.form.details",
+        "value": "Order details"
+    },
+    {
+        "key": "clinical.exam_orders.form.submit",
+        "value": "Save order"
+    },
+    {
+        "key": "clinical.exam_orders.form.error.items_required",
+        "value": "Add at least one exam."
+    },
+    {
+        "key": "clinical.exam_orders.form.error.priority",
+        "value": "Select the priority."
+    },
+    {
+        "key": "clinical.exam_orders.form.error.too_long",
+        "value": "The text is too long."
+    },
+    {
+        "key": "clinical.exam_orders.picker.profiles",
+        "value": "Add profile"
+    },
+    {
+        "key": "clinical.exam_orders.picker.search",
+        "value": "Search exam"
+    },
+    {
+        "key": "clinical.exam_orders.picker.empty",
+        "value": "No exam matches the search."
+    },
+    {
+        "key": "clinical.exam_orders.picker.free_text",
+        "value": "Exam not in the catalog"
+    },
+    {
+        "key": "clinical.exam_orders.picker.free_text.placeholder",
+        "value": "Exam name"
+    },
+    {
+        "key": "clinical.exam_orders.picker.free_text.add",
+        "value": "Add"
+    },
+    {
+        "key": "clinical.exam_orders.selected.empty",
+        "value": "The order has no exams yet."
+    },
+    {
+        "key": "clinical.exam_orders.selected.locked",
+        "value": "The order has results: this exam can't change"
+    },
+    {
+        "key": "clinical.exam_orders.selected.remove",
+        "value": "Remove exam"
+    },
+    {
+        "key": "clinical.exam_orders.action.edit",
+        "value": "Edit"
+    },
+    {
+        "key": "clinical.exam_orders.action.download",
+        "value": "Download PDF"
+    },
+    {
+        "key": "clinical.exam_orders.action.email",
+        "value": "Send by email"
+    },
+    {
+        "key": "clinical.exam_orders.action.whatsapp",
+        "value": "Send via WhatsApp"
+    },
+    {
+        "key": "clinical.exam_orders.action.close",
+        "value": "Close as complete"
+    },
+    {
+        "key": "clinical.exam_orders.action.void",
+        "value": "Void"
+    },
+    {
+        "key": "clinical.exam_orders.close.title",
+        "value": "Close the order as complete?"
+    },
+    {
+        "key": "clinical.exam_orders.close.description",
+        "value": "Use it when the results arrived another way (e.g. on paper). The order is marked as complete."
+    },
+    {
+        "key": "clinical.exam_orders.void.title",
+        "value": "Void order"
+    },
+    {
+        "key": "clinical.exam_orders.void.description",
+        "value": "A voided order stays read-only. Give the reason."
+    },
+    {
+        "key": "clinical.exam_orders.void.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "clinical.exam_orders.void.reason.placeholder",
+        "value": "E.g. issued to the wrong patient"
+    },
+    {
+        "key": "clinical.exam_orders.void.confirm",
+        "value": "Void order"
+    },
+    {
+        "key": "clinical.exam_orders.void.error.reason_required",
+        "value": "The reason is required."
+    },
+    {
+        "key": "clinical.exam_orders.void.error.reason_long",
+        "value": "The reason is too long (max. 500 characters)."
+    },
+    {
+        "key": "clinical.exam_orders.voided.title",
+        "value": "Order voided on {date}"
+    },
+    {
+        "key": "clinical.exam_orders.results.title",
+        "value": "Results"
+    },
+    {
+        "key": "clinical.exam_orders.results.description",
+        "value": "Result files per exam. A file can cover several exams."
+    },
+    {
+        "key": "clinical.exam_orders.results.upload",
+        "value": "Upload result"
+    },
+    {
+        "key": "clinical.exam_orders.results.upload_for",
+        "value": "Upload result for {name}"
+    },
+    {
+        "key": "clinical.exam_orders.results.upload.title",
+        "value": "Upload results"
+    },
+    {
+        "key": "clinical.exam_orders.results.upload.description",
+        "value": "Mark the exams the files cover. Each file is also kept in the patient's attachments."
+    },
+    {
+        "key": "clinical.exam_orders.results.upload.done",
+        "value": "Done"
+    },
+    {
+        "key": "clinical.exam_orders.results.covers",
+        "value": "Exams it covers"
+    },
+    {
+        "key": "clinical.exam_orders.results.covers_list",
+        "value": "Covers: {names}"
+    },
+    {
+        "key": "clinical.exam_orders.results.error.items_required",
+        "value": "Mark at least one exam."
+    },
+    {
+        "key": "clinical.exam_orders.results.none",
+        "value": "No result"
+    },
+    {
+        "key": "clinical.exam_orders.results.review.one",
+        "value": "Mark as reviewed ({count})"
+    },
+    {
+        "key": "clinical.exam_orders.results.review.other",
+        "value": "Mark as reviewed ({count})"
+    },
+    {
+        "key": "clinical.exam_orders.results.select_review",
+        "value": "Select {name} to review"
+    },
+    {
+        "key": "clinical.exam_orders.results.reviewed_by",
+        "value": "Reviewed by {name} · {date}"
+    },
+    {
+        "key": "clinical.exam_orders.results.reviewed_at",
+        "value": "Reviewed · {date}"
+    },
+    {
+        "key": "clinical.exam_orders.results.delete.title",
+        "value": "Delete result"
+    },
+    {
+        "key": "clinical.exam_orders.results.delete.description",
+        "value": "\"{name}\" is removed from the order and the patient's attachments. Give the reason."
+    },
+    {
+        "key": "clinical.exam_orders.whatsapp.title",
+        "value": "Exam order {code}"
+    },
+    {
+        "key": "clinical.exam_orders.whatsapp.urgent",
+        "value": "Urgent priority"
+    },
+    {
+        "key": "clinical.exam_orders.whatsapp.exams",
+        "value": "Exams"
+    },
+    {
+        "key": "clinical.exam_orders.whatsapp.lab",
+        "value": "Lab: {lab}"
+    },
+    {
+        "key": "clinical.exam_orders.whatsapp.notes",
+        "value": "Notes"
+    },
+    {
+        "key": "clinical.exam_catalog.profile.more.one",
+        "value": "+{count} more"
+    },
+    {
+        "key": "clinical.exam_catalog.profile.more.other",
+        "value": "+{count} more"
+    },
+    {
+        "key": "clinical.attachment.delete.locked_by_review",
+        "value": "Can't be deleted: it is the result of an exam already reviewed."
+    },
+    {
+        "key": "clinical.exam_orders.patient_picker.title",
+        "value": "New exam order"
+    },
+    {
+        "key": "clinical.exam_orders.patient_picker.description",
+        "value": "Find the patient the order is for."
+    },
+    {
+        "key": "clinical.exam_orders.patient_picker.search",
+        "value": "Patient name or ID"
+    },
+    {
+        "key": "clinical.exam_orders.patient_picker.empty",
+        "value": "No patient matches the search."
+    },
+    {
+        "key": "display.pair.title",
+        "value": "Connect screen"
+    },
+    {
+        "key": "display.pair.hint",
+        "value": "Paste the waiting room screen link shown in the app."
+    },
+    {
+        "key": "display.pair.placeholder",
+        "value": "Screen link"
+    },
+    {
+        "key": "display.pair.invalid",
+        "value": "The link is not valid."
+    },
+    {
+        "key": "display.pair.submit",
+        "value": "Connect"
+    },
+    {
+        "key": "display.invalid_link",
+        "value": "Invalid or expired link. Open the current waiting room link on the TV."
     }
 ]

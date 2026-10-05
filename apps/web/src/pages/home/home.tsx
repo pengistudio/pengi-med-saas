@@ -71,6 +71,12 @@ const Home = () => {
 	const canCreatePatient =
 		clinicalOn &&
 		checkPermission([PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT]);
+	const appointmentsOn =
+		clinicalOn &&
+		checkPermission([PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT]);
+	const canSchedule =
+		appointmentsOn &&
+		checkPermission([PERMISSIONS.APPOINTMENTS.PERMISSION_MANAGE_APPOINTMENT]);
 	const canCreateInvoice =
 		billingOn &&
 		checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]);
@@ -105,7 +111,7 @@ const Home = () => {
 								{textGet("dashboard.actions.new_invoice")}
 							</Button>
 						)}
-						{clinicalOn && (
+						{canSchedule && (
 							<Button onClick={() => navigate("/clinical/appointments")}>
 								<CalendarPlus className="mr-2 h-4 w-4" />
 								{textGet("dashboard.upcoming.schedule_btn")}
@@ -125,17 +131,18 @@ const Home = () => {
 			/>
 
 			<div className="grid gap-4 lg:grid-cols-3">
-				{clinicalOn && (
+				{appointmentsOn && (
 					<TodayAgenda
 						className="lg:col-span-2"
 						appointments={stats.today_agenda}
+						canSchedule={canSchedule}
 						canStartConsultation={checkPermission([
 							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
 						])}
 					/>
 				)}
 				<div className="space-y-4">
-					{clinicalOn && <WeekOverview stats={stats} />}
+					{appointmentsOn && <WeekOverview stats={stats} />}
 					{stats.subscription && (
 						<SubscriptionSummary subscription={stats.subscription} />
 					)}

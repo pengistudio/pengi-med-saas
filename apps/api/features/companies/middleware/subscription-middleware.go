@@ -104,27 +104,68 @@ func RequireRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
 	return checkRolePermission(db, permissionID)
 }
 
-// checkRolePermission is the shared role-permission lookup used by both
-// RequirePermission and RequireRolePermission.
-func checkRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
+// RequireAnyPermission is RequirePermission for routes that more than one
+// permission opens: it passes when at least one of permissionIDs is both in the
+// active subscription's plan and in the caller's role. A permission the plan
+// includes but the role lacks (or the other way round) doesn't count.
+// Must run after AuthMiddleware, TenantMiddleware, and SubscriptionMiddleware.
+func RequireAnyPermission(db *gorm.DB, permissionIDs ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// TenantMiddleware already verified the caller holds this Environment (their
-		// role in the tenant's company); only its permissions are checked here.
-		environmentID := c.GetUint("environment_id")
-		var env user_models.Environment
-		if environmentID == 0 || db.Preload("Role.Permissions").First(&env, environmentID).Error != nil {
-			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "tenant.error.forbidden", core_errors.ErrTenantForbidden))
+		var inPlan []string
+		for _, id := range permissionIDs {
+			if IsPermissionAllowed(c, id) {
+				inPlan = append(inPlan, id)
+			}
+		}
+		if len(inPlan) == 0 {
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "subscription.error.feature_not_included", core_errors.ErrPermissionNotInPlan))
 			return
 		}
 
-		// Check role has the required permission
-		for _, perm := range env.Role.Permissions {
-			if perm.ID == permissionID {
+		rolePerms, ok := callerRolePermissions(c, db)
+		if !ok {
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "tenant.error.forbidden", core_errors.ErrTenantForbidden))
+			return
+		}
+		for _, id := range inPlan {
+			if rolePerms[id] {
 				c.Next()
 				return
 			}
 		}
+		envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "permission.error.insufficient", core_errors.ErrPermissionDenied))
+	}
+}
 
+// callerRolePermissions returns the permission IDs of the caller's role in the
+// tenant's company. TenantMiddleware already verified the caller holds this
+// Environment; false means it is missing.
+func callerRolePermissions(c *gin.Context, db *gorm.DB) (map[string]bool, bool) {
+	environmentID := c.GetUint("environment_id")
+	var env user_models.Environment
+	if environmentID == 0 || db.Preload("Role.Permissions").First(&env, environmentID).Error != nil {
+		return nil, false
+	}
+	perms := make(map[string]bool, len(env.Role.Permissions))
+	for _, perm := range env.Role.Permissions {
+		perms[perm.ID] = true
+	}
+	return perms, true
+}
+
+// checkRolePermission is the shared role-permission lookup used by both
+// RequirePermission and RequireRolePermission.
+func checkRolePermission(db *gorm.DB, permissionID string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		rolePerms, ok := callerRolePermissions(c, db)
+		if !ok {
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "tenant.error.forbidden", core_errors.ErrTenantForbidden))
+			return
+		}
+		if rolePerms[permissionID] {
+			c.Next()
+			return
+		}
 		envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "permission.error.insufficient", core_errors.ErrPermissionDenied))
 	}
 }

@@ -25,16 +25,24 @@ import {
 	HelpCircle,
 	Power,
 } from "lucide-react";
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
+import { getPendingReviewCount } from "@/api/exam-order-service";
 import { initiatePayment } from "@/api/subscription-service";
 import NotificationBell from "@/components/custom/notification-bell";
 import { PageSkeleton } from "@/components/custom/page-skeleton";
-import { createNavItems, type EnabledFeatures } from "@/config/nav-config";
+import {
+	createNavItems,
+	type EnabledFeatures,
+	filterNavItems,
+	pickBottomNav,
+} from "@/config/nav-config";
 import useAuth from "@/hooks/use-auth";
 import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
 import usePermission from "@/hooks/use-permission";
+import { PERMISSIONS } from "@/lib/constants";
 import { getPageTitle } from "@/lib/page-title";
+import { refreshEnvironment } from "@/lib/refresh-environment";
 import {
 	selectEnvironment,
 	selectSubscriptionExpired,
@@ -49,6 +57,10 @@ export function DashboardLayout() {
 	const navigate = useNavigate();
 	const [paying, setPaying] = useState(false);
 	useNotificationsPoll();
+	// Persisted permissions can predate a deploy: re-read them once per load.
+	useEffect(() => {
+		refreshEnvironment();
+	}, []);
 
 	const handlePay = useCallback(async () => {
 		setPaying(true);
@@ -89,20 +101,38 @@ export function DashboardLayout() {
 
 	const unfilteredNavItems = useMemo(() => createNavItems(textGet), [textGet]);
 	const allNavItems = useMemo(
-		() =>
-			unfilteredNavItems.filter(
-				(item) =>
-					(!item.permission || checkPermission([item.permission])) &&
-					(!item.feature ||
-						(enabledFeatures as Record<string, boolean>)[item.feature] !==
-							false),
-			),
+		() => filterNavItems(unfilteredNavItems, checkPermission, enabledFeatures),
 		[unfilteredNavItems, enabledFeatures, checkPermission],
 	);
 	const pageTitle =
 		getPageTitle(unfilteredNavItems, pathname, textGet) ??
 		textGet("dashboard.title");
-	const navItems = allNavItems.filter((item) => !item.isBottom);
+	const canReviewExams =
+		checkPermission([PERMISSIONS.EXAM_ORDERS.PERMISSION_READ_EXAM_ORDER]) &&
+		checkPermission([PERMISSIONS.EXAM_ORDERS.PERMISSION_REVIEW_EXAM_RESULTS]);
+	const [pendingExamReviews, setPendingExamReviews] = useState(0);
+	// Once per route change, no polling; pathname is the trigger, not an input.
+	useEffect(() => {
+		if (!canReviewExams) {
+			setPendingExamReviews(0);
+			return;
+		}
+		let cancelled = false;
+		getPendingReviewCount().then((n) => {
+			if (!cancelled) setPendingExamReviews(n);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [canReviewExams, pathname]);
+	const withBadges = <T extends { badgeKey?: string }>(items: T[]) =>
+		items.map((item) =>
+			item.badgeKey === "pendingExamReviews"
+				? { ...item, badge: pendingExamReviews }
+				: item,
+		);
+	const navItems = withBadges(allNavItems.filter((item) => !item.isBottom));
+	const bottomNavItems = withBadges(pickBottomNav(allNavItems, textGet));
 	const footerNavItems = [
 		...allNavItems.filter((item) => item.isBottom),
 		{
@@ -121,6 +151,8 @@ export function DashboardLayout() {
 			brand={{ icon: Building2, name: environment?.trade_name }}
 			nav={navItems}
 			footerNav={footerNavItems}
+			matchNested
+			bottomNav={bottomNavItems}
 			title={pageTitle}
 			actions={
 				<>

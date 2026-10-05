@@ -59,6 +59,8 @@ function NowMarker({ minutes }: { minutes: number }) {
 interface TodayAgendaProps {
 	appointments: UpcomingAppointment[];
 	canStartConsultation: boolean;
+	/** The empty state's "schedule" button needs MANAGE_APPOINTMENT. */
+	canSchedule?: boolean;
 	className?: string;
 }
 
@@ -69,6 +71,7 @@ interface TodayAgendaProps {
 export function TodayAgenda({
 	appointments,
 	canStartConsultation,
+	canSchedule = false,
 	className,
 }: TodayAgendaProps) {
 	const { textGet } = useText();
@@ -117,14 +120,16 @@ export function TodayAgenda({
 						<p className="text-sm text-muted-foreground">
 							{textGet("dashboard.agenda.empty_hint")}
 						</p>
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={() => navigate("/clinical/appointments")}
-						>
-							<CalendarPlus className="mr-2 h-4 w-4" />
-							{textGet("dashboard.upcoming.schedule_btn")}
-						</Button>
+						{canSchedule && (
+							<Button
+								size="sm"
+								variant="outline"
+								onClick={() => navigate("/clinical/appointments")}
+							>
+								<CalendarPlus className="mr-2 h-4 w-4" />
+								{textGet("dashboard.upcoming.schedule_btn")}
+							</Button>
+						)}
 					</div>
 				) : (
 					<ol className="relative space-y-1">

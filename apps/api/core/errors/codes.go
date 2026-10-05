@@ -53,6 +53,17 @@ var (
 	ErrClinicalAttachmentSaveError     AppError = NewAppError("E-CLIN-023", "Error saving the attachment.")
 	ErrClinicalAttachmentReadError     AppError = NewAppError("E-CLIN-024", "Error reading the attachment.")
 	ErrClinicalAttachmentRecordPatient AppError = NewAppError("E-CLIN-025", "The consultation belongs to another patient.")
+	ErrClinicalExamCatalogNotFound     AppError = NewAppError("E-CLIN-040", "Exam not found in the catalog.")
+	ErrClinicalExamCatalogError        AppError = NewAppError("E-CLIN-041", "Error saving the exam catalog.")
+	ErrClinicalExamProfileNotFound     AppError = NewAppError("E-CLIN-042", "Exam profile not found.")
+	ErrClinicalExamOrderNotFound       AppError = NewAppError("E-CLIN-043", "Exam order not found.")
+	ErrClinicalExamOrderError          AppError = NewAppError("E-CLIN-044", "Error saving the exam order.")
+	ErrClinicalExamOrderLocked         AppError = NewAppError("E-CLIN-045", "This exam order has results: exams can only be added, or the order voided.")
+	ErrClinicalExamOrderVoided         AppError = NewAppError("E-CLIN-046", "This exam order is voided.")
+	ErrClinicalExamOrderInvalidItems   AppError = NewAppError("E-CLIN-047", "Some exams do not belong to this order or to the catalog.")
+	ErrClinicalExamResultReviewed      AppError = NewAppError("E-CLIN-048", "A result whose exams were reviewed cannot be deleted.")
+	ErrClinicalExamResultMissing       AppError = NewAppError("E-CLIN-049", "Only exams with results can be marked as reviewed.")
+	ErrClinicalExamOrderPDFError       AppError = NewAppError("E-CLIN-050", "Error generating the exam order PDF.")
 
 	// Electronic Signature Errors
 	ErrSignatureInvalidFile    AppError = NewAppError("E-SIGN-001", "Invalid signature file or password.")

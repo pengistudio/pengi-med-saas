@@ -1,13 +1,12 @@
 package user_handlers
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"pengi-med-saas/core/tenantdb"
+	clinical_services "pengi-med-saas/features/clinical/services"
 	"strings"
 	"time"
 
@@ -485,14 +484,13 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 			Name:      req.CompanyName,
 			Slug:      slug,
 			TradeName: req.CompanyName,
-			DisplayToken: func() string {
-				b := make([]byte, 16)
-				rand.Read(b)
-				return hex.EncodeToString(b)
-			}(),
+			DisplayToken: tenant_models.NewDisplayToken(),
 		}
 		if err := tx.Create(&newTenant).Error; err != nil {
 			return fmt.Errorf("tenant: %w", err)
+		}
+		if err := clinical_services.SeedExamCatalog(tx, newTenant.ID); err != nil {
+			return fmt.Errorf("exam catalog: %w", err)
 		}
 
 		// 2. Company

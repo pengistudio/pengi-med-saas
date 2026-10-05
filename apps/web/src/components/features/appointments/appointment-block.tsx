@@ -10,17 +10,20 @@ interface AppointmentBlockProps {
 	appointment: Appointment;
 	onClick: () => void;
 	index?: number;
+	draggable?: boolean;
 }
 
 export function AppointmentBlock({
 	appointment,
 	onClick,
 	index = 0,
+	draggable = true,
 }: AppointmentBlockProps) {
 	const { attributes, listeners, setNodeRef, transform, isDragging } =
 		useDraggable({
 			id: String(appointment.ID),
 			disabled:
+				!draggable ||
 				appointment.status === "cancelled" ||
 				appointment.status === "completed",
 		});

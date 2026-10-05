@@ -18,6 +18,40 @@ _Avoid_: compañía, cliente
 Usuario con un rol en una empresa; solo un miembro puede operar sobre el tenant de esa empresa. En código: `Environment`.
 _Avoid_: environment, entorno
 
+### Clínica
+
+**Consulta**:
+Atención de un paciente por un médico en una fecha, con su motivo, examen físico, diagnósticos y documentos emitidos. En código: `MedicalRecord`.
+_Avoid_: historia (a secas), registro, record
+
+**Orden de examen**:
+Documento con que un médico solicita uno o varios exámenes para un paciente. Pertenece siempre a un paciente y opcionalmente a la consulta en que se emitió; una consulta puede tener varias. Se identifica por un número correlativo por tenant.
+_Avoid_: pedido, solicitud, orden de laboratorio
+
+**Examen**:
+Cada prueba solicitada dentro de una orden de examen (hemograma, radiografía de tórax, electrocardiograma), con su categoría (laboratorio, imagen u otros) e indicaciones para el paciente. Puede venir del catálogo de exámenes o escribirse a mano.
+_Avoid_: prueba, análisis, ítem
+
+**Catálogo de exámenes**:
+Lista de exámenes que un tenant puede solicitar, con su categoría e indicaciones por defecto. Arranca precargada y cada tenant la edita.
+_Avoid_: lista de exámenes, catálogo (a secas, choca con el de facturación)
+
+**Perfil**:
+Conjunto con nombre de exámenes del catálogo que se solicitan juntos (perfil lipídico, prequirúrgico); agregarlo a una orden agrega sus exámenes uno por uno.
+_Avoid_: panel, paquete, combo
+
+**Resultado**:
+Adjunto vinculado a uno o varios exámenes de una misma orden de examen, con la respuesta del laboratorio o del centro de imagen. Un examen con al menos un resultado está **con resultado**.
+_Avoid_: informe de laboratorio, reporte
+
+**Revisión**:
+Constancia de que un médico leyó los resultados de un examen: quién y cuándo. El adjunto de un examen revisado ya no se puede eliminar.
+_Avoid_: aprobación, validación
+
+**Estado de la orden**:
+**Emitida** (ningún examen con resultado), **resultados parciales** (algunos), **resultados completos** (todos, o el médico la cierra así) o **anulada** (con motivo; sigue visible en la historia). Una orden con resultados ya no permite quitar ni cambiar exámenes, solo agregar.
+_Avoid_: pendiente, cerrada, cancelada
+
 ### Facturación electrónica
 
 **Comprobante electrónico**:
@@ -69,7 +103,7 @@ El idioma (`es`/`en`) en que el usuario ve textos, fechas y montos; cambia junto
 _Avoid_: locale (a secas), idioma del navegador
 
 **Documento imprimible**:
-Documento que el sistema genera como PDF a partir de una plantilla: receta, informe médico, certificado médico, RIDE. Cada uno tiene un tamaño de papel fijo y depende de un módulo del plan (clínico o facturación). Un documento ya emitido (RIDE autorizado, documento firmado) no se vuelve a generar al cambiar la plantilla. En código: `pdfrender.Document`.
+Documento que el sistema genera como PDF a partir de una plantilla: receta, orden de examen, informe médico, certificado médico, RIDE. Cada uno tiene un tamaño de papel fijo y depende de un módulo del plan (clínico o facturación). Un documento ya emitido (RIDE autorizado, documento firmado) no se vuelve a generar al cambiar la plantilla. En código: `pdfrender.Document`.
 _Avoid_: reporte, PDF (a secas)
 
 **Plantilla**:

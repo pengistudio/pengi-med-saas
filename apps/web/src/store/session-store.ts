@@ -18,6 +18,9 @@ type SessionState = {
 		permissions: string[];
 		enabled_features?: string;
 	};
+	/** True once the environment came from the API in this page load (not persisted). */
+	permissionsFresh: boolean;
+	setPermissionsFresh: (value: boolean) => void;
 	subscriptionExpired: boolean;
 	setSubscriptionExpired: (value: boolean) => void;
 	subscriptionGraceDaysLeft: number;
@@ -30,6 +33,8 @@ export const useSessionStore = create<SessionState>()(
 	persist(
 		(set) => ({
 			environment: undefined,
+			permissionsFresh: false,
+			setPermissionsFresh: (value: boolean) => set({ permissionsFresh: value }),
 			subscriptionExpired: false,
 			setSubscriptionExpired: (value: boolean) =>
 				set({ subscriptionExpired: value }),
@@ -39,11 +44,13 @@ export const useSessionStore = create<SessionState>()(
 			clean: () =>
 				set({
 					environment: undefined,
+					permissionsFresh: false,
 					subscriptionExpired: false,
 					subscriptionGraceDaysLeft: 0,
 				}),
 			setEnvironment: (env: EnvironmentWithCompany) =>
 				set({
+					permissionsFresh: true,
 					environment: {
 						id: env.ID,
 						name: env.name,
@@ -61,12 +68,21 @@ export const useSessionStore = create<SessionState>()(
 					},
 				}),
 		}),
-		{ name: "session", storage: createJSONStorage(() => localStorage) },
+		{
+			name: "session",
+			storage: createJSONStorage(() => localStorage),
+			partialize: (s) => ({
+				environment: s.environment,
+				subscriptionExpired: s.subscriptionExpired,
+				subscriptionGraceDaysLeft: s.subscriptionGraceDaysLeft,
+			}),
+		},
 	),
 );
 
 // Selectors — pass to useSessionStore(selector) in components
 export const selectEnvironment = (s: SessionState) => s.environment;
+export const selectPermissionsFresh = (s: SessionState) => s.permissionsFresh;
 export const selectSubscriptionExpired = (s: SessionState) =>
 	s.subscriptionExpired;
 export const selectTenantSlug = (s: SessionState) => s.environment?.tenant_slug;

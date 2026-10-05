@@ -28,7 +28,10 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	downloadHandler := clinical_handlers.NewDownloadRecordHandler(db, logger.Log, documentRenderer(), signer, tenantFiles)
 	draftHandler := clinical_handlers.NewMedicalRecordDraftHandler(db, logger.Log)
 	medicalDocumentHandler := clinical_handlers.NewMedicalDocumentHandler(db, logger.Log, mailer.NewMailer(), documentRenderer(), signer, tenantFiles)
-	attachmentHandler := clinical_handlers.NewPatientAttachmentHandler(db, logger.Log, attachmentFiles())
+	attachments := attachmentFiles()
+	attachmentHandler := clinical_handlers.NewPatientAttachmentHandler(db, logger.Log, attachments)
+	examCatalogHandler := clinical_handlers.NewExamCatalogHandler(db, logger.Log)
+	examOrderHandler := clinical_handlers.NewExamOrderHandler(db, logger.Log, mailer.NewMailer(), documentRenderer(), signer, tenantFiles, attachments)
 
 	clinicalGroup := router.Group("/clinical", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db), subscription_middleware.SubscriptionMiddleware(db))
 	{
@@ -78,26 +81,68 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.PUT("/:id/prescription", rp(db, "UPDATE_PRESCRIPTION"), envelope.Handle(recordHandler.UpdatePrescription))
 			recordGroup.GET("/:id/prescription/download", rp(db, "UPDATE_PRESCRIPTION"), downloadHandler.DownloadPrescription)
 			recordGroup.POST("/:id/prescription/sign", rp(db, "UPDATE_PRESCRIPTION"), rp(db, "SIGN_MEDICAL_DOCUMENT"), envelope.Handle(downloadHandler.SignPrescription))
-			recordGroup.PUT("/:id/vital-signs", rp(db, "UPDATE_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.UpsertVitalSigns))
-			recordGroup.GET("/:id/vital-signs", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(vitalSignsHandler.GetVitalSigns))
+			registerVitalSignsRoutes(recordGroup, db, vitalSignsHandler)
 			recordGroup.GET("/draft/:patient_id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(draftHandler.GetDraft))
 			recordGroup.PUT("/draft/:patient_id", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(draftHandler.SaveDraft))
 			recordGroup.DELETE("/draft/:patient_id", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(draftHandler.DeleteDraft))
 		}
 
-		// Appointment routes
-		appointmentGroup := clinicalGroup.Group("/appointments")
+		// Exam catalog and profiles
+		clinicalGroup.GET("/exam-catalog", rp(db, "READ_EXAM_ORDER"), envelope.Handle(examCatalogHandler.GetExamCatalog))
+		clinicalGroup.POST("/exam-catalog", rp(db, "MANAGE_EXAM_CATALOG"), envelope.Handle(examCatalogHandler.CreateExamCatalogItem))
+		clinicalGroup.POST("/exam-catalog/restore-defaults", rp(db, "MANAGE_EXAM_CATALOG"), envelope.Handle(examCatalogHandler.RestoreExamCatalogDefaults))
+		clinicalGroup.PUT("/exam-catalog/:id", rp(db, "MANAGE_EXAM_CATALOG"), envelope.Handle(examCatalogHandler.UpdateExamCatalogItem))
+		clinicalGroup.DELETE("/exam-catalog/:id", rp(db, "MANAGE_EXAM_CATALOG"), envelope.Handle(examCatalogHandler.DeleteExamCatalogItem))
+		clinicalGroup.GET("/exam-profiles", rp(db, "READ_EXAM_ORDER"), envelope.Handle(examCatalogHandler.GetExamProfiles))
+		clinicalGroup.POST("/exam-profiles", rp(db, "MANAGE_EXAM_CATALOG"), envelope.Handle(examCatalogHandler.CreateExamProfile))
+		clinicalGroup.PUT("/exam-profiles/:id", rp(db, "MANAGE_EXAM_CATALOG"), envelope.Handle(examCatalogHandler.UpdateExamProfile))
+		clinicalGroup.DELETE("/exam-profiles/:id", rp(db, "MANAGE_EXAM_CATALOG"), envelope.Handle(examCatalogHandler.DeleteExamProfile))
+
+		// Exam orders, results and review
+		examOrderGroup := clinicalGroup.Group("/exam-orders")
 		{
-			appointmentGroup.GET("", envelope.Handle(appointmentHandler.GetAppointments))
-			appointmentGroup.GET("/today", envelope.Handle(appointmentHandler.GetTodayAppointments))
-			appointmentGroup.GET("/:id", envelope.Handle(appointmentHandler.GetAppointment))
-			appointmentGroup.GET("/patient/:id", envelope.Handle(appointmentHandler.GetPatientAppointments))
-			appointmentGroup.POST("", envelope.Handle(appointmentHandler.CreateAppointment))
-			appointmentGroup.PUT("/:id", envelope.Handle(appointmentHandler.UpdateAppointment))
-			appointmentGroup.PUT("/:id/status", envelope.Handle(appointmentHandler.UpdateStatus))
-			appointmentGroup.DELETE("/:id", envelope.Handle(appointmentHandler.DeleteAppointment))
+			examOrderGroup.GET("", rp(db, "READ_EXAM_ORDER"), envelope.Handle(examOrderHandler.GetExamOrders))
+			examOrderGroup.GET("/:id", rp(db, "READ_EXAM_ORDER"), envelope.Handle(examOrderHandler.GetExamOrder))
+			examOrderGroup.GET("/:id/download", rp(db, "READ_EXAM_ORDER"), examOrderHandler.DownloadExamOrder)
+			examOrderGroup.POST("", rp(db, "CREATE_EXAM_ORDER"), envelope.Handle(examOrderHandler.CreateExamOrder))
+			examOrderGroup.PUT("/:id", rp(db, "CREATE_EXAM_ORDER"), envelope.Handle(examOrderHandler.UpdateExamOrder))
+			examOrderGroup.POST("/:id/void", rp(db, "CREATE_EXAM_ORDER"), envelope.Handle(examOrderHandler.VoidExamOrder))
+			examOrderGroup.POST("/:id/close", rp(db, "CREATE_EXAM_ORDER"), envelope.Handle(examOrderHandler.CloseExamOrder))
+			examOrderGroup.POST("/:id/email", rp(db, "CREATE_EXAM_ORDER"), envelope.Handle(examOrderHandler.EmailExamOrder))
+			examOrderGroup.POST("/:id/sign", rp(db, "CREATE_EXAM_ORDER"), rp(db, "SIGN_MEDICAL_DOCUMENT"), envelope.Handle(examOrderHandler.SignExamOrder))
+			// A result is a patient attachment (Adjunto): uploading one goes through the
+			// attachment upload path; deleting one also needs the attachment delete permission.
+			examOrderGroup.POST("/:id/results", rp(db, "UPLOAD_EXAM_RESULTS"), envelope.Handle(examOrderHandler.UploadExamResult))
+			examOrderGroup.DELETE("/:id/results/:attachmentId", rp(db, "UPLOAD_EXAM_RESULTS"), rp(db, "DELETE_PATIENT_ATTACHMENT"), envelope.Handle(examOrderHandler.DeleteExamResult))
+			examOrderGroup.POST("/:id/review", rp(db, "REVIEW_EXAM_RESULTS"), envelope.Handle(examOrderHandler.ReviewExamResults))
 		}
+
+		registerAppointmentRoutes(clinicalGroup.Group("/appointments"), db, appointmentHandler)
 	}
+}
+
+// registerVitalSignsRoutes mounts a medical record's vital signs. Triage staff
+// record them with RECORD_VITAL_SIGNS without being able to edit the record;
+// the doctor keeps doing it as part of editing the record.
+func registerVitalSignsRoutes(recordGroup *gin.RouterGroup, db *gorm.DB, h *clinical_handlers.VitalSignsHandler) {
+	anyOf := subscription_middleware.RequireAnyPermission
+	recordGroup.PUT("/:id/vital-signs", anyOf(db, "UPDATE_MEDICAL_RECORD", "RECORD_VITAL_SIGNS"), envelope.Handle(h.UpsertVitalSigns))
+	recordGroup.GET("/:id/vital-signs", anyOf(db, "READ_MEDICAL_RECORD", "RECORD_VITAL_SIGNS"), envelope.Handle(h.GetVitalSigns))
+}
+
+// registerAppointmentRoutes mounts the agenda and waiting room: reading needs
+// READ_APPOINTMENT, any change (create, edit, status, delete) MANAGE_APPOINTMENT.
+func registerAppointmentRoutes(group *gin.RouterGroup, db *gorm.DB, h *clinical_handlers.AppointmentHandler) {
+	rp := subscription_middleware.RequirePermission
+	read, manage := rp(db, "READ_APPOINTMENT"), rp(db, "MANAGE_APPOINTMENT")
+	group.GET("", read, envelope.Handle(h.GetAppointments))
+	group.GET("/today", read, envelope.Handle(h.GetTodayAppointments))
+	group.GET("/:id", read, envelope.Handle(h.GetAppointment))
+	group.GET("/patient/:id", read, envelope.Handle(h.GetPatientAppointments))
+	group.POST("", manage, envelope.Handle(h.CreateAppointment))
+	group.PUT("/:id", manage, envelope.Handle(h.UpdateAppointment))
+	group.PUT("/:id/status", manage, envelope.Handle(h.UpdateStatus))
+	group.DELETE("/:id", manage, envelope.Handle(h.DeleteAppointment))
 }
 
 // attachmentFiles is the encrypted store for patient attachments, or nil when

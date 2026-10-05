@@ -66,7 +66,9 @@ func newAttachmentsWithStore(t *testing.T, disk *tenantfiles.MemoryStore, files 
 	t.Helper()
 	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{}, &clinical_models.PatientAttachment{}, &audit.AuditLog{}, &user_models.User{},
 		&company_models.Company{}, &company_models.Plan{}, &company_models.Subscription{},
-		&clinical_models.MedicalRecord{}, &clinical_models.SOAPRecord{}, &clinical_models.Prescription{})
+		&clinical_models.MedicalRecord{}, &clinical_models.SOAPRecord{}, &clinical_models.Prescription{},
+		// Delete and restore check whether the attachment is an exam result.
+		&clinical_models.ExamOrder{}, &clinical_models.ExamOrderItem{})
 	audit.RegisterCallbacks(db)
 	s := &attachments{t: t, db: db, disk: disk}
 	now := time.Now().UnixNano()

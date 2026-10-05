@@ -16,6 +16,7 @@ describe("getPageTitle", () => {
 		expect(title("/subscription")).toBe("subscription.nav.title");
 		expect(title("/settings")).toBe("settings.title");
 		expect(title("/billing")).toBe("dashboard.billing.invoices");
+		expect(title("/clinical/exam-orders/1")).toBe("nav.item.exams");
 	});
 
 	it("prefers the longest matching prefix", () => {

@@ -33,7 +33,9 @@ import {
 } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { useDragSensors } from "@/hooks/use-drag-sensors";
+import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
+import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
 import { AppointmentFormDialog } from "./appointment-form-dialog";
@@ -110,6 +112,12 @@ export default function AppointmentCalendar() {
 	// desktop shows the week.
 	const { isPhone } = useViewport();
 	const [pendingOpen, setPendingOpen] = React.useState(false);
+	// Without MANAGE_APPOINTMENT the agenda is read-only: no create, edit,
+	// drag-to-reschedule or status changes.
+	const { checkPermission } = usePermission();
+	const canManage = checkPermission([
+		PERMISSIONS.APPOINTMENTS.PERMISSION_MANAGE_APPOINTMENT,
+	]);
 
 	const weekStart = React.useMemo(
 		() => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -368,7 +376,7 @@ export default function AppointmentCalendar() {
 	const pendingPanel = (className?: string) => (
 		<PendingFollowUpsPanel
 			refreshKey={pendingRefreshKey}
-			onSchedule={handleScheduleFromSuggestion}
+			onSchedule={canManage ? handleScheduleFromSuggestion : undefined}
 			className={className}
 		/>
 	);
@@ -421,10 +429,12 @@ export default function AppointmentCalendar() {
 							<CalendarClock className="h-4 w-4" />
 						</Button>
 					)}
-					<Button onClick={handleNewAppointment}>
-						<Plus className="mr-2 h-4 w-4" />
-						<Text uuid="appointments.new" />
-					</Button>
+					{canManage && (
+						<Button onClick={handleNewAppointment}>
+							<Plus className="mr-2 h-4 w-4" />
+							<Text uuid="appointments.new" />
+						</Button>
+					)}
 				</div>
 			</div>
 
@@ -575,7 +585,8 @@ export default function AppointmentCalendar() {
 												isPhone &&
 													"translate-x-(--swipe-x) transition-[translate] duration-(--motion-base) ease-spring in-data-swiping:transition-none",
 											)}
-											onSlotClick={handleSlotClick}
+											onSlotClick={canManage ? handleSlotClick : undefined}
+											canReschedule={canManage}
 											onAppointmentClick={(appt) => {
 												setSelectedAppointment(appt);
 												setShowDetailDialog(true);
@@ -609,10 +620,11 @@ export default function AppointmentCalendar() {
 				onOpenChange={setShowDetailDialog}
 				onEdit={handleEditAppointment}
 				onRefresh={fetchAppointments}
+				canManage={canManage}
 			/>
 
 			<AppointmentFormDialog
-				open={showFormDialog}
+				open={canManage && showFormDialog}
 				onOpenChange={setShowFormDialog}
 				appointment={editTarget}
 				defaultDate={createDefaults.date}

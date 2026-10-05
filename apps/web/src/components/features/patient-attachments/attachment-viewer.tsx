@@ -7,7 +7,13 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@pengi/ui";
-import { AlertCircle, Download, Loader2 } from "lucide-react";
+import {
+	AlertCircle,
+	ChevronLeft,
+	ChevronRight,
+	Download,
+	Loader2,
+} from "lucide-react";
 import React from "react";
 import {
 	type PatientAttachment,
@@ -20,6 +26,13 @@ interface AttachmentViewerProps {
 	attachment: PatientAttachment | null;
 	onClose: () => void;
 	onDownload: (attachment: PatientAttachment) => void;
+	/** Steps through a set of files (e.g. an order's results); hidden when absent. */
+	onPrevious?: () => void;
+	onNext?: () => void;
+	/** Shown between the arrows, e.g. "2 / 5". */
+	position?: string;
+	/** Extra context under the file, e.g. the exams it covers. */
+	details?: React.ReactNode;
 }
 
 // pdf.js (and its worker) load only when a PDF is opened.
@@ -40,6 +53,10 @@ export function AttachmentViewer({
 	attachment,
 	onClose,
 	onDownload,
+	onPrevious,
+	onNext,
+	position,
+	details,
 }: AttachmentViewerProps) {
 	const { textGet } = useText();
 	const [state, setState] = React.useState<ViewState>({ status: "loading" });
@@ -117,7 +134,37 @@ export function AttachmentViewer({
 							</React.Suspense>
 						))}
 				</div>
-				<div className="flex justify-end">
+				{details}
+				<div className="flex items-center justify-end gap-2">
+					{(onPrevious || onNext) && (
+						<div className="mr-auto flex items-center gap-1">
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								disabled={!onPrevious}
+								onClick={onPrevious}
+								aria-label={textGet("clinical.attachment.viewer.previous")}
+							>
+								<ChevronLeft className="h-4 w-4" />
+							</Button>
+							{position && (
+								<span className="text-xs text-muted-foreground tabular-nums">
+									{position}
+								</span>
+							)}
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								disabled={!onNext}
+								onClick={onNext}
+								aria-label={textGet("clinical.attachment.viewer.next")}
+							>
+								<ChevronRight className="h-4 w-4" />
+							</Button>
+						</div>
+					)}
 					<Button
 						type="button"
 						variant="outline"

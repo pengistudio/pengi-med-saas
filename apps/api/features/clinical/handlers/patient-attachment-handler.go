@@ -1,11 +1,7 @@
 package clinical_handlers
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
-	"errors"
-	"io"
 	"mime"
 	"net/http"
 	"path/filepath"
@@ -15,7 +11,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -25,7 +20,6 @@ import (
 	"pengi-med-saas/core/tenantdb"
 	"pengi-med-saas/core/tenantfiles"
 	clinical_models "pengi-med-saas/features/clinical/models"
-	company_services "pengi-med-saas/features/companies/services"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 	user_models "pengi-med-saas/features/users/models"
 )
@@ -106,10 +100,12 @@ type AttachmentUsage struct {
 }
 
 // ListedAttachment is an attachment in the list, with the date of the
-// consultation it is linked to (if any) so the list can show it.
+// consultation it is linked to (if any) so the list can show it, and whether
+// it is the result of a reviewed exam (then it can't be deleted).
 type ListedAttachment struct {
 	clinical_models.PatientAttachment
 	MedicalRecordDate *time.Time `json:"medical_record_date,omitempty"`
+	LockedByReview    bool       `json:"locked_by_review"`
 }
 
 // AttachmentList is the list response: the patient's attachments plus the
@@ -119,20 +115,9 @@ type AttachmentList struct {
 	Usage AttachmentUsage    `json:"usage"`
 }
 
-// storageUsage sums the size of every attachment of the tenant — deleted ones
-// too, since their files stay stored until purged — against the quota of its
-// current plan.
+// storageUsage is the tenant's attachment usage against its plan quota.
 func (h *PatientAttachmentHandler) storageUsage(c *gin.Context) (AttachmentUsage, error) {
-	var used int64
-	if err := tenantdb.For(c, h.db).Unscoped().Model(&clinical_models.PatientAttachment{}).
-		Select("COALESCE(SUM(size), 0)").Scan(&used).Error; err != nil {
-		return AttachmentUsage{}, err
-	}
-	quota, err := company_services.StorageQuotaBytes(h.db, tenantdb.TenantID(c))
-	if err != nil {
-		return AttachmentUsage{}, err
-	}
-	return AttachmentUsage{UsedBytes: used, QuotaBytes: quota, Warning: used*5 >= quota*4}, nil
+	return attachmentStorageUsage(c, h.db)
 }
 
 // UploadAttachment stores one file (multipart field "file") with its category,
@@ -142,71 +127,27 @@ func (h *PatientAttachmentHandler) UploadAttachment(c *gin.Context) envelope.Res
 	if h.files == nil {
 		return unavailableAttachments()
 	}
-	// Cap the body before anything reads it: a larger request fails while
-	// parsing instead of being read whole.
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxAttachmentSize+attachmentFormOverhead)
-
 	patient, errResp := h.findPatient(c)
 	if errResp != nil {
 		return *errResp
 	}
-
-	tooLarge := envelope.ErrorResponse(http.StatusRequestEntityTooLarge, "clinical.attachment.too_large", core_errors.ErrClinicalAttachmentTooLarge)
-	if err := c.Request.ParseMultipartForm(1 << 20); err != nil {
-		var maxErr *http.MaxBytesError
-		if errors.As(err, &maxErr) {
-			return tooLarge
-		}
-		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.file.required", core_errors.ErrClinicalInvalidRequest)
-	}
-	defer c.Request.MultipartForm.RemoveAll()
-
-	file, header, err := c.Request.FormFile("file")
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.file.required", core_errors.ErrClinicalInvalidRequest)
-	}
-	defer file.Close()
-	if header.Size > MaxAttachmentSize {
-		return tooLarge
-	}
-	data, err := io.ReadAll(io.LimitReader(file, MaxAttachmentSize+1))
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.file.required", core_errors.ErrClinicalInvalidRequest)
-	}
-	if len(data) > MaxAttachmentSize {
-		return tooLarge
-	}
-	if len(data) == 0 {
-		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.file.required", core_errors.ErrClinicalInvalidRequest)
-	}
-
-	mimeType := http.DetectContentType(data)
-	if !attachmentMimeTypes[mimeType] {
-		return envelope.ErrorResponse(http.StatusUnsupportedMediaType, "clinical.attachment.type.unsupported", core_errors.ErrClinicalAttachmentType)
+	upload, errResp := readAttachmentUpload(c)
+	if errResp != nil {
+		return *errResp
 	}
 
 	category := strings.TrimSpace(c.PostForm("category"))
 	if !clinical_models.IsAttachmentCategory(category) {
 		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.category.invalid", core_errors.ErrClinicalAttachmentCategory)
 	}
-
+	attachment := newPatientAttachment(c, patient.ID, upload)
+	attachment.Category = category
 	// The exam day: today (server time zone, America/Guayaquil) unless given.
-	takenAt := dateOnly(time.Now())
-	if raw := strings.TrimSpace(c.PostForm("taken_at")); raw != "" {
-		parsed, errResp := parseAttachmentTakenAt(raw)
-		if errResp != nil {
-			return *errResp
-		}
-		takenAt = parsed
-	}
-
-	description := strings.TrimSpace(c.PostForm("description"))
-	if errResp := checkAttachmentDescription(description); errResp != nil {
+	if errResp := parseAttachmentMeta(c, &attachment); errResp != nil {
 		return *errResp
 	}
 
 	// Optional consultation to link it to: one of this patient's, in the tenant.
-	var medicalRecordID *uint
 	if raw := strings.TrimSpace(c.PostForm("medical_record_id")); raw != "" {
 		id, err := strconv.ParseUint(raw, 10, 32)
 		if err != nil || id == 0 {
@@ -216,47 +157,17 @@ func (h *PatientAttachmentHandler) UploadAttachment(c *gin.Context) envelope.Res
 			return *errResp
 		}
 		recordID := uint(id)
-		medicalRecordID = &recordID
+		attachment.MedicalRecordID = &recordID
 	}
 
-	// Check-then-insert: two uploads racing at the edge of the quota can both
-	// pass and overshoot it by up to one file each. Accepted, no locking.
-	usage, err := h.storageUsage(c)
-	if err != nil {
-		h.logger.Error("failed to compute attachment storage usage", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	if errResp := checkAttachmentQuota(c, h.db, h.logger, attachment.Size); errResp != nil {
+		return *errResp
 	}
-	if usage.UsedBytes+int64(len(data)) > usage.QuotaBytes {
-		return envelope.ErrorResponse(http.StatusForbidden, "plan.limit.storage", core_errors.ErrPlanStorageQuota)
-	}
-
-	sum := sha256.Sum256(data)
-	hash := hex.EncodeToString(sum[:])
-	duplicate := h.findDuplicate(c, patient.ID, hash)
-	attachment := clinical_models.PatientAttachment{
-		TenantID:        tenantdb.TenantID(c),
-		PatientID:       patient.ID,
-		MedicalRecordID: medicalRecordID,
-		Category:        category,
-		TakenAt:         takenAt,
-		Description:     description,
-		FileName:        attachmentFileName(header.Filename),
-		MimeType:        mimeType,
-		Size:            int64(len(data)),
-		SHA256:          hash,
-		StoredName:      "attachments/" + uuid.NewString(),
-	}
-	if uid, _, ok := auth_middleware.GetUserFromContext(c); ok {
-		attachment.UploadedByID = uint(uid)
-	}
-
-	if err := h.files.Write(attachment.TenantID, attachment.StoredName, data); err != nil {
-		h.logger.Error("failed to store patient attachment", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.attachment.upload.error", core_errors.ErrClinicalAttachmentSaveError)
-	}
-	if err := tenantdb.For(c, h.db).Create(&attachment).Error; err != nil {
-		h.logger.Error("failed to create patient attachment", zap.Error(err))
-		_ = h.files.Remove(attachment.TenantID, attachment.StoredName)
+	duplicate := findAttachmentDuplicate(c, h.db, h.logger, patient.ID, attachment.SHA256)
+	if err := storeAttachment(h.files, &attachment, upload.Data, func() error {
+		return tenantdb.For(c, h.db).Create(&attachment).Error
+	}); err != nil {
+		h.logger.Error("failed to save patient attachment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.attachment.upload.error", core_errors.ErrClinicalAttachmentSaveError)
 	}
 
@@ -277,20 +188,6 @@ type AttachmentDuplicate struct {
 type uploadedAttachment struct {
 	clinical_models.PatientAttachment
 	DuplicateOf *AttachmentDuplicate `json:"duplicate_of,omitempty"`
-}
-
-// findDuplicate looks for the oldest live attachment of the patient (within the
-// tenant) with the given hash. A deleted original does not count.
-func (h *PatientAttachmentHandler) findDuplicate(c *gin.Context, patientID uint, sha string) *AttachmentDuplicate {
-	var original clinical_models.PatientAttachment
-	err := tenantdb.For(c, h.db).Where("patient_id = ? AND sha256 = ?", patientID, sha).Order("id ASC").First(&original).Error
-	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			h.logger.Warn("failed to check duplicate attachment", zap.Error(err))
-		}
-		return nil
-	}
-	return &AttachmentDuplicate{ID: original.ID, FileName: original.FileName, CreatedAt: original.CreatedAt}
 }
 
 func parseAttachmentTakenAt(raw string) (time.Time, *envelope.Response) {
@@ -492,7 +389,30 @@ func (h *PatientAttachmentHandler) ListAttachments(c *gin.Context) envelope.Resp
 	return envelope.SuccessResponse(AttachmentList{Items: items, Usage: usage}, "clinical.attachment.list.success")
 }
 
-// withRecordDates adds the date of each linked consultation, in one query.
+// reviewedAttachmentIDs reports which of the attachments cover a reviewed
+// exam, in one query (db must be tenant-bound).
+func reviewedAttachmentIDs(db *gorm.DB, attachments []clinical_models.PatientAttachment) (map[uint]bool, error) {
+	locked := map[uint]bool{}
+	if len(attachments) == 0 {
+		return locked, nil
+	}
+	ids := make([]uint, 0, len(attachments))
+	for _, a := range attachments {
+		ids = append(ids, a.ID)
+	}
+	var reviewed []uint
+	err := db.Model(&clinical_models.ExamOrderItem{}).
+		Joins("JOIN exam_order_item_attachments l ON l.exam_order_item_id = exam_order_items.id").
+		Where("l.patient_attachment_id IN ? AND exam_order_items.reviewed_at IS NOT NULL", ids).
+		Distinct().Pluck("l.patient_attachment_id", &reviewed).Error
+	for _, id := range reviewed {
+		locked[id] = true
+	}
+	return locked, err
+}
+
+// withRecordDates adds the date of each linked consultation, in one query,
+// and whether each attachment is locked by a reviewed exam.
 func (h *PatientAttachmentHandler) withRecordDates(c *gin.Context, attachments []clinical_models.PatientAttachment) ([]ListedAttachment, error) {
 	var ids []uint
 	for _, a := range attachments {
@@ -510,9 +430,13 @@ func (h *PatientAttachmentHandler) withRecordDates(c *gin.Context, attachments [
 			dates[r.ID] = r.Date
 		}
 	}
+	locked, err := reviewedAttachmentIDs(tenantdb.For(c, h.db), attachments)
+	if err != nil {
+		return nil, err
+	}
 	items := make([]ListedAttachment, 0, len(attachments))
 	for _, a := range attachments {
-		item := ListedAttachment{PatientAttachment: a}
+		item := ListedAttachment{PatientAttachment: a, LockedByReview: locked[a.ID]}
 		if a.MedicalRecordID != nil {
 			if date, ok := dates[*a.MedicalRecordID]; ok {
 				item.MedicalRecordDate = &date
@@ -607,16 +531,9 @@ func (h *PatientAttachmentHandler) DeleteAttachment(c *gin.Context) envelope.Res
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
-	var req deleteAttachmentRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.delete.reason.required", core_errors.ErrClinicalInvalidRequest)
-	}
-	reason := strings.TrimSpace(req.Reason)
-	if reason == "" {
-		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.delete.reason.required", core_errors.ErrClinicalInvalidRequest)
-	}
-	if utf8.RuneCountInString(reason) > attachmentDeleteReasonMax {
-		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.attachment.delete.reason.too_long", core_errors.ErrClinicalInvalidRequest)
+	reason, errResp := attachmentDeleteReason(c)
+	if errResp != nil {
+		return *errResp
 	}
 
 	db := tenantdb.For(c, h.db)
@@ -624,11 +541,23 @@ func (h *PatientAttachmentHandler) DeleteAttachment(c *gin.Context) envelope.Res
 	if err := db.Where("patient_id = ?", patient.ID).First(&attachment, attachmentID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAttachmentNotFound)
 	}
-	updates := map[string]interface{}{"deleted_at": time.Now(), "delete_reason": reason}
-	if uid, _, ok := auth_middleware.GetUserFromContext(c); ok {
-		updates["deleted_by_id"] = uint(uid)
+	// An exam result whose exams were reviewed stays (same rule as the exam
+	// order's result delete).
+	reviewed, err := attachmentReviewed(db, attachment.ID)
+	if err != nil {
+		h.logger.Error("failed to check reviewed exam results", zap.Uint("id", attachment.ID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.attachment.delete.error", core_errors.ErrClinicalAttachmentSaveError)
 	}
-	if err := db.Model(&attachment).Updates(updates).Error; err != nil {
+	if reviewed {
+		return reviewedResultResponse()
+	}
+	var userID uint
+	if uid, _, ok := auth_middleware.GetUserFromContext(c); ok {
+		userID = uint(uid)
+	}
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		return softDeleteAttachment(tx, &attachment, reason, userID)
+	}); err != nil {
 		h.logger.Error("failed to delete patient attachment", zap.Uint("id", attachment.ID), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.attachment.delete.error", core_errors.ErrClinicalAttachmentSaveError)
 	}
@@ -704,7 +633,14 @@ func (h *PatientAttachmentHandler) RestoreAttachment(c *gin.Context) envelope.Re
 	if err := tenantdb.For(c, h.db).Unscoped().Where("patient_id = ? AND deleted_at IS NOT NULL", patient.ID).First(&attachment, attachmentID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAttachmentNotFound)
 	}
-	if err := tenantdb.For(c, h.db).Unscoped().Model(&attachment).Updates(map[string]interface{}{"deleted_at": nil, "deleted_by_id": nil, "delete_reason": ""}).Error; err != nil {
+	// Restoring an exam result brings its exams' results back: recompute the
+	// status of its orders in the same transaction.
+	if err := tenantdb.For(c, h.db).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Unscoped().Model(&attachment).Updates(map[string]interface{}{"deleted_at": nil, "deleted_by_id": nil, "delete_reason": ""}).Error; err != nil {
+			return err
+		}
+		return refreshOrdersOfAttachment(tx, attachment.ID)
+	}); err != nil {
 		h.logger.Error("failed to restore patient attachment", zap.Uint("id", attachment.ID), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.attachment.delete.error", core_errors.ErrClinicalAttachmentSaveError)
 	}

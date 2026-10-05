@@ -14,6 +14,7 @@ import (
 
 var catalog = []pdfrender.Document{
 	clinical_templates.Prescription,
+	clinical_templates.ExamOrder,
 	clinical_templates.Report,
 	clinical_templates.Certificate,
 	billing_templates.InvoiceRide,

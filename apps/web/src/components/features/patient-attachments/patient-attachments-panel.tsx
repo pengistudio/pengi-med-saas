@@ -18,6 +18,10 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
 } from "@pengi/ui";
 import {
 	ArchiveRestore,
@@ -468,17 +472,43 @@ export function PatientAttachmentsPanel({
 											<Pencil className="h-4 w-4" />
 										</Button>
 									)}
-									{canDelete && (
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											aria-label={textGet("clinical.attachment.delete")}
-											onClick={() => setDeleting(attachment)}
-										>
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									)}
+									{canDelete &&
+										(attachment.locked_by_review ? (
+											<TooltipProvider>
+												<Tooltip>
+													<TooltipTrigger
+														render={<span className="inline-flex" />}
+													>
+														<Button
+															type="button"
+															variant="ghost"
+															size="icon"
+															disabled
+															aria-label={textGet(
+																"clinical.attachment.delete.locked_by_review",
+															)}
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
+													</TooltipTrigger>
+													<TooltipContent>
+														{textGet(
+															"clinical.attachment.delete.locked_by_review",
+														)}
+													</TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										) : (
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												aria-label={textGet("clinical.attachment.delete")}
+												onClick={() => setDeleting(attachment)}
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										))}
 									<Button
 										type="button"
 										variant="ghost"

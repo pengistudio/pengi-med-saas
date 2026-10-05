@@ -29,6 +29,8 @@ export interface PatientAttachment extends BaseModel {
 	medical_record_id?: number | null;
 	/** Date of the linked consultation; only set by the list. */
 	medical_record_date?: string | null;
+	/** Result of a reviewed exam: it can't be deleted. Only set by the list. */
+	locked_by_review?: boolean;
 	category: AttachmentCategory;
 	/** Exam day, a calendar date ("2026-03-15T00:00:00Z"). */
 	taken_at: string;

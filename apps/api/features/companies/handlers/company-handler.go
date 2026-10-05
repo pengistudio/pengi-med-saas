@@ -1,8 +1,6 @@
 package company_handlers
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -266,11 +264,7 @@ func (h *CompanyHandler) CreateAdditionalCompany(c *gin.Context) envelope.Respon
 			Name:      req.CompanyName,
 			Slug:      slug,
 			TradeName: req.CompanyName,
-			DisplayToken: func() string {
-				b := make([]byte, 16)
-				rand.Read(b)
-				return hex.EncodeToString(b)
-			}(),
+			DisplayToken: tenant_models.NewDisplayToken(),
 		}
 		if err := tx.Create(&newTenant).Error; err != nil {
 			return fmt.Errorf("tenant: %w", err)

@@ -16,7 +16,7 @@ import (
 	"pengi-med-saas/testutils"
 )
 
-var pairingCodeRe = regexp.MustCompile(`^\d{8}$`)
+var displayTokenRe = regexp.MustCompile(`^[A-Za-z0-9_-]{32}$`)
 
 // createDisplayTenant creates a tenant whose display token is token (a unique
 // placeholder is used when token is empty, then cleared, to respect the unique index).
@@ -38,8 +38,12 @@ func createDisplayTenant(t *testing.T, h *TenantHandler, token string) tenant_mo
 	return tenant
 }
 
+// testFrontendURL is the FRONTEND_URL every display handler test runs with.
+const testFrontendURL = "https://app.example.com"
+
 func newDisplayHandler(t *testing.T) *TenantHandler {
 	t.Helper()
+	t.Setenv("FRONTEND_URL", testFrontendURL)
 	db := testutils.SetupTestDB(t, &tenant_models.Tenant{})
 	return NewTenantHandler(db, zap.NewNop(), tenantfiles.Disk(t.TempDir()))
 }
@@ -56,6 +60,9 @@ func getDisplayToken(t *testing.T, h *TenantHandler, tenantID uint) string {
 		t.Fatalf("unexpected data %T", resp.Data)
 	}
 	token, _ := data["token"].(string)
+	if want := testFrontendURL + "/display/waiting-room?token=" + token; data["display_url"] != want {
+		t.Fatalf("display_url = %v, want %q", data["display_url"], want)
+	}
 	return token
 }
 
@@ -69,7 +76,7 @@ func storedDisplayToken(t *testing.T, h *TenantHandler, tenantID uint) string {
 }
 
 func uniqueCode() string {
-	return fmt.Sprintf("%08d", time.Now().UnixNano()%100_000_000)
+	return tenant_models.NewDisplayToken()
 }
 
 func TestGetDisplayToken_ReturnsExistingCodeUnchanged(t *testing.T) {
@@ -94,8 +101,8 @@ func TestGetDisplayToken_CreatesCodeWhenMissing(t *testing.T) {
 		token string
 	}{
 		{"empty", ""},
-		// Signup stores a random 32-hex placeholder that can't be typed on the TV.
-		{"signup placeholder", fmt.Sprintf("%032x", time.Now().UnixNano())},
+		// Old 8-digit pairing codes were guessable: they are replaced, not served.
+		{"legacy 8-digit code", fmt.Sprintf("%08d", time.Now().UnixNano()%100_000_000)},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -103,8 +110,8 @@ func TestGetDisplayToken_CreatesCodeWhenMissing(t *testing.T) {
 			tenant := createDisplayTenant(t, h, tc.token)
 
 			got := getDisplayToken(t, h, tenant.ID)
-			if !pairingCodeRe.MatchString(got) {
-				t.Fatalf("token = %q, want an 8-digit code", got)
+			if !displayTokenRe.MatchString(got) {
+				t.Fatalf("token = %q, want a 32-char base64url token", got)
 			}
 			if stored := storedDisplayToken(t, h, tenant.ID); stored != got {
 				t.Fatalf("stored token = %q, want %q", stored, got)
@@ -126,8 +133,8 @@ func TestGetDisplayToken_TenantIsolation(t *testing.T) {
 		t.Fatalf("tenant A token = %q, want %q", got, codeA)
 	}
 	gotB := getDisplayToken(t, h, tenantB.ID)
-	if gotB == codeA || !pairingCodeRe.MatchString(gotB) {
-		t.Fatalf("tenant B token = %q, want its own 8-digit code", gotB)
+	if gotB == codeA || !displayTokenRe.MatchString(gotB) {
+		t.Fatalf("tenant B token = %q, want its own token", gotB)
 	}
 	if stored := storedDisplayToken(t, h, tenantA.ID); stored != codeA {
 		t.Fatalf("tenant A token changed to %q after tenant B read", stored)
@@ -140,5 +147,16 @@ func TestGetDisplayToken_WithoutTenant(t *testing.T) {
 	delete(c.Keys, "tenant_id")
 	if resp := h.GetDisplayToken(c); resp.Code != http.StatusUnauthorized {
 		t.Fatalf("code = %d, want 401", resp.Code)
+	}
+}
+
+func TestGetDisplayToken_FailsWithoutFrontendURL(t *testing.T) {
+	h := newDisplayHandler(t)
+	t.Setenv("FRONTEND_URL", "not a url")
+	tenant := createDisplayTenant(t, h, uniqueCode())
+
+	c, _ := testutils.NewGinContext(tenant.ID, 1)
+	if resp := h.GetDisplayToken(c); resp.Code != http.StatusInternalServerError {
+		t.Fatalf("code = %d, want 500", resp.Code)
 	}
 }

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orden de exámenes {{.Code}} - {{.TradeName}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 15mm;
+        }
+
+        body {
+            font-family: "Times New Roman", Times, Georgia, serif;
+            font-size: 10.5pt;
+            line-height: 1.45;
+            color: #000;
+            background: #fff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+        }
+
+        .header-title {
+            font-size: 15pt;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-date {
+            font-size: 10pt;
+            color: #444;
+            text-align: right;
+        }
+
+        .document-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+
+        .document-title h1 {
+            font-size: 14pt;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .order-code {
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        .urgent {
+            display: inline-block;
+            border: 1.5px solid #000;
+            padding: 0 6px;
+            margin-left: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .field-label {
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        .patient-info {
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999;
+            padding: 8px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px 20px;
+            margin-bottom: 12px;
+        }
+
+        .field-block {
+            margin-bottom: 10px;
+        }
+
+        .field-value {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .category {
+            margin-top: 12px;
+            page-break-inside: auto;
+        }
+
+        .category-title {
+            font-size: 11.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2px;
+            margin-bottom: 6px;
+        }
+
+        .subgroup {
+            margin-bottom: 6px;
+            page-break-inside: avoid;
+        }
+
+        .subgroup-title {
+            font-weight: bold;
+            font-style: italic;
+            margin-bottom: 2px;
+        }
+
+        .exam {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 1px 0 1px 4px;
+        }
+
+        .box {
+            flex: none;
+            width: 11px;
+            height: 11px;
+            margin-top: 3px;
+            border: 1px solid #000;
+            position: relative;
+        }
+
+        .box::before,
+        .box::after {
+            content: "";
+            position: absolute;
+            left: 4px;
+            top: -1px;
+            width: 1px;
+            height: 11px;
+            background: #000;
+        }
+
+        .box::before {
+            transform: rotate(45deg);
+        }
+
+        .box::after {
+            transform: rotate(-45deg);
+        }
+
+        .exam-indications {
+            font-size: 9pt;
+            color: #333;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            text-align: center;
+            width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            page-break-inside: avoid;
+        }
+
+        .signature-box {
+            height: 100px;
+        }
+
+        .e-signature {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: left;
+            margin-bottom: 6px;
+        }
+
+        .e-signature-qr {
+            width: 90px;
+            height: 90px;
+        }
+
+        .e-signature-label {
+            font-size: 8pt;
+        }
+
+        .e-signature-name {
+            font-size: 10pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .e-signature-meta {
+            font-size: 8pt;
+            color: #444;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .signature-text {
+            font-size: 10pt;
+            font-weight: bold;
+        }
+
+        .signature-caption {
+            font-size: 8pt;
+            color: #444;
+            margin-top: 2px;
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            padding-top: 6px;
+            border-top: 1px solid #999;
+            font-size: 8pt;
+            color: #444;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-title">{{.TradeName}}</div>
+        <div class="header-date">Fecha de emisión: {{.Date}}</div>
+    </div>
+
+    <div class="document-title">
+        <h1>Orden de exámenes{{if .Urgent}}<span class="urgent">{{.Priority}}</span>{{end}}</h1>
+        <div class="order-code">N.º {{.Code}}</div>
+    </div>
+
+    <div class="patient-info">
+        <div><span class="field-label">Paciente:</span>{{.PatientName}}</div>
+        <div><span class="field-label">Cédula:</span>{{.PatientDocument}}</div>
+        <div><span class="field-label">Edad:</span>{{.PatientAge}} años</div>
+        <div><span class="field-label">Teléfono:</span>{{.PatientPhone}}</div>
+    </div>
+
+    {{if .Diagnoses}}
+    <div class="field-block">
+        <span class="field-label">Diagnóstico presuntivo:</span>
+        {{range $i, $d := .Diagnoses}}{{if $i}}; {{end}}{{$d.Code}} {{$d.Title}}{{end}}
+    </div>
+    {{end}}
+
+    {{if .DestinationLab}}
+    <div class="field-block">
+        <span class="field-label">Laboratorio / centro de destino:</span>{{.DestinationLab}}
+    </div>
+    {{end}}
+
+    {{range .Groups}}
+    <div class="category">
+        <div class="category-title">{{.Category}}</div>
+        {{range .Subgroups}}
+        <div class="subgroup">
+            {{if .Name}}<div class="subgroup-title">{{.Name}}</div>{{end}}
+            {{range .Exams}}
+            <div class="exam">
+                <span class="box"></span>
+                <div>
+                    <div>{{.Name}}</div>
+                    {{if .Indications}}<div class="exam-indications">{{.Indications}}</div>{{end}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+
+    {{if .Notes}}
+    <div class="field-block" style="margin-top: 14px;">
+        <span class="field-label">Observaciones:</span>
+        <div class="field-value">{{.Notes}}</div>
+    </div>
+    {{end}}
+
+    <div class="signature-section">
+        {{if .Signature}}
+        <div class="e-signature">
+            <img class="e-signature-qr" src="{{.Signature.QR}}" alt="">
+            <div>
+                <div class="e-signature-label">Firmado electrónicamente por:</div>
+                <div class="e-signature-name">{{.Signature.Name}}</div>
+                <div class="e-signature-meta">{{.Signature.SignedAt}}</div>
+                {{range .Signature.Lines}}<div class="e-signature-meta">{{.}}</div>{{end}}
+            </div>
+        </div>
+        {{else}}<div class="signature-box"></div>{{end}}
+        <div class="signature-line"></div>
+        <div class="signature-text">Dr(a). {{.DoctorName}}</div>
+        <div class="signature-caption">Firma y sello</div>
+    </div>
+
+    <div class="footer-note">Este documento es confidencial y de uso exclusivo médico. Orden {{.Code}} generada el {{.Date}}.</div>
+</body>
+
+</html>

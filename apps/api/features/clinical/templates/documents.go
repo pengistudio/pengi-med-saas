@@ -42,6 +42,16 @@ var (
 		Variants: []any{sampleCertificate(nil), CertificateData{}},
 		Required: signatureRequired,
 	}
+	ExamOrder = pdfrender.Document{
+		ID:       "exam_order",
+		File:     "exam_order_template.html",
+		Defaults: FS,
+		Paper:    utils.A4Portrait,
+		Feature:  "clinical",
+		Sample:   sampleExamOrder(sampleSignature),
+		Variants: []any{sampleExamOrder(nil), ExamOrderData{}},
+		Required: signatureRequired,
+	}
 )
 
 // sampleSignature is a stamp like the one a signed document carries.
@@ -159,5 +169,41 @@ func sampleCertificate(signature *pdfsign.Stamp) CertificateData {
 		Observations:    "El paciente requiere reposo domiciliario y no debe realizar actividad laboral durante el periodo indicado.",
 		RestText:        "Del 15/09/2026 al 17/09/2026 (3 día(s))",
 		Signature:       signature,
+	}
+}
+
+func sampleExamOrder(signature *pdfsign.Stamp) ExamOrderData {
+	return ExamOrderData{
+		TradeName:       "Consultorio Médico Andrade",
+		DoctorName:      "María Fernanda Andrade López",
+		Date:            "15/09/2026",
+		Code:            "ORD-000123",
+		PatientName:     "Juan Carlos Pérez Mora",
+		PatientDocument: "1712345678",
+		PatientAge:      42,
+		PatientPhone:    "0991234567",
+		Urgent:          true,
+		Priority:        "Urgente",
+		Diagnoses:       []clinical_models.DiagnosisItem{{Code: "E11.9", Title: "Diabetes mellitus tipo 2, sin complicaciones"}},
+		DestinationLab:  "Laboratorio Clínico Pasteur",
+		Notes:           "Paciente con control trimestral. Traer resultados a la próxima consulta.",
+		Groups: []ExamOrderGroup{
+			{Category: "Laboratorio", Subgroups: []ExamOrderSubgroup{
+				{Name: "Hematología", Exams: []ExamOrderExam{{Name: "Biometría hemática completa"}}},
+				{Name: "Química sanguínea", Exams: []ExamOrderExam{
+					{Name: "Glucosa en ayunas", Indications: "Ayuno de 8 horas."},
+					{Name: "Hemoglobina glicosilada (HbA1c)"},
+					{Name: "Colesterol total", Indications: "Ayuno de 12 horas."},
+				}},
+				{Name: "Orina", Exams: []ExamOrderExam{{Name: "Microalbuminuria", Indications: "Primera orina de la mañana."}}},
+			}},
+			{Category: "Imagen", Subgroups: []ExamOrderSubgroup{
+				{Name: "Ecografía", Exams: []ExamOrderExam{{Name: "Ecografía abdominal", Indications: "Ayuno de 8 horas."}}},
+			}},
+			{Category: "Otros", Subgroups: []ExamOrderSubgroup{
+				{Exams: []ExamOrderExam{{Name: "Electrocardiograma"}}},
+			}},
+		},
+		Signature: signature,
 	}
 }

@@ -90,7 +90,9 @@ function createText(lang: SupportedLocale, messages: Record<string, string>) {
 			new Intl.NumberFormat(locale, {
 				style: "unit",
 				unit,
-				unitDisplay: "short",
+				// "short" bytes read "685 byte" in es and en; "long" pluralizes
+				// ("1 byte", "685 bytes"). The other units keep "kB", "MB"...
+				unitDisplay: unit === "byte" ? "long" : "short",
 				maximumFractionDigits: 1,
 			}),
 		]),
@@ -150,7 +152,7 @@ function createText(lang: SupportedLocale, messages: Record<string, string>) {
 			: "";
 
 	/**
-	 * A file size in bytes: "850 byte", "12,4 kB", "3.2 MB", "10 GB"
+	 * A file size in bytes: "850 bytes", "12,4 kB", "3.2 MB", "10 GB"
 	 * (1 kB = 1024 bytes).
 	 */
 	const formatFileSize = (bytes: number | null | undefined) => {

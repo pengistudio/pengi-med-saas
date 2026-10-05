@@ -27,6 +27,8 @@ export interface AppointmentDetailDialogProps {
 	onOpenChange: (open: boolean) => void;
 	onEdit: (appointment: Appointment) => void;
 	onRefresh: () => void;
+	/** Edit, complete, cancel and delete need MANAGE_APPOINTMENT. */
+	canManage: boolean;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -37,6 +39,7 @@ export function AppointmentDetailDialog({
 	onOpenChange,
 	onEdit,
 	onRefresh,
+	canManage,
 }: AppointmentDetailDialogProps) {
 	const [loading, setLoading] = React.useState(false);
 	const { textGet, formatDate } = useText();
@@ -129,41 +132,55 @@ export function AppointmentDetailDialog({
 				</div>
 
 				{/* Actions */}
-				<DialogFooter className="flex-col sm:flex-row flex-wrap gap-2 pt-2">
-					{appointment.status === "scheduled" && (
-						<>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => {
-									onOpenChange(false);
-									onEdit(appointment);
-								}}
-								disabled={loading}
-							>
-								<Edit className="mr-2 h-4 w-4" />
-								{textGet("appointments.action.edit")}
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-								onClick={handleComplete}
-								disabled={loading}
-							>
-								<Check className="mr-2 h-4 w-4" />
-								{textGet("appointments.action.complete")}
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-								onClick={handleCancel}
-								disabled={loading}
-							>
-								<Ban className="mr-2 h-4 w-4" />
-								{textGet("appointments.action.cancel")}
-							</Button>
+				{canManage && (
+					<DialogFooter className="flex-col sm:flex-row flex-wrap gap-2 pt-2">
+						{appointment.status === "scheduled" && (
+							<>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => {
+										onOpenChange(false);
+										onEdit(appointment);
+									}}
+									disabled={loading}
+								>
+									<Edit className="mr-2 h-4 w-4" />
+									{textGet("appointments.action.edit")}
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+									onClick={handleComplete}
+									disabled={loading}
+								>
+									<Check className="mr-2 h-4 w-4" />
+									{textGet("appointments.action.complete")}
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+									onClick={handleCancel}
+									disabled={loading}
+								>
+									<Ban className="mr-2 h-4 w-4" />
+									{textGet("appointments.action.cancel")}
+								</Button>
+								<Button
+									variant="destructive"
+									size="sm"
+									onClick={handleDelete}
+									disabled={loading}
+								>
+									<Trash2 className="mr-2 h-4 w-4" />
+									{textGet("appointments.action.delete")}
+								</Button>
+							</>
+						)}
+						{(appointment.status === "cancelled" ||
+							appointment.status === "completed") && (
 							<Button
 								variant="destructive"
 								size="sm"
@@ -173,21 +190,9 @@ export function AppointmentDetailDialog({
 								<Trash2 className="mr-2 h-4 w-4" />
 								{textGet("appointments.action.delete")}
 							</Button>
-						</>
-					)}
-					{(appointment.status === "cancelled" ||
-						appointment.status === "completed") && (
-						<Button
-							variant="destructive"
-							size="sm"
-							onClick={handleDelete}
-							disabled={loading}
-						>
-							<Trash2 className="mr-2 h-4 w-4" />
-							{textGet("appointments.action.delete")}
-						</Button>
-					)}
-				</DialogFooter>
+						)}
+					</DialogFooter>
+				)}
 			</DialogContent>
 		</Dialog>
 	);

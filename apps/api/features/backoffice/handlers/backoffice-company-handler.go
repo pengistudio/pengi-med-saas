@@ -8,6 +8,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
+	clinical_services "pengi-med-saas/features/clinical/services"
 	company_models "pengi-med-saas/features/companies/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
@@ -101,6 +102,9 @@ func (h *BackofficeCompanyHandler) CreateCompany(c *gin.Context) envelope.Respon
 		}
 		if err := tx.Create(&tenant).Error; err != nil {
 			return fmt.Errorf("failed to create tenant: %w", err)
+		}
+		if err := clinical_services.SeedExamCatalog(tx, tenant.ID); err != nil {
+			return fmt.Errorf("failed to seed exam catalog: %w", err)
 		}
 
 		// 2. Create Company

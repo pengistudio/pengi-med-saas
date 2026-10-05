@@ -1,13 +1,18 @@
 package routes
 
 import (
+	"time"
+
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
+	core_middleware "pengi-med-saas/core/middleware"
+	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	tenant_handlers "pengi-med-saas/features/tenants/handlers"
 	tenant_middleware "pengi-med-saas/features/tenants/middleware"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 )
 
@@ -24,10 +29,19 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	tenantGroup.GET("/settings", envelope.Handle(tenantHandler.GetUISettings))
 	tenantGroup.PUT("/settings", envelope.Handle(tenantHandler.UpdateUISettings))
 	tenantGroup.GET("/features", envelope.Handle(tenantHandler.GetEnabledFeatures))
-	tenantGroup.GET("/display-token", envelope.Handle(tenantHandler.GetDisplayToken))
-	tenantGroup.POST("/display-token", envelope.Handle(tenantHandler.GenerateDisplayToken))
 
-	// Public — no auth required, validated via display token
+	// The display token is the credential of the public waiting-room TV, so
+	// viewing or rotating it is account administration: the role must manage
+	// team members (admin). Role-only, like the team routes: not a plan feature.
+	manageDisplay := subscription_middleware.RequireRolePermission(db, "MANAGE_TEAM_MEMBERS")
+	tenantGroup.GET("/display-token", manageDisplay, envelope.Handle(tenantHandler.GetDisplayToken))
+	tenantGroup.POST("/display-token", manageDisplay, envelope.Handle(tenantHandler.GenerateDisplayToken))
+	// PNG QR of the TV link (FRONTEND_URL base), streamed: errors via envelope.Write.
+	tenantGroup.GET("/display-token/qr", manageDisplay, tenantHandler.GetDisplayTokenQR)
+
+	// Public — no auth required, validated via display token. 60 requests/min
+	// per IP (burst 60): a TV polls every 15 s, a token guesser gets nowhere.
+	displayLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/60), 60)
 	publicGroup := router.Group("/public")
-	publicGroup.GET("/appointments/today", envelope.Handle(tenantHandler.GetTodayAppointmentsPublic))
+	publicGroup.GET("/appointments/today", displayLimiter.Middleware(), envelope.Handle(tenantHandler.GetTodayAppointmentsPublic))
 }

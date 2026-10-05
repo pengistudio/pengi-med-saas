@@ -1,63 +1,80 @@
+import { useText } from "@pengi/shared";
 import { Button, Input } from "@pengi/ui";
 import { Monitor } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 
+/** A display token: 32 base64url characters (see tenant_models.NewDisplayToken). */
+const DISPLAY_TOKEN_RE = /^[A-Za-z0-9_-]{32}$/;
+
+/** Takes the pasted waiting-room link (or the bare token) and returns the token. */
+export function extractDisplayToken(input: string): string | null {
+	const value = input.trim();
+	if (DISPLAY_TOKEN_RE.test(value)) return value;
+	try {
+		const token = new URL(value).searchParams.get("token") ?? "";
+		return DISPLAY_TOKEN_RE.test(token) ? token : null;
+	} catch {
+		return null;
+	}
+}
+
 const PairDisplayPage = () => {
+	const { textGet } = useText();
 	const navigate = useNavigate();
-	const [code, setCode] = React.useState("");
+	const [value, setValue] = React.useState("");
 	const [error, setError] = React.useState(false);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value.replace(/\D/g, "").slice(0, 8);
-		setCode(value);
+		setValue(e.target.value);
 		setError(false);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (code.length !== 8) {
+		const token = extractDisplayToken(value);
+		if (!token) {
 			setError(true);
 			return;
 		}
-		navigate(`/display/waiting-room?token=${code}`);
+		navigate(`/display/waiting-room?token=${encodeURIComponent(token)}`);
 	};
 
 	return (
 		<div className="min-h-screen bg-background flex items-center justify-center p-6">
-			<div className="w-full max-w-sm space-y-8 text-center">
+			<div className="w-full max-w-md space-y-8 text-center">
 				<div className="flex flex-col items-center gap-3">
 					<div className="rounded-full bg-primary/10 p-3">
 						<Monitor className="h-7 w-7 text-primary" />
 					</div>
-					<h1 className="text-xl font-bold">Conectar pantalla</h1>
+					<h1 className="text-xl font-bold">{textGet("display.pair.title")}</h1>
 					<p className="text-muted-foreground text-sm">
-						Ingresa el código de 8 dígitos que aparece en la aplicación
+						{textGet("display.pair.hint")}
 					</p>
 				</div>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<Input
-						value={code}
+						value={value}
 						onChange={handleChange}
-						placeholder="00000000"
-						inputMode="numeric"
-						maxLength={8}
-						className={`text-center text-xl font-mono tracking-[0.5em] h-12 ${error ? "border-destructive" : ""}`}
+						placeholder={textGet("display.pair.placeholder")}
+						autoComplete="off"
+						spellCheck={false}
+						className={`text-center font-mono h-12 ${error ? "border-destructive" : ""}`}
 						autoFocus
 					/>
 					{error && (
 						<p className="text-destructive text-sm">
-							El código debe tener 8 dígitos
+							{textGet("display.pair.invalid")}
 						</p>
 					)}
 					<Button
 						type="submit"
 						className="w-full"
 						size="lg"
-						disabled={code.length !== 8}
+						disabled={!value.trim()}
 					>
-						Conectar
+						{textGet("display.pair.submit")}
 					</Button>
 				</form>
 			</div>
