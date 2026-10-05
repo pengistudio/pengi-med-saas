@@ -243,8 +243,8 @@ export function PatientAttachmentsPanel({
 
 	return (
 		<div className="space-y-4">
-			<div className="flex flex-wrap items-center justify-between gap-2">
-				{canRead ? (
+			<div className="flex flex-wrap items-center gap-2">
+				{canRead && !showDeleted && (
 					<Select
 						value={category}
 						onValueChange={(value) => {
@@ -269,42 +269,43 @@ export function PatientAttachmentsPanel({
 							))}
 						</SelectContent>
 					</Select>
-				) : (
-					<span />
 				)}
-				{canDelete && (
-					<Button
-						type="button"
-						size="sm"
-						variant="outline"
-						onClick={() => {
-							setDeletedLoading(!showDeleted);
-							setShowDeleted((v) => !v);
-						}}
-					>
-						{showDeleted ? (
-							<Files className="mr-2 h-4 w-4" />
-						) : (
-							<ArchiveRestore className="mr-2 h-4 w-4" />
-						)}
-						{textGet(
-							showDeleted
-								? "clinical.attachment.deleted.hide"
-								: "clinical.attachment.deleted.show",
-						)}
-					</Button>
-				)}
-				{canUpload && !showDeleted && (
-					<Button
-						type="button"
-						size="sm"
-						disabled={usage ? isStorageFull(usage) : false}
-						onClick={() => setUploadOpen(true)}
-					>
-						<FileUp className="mr-2 h-4 w-4" />
-						{textGet("clinical.attachment.upload")}
-					</Button>
-				)}
+				<div className="ml-auto flex items-center gap-2">
+					{canDelete && (
+						<Button
+							type="button"
+							size="sm"
+							variant="ghost"
+							className="text-muted-foreground"
+							onClick={() => {
+								setDeletedLoading(!showDeleted);
+								setShowDeleted((v) => !v);
+							}}
+						>
+							{showDeleted ? (
+								<Files className="mr-2 h-4 w-4" />
+							) : (
+								<ArchiveRestore className="mr-2 h-4 w-4" />
+							)}
+							{textGet(
+								showDeleted
+									? "clinical.attachment.deleted.hide"
+									: "clinical.attachment.deleted.show",
+							)}
+						</Button>
+					)}
+					{canUpload && !showDeleted && (
+						<Button
+							type="button"
+							size="sm"
+							disabled={usage ? isStorageFull(usage) : false}
+							onClick={() => setUploadOpen(true)}
+						>
+							<FileUp className="mr-2 h-4 w-4" />
+							{textGet("clinical.attachment.upload")}
+						</Button>
+					)}
+				</div>
 			</div>
 
 			{usage && <AttachmentStorageUsage usage={usage} />}

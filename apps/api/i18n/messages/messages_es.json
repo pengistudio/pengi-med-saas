@@ -5241,7 +5241,7 @@
     },
     {
         "key": "backoffice.plans.tier.hint",
-        "value": "Tier 1 = base, Tier 2 = intermedio, Tier 3 = premium. Determina el flujo de upgrade/downgrade entre planes."
+        "value": "Define el orden de upgrade y downgrade entre planes."
     },
     {
         "key": "subscription.plan.no_pending_change",
@@ -7353,11 +7353,11 @@
     },
     {
         "key": "backoffice.plans.storage_quota",
-        "value": "Espacio para archivos (MB)"
+        "value": "Espacio para archivos"
     },
     {
         "key": "backoffice.plans.storage_quota.desc",
-        "value": "Espacio total para los archivos de pacientes de cada clínica, en MB (1024 MB = 1 GB). 0 = no se permiten archivos."
+        "value": "Para los archivos de pacientes de cada clínica."
     },
     {
         "key": "backoffice.plans.col.storage_quota",
@@ -8266,5 +8266,41 @@
     {
         "key": "display.invalid_link",
         "value": "Enlace inválido o expirado. Abre en la TV el enlace actual de la pantalla de sala."
+    },
+    {
+        "key": "backoffice.plans.tier.1",
+        "value": "Base"
+    },
+    {
+        "key": "backoffice.plans.tier.2",
+        "value": "Intermedio"
+    },
+    {
+        "key": "backoffice.plans.tier.3",
+        "value": "Premium"
+    },
+    {
+        "key": "backoffice.plans.storage_quota.none",
+        "value": "0 = sin archivos"
+    },
+    {
+        "key": "backoffice.plans.pricings.savings",
+        "value": "Ahorra {percent}%"
+    },
+    {
+        "key": "backoffice.plans.section.general.title",
+        "value": "General"
+    },
+    {
+        "key": "backoffice.plans.section.general.description",
+        "value": "Nombre e identificación del plan."
+    },
+    {
+        "key": "backoffice.plans.section.limits.description",
+        "value": "Cuánto puede usar cada clínica en este plan."
+    },
+    {
+        "key": "backoffice.plans.section.features.description",
+        "value": "Funcionalidades incluidas en el plan."
     }
 ]
