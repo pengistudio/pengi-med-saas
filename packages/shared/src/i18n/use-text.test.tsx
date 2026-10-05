@@ -73,6 +73,11 @@ describe("useText · formats follow the interface language", () => {
 		expect(result.current.formatDateTime(DATE)).toMatch(/^27 sept 2026, 2:05/);
 		expect(result.current.formatTime(DATE)).toMatch(/^2:05:00/);
 		expect(result.current.formatMoney(1234.5)).toBe("$1.234,50");
+		expect(result.current.formatFileSize(12.4 * 1024)).toMatch(/^12,4\s?kB$/);
+		expect(result.current.formatFileSize(3.2 * 1024 * 1024)).toMatch(
+			/^3,2\s?MB$/,
+		);
+		expect(result.current.formatFileSize(10 * 1024 ** 3)).toMatch(/^10\s?GB$/);
 	});
 
 	it("switches every format when the messages of another language arrive", () => {
@@ -83,6 +88,8 @@ describe("useText · formats follow the interface language", () => {
 		expect(result.current.formatDateTime(DATE)).toBe("Sep 27, 2026, 2:05 PM");
 		expect(result.current.formatTime(DATE)).toBe("2:05:00 PM");
 		expect(result.current.formatMoney(1234.5)).toBe("$1,234.50");
+		expect(result.current.formatFileSize(12.4 * 1024)).toMatch(/^12\.4\s?kB$/);
+		expect(result.current.formatFileSize(512)).toMatch(/^512\s?byte/);
 	});
 
 	it("formats relative time in the interface language", () => {
@@ -132,6 +139,7 @@ describe("useText · formats follow the interface language", () => {
 			formatDateTime,
 			formatTime,
 			formatMoney,
+			formatFileSize,
 			formatRelative,
 		} = result.current;
 		for (const value of [null, undefined, "", "not a date"]) {
@@ -142,5 +150,7 @@ describe("useText · formats follow the interface language", () => {
 		}
 		expect(formatMoney(null)).toBe("");
 		expect(formatMoney(Number.NaN)).toBe("");
+		expect(formatFileSize(null)).toBe("");
+		expect(formatFileSize(Number.NaN)).toBe("");
 	});
 });

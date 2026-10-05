@@ -6990,5 +6990,481 @@
     {
         "key": "settings.document_templates.restore_confirm.action",
         "value": "Restore"
+    },
+    {
+        "key": "E-CLIN-018",
+        "value": "Attachment not found."
+    },
+    {
+        "key": "E-CLIN-019",
+        "value": "The file exceeds the 15 MB limit."
+    },
+    {
+        "key": "E-CLIN-020",
+        "value": "Only PDF, JPEG and PNG files are accepted."
+    },
+    {
+        "key": "E-CLIN-021",
+        "value": "Invalid attachment category."
+    },
+    {
+        "key": "E-CLIN-022",
+        "value": "Patient files are not available on this server."
+    },
+    {
+        "key": "E-CLIN-023",
+        "value": "The file could not be saved."
+    },
+    {
+        "key": "E-CLIN-024",
+        "value": "The file could not be read."
+    },
+    {
+        "key": "clinical.attachment.unavailable",
+        "value": "Patient files are not available on this server."
+    },
+    {
+        "key": "clinical.attachment.too_large",
+        "value": "The file exceeds the 15 MB limit."
+    },
+    {
+        "key": "clinical.attachment.file.required",
+        "value": "Attach a file."
+    },
+    {
+        "key": "clinical.attachment.type.unsupported",
+        "value": "Only PDF, JPG or PNG files are accepted."
+    },
+    {
+        "key": "clinical.attachment.category.invalid",
+        "value": "Invalid file category."
+    },
+    {
+        "key": "clinical.attachment.taken_at.invalid",
+        "value": "Invalid exam date."
+    },
+    {
+        "key": "clinical.attachment.description.too_long",
+        "value": "The description allows up to 255 characters."
+    },
+    {
+        "key": "clinical.attachment.upload.error",
+        "value": "The file could not be saved."
+    },
+    {
+        "key": "clinical.attachment.upload.success",
+        "value": "File uploaded."
+    },
+    {
+        "key": "clinical.attachment.update.success",
+        "value": "File updated."
+    },
+    {
+        "key": "clinical.attachment.list.success",
+        "value": "Files retrieved."
+    },
+    {
+        "key": "clinical.medical_documents.tab.documents",
+        "value": "Documents"
+    },
+    {
+        "key": "clinical.medical_documents.tab.files",
+        "value": "Files"
+    },
+    {
+        "key": "clinical.patient.files",
+        "value": "Files"
+    },
+    {
+        "key": "clinical.attachment.upload",
+        "value": "Upload file"
+    },
+    {
+        "key": "clinical.attachment.empty.title",
+        "value": "No files yet"
+    },
+    {
+        "key": "clinical.attachment.empty.description",
+        "value": "Upload lab results, imaging, external reports, clinical photos or consents as PDF, JPG or PNG up to 15 MB."
+    },
+    {
+        "key": "clinical.attachment.empty.filtered",
+        "value": "There are no files in this category."
+    },
+    {
+        "key": "clinical.attachment.no_read",
+        "value": "You can upload files for this patient, but you don't have permission to view them."
+    },
+    {
+        "key": "clinical.attachment.filter.all",
+        "value": "All categories"
+    },
+    {
+        "key": "clinical.attachment.column.taken_at",
+        "value": "Exam date"
+    },
+    {
+        "key": "clinical.attachment.column.category",
+        "value": "Category"
+    },
+    {
+        "key": "clinical.attachment.column.file",
+        "value": "File"
+    },
+    {
+        "key": "clinical.attachment.column.size",
+        "value": "Size"
+    },
+    {
+        "key": "clinical.attachment.download",
+        "value": "Download"
+    },
+    {
+        "key": "clinical.attachment.category.lab_result",
+        "value": "Lab result"
+    },
+    {
+        "key": "clinical.attachment.category.imaging",
+        "value": "Imaging"
+    },
+    {
+        "key": "clinical.attachment.category.external_report",
+        "value": "External report"
+    },
+    {
+        "key": "clinical.attachment.category.clinical_photo",
+        "value": "Clinical photo"
+    },
+    {
+        "key": "clinical.attachment.category.consent",
+        "value": "Consent"
+    },
+    {
+        "key": "clinical.attachment.category.other",
+        "value": "Other"
+    },
+    {
+        "key": "clinical.attachment.form.title",
+        "value": "Upload file"
+    },
+    {
+        "key": "clinical.attachment.form.subtitle",
+        "value": "PDF, JPG, PNG or HEIC (iPhone), up to 15 MB each."
+    },
+    {
+        "key": "clinical.attachment.form.file",
+        "value": "File"
+    },
+    {
+        "key": "clinical.attachment.form.category",
+        "value": "Category"
+    },
+    {
+        "key": "clinical.attachment.form.category.placeholder",
+        "value": "Select a category"
+    },
+    {
+        "key": "clinical.attachment.form.taken_at",
+        "value": "Exam date"
+    },
+    {
+        "key": "clinical.attachment.form.taken_at.description",
+        "value": "If left empty, today's date is used."
+    },
+    {
+        "key": "clinical.attachment.form.description",
+        "value": "Description"
+    },
+    {
+        "key": "clinical.attachment.form.description.placeholder",
+        "value": "E.g.: Blood count Lab X"
+    },
+    {
+        "key": "clinical.attachment.form.submit",
+        "value": "Upload"
+    },
+    {
+        "key": "clinical.attachment.form.error.file_required",
+        "value": "Select a file"
+    },
+    {
+        "key": "clinical.attachment.form.error.too_large",
+        "value": "The file exceeds 15 MB"
+    },
+    {
+        "key": "clinical.attachment.form.error.type",
+        "value": "Only PDF, JPG or PNG files are accepted"
+    },
+    {
+        "key": "clinical.attachment.form.error.category",
+        "value": "Select a category"
+    },
+    {
+        "key": "clinical.attachment.form.error.description_long",
+        "value": "The description allows up to 255 characters"
+    },
+    {
+        "key": "clinical.attachment.edit",
+        "value": "Edit"
+    },
+    {
+        "key": "clinical.attachment.edit.title",
+        "value": "Edit file details"
+    },
+    {
+        "key": "clinical.attachment.form.save",
+        "value": "Save changes"
+    },
+    {
+        "key": "clinical.attachment.view",
+        "value": "View"
+    },
+    {
+        "key": "clinical.attachment.viewer.description",
+        "value": "Attachment preview. No active content is run."
+    },
+    {
+        "key": "clinical.attachment.viewer.loading",
+        "value": "Loading file..."
+    },
+    {
+        "key": "clinical.attachment.viewer.error",
+        "value": "The file could not be loaded."
+    },
+    {
+        "key": "clinical.attachment.delete.reason.required",
+        "value": "Enter the reason for deleting."
+    },
+    {
+        "key": "clinical.attachment.delete.reason.too_long",
+        "value": "The reason cannot exceed 500 characters."
+    },
+    {
+        "key": "clinical.attachment.delete.error",
+        "value": "The attachment could not be updated."
+    },
+    {
+        "key": "clinical.attachment.delete.success",
+        "value": "Attachment deleted."
+    },
+    {
+        "key": "clinical.attachment.restore.success",
+        "value": "Attachment restored."
+    },
+    {
+        "key": "clinical.attachment.deleted.list.success",
+        "value": "Deleted attachments fetched."
+    },
+    {
+        "key": "clinical.attachment.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "clinical.attachment.delete.title",
+        "value": "Delete attachment"
+    },
+    {
+        "key": "clinical.attachment.delete.description",
+        "value": "The attachment will stop showing, but it is kept on record and can be restored."
+    },
+    {
+        "key": "clinical.attachment.delete.reason",
+        "value": "Reason for deleting"
+    },
+    {
+        "key": "clinical.attachment.delete.reason.placeholder",
+        "value": "Why this attachment is deleted"
+    },
+    {
+        "key": "clinical.attachment.delete.confirm",
+        "value": "Delete attachment"
+    },
+    {
+        "key": "clinical.attachment.delete.error.reason_required",
+        "value": "The reason is required."
+    },
+    {
+        "key": "clinical.attachment.delete.error.reason_long",
+        "value": "The reason cannot exceed 500 characters."
+    },
+    {
+        "key": "clinical.attachment.deleted.show",
+        "value": "Deleted"
+    },
+    {
+        "key": "clinical.attachment.deleted.hide",
+        "value": "Back to attachments"
+    },
+    {
+        "key": "clinical.attachment.deleted.empty",
+        "value": "There are no deleted attachments."
+    },
+    {
+        "key": "clinical.attachment.deleted.column.by",
+        "value": "Deleted by"
+    },
+    {
+        "key": "clinical.attachment.deleted.column.at",
+        "value": "Deleted on"
+    },
+    {
+        "key": "clinical.attachment.deleted.column.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "clinical.attachment.restore",
+        "value": "Restore"
+    },
+    {
+        "key": "plan.limit.storage",
+        "value": "You have reached your plan's file storage limit. Upgrade your plan to upload more."
+    },
+    {
+        "key": "E-PLAN-003",
+        "value": "You have reached your plan's file storage limit. Upgrade your plan to upload more."
+    },
+    {
+        "key": "backoffice.plans.storage_quota",
+        "value": "File storage (MB)"
+    },
+    {
+        "key": "backoffice.plans.storage_quota.desc",
+        "value": "Total space for each clinic's patient files, in MB (1024 MB = 1 GB). 0 = no files allowed."
+    },
+    {
+        "key": "backoffice.plans.col.storage_quota",
+        "value": "Storage"
+    },
+    {
+        "key": "clinical.attachment.usage.title",
+        "value": "Storage used"
+    },
+    {
+        "key": "clinical.attachment.usage.amount",
+        "value": "{used} of {quota}"
+    },
+    {
+        "key": "clinical.attachment.usage.warning",
+        "value": "You are using {percent}% of your plan's file storage. Consider upgrading your plan before it fills up."
+    },
+    {
+        "key": "clinical.attachment.usage.full",
+        "value": "Your plan's file storage is full. Upgrade your plan to upload more files."
+    },
+    {
+        "key": "clinical.attachment.usage.not_included",
+        "value": "Your plan does not include file storage. Upgrade your plan to upload files."
+    },
+    {
+        "key": "clinical.attachment.form.choose_files",
+        "value": "Choose files"
+    },
+    {
+        "key": "clinical.attachment.form.take_photo",
+        "value": "Take photo"
+    },
+    {
+        "key": "clinical.attachment.form.remove_file",
+        "value": "Remove file"
+    },
+    {
+        "key": "clinical.attachment.upload.status.pending",
+        "value": "Waiting"
+    },
+    {
+        "key": "clinical.attachment.upload.status.converting",
+        "value": "Converting to JPEG…"
+    },
+    {
+        "key": "clinical.attachment.upload.status.uploading",
+        "value": "Uploading {percent}%"
+    },
+    {
+        "key": "clinical.attachment.upload.status.done",
+        "value": "Uploaded"
+    },
+    {
+        "key": "clinical.attachment.upload.status.duplicate",
+        "value": "Uploaded. This file was already uploaded on {date}"
+    },
+    {
+        "key": "clinical.attachment.upload.status.skipped",
+        "value": "Not uploaded: storage limit reached"
+    },
+    {
+        "key": "clinical.attachment.upload.error.convert",
+        "value": "Could not convert the HEIC photo to JPEG"
+    },
+    {
+        "key": "clinical.attachment.upload.summary.success.one",
+        "value": "{count} file uploaded"
+    },
+    {
+        "key": "clinical.attachment.upload.summary.success.other",
+        "value": "{count} files uploaded"
+    },
+    {
+        "key": "clinical.attachment.upload.summary.partial",
+        "value": "{uploaded} uploaded, {failed} failed"
+    },
+    {
+        "key": "clinical.attachment.upload.close",
+        "value": "Close"
+    },
+    {
+        "key": "E-CLIN-025",
+        "value": "The consultation belongs to another patient."
+    },
+    {
+        "key": "clinical.attachment.medical_record.not_found",
+        "value": "The consultation was not found."
+    },
+    {
+        "key": "clinical.attachment.medical_record.other_patient",
+        "value": "The consultation belongs to another patient; a file can only be linked to a consultation of the same patient."
+    },
+    {
+        "key": "clinical.attachment.linked_consultation",
+        "value": "Consultation of {date}"
+    },
+    {
+        "key": "clinical.attachment.consultation.title",
+        "value": "Consultation attachments"
+    },
+    {
+        "key": "clinical.attachment.consultation.description",
+        "value": "Results and documents linked to this consultation."
+    },
+    {
+        "key": "clinical.attachment.consultation.pending_hint",
+        "value": "Files you upload or pick will be linked to the consultation when you save it."
+    },
+    {
+        "key": "clinical.attachment.consultation.empty",
+        "value": "No files are linked to this consultation."
+    },
+    {
+        "key": "clinical.attachment.consultation.link_existing",
+        "value": "Link existing"
+    },
+    {
+        "key": "clinical.attachment.consultation.link",
+        "value": "Link"
+    },
+    {
+        "key": "clinical.attachment.consultation.unlink",
+        "value": "Unlink from the consultation"
+    },
+    {
+        "key": "clinical.attachment.consultation.picker.title",
+        "value": "Link a patient file"
+    },
+    {
+        "key": "clinical.attachment.consultation.picker.description",
+        "value": "The patient's files not yet linked to any consultation."
+    },
+    {
+        "key": "clinical.attachment.consultation.picker.empty",
+        "value": "The patient has no unlinked files."
     }
 ]

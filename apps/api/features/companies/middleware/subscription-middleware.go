@@ -3,7 +3,6 @@ package subscription_middleware
 import (
 	"net/http"
 	"pengi-med-saas/core/tenantdb"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -11,6 +10,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	company_models "pengi-med-saas/features/companies/models"
+	company_services "pengi-med-saas/features/companies/services"
 	user_models "pengi-med-saas/features/users/models"
 )
 
@@ -35,11 +35,8 @@ func SubscriptionMiddleware(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		// 2. Find active subscription within grace period (3 days after expiry)
-		const gracePeriodDays = 3
-		graceDeadline := time.Now().Add(-gracePeriodDays * 24 * time.Hour)
 		var subscription company_models.Subscription
-		err := db.
-			Where("company_id = ? AND status = ? AND expires_at > ?", company.ID, "active", graceDeadline).
+		err := company_services.ActiveSubscriptionQuery(db, company.ID).
 			Preload("Plan.Features.Permissions").
 			First(&subscription).Error
 

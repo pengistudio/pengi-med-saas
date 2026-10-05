@@ -8,6 +8,9 @@ services:
       - "8000:8080"
     environment:
       - GIN_MODE=debug
+      # Dev-only key for patient attachments at rest; never use it elsewhere.
+      # Overridable from the shell or the root .env.
+      - ATTACHMENT_ENCRYPTION_KEY=${ATTACHMENT_ENCRYPTION_KEY:-XUTNglm0vHTCuwFJpJAFVX5ymyn7Kq7RyGTnDhKslc0=}
     depends_on:
       db:
         condition: service_healthy

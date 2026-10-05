@@ -84,6 +84,17 @@ function createText(lang: SupportedLocale, messages: Record<string, string>) {
 		style: "currency",
 		currency: "USD",
 	});
+	const sizeFormats = Object.fromEntries(
+		(["byte", "kilobyte", "megabyte", "gigabyte"] as const).map((unit) => [
+			unit,
+			new Intl.NumberFormat(locale, {
+				style: "unit",
+				unit,
+				unitDisplay: "short",
+				maximumFractionDigits: 1,
+			}),
+		]),
+	) as Record<"byte" | "kilobyte" | "megabyte" | "gigabyte", Intl.NumberFormat>;
 
 	/**
 	 * The message for `key`, with `{name}` placeholders filled from `values`.
@@ -139,6 +150,20 @@ function createText(lang: SupportedLocale, messages: Record<string, string>) {
 			: "";
 
 	/**
+	 * A file size in bytes: "850 byte", "12,4 kB", "3.2 MB", "10 GB"
+	 * (1 kB = 1024 bytes).
+	 */
+	const formatFileSize = (bytes: number | null | undefined) => {
+		if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes < 0)
+			return "";
+		if (bytes < 1024) return sizeFormats.byte.format(bytes);
+		if (bytes < 1024 * 1024) return sizeFormats.kilobyte.format(bytes / 1024);
+		if (bytes < 1024 * 1024 * 1024)
+			return sizeFormats.megabyte.format(bytes / (1024 * 1024));
+		return sizeFormats.gigabyte.format(bytes / (1024 * 1024 * 1024));
+	};
+
+	/**
 	 * "hace 3 minutos" / "3 minutes ago"; with `suffix: false`, "3 minutos"
 	 * for messages that already carry the "hace"/"ago" wording.
 	 */
@@ -158,6 +183,7 @@ function createText(lang: SupportedLocale, messages: Record<string, string>) {
 		formatDateTime,
 		formatTime,
 		formatMoney,
+		formatFileSize,
 		formatRelative,
 	};
 }

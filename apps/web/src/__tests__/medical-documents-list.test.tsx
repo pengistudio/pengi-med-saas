@@ -22,6 +22,13 @@ vi.mock("@/api/signature-service", () => ({
 	signMedicalCertificate: vi.fn(),
 	signMedicalReport: vi.fn(),
 }));
+vi.mock("@/api/patient-attachment-service", () => ({
+	ATTACHMENT_CATEGORIES: [],
+	MAX_ATTACHMENT_SIZE: 15 * 1024 * 1024,
+	getPatientAttachments: vi.fn(),
+	uploadPatientAttachment: vi.fn(),
+	downloadPatientAttachment: vi.fn(),
+}));
 vi.mock("@/hooks/use-permission", () => ({
 	default: () => ({ checkPermission: () => true }),
 }));

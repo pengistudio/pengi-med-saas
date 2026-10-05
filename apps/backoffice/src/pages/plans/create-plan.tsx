@@ -23,7 +23,11 @@ import {
 } from "@/api/feature-service";
 import { plans } from "@/api/plan-service";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
-import { type PlanLimits, PlanLimitsEditor } from "./plan-limits-editor";
+import {
+	type PlanLimits,
+	PlanLimitsEditor,
+	PlanStorageQuotaInput,
+} from "./plan-limits-editor";
 import {
 	PlanPricingsEditor,
 	type PricingsState,
@@ -49,6 +53,7 @@ const CreatePlan = () => {
 		max_offices: -1,
 	});
 	const [tier, setTier] = React.useState<1 | 2 | 3>(1);
+	const [storageQuotaMb, setStorageQuotaMb] = React.useState(0);
 	const [pricings, setPricings] = React.useState<PricingsState>({});
 
 	React.useEffect(() => {
@@ -71,6 +76,7 @@ const CreatePlan = () => {
 			price: 0,
 			feature_codes: selectedFeatures,
 			properties: { ...limits } as Record<string, unknown>,
+			storage_quota_mb: storageQuotaMb,
 			pricings: pricingsStateToArray(pricings),
 		});
 	}
@@ -134,6 +140,11 @@ const CreatePlan = () => {
 								</div>
 
 								<PlanLimitsEditor limits={limits} onChange={setLimits} />
+
+								<PlanStorageQuotaInput
+									value={storageQuotaMb}
+									onChange={setStorageQuotaMb}
+								/>
 
 								<PlanPricingsEditor
 									pricings={pricings}
