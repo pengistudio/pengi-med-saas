@@ -104,13 +104,19 @@ export const deleteMultiplePatients = async (
 
 /**
  * Sets (opt_in true) or clears WhatsApp consent on the given patients (at most
- * 1000; the list selects one page at a time).
+ * 1000; the list selects one page at a time). Opting in skips patients who
+ * replied STOP (`skipped_opted_out`); the success toast explains it.
  */
+export interface BulkWhatsAppOptInResult {
+	updated: number;
+	skipped_opted_out: number;
+}
+
 export const setPatientsWhatsAppOptIn = async (
 	ids: number[],
 	optIn: boolean,
-): Promise<ServiceResponse<{ updated: number }>> =>
-	clinicalService.post<{ updated: number }>(
+): Promise<ServiceResponse<BulkWhatsAppOptInResult>> =>
+	clinicalService.post<BulkWhatsAppOptInResult>(
 		"/clinical/patients/whatsapp-opt-in",
 		{ ids, opt_in: optIn },
 		{ notifySuccess: true, notifyError: true },

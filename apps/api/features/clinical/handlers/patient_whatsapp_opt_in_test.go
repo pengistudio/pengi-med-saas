@@ -112,3 +112,34 @@ func TestPatientOptInSource_CreateAndUpdate(t *testing.T) {
 		t.Fatalf("after update = %+v", p)
 	}
 }
+
+func TestBulkWhatsAppOptIn_SkipsPatientsWhoRepliedStop(t *testing.T) {
+	h, create, load, tenants := optInTenants(t)
+	own := tenants[0]
+	normal := create(own, "N", false)
+	stopped := create(own, "S", false)
+	h.db.Model(&clinical_models.Patient{}).Where("id = ?", stopped.ID).
+		Update("whatsapp_opt_in_source", clinical_models.WhatsAppOptInSourceStop)
+
+	resp := h.BulkWhatsAppOptIn(jsonCtx(own, "POST", map[string]any{"ids": []uint{normal.ID, stopped.ID}, "opt_in": true}, nil))
+	if resp.Code != 200 || resp.Message != "clinical.patient.whatsapp_opt_in.bulk.skipped_opted_out" {
+		t.Fatalf("code = %d, message = %q", resp.Code, resp.Message)
+	}
+	got := resp.Data.(clinical_dto.BulkWhatsAppOptInResponse)
+	if got.Updated != 1 || got.SkippedOptedOut != 1 {
+		t.Fatalf("response = %+v, want 1 updated and 1 skipped", got)
+	}
+	if !load(normal.ID).WhatsAppOptIn {
+		t.Fatal("regular patient was not opted in")
+	}
+	if p := load(stopped.ID); p.WhatsAppOptIn || p.WhatsAppOptInSource != clinical_models.WhatsAppOptInSourceStop {
+		t.Fatalf("patient who replied STOP changed: %+v", p)
+	}
+
+	// Clearing consent still works for everyone; a deliberate per-patient
+	// update can re-subscribe the STOP patient (covered by the form handler).
+	resp = h.BulkWhatsAppOptIn(jsonCtx(own, "POST", map[string]any{"ids": []uint{normal.ID, stopped.ID}, "opt_in": false}, nil))
+	if resp.Message != "clinical.patient.whatsapp_opt_in.bulk.success" || load(normal.ID).WhatsAppOptIn {
+		t.Fatalf("clearing failed: %+v", resp)
+	}
+}

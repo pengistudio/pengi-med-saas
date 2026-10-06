@@ -9140,6 +9140,10 @@
         "value": "WhatsApp consent updated."
     },
     {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.skipped_opted_out",
+        "value": "Consent updated. Some patients opted out by replying STOP and were not checked: if they agree again, check it on their record."
+    },
+    {
         "key": "whatsapp.alert.open",
         "value": "Open"
     },

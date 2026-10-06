@@ -9140,6 +9140,10 @@
         "value": "Consentimiento de WhatsApp actualizado."
     },
     {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.skipped_opted_out",
+        "value": "Consentimiento actualizado. Algunos pacientes se dieron de baja respondiendo STOP y no se marcaron: si vuelven a aceptar, márcalo desde su ficha."
+    },
+    {
         "key": "whatsapp.alert.open",
         "value": "Abrir"
     },

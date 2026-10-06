@@ -45,7 +45,9 @@ type BulkWhatsAppOptInDTO struct {
 	OptIn *bool  `json:"opt_in" binding:"required"`
 }
 
-// BulkWhatsAppOptInResponse is how many patients changed.
+// BulkWhatsAppOptInResponse is how many patients changed, and how many were
+// left out because they opted out by replying STOP.
 type BulkWhatsAppOptInResponse struct {
-	Updated int64 `json:"updated"`
+	Updated         int64 `json:"updated"`
+	SkippedOptedOut int64 `json:"skipped_opted_out"`
 }

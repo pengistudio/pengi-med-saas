@@ -305,24 +305,44 @@ const maxBulkWhatsAppOptIn = 1000
 // BulkWhatsAppOptIn sets or clears WhatsApp consent on the selected patients
 // (source "bulk"). Ids of another tenant (or unknown) are ignored by the
 // tenant-bound handle; patients already at the value are left alone.
-// Responds {updated: n}, the patients that changed.
+// Opting in skips patients who opted out by replying STOP (source
+// "whatsapp_stop"): re-subscribing them must be a deliberate, one-by-one
+// change on their record. Responds {updated, skipped_opted_out}.
 func (h *PatientHandler) BulkWhatsAppOptIn(c *gin.Context) envelope.Response {
 	var req clinical_dto.BulkWhatsAppOptInDTO
 	if err := c.ShouldBindJSON(&req); err != nil || len(req.IDs) == 0 || len(req.IDs) > maxBulkWhatsAppOptIn {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
-	res := tenantdb.For(c, h.db).Model(&clinical_models.Patient{}).
-		Where("id IN ? AND whatsapp_opt_in <> ?", req.IDs, *req.OptIn).
-		Updates(map[string]any{
-			"whatsapp_opt_in":        *req.OptIn,
-			"whatsapp_opt_in_at":     time.Now(),
-			"whatsapp_opt_in_source": clinical_models.WhatsAppOptInSourceBulk,
-		})
+	db := tenantdb.For(c, h.db)
+
+	var skipped int64
+	if *req.OptIn {
+		if err := db.Model(&clinical_models.Patient{}).
+			Where("id IN ? AND whatsapp_opt_in = ? AND whatsapp_opt_in_source = ?", req.IDs, false, clinical_models.WhatsAppOptInSourceStop).
+			Count(&skipped).Error; err != nil {
+			h.logger.Error("Failed to count opted-out patients", zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientUpdateError)
+		}
+	}
+
+	q := db.Model(&clinical_models.Patient{}).Where("id IN ? AND whatsapp_opt_in <> ?", req.IDs, *req.OptIn)
+	if *req.OptIn {
+		q = q.Where("COALESCE(whatsapp_opt_in_source, '') <> ?", clinical_models.WhatsAppOptInSourceStop)
+	}
+	res := q.Updates(map[string]any{
+		"whatsapp_opt_in":        *req.OptIn,
+		"whatsapp_opt_in_at":     time.Now(),
+		"whatsapp_opt_in_source": clinical_models.WhatsAppOptInSourceBulk,
+	})
 	if res.Error != nil {
 		h.logger.Error("Failed to update patients' WhatsApp consent", zap.Error(res.Error))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientUpdateError)
 	}
-	return envelope.SuccessResponse(clinical_dto.BulkWhatsAppOptInResponse{Updated: res.RowsAffected}, "clinical.patient.whatsapp_opt_in.bulk.success")
+	msg := "clinical.patient.whatsapp_opt_in.bulk.success"
+	if skipped > 0 {
+		msg = "clinical.patient.whatsapp_opt_in.bulk.skipped_opted_out"
+	}
+	return envelope.SuccessResponse(clinical_dto.BulkWhatsAppOptInResponse{Updated: res.RowsAffected, SkippedOptedOut: skipped}, msg)
 }
 
 func (h *PatientHandler) DeleteOnePatient(c *gin.Context) envelope.Response {
