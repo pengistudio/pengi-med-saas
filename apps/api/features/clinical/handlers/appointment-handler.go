@@ -82,6 +82,17 @@ func (h *AppointmentHandler) syncDelete(tenantID uint, appointment *clinical_mod
 	}
 }
 
+// SyncStatusChange mirrors a status change made outside this handler (e.g. a
+// WhatsApp reply) to Google Calendar, like UpdateStatus does: cancelled and
+// completed remove the event, anything else updates it. Errors are logged.
+func (h *AppointmentHandler) SyncStatusChange(tenantID uint, appointment *clinical_models.Appointment) {
+	if appointment.Status == "cancelled" || appointment.Status == "completed" {
+		h.syncDelete(tenantID, appointment)
+		return
+	}
+	h.syncUpdate(tenantID, appointment)
+}
+
 // getValidToken returns a valid access token and calendar ID for the tenant.
 // Returns false if not connected or on any error.
 func (h *AppointmentHandler) getValidToken(tenantID uint) (accessToken, calendarID string, ok bool) {
@@ -153,10 +164,15 @@ func (h *AppointmentHandler) GetPatientAppointments(c *gin.Context) envelope.Res
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	status := c.DefaultQuery("status", "scheduled")
+	// Without ?status, "pending" means upcoming: scheduled or confirmed by the
+	// patient (e.g. a WhatsApp reminder reply).
+	statuses := []string{"scheduled", "confirmed"}
+	if status := c.Query("status"); status != "" {
+		statuses = []string{status}
+	}
 
 	var appointments []clinical_models.Appointment
-	if err := tenantdb.For(c, h.db).Where("patient_id = ? AND status = ?", patientID, status).
+	if err := tenantdb.For(c, h.db).Where("patient_id = ? AND status IN ?", patientID, statuses).
 		Order("date ASC, start_time ASC").
 		Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get patient appointments", zap.Error(err))
@@ -343,6 +359,7 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 	// Validate status
 	validStatuses := map[string]bool{
 		"scheduled":       true,
+		"confirmed":       true, // the patient confirmed (e.g. WhatsApp reminder reply)
 		"arrived":         true,
 		"in_consultation": true,
 		"completed":       true,
@@ -389,7 +406,7 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
 
-	if appointment.Status != "scheduled" && appointment.Status != "cancelled" && appointment.Status != "completed" {
+	if appointment.Status != "scheduled" && appointment.Status != "confirmed" && appointment.Status != "cancelled" && appointment.Status != "completed" {
 		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.appointment.delete.invalid_status", core_errors.ErrClinicalInvalidRequest)
 	}
 

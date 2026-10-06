@@ -308,7 +308,9 @@ const WaitingRoomDisplayPage = () => {
 			in_consultation: [],
 		};
 		for (const a of appointments) {
-			if (a.status in map) map[a.status as DisplayStatus].push(a);
+			// A confirmed appointment still has to check in.
+			const lane = a.status === "confirmed" ? "scheduled" : a.status;
+			if (lane in map) map[lane as DisplayStatus].push(a);
 		}
 		return map;
 	}, [appointments]);

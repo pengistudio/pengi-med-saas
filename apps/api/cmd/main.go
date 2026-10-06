@@ -11,12 +11,15 @@ import (
 	"pengi-med-saas/core/logger"
 	core_middleware "pengi-med-saas/core/middleware"
 	"pengi-med-saas/core/secretbox"
+	"pengi-med-saas/core/whatsapp"
 	sri_document "pengi-med-saas/features/billing/sri-document"
 	clinical_workers "pengi-med-saas/features/clinical/workers"
 	"pengi-med-saas/features/health"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
 	notifications_workers "pengi-med-saas/features/notifications/workers"
 	settings_models "pengi-med-saas/features/settings/models"
+	whatsapp_services "pengi-med-saas/features/whatsapp/services"
+	whatsapp_workers "pengi-med-saas/features/whatsapp/workers"
 	"pengi-med-saas/i18n/catalog"
 	i18n_messages "pengi-med-saas/i18n/messages"
 	i18n_middleware "pengi-med-saas/i18n/middleware"
@@ -78,7 +81,10 @@ func main() {
 	for _, kind := range sri_document.Kinds {
 		sriConsumers = append(sriConsumers, func(ch *amqp.Channel) error { return sriDocuments.StartConsumer(ch, kind) })
 	}
-	go rabbitmq.Run(sriConsumers...)
+	// WhatsApp appointment reminders: one consumer for whatsapp.send.
+	whatsappSender := whatsapp_services.NewSender(DB_CONNECTION, logger.Log, whatsapp.NewFromEnv())
+	consumers := append(sriConsumers, whatsappSender.StartConsumer)
+	go rabbitmq.Run(consumers...)
 
 	go sriDocuments.RunSweeper(5*time.Minute, sri_document.Kinds...)
 	logger.Log.Info("SRI document sweeper started")
@@ -97,6 +103,11 @@ func main() {
 	announcementScheduler := notifications_workers.NewAnnouncementScheduler(DB_CONNECTION, logger.Log)
 	go announcementScheduler.Start()
 	logger.Log.Info("announcement scheduler started")
+
+	// Initialize WhatsApp reminder scheduler (queues due appointment reminders)
+	reminderScheduler := whatsapp_workers.NewReminderScheduler(DB_CONNECTION, logger.Log, whatsapp_services.RabbitPublisher{})
+	go reminderScheduler.Start()
+	logger.Log.Info("whatsapp reminder scheduler started")
 
 	// gin.Default() minus the query string in the access log (it carries the
 	// waiting-room TV token).

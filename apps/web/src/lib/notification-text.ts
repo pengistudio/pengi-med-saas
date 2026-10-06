@@ -1,5 +1,10 @@
 import type { AppText } from "@pengi/shared";
 import type { Notification } from "@/api/notification-service";
+import { notificationTextParams } from "@/lib/whatsapp-alerts";
+
+const WHATSAPP_MESSAGE_KEY = "notification.whatsapp.message";
+/** Content types a WhatsApp message notification may carry without text. */
+const WHATSAPP_MEDIA_TYPES = new Set(["image", "audio", "document", "other"]);
 
 /**
  * When the draft behind a stale-draft notification was last saved: its
@@ -32,12 +37,20 @@ export function getNotificationText(
 	{ textGet, formatRelative }: Pick<AppText, "textGet" | "formatRelative">,
 ): string {
 	const updatedAt = draftUpdatedAt(notification);
-	const params = updatedAt
-		? {
-				...notification.params,
-				// The template already says "desde hace" / "ago".
-				elapsed: formatRelative(updatedAt, { suffix: false }),
-			}
-		: notification.params;
+	// Numeric `count` picks the plural form (WhatsApp message notifications).
+	const params = notificationTextParams(notification.params);
+	if (updatedAt) {
+		// The template already says "desde hace" / "ago".
+		params.elapsed = formatRelative(updatedAt, { suffix: false });
+	}
+	// A photo or audio has no text: describe it instead of an empty preview.
+	const contentType = String(params.content_type ?? "");
+	if (
+		notification.message_key === WHATSAPP_MESSAGE_KEY &&
+		!params.preview &&
+		WHATSAPP_MEDIA_TYPES.has(contentType)
+	) {
+		params.preview = textGet(`whatsapp.inbox.content.${contentType}`);
+	}
 	return textGet(notification.message_key, params);
 }

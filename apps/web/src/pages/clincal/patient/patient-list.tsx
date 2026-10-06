@@ -10,6 +10,10 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 	Button,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -18,7 +22,14 @@ import {
 	Text,
 } from "@pengi/ui";
 import type { Row } from "@tanstack/react-table";
-import { ArrowUpDown, Plus, Trash } from "lucide-react";
+import {
+	ArrowUpDown,
+	BellOff,
+	BellRing,
+	MessageCircle,
+	Plus,
+	Trash,
+} from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import {
@@ -27,9 +38,11 @@ import {
 	type Patient,
 	type PatientSortBy,
 	type PatientSortOrder,
+	setPatientsWhatsAppOptIn,
 } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
+import { ConfirmActionDialog } from "@/components/features/exam-orders/confirm-action-dialog";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import { usePatientColumns } from "@/sections/columns/clinical/patient-columns";
@@ -73,6 +86,8 @@ const Clinical = () => {
 		useClinicalListStore();
 
 	const { rows } = useRowStore();
+	// The consent change waiting for confirmation: true = mark, false = clear.
+	const [optInAction, setOptInAction] = React.useState<boolean | null>(null);
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
 	const patientColumns = usePatientColumns();
@@ -180,42 +195,68 @@ const Clinical = () => {
 			<div>
 				<DataTable
 					bulkActions={
-						<AlertDialog>
+						<>
 							{checkPermission([
-								PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT,
+								PERMISSIONS.MEDICAL_RECORD.PERMISSION_UPDATE_PATIENT,
 							]) && (
-								<AlertDialogTrigger
-									render={
-										<Button
-											variant="outline"
-											disabled={rows.length === ZERO}
-											className="md:ml-auto"
-										>
-											<Trash className="mr-2 h-4 w-4" />
-											<Text uuid="table.button.delete.all.selected" />
-										</Button>
-									}
-								/>
+								<DropdownMenu>
+									<DropdownMenuTrigger
+										render={
+											<Button variant="outline" disabled={rows.length === ZERO}>
+												<MessageCircle className="mr-2 h-4 w-4" />
+												<Text uuid="clinical.patient.whatsapp_opt_in.bulk.menu" />
+											</Button>
+										}
+									/>
+									<DropdownMenuContent align="end">
+										<DropdownMenuItem onClick={() => setOptInAction(true)}>
+											<BellRing className="h-4 w-4" />
+											<Text uuid="clinical.patient.whatsapp_opt_in.bulk.set" />
+										</DropdownMenuItem>
+										<DropdownMenuItem onClick={() => setOptInAction(false)}>
+											<BellOff className="h-4 w-4" />
+											<Text uuid="clinical.patient.whatsapp_opt_in.bulk.clear" />
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
 							)}
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>
-										<Text uuid="dialog.title.absolutely.sure" />
-									</AlertDialogTitle>
-									<AlertDialogDescription>
-										<Text uuid="dialog.description.user.delete" />
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>
-										<Text uuid="form.cancel" />
-									</AlertDialogCancel>
-									<AlertDialogAction onClick={handleDelete}>
-										<Text uuid="form.continue" />
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
+							<AlertDialog>
+								{checkPermission([
+									PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_PATIENT,
+								]) && (
+									<AlertDialogTrigger
+										render={
+											<Button
+												variant="outline"
+												disabled={rows.length === ZERO}
+												className="md:ml-auto"
+											>
+												<Trash className="mr-2 h-4 w-4" />
+												<Text uuid="table.button.delete.all.selected" />
+											</Button>
+										}
+									/>
+								)}
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											<Text uuid="dialog.title.absolutely.sure" />
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											<Text uuid="dialog.description.user.delete" />
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>
+											<Text uuid="form.cancel" />
+										</AlertDialogCancel>
+										<AlertDialogAction onClick={handleDelete}>
+											<Text uuid="form.continue" />
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						</>
 					}
 					columns={patientColumns}
 					data={patients}
@@ -235,8 +276,43 @@ const Clinical = () => {
 					}}
 				/>
 			</div>
+			<ConfirmActionDialog
+				open={optInAction !== null}
+				onOpenChange={(open) => {
+					if (!open) setOptInAction(null);
+				}}
+				title={
+					<Text
+						uuid={
+							optInAction === false
+								? "clinical.patient.whatsapp_opt_in.bulk.clear.title"
+								: "clinical.patient.whatsapp_opt_in.bulk.set.title"
+						}
+					/>
+				}
+				description={
+					<Text
+						uuid={
+							optInAction === false
+								? "clinical.patient.whatsapp_opt_in.bulk.clear.description"
+								: "clinical.patient.whatsapp_opt_in.bulk.set.description"
+						}
+						values={{ count: rows.length }}
+					/>
+				}
+				onConfirm={handleWhatsAppOptIn}
+			/>
 		</main>
 	);
+
+	async function handleWhatsAppOptIn() {
+		if (optInAction === null) return;
+		const optIn = optInAction;
+		setOptInAction(null);
+		const ids = (rows as Row<Patient>[]).map((row) => row.original.ID);
+		const res = await setPatientsWhatsAppOptIn(ids, optIn);
+		if (res.success) fetchPatients(page, search, sortValue);
+	}
 
 	async function handleDelete() {
 		const parsedRows = rows as Row<Patient>[];

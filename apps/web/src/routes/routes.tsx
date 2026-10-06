@@ -104,6 +104,7 @@ const ExamOrderEditorPage = lazy(
 const ExamCatalogSettingsPage = lazy(
 	() => import("@/pages/settings/exam-catalog-settings"),
 );
+const WhatsAppPage = lazy(() => import("@/pages/whatsapp/whatsapp-page"));
 
 // Its own group (not under /clinical, which requires READ_PATIENT): whoever
 // uploads results may only have the exam order permissions. The results
@@ -458,6 +459,18 @@ const router = createBrowserRouter([
 					{
 						path: "/notifications",
 						element: <NotificationsPage />,
+					},
+					{
+						path: "/whatsapp",
+						element: (
+							<CheckPermission
+								permissions={[
+									PERMISSIONS.WHATSAPP.PERMISSION_USE_WHATSAPP_INBOX,
+								]}
+							>
+								<WhatsAppPage />
+							</CheckPermission>
+						),
 					},
 					{
 						path: "/team",

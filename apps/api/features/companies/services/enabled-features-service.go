@@ -22,6 +22,7 @@ func CalculateEnabledFeaturesFromFeatures(features []company_models.Feature) ten
 		Billing:  categoriesFound["BILLING"],
 		Team:     categoriesFound["TEAM"],
 		Kanban:   categoriesFound["KANBAN"],
+		WhatsApp: categoriesFound["WHATSAPP"],
 	}
 }
 

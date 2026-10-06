@@ -8302,5 +8302,1073 @@
     {
         "key": "backoffice.plans.section.features.description",
         "value": "Features included in the plan."
+    },
+    {
+        "key": "E-WA-001",
+        "value": "WhatsApp is not connected."
+    },
+    {
+        "key": "E-WA-002",
+        "value": "Invalid WhatsApp request."
+    },
+    {
+        "key": "E-WA-003",
+        "value": "The WhatsApp credentials are not valid."
+    },
+    {
+        "key": "E-WA-004",
+        "value": "WhatsApp (Meta) returned an error."
+    },
+    {
+        "key": "E-WA-005",
+        "value": "Connecting through Meta is not available yet."
+    },
+    {
+        "key": "E-WA-006",
+        "value": "WhatsApp credentials cannot be stored on this server."
+    },
+    {
+        "key": "E-WA-007",
+        "value": "This WhatsApp number is connected to another clinic."
+    },
+    {
+        "key": "E-WA-008",
+        "value": "Reminder times must be between 1 and 168 hours, at most 3."
+    },
+    {
+        "key": "E-WA-009",
+        "value": "The reminder template is not approved yet."
+    },
+    {
+        "key": "E-WA-010",
+        "value": "Invalid phone number."
+    },
+    {
+        "key": "E-WA-011",
+        "value": "WhatsApp internal error."
+    },
+    {
+        "key": "E-WA-012",
+        "value": "Invalid webhook signature."
+    },
+    {
+        "key": "E-WA-013",
+        "value": "The WhatsApp message could not be sent."
+    },
+    {
+        "key": "E-WA-014",
+        "value": "Webhook verification failed."
+    },
+    {
+        "key": "whatsapp.config.get.success",
+        "value": "WhatsApp configuration retrieved."
+    },
+    {
+        "key": "whatsapp.account.get.success",
+        "value": "WhatsApp account retrieved."
+    },
+    {
+        "key": "whatsapp.account.connect.success",
+        "value": "WhatsApp connected successfully."
+    },
+    {
+        "key": "whatsapp.account.disconnect.success",
+        "value": "WhatsApp disconnected."
+    },
+    {
+        "key": "whatsapp.template.sync.success",
+        "value": "Template status updated."
+    },
+    {
+        "key": "whatsapp.settings.update.success",
+        "value": "WhatsApp reminders updated."
+    },
+    {
+        "key": "whatsapp.test.send.success",
+        "value": "Test message sent."
+    },
+    {
+        "key": "whatsapp.messages.list.success",
+        "value": "WhatsApp messages retrieved."
+    },
+    {
+        "key": "whatsapp.webhook.received",
+        "value": "Event received."
+    },
+    {
+        "key": "whatsapp.error.not_connected",
+        "value": "WhatsApp is not connected."
+    },
+    {
+        "key": "whatsapp.error.invalid_request",
+        "value": "Check the data you sent."
+    },
+    {
+        "key": "whatsapp.error.invalid_credentials",
+        "value": "Meta rejected the credentials. Check the token and the IDs."
+    },
+    {
+        "key": "whatsapp.error.graph",
+        "value": "Meta returned an error. Try again in a few minutes."
+    },
+    {
+        "key": "whatsapp.error.embedded_unavailable",
+        "value": "Connecting through Meta is not available yet. Use the manual connection."
+    },
+    {
+        "key": "whatsapp.error.encryption_unavailable",
+        "value": "This server cannot store WhatsApp credentials. Contact support."
+    },
+    {
+        "key": "whatsapp.error.phone_in_use",
+        "value": "This WhatsApp number is already connected to another clinic."
+    },
+    {
+        "key": "whatsapp.error.invalid_offsets",
+        "value": "Choose 1 to 3 reminder times, from 1 to 168 hours before."
+    },
+    {
+        "key": "whatsapp.error.template_not_approved",
+        "value": "The reminder template is not approved by Meta yet."
+    },
+    {
+        "key": "whatsapp.error.invalid_phone",
+        "value": "The phone number is not valid."
+    },
+    {
+        "key": "whatsapp.error.internal",
+        "value": "Something went wrong with WhatsApp."
+    },
+    {
+        "key": "whatsapp.error.webhook_signature",
+        "value": "Invalid signature."
+    },
+    {
+        "key": "whatsapp.error.send_failed",
+        "value": "The message could not be sent. Check the message log."
+    },
+    {
+        "key": "whatsapp.error.webhook_verify",
+        "value": "Verification failed."
+    },
+    {
+        "key": "whatsapp.message.error.invalid_phone",
+        "value": "The patient's phone number is not valid."
+    },
+    {
+        "key": "whatsapp.message.error.no_phone",
+        "value": "The patient has no phone number."
+    },
+    {
+        "key": "whatsapp.message.error.not_connected",
+        "value": "WhatsApp was not connected."
+    },
+    {
+        "key": "whatsapp.message.error.token_unusable",
+        "value": "The stored token could not be used. Connect WhatsApp again."
+    },
+    {
+        "key": "whatsapp.message.error.internal",
+        "value": "Internal error while sending."
+    },
+    {
+        "key": "whatsapp.message.error.appointment_inactive",
+        "value": "The appointment was no longer active."
+    },
+    {
+        "key": "whatsapp.message.error.no_opt_in",
+        "value": "The patient has not agreed to receive WhatsApp messages."
+    },
+    {
+        "key": "form.patient.whatsapp_opt_in",
+        "value": "Agrees to receive WhatsApp reminders"
+    },
+    {
+        "key": "form.patient.whatsapp_opt_in.description",
+        "value": "Check this only if the patient gave consent. They can opt out by replying STOP or BAJA."
+    },
+    {
+        "key": "settings.whatsapp.reminders.opt_in_hint",
+        "value": "Only sent to patients who agreed to receive WhatsApp messages (checkbox on their record)."
+    },
+    {
+        "key": "whatsapp.message.error.131026",
+        "value": "The number has no WhatsApp or cannot receive the message."
+    },
+    {
+        "key": "whatsapp.message.error.131047",
+        "value": "More than 24 hours have passed since the patient's last reply."
+    },
+    {
+        "key": "whatsapp.message.error.131049",
+        "value": "Meta did not deliver the message to protect the user experience."
+    },
+    {
+        "key": "whatsapp.message.error.132001",
+        "value": "The template does not exist or is not approved."
+    },
+    {
+        "key": "whatsapp.message.error.190",
+        "value": "The WhatsApp token expired or was revoked."
+    },
+    {
+        "key": "notification.whatsapp.appointment.confirmed",
+        "value": "{patient_name} confirmed their {date} {time} appointment via WhatsApp."
+    },
+    {
+        "key": "notification.whatsapp.appointment.cancelled",
+        "value": "{patient_name} cancelled their {date} {time} appointment via WhatsApp."
+    },
+    {
+        "key": "appointments.status.confirmed",
+        "value": "Confirmed"
+    },
+    {
+        "key": "settings.whatsapp.title",
+        "value": "WhatsApp"
+    },
+    {
+        "key": "settings.whatsapp.description",
+        "value": "Send appointment reminders over WhatsApp; patients confirm or cancel by replying to the message."
+    },
+    {
+        "key": "settings.whatsapp.status.connected",
+        "value": "Connected"
+    },
+    {
+        "key": "settings.whatsapp.status.disconnected",
+        "value": "Not connected"
+    },
+    {
+        "key": "settings.whatsapp.status.token_invalid",
+        "value": "Credentials expired"
+    },
+    {
+        "key": "settings.whatsapp.connect",
+        "value": "Connect WhatsApp"
+    },
+    {
+        "key": "settings.whatsapp.connect_manual",
+        "value": "Connect manually"
+    },
+    {
+        "key": "settings.whatsapp.disconnect",
+        "value": "Disconnect"
+    },
+    {
+        "key": "settings.whatsapp.disconnect.title",
+        "value": "Disconnect WhatsApp?"
+    },
+    {
+        "key": "settings.whatsapp.disconnect.description",
+        "value": "Pending reminders will no longer be sent. The message history is kept."
+    },
+    {
+        "key": "settings.whatsapp.hint.embedded",
+        "value": "Connect your clinic's WhatsApp Business number with your Meta account. If you already have the IDs and a permanent token, use the manual connection."
+    },
+    {
+        "key": "settings.whatsapp.hint.manual",
+        "value": "Copy the WhatsApp Business account ID, the phone number ID and a permanent token from the Meta developer dashboard."
+    },
+    {
+        "key": "settings.whatsapp.token_invalid.hint",
+        "value": "Meta rejected the saved credentials and reminders are not being sent. Connect the account again."
+    },
+    {
+        "key": "settings.whatsapp.number",
+        "value": "Number"
+    },
+    {
+        "key": "settings.whatsapp.mode",
+        "value": "Connection"
+    },
+    {
+        "key": "settings.whatsapp.mode.manual",
+        "value": "Manual"
+    },
+    {
+        "key": "settings.whatsapp.mode.embedded",
+        "value": "Through Meta"
+    },
+    {
+        "key": "settings.whatsapp.template",
+        "value": "Reminder template"
+    },
+    {
+        "key": "settings.whatsapp.template.status.APPROVED",
+        "value": "Approved"
+    },
+    {
+        "key": "settings.whatsapp.template.status.PENDING",
+        "value": "In review"
+    },
+    {
+        "key": "settings.whatsapp.template.status.REJECTED",
+        "value": "Rejected"
+    },
+    {
+        "key": "settings.whatsapp.template.status.PAUSED",
+        "value": "Paused"
+    },
+    {
+        "key": "settings.whatsapp.template.status.DISABLED",
+        "value": "Disabled"
+    },
+    {
+        "key": "settings.whatsapp.template.status.none",
+        "value": "Not created"
+    },
+    {
+        "key": "settings.whatsapp.template.sync",
+        "value": "Refresh status"
+    },
+    {
+        "key": "settings.whatsapp.template.not_approved_hint",
+        "value": "Reminders are sent only once Meta approves the template; the review usually takes a few minutes."
+    },
+    {
+        "key": "settings.whatsapp.reminders",
+        "value": "Send automatic reminders"
+    },
+    {
+        "key": "settings.whatsapp.offsets.hint",
+        "value": "When to send them before the appointment (up to {max})."
+    },
+    {
+        "key": "settings.whatsapp.offsets.required",
+        "value": "Pick at least one time."
+    },
+    {
+        "key": "settings.whatsapp.offset_before.one",
+        "value": "{count} hour before"
+    },
+    {
+        "key": "settings.whatsapp.offset_before.other",
+        "value": "{count} hours before"
+    },
+    {
+        "key": "settings.whatsapp.test.open",
+        "value": "Send test"
+    },
+    {
+        "key": "settings.whatsapp.test.title",
+        "value": "Send test message"
+    },
+    {
+        "key": "settings.whatsapp.test.description",
+        "value": "The reminder template is sent with sample data."
+    },
+    {
+        "key": "settings.whatsapp.test.phone",
+        "value": "Phone"
+    },
+    {
+        "key": "settings.whatsapp.test.phone.placeholder",
+        "value": "+593991234567"
+    },
+    {
+        "key": "settings.whatsapp.test.submit",
+        "value": "Send"
+    },
+    {
+        "key": "settings.whatsapp.embedded.sdk_error",
+        "value": "Meta's login could not be loaded. Check your connection or disable your ad blocker."
+    },
+    {
+        "key": "settings.whatsapp.manual.title",
+        "value": "Connect WhatsApp manually"
+    },
+    {
+        "key": "settings.whatsapp.manual.description",
+        "value": "Data from the Meta developer dashboard (WhatsApp → API Setup)."
+    },
+    {
+        "key": "settings.whatsapp.manual.submit",
+        "value": "Connect"
+    },
+    {
+        "key": "settings.whatsapp.form.waba_id",
+        "value": "WhatsApp Business account ID"
+    },
+    {
+        "key": "settings.whatsapp.form.phone_number_id",
+        "value": "Phone number ID"
+    },
+    {
+        "key": "settings.whatsapp.form.access_token",
+        "value": "Access token"
+    },
+    {
+        "key": "settings.whatsapp.form.access_token.description",
+        "value": "Use a permanent system user token; temporary ones expire in 24 hours."
+    },
+    {
+        "key": "settings.whatsapp.form.error.required",
+        "value": "Required field"
+    },
+    {
+        "key": "settings.whatsapp.form.error.phone",
+        "value": "Enter a valid phone number"
+    },
+    {
+        "key": "settings.whatsapp.log.title",
+        "value": "Sent messages"
+    },
+    {
+        "key": "settings.whatsapp.log.empty",
+        "value": "No messages sent yet."
+    },
+    {
+        "key": "settings.whatsapp.log.column.date",
+        "value": "Date"
+    },
+    {
+        "key": "settings.whatsapp.log.column.recipient",
+        "value": "Recipient"
+    },
+    {
+        "key": "settings.whatsapp.log.column.reminder",
+        "value": "Type"
+    },
+    {
+        "key": "settings.whatsapp.log.column.status",
+        "value": "Status"
+    },
+    {
+        "key": "settings.whatsapp.log.column.reply",
+        "value": "Reply"
+    },
+    {
+        "key": "settings.whatsapp.log.status.queued",
+        "value": "Queued"
+    },
+    {
+        "key": "settings.whatsapp.log.status.sending",
+        "value": "Sending"
+    },
+    {
+        "key": "settings.whatsapp.log.status.sent",
+        "value": "Sent"
+    },
+    {
+        "key": "settings.whatsapp.log.status.delivered",
+        "value": "Delivered"
+    },
+    {
+        "key": "settings.whatsapp.log.status.read",
+        "value": "Read"
+    },
+    {
+        "key": "settings.whatsapp.log.status.replied",
+        "value": "Replied"
+    },
+    {
+        "key": "settings.whatsapp.log.status.failed",
+        "value": "Failed"
+    },
+    {
+        "key": "settings.whatsapp.log.status.skipped",
+        "value": "Skipped"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.reminder",
+        "value": "Reminder"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.test",
+        "value": "Test"
+    },
+    {
+        "key": "settings.whatsapp.log.reply.confirm",
+        "value": "Confirmed"
+    },
+    {
+        "key": "settings.whatsapp.log.reply.cancel",
+        "value": "Cancelled"
+    },
+    {
+        "key": "whatsapp.message.error.unknown",
+        "value": "WhatsApp could not deliver the message."
+    },
+    {
+        "key": "settings.whatsapp.embedded.timeout",
+        "value": "Meta did not return the number's details. Try again or use the manual connection."
+    },
+    {
+        "key": "E-WA-015",
+        "value": "WhatsApp conversation not found."
+    },
+    {
+        "key": "E-WA-016",
+        "value": "The message is longer than 4096 characters."
+    },
+    {
+        "key": "E-WA-017",
+        "value": "The patient has to write first: more than 24 hours passed since their last message."
+    },
+    {
+        "key": "E-WA-018",
+        "value": "Patient not found."
+    },
+    {
+        "key": "whatsapp.error.conversation_not_found",
+        "value": "Conversation not found."
+    },
+    {
+        "key": "whatsapp.error.message_too_long",
+        "value": "The message is too long (4096 characters at most)."
+    },
+    {
+        "key": "whatsapp.error.window_closed",
+        "value": "You can only reply within 24 hours of the patient's last message."
+    },
+    {
+        "key": "whatsapp.error.patient_not_found",
+        "value": "Patient not found."
+    },
+    {
+        "key": "whatsapp.conversations.list.success",
+        "value": "Conversations retrieved."
+    },
+    {
+        "key": "whatsapp.conversations.unread.success",
+        "value": "Unread messages retrieved."
+    },
+    {
+        "key": "whatsapp.conversation.get.success",
+        "value": "Conversation retrieved."
+    },
+    {
+        "key": "whatsapp.conversation.messages.success",
+        "value": "Conversation messages retrieved."
+    },
+    {
+        "key": "whatsapp.conversation.reply.success",
+        "value": "Message sent."
+    },
+    {
+        "key": "whatsapp.conversation.read.success",
+        "value": "Conversation marked as read."
+    },
+    {
+        "key": "whatsapp.conversation.patient.success",
+        "value": "Conversation linked to the patient."
+    },
+    {
+        "key": "nav.item.whatsapp",
+        "value": "WhatsApp"
+    },
+    {
+        "key": "settings.whatsapp.inbox_link",
+        "value": "View conversations"
+    },
+    {
+        "key": "settings.whatsapp.log.status.received",
+        "value": "Received"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.reply",
+        "value": "Reply"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.inbound",
+        "value": "Received message"
+    },
+    {
+        "key": "whatsapp.inbox.title",
+        "value": "WhatsApp"
+    },
+    {
+        "key": "whatsapp.inbox.description",
+        "value": "Conversations with your patients and sent messages."
+    },
+    {
+        "key": "whatsapp.inbox.tab.conversations",
+        "value": "Conversations"
+    },
+    {
+        "key": "whatsapp.inbox.tab.sent",
+        "value": "Sent"
+    },
+    {
+        "key": "whatsapp.inbox.sent.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "whatsapp.inbox.sent.filter.reminder",
+        "value": "Reminders"
+    },
+    {
+        "key": "whatsapp.inbox.sent.filter.reply",
+        "value": "Replies"
+    },
+    {
+        "key": "whatsapp.inbox.sent.filter.test",
+        "value": "Tests"
+    },
+    {
+        "key": "whatsapp.inbox.search",
+        "value": "Search by name or phone"
+    },
+    {
+        "key": "whatsapp.inbox.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "whatsapp.inbox.filter.unread",
+        "value": "Unread"
+    },
+    {
+        "key": "whatsapp.inbox.list.empty",
+        "value": "No conversations yet. They show up when a patient writes to you or answers a reminder."
+    },
+    {
+        "key": "whatsapp.inbox.list.no_results",
+        "value": "No conversations match."
+    },
+    {
+        "key": "whatsapp.inbox.list.more",
+        "value": "Show more"
+    },
+    {
+        "key": "whatsapp.inbox.list.use_search",
+        "value": "Use search to find older conversations."
+    },
+    {
+        "key": "whatsapp.inbox.preview.you",
+        "value": "You: {text}"
+    },
+    {
+        "key": "whatsapp.inbox.content.image",
+        "value": "Image (not available in the app)"
+    },
+    {
+        "key": "whatsapp.inbox.content.audio",
+        "value": "Audio (not available in the app)"
+    },
+    {
+        "key": "whatsapp.inbox.content.document",
+        "value": "Document (not available in the app)"
+    },
+    {
+        "key": "whatsapp.inbox.content.other",
+        "value": "Unsupported message"
+    },
+    {
+        "key": "whatsapp.inbox.reminder_label.one",
+        "value": "Reminder {count} h"
+    },
+    {
+        "key": "whatsapp.inbox.reminder_label.other",
+        "value": "Reminder {count} h"
+    },
+    {
+        "key": "whatsapp.inbox.reminder_template",
+        "value": "Template “{template}”"
+    },
+    {
+        "key": "whatsapp.inbox.reply.confirm",
+        "value": "Confirmed"
+    },
+    {
+        "key": "whatsapp.inbox.reply.cancel",
+        "value": "Cancelled"
+    },
+    {
+        "key": "whatsapp.inbox.composer.placeholder",
+        "value": "Type a message"
+    },
+    {
+        "key": "whatsapp.inbox.composer.send",
+        "value": "Send"
+    },
+    {
+        "key": "whatsapp.inbox.composer.closed",
+        "value": "The patient has to write first: WhatsApp only allows replies up to 24 hours after their last message."
+    },
+    {
+        "key": "whatsapp.inbox.composer.window_hours.one",
+        "value": "You can reply for {count} h"
+    },
+    {
+        "key": "whatsapp.inbox.composer.window_hours.other",
+        "value": "You can reply for {count} h"
+    },
+    {
+        "key": "whatsapp.inbox.composer.window_minutes.one",
+        "value": "You can reply for {count} minute"
+    },
+    {
+        "key": "whatsapp.inbox.composer.window_minutes.other",
+        "value": "You can reply for {count} minutes"
+    },
+    {
+        "key": "whatsapp.inbox.link.open",
+        "value": "Link to patient"
+    },
+    {
+        "key": "whatsapp.inbox.link.title",
+        "value": "Link to patient"
+    },
+    {
+        "key": "whatsapp.inbox.link.description",
+        "value": "Pick the patient the number {phone} belongs to."
+    },
+    {
+        "key": "whatsapp.inbox.link.search",
+        "value": "Search patient by name or ID"
+    },
+    {
+        "key": "whatsapp.inbox.back",
+        "value": "Back to conversations"
+    },
+    {
+        "key": "whatsapp.inbox.next_appointment",
+        "value": "Next appointment: {date} · {time}"
+    },
+    {
+        "key": "whatsapp.inbox.no_opt_in",
+        "value": "No consent for WhatsApp reminders"
+    },
+    {
+        "key": "whatsapp.inbox.thread.older",
+        "value": "Load earlier messages"
+    },
+    {
+        "key": "whatsapp.inbox.thread.empty",
+        "value": "No messages yet."
+    },
+    {
+        "key": "whatsapp.inbox.thread.pick",
+        "value": "Pick a conversation to view it."
+    },
+    {
+        "key": "whatsapp.inbox.open_chat",
+        "value": "Open chat"
+    },
+    {
+        "key": "E-WA-019",
+        "value": "Unknown WhatsApp template."
+    },
+    {
+        "key": "E-WA-020",
+        "value": "The patient has not agreed to receive WhatsApp messages."
+    },
+    {
+        "key": "E-WA-021",
+        "value": "This WhatsApp template is not approved yet."
+    },
+    {
+        "key": "E-WA-022",
+        "value": "Pick an appointment of this patient."
+    },
+    {
+        "key": "E-WA-023",
+        "value": "Your plan's monthly WhatsApp message limit was reached."
+    },
+    {
+        "key": "whatsapp.error.template_unknown",
+        "value": "Unknown WhatsApp template."
+    },
+    {
+        "key": "whatsapp.error.no_opt_in",
+        "value": "The patient has not agreed to receive WhatsApp messages."
+    },
+    {
+        "key": "whatsapp.error.template_unavailable",
+        "value": "This template is not approved by Meta yet."
+    },
+    {
+        "key": "whatsapp.error.appointment_invalid",
+        "value": "Pick an appointment of this patient."
+    },
+    {
+        "key": "plan.limit.whatsapp_messages",
+        "value": "You reached your plan's monthly WhatsApp message limit."
+    },
+    {
+        "key": "whatsapp.templates.list.success",
+        "value": "Templates retrieved."
+    },
+    {
+        "key": "whatsapp.usage.get.success",
+        "value": "Usage retrieved."
+    },
+    {
+        "key": "whatsapp.conversation.start.success",
+        "value": "Message sent."
+    },
+    {
+        "key": "whatsapp.conversation.template.success",
+        "value": "Template sent."
+    },
+    {
+        "key": "whatsapp.message.error.monthly_limit",
+        "value": "The plan's monthly message limit was reached."
+    },
+    {
+        "key": "whatsapp.patient.opt_in.request",
+        "value": "To get your appointment reminders on WhatsApp, reply YES."
+    },
+    {
+        "key": "whatsapp.patient.opt_in.confirmed",
+        "value": "Done, we will send you reminders."
+    },
+    {
+        "key": "notification.whatsapp.message",
+        "value": "{name}: {preview}"
+    },
+    {
+        "key": "notification.whatsapp.message.one",
+        "value": "{name}: {preview}"
+    },
+    {
+        "key": "notification.whatsapp.message.other",
+        "value": "{name} ({count} messages): {preview}"
+    },
+    {
+        "key": "notification.whatsapp.usage.warning",
+        "value": "You used {used} of {limit} WhatsApp messages this month (80%)."
+    },
+    {
+        "key": "notification.whatsapp.usage.reached",
+        "value": "You reached this month's limit of {limit} WhatsApp messages. Reminders are paused until next month."
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.success",
+        "value": "WhatsApp consent updated."
+    },
+    {
+        "key": "whatsapp.alert.open",
+        "value": "Open"
+    },
+    {
+        "key": "whatsapp.new_message.open",
+        "value": "New message"
+    },
+    {
+        "key": "whatsapp.new_message.title",
+        "value": "New WhatsApp message"
+    },
+    {
+        "key": "whatsapp.new_message.description",
+        "value": "Write first to a patient with a template approved by Meta."
+    },
+    {
+        "key": "whatsapp.new_message.search",
+        "value": "Search patient by name or ID"
+    },
+    {
+        "key": "whatsapp.new_message.phone_only",
+        "value": "Only patients with a phone are listed."
+    },
+    {
+        "key": "whatsapp.new_message.change_patient",
+        "value": "Change"
+    },
+    {
+        "key": "whatsapp.new_message.no_opt_in",
+        "value": "This patient hasn't agreed to receive WhatsApp messages. Record their consent on their profile before writing to them."
+    },
+    {
+        "key": "whatsapp.new_message.template",
+        "value": "Template"
+    },
+    {
+        "key": "whatsapp.new_message.no_templates",
+        "value": "There are no templates to send from the inbox."
+    },
+    {
+        "key": "whatsapp.new_message.none_approved",
+        "value": "No template is approved by Meta yet. Check their status in Settings → WhatsApp."
+    },
+    {
+        "key": "whatsapp.new_message.preview",
+        "value": "Preview"
+    },
+    {
+        "key": "whatsapp.new_message.preview_hint",
+        "value": "The patient's name, the clinic and the appointment details are filled in when sending."
+    },
+    {
+        "key": "whatsapp.new_message.appointment",
+        "value": "Appointment"
+    },
+    {
+        "key": "whatsapp.new_message.appointment.placeholder",
+        "value": "Choose the appointment"
+    },
+    {
+        "key": "whatsapp.new_message.appointment.none",
+        "value": "The patient has no upcoming appointments."
+    },
+    {
+        "key": "whatsapp.new_message.usage",
+        "value": "This message uses your plan's quota: {used} of {limit} used this month."
+    },
+    {
+        "key": "whatsapp.new_message.usage.unlimited",
+        "value": "This message counts toward this month's usage ({used} sent, no limit)."
+    },
+    {
+        "key": "whatsapp.new_message.usage.reached",
+        "value": "Your plan's monthly limit of {limit} messages has been reached."
+    },
+    {
+        "key": "whatsapp.new_message.send",
+        "value": "Send"
+    },
+    {
+        "key": "whatsapp.send_template.title",
+        "value": "Send template"
+    },
+    {
+        "key": "whatsapp.send_template.description",
+        "value": "With the 24-hour window closed you can only write with a template approved by Meta."
+    },
+    {
+        "key": "whatsapp.send_template.unlinked",
+        "value": "Link this conversation to a patient to send them a template."
+    },
+    {
+        "key": "whatsapp.template.name.pengi_cita_recordatorio",
+        "value": "Appointment reminder"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_continuar_conversacion",
+        "value": "Continue conversation"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_resultados_listos",
+        "value": "Results ready"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_reprogramar_cita",
+        "value": "Reschedule appointment"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_control_seguimiento",
+        "value": "Follow-up check"
+    },
+    {
+        "key": "whatsapp.inbox.composer.closed_template",
+        "value": "More than 24 hours have passed since the patient's last message: you can only write with a template."
+    },
+    {
+        "key": "whatsapp.inbox.composer.send_template",
+        "value": "Send template"
+    },
+    {
+        "key": "whatsapp.inbox.system_label",
+        "value": "Automatic"
+    },
+    {
+        "key": "whatsapp.inbox.sound.mute",
+        "value": "Mute the new message sound"
+    },
+    {
+        "key": "whatsapp.inbox.sound.unmute",
+        "value": "Turn on the new message sound"
+    },
+    {
+        "key": "whatsapp.inbox.sent.filter.template",
+        "value": "Templates"
+    },
+    {
+        "key": "whatsapp.patient.write",
+        "value": "Write on WhatsApp"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.template",
+        "value": "Template"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.system",
+        "value": "Automatic"
+    },
+    {
+        "key": "settings.whatsapp.templates",
+        "value": "Templates"
+    },
+    {
+        "key": "settings.whatsapp.templates.hint",
+        "value": "Meta reviews each template before it can be used. Sync to see its current status."
+    },
+    {
+        "key": "settings.whatsapp.templates.inbox",
+        "value": "Inbox"
+    },
+    {
+        "key": "settings.whatsapp.templates.reminder",
+        "value": "Reminders"
+    },
+    {
+        "key": "settings.whatsapp.usage",
+        "value": "Messages this month"
+    },
+    {
+        "key": "settings.whatsapp.usage.value",
+        "value": "{used} / {limit}"
+    },
+    {
+        "key": "settings.whatsapp.usage.unlimited",
+        "value": "{used} · no limit"
+    },
+    {
+        "key": "settings.whatsapp.usage.hint",
+        "value": "Sent templates count: reminders, tests and messages started from the inbox. Replies within 24 hours don't count. Resets on {date}."
+    },
+    {
+        "key": "settings.whatsapp.usage.reached",
+        "value": "You reached your plan's limit: reminders and templates are paused until {date}."
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.menu",
+        "value": "WhatsApp consent"
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.set",
+        "value": "Mark WhatsApp consent"
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.clear",
+        "value": "Remove WhatsApp consent"
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.set.title",
+        "value": "Mark WhatsApp consent?"
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.set.description.one",
+        "value": "The selected patient will receive appointment reminders on WhatsApp. Confirm they gave their consent."
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.set.description.other",
+        "value": "The {count} selected patients will receive appointment reminders on WhatsApp. Confirm they gave their consent."
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.clear.title",
+        "value": "Remove WhatsApp consent?"
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.clear.description.one",
+        "value": "The selected patient will stop receiving WhatsApp reminders."
+    },
+    {
+        "key": "clinical.patient.whatsapp_opt_in.bulk.clear.description.other",
+        "value": "The {count} selected patients will stop receiving WhatsApp reminders."
+    },
+    {
+        "key": "form.patient.whatsapp_opt_in.description_create",
+        "value": "Checked by default: uncheck it if the patient doesn't agree to receive WhatsApp reminders. They can unsubscribe by replying STOP."
+    },
+    {
+        "key": "backoffice.plans.limits.max_whatsapp_messages",
+        "value": "WhatsApp messages per month"
+    },
+    {
+        "key": "backoffice.plans.limits.max_whatsapp_messages.desc",
+        "value": "Templates sent per month (reminders, tests and messages started from the inbox). Pengi pays for each one."
     }
 ]

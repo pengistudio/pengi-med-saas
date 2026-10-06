@@ -21,7 +21,7 @@ import {
 } from "@/api/notification-service";
 import { PageHeader } from "@/components/custom/page-header";
 import {
-	NotificationLevelIcon,
+	NotificationIcon,
 	openNotificationLink,
 } from "@/lib/notification-level";
 import { getNotificationText } from "@/lib/notification-text";
@@ -204,8 +204,8 @@ const NotificationsPage = () => {
 													: "font-medium",
 											)}
 										>
-											<NotificationLevelIcon
-												level={notification.level}
+											<NotificationIcon
+												notification={notification}
 												className="mt-0.5"
 											/>
 											{getNotificationText(notification, {

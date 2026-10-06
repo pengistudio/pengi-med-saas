@@ -25,7 +25,14 @@ import {
 	HelpCircle,
 	Power,
 } from "lucide-react";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import {
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { getPendingReviewCount } from "@/api/exam-order-service";
 import { initiatePayment } from "@/api/subscription-service";
@@ -35,11 +42,13 @@ import {
 	createNavItems,
 	type EnabledFeatures,
 	filterNavItems,
+	type NavBadgeKey,
 	pickBottomNav,
 } from "@/config/nav-config";
 import useAuth from "@/hooks/use-auth";
 import { useNotificationsPoll } from "@/hooks/use-notifications-poll";
 import usePermission from "@/hooks/use-permission";
+import { usePolling } from "@/hooks/use-polling";
 import { PERMISSIONS } from "@/lib/constants";
 import { getPageTitle } from "@/lib/page-title";
 import { refreshEnvironment } from "@/lib/refresh-environment";
@@ -49,6 +58,14 @@ import {
 	selectSubscriptionGraceDaysLeft,
 	useSessionStore,
 } from "@/store/session-store";
+import {
+	refreshWhatsAppUnread,
+	selectUnreadConversations,
+	useWhatsAppStore,
+} from "@/store/whatsapp-store";
+
+/** Faster than the bell's poll: more unread messages also reload the bell (new-message toast). */
+const WHATSAPP_UNREAD_POLL_MS = 15_000;
 
 /** The frame of every signed-in page; the route tree renders pages in its Outlet. */
 export function DashboardLayout() {
@@ -56,7 +73,7 @@ export function DashboardLayout() {
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const [paying, setPaying] = useState(false);
-	useNotificationsPoll();
+	const reloadNotifications = useNotificationsPoll();
 	// Persisted permissions can predate a deploy: re-read them once per load.
 	useEffect(() => {
 		refreshEnvironment();
@@ -125,11 +142,31 @@ export function DashboardLayout() {
 			cancelled = true;
 		};
 	}, [canReviewExams, pathname]);
-	const withBadges = <T extends { badgeKey?: string }>(items: T[]) =>
+	const canUseInbox =
+		checkPermission([PERMISSIONS.WHATSAPP.PERMISSION_USE_WHATSAPP_INBOX]) &&
+		enabledFeatures.whatsapp !== false;
+	const whatsappUnread = useWhatsAppStore(selectUnreadConversations);
+	useEffect(() => {
+		if (canUseInbox) refreshWhatsAppUnread();
+	}, [canUseInbox]);
+	usePolling(refreshWhatsAppUnread, WHATSAPP_UNREAD_POLL_MS, canUseInbox);
+	// A new WhatsApp message shows up here first: reload the bell now so its
+	// toast doesn't wait for the next notifications poll.
+	const whatsappUnreadMessages = useWhatsAppStore((s) => s.unreadMessages);
+	const previousUnreadMessages = useRef(whatsappUnreadMessages);
+	useEffect(() => {
+		if (whatsappUnreadMessages > previousUnreadMessages.current) {
+			reloadNotifications();
+		}
+		previousUnreadMessages.current = whatsappUnreadMessages;
+	}, [whatsappUnreadMessages, reloadNotifications]);
+	const badges: Record<NavBadgeKey, number> = {
+		pendingExamReviews,
+		whatsappUnread: canUseInbox ? whatsappUnread : 0,
+	};
+	const withBadges = <T extends { badgeKey?: NavBadgeKey }>(items: T[]) =>
 		items.map((item) =>
-			item.badgeKey === "pendingExamReviews"
-				? { ...item, badge: pendingExamReviews }
-				: item,
+			item.badgeKey ? { ...item, badge: badges[item.badgeKey] } : item,
 		);
 	const navItems = withBadges(allNavItems.filter((item) => !item.isBottom));
 	const bottomNavItems = withBadges(pickBottomNav(allNavItems, textGet));

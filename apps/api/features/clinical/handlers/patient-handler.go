@@ -71,6 +71,12 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 	}
 
 	patient.TenantID = tid
+	if newPatient.WhatsAppOptIn {
+		now := time.Now()
+		patient.WhatsAppOptIn = true
+		patient.WhatsAppOptInAt = &now
+		patient.WhatsAppOptInSource = clinical_models.WhatsAppOptInSourceRegistration
+	}
 
 	if err := tenantdb.For(c, h.db).Create(patient).Error; err != nil {
 		h.logger.Error("Failed to create patient", zap.Error(err))
@@ -109,6 +115,11 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	}
 	if updateData.Phone != nil {
 		updates["phone"] = *updateData.Phone
+	}
+	if updateData.WhatsAppOptIn != nil && *updateData.WhatsAppOptIn != patient.WhatsAppOptIn {
+		updates["whatsapp_opt_in"] = *updateData.WhatsAppOptIn
+		updates["whatsapp_opt_in_at"] = time.Now()
+		updates["whatsapp_opt_in_source"] = clinical_models.WhatsAppOptInSourceManual
 	}
 	if updateData.Email != nil {
 		updates["email"] = *updateData.Email
@@ -232,9 +243,9 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 				SELECT 1 FROM appointments a
 				WHERE a.patient_id = patients.id
 				AND a.deleted_at IS NULL
-				AND a.status = ?
+				AND a.status IN ?
 				AND a.date >= ?
-			)`, "scheduled", now)
+			)`, []string{"scheduled", "confirmed"}, now)
 		orderClause = `(
 			SELECT mr.next_appointment_date FROM medical_records mr
 			WHERE mr.patient_id = patients.id AND mr.deleted_at IS NULL
@@ -260,7 +271,7 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 			return db.Order("date DESC").Limit(1)
 		}).
 		Preload("Appointments", func(db *gorm.DB) *gorm.DB {
-			return db.Where("status = ? AND date >= ?", "scheduled", now).Order("date ASC")
+			return db.Where("status IN ? AND date >= ?", []string{"scheduled", "confirmed"}, now).Order("date ASC")
 		}).
 		Find(&patients).Error
 
@@ -286,6 +297,32 @@ func (h *PatientHandler) DeleteMultiplePatients(c *gin.Context) envelope.Respons
 
 	// Returning the remaining list like the original logic did
 	return h.GetAllPatientsWithLastFollowUp(c)
+}
+
+// maxBulkWhatsAppOptIn caps the ids of one bulk consent change.
+const maxBulkWhatsAppOptIn = 1000
+
+// BulkWhatsAppOptIn sets or clears WhatsApp consent on the selected patients
+// (source "bulk"). Ids of another tenant (or unknown) are ignored by the
+// tenant-bound handle; patients already at the value are left alone.
+// Responds {updated: n}, the patients that changed.
+func (h *PatientHandler) BulkWhatsAppOptIn(c *gin.Context) envelope.Response {
+	var req clinical_dto.BulkWhatsAppOptInDTO
+	if err := c.ShouldBindJSON(&req); err != nil || len(req.IDs) == 0 || len(req.IDs) > maxBulkWhatsAppOptIn {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
+	}
+	res := tenantdb.For(c, h.db).Model(&clinical_models.Patient{}).
+		Where("id IN ? AND whatsapp_opt_in <> ?", req.IDs, *req.OptIn).
+		Updates(map[string]any{
+			"whatsapp_opt_in":        *req.OptIn,
+			"whatsapp_opt_in_at":     time.Now(),
+			"whatsapp_opt_in_source": clinical_models.WhatsAppOptInSourceBulk,
+		})
+	if res.Error != nil {
+		h.logger.Error("Failed to update patients' WhatsApp consent", zap.Error(res.Error))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientUpdateError)
+	}
+	return envelope.SuccessResponse(clinical_dto.BulkWhatsAppOptInResponse{Updated: res.RowsAffected}, "clinical.patient.whatsapp_opt_in.bulk.success")
 }
 
 func (h *PatientHandler) DeleteOnePatient(c *gin.Context) envelope.Response {

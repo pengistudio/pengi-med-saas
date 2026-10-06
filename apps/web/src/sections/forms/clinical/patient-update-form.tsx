@@ -8,6 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 	Form,
+	FormCheckbox,
 	FormInput,
 	FormRadioGroup,
 	FormSelect,
@@ -41,6 +42,7 @@ const formSchema = z.object({
 		.min(10, "Debe tener 10 caracteres")
 		.max(10, "Debe tener 10 caracteres"),
 	phone: z.string().optional(),
+	whatsapp_opt_in: z.boolean().optional(),
 	email: z.union([z.literal(""), z.email()]).optional(),
 	first_name: z.string().min(1, "No debe estar vacío"),
 	last_name: z.string().min(1, "No debe estar vacío"),
@@ -107,6 +109,7 @@ const EditPatientForm = () => {
 	const defaultValues = {
 		document: patient.document,
 		phone: patient.phone || "",
+		whatsapp_opt_in: patient.whatsapp_opt_in ?? false,
 		email: patient.email || "",
 		first_name: patient.first_name,
 		last_name: patient.last_name,
@@ -170,6 +173,17 @@ const EditPatientForm = () => {
 								label={textGet("form.edit_patient.email")}
 								isOptional
 							/>
+
+							<div className="md:col-span-2">
+								<FormCheckbox
+									field={field}
+									name="whatsapp_opt_in"
+									label={textGet("form.patient.whatsapp_opt_in")}
+									description={textGet(
+										"form.patient.whatsapp_opt_in.description",
+									)}
+								/>
+							</div>
 
 							{useAgeInput && !exactDate ? (
 								<div className="space-y-1.5">

@@ -44,6 +44,9 @@ const CreatePlan = () => {
 		max_users: -1,
 		max_patients: -1,
 		max_offices: -1,
+		// Pengi pays every WhatsApp template: a new plan starts capped, not
+		// unlimited (same default as the migration of existing plans).
+		max_whatsapp_messages: 300,
 	});
 	const [tier, setTier] = React.useState<Tier>(1);
 	const [storageQuotaMb, setStorageQuotaMb] = React.useState(0);

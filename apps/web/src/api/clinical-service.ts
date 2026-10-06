@@ -13,6 +13,11 @@ export interface Patient extends BaseModel {
 	tenant_id: number;
 	document: string;
 	phone: string;
+	/** Agreed to WhatsApp reminders (Meta requires opt-in). */
+	whatsapp_opt_in?: boolean;
+	whatsapp_opt_in_at?: string | null;
+	/** How the consent was last given or withdrawn. */
+	whatsapp_opt_in_source?: WhatsAppOptInSource;
 	email: string;
 	first_name: string;
 	last_name: string;
@@ -34,6 +39,14 @@ export interface Patient extends BaseModel {
 	medical_records?: MedicalRecord[];
 	appointments?: Appointment[];
 }
+
+export type WhatsAppOptInSource =
+	| ""
+	| "registration"
+	| "manual"
+	| "bulk"
+	| "whatsapp"
+	| "whatsapp_stop";
 
 export interface PaginatedResponse<T> {
 	items: T[];
@@ -88,6 +101,20 @@ export const deleteMultiplePatients = async (
 
 	return getAllPatientsWithLastFollowUp({});
 };
+
+/**
+ * Sets (opt_in true) or clears WhatsApp consent on the given patients (at most
+ * 1000; the list selects one page at a time).
+ */
+export const setPatientsWhatsAppOptIn = async (
+	ids: number[],
+	optIn: boolean,
+): Promise<ServiceResponse<{ updated: number }>> =>
+	clinicalService.post<{ updated: number }>(
+		"/clinical/patients/whatsapp-opt-in",
+		{ ids, opt_in: optIn },
+		{ notifySuccess: true, notifyError: true },
+	);
 
 // ─── Medical Report / Certificate API ────────────────────────────────────────
 
@@ -236,6 +263,7 @@ export const emailMedicalCertificate = async (
 export type CreatePatientPayload = {
 	document: string;
 	phone?: string;
+	whatsapp_opt_in?: boolean;
 	email?: string;
 	first_name: string;
 	last_name: string;
@@ -298,6 +326,7 @@ export interface Appointment extends BaseModel {
 	notes?: string;
 	status:
 		| "scheduled"
+		| "confirmed"
 		| "arrived"
 		| "in_consultation"
 		| "completed"

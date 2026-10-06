@@ -18,7 +18,7 @@ import {
 	type Notification,
 } from "@/api/notification-service";
 import {
-	NotificationLevelIcon,
+	NotificationIcon,
 	openNotificationLink,
 } from "@/lib/notification-level";
 import { getNotificationText } from "@/lib/notification-text";
@@ -114,8 +114,8 @@ const NotificationBell = () => {
 							onClick={() => handleSelect(notification)}
 						>
 							<span className="flex items-start gap-2 font-medium">
-								<NotificationLevelIcon
-									level={notification.level}
+								<NotificationIcon
+									notification={notification}
 									className="mt-0.5"
 								/>
 								{getNotificationText(notification, { textGet, formatRelative })}

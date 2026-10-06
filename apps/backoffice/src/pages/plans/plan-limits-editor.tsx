@@ -6,6 +6,7 @@ export const PLAN_LIMIT_KEYS = [
 	"max_users",
 	"max_patients",
 	"max_offices",
+	"max_whatsapp_messages",
 ] as const;
 export type PlanLimitKey = (typeof PLAN_LIMIT_KEYS)[number];
 export type PlanLimits = Partial<Record<PlanLimitKey, number | null>>;
@@ -29,6 +30,11 @@ const LIMIT_CONFIGS: {
 		key: "max_offices",
 		labelKey: "backoffice.plans.limits.max_offices",
 		descKey: "backoffice.plans.limits.max_offices.desc",
+	},
+	{
+		key: "max_whatsapp_messages",
+		labelKey: "backoffice.plans.limits.max_whatsapp_messages",
+		descKey: "backoffice.plans.limits.max_whatsapp_messages.desc",
 	},
 ];
 
