@@ -30,6 +30,30 @@ func TestUserRoutes_NoPublicUserListing(t *testing.T) {
 	}
 }
 
+// POST /auth/signup bound the whole User model from an unauthenticated body
+// and saved it with its associations (environments: company + role with
+// permissions), so anyone could create a user inside any company. No client
+// uses it; the company signup flow (/auth/signup/company*) must remain.
+func TestUserRoutes_NoPublicRawSignup(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	logger.Log = zap.NewNop()
+	db := testutils.SetupTestDB(t, &user_models.User{})
+	router := gin.New()
+	RegisterUserRoutes(router.Group(""), db)
+
+	raw := httptest.NewRecorder()
+	router.ServeHTTP(raw, httptest.NewRequest(http.MethodPost, "/auth/signup", nil))
+	if raw.Code != http.StatusNotFound {
+		t.Fatalf("POST /auth/signup = %d, want 404 (route must not exist)", raw.Code)
+	}
+
+	company := httptest.NewRecorder()
+	router.ServeHTTP(company, httptest.NewRequest(http.MethodPost, "/auth/signup/company", nil))
+	if company.Code == http.StatusNotFound {
+		t.Fatal("POST /auth/signup/company = 404, the company signup must remain")
+	}
+}
+
 // GET /companies listed every company (legal and trade names, plan, owner) to
 // anyone, without authentication; no client uses it. POST /companies (create
 // your own company) must remain, behind authentication.

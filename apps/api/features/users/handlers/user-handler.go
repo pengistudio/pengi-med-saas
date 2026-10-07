@@ -39,19 +39,6 @@ func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
 	}
 }
 
-func (h *UserHandler) SignUp(c *gin.Context) envelope.Response {
-	var user user_models.User
-	if err := c.ShouldBind(&user); err != nil {
-		h.logger.Error("Invalid signup request", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
-	}
-	if err := user.Save(h.db); err != nil {
-		h.logger.Error("Failed to create user", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthUserCreateError)
-	}
-	return envelope.SuccessResponse(user, "user.create.success")
-}
-
 func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	// 0) Bind
 	var user user_dto.LoginDTO
