@@ -1,8 +1,8 @@
 ---
 name: scout
-description: Cheap read-only locator on Sonnet with low effort. Use to find where something lives (files, symbols, routes, i18n keys, call sites) before delegating or editing. Returns path:line pointers, never file dumps. Not for judging or reviewing code.
-model: sonnet
-effort: low
+description: Cheap read-only locator on Haiku with medium effort. Use to find where something lives (files, symbols, routes, i18n keys, call sites) before delegating or editing. Returns path:line pointers, never file dumps. Not for judging or reviewing code.
+model: haiku
+effort: medium
 tools: Read, Grep, Glob, Bash
 ---
 
