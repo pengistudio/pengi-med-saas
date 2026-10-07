@@ -7,7 +7,6 @@ import (
 	"os"
 	"pengi-med-saas/core/tenantdb"
 	clinical_services "pengi-med-saas/features/clinical/services"
-	"strings"
 	"time"
 
 	"pengi-med-saas/core/auth"
@@ -132,65 +131,6 @@ func (h *UserHandler) Logout(c *gin.Context) envelope.Response {
 	auth.ClearRefreshTokenCookie(c)
 	h.logger.Info("User logged out")
 	return envelope.SuccessResponse(nil, "auth.logout.success")
-}
-
-func (h *UserHandler) ValidateBearerToken(c *gin.Context) envelope.Response {
-	// Usar helper para extraer y validar el token
-	claims, token, err := ExtractAndValidateBearerToken(c)
-	if err != nil {
-		// ExtractAndValidateBearerToken returns error which we map
-		h.logger.Warn("Bearer token validation failed", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest)
-	}
-
-	// Extraer información del token
-	userID, ok := claims["userId"].(float64)
-	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest)
-	}
-
-	username, ok := claims["username"].(string)
-	if !ok {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest)
-	}
-
-	// Responder con la información del token validado
-	return envelope.SuccessResponse(gin.H{
-		"valid":    true,
-		"user_id":  int64(userID),
-		"username": username,
-		"token":    token,
-		"message":  "Token is valid",
-	}, "auth.token.valid")
-}
-
-// ExtractAndValidateBearerToken es una función helper que extrae y valida un Bearer token
-// Retorna (claims, token, error)
-func ExtractAndValidateBearerToken(c *gin.Context) (map[string]interface{}, string, error) {
-	// 1) Extraer el token del header Authorization
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		return nil, "", errors.New("authorization header missing")
-	}
-
-	// 2) Verificar que empiece con "Bearer "
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return nil, "", errors.New("invalid authorization header format")
-	}
-
-	// 3) Extraer el token (quitar "Bearer " del inicio)
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	if token == "" {
-		return nil, "", errors.New("token is empty")
-	}
-
-	// 4) Validar el token usando ParseToken
-	claims, err := auth.ParseToken(token)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return claims, token, nil
 }
 
 // SignUpWithCompanyToken registers a new user using a company signup token.

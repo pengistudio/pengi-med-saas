@@ -43,7 +43,7 @@ type CreateMedicalRecordDTO struct {
 	NextAppointmentStatus *string                       `json:"next_appointment_status,omitempty" binding:"omitempty,oneof=scheduled pending not_required"`
 	SOAPRecord            clinical_models.SOAPRecord    `json:"soap_record"`
 	Prescription          *clinical_models.Prescription `json:"prescription,omitempty"`
-	VitalSigns            *clinical_models.VitalSigns   `json:"vital_signs,omitempty"`
+	VitalSigns            *VitalSignsInput              `json:"vital_signs,omitempty"`
 	Diagnoses             datatypes.JSON                `json:"diagnoses,omitempty"`
 	VisitType             string                        `json:"visit_type" binding:"required,oneof=first followup"`
 	APP                   *string                       `json:"app,omitempty"`

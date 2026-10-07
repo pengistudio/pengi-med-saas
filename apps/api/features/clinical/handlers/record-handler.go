@@ -211,12 +211,12 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 
 	// Create vital signs if provided
 	if newRecord.VitalSigns != nil {
-		newRecord.VitalSigns.MedicalRecordID = record.ID
-		if err := tenantdb.For(c, h.db).Create(newRecord.VitalSigns).Error; err != nil {
+		vitalSigns := newRecord.VitalSigns.Model(record.ID)
+		if err := tenantdb.For(c, h.db).Create(&vitalSigns).Error; err != nil {
 			h.logger.Error("Failed to create vital signs", zap.Error(err))
 			// Non-fatal: record was created, just log the error
 		} else {
-			record.VitalSigns = newRecord.VitalSigns
+			record.VitalSigns = &vitalSigns
 		}
 	}
 

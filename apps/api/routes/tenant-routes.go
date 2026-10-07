@@ -28,7 +28,6 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	tenantGroup.PUT("/sri/info", envelope.Handle(tenantHandler.UpdateSriInfo))
 	tenantGroup.GET("/settings", envelope.Handle(tenantHandler.GetUISettings))
 	tenantGroup.PUT("/settings", envelope.Handle(tenantHandler.UpdateUISettings))
-	tenantGroup.GET("/features", envelope.Handle(tenantHandler.GetEnabledFeatures))
 
 	// The display token is the credential of the public waiting-room TV, so
 	// viewing or rotating it is account administration: the role must manage

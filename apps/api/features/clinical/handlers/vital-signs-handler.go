@@ -6,6 +6,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
+	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	"strconv"
 
@@ -31,15 +32,15 @@ func (h *VitalSignsHandler) UpsertVitalSigns(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.vital_signs.error.invalid_id", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	var input clinical_models.VitalSigns
-	if err := c.ShouldBindJSON(&input); err != nil {
+	var body clinical_dto.VitalSignsInput
+	if err := c.ShouldBindJSON(&body); err != nil {
 		h.logger.Error("invalid vital signs payload", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.vital_signs.error.invalid_payload", core_errors.ErrClinicalInvalidRequest)
 	}
 	if !h.recordInTenant(c, recordID) {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
-	input.MedicalRecordID = uint(recordID)
+	input := body.Model(uint(recordID))
 
 	var existing clinical_models.VitalSigns
 	result := h.db.Where("medical_record_id = ?", recordID).First(&existing)

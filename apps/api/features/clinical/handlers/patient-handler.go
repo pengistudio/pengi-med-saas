@@ -177,15 +177,6 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(patient, "clinical.patient.update.success")
 }
 
-func (h *PatientHandler) GetAllPatients(c *gin.Context) envelope.Response {
-	var patients []clinical_models.Patient
-	if err := tenantdb.For(c, h.db).Find(&patients).Error; err != nil {
-		h.logger.Error("Failed to fetch patients", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientNotFound)
-	}
-	return envelope.SuccessResponse(patients, "clinical.patient.list.success")
-}
-
 func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope.Response {
 	// Pagination params
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
