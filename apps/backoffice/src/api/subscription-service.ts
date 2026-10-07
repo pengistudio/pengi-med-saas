@@ -1,8 +1,4 @@
-import { createHttpService, type ServiceResponse } from "@pengi/shared";
 import { resource } from "@/lib/resource/http-resource";
-import { api } from ".";
-
-const httpService = createHttpService(api);
 
 export interface Subscription {
 	ID: number;
@@ -36,10 +32,3 @@ export const subscriptions = resource<
 	CreateSubscriptionRequest,
 	UpdateSubscriptionRequest
 >("subscriptions");
-
-export const getSubscriptionsByCompany = (
-	companyId: number | string,
-): Promise<ServiceResponse<Subscription[]>> =>
-	httpService.get<Subscription[]>(
-		`/backoffice/subscriptions/company/${companyId}`,
-	);

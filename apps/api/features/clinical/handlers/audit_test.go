@@ -129,10 +129,11 @@ func TestGetPatientByID_CreatesReadAuditLog(t *testing.T) {
 	}
 }
 
-func TestDeleteOnePatient_CreatesDeleteAuditLogWithNonZeroEntityID(t *testing.T) {
+func TestDeleteMultiplePatients_CreatesDeleteAuditLogPerPatient(t *testing.T) {
 	rawDB := testutils.SetupTestDB(t,
 		&tenant_models.Tenant{},
 		&clinical_models.Patient{},
+		&clinical_models.Appointment{}, &clinical_models.MedicalRecord{}, // read by the remaining-list query
 		&audit.AuditLog{},
 	)
 	audit.RegisterCallbacks(rawDB)
@@ -148,43 +149,38 @@ func TestDeleteOnePatient_CreatesDeleteAuditLogWithNonZeroEntityID(t *testing.T)
 		t.Fatalf("failed to create test tenant: %v", err)
 	}
 
-	patient := &clinical_models.Patient{
-		TenantID:    tenant.ID,
-		Document:    "DOC-AUDIT-3",
-		FirstName:   "Delete",
-		LastName:    "Me",
-		Institution: "Hospital Audit",
-	}
-	if err := rawDB.Create(patient).Error; err != nil {
-		t.Fatalf("failed to create test patient: %v", err)
+	var ids []uint
+	for _, doc := range []string{"DOC-AUDIT-3", "DOC-AUDIT-4"} {
+		patient := &clinical_models.Patient{
+			TenantID:    tenant.ID,
+			Document:    doc,
+			FirstName:   "Delete",
+			LastName:    "Me",
+			Institution: "Hospital Audit",
+		}
+		if err := rawDB.Create(patient).Error; err != nil {
+			t.Fatalf("failed to create test patient: %v", err)
+		}
+		ids = append(ids, patient.ID)
 	}
 
 	handler := NewPatientHandler(rawDB, logger)
 	c, _ := testutils.NewGinContext(tenant.ID, 1)
-	c.Params = gin.Params{{Key: "id", Value: fmt.Sprint(patient.ID)}}
-	c.Request = httptest.NewRequest("DELETE", "/patients/delete-multiple/"+fmt.Sprint(patient.ID), nil)
+	body, _ := json.Marshal(clinical_dto.DeletePatientsDTO{IdList: ids})
+	c.Request = httptest.NewRequest("POST", "/patients/delete-multiple", bytes.NewReader(body))
+	c.Request.Header.Set("Content-Type", "application/json")
 
-	response := handler.DeleteOnePatient(c)
+	response := handler.DeleteMultiplePatients(c)
 	if response.Code != 200 {
 		t.Fatalf("expected status 200, got %d; message: %s", response.Code, response.Message)
 	}
 
-	var logs []audit.AuditLog
-	if err := rawDB.Where("entity_type = ? AND action = ?", "patients", "DELETE").Find(&logs).Error; err != nil {
+	var logged []uint
+	if err := rawDB.Model(&audit.AuditLog{}).Where("entity_type = ? AND action = ?", "patients", "DELETE").
+		Order("entity_id").Pluck("entity_id", &logged).Error; err != nil {
 		t.Fatalf("failed to query audit logs: %v", err)
 	}
-	if len(logs) == 0 {
-		// KNOWN LIMITATION (flagged in the audit-trail plan, not fixed by this change):
-		// DeleteOnePatient runs `.Where("id = ?", id).Delete(&clinical_models.Patient{})`
-		// against a zero-value struct, so GORM's afterDeleteCallback can't resolve an
-		// EntityID from Dest/Model and recordAudit's `if entityID == 0 { return }` guard
-		// silently drops the row. Fixing it means loading the patient before deleting it,
-		// which is a behavior change (adds a 404 path) outside this plan's approved scope.
-		t.Skip("confirmed: DeleteOnePatient produces no audit row because EntityID resolves to 0 — tracked as a follow-up, see plan")
-	}
-	for _, l := range logs {
-		if l.EntityID == 0 {
-			t.Errorf("DELETE audit log has EntityID == 0 for patient %d", patient.ID)
-		}
+	if fmt.Sprint(logged) != fmt.Sprint(ids) {
+		t.Fatalf("DELETE audit logs for patients %v, want one per deleted patient %v", logged, ids)
 	}
 }

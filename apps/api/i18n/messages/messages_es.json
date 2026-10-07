@@ -1532,6 +1532,10 @@
         "value": "Pacientes con seguimientos obtenidos exitosamente"
     },
     {
+        "key": "clinical.patient.delete.success",
+        "value": "Pacientes eliminados exitosamente"
+    },
+    {
         "key": "clinical.patient.found",
         "value": "Paciente encontrado"
     },
