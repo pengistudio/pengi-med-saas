@@ -3,13 +3,13 @@ import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import Layout from "../layouts/main.astro";
 
-const lastUpdated = "2 de octubre de 2026";
+const lastUpdated = "5 de octubre de 2026";
 const contactEmail = "pengiservicios@gmail.com";
 ---
 
 <Layout
 	title="Política de Privacidad — Gentoo"
-	description="Política de privacidad de Gentoo, software médico inteligente para clínicas y consultorios. Qué datos recopilamos, cómo los usamos y cómo tratamos los datos de Google Calendar."
+	description="Política de privacidad de Gentoo, software médico inteligente para clínicas y consultorios. Qué datos recopilamos, cómo los usamos y cómo tratamos los datos de Google Calendar y WhatsApp Business."
 >
 	<Navbar />
 	<main class="max-w-3xl mx-auto px-6 pt-28 pb-16 font-sans">
@@ -44,6 +44,7 @@ const contactEmail = "pengiservicios@gmail.com";
 					<li><strong>Datos de facturación electrónica:</strong> información tributaria de la clínica y de sus clientes necesaria para emitir facturas y notas de crédito/débito ante el SRI, incluido el certificado de firma electrónica (archivo .p12) que la clínica sube para firmar sus comprobantes.</li>
 					<li><strong>Firma electrónica de documentos médicos:</strong> el certificado de firma (.p12) que cada profesional sube para firmar sus documentos; su contraseña se guarda cifrada.</li>
 					<li><strong>Datos de Google Calendar:</strong> solo si activas la integración opcional; se detallan en la sección 3.</li>
+					<li><strong>Datos de WhatsApp Business:</strong> solo si la clínica activa la integración opcional; se detallan en la sección 4.</li>
 					<li><strong>Datos técnicos y de uso:</strong> dirección IP, tipo de navegador, fecha y hora de acceso y registros de actividad dentro de la plataforma, usados para seguridad y auditoría.</li>
 				</ul>
 				<p class="mt-3">
@@ -124,7 +125,75 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">4. Cómo usamos tu información</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">4. Integración con WhatsApp Business</h2>
+				<p>
+					Gentoo ofrece una integración <strong>opcional</strong> con la plataforma de WhatsApp Business
+					de Meta para que la clínica envíe avisos de citas y facturación a sus pacientes y reciba sus
+					respuestas dentro de Gentoo. La integración solo se activa cuando un administrador de la clínica
+					conecta, desde Configuración, el número de WhatsApp Business de su propia clínica mediante el
+					proceso de registro de Meta. Cada clínica es titular de su número y de su cuenta de WhatsApp
+					Business; Gentoo actúa como proveedor tecnológico que envía y recibe mensajes en su nombre.
+				</p>
+
+				<h3 class="text-lg font-semibold text-gray-900 mt-5 mb-2">4.1 Permisos que solicitamos a Meta</h3>
+				<p>
+					Solicitamos los permisos <code class="bg-gray-100 px-1 rounded text-sm">whatsapp_business_management</code>
+					y <code class="bg-gray-100 px-1 rounded text-sm">whatsapp_business_messaging</code>, que permiten
+					administrar las plantillas de mensajes y enviar y recibir mensajes desde el número de la clínica.
+					No accedemos a perfiles personales de Facebook o Instagram, páginas, anuncios ni a ningún otro
+					activo de la cuenta de Meta de la clínica.
+				</p>
+
+				<h3 class="text-lg font-semibold text-gray-900 mt-5 mb-2">4.2 Datos que tratamos</h3>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li><strong>Datos de la cuenta de WhatsApp Business de la clínica:</strong> identificadores de la cuenta y del número, número visible, nombre verificado, calificación de calidad y el token de acceso que Meta emite al conectar. El token se guarda cifrado y nunca se envía al navegador.</li>
+					<li><strong>Datos del paciente que se envían a WhatsApp:</strong> número de teléfono, nombre y los datos logísticos del aviso (fecha y hora de la cita, profesional, aviso de factura o de documento disponible).</li>
+					<li><strong>Mensajes de la conversación:</strong> el texto de los mensajes enviados y recibidos, su estado de entrega (enviado, entregado, leído) y la fecha. De los archivos que envía el paciente (imágenes, audios, documentos) solo registramos el tipo y el texto que los acompaña; Gentoo no descarga ni almacena el archivo.</li>
+				</ul>
+
+				<h3 class="text-lg font-semibold text-gray-900 mt-5 mb-2">4.3 Cómo usamos estos datos</h3>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li>Enviar confirmaciones, recordatorios, cancelaciones y reprogramaciones de citas.</li>
+					<li>Avisar que una factura o un documento está disponible.</li>
+					<li>Responder consultas logísticas mediante un asistente automático de respuestas fijas (por ejemplo, "mis próximas citas") y derivar la conversación al personal de la clínica cuando el paciente lo pide o el asistente no entiende el mensaje. El asistente no usa inteligencia artificial y no interpreta síntomas ni da indicaciones médicas.</li>
+					<li>Mostrar al personal autorizado de la clínica el historial de la conversación con cada paciente.</li>
+				</ul>
+				<p class="mt-3">
+					<strong>No enviamos información clínica por WhatsApp:</strong> diagnósticos, resultados,
+					medicamentos o documentos médicos nunca se incluyen en el mensaje; cuando corresponde, el
+					mensaje solo indica que hay un documento disponible para consultarlo de forma segura. No usamos
+					WhatsApp para publicidad ni para mensajes de marketing.
+				</p>
+
+				<h3 class="text-lg font-semibold text-gray-900 mt-5 mb-2">4.4 Consentimiento y cómo dejar de recibir mensajes</h3>
+				<p>
+					La clínica es responsable de obtener el consentimiento del paciente antes de escribirle por
+					WhatsApp. El paciente puede dejar de recibir mensajes en cualquier momento respondiendo
+					<strong>BAJA</strong>, <strong>SALIR</strong> o <strong>STOP</strong>: Gentoo registra la
+					revocación del consentimiento de inmediato y deja de enviarle mensajes desde ese número.
+				</p>
+
+				<h3 class="text-lg font-semibold text-gray-900 mt-5 mb-2">4.5 Con quién compartimos estos datos</h3>
+				<p>
+					Los mensajes se transmiten a través de la plataforma de WhatsApp Business de Meta Platforms, que
+					los procesa según sus
+					<a href="https://www.whatsapp.com/legal/business-policy" target="_blank" rel="noopener" class="text-blue-600 underline">Políticas de WhatsApp Business</a>
+					y su
+					<a href="https://www.whatsapp.com/legal/privacy-policy" target="_blank" rel="noopener" class="text-blue-600 underline">Política de Privacidad</a>.
+					No vendemos ni compartimos los datos obtenidos de las APIs de Meta con otros terceros, ni los
+					usamos para publicidad, perfiles de usuario o entrenamiento de modelos de inteligencia artificial.
+				</p>
+
+				<h3 class="text-lg font-semibold text-gray-900 mt-5 mb-2">4.6 Conservación y eliminación</h3>
+				<ul class="list-disc pl-6 mt-3 space-y-2">
+					<li>Al pulsar "Desconectar" en Configuración, <strong>eliminamos de inmediato</strong> el token de acceso, retiramos la suscripción de Gentoo a la cuenta de WhatsApp Business de la clínica y dejamos de enviar y recibir mensajes.</li>
+					<li>El historial de conversaciones forma parte de los datos de la clínica y se conserva mientras su cuenta esté activa; se elimina junto con ella según la sección 8, o antes si la clínica lo solicita.</li>
+					<li>Para pedir la eliminación de tus datos de WhatsApp tratados por Gentoo, escríbenos a <a href={`mailto:${contactEmail}`} class="text-blue-600 underline">{contactEmail}</a>.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">5. Cómo usamos tu información</h2>
 				<ul class="list-disc pl-6 mt-3 space-y-2">
 					<li>Proveer, mantener y mejorar las funciones de la plataforma (agenda, historias clínicas, recetas, facturación, etc.).</li>
 					<li>Crear y gestionar tu cuenta y la de tu equipo, con permisos según el rol de cada usuario.</li>
@@ -132,6 +201,7 @@ const contactEmail = "pengiservicios@gmail.com";
 					<li>Generar y firmar electrónicamente documentos médicos (recetas, certificados, informes).</li>
 					<li>Enviar correos operativos: invitaciones al equipo, recuperación de contraseña y envío de documentos a pacientes cuando la clínica lo solicita.</li>
 					<li>Sincronizar citas con Google Calendar si la integración está activa (sección 3).</li>
+					<li>Enviar avisos de citas y facturación por WhatsApp y atender las respuestas de los pacientes, si la integración está activa (sección 4).</li>
 					<li>Proteger la plataforma, detectar accesos no autorizados y mantener registros de auditoría.</li>
 					<li>Cumplir obligaciones legales, tributarias y regulatorias.</li>
 				</ul>
@@ -141,23 +211,25 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">5. Con quién compartimos información</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">6. Con quién compartimos información</h2>
 				<p>Solo compartimos datos con los siguientes proveedores, y únicamente lo necesario para prestar el servicio:</p>
 				<ul class="list-disc pl-6 mt-3 space-y-2">
 					<li><strong>Servicio de Rentas Internas (SRI):</strong> los comprobantes electrónicos que la clínica emite, según exige la ley tributaria ecuatoriana.</li>
 					<li><strong>Proveedor de infraestructura en la nube:</strong> aloja nuestros servidores y bases de datos.</li>
-					<li><strong>Proveedor de envío de correo (Resend):</strong> para entregar los correos operativos descritos en la sección 4.</li>
+					<li><strong>Proveedor de envío de correo (Resend):</strong> para entregar los correos operativos descritos en la sección 5.</li>
 					<li><strong>Google:</strong> solo si activas la integración con Google Calendar (sección 3).</li>
+					<li><strong>Meta Platforms (WhatsApp):</strong> solo si la clínica activa la integración con WhatsApp Business (sección 4).</li>
 					<li><strong>Autoridades:</strong> cuando lo exija una ley o una orden judicial válida.</li>
 				</ul>
 				<p class="mt-3">
-					Cuando un usuario elige enviar una receta por WhatsApp, Gentoo solo abre un enlace de WhatsApp en
-					su dispositivo con el mensaje prellenado; Gentoo no envía datos a WhatsApp por su cuenta.
+					Aparte de la integración de la sección 4, cuando un usuario elige compartir una receta u orden
+					por WhatsApp desde su dispositivo, Gentoo solo abre un enlace de WhatsApp con el mensaje
+					prellenado; en ese caso es el usuario quien decide enviarlo.
 				</p>
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">6. Almacenamiento y seguridad</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">7. Almacenamiento y seguridad</h2>
 				<p>
 					Implementamos medidas técnicas y organizativas para proteger tus datos contra acceso no
 					autorizado, pérdida o divulgación, entre ellas: cifrado en tránsito (HTTPS), contraseñas
@@ -172,18 +244,18 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">7. Conservación de datos</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">8. Conservación de datos</h2>
 				<p>
 					Conservamos la información mientras la cuenta de la clínica esté activa. Si la clínica solicita
 					la eliminación de su cuenta, eliminamos sus datos en un plazo máximo de 30 días, salvo la
 					información que debamos conservar por obligación legal (por ejemplo, comprobantes electrónicos
-					y registros tributarios exigidos por el SRI). Los datos de Google Calendar se conservan y
-					eliminan según la sección 3.5.
+					y registros tributarios exigidos por el SRI). Los datos de Google Calendar y de WhatsApp se conservan y
+					eliminan según las secciones 3.5 y 4.6.
 				</p>
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">8. Cookies y almacenamiento local</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">9. Cookies y almacenamiento local</h2>
 				<p>
 					La aplicación usa el almacenamiento local del navegador para mantener tu sesión iniciada y
 					recordar preferencias como el idioma. No usamos cookies de publicidad ni de rastreo de terceros.
@@ -191,7 +263,7 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">9. Tus derechos</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">10. Tus derechos</h2>
 				<p>
 					De acuerdo con la Ley Orgánica de Protección de Datos Personales del Ecuador, como titular de
 					datos tienes derecho a:
@@ -201,7 +273,7 @@ const contactEmail = "pengiservicios@gmail.com";
 					<li>Solicitar la corrección de datos incorrectos o incompletos.</li>
 					<li>Solicitar la eliminación de tu cuenta y de los datos asociados.</li>
 					<li>Oponerte a un tratamiento o solicitar su limitación, y solicitar la portabilidad de tus datos.</li>
-					<li>Revocar en cualquier momento las integraciones de terceros, como Google Calendar.</li>
+					<li>Revocar en cualquier momento las integraciones de terceros, como Google Calendar o WhatsApp Business, y dejar de recibir mensajes de WhatsApp respondiendo BAJA.</li>
 				</ul>
 				<p class="mt-3">
 					Para ejercer estos derechos escríbenos a
@@ -213,7 +285,7 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">10. Menores de edad</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">11. Menores de edad</h2>
 				<p>
 					Gentoo está dirigido a profesionales de salud y no está pensado para que lo usen menores de
 					edad. Los datos de pacientes menores los ingresa y gestiona la clínica bajo su responsabilidad y
@@ -222,7 +294,7 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">11. Cambios a esta política</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">12. Cambios a esta política</h2>
 				<p>
 					Podemos actualizar esta política ocasionalmente. Publicaremos la nueva versión en esta página con
 					su fecha de actualización y, ante cambios significativos, te avisaremos por correo electrónico o
@@ -231,7 +303,7 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">12. Responsable del sitio</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">13. Responsable del sitio</h2>
 				<p>
 					Este sitio web y la plataforma Gentoo son administrados por:<br /><br />
 					<strong>Walter Santacruz</strong><br />
@@ -242,7 +314,7 @@ const contactEmail = "pengiservicios@gmail.com";
 			</section>
 
 			<section>
-				<h2 class="text-xl font-semibold text-gray-900 mb-3">13. Contacto</h2>
+				<h2 class="text-xl font-semibold text-gray-900 mb-3">14. Contacto</h2>
 				<p>
 					Si tienes preguntas sobre esta Política de Privacidad o sobre cómo tratamos tus datos, escríbenos a
 					<a href={`mailto:${contactEmail}`} class="text-blue-600 underline">{contactEmail}</a>.
