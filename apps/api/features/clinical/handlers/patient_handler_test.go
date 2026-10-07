@@ -122,10 +122,11 @@ func TestCreatePatient_MissingFields(t *testing.T) {
 	}
 }
 
-func TestGetAllPatients_TenantIsolation(t *testing.T) {
+func TestGetAllPatientsWithLastFollowUp_TenantIsolation(t *testing.T) {
 	db := testutils.SetupTestDB(t,
 		&tenant_models.Tenant{},
 		&clinical_models.Patient{},
+		&clinical_models.Appointment{}, &clinical_models.MedicalRecord{}, // read by the list query
 	)
 	logger := zap.NewNop()
 
@@ -164,61 +165,31 @@ func TestGetAllPatients_TenantIsolation(t *testing.T) {
 		t.Fatalf("failed to create test patients: %v", err)
 	}
 
-	// Create handler
 	handler := NewPatientHandler(db, logger)
 
-	// Test: Query patients for tenant1
-	c1, _ := testutils.NewGinContext(tenant1.ID, 1)
-	c1.Request = httptest.NewRequest("GET", "/patients", nil)
-	response1 := handler.GetAllPatients(c1)
-
-	if response1.Code != 200 {
-		t.Errorf("expected status 200, got %d", response1.Code)
-	}
-
-	// Verify response contains only tenant1's patient
-	patients1, ok := response1.Data.([]clinical_models.Patient)
-	if !ok {
-		// Try marshaling to verify the structure
-		respBytes, _ := json.Marshal(response1.Data)
-		var patientsData []map[string]interface{}
-		json.Unmarshal(respBytes, &patientsData)
-		if len(patientsData) == 0 {
-			t.Errorf("expected at least one patient for tenant1")
+	// Each tenant sees only its own patient.
+	for _, tc := range []struct {
+		tenantID uint
+		want     string
+	}{{tenant1.ID, "Alice"}, {tenant2.ID, "Bob"}} {
+		c, _ := testutils.NewGinContext(tc.tenantID, 1)
+		c.Request = httptest.NewRequest("GET", "/patients/follow-up", nil)
+		response := handler.GetAllPatientsWithLastFollowUp(c)
+		if response.Code != 200 {
+			t.Fatalf("tenant %d: expected status 200, got %d", tc.tenantID, response.Code)
 		}
-	} else {
-		if len(patients1) != 1 {
-			t.Errorf("expected 1 patient for tenant1, got %d", len(patients1))
-		}
-		if patients1[0].FirstName != "Alice" {
-			t.Errorf("expected patient 'Alice', got '%s'", patients1[0].FirstName)
-		}
-	}
 
-	// Test: Query patients for tenant2
-	c2, _ := testutils.NewGinContext(tenant2.ID, 1)
-	c2.Request = httptest.NewRequest("GET", "/patients", nil)
-	response2 := handler.GetAllPatients(c2)
-
-	if response2.Code != 200 {
-		t.Errorf("expected status 200, got %d", response2.Code)
-	}
-
-	// Verify response contains only tenant2's patient
-	patients2, ok := response2.Data.([]clinical_models.Patient)
-	if !ok {
-		respBytes, _ := json.Marshal(response2.Data)
-		var patientsData []map[string]interface{}
-		json.Unmarshal(respBytes, &patientsData)
-		if len(patientsData) == 0 {
-			t.Errorf("expected at least one patient for tenant2")
+		raw, _ := json.Marshal(response.Data)
+		var page struct {
+			Items []struct {
+				FirstName string `json:"first_name"`
+			} `json:"items"`
 		}
-	} else {
-		if len(patients2) != 1 {
-			t.Errorf("expected 1 patient for tenant2, got %d", len(patients2))
+		if err := json.Unmarshal(raw, &page); err != nil {
+			t.Fatalf("tenant %d: decode response: %v", tc.tenantID, err)
 		}
-		if patients2[0].FirstName != "Bob" {
-			t.Errorf("expected patient 'Bob', got '%s'", patients2[0].FirstName)
+		if len(page.Items) != 1 || page.Items[0].FirstName != tc.want {
+			t.Errorf("tenant %d: got %+v, want only %q", tc.tenantID, page.Items, tc.want)
 		}
 	}
 }

@@ -56,16 +56,6 @@ func (h *BackofficeSubscriptionHandler) GetSubscriptionByID(c *gin.Context) enve
 	return envelope.SuccessResponse(subscription, "backoffice.subscription.found")
 }
 
-func (h *BackofficeSubscriptionHandler) GetSubscriptionsByCompany(c *gin.Context) envelope.Response {
-	companyID := c.Param("id")
-	var subscriptions []company_models.Subscription
-	if err := h.db.Preload("Plan").Where("company_id = ?", companyID).Find(&subscriptions).Error; err != nil {
-		h.logger.Error("Failed to fetch subscriptions for company", zap.String("company_id", companyID), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
-	}
-	return envelope.SuccessResponse(subscriptions, "backoffice.subscription.list.success")
-}
-
 func (h *BackofficeSubscriptionHandler) CreateSubscription(c *gin.Context) envelope.Response {
 	var req CreateSubscriptionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

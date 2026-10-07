@@ -18,8 +18,6 @@ import (
 	"pengi-med-saas/core/pdfsign"
 	"pengi-med-saas/core/secretbox"
 	clinical_models "pengi-med-saas/features/clinical/models"
-	company_models "pengi-med-saas/features/companies/models"
-	company_services "pengi-med-saas/features/companies/services"
 	tenant_dto "pengi-med-saas/features/tenants/dto"
 	tenant_models "pengi-med-saas/features/tenants/models"
 
@@ -437,28 +435,6 @@ func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 	}
 
 	return envelope.SuccessResponse(settings, "tenant.settings.update.success")
-}
-
-// GetEnabledFeatures returns the enabled features for the tenant, computed live from the
-// company's current subscription plan.
-func (h *TenantHandler) GetEnabledFeatures(c *gin.Context) envelope.Response {
-	_, exists := c.Get("tenant_id")
-	if !exists {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
-	}
-
-	var company company_models.Company
-	if err := tenantdb.For(c, h.db).First(&company).Error; err != nil {
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
-	}
-
-	features, err := company_services.EnabledFeaturesForCompany(h.db, company.ID)
-	if err != nil {
-		h.logger.Error("Failed to compute enabled features", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
-	}
-
-	return envelope.SuccessResponse(features, "tenant.features.fetch.success")
 }
 
 // GetDisplayToken returns the tenant's current TV display token without

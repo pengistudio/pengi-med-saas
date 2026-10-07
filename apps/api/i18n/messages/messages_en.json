@@ -1496,20 +1496,8 @@
         "value": "Session extended successfully"
     },
     {
-        "key": "auth.token.valid",
-        "value": "Token is valid"
-    },
-    {
         "key": "company.list.success",
         "value": "Companies obtained successfully"
-    },
-    {
-        "key": "permission.list.success",
-        "value": "Permissions obtained successfully"
-    },
-    {
-        "key": "permission.categories.success",
-        "value": "Permissions with categories obtained successfully"
     },
     {
         "key": "environment.list.success",
@@ -1522,10 +1510,6 @@
     {
         "key": "clinical.patient.update.success",
         "value": "Patient updated successfully"
-    },
-    {
-        "key": "clinical.patient.list.success",
-        "value": "Patients obtained successfully"
     },
     {
         "key": "clinical.patient.followup.success",
@@ -6638,10 +6622,6 @@
     {
         "key": "clinical.icd10.search.success",
         "value": "ICD-10 codes loaded successfully"
-    },
-    {
-        "key": "tenant.features.fetch.success",
-        "value": "Enabled modules loaded successfully"
     },
     {
         "key": "user.company_signup.check_email.success",

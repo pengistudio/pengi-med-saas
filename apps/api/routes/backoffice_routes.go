@@ -108,7 +108,6 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	backofficeSubscriptionRoutes := router.Group("/backoffice/subscriptions", backofficeAuth)
 	{
 		backofficeSubscriptionRoutes.GET("", envelope.Handle(backofficeSubscriptionHandler.GetSubscriptions))
-		backofficeSubscriptionRoutes.GET("/company/:id", envelope.Handle(backofficeSubscriptionHandler.GetSubscriptionsByCompany))
 		backofficeSubscriptionRoutes.GET("/:id", envelope.Handle(backofficeSubscriptionHandler.GetSubscriptionByID))
 		backofficeSubscriptionRoutes.POST("", envelope.Handle(backofficeSubscriptionHandler.CreateSubscription))
 		backofficeSubscriptionRoutes.PUT("/:id", envelope.Handle(backofficeSubscriptionHandler.UpdateSubscription))

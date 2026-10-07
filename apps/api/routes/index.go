@@ -16,7 +16,6 @@ func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB, messages *catalog.Cata
 	RegisterCompanyRoutes(router, db)
 	RegisterUserRoutes(router, db)
 	RegisterClinicalRoutes(router, db)
-	RegisterPermissionRoutes(router, db)
 	RegisterBackofficeRoutes(router, db)
 	RegisterBillingRoutes(router, db)
 	RegisterTenantRoutes(router, db)

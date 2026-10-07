@@ -1496,20 +1496,8 @@
         "value": "Sesión extendida exitosamente"
     },
     {
-        "key": "auth.token.valid",
-        "value": "Token válido"
-    },
-    {
         "key": "company.list.success",
         "value": "Empresas obtenidas exitosamente"
-    },
-    {
-        "key": "permission.list.success",
-        "value": "Permisos obtenidos exitosamente"
-    },
-    {
-        "key": "permission.categories.success",
-        "value": "Permisos con categorías obtenidos exitosamente"
     },
     {
         "key": "environment.list.success",
@@ -1522,10 +1510,6 @@
     {
         "key": "clinical.patient.update.success",
         "value": "Paciente actualizado exitosamente"
-    },
-    {
-        "key": "clinical.patient.list.success",
-        "value": "Pacientes obtenidos exitosamente"
     },
     {
         "key": "clinical.patient.followup.success",
@@ -6638,10 +6622,6 @@
     {
         "key": "clinical.icd10.search.success",
         "value": "Códigos CIE-10 cargados exitosamente"
-    },
-    {
-        "key": "tenant.features.fetch.success",
-        "value": "Módulos habilitados cargados exitosamente"
     },
     {
         "key": "user.company_signup.check_email.success",
