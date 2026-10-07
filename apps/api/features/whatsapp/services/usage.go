@@ -66,8 +66,10 @@ func PlanLimit(db *gorm.DB, tenantID uint) int64 {
 // before sending don't count.
 func CountMonthly(db *gorm.DB, tenantID uint, start, end time.Time) (int64, error) {
 	var n int64
+	// Bounds in UTC: SQLite (CI tests) compares timestamps as text, so a
+	// -05:00 bound against +00:00 rows would shift the month by five hours.
 	err := tenantdb.ForTenant(db, tenantID).Model(&whatsapp_models.WhatsAppMessage{}).
-		Where("kind IN ? AND sent_at IS NOT NULL AND sent_at >= ? AND sent_at < ?", whatsapp_models.CountedKinds, start, end).
+		Where("kind IN ? AND sent_at IS NOT NULL AND sent_at >= ? AND sent_at < ?", whatsapp_models.CountedKinds, start.UTC(), end.UTC()).
 		Count(&n).Error
 	return n, err
 }
