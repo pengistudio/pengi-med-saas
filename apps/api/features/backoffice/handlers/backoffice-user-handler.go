@@ -47,6 +47,15 @@ func (h *BackofficeUserHandler) GetUserByID(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(user, "backoffice.users.found")
 }
 
+// CreateBackofficeUserRequest is what an admin may set on a new admin. The
+// model can't be bound directly: its Password is json:"-" (it would be dropped)
+// and ID/RefreshToken must not come from the client.
+type CreateBackofficeUserRequest struct {
+	Name     string `json:"name"`
+	UserName string `json:"user_name" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
 type UpdateBackofficeUserRequest struct {
 	Name     string `json:"name"`
 	UserName string `json:"user_name"`
@@ -111,11 +120,12 @@ func (h *BackofficeUserHandler) DeleteUser(c *gin.Context) envelope.Response {
 // CreateUser creates a backoffice admin. Only reachable by an authenticated
 // admin (POST /backoffice/users).
 func (h *BackofficeUserHandler) CreateUser(c *gin.Context) envelope.Response {
-	var user backoffice_models.BackofficeUser
-	if err := c.ShouldBind(&user); err != nil {
+	var req CreateBackofficeUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.Error("Invalid create backoffice user request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
+	user := backoffice_models.BackofficeUser{Name: req.Name, UserName: req.UserName, Password: req.Password}
 	if err := user.Save(h.db); err != nil {
 		h.logger.Error("Failed to create backoffice user", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthUserCreateError)
