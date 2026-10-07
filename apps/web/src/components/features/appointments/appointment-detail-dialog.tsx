@@ -17,7 +17,11 @@ import {
 	updateAppointmentStatus,
 } from "@/api/clinical-service";
 import { cn } from "@/lib/utils";
-import { getStatusColor, STATUS_I18N_KEYS } from "./appointment-utils";
+import {
+	getStatusColor,
+	isUpcomingStatus,
+	STATUS_I18N_KEYS,
+} from "./appointment-utils";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -134,7 +138,7 @@ export function AppointmentDetailDialog({
 				{/* Actions */}
 				{canManage && (
 					<DialogFooter className="flex-col sm:flex-row flex-wrap gap-2 pt-2">
-						{appointment.status === "scheduled" && (
+						{isUpcomingStatus(appointment.status) && (
 							<>
 								<Button
 									variant="outline"

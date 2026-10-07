@@ -15,6 +15,7 @@ import (
 	signature_models "pengi-med-saas/features/signatures/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
+	whatsapp_models "pengi-med-saas/features/whatsapp/models"
 
 	"gorm.io/gorm"
 
@@ -71,6 +72,10 @@ func RunMigrations(db *gorm.DB) error {
 		settings_models.SystemSetting{},
 		notifications_models.Notification{},
 		notifications_models.Announcement{},
+		whatsapp_models.WhatsAppAccount{},
+		whatsapp_models.WhatsAppMessage{},
+		whatsapp_models.WhatsAppConversation{},
+		whatsapp_models.WhatsAppTemplate{},
 	)
 	if err != nil {
 		return err

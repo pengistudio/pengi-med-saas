@@ -42,6 +42,11 @@ const FLOW: WaitingStatus[] = [
 /** A patient still "to check in" this long after their start time is late. */
 const LATE_AFTER_MINUTES = 5;
 
+/** The lane an appointment sits in: a confirmed one still has to check in. */
+function laneOf(status: string): string {
+	return status === "confirmed" ? "scheduled" : status;
+}
+
 function laneTitleKey(status: WaitingStatus) {
 	return status === "scheduled"
 		? "waiting_room.column.scheduled"
@@ -84,7 +89,8 @@ function AppointmentCard({
 }) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const index = FLOW.indexOf(appointment.status as WaitingStatus);
+	const lane = laneOf(appointment.status);
+	const index = FLOW.indexOf(lane as WaitingStatus);
 	const prevStatus = index > 0 ? FLOW[index - 1] : undefined;
 	const nextStatus = index < FLOW.length - 1 ? FLOW[index + 1] : undefined;
 	const isDone = appointment.status === "completed";
@@ -94,9 +100,7 @@ function AppointmentCard({
 		: textGet("waiting_room.unknown_patient");
 
 	const late =
-		appointment.status === "scheduled"
-			? minutesPastStart(appointment.start_time, now)
-			: 0;
+		lane === "scheduled" ? minutesPastStart(appointment.start_time, now) : 0;
 
 	return (
 		<div
@@ -131,6 +135,16 @@ function AppointmentCard({
 					{appointment.title && (
 						<p className="truncate text-xs text-muted-foreground">
 							{appointment.title}
+						</p>
+					)}
+					{appointment.status === "confirmed" && (
+						<p
+							className={cn(
+								"text-xs font-medium",
+								STATUS_COLORS.confirmed.text,
+							)}
+						>
+							{textGet(STATUS_I18N_KEYS.confirmed)}
 						</p>
 					)}
 					{late >= LATE_AFTER_MINUTES && (
@@ -325,7 +339,7 @@ const WaitingRoomPage = () => {
 		if (!over) return;
 		const appointment = active.data.current?.appointment as Appointment;
 		const targetStatus = over.id as WaitingStatus;
-		if (appointment && appointment.status !== targetStatus) {
+		if (appointment && laneOf(appointment.status) !== targetStatus) {
 			handleMove(appointment.ID, targetStatus);
 		}
 	};
@@ -341,7 +355,8 @@ const WaitingRoomPage = () => {
 			a.start_time.localeCompare(b.start_time),
 		);
 		for (const a of sorted) {
-			if (a.status in map) map[a.status as WaitingStatus].push(a);
+			const lane = laneOf(a.status);
+			if (lane in map) map[lane as WaitingStatus].push(a);
 		}
 		return map;
 	}, [appointments]);

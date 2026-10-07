@@ -1,6 +1,14 @@
-import { CheckCircle2, OctagonAlert, TriangleAlert } from "lucide-react";
+import {
+	CheckCircle2,
+	MessageCircle,
+	OctagonAlert,
+	TriangleAlert,
+} from "lucide-react";
 import type { NavigateFunction } from "react-router";
-import type { NotificationLevel } from "@/api/notification-service";
+import type {
+	Notification,
+	NotificationLevel,
+} from "@/api/notification-service";
 import { cn } from "@/lib/utils";
 
 const levelIcons = {
@@ -23,6 +31,35 @@ export function NotificationLevelIcon({
 	if (!level || level === "info") return null;
 	const { icon: Icon, className: color } = levelIcons[level];
 	return <Icon className={cn("h-4 w-4 shrink-0", color, className)} />;
+}
+
+/**
+ * The icon of a notification in the bell and the list: WhatsApp ones show the
+ * chat icon (a usage warning keeps its level icon), the rest their level.
+ */
+export function NotificationIcon({
+	notification,
+	className,
+}: {
+	notification: Pick<Notification, "type" | "level">;
+	className?: string;
+}) {
+	const isWhatsApp = notification.type?.startsWith("whatsapp.");
+	if (
+		isWhatsApp &&
+		(notification.type === "whatsapp.message" ||
+			!notification.level ||
+			notification.level === "info")
+	) {
+		return (
+			<MessageCircle
+				className={cn("h-4 w-4 shrink-0 text-emerald-600", className)}
+			/>
+		);
+	}
+	return (
+		<NotificationLevelIcon level={notification.level} className={className} />
+	);
 }
 
 /**

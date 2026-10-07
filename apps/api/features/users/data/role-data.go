@@ -27,6 +27,7 @@ var RolePermissionMatrix = map[string][]string{
 		"READ_PATIENT_ATTACHMENT", "UPLOAD_PATIENT_ATTACHMENT", "DELETE_PATIENT_ATTACHMENT",
 		"READ_EXAM_ORDER", "CREATE_EXAM_ORDER", "UPLOAD_EXAM_RESULTS", "REVIEW_EXAM_RESULTS", "MANAGE_EXAM_CATALOG",
 		"READ_APPOINTMENT", "MANAGE_APPOINTMENT", "RECORD_VITAL_SIGNS",
+		"USE_WHATSAPP_INBOX",
 		"READ_KANBAN", "CREATE_KANBAN", "UPDATE_KANBAN",
 	},
 	RoleRecepcionista: {
@@ -34,6 +35,7 @@ var RolePermissionMatrix = map[string][]string{
 		"UPLOAD_PATIENT_ATTACHMENT", // brings in the patient's papers without seeing clinical files
 		"READ_EXAM_ORDER", "UPLOAD_EXAM_RESULTS",
 		"READ_APPOINTMENT", "MANAGE_APPOINTMENT", "RECORD_VITAL_SIGNS", // agenda, waiting room and triage
+		"USE_WHATSAPP_INBOX", // answers patients from the clinic's WhatsApp number
 		"READ_BILLING", "CREATE_BILLING", "UPDATE_BILLING",
 		"READ_KANBAN", "CREATE_KANBAN", "UPDATE_KANBAN",
 	},

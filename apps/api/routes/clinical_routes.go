@@ -47,6 +47,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		{
 			patientGroup.POST("", rp(db, "CREATE_PATIENT"), envelope.Handle(patientHandler.CreatePatient))
 			patientGroup.PUT("/:id", rp(db, "UPDATE_PATIENT"), envelope.Handle(patientHandler.UpdatePatient))
+			patientGroup.POST("/whatsapp-opt-in", rp(db, "UPDATE_PATIENT"), envelope.Handle(patientHandler.BulkWhatsAppOptIn))
 			patientGroup.PUT("/:id/critical", rp(db, "UPDATE_PATIENT"), envelope.Handle(patientHandler.UpdatePatientCritical))
 			patientGroup.PUT("/:id/critical-revert", rp(db, "UPDATE_PATIENT"), envelope.Handle(patientHandler.UpdatePatientCriticalRevert))
 			patientGroup.GET("", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetAllPatients))

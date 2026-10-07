@@ -31,6 +31,7 @@ import { useNavigate } from "react-router";
 import type { Patient } from "@/api/clinical-service";
 import { FormattedDate } from "@/components/custom/formatted";
 import { selectColumn } from "@/components/custom/table/select-column";
+import { isUpcomingStatus } from "@/components/features/appointments/appointment-utils";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
@@ -292,7 +293,9 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		size: 120,
 		cell: ({ row }) => {
 			const appointments = row.original.appointments;
-			const nextScheduled = appointments?.find((a) => a.status === "scheduled");
+			const nextScheduled = appointments?.find((a) =>
+				isUpcomingStatus(a.status),
+			);
 
 			// Prioridad 1: cita formal agendada
 			if (nextScheduled) {

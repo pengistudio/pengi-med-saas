@@ -10,11 +10,59 @@ describe("getNotificationText", () => {
 			messages: {
 				stale: "{patient_name} desde hace {elapsed}",
 				plain: "Sin parámetros",
+				"notification.whatsapp.message": "{name}: {preview}",
+				"notification.whatsapp.message.one": "{name}: {preview}",
+				"notification.whatsapp.message.other":
+					"{name} ({count} mensajes): {preview}",
+				"whatsapp.inbox.content.image": "Imagen",
 			},
 		});
 	});
 
 	const text = () => renderHook(() => useText()).result.current;
+
+	it("pluralizes WhatsApp message notifications by their numeric count", () => {
+		const n = (params: Record<string, unknown>) => ({
+			message_key: "notification.whatsapp.message",
+			params: params as Record<string, string>,
+		});
+		expect(
+			getNotificationText(
+				n({ name: "Ana", count: 1, preview: "Hola" }),
+				text(),
+			),
+		).toBe("Ana: Hola");
+		expect(
+			getNotificationText(
+				n({ name: "Ana", count: 3, preview: "Hola" }),
+				text(),
+			),
+		).toBe("Ana (3 mensajes): Hola");
+		// Older notifications may carry count as a string.
+		expect(
+			getNotificationText(
+				n({ name: "Ana", count: "2", preview: "Hola" }),
+				text(),
+			),
+		).toBe("Ana (2 mensajes): Hola");
+	});
+
+	it("describes a WhatsApp photo without text instead of an empty preview", () => {
+		expect(
+			getNotificationText(
+				{
+					message_key: "notification.whatsapp.message",
+					params: {
+						name: "Ana",
+						count: "1",
+						preview: "",
+						content_type: "image",
+					},
+				},
+				text(),
+			),
+		).toBe("Ana: Imagen");
+	});
 
 	it("resolves the template and fills its params", () => {
 		expect(

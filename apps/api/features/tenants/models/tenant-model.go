@@ -53,9 +53,11 @@ type EnabledFeatures struct {
 	Billing  bool `json:"billing"`
 	Team     bool `json:"team"`
 	Kanban   bool `json:"kanban"`
+	WhatsApp bool `json:"whatsapp"`
 }
 
-// DefaultEnabledFeatures returns all features enabled by default
+// DefaultEnabledFeatures returns the flags of a tenant without a subscription:
+// the core modules on, WhatsApp (a paid add-on with Meta costs) off.
 func DefaultEnabledFeatures() EnabledFeatures {
 	return EnabledFeatures{
 		Clinical: true,

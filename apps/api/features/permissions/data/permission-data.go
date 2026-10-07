@@ -267,3 +267,22 @@ var KanbanPermissions = []permission_models.Permission{
 		Description:  "Delete kanban tasks",
 	},
 }
+
+// WhatsAppPermissions guard the tenant's WhatsApp connection (appointment
+// reminders from the clinic's own number) and its conversations inbox. Category WHATSAPP maps to the
+// EnabledFeatures.WhatsApp flag; backoffice assigns it to plans through the
+// WHATSAPP Feature.
+var WhatsAppPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_WHATSAPP"},
+		Name:         "Manage WhatsApp",
+		Category:     "WHATSAPP",
+		Description:  "Connect the clinic's WhatsApp number and configure appointment reminders",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "USE_WHATSAPP_INBOX"},
+		Name:         "Use WhatsApp inbox",
+		Category:     "WHATSAPP",
+		Description:  "Read the WhatsApp conversations with patients and reply to them",
+	},
+}

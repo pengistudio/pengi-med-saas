@@ -1,6 +1,7 @@
 package subscription_middleware
 
 import (
+	"encoding/json"
 	"time"
 
 	company_models "pengi-med-saas/features/companies/models"
@@ -31,6 +32,16 @@ func GetPlanLimitForCompany(db *gorm.DB, companyID uint, key string) int64 {
 	}
 
 	switch v := val.(type) {
+	case json.Number:
+		// datatypes.JSONMap decodes numbers read from the database as
+		// json.Number (UseNumber), so this is the case for stored plans.
+		if n, err := v.Int64(); err == nil {
+			return n
+		}
+		if f, err := v.Float64(); err == nil {
+			return int64(f)
+		}
+		return -1
 	case float64:
 		return int64(v)
 	case int64:

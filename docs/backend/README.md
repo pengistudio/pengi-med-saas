@@ -27,6 +27,10 @@ Guía consolidada que cubre:
   - Roles canónicos y `RolePermissionMatrix`
   - Features habilitados calculados desde el plan
 
+- **[whatsapp-integration.md](whatsapp-integration.md)** — Recordatorios de citas por WhatsApp
+  - Checklist de puesta en marcha (local y producción)
+  - Configuración en Meta, endpoints, estados y errores
+
 ## 🚀 Quick Start
 
 1. Para crear o extender una feature de punta a punta: skill `create-feature` (`.claude/skills/create-feature/`)

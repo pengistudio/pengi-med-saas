@@ -38,6 +38,7 @@ import PatientCard, { formatAge } from "@/components/custom/patient-card";
 import { DataTable } from "@/components/custom/table/data-table";
 import EditPrescriptionDialog from "@/components/features/patient/edit-prescription-dialog";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
+import { OpenChatButton } from "@/components/features/whatsapp/open-chat-button";
 import usePermission from "@/hooks/use-permission";
 import { parseAllergies } from "@/lib/allergies";
 import { EMPTY_STRING, PERMISSIONS } from "@/lib/constants";
@@ -176,6 +177,7 @@ const MedicalRecords = () => {
 									<MessageCircle />
 									<Text uuid="clinical.medical_record.contact_ws" />
 								</Button>
+								<OpenChatButton patient={patient} />
 								{checkPermission([
 									PERMISSIONS.MEDICAL_RECORD.PERMISSION_UPDATE_PATIENT,
 								]) && (

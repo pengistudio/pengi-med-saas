@@ -30,4 +30,7 @@ func RegisterRoutes(router *gin.RouterGroup, db *gorm.DB, messages *catalog.Cata
 
 	webhookHandler := backoffice_handlers.NewBackofficePaymentHandler(db, logger.Log)
 	router.POST("/webhooks/dlocal", envelope.Handle(webhookHandler.HandleDlocalWebhook))
+
+	// WhatsApp: tenant routes + public Meta webhook (/webhooks/whatsapp).
+	RegisterWhatsAppRoutes(router, db)
 }

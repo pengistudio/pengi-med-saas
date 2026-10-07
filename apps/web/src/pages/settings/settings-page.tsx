@@ -22,6 +22,7 @@ import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { DocumentTemplatesSettings } from "@/sections/settings/document-templates-settings";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
+import { WhatsAppSettings } from "@/sections/settings/whatsapp-settings";
 
 /** A labelled group of rows inside a section. */
 function SettingsGroup({
@@ -92,6 +93,9 @@ const SettingsPage = () => {
 	const navigate = useNavigate();
 	const canManageExamCatalog = checkPermission([
 		PERMISSIONS.EXAM_ORDERS.PERMISSION_MANAGE_EXAM_CATALOG,
+	]);
+	const canManageWhatsApp = checkPermission([
+		PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP,
 	]);
 	const [searchParams, setSearchParams] = useSearchParams();
 	// Returning from the OAuth flow (?google=connected, a fresh page load) shows
@@ -338,6 +342,8 @@ const SettingsPage = () => {
 						</ol>
 					</div>
 				)}
+
+				{canManageWhatsApp && <WhatsAppSettings />}
 			</SettingsSection>
 
 			<SettingsSection title={<Text uuid="tasks.title" />}>

@@ -52,6 +52,7 @@ const EditPlan = () => {
 		max_users: -1,
 		max_patients: -1,
 		max_offices: -1,
+		max_whatsapp_messages: -1,
 	});
 	const [tier, setTier] = React.useState<Tier>(1);
 	const [storageQuotaMb, setStorageQuotaMb] = React.useState(0);

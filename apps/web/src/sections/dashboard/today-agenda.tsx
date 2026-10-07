@@ -33,6 +33,7 @@ const DOT_STYLES: Record<string, string> = {
 	in_consultation: "border-primary bg-primary",
 	arrived: "border-amber-500 bg-amber-500",
 	scheduled: "border-primary bg-background",
+	confirmed: "border-teal-500 bg-background",
 };
 
 function NowMarker({ minutes }: { minutes: number }) {

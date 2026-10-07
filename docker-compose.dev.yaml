@@ -181,6 +181,26 @@ services:
     networks:
       - gentoo_network
 
+  # Public HTTPS URL for the API so Meta can reach the WhatsApp webhook
+  # (https://$NGROK_DOMAIN/api/v1/webhooks/whatsapp). Opt-in: set
+  # COMPOSE_PROFILES=tunnel, NGROK_AUTHTOKEN and NGROK_DOMAIN (your free static
+  # ngrok domain, so the URL never changes) in the root .env. Requests
+  # inspector at http://localhost:4040.
+  tunnel:
+    image: ngrok/ngrok:3-alpine
+    container_name: pengi-tunnel
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: ["http", "--url=${NGROK_DOMAIN:-}", "api:8080"]
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - api
+    networks:
+      - gentoo_network
+
 volumes:
   postgres_data:
   pnpm_store_workspace:

@@ -7,6 +7,7 @@ import {
 	FlaskConical,
 	Layers,
 	LayoutDashboard,
+	MessageCircle,
 	Package,
 	Receipt,
 	Settings,
@@ -30,7 +31,7 @@ export interface BaseNavItem {
 	badgeKey?: NavBadgeKey;
 }
 
-export type NavBadgeKey = "pendingExamReviews";
+export type NavBadgeKey = "pendingExamReviews" | "whatsappUnread";
 
 export type NavItemType =
 	| (BaseNavItem & { href: string; accordionItems?: never })
@@ -44,6 +45,7 @@ export interface EnabledFeatures {
 	billing?: boolean;
 	team?: boolean;
 	kanban?: boolean;
+	whatsapp?: boolean;
 }
 
 // Factory to create navigation items with localized labels
@@ -124,6 +126,15 @@ export const createNavItems = (
 			badgeKey: "pendingExamReviews",
 			permission: PERMISSIONS.EXAM_ORDERS.PERMISSION_READ_EXAM_ORDER,
 			feature: "clinical",
+		},
+		{
+			icon: MessageCircle,
+			label: textGet("nav.item.whatsapp"),
+			href: "/whatsapp",
+			section: care,
+			badgeKey: "whatsappUnread",
+			permission: PERMISSIONS.WHATSAPP.PERMISSION_USE_WHATSAPP_INBOX,
+			feature: "whatsapp",
 		},
 		{
 			label: textGet("dashboard.billing.invoices"),

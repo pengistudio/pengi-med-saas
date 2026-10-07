@@ -2,6 +2,11 @@
 dev:
 	docker compose -f docker-compose.dev.yaml up --build
 
+# Start only the ngrok tunnel (if the stack runs without COMPOSE_PROFILES=tunnel)
+tunnel:
+	docker compose -f docker-compose.dev.yaml --profile tunnel up -d tunnel
+	@echo "Webhook: https://$(grep '^NGROK_DOMAIN=' .env | cut -d= -f2)/api/v1/webhooks/whatsapp"
+
 # Check formatting and lint for all TS/JS apps
 check:
 	npx @biomejs/biome check ./apps/web ./apps/backoffice ./packages/ui

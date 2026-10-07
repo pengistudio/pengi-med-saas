@@ -16,6 +16,13 @@ export const STATUS_COLORS = {
 		dot: "bg-blue-500",
 		badge: "bg-blue-500/20 text-blue-700 dark:text-blue-400",
 	},
+	confirmed: {
+		bg: "bg-teal-500/15",
+		border: "border-teal-500",
+		text: "text-teal-700 dark:text-teal-400",
+		dot: "bg-teal-500",
+		badge: "bg-teal-500/20 text-teal-700 dark:text-teal-400",
+	},
 	arrived: {
 		bg: "bg-amber-500/15",
 		border: "border-amber-500",
@@ -50,6 +57,11 @@ export type StatusColorKey = keyof typeof STATUS_COLORS;
 
 export function getStatusColor(status: string) {
 	return STATUS_COLORS[status as StatusColorKey] || STATUS_COLORS.scheduled;
+}
+
+/** Upcoming, not yet attended: scheduled, or confirmed by the patient. */
+export function isUpcomingStatus(status: string) {
+	return status === "scheduled" || status === "confirmed";
 }
 
 // ─── Event Colors (manual, synced to Google Calendar) ───────────────────────
@@ -177,6 +189,7 @@ export function getEventColor(colorId?: string) {
 
 export const STATUS_I18N_KEYS: Record<string, string> = {
 	scheduled: "appointments.status.scheduled",
+	confirmed: "appointments.status.confirmed",
 	arrived: "appointments.status.arrived",
 	in_consultation: "appointments.status.in_consultation",
 	completed: "appointments.status.completed",
