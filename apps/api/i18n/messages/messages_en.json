@@ -1532,6 +1532,10 @@
         "value": "Patients with follow-ups obtained successfully"
     },
     {
+        "key": "clinical.patient.delete.success",
+        "value": "Patients deleted successfully"
+    },
+    {
         "key": "clinical.patient.found",
         "value": "Patient found"
     },

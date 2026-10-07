@@ -283,20 +283,44 @@ func (h *PatientHandler) GetAllPatientsWithLastFollowUp(c *gin.Context) envelope
 	return envelope.PagedSuccessResponse(patients, int(total), page, limit, "clinical.patient.followup.success")
 }
 
+// maxBulkPatientDelete caps the ids of one bulk delete.
+const maxBulkPatientDelete = 1000
+
+// DeleteMultiplePatients deletes the selected patients of the tenant (ids of
+// another tenant are ignored by the tenant-bound handle) and responds with the
+// remaining list. Each patient is deleted as its own loaded row so the audit
+// callback records a DELETE per patient, with its values.
 func (h *PatientHandler) DeleteMultiplePatients(c *gin.Context) envelope.Response {
 	var deleteJSON clinical_dto.DeletePatientsDTO
-	if err := c.ShouldBind(&deleteJSON); err != nil {
+	if err := c.ShouldBind(&deleteJSON); err != nil || len(deleteJSON.IdList) == 0 || len(deleteJSON.IdList) > maxBulkPatientDelete {
 		h.logger.Error("Invalid delete multiple request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	if err := tenantdb.For(c, h.db).Model(&clinical_models.Patient{}).Where("id IN (?)", deleteJSON.IdList).Delete(&clinical_models.Patient{}).Error; err != nil {
+	db := tenantdb.For(c, h.db)
+	var patients []clinical_models.Patient
+	if err := db.Where("id IN ?", deleteJSON.IdList).Find(&patients).Error; err != nil {
+		h.logger.Error("Failed to load patients to delete", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientDeleteError)
+	}
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for i := range patients {
+			if err := tx.Delete(&patients[i]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
 		h.logger.Error("Failed to delete patients", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientDeleteError)
 	}
 
-	// Returning the remaining list like the original logic did
-	return h.GetAllPatientsWithLastFollowUp(c)
+	// The remaining list, with the delete message (shown as the toast).
+	resp := h.GetAllPatientsWithLastFollowUp(c)
+	if resp.Code == http.StatusOK {
+		resp.Message = "clinical.patient.delete.success"
+	}
+	return resp
 }
 
 // maxBulkWhatsAppOptIn caps the ids of one bulk consent change.
@@ -343,22 +367,6 @@ func (h *PatientHandler) BulkWhatsAppOptIn(c *gin.Context) envelope.Response {
 		msg = "clinical.patient.whatsapp_opt_in.bulk.skipped_opted_out"
 	}
 	return envelope.SuccessResponse(clinical_dto.BulkWhatsAppOptInResponse{Updated: res.RowsAffected, SkippedOptedOut: skipped}, msg)
-}
-
-func (h *PatientHandler) DeleteOnePatient(c *gin.Context) envelope.Response {
-	idParam := c.Param("id")
-	id, err := strconv.ParseUint(idParam, 10, 32)
-	if err != nil {
-		h.logger.Error("Invalid patient ID", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
-	}
-
-	if err := tenantdb.For(c, h.db).Where("id = ?", id).Delete(&clinical_models.Patient{}).Error; err != nil {
-		h.logger.Error("Failed to delete patient", zap.Uint64("id", id), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalPatientDeleteError)
-	}
-
-	return h.GetAllPatientsWithLastFollowUp(c)
 }
 
 func (h *PatientHandler) GetPatientByID(c *gin.Context) envelope.Response {

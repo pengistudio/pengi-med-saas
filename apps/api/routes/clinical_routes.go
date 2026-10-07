@@ -54,7 +54,6 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			patientGroup.GET("/follow-up", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetAllPatientsWithLastFollowUp))
 			patientGroup.GET("/:id", rp(db, "READ_PATIENT"), envelope.Handle(patientHandler.GetPatientByID))
 			patientGroup.POST("/delete-multiple", rp(db, "DELETE_PATIENT"), envelope.Handle(patientHandler.DeleteMultiplePatients))
-			patientGroup.DELETE("/delete-multiple/:id", rp(db, "DELETE_PATIENT"), envelope.Handle(patientHandler.DeleteOnePatient))
 			patientGroup.POST("/:id/reports", rp(db, "CREATE_MEDICAL_REPORT"), envelope.Handle(medicalDocumentHandler.CreateMedicalReport))
 			patientGroup.GET("/:id/reports", rp(db, "CREATE_MEDICAL_REPORT"), envelope.Handle(medicalDocumentHandler.ListMedicalReports))
 			patientGroup.POST("/:id/certificates", rp(db, "CREATE_MEDICAL_CERTIFICATE"), envelope.Handle(medicalDocumentHandler.CreateMedicalCertificate))

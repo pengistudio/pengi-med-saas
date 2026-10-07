@@ -87,20 +87,13 @@ export const getAllPatientsWithLastFollowUp = async (
 
 export const deleteMultiplePatients = async (
 	ids: number[],
-): Promise<ServiceResponse<PaginatedResponse<Patient>>> => {
-	const promises = ids.map((id) =>
-		clinicalService.delete<Patient>(`/clinical/patients/${id}`, {
-			notifySuccess: true,
-			notifyError: true,
-		}),
+): Promise<ServiceResponse<PaginatedResponse<Patient>>> =>
+	// Responds with the remaining patients (first page, with follow-ups).
+	clinicalService.post<PaginatedResponse<Patient>>(
+		"/clinical/patients/delete-multiple",
+		{ id_list: ids },
+		{ notifySuccess: true, notifyError: true },
 	);
-	const results = await Promise.all(promises);
-
-	const failed = results.find((r) => !r.success);
-	if (failed) return failed as ServiceResponse<PaginatedResponse<Patient>>;
-
-	return getAllPatientsWithLastFollowUp({});
-};
 
 /**
  * Sets (opt_in true) or clears WhatsApp consent on the given patients (at most
@@ -305,18 +298,6 @@ export const updatePatient = async (
 ): Promise<ServiceResponse<Patient>> => {
 	return clinicalService.put<Patient>(`/clinical/patients/${id}`, payload, {
 		notifySuccess: true,
-		notifyError: true,
-	});
-};
-
-export interface Institution extends BaseModel {
-	name: string;
-}
-
-export const getAllInstitutions = async (): Promise<
-	ServiceResponse<Institution[]>
-> => {
-	return clinicalService.get<Institution[]>("/clinical/institutions", {
 		notifyError: true,
 	});
 };
@@ -576,26 +557,6 @@ export const updatePrescription = async (
 			notifySuccess: true,
 			notifyError: true,
 		},
-	);
-};
-
-export type UpsertVitalSignsPayload = {
-	weight?: number | null;
-	height?: number | null;
-	blood_pressure?: string;
-	temperature?: number | null;
-	heart_rate?: number | null;
-	o2_saturation?: number | null;
-};
-
-export const upsertVitalSigns = async (
-	recordId: number,
-	payload: UpsertVitalSignsPayload,
-): Promise<ServiceResponse<VitalSigns>> => {
-	return clinicalService.put<VitalSigns>(
-		`/clinical/records/${recordId}/vital-signs`,
-		payload,
-		{ notifySuccess: true, notifyError: true },
 	);
 };
 
