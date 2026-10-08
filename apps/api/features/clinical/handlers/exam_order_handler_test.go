@@ -26,6 +26,7 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	clinical_services "pengi-med-saas/features/clinical/services"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
 	signature_models "pengi-med-saas/features/signatures/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -57,7 +58,7 @@ type examFixture struct {
 
 func newExamFixture(t *testing.T) *examFixture {
 	t.Helper()
-	db := testutils.SetupTestDB(t,
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{},
 		&tenant_models.Tenant{}, &clinical_models.Patient{}, &clinical_models.MedicalRecord{},
 		&clinical_models.ExamCatalogItem{}, &clinical_models.ExamProfile{}, &clinical_models.ExamOrder{},
 		&clinical_models.ExamOrderItem{}, &clinical_models.ExamOrderCounter{}, &clinical_models.PatientAttachment{},
@@ -84,6 +85,10 @@ func newExamFixture(t *testing.T) *examFixture {
 		}
 		*id = tenant.ID
 		f.subscribe(tenant.ID, now)
+		doctorUser := uint(examDoctorID)
+		if err := db.Create(&doctor_models.Doctor{TenantID: tenant.ID, UserID: &doctorUser, FullName: "María Andrade", Specialty: "general_medicine", ProfessionalRegistry: "REG-1", Active: true}).Error; err != nil {
+			t.Fatalf("create doctor: %v", err)
+		}
 		if err := db.Transaction(func(tx *gorm.DB) error { return clinical_services.SeedExamCatalog(tx, tenant.ID) }); err != nil {
 			t.Fatalf("seed exam catalog: %v", err)
 		}

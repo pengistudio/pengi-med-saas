@@ -11,12 +11,13 @@ import (
 	"go.uber.org/zap"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/testutils"
 )
 
 func TestCreatePatient_Success(t *testing.T) {
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{})
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{}, &tenant_models.Tenant{}, &clinical_models.Patient{})
 	logger := zap.NewNop()
 
 	// Create test tenant with unique slug and token
@@ -73,7 +74,7 @@ func TestCreatePatient_Success(t *testing.T) {
 }
 
 func TestCreatePatient_MissingFields(t *testing.T) {
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{})
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{}, &tenant_models.Tenant{}, &clinical_models.Patient{})
 	logger := zap.NewNop()
 
 	// Create test tenant with unique slug and token
@@ -123,7 +124,7 @@ func TestCreatePatient_MissingFields(t *testing.T) {
 }
 
 func TestGetAllPatientsWithLastFollowUp_TenantIsolation(t *testing.T) {
-	db := testutils.SetupTestDB(t,
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{},
 		&tenant_models.Tenant{},
 		&clinical_models.Patient{},
 		&clinical_models.Appointment{}, &clinical_models.MedicalRecord{}, // read by the list query

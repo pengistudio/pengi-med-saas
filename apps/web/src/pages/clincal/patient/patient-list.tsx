@@ -42,6 +42,7 @@ import {
 } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
+import { RegisterDoctorNotice } from "@/components/features/doctors/doctor-notices";
 import { ConfirmActionDialog } from "@/components/features/exam-orders/confirm-action-dialog";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
@@ -192,6 +193,7 @@ const Clinical = () => {
 					)
 				}
 			/>
+			<RegisterDoctorNotice />
 			<div>
 				<DataTable
 					bulkActions={

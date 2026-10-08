@@ -27,6 +27,7 @@ import {
 	type MedicalRecord,
 	updateMedicalRecord,
 } from "@/api/clinical-service";
+import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import { FormCalendar } from "@/components/forms/form-calendar";
 
@@ -54,6 +55,7 @@ const formSchema = z
 				.min(1, "Campo requerido"),
 			plan: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
 		}),
+		doctor_id: z.number().nullable().optional(),
 	})
 	.refine(
 		(data) =>
@@ -153,6 +155,7 @@ const UpdateMedicalRecordForm = () => {
 			setPatientId(record.patient_id);
 			setInitialData({
 				date: new Date(record.date),
+				doctor_id: record.doctor_id ?? null,
 				motive: record.motive,
 				observation: record.observation || "",
 				next_appointment_status:
@@ -200,6 +203,11 @@ const UpdateMedicalRecordForm = () => {
 									name="date"
 									label={textGet("form.update_medical_record.date")}
 									showMonthYearDropdowns
+								/>
+								<FormDoctorSelect
+									field={field}
+									name="doctor_id"
+									autoDefault={false}
 								/>
 							</div>
 							<FormTextArea
@@ -361,6 +369,8 @@ const UpdateMedicalRecordForm = () => {
 		setLoading(true);
 
 		const payload = {
+			// Omitted (no doctor chosen) keeps the record's doctor as is.
+			doctor_id: values.doctor_id ?? undefined,
 			date: values.date.toISOString(),
 			motive: values.motive,
 			observation: values.observation || "",

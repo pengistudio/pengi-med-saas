@@ -19,6 +19,7 @@ export * from "./components/dropdown-menu";
 export * from "./components/field";
 export * from "./components/forms/form";
 export * from "./components/forms/form-checkbox";
+export * from "./components/forms/form-combobox";
 export * from "./components/forms/form-input";
 export * from "./components/forms/form-input-password";
 export * from "./components/forms/form-radio-group";

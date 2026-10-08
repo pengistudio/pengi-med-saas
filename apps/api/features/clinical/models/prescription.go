@@ -1,13 +1,19 @@
 package clinical_models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+
+	doctor_models "pengi-med-saas/features/doctors/models"
+)
 
 type Prescription struct {
 	gorm.Model
-	Content         string             `json:"content"`
-	Indications     string             `json:"indications"`
-	MedicalRecordID uint               `json:"medical_record_id"`
-	Items           []PrescriptionItem `json:"items" gorm:"foreignKey:PrescriptionID;constraint:OnDelete:CASCADE;"`
+	Content         string                `json:"content"`
+	Indications     string                `json:"indications"`
+	MedicalRecordID uint                  `json:"medical_record_id"`
+	Items           []PrescriptionItem    `json:"items" gorm:"foreignKey:PrescriptionID;constraint:OnDelete:CASCADE;"`
+	DoctorID        *uint                 `json:"doctor_id" gorm:"index"` // set from the record, never from the client
+	Doctor          *doctor_models.Doctor `json:"doctor,omitempty" gorm:"foreignKey:DoctorID"`
 	DocumentSignature
 }
 

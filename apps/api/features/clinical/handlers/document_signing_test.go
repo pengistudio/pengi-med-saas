@@ -23,6 +23,7 @@ import (
 	"pengi-med-saas/core/utils"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	signature_models "pengi-med-saas/features/signatures/models"
 	signature_services "pengi-med-saas/features/signatures/services"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -55,7 +56,7 @@ type signingFixture struct {
 
 func newSigningFixture(t *testing.T) *signingFixture {
 	t.Helper()
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &company_models.Company{}, &clinical_models.Patient{},
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{}, &tenant_models.Tenant{}, &company_models.Company{}, &clinical_models.Patient{},
 		&clinical_models.MedicalRecord{}, &clinical_models.SOAPRecord{}, &clinical_models.Prescription{},
 		&clinical_models.MedicalReport{}, &clinical_models.MedicalCertificate{}, &signature_models.UserSignature{})
 	files := tenantfiles.Memory()
@@ -77,6 +78,13 @@ func newSigningFixture(t *testing.T) *signingFixture {
 		t.Fatalf("create patient: %v", err)
 	}
 	return f
+}
+
+// beDoctor links the fixture user to a doctor profile: legacy documents
+// without a doctor can only be signed by a user with one.
+func (f *signingFixture) beDoctor() {
+	uid := uint(f.userID)
+	f.doctor("Ana Perez", &uid)
 }
 
 // giveSignature stores a valid P12 for the fixture user, as the upload endpoint would.
@@ -131,6 +139,7 @@ func errorCode(t *testing.T, data any) string {
 
 func TestSignMedicalReport_StoresVerifiableSignedPDFWithStamp(t *testing.T) {
 	f := newSigningFixture(t)
+	f.beDoctor()
 	f.giveSignature("DRA ANA PEREZ")
 	report := f.report()
 
@@ -170,6 +179,7 @@ func TestSignMedicalReport_StoresVerifiableSignedPDFWithStamp(t *testing.T) {
 
 func TestSignMedicalReport_TwiceIsConflict(t *testing.T) {
 	f := newSigningFixture(t)
+	f.beDoctor()
 	f.giveSignature("DR X")
 	report := f.report()
 
@@ -182,8 +192,22 @@ func TestSignMedicalReport_TwiceIsConflict(t *testing.T) {
 	}
 }
 
+func TestSignMedicalReport_LegacyWithoutDoctorNeedsDoctorProfile(t *testing.T) {
+	f := newSigningFixture(t)
+	f.giveSignature("RECEPCION")
+	report := f.report()
+	// No beDoctor(): the signer is not a doctor of the tenant (e.g. a receptionist).
+
+	c, _ := f.ctx(report.ID, nil)
+	resp := f.docs.SignMedicalReport(c)
+	if resp.Code != http.StatusForbidden || errorCode(t, resp.Data) != core_errors.ErrDoctorSignNotOwner.ErrorCode {
+		t.Fatalf("sign legacy report without doctor profile = %d %+v, want 403 E-DR-013", resp.Code, resp.Data)
+	}
+}
+
 func TestSignMedicalReport_WithoutSignatureIsRejected(t *testing.T) {
 	f := newSigningFixture(t)
+	f.beDoctor()
 	report := f.report()
 
 	c, _ := f.ctx(report.ID, nil)

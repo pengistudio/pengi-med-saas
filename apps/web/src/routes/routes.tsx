@@ -84,6 +84,9 @@ const SettingsPage = lazy(() => import("@/pages/settings/settings-page"));
 const Signup = lazy(() => import("@/pages/signup/signup-page"));
 const TeamPage = lazy(() => import("@/pages/team/team-page"));
 const AuditLogPage = lazy(() => import("@/pages/audit/audit-log-page"));
+const DoctorListPage = lazy(() => import("@/pages/doctors/doctor-list"));
+const CreateDoctorPage = lazy(() => import("@/pages/doctors/create-doctor"));
+const EditDoctorPage = lazy(() => import("@/pages/doctors/edit-doctor"));
 const MySubscriptionPage = lazy(
 	() => import("@/pages/subscription/my-subscription-page"),
 );
@@ -101,6 +104,9 @@ const ExamOrderDetailPage = lazy(
 );
 const ExamOrderEditorPage = lazy(
 	() => import("@/pages/clincal/exam-orders/exam-order-editor"),
+);
+const AgendaSettingsPage = lazy(
+	() => import("@/pages/settings/agenda-settings"),
 );
 const ExamCatalogSettingsPage = lazy(
 	() => import("@/pages/settings/exam-catalog-settings"),
@@ -391,7 +397,26 @@ const billingRoutes: RouteObject = {
 	],
 };
 
-const routes: RouteObject[] = [clinicalRoutes, examOrderRoutes, billingRoutes];
+const doctorRoutes: RouteObject = {
+	path: "/doctors",
+	element: (
+		<CheckPermission
+			permissions={[PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS]}
+		/>
+	),
+	children: [
+		{ index: true, element: <DoctorListPage /> },
+		{ path: "create", element: <CreateDoctorPage /> },
+		{ path: "edit/:id", element: <EditDoctorPage /> },
+	],
+};
+
+const routes: RouteObject[] = [
+	clinicalRoutes,
+	examOrderRoutes,
+	billingRoutes,
+	doctorRoutes,
+];
 
 const router = createBrowserRouter([
 	{
@@ -454,6 +479,16 @@ const router = createBrowserRouter([
 								]}
 							>
 								<ExamCatalogSettingsPage />
+							</CheckPermission>
+						),
+					},
+					{
+						path: "/settings/agenda",
+						element: (
+							<CheckPermission
+								permissions={[PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS]}
+							>
+								<AgendaSettingsPage />
 							</CheckPermission>
 						),
 					},

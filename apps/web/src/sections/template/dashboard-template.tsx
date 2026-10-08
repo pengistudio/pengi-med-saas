@@ -38,6 +38,8 @@ import { getPendingReviewCount } from "@/api/exam-order-service";
 import { initiatePayment } from "@/api/subscription-service";
 import NotificationBell from "@/components/custom/notification-bell";
 import { PageSkeleton } from "@/components/custom/page-skeleton";
+import { DoctorReviewBanner } from "@/components/features/doctors/doctor-notices";
+import { DoctorOnboardingDialog } from "@/components/features/doctors/doctor-onboarding-dialog";
 import {
 	createNavItems,
 	type EnabledFeatures,
@@ -225,29 +227,31 @@ export function DashboardLayout() {
 				</>
 			}
 			banner={
-				graceDaysLeft < 0 &&
-				!isSubscriptionPage && (
-					<div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2.5">
-						<div className="flex items-center gap-2">
-							<AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
-							<p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-								{textGet("subscription.grace.banner")}{" "}
-								<span className="font-bold">
-									{3 + graceDaysLeft}{" "}
-									{textGet("subscription.grace.days_remaining")}
-								</span>
-							</p>
+				<>
+					{graceDaysLeft < 0 && !isSubscriptionPage && (
+						<div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2.5">
+							<div className="flex items-center gap-2">
+								<AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+								<p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+									{textGet("subscription.grace.banner")}{" "}
+									<span className="font-bold">
+										{3 + graceDaysLeft}{" "}
+										{textGet("subscription.grace.days_remaining")}
+									</span>
+								</p>
+							</div>
+							<Button
+								size="sm"
+								variant="outline"
+								className="shrink-0 border-amber-500/50 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
+								onClick={() => navigate("/subscription")}
+							>
+								{textGet("subscription.grace.cta")}
+							</Button>
 						</div>
-						<Button
-							size="sm"
-							variant="outline"
-							className="shrink-0 border-amber-500/50 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
-							onClick={() => navigate("/subscription")}
-						>
-							{textGet("subscription.grace.cta")}
-						</Button>
-					</div>
-				)
+					)}
+					{enabledFeatures.clinical !== false && <DoctorReviewBanner />}
+				</>
 			}
 		>
 			{showExpiredWall ? (
@@ -283,6 +287,9 @@ export function DashboardLayout() {
 				// Lazy pages load inside the shell, so the frame stays while they do.
 				<Suspense fallback={<PageSkeleton />}>
 					<Outlet />
+					<DoctorOnboardingDialog
+						enabled={enabledFeatures.clinical !== false}
+					/>
 				</Suspense>
 			)}
 		</AppShell>

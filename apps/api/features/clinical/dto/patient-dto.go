@@ -15,7 +15,8 @@ type CreatePatientDTO struct {
 	Gender             string     `json:"gender"`
 	Notes              string     `json:"notes"`
 	Insurance          string     `json:"insurance"`
-	Medic              string     `json:"medic"`
+	Medic              string     `json:"medic"`     // legacy free-text doctor name; superseded by doctor_id
+	DoctorID           *uint      `json:"doctor_id"` // médico de cabecera (optional)
 }
 
 type UpdatePatientDTO struct {
@@ -31,7 +32,8 @@ type UpdatePatientDTO struct {
 	Gender             *string    `json:"gender"`
 	Notes              *string    `json:"notes"`
 	Insurance          *string    `json:"insurance"`
-	Medic              *string    `json:"medic"`
+	Medic              *string    `json:"medic"`     // legacy free-text doctor name; superseded by doctor_id
+	DoctorID           *uint      `json:"doctor_id"` // médico de cabecera; 0 clears it
 }
 
 type DeletePatientsDTO struct {

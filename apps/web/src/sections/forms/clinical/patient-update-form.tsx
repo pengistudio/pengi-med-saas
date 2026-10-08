@@ -24,6 +24,7 @@ import {
 	type Patient,
 	updatePatient,
 } from "@/api/clinical-service";
+import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { ageInYears, birthDateFromAge } from "@/lib/patient-age";
@@ -50,7 +51,7 @@ const formSchema = z.object({
 	age: z.coerce.number().int().min(0).max(150).optional(),
 	notes: z.string().optional(),
 	insurance: z.string().optional(),
-	medic: z.string().min(1, "No debe estar vacío"),
+	doctor_id: z.number().nullable().optional(),
 	gender: z.string().optional(),
 	institution: z.string(),
 });
@@ -117,7 +118,7 @@ const EditPatientForm = () => {
 		age: existingAge,
 		notes: patient.notes || "",
 		insurance: patient.insurance || "",
-		medic: patient.medic,
+		doctor_id: patient.doctor_id ?? null,
 		gender: patient.gender || "",
 		institution: patient.institution || "",
 	};
@@ -248,11 +249,19 @@ const EditPatientForm = () => {
 								field={field}
 								options={STATIC_INSTITUTIONS}
 							/>
-							<FormInput
+							<FormDoctorSelect
 								field={field}
-								name="medic"
-								placeholder={textGet("form.edit_patient.medic.placeholder")}
-								label={textGet("form.edit_patient.medic")}
+								name="doctor_id"
+								allowNone
+								autoDefault={false}
+								label={textGet("form.patient.doctor")}
+								description={
+									patient.medic && !patient.doctor_id
+										? textGet("form.patient.doctor.legacy", {
+												name: patient.medic,
+											})
+										: undefined
+								}
 							/>
 							<FormInput
 								field={field}
@@ -307,8 +316,14 @@ const EditPatientForm = () => {
 			};
 		}
 
-		const { age: _age, birth_date: _birthDate, ...rest } = values;
-		const payload = { ...rest, ...birthDateChange };
+		const {
+			age: _age,
+			birth_date: _birthDate,
+			doctor_id: doctorId,
+			...rest
+		} = values;
+		// 0 clears the médico de cabecera.
+		const payload = { ...rest, ...birthDateChange, doctor_id: doctorId ?? 0 };
 
 		try {
 			const res = await updatePatient(Number(id), payload);

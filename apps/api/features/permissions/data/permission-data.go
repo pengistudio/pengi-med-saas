@@ -286,3 +286,16 @@ var WhatsAppPermissions = []permission_models.Permission{
 		Description:  "Read the WhatsApp conversations with patients and reply to them",
 	},
 }
+
+// DoctorPermissions guard the clinic's doctor profiles. Category CLINICAL:
+// doctors only matter with the clinical module (agenda, records, documents),
+// so the permission rides on the CLINICAL Feature. Reading the list for
+// selectors needs READ_APPOINTMENT or READ_PATIENT instead.
+var DoctorPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_DOCTORS"},
+		Name:         "Manage doctors",
+		Category:     "CLINICAL",
+		Description:  "Create, edit, link, deactivate and delete the clinic's doctor profiles",
+	},
+}

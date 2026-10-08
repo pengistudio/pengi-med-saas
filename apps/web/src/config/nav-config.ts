@@ -13,6 +13,7 @@ import {
 	Settings,
 	ShieldCheck,
 	SquareActivity,
+	Stethoscope,
 	Users,
 	UsersRound,
 } from "lucide-react";
@@ -179,6 +180,15 @@ export const createNavItems = (
 			section: admin,
 			permission: PERMISSIONS.TEAM.PERMISSION_READ_TEAM,
 			feature: "team",
+		},
+		{
+			icon: Stethoscope,
+			label: textGet("doctors.title"),
+			href: "/doctors",
+			section: admin,
+			permission: PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS,
+			// MANAGE_DOCTORS belongs to the clinical module.
+			feature: "clinical",
 		},
 		{
 			icon: ShieldCheck,
