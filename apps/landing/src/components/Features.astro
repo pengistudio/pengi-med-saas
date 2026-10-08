@@ -5,6 +5,7 @@ import ScrollText from '@lucide/astro/icons/scroll-text';
 import ClipboardList from '@lucide/astro/icons/clipboard-list';
 import Building2 from '@lucide/astro/icons/building-2';
 import ReceiptText from '@lucide/astro/icons/receipt-text';
+import MessageCircle from '@lucide/astro/icons/message-circle';
 import Zap from '@lucide/astro/icons/zap';
 
 const features = [
@@ -96,6 +97,20 @@ const features = [
                     </div>
                 </div>
             ))}
+        </div>
+
+        <!-- WhatsApp: secondary row, full-width, compact horizontal -->
+        <div class="mt-4 glass-card rounded-2xl px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-80 hover:opacity-100 transition-opacity duration-200">
+            <div class="flex items-center gap-4 flex-1">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style="background: oklch(88% 0.08 150 / 40%); border: 1px solid oklch(65% 0.14 150 / 30%);">
+                    <MessageCircle size={20} color="oklch(55% 0.14 150)" stroke-width={1.5} />
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="font-display font-semibold text-sm text-text">Recordatorios por WhatsApp</span>
+                    <span class="text-sm text-text-muted">— Conecta el WhatsApp Business de tu clínica y tus pacientes reciben confirmaciones, recordatorios antes de la cita y avisos de reprogramación o cancelación. Cuando el paciente confirma o cancela desde el mensaje, la cita se actualiza sola en tu agenda.</span>
+                </div>
+            </div>
         </div>
 
         <!-- Billing: secondary row, full-width, compact horizontal -->
