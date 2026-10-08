@@ -20,14 +20,7 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	tenantHandler := tenant_handlers.NewTenantHandler(db, logger.Log, tenantFiles)
 
 	tenantGroup := router.Group("/tenants", auth_middleware.AuthMiddleware(), tenant_middleware.TenantMiddleware(db))
-
-	tenantGroup.PUT("/sri/signature", envelope.Handle(tenantHandler.UploadSignature))
-	tenantGroup.GET("/sri/status", envelope.Handle(tenantHandler.GetSriStatus))
-	tenantGroup.PUT("/logo", envelope.Handle(tenantHandler.UploadLogo))
-	tenantGroup.GET("/logo", tenantHandler.DownloadLogo)
-	tenantGroup.PUT("/sri/info", envelope.Handle(tenantHandler.UpdateSriInfo))
-	tenantGroup.GET("/settings", envelope.Handle(tenantHandler.GetUISettings))
-	tenantGroup.PUT("/settings", envelope.Handle(tenantHandler.UpdateUISettings))
+	registerTenantSettingsRoutes(tenantGroup, db, tenantHandler)
 
 	// The display token is the credential of the public waiting-room TV, so
 	// viewing or rotating it is account administration: the role must manage
@@ -43,4 +36,20 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	displayLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/60), 60)
 	publicGroup := router.Group("/public")
 	publicGroup.GET("/appointments/today", displayLimiter.Middleware(), envelope.Handle(tenantHandler.GetTodayAppointmentsPublic))
+}
+
+// registerTenantSettingsRoutes mounts the clinic's SRI, logo and UI settings
+// on a group that already authenticated the user and bound the tenant.
+func registerTenantSettingsRoutes(tenantGroup *gin.RouterGroup, db *gorm.DB, tenantHandler *tenant_handlers.TenantHandler) {
+	// The SRI certificate, the issuer data and the logo printed on the RIDE
+	// are the clinic's billing identity: only who manages SRI settings
+	// (admin, contador) may replace them. Same check as the SRI settings page.
+	manageSri := subscription_middleware.RequirePermission(db, "MANAGE_SRI_SETTINGS")
+	tenantGroup.PUT("/sri/signature", manageSri, envelope.Handle(tenantHandler.UploadSignature))
+	tenantGroup.GET("/sri/status", envelope.Handle(tenantHandler.GetSriStatus))
+	tenantGroup.PUT("/logo", manageSri, envelope.Handle(tenantHandler.UploadLogo))
+	tenantGroup.GET("/logo", tenantHandler.DownloadLogo)
+	tenantGroup.PUT("/sri/info", manageSri, envelope.Handle(tenantHandler.UpdateSriInfo))
+	tenantGroup.GET("/settings", envelope.Handle(tenantHandler.GetUISettings))
+	tenantGroup.PUT("/settings", envelope.Handle(tenantHandler.UpdateUISettings))
 }
