@@ -19,5 +19,6 @@ func RegisterAuditRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	{
 		rp := subscription_middleware.RequirePermission
 		auditGroup.GET("/logs", rp(db, "READ_AUDIT_LOG"), envelope.Handle(auditHandler.GetAuditLogs))
+		auditGroup.GET("/users", rp(db, "READ_AUDIT_LOG"), envelope.Handle(auditHandler.GetAuditUsers))
 	}
 }

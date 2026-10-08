@@ -5660,6 +5660,154 @@
         "value": "Audit logs retrieved successfully"
     },
     {
+        "key": "audit.users.list.success",
+        "value": "Audit users retrieved"
+    },
+    {
+        "key": "audit.title",
+        "value": "Audit log"
+    },
+    {
+        "key": "audit.description",
+        "value": "Who viewed, created, changed or deleted each of the clinic's records."
+    },
+    {
+        "key": "audit.filter.user",
+        "value": "User"
+    },
+    {
+        "key": "audit.filter.action",
+        "value": "Action"
+    },
+    {
+        "key": "audit.filter.entity",
+        "value": "Record type"
+    },
+    {
+        "key": "audit.filter.from",
+        "value": "From"
+    },
+    {
+        "key": "audit.filter.to",
+        "value": "To"
+    },
+    {
+        "key": "audit.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "audit.filter.clear",
+        "value": "Clear filters"
+    },
+    {
+        "key": "audit.empty",
+        "value": "No activity recorded yet."
+    },
+    {
+        "key": "audit.empty.filtered",
+        "value": "No entries match these filters."
+    },
+    {
+        "key": "audit.column.date",
+        "value": "Date"
+    },
+    {
+        "key": "audit.column.user",
+        "value": "User"
+    },
+    {
+        "key": "audit.column.action",
+        "value": "Action"
+    },
+    {
+        "key": "audit.column.entity",
+        "value": "Record"
+    },
+    {
+        "key": "audit.column.patient",
+        "value": "Patient"
+    },
+    {
+        "key": "audit.action.read",
+        "value": "View"
+    },
+    {
+        "key": "audit.action.create",
+        "value": "Create"
+    },
+    {
+        "key": "audit.action.update",
+        "value": "Edit"
+    },
+    {
+        "key": "audit.action.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "audit.entity.patients",
+        "value": "Patient"
+    },
+    {
+        "key": "audit.entity.medical_records",
+        "value": "Medical record"
+    },
+    {
+        "key": "audit.entity.appointments",
+        "value": "Appointment"
+    },
+    {
+        "key": "audit.entity.vital_signs",
+        "value": "Vital signs"
+    },
+    {
+        "key": "audit.entity.prescriptions",
+        "value": "Prescription"
+    },
+    {
+        "key": "audit.entity.medical_reports",
+        "value": "Medical report"
+    },
+    {
+        "key": "audit.entity.medical_certificates",
+        "value": "Medical certificate"
+    },
+    {
+        "key": "audit.entity.exam_orders",
+        "value": "Exam order"
+    },
+    {
+        "key": "audit.entity.patient_attachments",
+        "value": "Attachment"
+    },
+    {
+        "key": "audit.entity.user_signatures",
+        "value": "Electronic signature"
+    },
+    {
+        "key": "audit.detail.open",
+        "value": "View details"
+    },
+    {
+        "key": "audit.detail.read",
+        "value": "The record was viewed: nothing changed."
+    },
+    {
+        "key": "audit.detail.no_changes",
+        "value": "No field changes were recorded."
+    },
+    {
+        "key": "audit.detail.field",
+        "value": "Field"
+    },
+    {
+        "key": "audit.detail.before",
+        "value": "Before"
+    },
+    {
+        "key": "audit.detail.after",
+        "value": "After"
+    },
+    {
         "key": "audit.log.error.invalid_request",
         "value": "Invalid audit log query parameters"
     },

@@ -83,6 +83,7 @@ const ResetPasswordPage = lazy(
 const SettingsPage = lazy(() => import("@/pages/settings/settings-page"));
 const Signup = lazy(() => import("@/pages/signup/signup-page"));
 const TeamPage = lazy(() => import("@/pages/team/team-page"));
+const AuditLogPage = lazy(() => import("@/pages/audit/audit-log-page"));
 const MySubscriptionPage = lazy(
 	() => import("@/pages/subscription/my-subscription-page"),
 );
@@ -479,6 +480,16 @@ const router = createBrowserRouter([
 								permissions={[PERMISSIONS.TEAM.PERMISSION_READ_TEAM]}
 							>
 								<TeamPage />
+							</CheckPermission>
+						),
+					},
+					{
+						path: "/audit",
+						element: (
+							<CheckPermission
+								permissions={[PERMISSIONS.AUDIT.PERMISSION_READ_AUDIT_LOG]}
+							>
+								<AuditLogPage />
 							</CheckPermission>
 						),
 					},
