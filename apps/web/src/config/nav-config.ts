@@ -11,6 +11,7 @@ import {
 	Package,
 	Receipt,
 	Settings,
+	ShieldCheck,
 	SquareActivity,
 	Users,
 	UsersRound,
@@ -178,6 +179,15 @@ export const createNavItems = (
 			section: admin,
 			permission: PERMISSIONS.TEAM.PERMISSION_READ_TEAM,
 			feature: "team",
+		},
+		{
+			icon: ShieldCheck,
+			label: textGet("audit.title"),
+			href: "/audit",
+			section: admin,
+			permission: PERMISSIONS.AUDIT.PERMISSION_READ_AUDIT_LOG,
+			// READ_AUDIT_LOG comes with the clinical module in every plan.
+			feature: "clinical",
 		},
 		{
 			icon: CreditCard,

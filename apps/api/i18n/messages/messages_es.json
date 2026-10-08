@@ -5644,6 +5644,154 @@
         "value": "Registros de auditoría obtenidos correctamente"
     },
     {
+        "key": "audit.users.list.success",
+        "value": "Usuarios de la auditoría obtenidos"
+    },
+    {
+        "key": "audit.title",
+        "value": "Auditoría"
+    },
+    {
+        "key": "audit.description",
+        "value": "Quién vio, creó, modificó o eliminó cada registro de la clínica."
+    },
+    {
+        "key": "audit.filter.user",
+        "value": "Usuario"
+    },
+    {
+        "key": "audit.filter.action",
+        "value": "Acción"
+    },
+    {
+        "key": "audit.filter.entity",
+        "value": "Tipo de registro"
+    },
+    {
+        "key": "audit.filter.from",
+        "value": "Desde"
+    },
+    {
+        "key": "audit.filter.to",
+        "value": "Hasta"
+    },
+    {
+        "key": "audit.filter.all",
+        "value": "Todos"
+    },
+    {
+        "key": "audit.filter.clear",
+        "value": "Limpiar filtros"
+    },
+    {
+        "key": "audit.empty",
+        "value": "Todavía no hay actividad registrada."
+    },
+    {
+        "key": "audit.empty.filtered",
+        "value": "No hay registros con estos filtros."
+    },
+    {
+        "key": "audit.column.date",
+        "value": "Fecha"
+    },
+    {
+        "key": "audit.column.user",
+        "value": "Usuario"
+    },
+    {
+        "key": "audit.column.action",
+        "value": "Acción"
+    },
+    {
+        "key": "audit.column.entity",
+        "value": "Registro"
+    },
+    {
+        "key": "audit.column.patient",
+        "value": "Paciente"
+    },
+    {
+        "key": "audit.action.read",
+        "value": "Consulta"
+    },
+    {
+        "key": "audit.action.create",
+        "value": "Creación"
+    },
+    {
+        "key": "audit.action.update",
+        "value": "Edición"
+    },
+    {
+        "key": "audit.action.delete",
+        "value": "Eliminación"
+    },
+    {
+        "key": "audit.entity.patients",
+        "value": "Paciente"
+    },
+    {
+        "key": "audit.entity.medical_records",
+        "value": "Historia clínica"
+    },
+    {
+        "key": "audit.entity.appointments",
+        "value": "Cita"
+    },
+    {
+        "key": "audit.entity.vital_signs",
+        "value": "Signos vitales"
+    },
+    {
+        "key": "audit.entity.prescriptions",
+        "value": "Receta"
+    },
+    {
+        "key": "audit.entity.medical_reports",
+        "value": "Informe médico"
+    },
+    {
+        "key": "audit.entity.medical_certificates",
+        "value": "Certificado médico"
+    },
+    {
+        "key": "audit.entity.exam_orders",
+        "value": "Orden de exámenes"
+    },
+    {
+        "key": "audit.entity.patient_attachments",
+        "value": "Adjunto"
+    },
+    {
+        "key": "audit.entity.user_signatures",
+        "value": "Firma electrónica"
+    },
+    {
+        "key": "audit.detail.open",
+        "value": "Ver detalle"
+    },
+    {
+        "key": "audit.detail.read",
+        "value": "Consulta del registro: no hubo cambios."
+    },
+    {
+        "key": "audit.detail.no_changes",
+        "value": "No se registraron cambios en los campos."
+    },
+    {
+        "key": "audit.detail.field",
+        "value": "Campo"
+    },
+    {
+        "key": "audit.detail.before",
+        "value": "Antes"
+    },
+    {
+        "key": "audit.detail.after",
+        "value": "Después"
+    },
+    {
         "key": "audit.log.error.invalid_request",
         "value": "Parámetros de búsqueda de auditoría inválidos"
     },
