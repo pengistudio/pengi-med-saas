@@ -24,6 +24,7 @@ import {
 	type Patient,
 	updateAppointment,
 } from "@/api/clinical-service";
+import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { appointmentSchema } from "./appointment-utils";
 import { ColorSwatchPicker } from "./color-swatch-picker";
@@ -134,6 +135,7 @@ export function AppointmentFormDialog({
 				location: values.location || "",
 				notes: values.notes || "",
 				color_id: values.color_id || "",
+				doctor_id: values.doctor_id ?? undefined,
 			});
 			if (res.success) {
 				onOpenChange(false);
@@ -149,6 +151,7 @@ export function AppointmentFormDialog({
 				location: values.location || "",
 				notes: values.notes || "",
 				color_id: values.color_id || "",
+				doctor_id: values.doctor_id ?? undefined,
 			});
 			if (res.success) {
 				onOpenChange(false);
@@ -251,6 +254,7 @@ export function AppointmentFormDialog({
 						location: appointment?.location || "",
 						notes: appointment?.notes || "",
 						color_id: appointment?.color_id || "",
+						doctor_id: appointment?.doctor_id ?? null,
 					}}
 					onSubmit={onSubmit}
 				>
@@ -261,6 +265,12 @@ export function AppointmentFormDialog({
 								name="title"
 								label={`${textGet("appointments.form.title_label")} *`}
 								placeholder={textGet("appointments.form.title_placeholder")}
+							/>
+							<FormDoctorSelect
+								field={field}
+								name="doctor_id"
+								autoDefault={!isEdit}
+								fallbacks={[defaultPatient?.doctor_id]}
 							/>
 							<FormCalendar
 								field={field}

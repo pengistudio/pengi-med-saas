@@ -7,6 +7,7 @@ import (
 	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	integration_models "pengi-med-saas/features/integrations/models"
 	kanban_models "pengi-med-saas/features/kanban/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
@@ -58,6 +59,7 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.ExamOrderItem{},
 		clinical_models.ExamOrderCounter{},
 		signature_models.UserSignature{},
+		doctor_models.Doctor{},
 		integration_models.TenantIntegration{},
 		backoffice_models.BackofficeUser{},
 		billing_models.Invoice{},

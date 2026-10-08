@@ -81,6 +81,8 @@ export interface ExamOrder extends BaseModel, DocumentSignature {
 	medical_record_id: number | null;
 	ordered_by_id: number;
 	ordered_by_name: string;
+	/** The doctor the order is issued by (signs it); ordered_by is the creating user. */
+	doctor_id?: number | null;
 	diagnoses: DiagnosisItem[] | null;
 	priority: ExamPriority;
 	notes: string;
@@ -112,6 +114,8 @@ export interface ExamOrderItemInput {
 
 export type ExamOrderHeaderPayload = {
 	medical_record_id?: number | null;
+	/** Create: omitted → backend default; update: omitted keeps it. */
+	doctor_id?: number;
 	diagnoses: DiagnosisItem[];
 	priority: ExamPriority;
 	notes: string;

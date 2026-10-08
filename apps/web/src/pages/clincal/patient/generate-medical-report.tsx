@@ -18,6 +18,8 @@ import {
 	type DocumentSignature,
 	signMedicalReport,
 } from "@/api/signature-service";
+import { RegisterDoctorNotice } from "@/components/features/doctors/doctor-notices";
+import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { DocumentPageHeader } from "@/components/features/medical-documents/document-page-header";
 import {
 	DocumentWorkflow,
@@ -82,6 +84,7 @@ const consultationSchema = z.object({
 const reportSchema = z.object({
 	consultations: z.array(consultationSchema),
 	plan: z.string(),
+	doctor_id: z.number().nullable().optional(),
 });
 
 type ReportFormValues = z.input<typeof reportSchema>;
@@ -398,9 +401,16 @@ interface ReportEditorProps
 	extends Omit<DocumentWorkflowProps, "isDirty" | "saveLabel"> {
 	field: UseFormReturn<ReportFormValues>;
 	savedVersion: number;
+	/** The patient's médico de cabecera, a default for the doctor. */
+	patientDoctorId?: number | null;
 }
 
-function ReportEditor({ field, savedVersion, ...actions }: ReportEditorProps) {
+function ReportEditor({
+	field,
+	savedVersion,
+	patientDoctorId,
+	...actions
+}: ReportEditorProps) {
 	const { fields } = useFieldArray({
 		control: field.control,
 		name: "consultations",
@@ -431,6 +441,13 @@ function ReportEditor({ field, savedVersion, ...actions }: ReportEditorProps) {
 	return (
 		<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
 			<div className="space-y-8">
+				<FormDoctorSelect
+					field={field}
+					name="doctor_id"
+					fallbacks={[patientDoctorId]}
+					disabled={readOnly}
+					className="max-w-md"
+				/>
 				<section className="space-y-5">
 					<h2 className="text-base font-semibold">
 						<Text uuid="dialog.medical_report.consultations" />
@@ -517,6 +534,7 @@ export default function GenerateMedicalReportPage() {
 			setDefaultValues({
 				consultations: sorted.map(toConsultationValues),
 				plan: "",
+				doctor_id: null,
 			});
 			setLoadingRecords(false);
 		});
@@ -524,7 +542,10 @@ export default function GenerateMedicalReportPage() {
 
 	async function onSubmit(values: z.infer<typeof reportSchema>) {
 		setSaving(true);
-		const res = await createMedicalReport(patientId, values);
+		const res = await createMedicalReport(patientId, {
+			...values,
+			doctor_id: values.doctor_id ?? undefined,
+		});
 		if (res.success && res.data) {
 			setSavedReportId(res.data.ID);
 			setSavedVersion((v) => v + 1);
@@ -564,6 +585,7 @@ export default function GenerateMedicalReportPage() {
 				title="dialog.medical_report.title"
 				description="dialog.medical_report.description"
 			/>
+			<RegisterDoctorNotice />
 
 			{loadingRecords || !defaultValues ? (
 				<div className="flex justify-center py-16">
@@ -579,6 +601,7 @@ export default function GenerateMedicalReportPage() {
 						<ReportEditor
 							field={field}
 							savedVersion={savedVersion}
+							patientDoctorId={patient?.doctor_id}
 							saving={saving}
 							printing={printing}
 							isSaved={savedReportId !== null}

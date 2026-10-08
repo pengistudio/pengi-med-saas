@@ -32,6 +32,7 @@ import type { Patient } from "@/api/clinical-service";
 import { FormattedDate } from "@/components/custom/formatted";
 import { selectColumn } from "@/components/custom/table/select-column";
 import { isUpcomingStatus } from "@/components/features/appointments/appointment-utils";
+import { DoctorName } from "@/components/features/doctors/doctor-name";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
@@ -357,12 +358,13 @@ export const patientColumns: ColumnDef<Patient>[] = [
 		accessorKey: "medic",
 		header: () => <Text uuid="clinical.patient.medic" />,
 		meta: { title: "table.column.medic" },
-		cell: ({ row }) =>
-			row.original.medic ? (
-				<span>{row.original.medic}</span>
-			) : (
-				<span className="text-muted-foreground">—</span>
-			),
+		cell: ({ row }) => (
+			<DoctorName
+				doctorId={row.original.doctor_id}
+				legacyName={row.original.medic}
+				fallback={<span className="text-muted-foreground">—</span>}
+			/>
+		),
 		size: 120,
 	},
 	{

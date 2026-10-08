@@ -20,6 +20,7 @@ import {
 	updateProfile,
 } from "@/api/user-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { MyDoctorProfileCard } from "@/components/features/doctors/my-doctor-profile-card";
 import { ElectronicSignatureCard } from "@/components/features/profile/electronic-signature-card";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
@@ -173,6 +174,8 @@ const Profile = () => {
 					</Form>
 				</CardContent>
 			</Card>
+
+			<MyDoctorProfileCard />
 
 			{checkPermission([
 				PERMISSIONS.MEDICAL_RECORD.PERMISSION_SIGN_MEDICAL_DOCUMENT,

@@ -9522,5 +9522,621 @@
     {
         "key": "backoffice.plans.limits.max_whatsapp_messages.desc",
         "value": "Plantillas enviadas por mes (recordatorios, pruebas y mensajes iniciados desde la bandeja). Pengi paga cada una."
+    },
+    {
+        "key": "doctors.list.success",
+        "value": "Médicos obtenidos correctamente."
+    },
+    {
+        "key": "doctors.get.success",
+        "value": "Médico obtenido correctamente."
+    },
+    {
+        "key": "doctors.create.success",
+        "value": "Médico registrado correctamente."
+    },
+    {
+        "key": "doctors.update.success",
+        "value": "Médico actualizado correctamente."
+    },
+    {
+        "key": "doctors.link.success",
+        "value": "Cuenta del médico actualizada."
+    },
+    {
+        "key": "doctors.activate.success",
+        "value": "Médico activado."
+    },
+    {
+        "key": "doctors.deactivate.success",
+        "value": "Médico desactivado."
+    },
+    {
+        "key": "doctors.delete.success",
+        "value": "Médico eliminado."
+    },
+    {
+        "key": "doctors.review.success",
+        "value": "Datos de los médicos revisados."
+    },
+    {
+        "key": "doctors.specialties.success",
+        "value": "Especialidades obtenidas correctamente."
+    },
+    {
+        "key": "doctors.status.success",
+        "value": "Estado de médicos obtenido correctamente."
+    },
+    {
+        "key": "doctors.me.fetch.success",
+        "value": "Perfil de médico obtenido correctamente."
+    },
+    {
+        "key": "doctors.me.create.success",
+        "value": "Tu perfil de médico fue creado."
+    },
+    {
+        "key": "doctors.me.update.success",
+        "value": "Tu perfil de médico fue actualizado."
+    },
+    {
+        "key": "doctors.error.not_found",
+        "value": "Médico no encontrado."
+    },
+    {
+        "key": "doctors.error.invalid_request",
+        "value": "Datos del médico inválidos."
+    },
+    {
+        "key": "doctors.error.invalid_specialty",
+        "value": "Especialidad inválida."
+    },
+    {
+        "key": "doctors.error.specialty_other_required",
+        "value": "Escribe el nombre de la especialidad."
+    },
+    {
+        "key": "doctors.error.invalid_color",
+        "value": "Color inválido."
+    },
+    {
+        "key": "doctors.error.user_not_in_tenant",
+        "value": "El usuario no pertenece a esta clínica."
+    },
+    {
+        "key": "doctors.error.user_already_linked",
+        "value": "Este usuario ya está vinculado a otro médico."
+    },
+    {
+        "key": "doctors.error.in_use",
+        "value": "El médico tiene registros asociados; desactívalo en lugar de eliminarlo."
+    },
+    {
+        "key": "doctors.error.profile_not_found",
+        "value": "No tienes un perfil de médico."
+    },
+    {
+        "key": "doctors.error.profile_exists",
+        "value": "Ya tienes un perfil de médico."
+    },
+    {
+        "key": "E-DR-001",
+        "value": "Médico no encontrado."
+    },
+    {
+        "key": "E-DR-002",
+        "value": "Datos del médico inválidos."
+    },
+    {
+        "key": "E-DR-003",
+        "value": "Especialidad inválida."
+    },
+    {
+        "key": "E-DR-004",
+        "value": "Color inválido."
+    },
+    {
+        "key": "E-DR-005",
+        "value": "El usuario no pertenece a esta clínica."
+    },
+    {
+        "key": "E-DR-006",
+        "value": "Este usuario ya está vinculado a otro médico."
+    },
+    {
+        "key": "E-DR-007",
+        "value": "El médico tiene registros asociados; desactívalo en lugar de eliminarlo."
+    },
+    {
+        "key": "E-DR-008",
+        "value": "No tienes un perfil de médico."
+    },
+    {
+        "key": "E-DR-009",
+        "value": "Ya tienes un perfil de médico."
+    },
+    {
+        "key": "doctors.specialty.general_medicine",
+        "value": "Medicina general"
+    },
+    {
+        "key": "doctors.specialty.family_medicine",
+        "value": "Medicina familiar"
+    },
+    {
+        "key": "doctors.specialty.internal_medicine",
+        "value": "Medicina interna"
+    },
+    {
+        "key": "doctors.specialty.pediatrics",
+        "value": "Pediatría"
+    },
+    {
+        "key": "doctors.specialty.gynecology_obstetrics",
+        "value": "Ginecología y obstetricia"
+    },
+    {
+        "key": "doctors.specialty.cardiology",
+        "value": "Cardiología"
+    },
+    {
+        "key": "doctors.specialty.dermatology",
+        "value": "Dermatología"
+    },
+    {
+        "key": "doctors.specialty.endocrinology",
+        "value": "Endocrinología"
+    },
+    {
+        "key": "doctors.specialty.gastroenterology",
+        "value": "Gastroenterología"
+    },
+    {
+        "key": "doctors.specialty.neurology",
+        "value": "Neurología"
+    },
+    {
+        "key": "doctors.specialty.ophthalmology",
+        "value": "Oftalmología"
+    },
+    {
+        "key": "doctors.specialty.otorhinolaryngology",
+        "value": "Otorrinolaringología"
+    },
+    {
+        "key": "doctors.specialty.orthopedics_traumatology",
+        "value": "Traumatología y ortopedia"
+    },
+    {
+        "key": "doctors.specialty.psychiatry",
+        "value": "Psiquiatría"
+    },
+    {
+        "key": "doctors.specialty.psychology",
+        "value": "Psicología"
+    },
+    {
+        "key": "doctors.specialty.urology",
+        "value": "Urología"
+    },
+    {
+        "key": "doctors.specialty.pulmonology",
+        "value": "Neumología"
+    },
+    {
+        "key": "doctors.specialty.nutrition",
+        "value": "Nutrición"
+    },
+    {
+        "key": "doctors.specialty.physiotherapy",
+        "value": "Fisioterapia"
+    },
+    {
+        "key": "doctors.specialty.dentistry",
+        "value": "Odontología"
+    },
+    {
+        "key": "doctors.specialty.general_surgery",
+        "value": "Cirugía general"
+    },
+    {
+        "key": "doctors.specialty.other",
+        "value": "Otra"
+    },
+    {
+        "key": "doctors.error.register_first",
+        "value": "Registra un médico antes de crear historias clínicas o documentos."
+    },
+    {
+        "key": "doctors.error.selection_required",
+        "value": "Selecciona el médico."
+    },
+    {
+        "key": "doctors.error.not_available",
+        "value": "El médico no existe o está inactivo."
+    },
+    {
+        "key": "doctors.error.sign_not_owner",
+        "value": "Solo el médico del documento puede firmarlo."
+    },
+    {
+        "key": "doctors.error.sign_no_account",
+        "value": "El médico del documento no tiene cuenta de usuario; imprímelo y fírmalo a mano."
+    },
+    {
+        "key": "E-DR-010",
+        "value": "Registra un médico antes de crear historias clínicas o documentos."
+    },
+    {
+        "key": "E-DR-011",
+        "value": "Selecciona el médico."
+    },
+    {
+        "key": "E-DR-012",
+        "value": "El médico no existe o está inactivo."
+    },
+    {
+        "key": "E-DR-013",
+        "value": "Solo el médico del documento puede firmarlo."
+    },
+    {
+        "key": "E-DR-014",
+        "value": "El médico del documento no tiene cuenta de usuario; imprímelo y fírmalo a mano."
+    },
+    {
+        "key": "appointments.filter.all_doctors",
+        "value": "Todos los médicos"
+    },
+    {
+        "key": "appointments.filter.doctor",
+        "value": "Filtrar por médico"
+    },
+    {
+        "key": "appointments.filter.mine",
+        "value": "Mis citas"
+    },
+    {
+        "key": "doctors.title",
+        "value": "Médicos"
+    },
+    {
+        "key": "doctors.page.description",
+        "value": "Profesionales que atienden pacientes en la clínica: aparecen en la agenda, las historias y los documentos."
+    },
+    {
+        "key": "doctors.create.button",
+        "value": "Nuevo médico"
+    },
+    {
+        "key": "doctors.search.placeholder",
+        "value": "Buscar por nombre…"
+    },
+    {
+        "key": "doctors.empty",
+        "value": "Aún no hay médicos registrados."
+    },
+    {
+        "key": "doctors.column.name",
+        "value": "Nombre"
+    },
+    {
+        "key": "doctors.column.specialty",
+        "value": "Especialidad"
+    },
+    {
+        "key": "doctors.column.registry",
+        "value": "Registro profesional"
+    },
+    {
+        "key": "doctors.column.user",
+        "value": "Usuario vinculado"
+    },
+    {
+        "key": "doctors.column.status",
+        "value": "Estado"
+    },
+    {
+        "key": "doctors.status.active",
+        "value": "Activo"
+    },
+    {
+        "key": "doctors.status.inactive",
+        "value": "Inactivo"
+    },
+    {
+        "key": "doctors.badge.needs_review",
+        "value": "Revisar"
+    },
+    {
+        "key": "doctors.user.none",
+        "value": "Sin cuenta"
+    },
+    {
+        "key": "doctors.user.linked",
+        "value": "Vinculado"
+    },
+    {
+        "key": "doctors.action.edit",
+        "value": "Editar"
+    },
+    {
+        "key": "doctors.action.link",
+        "value": "Vincular usuario"
+    },
+    {
+        "key": "doctors.action.activate",
+        "value": "Activar"
+    },
+    {
+        "key": "doctors.action.deactivate",
+        "value": "Desactivar"
+    },
+    {
+        "key": "doctors.action.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "doctors.delete.description",
+        "value": "Se eliminará a {name}. Solo es posible si no tiene citas, historias ni documentos asociados."
+    },
+    {
+        "key": "doctors.in_use.title",
+        "value": "No se puede eliminar"
+    },
+    {
+        "key": "doctors.in_use.description",
+        "value": "{name} tiene registros asociados. Puedes desactivarlo: dejará de aparecer en los selectores, pero se conserva en su historial."
+    },
+    {
+        "key": "doctors.review.mark",
+        "value": "Marcar como revisados"
+    },
+    {
+        "key": "doctors.link.title",
+        "value": "Vincular usuario"
+    },
+    {
+        "key": "doctors.link.description",
+        "value": "Elige la cuenta del equipo de {name}. Solo el usuario vinculado puede firmar sus documentos."
+    },
+    {
+        "key": "doctors.form.create.title",
+        "value": "Nuevo médico"
+    },
+    {
+        "key": "doctors.form.edit.title",
+        "value": "Editar médico"
+    },
+    {
+        "key": "doctors.form.description",
+        "value": "Datos profesionales que se imprimen en recetas, certificados e informes."
+    },
+    {
+        "key": "doctors.form.full_name",
+        "value": "Nombre completo"
+    },
+    {
+        "key": "doctors.form.full_name.placeholder",
+        "value": "Ej. Dra. Ana Pérez"
+    },
+    {
+        "key": "doctors.form.specialty",
+        "value": "Especialidad"
+    },
+    {
+        "key": "doctors.form.specialty.placeholder",
+        "value": "Selecciona la especialidad"
+    },
+    {
+        "key": "doctors.form.specialty_other",
+        "value": "Nombre de la especialidad"
+    },
+    {
+        "key": "doctors.form.specialty_other.placeholder",
+        "value": "Ej. Medicina deportiva"
+    },
+    {
+        "key": "doctors.form.professional_registry",
+        "value": "Registro profesional"
+    },
+    {
+        "key": "doctors.form.professional_registry.placeholder",
+        "value": "Registro Senescyt / MSP"
+    },
+    {
+        "key": "doctors.form.professional_registry.description",
+        "value": "Se imprime junto a la firma en los documentos."
+    },
+    {
+        "key": "doctors.form.id_number",
+        "value": "Cédula"
+    },
+    {
+        "key": "doctors.form.phone",
+        "value": "Teléfono"
+    },
+    {
+        "key": "doctors.form.email",
+        "value": "Correo electrónico"
+    },
+    {
+        "key": "doctors.form.user",
+        "value": "Usuario del equipo"
+    },
+    {
+        "key": "doctors.form.user.description",
+        "value": "Vincúlalo si el médico usa el sistema: así podrá firmar sus documentos y ver sus citas."
+    },
+    {
+        "key": "doctors.form.user.none",
+        "value": "Sin cuenta vinculada"
+    },
+    {
+        "key": "doctors.form.color",
+        "value": "Color en la agenda"
+    },
+    {
+        "key": "doctors.form.color.custom",
+        "value": "Otro color"
+    },
+    {
+        "key": "doctors.form.color.auto",
+        "value": "Si no eliges uno, se asigna automáticamente."
+    },
+    {
+        "key": "doctors.form.save",
+        "value": "Guardar"
+    },
+    {
+        "key": "doctors.form.error.required",
+        "value": "Campo requerido"
+    },
+    {
+        "key": "doctors.form.error.email",
+        "value": "Correo electrónico no válido"
+    },
+    {
+        "key": "doctors.form.error.specialty_other",
+        "value": "Escribe el nombre de la especialidad"
+    },
+    {
+        "key": "doctors.my_profile.title",
+        "value": "Mi perfil médico"
+    },
+    {
+        "key": "doctors.my_profile.description",
+        "value": "Tus datos profesionales: se imprimen en los documentos que emites."
+    },
+    {
+        "key": "doctors.my_profile.empty",
+        "value": "Si atiendes pacientes, crea tu perfil médico para aparecer en la agenda y firmar tus documentos."
+    },
+    {
+        "key": "doctors.my_profile.create",
+        "value": "Crear mi perfil médico"
+    },
+    {
+        "key": "doctors.notice.register.title",
+        "value": "Registra al menos un médico."
+    },
+    {
+        "key": "doctors.notice.register.description",
+        "value": "Las historias clínicas y los documentos necesitan un médico responsable."
+    },
+    {
+        "key": "doctors.notice.register.ask_admin",
+        "value": "Pide a un administrador que registre a los médicos de la clínica."
+    },
+    {
+        "key": "doctors.notice.register.cta",
+        "value": "Ir a Médicos"
+    },
+    {
+        "key": "doctors.notice.review.description",
+        "value": "Creamos los perfiles de tus médicos a partir de los usuarios existentes. Revisa sus datos (nombre, especialidad y registro)."
+    },
+    {
+        "key": "doctors.notice.review.cta",
+        "value": "Revisar médicos"
+    },
+    {
+        "key": "doctors.notice.review.dismiss",
+        "value": "Ya los revisé"
+    },
+    {
+        "key": "doctors.onboarding.title",
+        "value": "¿Tú atiendes pacientes?"
+    },
+    {
+        "key": "doctors.onboarding.description",
+        "value": "Si atiendes pacientes, crea tu perfil médico: aparecerás en la agenda y tus recetas y certificados llevarán tu nombre y registro."
+    },
+    {
+        "key": "doctors.onboarding.form.description",
+        "value": "Completa tus datos profesionales. Podrás editarlos luego en tu perfil."
+    },
+    {
+        "key": "doctors.onboarding.yes",
+        "value": "Sí, atiendo pacientes"
+    },
+    {
+        "key": "doctors.onboarding.no",
+        "value": "No"
+    },
+    {
+        "key": "doctors.onboarding.back",
+        "value": "Atrás"
+    },
+    {
+        "key": "doctors.onboarding.create",
+        "value": "Crear mi perfil"
+    },
+    {
+        "key": "doctors.select.label",
+        "value": "Médico"
+    },
+    {
+        "key": "doctors.select.placeholder",
+        "value": "Selecciona el médico"
+    },
+    {
+        "key": "doctors.select.none",
+        "value": "Sin asignar"
+    },
+    {
+        "key": "doctors.sign.missing_registry",
+        "value": "Tu perfil médico no tiene registro profesional: el documento se firmará sin él. Puedes agregarlo en tu perfil."
+    },
+    {
+        "key": "form.patient.doctor",
+        "value": "Médico de cabecera"
+    },
+    {
+        "key": "form.patient.doctor.legacy",
+        "value": "Registrado antes como: {name}"
+    },
+    {
+        "key": "doctors.in_use.description_inactive",
+        "value": "{name} tiene registros asociados, por eso no se puede eliminar. Ya está inactivo: no aparece en los selectores."
+    },
+    {
+        "key": "doctors.member.action",
+        "value": "Ficha médica"
+    },
+    {
+        "key": "doctors.member.title",
+        "value": "Ficha médica"
+    },
+    {
+        "key": "doctors.member.description",
+        "value": "{name} tiene el rol de médico pero aún no tiene ficha médica. Vincúlalo a una existente o crea una nueva para que aparezca en la agenda y pueda firmar."
+    },
+    {
+        "key": "doctors.member.mode.link",
+        "value": "Vincular a ficha existente"
+    },
+    {
+        "key": "doctors.member.mode.create",
+        "value": "Crear ficha nueva"
+    },
+    {
+        "key": "doctors.member.mode.none",
+        "value": "No crear ficha"
+    },
+    {
+        "key": "doctors.member.existing",
+        "value": "Ficha sin cuenta"
+    },
+    {
+        "key": "doctors.member.link",
+        "value": "Vincular"
+    },
+    {
+        "key": "doctors.member.create",
+        "value": "Crear ficha"
+    },
+    {
+        "key": "doctors.member.invite_hint",
+        "value": "Cuando acepte la invitación, podrás vincularlo a una ficha médica existente o crear una nueva desde esta página (botón «Ficha médica»)."
     }
 ]

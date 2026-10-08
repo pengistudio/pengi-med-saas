@@ -6,6 +6,8 @@ import (
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
+
+	doctor_models "pengi-med-saas/features/doctors/models"
 )
 
 // Exam order statuses. The server recomputes Status from the items' results;
@@ -56,22 +58,24 @@ type ExamProfile struct {
 // correlative, printed as ORD-000123.
 type ExamOrder struct {
 	gorm.Model
-	TenantID        uint            `json:"tenant_id" gorm:"not null;uniqueIndex:idx_exam_order_tenant_number"`
-	Number          uint            `json:"number" gorm:"not null;uniqueIndex:idx_exam_order_tenant_number"`
-	PatientID       uint            `json:"patient_id" gorm:"not null;index"`
-	Patient         *Patient        `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
-	MedicalRecordID *uint           `json:"medical_record_id" gorm:"index"`
-	OrderedByID     uint            `json:"ordered_by_id" gorm:"not null;index"`
-	Diagnoses       datatypes.JSON  `json:"diagnoses" gorm:"type:jsonb;default:'[]'"`
-	Priority        string          `json:"priority" gorm:"not null;default:'routine'"`
-	Notes           string          `json:"notes"`
-	DestinationLab  string          `json:"destination_lab"`
-	Status          string          `json:"status" gorm:"not null;default:'issued';index"`
-	ClosedManually  bool            `json:"closed_manually" gorm:"not null;default:false"`
-	VoidReason      string          `json:"void_reason"`
-	VoidedAt        *time.Time      `json:"voided_at"`
-	VoidedByID      *uint           `json:"voided_by_id"`
-	Items           []ExamOrderItem `json:"items" gorm:"foreignKey:ExamOrderID"`
+	TenantID        uint                  `json:"tenant_id" gorm:"not null;uniqueIndex:idx_exam_order_tenant_number"`
+	Number          uint                  `json:"number" gorm:"not null;uniqueIndex:idx_exam_order_tenant_number"`
+	PatientID       uint                  `json:"patient_id" gorm:"not null;index"`
+	Patient         *Patient              `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
+	MedicalRecordID *uint                 `json:"medical_record_id" gorm:"index"`
+	OrderedByID     uint                  `json:"ordered_by_id" gorm:"not null;index"`
+	DoctorID        *uint                 `json:"doctor_id" gorm:"index"` // OrderedByID stays the creating user
+	Doctor          *doctor_models.Doctor `json:"doctor,omitempty" gorm:"foreignKey:DoctorID"`
+	Diagnoses       datatypes.JSON        `json:"diagnoses" gorm:"type:jsonb;default:'[]'"`
+	Priority        string                `json:"priority" gorm:"not null;default:'routine'"`
+	Notes           string                `json:"notes"`
+	DestinationLab  string                `json:"destination_lab"`
+	Status          string                `json:"status" gorm:"not null;default:'issued';index"`
+	ClosedManually  bool                  `json:"closed_manually" gorm:"not null;default:false"`
+	VoidReason      string                `json:"void_reason"`
+	VoidedAt        *time.Time            `json:"voided_at"`
+	VoidedByID      *uint                 `json:"voided_by_id"`
+	Items           []ExamOrderItem       `json:"items" gorm:"foreignKey:ExamOrderID"`
 	DocumentSignature
 
 	// Filled by the handlers, not stored.

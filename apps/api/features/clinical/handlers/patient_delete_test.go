@@ -8,6 +8,7 @@ import (
 	"time"
 
 	clinical_models "pengi-med-saas/features/clinical/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/testutils"
 
@@ -15,7 +16,7 @@ import (
 )
 
 func TestDeleteMultiplePatients_DeletesOwnTenantOnly(t *testing.T) {
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{},
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{}, &tenant_models.Tenant{}, &clinical_models.Patient{},
 		&clinical_models.Appointment{}, &clinical_models.MedicalRecord{}) // read by the remaining-list query
 
 	var tenants [2]uint

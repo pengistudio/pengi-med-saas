@@ -1,4 +1,5 @@
 import { useSearchParams } from "react-router";
+import { RegisterDoctorNotice } from "@/components/features/doctors/doctor-notices";
 import CreateMedicalRecordForm from "@/sections/forms/clinical/medical-record-create-form";
 import VisitTypeChooser from "@/sections/forms/clinical/visit-type-chooser";
 
@@ -12,6 +13,7 @@ const CreateMedicalRecordPage = () => {
 
 	return (
 		<main className="grid grid-cols-1 items-start gap-4">
+			<RegisterDoctorNotice />
 			{visitType ? (
 				<CreateMedicalRecordForm visitType={visitType} />
 			) : (

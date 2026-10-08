@@ -9522,5 +9522,621 @@
     {
         "key": "backoffice.plans.limits.max_whatsapp_messages.desc",
         "value": "Templates sent per month (reminders, tests and messages started from the inbox). Pengi pays for each one."
+    },
+    {
+        "key": "doctors.list.success",
+        "value": "Doctors retrieved successfully."
+    },
+    {
+        "key": "doctors.get.success",
+        "value": "Doctor retrieved successfully."
+    },
+    {
+        "key": "doctors.create.success",
+        "value": "Doctor created successfully."
+    },
+    {
+        "key": "doctors.update.success",
+        "value": "Doctor updated successfully."
+    },
+    {
+        "key": "doctors.link.success",
+        "value": "Doctor account link updated."
+    },
+    {
+        "key": "doctors.activate.success",
+        "value": "Doctor activated."
+    },
+    {
+        "key": "doctors.deactivate.success",
+        "value": "Doctor deactivated."
+    },
+    {
+        "key": "doctors.delete.success",
+        "value": "Doctor deleted."
+    },
+    {
+        "key": "doctors.review.success",
+        "value": "Doctors marked as reviewed."
+    },
+    {
+        "key": "doctors.specialties.success",
+        "value": "Specialties retrieved successfully."
+    },
+    {
+        "key": "doctors.status.success",
+        "value": "Doctor status retrieved successfully."
+    },
+    {
+        "key": "doctors.me.fetch.success",
+        "value": "Doctor profile retrieved successfully."
+    },
+    {
+        "key": "doctors.me.create.success",
+        "value": "Your doctor profile was created."
+    },
+    {
+        "key": "doctors.me.update.success",
+        "value": "Your doctor profile was updated."
+    },
+    {
+        "key": "doctors.error.not_found",
+        "value": "Doctor not found."
+    },
+    {
+        "key": "doctors.error.invalid_request",
+        "value": "Invalid doctor data."
+    },
+    {
+        "key": "doctors.error.invalid_specialty",
+        "value": "Invalid specialty."
+    },
+    {
+        "key": "doctors.error.specialty_other_required",
+        "value": "Enter the name of the specialty."
+    },
+    {
+        "key": "doctors.error.invalid_color",
+        "value": "Invalid color."
+    },
+    {
+        "key": "doctors.error.user_not_in_tenant",
+        "value": "The user does not belong to this clinic."
+    },
+    {
+        "key": "doctors.error.user_already_linked",
+        "value": "This user is already linked to another doctor."
+    },
+    {
+        "key": "doctors.error.in_use",
+        "value": "The doctor has records; deactivate it instead of deleting it."
+    },
+    {
+        "key": "doctors.error.profile_not_found",
+        "value": "You do not have a doctor profile."
+    },
+    {
+        "key": "doctors.error.profile_exists",
+        "value": "You already have a doctor profile."
+    },
+    {
+        "key": "E-DR-001",
+        "value": "Doctor not found."
+    },
+    {
+        "key": "E-DR-002",
+        "value": "Invalid doctor data."
+    },
+    {
+        "key": "E-DR-003",
+        "value": "Invalid specialty."
+    },
+    {
+        "key": "E-DR-004",
+        "value": "Invalid color."
+    },
+    {
+        "key": "E-DR-005",
+        "value": "The user does not belong to this clinic."
+    },
+    {
+        "key": "E-DR-006",
+        "value": "This user is already linked to another doctor."
+    },
+    {
+        "key": "E-DR-007",
+        "value": "The doctor has records; deactivate it instead."
+    },
+    {
+        "key": "E-DR-008",
+        "value": "You do not have a doctor profile."
+    },
+    {
+        "key": "E-DR-009",
+        "value": "You already have a doctor profile."
+    },
+    {
+        "key": "doctors.specialty.general_medicine",
+        "value": "General medicine"
+    },
+    {
+        "key": "doctors.specialty.family_medicine",
+        "value": "Family medicine"
+    },
+    {
+        "key": "doctors.specialty.internal_medicine",
+        "value": "Internal medicine"
+    },
+    {
+        "key": "doctors.specialty.pediatrics",
+        "value": "Pediatrics"
+    },
+    {
+        "key": "doctors.specialty.gynecology_obstetrics",
+        "value": "Gynecology and obstetrics"
+    },
+    {
+        "key": "doctors.specialty.cardiology",
+        "value": "Cardiology"
+    },
+    {
+        "key": "doctors.specialty.dermatology",
+        "value": "Dermatology"
+    },
+    {
+        "key": "doctors.specialty.endocrinology",
+        "value": "Endocrinology"
+    },
+    {
+        "key": "doctors.specialty.gastroenterology",
+        "value": "Gastroenterology"
+    },
+    {
+        "key": "doctors.specialty.neurology",
+        "value": "Neurology"
+    },
+    {
+        "key": "doctors.specialty.ophthalmology",
+        "value": "Ophthalmology"
+    },
+    {
+        "key": "doctors.specialty.otorhinolaryngology",
+        "value": "Otorhinolaryngology"
+    },
+    {
+        "key": "doctors.specialty.orthopedics_traumatology",
+        "value": "Orthopedics and traumatology"
+    },
+    {
+        "key": "doctors.specialty.psychiatry",
+        "value": "Psychiatry"
+    },
+    {
+        "key": "doctors.specialty.psychology",
+        "value": "Psychology"
+    },
+    {
+        "key": "doctors.specialty.urology",
+        "value": "Urology"
+    },
+    {
+        "key": "doctors.specialty.pulmonology",
+        "value": "Pulmonology"
+    },
+    {
+        "key": "doctors.specialty.nutrition",
+        "value": "Nutrition"
+    },
+    {
+        "key": "doctors.specialty.physiotherapy",
+        "value": "Physiotherapy"
+    },
+    {
+        "key": "doctors.specialty.dentistry",
+        "value": "Dentistry"
+    },
+    {
+        "key": "doctors.specialty.general_surgery",
+        "value": "General surgery"
+    },
+    {
+        "key": "doctors.specialty.other",
+        "value": "Other"
+    },
+    {
+        "key": "doctors.error.register_first",
+        "value": "Register a doctor before creating medical records or documents."
+    },
+    {
+        "key": "doctors.error.selection_required",
+        "value": "Select the doctor."
+    },
+    {
+        "key": "doctors.error.not_available",
+        "value": "The doctor does not exist or is inactive."
+    },
+    {
+        "key": "doctors.error.sign_not_owner",
+        "value": "Only the document's doctor can sign it."
+    },
+    {
+        "key": "doctors.error.sign_no_account",
+        "value": "The document's doctor has no user account; print it and sign it by hand."
+    },
+    {
+        "key": "E-DR-010",
+        "value": "Register a doctor before creating medical records or documents."
+    },
+    {
+        "key": "E-DR-011",
+        "value": "Select the doctor."
+    },
+    {
+        "key": "E-DR-012",
+        "value": "The doctor does not exist or is inactive."
+    },
+    {
+        "key": "E-DR-013",
+        "value": "Only the document's doctor can sign it."
+    },
+    {
+        "key": "E-DR-014",
+        "value": "The document's doctor has no user account; print it and sign it by hand."
+    },
+    {
+        "key": "appointments.filter.all_doctors",
+        "value": "All doctors"
+    },
+    {
+        "key": "appointments.filter.doctor",
+        "value": "Filter by doctor"
+    },
+    {
+        "key": "appointments.filter.mine",
+        "value": "My appointments"
+    },
+    {
+        "key": "doctors.title",
+        "value": "Doctors"
+    },
+    {
+        "key": "doctors.page.description",
+        "value": "Professionals who attend patients at the clinic: they appear in the agenda, records and documents."
+    },
+    {
+        "key": "doctors.create.button",
+        "value": "New doctor"
+    },
+    {
+        "key": "doctors.search.placeholder",
+        "value": "Search by name…"
+    },
+    {
+        "key": "doctors.empty",
+        "value": "No doctors registered yet."
+    },
+    {
+        "key": "doctors.column.name",
+        "value": "Name"
+    },
+    {
+        "key": "doctors.column.specialty",
+        "value": "Specialty"
+    },
+    {
+        "key": "doctors.column.registry",
+        "value": "Professional registry"
+    },
+    {
+        "key": "doctors.column.user",
+        "value": "Linked user"
+    },
+    {
+        "key": "doctors.column.status",
+        "value": "Status"
+    },
+    {
+        "key": "doctors.status.active",
+        "value": "Active"
+    },
+    {
+        "key": "doctors.status.inactive",
+        "value": "Inactive"
+    },
+    {
+        "key": "doctors.badge.needs_review",
+        "value": "Review"
+    },
+    {
+        "key": "doctors.user.none",
+        "value": "No account"
+    },
+    {
+        "key": "doctors.user.linked",
+        "value": "Linked"
+    },
+    {
+        "key": "doctors.action.edit",
+        "value": "Edit"
+    },
+    {
+        "key": "doctors.action.link",
+        "value": "Link user"
+    },
+    {
+        "key": "doctors.action.activate",
+        "value": "Activate"
+    },
+    {
+        "key": "doctors.action.deactivate",
+        "value": "Deactivate"
+    },
+    {
+        "key": "doctors.action.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "doctors.delete.description",
+        "value": "{name} will be deleted. This is only possible if they have no appointments, records or documents."
+    },
+    {
+        "key": "doctors.in_use.title",
+        "value": "Can't delete"
+    },
+    {
+        "key": "doctors.in_use.description",
+        "value": "{name} has associated records. You can deactivate them instead: they stop appearing in selectors but stay in their history."
+    },
+    {
+        "key": "doctors.review.mark",
+        "value": "Mark as reviewed"
+    },
+    {
+        "key": "doctors.link.title",
+        "value": "Link user"
+    },
+    {
+        "key": "doctors.link.description",
+        "value": "Choose {name}'s team account. Only the linked user can sign their documents."
+    },
+    {
+        "key": "doctors.form.create.title",
+        "value": "New doctor"
+    },
+    {
+        "key": "doctors.form.edit.title",
+        "value": "Edit doctor"
+    },
+    {
+        "key": "doctors.form.description",
+        "value": "Professional details printed on prescriptions, certificates and reports."
+    },
+    {
+        "key": "doctors.form.full_name",
+        "value": "Full name"
+    },
+    {
+        "key": "doctors.form.full_name.placeholder",
+        "value": "e.g. Dr. Ana Pérez"
+    },
+    {
+        "key": "doctors.form.specialty",
+        "value": "Specialty"
+    },
+    {
+        "key": "doctors.form.specialty.placeholder",
+        "value": "Select the specialty"
+    },
+    {
+        "key": "doctors.form.specialty_other",
+        "value": "Specialty name"
+    },
+    {
+        "key": "doctors.form.specialty_other.placeholder",
+        "value": "e.g. Sports medicine"
+    },
+    {
+        "key": "doctors.form.professional_registry",
+        "value": "Professional registry"
+    },
+    {
+        "key": "doctors.form.professional_registry.placeholder",
+        "value": "Senescyt / MSP registry"
+    },
+    {
+        "key": "doctors.form.professional_registry.description",
+        "value": "Printed next to the signature on documents."
+    },
+    {
+        "key": "doctors.form.id_number",
+        "value": "ID number"
+    },
+    {
+        "key": "doctors.form.phone",
+        "value": "Phone"
+    },
+    {
+        "key": "doctors.form.email",
+        "value": "Email"
+    },
+    {
+        "key": "doctors.form.user",
+        "value": "Team user"
+    },
+    {
+        "key": "doctors.form.user.description",
+        "value": "Link it if the doctor uses the system: they can then sign their documents and see their appointments."
+    },
+    {
+        "key": "doctors.form.user.none",
+        "value": "No linked account"
+    },
+    {
+        "key": "doctors.form.color",
+        "value": "Agenda color"
+    },
+    {
+        "key": "doctors.form.color.custom",
+        "value": "Other color"
+    },
+    {
+        "key": "doctors.form.color.auto",
+        "value": "If you don't choose one, it is assigned automatically."
+    },
+    {
+        "key": "doctors.form.save",
+        "value": "Save"
+    },
+    {
+        "key": "doctors.form.error.required",
+        "value": "Required field"
+    },
+    {
+        "key": "doctors.form.error.email",
+        "value": "Invalid email"
+    },
+    {
+        "key": "doctors.form.error.specialty_other",
+        "value": "Enter the specialty name"
+    },
+    {
+        "key": "doctors.my_profile.title",
+        "value": "My doctor profile"
+    },
+    {
+        "key": "doctors.my_profile.description",
+        "value": "Your professional details: they are printed on the documents you issue."
+    },
+    {
+        "key": "doctors.my_profile.empty",
+        "value": "If you attend patients, create your doctor profile to appear in the agenda and sign your documents."
+    },
+    {
+        "key": "doctors.my_profile.create",
+        "value": "Create my doctor profile"
+    },
+    {
+        "key": "doctors.notice.register.title",
+        "value": "Register at least one doctor."
+    },
+    {
+        "key": "doctors.notice.register.description",
+        "value": "Medical records and documents need a responsible doctor."
+    },
+    {
+        "key": "doctors.notice.register.ask_admin",
+        "value": "Ask an administrator to register the clinic's doctors."
+    },
+    {
+        "key": "doctors.notice.register.cta",
+        "value": "Go to Doctors"
+    },
+    {
+        "key": "doctors.notice.review.description",
+        "value": "We created your doctors' profiles from the existing users. Review their details (name, specialty and registry)."
+    },
+    {
+        "key": "doctors.notice.review.cta",
+        "value": "Review doctors"
+    },
+    {
+        "key": "doctors.notice.review.dismiss",
+        "value": "I've reviewed them"
+    },
+    {
+        "key": "doctors.onboarding.title",
+        "value": "Do you attend patients?"
+    },
+    {
+        "key": "doctors.onboarding.description",
+        "value": "If you attend patients, create your doctor profile: you'll appear in the agenda and your prescriptions and certificates will carry your name and registry."
+    },
+    {
+        "key": "doctors.onboarding.form.description",
+        "value": "Fill in your professional details. You can edit them later in your profile."
+    },
+    {
+        "key": "doctors.onboarding.yes",
+        "value": "Yes, I attend patients"
+    },
+    {
+        "key": "doctors.onboarding.no",
+        "value": "No"
+    },
+    {
+        "key": "doctors.onboarding.back",
+        "value": "Back"
+    },
+    {
+        "key": "doctors.onboarding.create",
+        "value": "Create my profile"
+    },
+    {
+        "key": "doctors.select.label",
+        "value": "Doctor"
+    },
+    {
+        "key": "doctors.select.placeholder",
+        "value": "Select the doctor"
+    },
+    {
+        "key": "doctors.select.none",
+        "value": "Unassigned"
+    },
+    {
+        "key": "doctors.sign.missing_registry",
+        "value": "Your doctor profile has no professional registry: the document will be signed without it. You can add it in your profile."
+    },
+    {
+        "key": "form.patient.doctor",
+        "value": "Primary doctor"
+    },
+    {
+        "key": "form.patient.doctor.legacy",
+        "value": "Previously recorded as: {name}"
+    },
+    {
+        "key": "doctors.in_use.description_inactive",
+        "value": "{name} has associated records, so they can't be deleted. They're already inactive: they don't appear in selectors."
+    },
+    {
+        "key": "doctors.member.action",
+        "value": "Doctor profile"
+    },
+    {
+        "key": "doctors.member.title",
+        "value": "Doctor profile"
+    },
+    {
+        "key": "doctors.member.description",
+        "value": "{name} has the doctor role but no doctor profile yet. Link an existing one or create a new one so they appear in the agenda and can sign."
+    },
+    {
+        "key": "doctors.member.mode.link",
+        "value": "Link to an existing profile"
+    },
+    {
+        "key": "doctors.member.mode.create",
+        "value": "Create a new profile"
+    },
+    {
+        "key": "doctors.member.mode.none",
+        "value": "Don't create a profile"
+    },
+    {
+        "key": "doctors.member.existing",
+        "value": "Profile without account"
+    },
+    {
+        "key": "doctors.member.link",
+        "value": "Link"
+    },
+    {
+        "key": "doctors.member.create",
+        "value": "Create profile"
+    },
+    {
+        "key": "doctors.member.invite_hint",
+        "value": "Once they accept the invitation, you can link them to an existing doctor profile or create a new one from this page (\"Doctor profile\" button)."
     }
 ]

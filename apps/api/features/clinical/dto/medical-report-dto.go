@@ -24,6 +24,7 @@ type ConsultationEntryDTO struct {
 type CreateMedicalReportDTO struct {
 	Consultations []ConsultationEntryDTO `json:"consultations" binding:"required,dive"`
 	Plan          string                 `json:"plan"`
+	DoctorID      *uint                  `json:"doctor_id"` // optional: defaults per doctor_services.Resolve
 }
 
 type EmailMedicalDocumentDTO struct {

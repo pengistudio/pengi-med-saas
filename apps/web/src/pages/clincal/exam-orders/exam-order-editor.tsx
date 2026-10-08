@@ -20,6 +20,7 @@ import {
 	updateExamOrder,
 } from "@/api/exam-order-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { RegisterDoctorNotice } from "@/components/features/doctors/doctor-notices";
 import {
 	hasAnyResult,
 	isOrderVoided,
@@ -121,6 +122,7 @@ export default function ExamOrderEditorPage() {
 						priority: values.priority,
 						destination_lab: values.destination_lab?.trim() ?? "",
 						notes: values.notes?.trim() ?? "",
+						doctor_id: values.doctor_id ?? undefined,
 					};
 			const res = await updateExamOrder(order.ID, {
 				...header,
@@ -137,6 +139,7 @@ export default function ExamOrderEditorPage() {
 			priority: values.priority,
 			destination_lab: values.destination_lab?.trim() ?? "",
 			notes: values.notes?.trim() ?? "",
+			doctor_id: values.doctor_id ?? undefined,
 			items,
 		});
 		return res.success ? res.data?.ID : undefined;
@@ -172,11 +175,13 @@ export default function ExamOrderEditorPage() {
 					</Button>
 				}
 			/>
+			<RegisterDoctorNotice />
 			<ExamOrderForm
 				catalog={catalog}
 				profiles={profiles}
 				order={order ?? undefined}
 				loading={saving}
+				patientDoctorId={patient?.doctor_id}
 				onSubmit={handleSubmit}
 				onCancel={() => navigate(-1)}
 			/>

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import type { Patient } from "@/api/clinical-service";
+import { DoctorName } from "@/components/features/doctors/doctor-name";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { parseAllergies } from "@/lib/allergies";
@@ -178,11 +179,11 @@ export default function PatientCard({
 										<span className="text-muted-foreground">
 											<Text uuid="clinical.patient_card.medic" />
 										</span>
-										{patient.medic ? (
-											<span>{patient.medic}</span>
-										) : (
-											<NotAvailable />
-										)}
+										<DoctorName
+											doctorId={patient.doctor_id}
+											legacyName={patient.medic}
+											fallback={<NotAvailable />}
+										/>
 									</div>
 									<div className="grid grid-cols-[110px_1fr] items-start">
 										<span className="text-muted-foreground">

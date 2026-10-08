@@ -22,7 +22,9 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_services "pengi-med-saas/features/doctors/services"
 	signature_services "pengi-med-saas/features/signatures/services"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 )
 
 type DownloadRecordHandler struct {
@@ -104,10 +106,7 @@ func generatePrescriptionPDF(db *gorm.DB, renderer *pdfrender.Renderer, c *gin.C
 		tradeName = company.TradeName
 	}
 
-	doctorName := patient.Medic
-	if doctorName == "" {
-		doctorName = "Médico Tratante"
-	}
+	doctorName, doctorRegistry := documentDoctor(tenantdb.For(c, db), patient, prescriptionDoctorID(record), record.DoctorID)
 
 	fullName := "No especificado"
 	if patient.FullName != nil && *patient.FullName != "" {
@@ -131,6 +130,7 @@ func generatePrescriptionPDF(db *gorm.DB, renderer *pdfrender.Renderer, c *gin.C
 
 	data := clinical_templates.PrescriptionData{
 		DoctorName:          doctorName,
+		DoctorRegistry:      doctorRegistry,
 		Date:                record.Date.Format("02/01/2006"),
 		PatientName:         fullName,
 		PatientDocument:     patient.Document,
@@ -164,6 +164,10 @@ func (h *DownloadRecordHandler) SignPrescription(c *gin.Context) envelope.Respon
 	if record.Prescription.IsSigned() {
 		return signature_services.AlreadySignedResponse()
 	}
+	uid, _, _ := auth_middleware.GetUserFromContext(c)
+	if err := doctor_services.CanSign(tenantdb.For(c, h.db), uint(uid), prescriptionDoctorID(&record), record.DoctorID); err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
 	var patient clinical_models.Patient
 	if err := tenantdb.For(c, h.db).First(&patient, record.PatientID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
@@ -182,6 +186,14 @@ func (h *DownloadRecordHandler) SignPrescription(c *gin.Context) envelope.Respon
 	}
 	record.Prescription.DocumentSignature = sig
 	return envelope.SuccessResponse(record.Prescription, "signature.document.sign.success")
+}
+
+// prescriptionDoctorID is the doctor stored on the record's prescription, or nil.
+func prescriptionDoctorID(record *clinical_models.MedicalRecord) *uint {
+	if record.Prescription == nil {
+		return nil
+	}
+	return record.Prescription.DoctorID
 }
 
 func calculateAge(birthDate time.Time) int {

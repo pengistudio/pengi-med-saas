@@ -4,6 +4,7 @@ import {
 	type ServiceResponse,
 } from "@pengi/shared";
 import { apiWithTenant, noAuthApi } from ".";
+import type { Doctor } from "./doctors-service";
 import type { DocumentSignature } from "./signature-service";
 
 const clinicalService = createHttpService(apiWithTenant);
@@ -29,7 +30,10 @@ export interface Patient extends BaseModel {
 	gender: string;
 	notes: string;
 	insurance: string;
+	/** Legacy free-text doctor name; superseded by `doctor_id` (read-only). */
 	medic: string;
+	/** Médico de cabecera. */
+	doctor_id?: number | null;
 	diagnosis: string;
 	critical: boolean;
 	app: string;
@@ -157,12 +161,14 @@ export interface MedicalReportConsultationEntry {
 
 export interface MedicalReport extends BaseModel, DocumentSignature {
 	patient_id: number;
+	doctor_id?: number | null;
 	consultations: MedicalReportConsultationEntry[];
 	plan: string;
 }
 
 export interface MedicalCertificate extends BaseModel, DocumentSignature {
 	patient_id: number;
+	doctor_id?: number | null;
 	diagnosis: string;
 	observations: string;
 	rest_days?: number | null;
@@ -193,6 +199,7 @@ export const createMedicalReport = async (
 	payload: {
 		consultations: MedicalReportConsultationEntry[];
 		plan: string;
+		doctor_id?: number;
 	},
 ): Promise<ServiceResponse<MedicalReport>> => {
 	return clinicalService.post<MedicalReport>(
@@ -230,6 +237,7 @@ export const createMedicalCertificate = async (
 		rest_days?: number | null;
 		rest_from?: string | null;
 		rest_to?: string | null;
+		doctor_id?: number;
 	},
 ): Promise<ServiceResponse<MedicalCertificate>> => {
 	return clinicalService.post<MedicalCertificate>(
@@ -272,7 +280,8 @@ export type CreatePatientPayload = {
 	gender?: string;
 	notes?: string;
 	insurance?: string;
-	medic: string;
+	/** Médico de cabecera; 0 clears it on update. */
+	doctor_id?: number;
 };
 
 export const createPatient = async (
@@ -319,6 +328,9 @@ export interface Appointment extends BaseModel {
 		| "completed"
 		| "cancelled";
 	color_id?: string;
+	doctor_id?: number | null;
+	/** Preloaded by the appointment endpoints (agenda color and name). */
+	doctor?: Doctor | null;
 	patient?: Patient;
 	/** In the waiting room list: present when triage took the vital signs (only the ID). */
 	vital_signs?: Pick<VitalSigns, "ID"> | null;
@@ -380,6 +392,10 @@ export interface MedicalRecord extends BaseModel {
 	apf?: string;
 	apqx?: string;
 	allergies?: string;
+	/** Who attended. */
+	doctor_id?: number | null;
+	/** Who wrote it. */
+	created_by_user_id?: number | null;
 }
 
 export type MedicalRecordListParams = {
@@ -431,6 +447,7 @@ export const updateCriticalRevert = async (
 
 export type CreateMedicalRecordPayload = {
 	patient_id: number;
+	doctor_id?: number;
 	date: string;
 	motive: string;
 	observation: string;
@@ -516,6 +533,7 @@ export const deleteMedicalRecordDraft = async (
 };
 
 export type UpdateMedicalRecordPayload = {
+	doctor_id?: number;
 	date?: string;
 	motive?: string;
 	observation?: string;
@@ -593,6 +611,7 @@ export type CreateAppointmentPayload = {
 	location?: string;
 	notes?: string;
 	color_id?: string;
+	doctor_id?: number;
 };
 
 export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload>;

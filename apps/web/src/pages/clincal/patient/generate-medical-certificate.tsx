@@ -27,6 +27,8 @@ import {
 	type DocumentSignature,
 	signMedicalCertificate,
 } from "@/api/signature-service";
+import { RegisterDoctorNotice } from "@/components/features/doctors/doctor-notices";
+import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { DocumentPageHeader } from "@/components/features/medical-documents/document-page-header";
 import {
 	DocumentWorkflow,
@@ -46,6 +48,7 @@ const certificateSchema = z.object({
 	rest_days: z.number().int().min(0).max(MAX_REST_DAYS),
 	rest_from: z.date().optional(),
 	rest_to: z.date().optional(),
+	doctor_id: z.number().nullable().optional(),
 });
 
 type CertificateFormValues = z.input<typeof certificateSchema>;
@@ -287,11 +290,14 @@ interface CertificateEditorProps
 	extends Omit<DocumentWorkflowProps, "isDirty" | "saveLabel"> {
 	field: UseFormReturn<CertificateFormValues>;
 	savedVersion: number;
+	/** The patient's médico de cabecera, a default for the doctor. */
+	patientDoctorId?: number | null;
 }
 
 function CertificateEditor({
 	field,
 	savedVersion,
+	patientDoctorId,
 	...workflow
 }: CertificateEditorProps) {
 	useSavedBaseline(field, savedVersion);
@@ -300,6 +306,13 @@ function CertificateEditor({
 	return (
 		<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
 			<div className="space-y-8">
+				<FormDoctorSelect
+					field={field}
+					name="doctor_id"
+					fallbacks={[patientDoctorId]}
+					disabled={readOnly}
+					className="max-w-md"
+				/>
 				<section className="space-y-2">
 					<label htmlFor="diagnosis" className="text-base font-semibold">
 						<Text uuid="dialog.medical_certificate.diagnosis" />
@@ -379,6 +392,7 @@ export default function GenerateMedicalCertificatePage() {
 			rest_from:
 				hasRest && values.rest_from ? values.rest_from.toISOString() : null,
 			rest_to: hasRest && values.rest_to ? values.rest_to.toISOString() : null,
+			doctor_id: values.doctor_id ?? undefined,
 		});
 		if (res.success && res.data) {
 			setSavedCertificateId(res.data.ID);
@@ -419,6 +433,7 @@ export default function GenerateMedicalCertificatePage() {
 				title="dialog.medical_certificate.title"
 				description="dialog.medical_certificate.description"
 			/>
+			<RegisterDoctorNotice />
 
 			{loadingPatient || !patient ? (
 				<div className="flex justify-center py-16">
@@ -431,6 +446,7 @@ export default function GenerateMedicalCertificatePage() {
 						diagnosis: patient.diagnosis || "",
 						observations: "",
 						rest_days: 0,
+						doctor_id: null,
 					}}
 					onSubmit={onSubmit}
 				>
@@ -438,6 +454,7 @@ export default function GenerateMedicalCertificatePage() {
 						<CertificateEditor
 							field={field}
 							savedVersion={savedVersion}
+							patientDoctorId={patient.doctor_id}
 							saving={saving}
 							printing={printing}
 							isSaved={savedCertificateId !== null}

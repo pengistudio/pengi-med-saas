@@ -8,4 +8,5 @@ type CreateMedicalCertificateDTO struct {
 	RestDays     *int       `json:"rest_days,omitempty"`
 	RestFrom     *time.Time `json:"rest_from,omitempty"`
 	RestTo       *time.Time `json:"rest_to,omitempty"`
+	DoctorID     *uint      `json:"doctor_id"` // optional: defaults per doctor_services.Resolve
 }

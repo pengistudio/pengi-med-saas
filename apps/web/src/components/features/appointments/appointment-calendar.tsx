@@ -6,6 +6,11 @@ import {
 import { useText } from "@pengi/shared";
 import {
 	Button,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 	Sheet,
 	SheetContent,
 	SheetTitle,
@@ -37,6 +42,7 @@ import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { useDoctorStatus, useDoctors } from "@/store/doctors-store";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
 import { AppointmentFormDialog } from "./appointment-form-dialog";
 import { rememberLanding } from "./appointment-landing";
@@ -82,6 +88,9 @@ function computeSnappedTarget(
 	};
 }
 
+const MINE = "mine";
+const ALL = "all";
+
 export default function AppointmentCalendar() {
 	const [searchParams] = useSearchParams();
 	// ?date=YYYY-MM-DD opens that week (the dashboard's week strip links here).
@@ -118,6 +127,24 @@ export default function AppointmentCalendar() {
 	const canManage = checkPermission([
 		PERMISSIONS.APPOINTMENTS.PERMISSION_MANAGE_APPOINTMENT,
 	]);
+
+	// Doctor filter: "mine" (default for a user with a profile), "all", or a
+	// doctor's ID. Only shown when the tenant has more than one active doctor.
+	const doctorStatus = useDoctorStatus();
+	const { activeDoctors } = useDoctors();
+	const myDoctorId = doctorStatus?.doctor?.ID;
+	const [doctorFilter, setDoctorFilter] = React.useState<string | null>(null);
+	const showDoctorFilter = activeDoctors.length > 1;
+	const effectiveFilter = showDoctorFilter
+		? (doctorFilter ?? (myDoctorId ? MINE : ALL))
+		: ALL;
+	const doctorFilterOptions = [
+		...(myDoctorId
+			? [{ value: MINE, label: textGet("appointments.filter.mine") }]
+			: []),
+		{ value: ALL, label: textGet("appointments.filter.all_doctors") },
+		...activeDoctors.map((d) => ({ value: String(d.ID), label: d.full_name })),
+	];
 
 	const weekStart = React.useMemo(
 		() => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -243,8 +270,17 @@ export default function AppointmentCalendar() {
 		}
 	}
 
+	// Unassigned appointments (created before doctors existed) stay visible
+	// under "mine": they may well be the user's.
+	const visibleAppointments = appointments.filter((a) => {
+		if (effectiveFilter === ALL) return true;
+		if (effectiveFilter === MINE)
+			return !a.doctor_id || a.doctor_id === myDoctorId;
+		return a.doctor_id === Number(effectiveFilter);
+	});
+
 	function getAppointmentsForDay(day: Date) {
-		return appointments.filter((a) => isSameDay(new Date(a.date), day));
+		return visibleAppointments.filter((a) => isSameDay(new Date(a.date), day));
 	}
 
 	function handleDragMove(event: DragMoveEvent) {
@@ -419,6 +455,31 @@ export default function AppointmentCalendar() {
 							? formatDate(currentDate, "weekday-day-month")
 							: `${formatDate(weekStart, "day-month")} — ${formatDate(weekEnd, "medium")}`}
 					</p>
+					{showDoctorFilter && (
+						<Select
+							value={effectiveFilter}
+							onValueChange={(v) => setDoctorFilter(String(v ?? ALL))}
+						>
+							<SelectTrigger
+								className="w-auto min-w-36"
+								aria-label={textGet("appointments.filter.doctor")}
+							>
+								<SelectValue>
+									{
+										doctorFilterOptions.find((o) => o.value === effectiveFilter)
+											?.label
+									}
+								</SelectValue>
+							</SelectTrigger>
+							<SelectContent>
+								{doctorFilterOptions.map((o) => (
+									<SelectItem key={o.value} value={o.value}>
+										{o.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					)}
 					{isPhone && showPending && (
 						<Button
 							variant="outline"
@@ -451,7 +512,7 @@ export default function AppointmentCalendar() {
 					/>
 					{weekDays.map((day) => {
 						const selected = isSameDay(day, currentDate);
-						const busy = appointments.some((a) =>
+						const busy = visibleAppointments.some((a) =>
 							isSameDay(new Date(a.date), day),
 						);
 						return (

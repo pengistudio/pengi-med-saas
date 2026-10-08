@@ -21,6 +21,7 @@ import (
 	"pengi-med-saas/core/tenantfiles"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
 	"pengi-med-saas/testutils"
@@ -64,7 +65,7 @@ func newAttachments(t *testing.T) *attachments {
 
 func newAttachmentsWithStore(t *testing.T, disk *tenantfiles.MemoryStore, files tenantfiles.Store) *attachments {
 	t.Helper()
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{}, &clinical_models.PatientAttachment{}, &audit.AuditLog{}, &user_models.User{},
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{}, &tenant_models.Tenant{}, &clinical_models.Patient{}, &clinical_models.PatientAttachment{}, &audit.AuditLog{}, &user_models.User{},
 		&company_models.Company{}, &company_models.Plan{}, &company_models.Subscription{},
 		&clinical_models.MedicalRecord{}, &clinical_models.SOAPRecord{}, &clinical_models.Prescription{},
 		// Delete and restore check whether the attachment is an exam result.

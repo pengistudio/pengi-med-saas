@@ -1,4 +1,6 @@
+import type { CSSProperties } from "react";
 import { z } from "zod";
+import { doctorColorStyle } from "@/components/features/doctors/doctor-utils";
 
 // ─── Calendar Constants ──────────────────────────────────────────────────────
 
@@ -185,6 +187,29 @@ export function getEventColor(colorId?: string) {
 	return EVENT_COLORS.find((c) => c.id === colorId) || DEFAULT_EVENT_COLOR;
 }
 
+/**
+ * How an agenda block is painted: with its doctor's color when it has one
+ * (inline style, the color is any #RRGGBB), else with the manual event color.
+ */
+export function getAppointmentColor(appointment: {
+	color_id?: string;
+	doctor?: { color?: string } | null;
+}): { className: string; textClassName: string; style?: CSSProperties } {
+	const doctorColor = appointment.doctor?.color;
+	if (doctorColor) {
+		return {
+			className: "",
+			textClassName: "",
+			style: doctorColorStyle(doctorColor),
+		};
+	}
+	const color = getEventColor(appointment.color_id);
+	return {
+		className: `${color.bg} ${color.border} ${color.text}`,
+		textClassName: color.text,
+	};
+}
+
 // ─── Status i18n Keys ────────────────────────────────────────────────────────
 
 export const STATUS_I18N_KEYS: Record<string, string> = {
@@ -223,6 +248,7 @@ export function getEventPosition(startTime: string, endTime: string) {
 
 export const appointmentSchema = z.object({
 	title: z.string().min(1, "Requerido"),
+	doctor_id: z.number().nullable().optional(),
 	date: z.date(),
 	start_time: z.string().min(1, "Requerido"),
 	end_time: z.string().min(1, "Requerido"),
