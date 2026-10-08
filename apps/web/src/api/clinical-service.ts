@@ -329,6 +329,8 @@ export interface Appointment extends BaseModel {
 		| "cancelled";
 	color_id?: string;
 	doctor_id?: number | null;
+	/** Optional appointment type (map it with the agenda store's types). */
+	appointment_type_id?: number | null;
 	/** Preloaded by the appointment endpoints (agenda color and name). */
 	doctor?: Doctor | null;
 	patient?: Patient;
@@ -612,6 +614,8 @@ export type CreateAppointmentPayload = {
 	notes?: string;
 	color_id?: string;
 	doctor_id?: number;
+	/** On create: omitted or 0 = none. On update: omitted = keep, 0 = remove. */
+	appointment_type_id?: number;
 };
 
 export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload>;

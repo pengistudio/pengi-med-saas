@@ -24,6 +24,8 @@ import {
 	type Patient,
 	updateAppointment,
 } from "@/api/clinical-service";
+import { AppointmentTypeField } from "@/components/features/agenda/appointment-type-field";
+import { AvailabilityWarning } from "@/components/features/agenda/availability-warning";
 import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { appointmentSchema } from "./appointment-utils";
@@ -38,6 +40,8 @@ export interface AppointmentFormDialogProps {
 	defaultDate?: Date;
 	defaultTime?: string;
 	defaultPatient?: Patient | null;
+	/** Doctor of a new appointment (the agenda column it was created from). */
+	defaultDoctorId?: number | null;
 	onSuccess: () => void;
 }
 
@@ -50,6 +54,7 @@ export function AppointmentFormDialog({
 	defaultDate,
 	defaultTime,
 	defaultPatient,
+	defaultDoctorId,
 	onSuccess,
 }: AppointmentFormDialogProps) {
 	const [loading, setLoading] = React.useState(false);
@@ -136,6 +141,8 @@ export function AppointmentFormDialog({
 				notes: values.notes || "",
 				color_id: values.color_id || "",
 				doctor_id: values.doctor_id ?? undefined,
+				// 0 removes the type.
+				appointment_type_id: values.appointment_type_id ?? 0,
 			});
 			if (res.success) {
 				onOpenChange(false);
@@ -152,6 +159,7 @@ export function AppointmentFormDialog({
 				notes: values.notes || "",
 				color_id: values.color_id || "",
 				doctor_id: values.doctor_id ?? undefined,
+				appointment_type_id: values.appointment_type_id ?? undefined,
 			});
 			if (res.success) {
 				onOpenChange(false);
@@ -254,7 +262,8 @@ export function AppointmentFormDialog({
 						location: appointment?.location || "",
 						notes: appointment?.notes || "",
 						color_id: appointment?.color_id || "",
-						doctor_id: appointment?.doctor_id ?? null,
+						doctor_id: appointment?.doctor_id ?? defaultDoctorId ?? null,
+						appointment_type_id: appointment?.appointment_type_id ?? null,
 					}}
 					onSubmit={onSubmit}
 				>
@@ -271,6 +280,11 @@ export function AppointmentFormDialog({
 								name="doctor_id"
 								autoDefault={!isEdit}
 								fallbacks={[defaultPatient?.doctor_id]}
+							/>
+							<AppointmentTypeField
+								field={field}
+								isEdit={isEdit}
+								currentTypeId={appointment?.appointment_type_id}
 							/>
 							<FormCalendar
 								field={field}
@@ -292,6 +306,7 @@ export function AppointmentFormDialog({
 									type="time"
 								/>
 							</div>
+							<AvailabilityWarning control={field.control} />
 							<FormInput
 								field={field}
 								name="location"

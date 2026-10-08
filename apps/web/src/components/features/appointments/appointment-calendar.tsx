@@ -6,6 +6,11 @@ import {
 import { useText } from "@pengi/shared";
 import {
 	Button,
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuTrigger,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -15,6 +20,8 @@ import {
 	SheetContent,
 	SheetTitle,
 	Text,
+	ToggleGroup,
+	ToggleGroupItem,
 	useViewport,
 } from "@pengi/ui";
 import {
@@ -27,7 +34,13 @@ import {
 	isToday,
 	startOfWeek,
 } from "date-fns";
-import { CalendarClock, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import {
+	CalendarClock,
+	ChevronLeft,
+	ChevronRight,
+	Plus,
+	Users,
+} from "lucide-react";
 import React from "react";
 import { useSearchParams } from "react-router";
 import {
@@ -37,12 +50,17 @@ import {
 	updateAppointment,
 } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
+import {
+	computeShading,
+	type ShadeRange,
+} from "@/components/features/agenda/agenda-utils";
+import { useAgendaRange } from "@/components/features/agenda/use-agenda-range";
 import { useDragSensors } from "@/hooks/use-drag-sensors";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { useDoctorStatus, useDoctors } from "@/store/doctors-store";
+import { findDoctor, useDoctorStatus, useDoctors } from "@/store/doctors-store";
 import { AppointmentDetailDialog } from "./appointment-detail-dialog";
 import { AppointmentFormDialog } from "./appointment-form-dialog";
 import { rememberLanding } from "./appointment-landing";
@@ -56,20 +74,36 @@ import {
 import { DayColumn, type DragGhost } from "./day-column";
 import { PendingFollowUpsPanel } from "./pending-follow-ups-panel";
 
+/**
+ * A column of the grid: a day (week view) or a doctor on the shown day (day
+ * view). `doctorId` is undefined in the week view, null for "no doctor".
+ */
+interface CalendarColumn {
+	key: string;
+	day: Date;
+	doctorId?: number | null;
+	label?: string;
+	color?: string;
+	/** Inactive or unknown doctor: shown for its appointments, never assigned new ones. */
+	inactive?: boolean;
+}
+
 // Given a dragged appointment and the current drop target, computes the
-// snapped (15-min) destination day/time — shared by the live ghost preview
+// snapped (15-min) destination column/time — shared by the live ghost preview
 // and the final persisted update so both agree on the exact same slot.
 function computeSnappedTarget(
 	appt: Appointment,
 	over: { id: string | number } | null | undefined,
 	delta: { x: number; y: number },
-	days: Date[],
-): { day: Date; startTime: string; endTime: string } | null {
+	columns: CalendarColumn[],
+): { column: CalendarColumn; startTime: string; endTime: string } | null {
 	if (!over) return null;
-	const targetDay = days.find(
-		(d) => format(d, "yyyy-MM-dd") === String(over.id),
-	);
-	if (!targetDay) return null;
+	const column = columns.find((c) => c.key === String(over.id));
+	if (!column) return null;
+	// An appointment can't be unassigned by dropping it on "no doctor".
+	if (column.doctorId === null && appt.doctor_id) return null;
+	// Nor reassigned to a doctor who no longer attends (its own column is fine).
+	if (column.inactive && column.doctorId !== appt.doctor_id) return null;
 
 	const duration =
 		timeToMinutes(appt.end_time) - timeToMinutes(appt.start_time);
@@ -82,7 +116,7 @@ function computeSnappedTarget(
 	);
 
 	return {
-		day: targetDay,
+		column,
 		startTime: minutesToTime(newStartMinutes),
 		endTime: minutesToTime(newStartMinutes + duration),
 	};
@@ -90,6 +124,30 @@ function computeSnappedTarget(
 
 const MINE = "mine";
 const ALL = "all";
+/** Key of the "no doctor" column in the day view. */
+const NO_DOCTOR = "none";
+
+type View = "week" | "day";
+const VIEW_STORAGE_KEY = "agenda-view";
+
+function readStoredView(): View {
+	try {
+		return localStorage.getItem(VIEW_STORAGE_KEY) === "day" ? "day" : "week";
+	} catch {
+		return "week";
+	}
+}
+
+function storeView(view: View) {
+	try {
+		localStorage.setItem(VIEW_STORAGE_KEY, view);
+	} catch {
+		// Storage unavailable (private mode): the choice lasts this visit only.
+	}
+}
+
+const doctorKey = (doctorId: number | null | undefined) =>
+	doctorId ? String(doctorId) : NO_DOCTOR;
 
 export default function AppointmentCalendar() {
 	const [searchParams] = useSearchParams();
@@ -111,6 +169,7 @@ export default function AppointmentCalendar() {
 	const [createDefaults, setCreateDefaults] = React.useState<{
 		date?: Date;
 		time?: string;
+		doctorId?: number | null;
 	}>({});
 	const [suggestedPatient, setSuggestedPatient] =
 		React.useState<Patient | null>(null);
@@ -131,7 +190,7 @@ export default function AppointmentCalendar() {
 	// Doctor filter: "mine" (default for a user with a profile), "all", or a
 	// doctor's ID. Only shown when the tenant has more than one active doctor.
 	const doctorStatus = useDoctorStatus();
-	const { activeDoctors } = useDoctors();
+	const { doctors, activeDoctors } = useDoctors();
 	const myDoctorId = doctorStatus?.doctor?.ID;
 	const [doctorFilter, setDoctorFilter] = React.useState<string | null>(null);
 	const showDoctorFilter = activeDoctors.length > 1;
@@ -156,6 +215,16 @@ export default function AppointmentCalendar() {
 	);
 	const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 	const visibleDays = isPhone ? [currentDate] : weekDays;
+
+	// "Día" view: one column per doctor on the shown day. Offered once the
+	// tenant has doctors; the last choice is remembered on this device.
+	const [storedView, setStoredView] = React.useState<View>(readStoredView);
+	const canDayView = activeDoctors.length > 0;
+	const dayView = canDayView && storedView === "day";
+	function changeView(view: View) {
+		setStoredView(view);
+		storeView(view);
+	}
 	// Which way the visible range last moved, so new days slide in from that side.
 	const [shownDate, setShownDate] = React.useState(currentDate);
 	const [slideFrom, setSlideFrom] = React.useState<"left" | "right" | null>(
@@ -174,7 +243,7 @@ export default function AppointmentCalendar() {
 	const selectedIndex = weekDays.findIndex((d) => isSameDay(d, currentDate));
 	const step = (direction: 1 | -1) =>
 		setCurrentDate((date) =>
-			isPhone ? addDays(date, direction) : addWeeks(date, direction),
+			isPhone || dayView ? addDays(date, direction) : addWeeks(date, direction),
 		);
 	const hours = Array.from(
 		{ length: END_HOUR - START_HOUR },
@@ -283,6 +352,142 @@ export default function AppointmentCalendar() {
 		return visibleAppointments.filter((a) => isSameDay(new Date(a.date), day));
 	}
 
+	// Working hours and blocks of the active doctors for the loaded week (one
+	// request per week), used to shade the grid.
+	const agendaRange = useAgendaRange(
+		format(weekStart, "yyyy-MM-dd"),
+		format(weekEnd, "yyyy-MM-dd"),
+		canDayView,
+	);
+
+	/** What to shade in a doctor's column (null: the "no doctor" column). */
+	function shadingFor(
+		doctorId: number | null,
+		day: Date,
+	): ShadeRange[] | undefined {
+		if (!agendaRange) return undefined;
+		const date = format(day, "yyyy-MM-dd");
+		if (doctorId === null) {
+			const clinic = agendaRange.clinic.find((c) => c.date === date);
+			return computeShading({
+				ranges: [],
+				blocks: clinic?.blocks ?? [],
+				hasSchedule: false,
+			});
+		}
+		const agenda = agendaRange.doctors.find((d) => d.doctor_id === doctorId);
+		if (!agenda) return undefined;
+		const agendaDay = agenda.days.find((d) => d.date === date);
+		return computeShading({
+			ranges: agendaDay?.ranges ?? [],
+			blocks: agendaDay?.blocks ?? [],
+			hasSchedule: agenda.has_schedule,
+		});
+	}
+
+	// The week view shades by one doctor's schedule when the agenda shows a
+	// single doctor: the filtered one, or the only active one.
+	const weekShadeDoctor =
+		effectiveFilter === MINE
+			? myDoctorId
+			: effectiveFilter !== ALL
+				? Number(effectiveFilter)
+				: activeDoctors.length === 1
+					? activeDoctors[0].ID
+					: undefined;
+
+	// Day view columns: active doctors working that day (every active doctor
+	// while no one has a schedule), any doctor with appointments that day, and
+	// "no doctor" when some appointment has none.
+	const shownDayKey = format(currentDate, "yyyy-MM-dd");
+	const dayAppointments = appointments.filter((a) =>
+		isSameDay(new Date(a.date), currentDate),
+	);
+	const anySchedule = agendaRange?.doctors.some((d) => d.has_schedule) ?? false;
+	const dayColumns: CalendarColumn[] = [
+		...doctors
+			.filter((d) => {
+				if (dayAppointments.some((a) => a.doctor_id === d.ID)) return true;
+				if (!d.active) return false;
+				if (!anySchedule) return true;
+				const agenda = agendaRange?.doctors.find((x) => x.doctor_id === d.ID);
+				return !!agenda?.days.find((x) => x.date === shownDayKey)?.ranges
+					.length;
+			})
+			.map((d) => ({
+				key: `${shownDayKey}:${d.ID}`,
+				day: currentDate,
+				doctorId: d.ID,
+				label: d.full_name,
+				color: d.color,
+				inactive: !d.active,
+			})),
+		// Appointments of a doctor missing from the loaded list keep a column.
+		...[
+			...new Set(
+				dayAppointments
+					.map((a) => a.doctor_id)
+					.filter((id): id is number => !!id && !findDoctor(doctors, id)),
+			),
+		].map((id) => ({
+			key: `${shownDayKey}:${id}`,
+			day: currentDate,
+			doctorId: id,
+			label:
+				dayAppointments.find((a) => a.doctor_id === id)?.doctor?.full_name ||
+				textGet("appointments.day.other_doctor"),
+			inactive: true,
+		})),
+		...(dayAppointments.some((a) => !a.doctor_id)
+			? [
+					{
+						key: `${shownDayKey}:${NO_DOCTOR}`,
+						day: currentDate,
+						doctorId: null,
+						label: textGet("appointments.day.no_doctor"),
+					},
+				]
+			: []),
+	];
+	// Doctors hidden with the selector (desktop), by doctorKey.
+	const [hiddenDoctors, setHiddenDoctors] = React.useState<string[]>([]);
+	// The one doctor a phone shows in the day view, by doctorKey.
+	const [phoneDoctor, setPhoneDoctor] = React.useState<string | null>(null);
+	const phoneColumn =
+		dayColumns.find((c) => doctorKey(c.doctorId) === phoneDoctor) ??
+		dayColumns.find((c) => myDoctorId && c.doctorId === myDoctorId) ??
+		dayColumns[0];
+
+	const columns: CalendarColumn[] = dayView
+		? isPhone
+			? phoneColumn
+				? [phoneColumn]
+				: []
+			: dayColumns.filter((c) => !hiddenDoctors.includes(doctorKey(c.doctorId)))
+		: visibleDays.map((day) => ({ key: format(day, "yyyy-MM-dd"), day }));
+
+	// Day view (desktop): one column per doctor, scrolling sideways when many.
+	const dayGridStyle: React.CSSProperties = {
+		gridTemplateColumns: `60px repeat(${columns.length}, minmax(10rem, 1fr))`,
+		minWidth: `calc(60px + ${columns.length} * 10rem)`,
+	};
+
+	function columnAppointments(column: CalendarColumn) {
+		if (column.doctorId === undefined) return getAppointmentsForDay(column.day);
+		return dayAppointments.filter(
+			(a) => (a.doctor_id || null) === column.doctorId,
+		);
+	}
+
+	function columnShading(column: CalendarColumn) {
+		if (column.doctorId !== undefined) {
+			return shadingFor(column.doctorId, column.day);
+		}
+		return weekShadeDoctor
+			? shadingFor(weekShadeDoctor, column.day)
+			: undefined;
+	}
+
 	function handleDragMove(event: DragMoveEvent) {
 		const { active, over, delta } = event;
 		const appt = appointments.find((a) => a.ID === Number(active.id));
@@ -291,14 +496,14 @@ export default function AppointmentCalendar() {
 			return;
 		}
 
-		const target = computeSnappedTarget(appt, over, delta, visibleDays);
+		const target = computeSnappedTarget(appt, over, delta, columns);
 		if (!target) {
 			setDragGhost(null);
 			return;
 		}
 
 		setDragGhost({
-			dayKey: format(target.day, "yyyy-MM-dd"),
+			columnKey: target.column.key,
 			appointment: appt,
 			startTime: target.startTime,
 			endTime: target.endTime,
@@ -320,25 +525,32 @@ export default function AppointmentCalendar() {
 		const appt = appointments.find((a) => a.ID === apptId);
 		if (!appt) return;
 
-		const target = computeSnappedTarget(appt, over, delta, visibleDays);
+		const target = computeSnappedTarget(appt, over, delta, columns);
 		if (!target) return;
-		const {
-			day: targetDay,
-			startTime: newStartTime,
-			endTime: newEndTime,
-		} = target;
+		const { startTime: newStartTime, endTime: newEndTime } = target;
+		const targetDay = target.column.day;
 		const newDate = targetDay.toISOString();
+		// Day view: dropping on another doctor's column reassigns it.
+		const newDoctorId =
+			typeof target.column.doctorId === "number" &&
+			target.column.doctorId !== appt.doctor_id
+				? target.column.doctorId
+				: undefined;
 
 		if (
 			isSameDay(new Date(appt.date), targetDay) &&
 			appt.start_time === newStartTime &&
-			appt.end_time === newEndTime
+			appt.end_time === newEndTime &&
+			newDoctorId === undefined
 		) {
 			return;
 		}
 
 		const released = event.active.rect.current.translated;
-		if (released && !isSameDay(new Date(appt.date), targetDay)) {
+		if (
+			released &&
+			(!isSameDay(new Date(appt.date), targetDay) || newDoctorId !== undefined)
+		) {
 			rememberLanding(apptId, released);
 		}
 
@@ -351,6 +563,10 @@ export default function AppointmentCalendar() {
 							date: newDate,
 							start_time: newStartTime,
 							end_time: newEndTime,
+							...(newDoctorId !== undefined && {
+								doctor_id: newDoctorId,
+								doctor: findDoctor(doctors, newDoctorId) ?? null,
+							}),
 						}
 					: a,
 			),
@@ -360,6 +576,7 @@ export default function AppointmentCalendar() {
 			date: newDate,
 			start_time: newStartTime,
 			end_time: newEndTime,
+			...(newDoctorId !== undefined && { doctor_id: newDoctorId }),
 		}).then((res) => {
 			if (!res.success) {
 				setAppointments((prev) =>
@@ -371,11 +588,12 @@ export default function AppointmentCalendar() {
 		});
 	}
 
-	function handleSlotClick(day: Date, hour: number) {
+	function handleSlotClick(day: Date, hour: number, doctorId?: number | null) {
 		setEditTarget(null);
 		setCreateDefaults({
 			date: day,
 			time: `${hour.toString().padStart(2, "0")}:00`,
+			doctorId,
 		});
 		setSuggestedPatient(null);
 		setShowFormDialog(true);
@@ -451,11 +669,90 @@ export default function AppointmentCalendar() {
 				</div>
 				<div className="flex items-center gap-2 sm:gap-3">
 					<p className="font-medium text-muted-foreground capitalize max-sm:text-sm sm:text-lg">
-						{isPhone
+						{isPhone || dayView
 							? formatDate(currentDate, "weekday-day-month")
 							: `${formatDate(weekStart, "day-month")} — ${formatDate(weekEnd, "medium")}`}
 					</p>
-					{showDoctorFilter && (
+					{canDayView && (
+						<ToggleGroup
+							variant="outline"
+							value={[dayView ? "day" : "week"]}
+							onValueChange={(value) => {
+								const next = value[0];
+								if (next === "day" || next === "week") changeView(next);
+							}}
+							aria-label={textGet("appointments.view.label")}
+						>
+							<ToggleGroupItem value="day">
+								<Text uuid="appointments.view.day" />
+							</ToggleGroupItem>
+							<ToggleGroupItem value="week">
+								<Text uuid="appointments.view.week" />
+							</ToggleGroupItem>
+						</ToggleGroup>
+					)}
+					{dayView && !isPhone && dayColumns.length > 0 && (
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button
+										variant="outline"
+										size="icon"
+										aria-label={textGet("appointments.day.doctors")}
+										title={textGet("appointments.day.doctors")}
+									>
+										<Users className="h-4 w-4" />
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align="end" className="w-56">
+								<DropdownMenuGroup>
+									{dayColumns.map((c) => {
+										const key = doctorKey(c.doctorId);
+										return (
+											<DropdownMenuCheckboxItem
+												key={key}
+												checked={!hiddenDoctors.includes(key)}
+												onCheckedChange={(checked) =>
+													setHiddenDoctors((hidden) =>
+														checked
+															? hidden.filter((h) => h !== key)
+															: [...hidden, key],
+													)
+												}
+											>
+												{c.label}
+											</DropdownMenuCheckboxItem>
+										);
+									})}
+								</DropdownMenuGroup>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					)}
+					{dayView && isPhone && phoneColumn && dayColumns.length > 1 && (
+						<Select
+							value={doctorKey(phoneColumn.doctorId)}
+							onValueChange={(v) => setPhoneDoctor(v ? String(v) : null)}
+						>
+							<SelectTrigger
+								className="w-auto min-w-36"
+								aria-label={textGet("appointments.filter.doctor")}
+							>
+								<SelectValue>{phoneColumn.label}</SelectValue>
+							</SelectTrigger>
+							<SelectContent>
+								{dayColumns.map((c) => (
+									<SelectItem
+										key={doctorKey(c.doctorId)}
+										value={doctorKey(c.doctorId)}
+									>
+										{c.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					)}
+					{showDoctorFilter && !dayView && (
 						<Select
 							value={effectiveFilter}
 							onValueChange={(v) => setDoctorFilter(String(v ?? ALL))}
@@ -561,8 +858,38 @@ export default function AppointmentCalendar() {
 						onTouchEnd={handleTouchEnd}
 						onTouchCancel={handleTouchCancel}
 					>
+						{/* Doctor headers (day view, sticky) */}
+						{dayView && !isPhone && columns.length > 0 && (
+							<div
+								className="sticky top-0 z-20 grid border-b bg-card"
+								style={dayGridStyle}
+							>
+								<div className="border-r" />
+								{columns.map((c) => (
+									<div
+										key={c.key}
+										className={cn(
+											"flex items-center justify-center gap-2 border-r px-2 py-3 last:border-r-0",
+											slideIn,
+										)}
+									>
+										{c.color && (
+											<span
+												aria-hidden
+												className="size-2.5 shrink-0 rounded-full"
+												style={{ backgroundColor: c.color }}
+											/>
+										)}
+										<span className="truncate text-sm font-semibold">
+											{c.label}
+										</span>
+									</div>
+								))}
+							</div>
+						)}
+
 						{/* Day Headers (sticky); the week strip does this on a phone */}
-						{!isPhone && (
+						{!isPhone && !dayView && (
 							<div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20 overflow-x-clip">
 								<div className="border-r" />
 								{weekDays.map((day) => (
@@ -591,72 +918,89 @@ export default function AppointmentCalendar() {
 							</div>
 						)}
 
-						{/* Time Grid */}
-						<DndContext
-							sensors={sensors}
-							onDragStart={() => {
-								dragging.current = true;
-								setSwipeOffset(null);
-							}}
-							onDragMove={handleDragMove}
-							onDragEnd={handleDragEnd}
-							onDragCancel={handleDragCancel}
-						>
-							<div
-								ref={gridRef}
-								className={cn(
-									"grid relative overflow-x-clip [--swipe-x:0px]",
-									isPhone
-										? "grid-cols-[48px_1fr]"
-										: "grid-cols-[60px_repeat(7,1fr)]",
-								)}
-								style={{
-									height: `${hours.length * HOUR_HEIGHT}px`,
-								}}
-							>
-								{/* Time Labels */}
-								<div className="relative border-r">
-									{hours.map((hour) => (
-										<div
-											key={hour}
-											className="absolute w-full pr-2 text-right"
-											style={{
-												top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
-											}}
-										>
-											<span className="text-xs text-muted-foreground block">
-												{`${hour.toString().padStart(2, "0")}:00`}
-											</span>
-										</div>
-									))}
-								</div>
+						{dayView && columns.length === 0 && (
+							<p className="px-4 py-16 text-center text-sm text-muted-foreground">
+								{textGet("appointments.day.empty")}
+							</p>
+						)}
 
-								{/* Day Columns */}
-								{visibleDays.map((day) => {
-									const dayKey = format(day, "yyyy-MM-dd");
-									return (
-										<DayColumn
-											key={day.toISOString()}
-											day={day}
-											hours={hours}
-											appointments={getAppointmentsForDay(day)}
-											ghost={dragGhost?.dayKey === dayKey ? dragGhost : null}
-											className={cn(
-												slideIn,
-												isPhone &&
-													"translate-x-(--swipe-x) transition-[translate] duration-(--motion-base) ease-spring in-data-swiping:transition-none",
-											)}
-											onSlotClick={canManage ? handleSlotClick : undefined}
-											canReschedule={canManage}
-											onAppointmentClick={(appt) => {
-												setSelectedAppointment(appt);
-												setShowDetailDialog(true);
-											}}
-										/>
-									);
-								})}
-							</div>
-						</DndContext>
+						{/* Time Grid */}
+						{(!dayView || columns.length > 0) && (
+							<DndContext
+								sensors={sensors}
+								onDragStart={() => {
+									dragging.current = true;
+									setSwipeOffset(null);
+								}}
+								onDragMove={handleDragMove}
+								onDragEnd={handleDragEnd}
+								onDragCancel={handleDragCancel}
+							>
+								<div
+									ref={gridRef}
+									className={cn(
+										"grid relative overflow-x-clip [--swipe-x:0px]",
+										isPhone
+											? "grid-cols-[48px_1fr]"
+											: !dayView && "grid-cols-[60px_repeat(7,1fr)]",
+									)}
+									style={{
+										height: `${hours.length * HOUR_HEIGHT}px`,
+										...(dayView && !isPhone && dayGridStyle),
+									}}
+								>
+									{/* Time Labels */}
+									<div className="relative border-r">
+										{hours.map((hour) => (
+											<div
+												key={hour}
+												className="absolute w-full pr-2 text-right"
+												style={{
+													top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
+												}}
+											>
+												<span className="text-xs text-muted-foreground block">
+													{`${hour.toString().padStart(2, "0")}:00`}
+												</span>
+											</div>
+										))}
+									</div>
+
+									{/* Day (or doctor) Columns */}
+									{columns.map((column) => {
+										return (
+											<DayColumn
+												key={column.key}
+												day={column.day}
+												columnKey={column.key}
+												hours={hours}
+												appointments={columnAppointments(column)}
+												shading={columnShading(column)}
+												ghost={
+													dragGhost?.columnKey === column.key ? dragGhost : null
+												}
+												className={cn(
+													slideIn,
+													isPhone &&
+														"translate-x-(--swipe-x) transition-[translate] duration-(--motion-base) ease-spring in-data-swiping:transition-none",
+												)}
+												onSlotClick={
+													canManage
+														? (day, hour) =>
+																handleSlotClick(day, hour, column.doctorId)
+														: undefined
+												}
+												canReschedule={canManage}
+												onAppointmentClick={(appt) => {
+													setSelectedAppointment(appt);
+													setShowDetailDialog(true);
+												}}
+											/>
+										);
+									})}
+								</div>
+							</DndContext>
+						)}
 					</div>
 				</div>
 
@@ -691,6 +1035,7 @@ export default function AppointmentCalendar() {
 				defaultDate={createDefaults.date}
 				defaultTime={createDefaults.time}
 				defaultPatient={suggestedPatient}
+				defaultDoctorId={createDefaults.doctorId}
 				onSuccess={handleFormSuccess}
 			/>
 		</div>

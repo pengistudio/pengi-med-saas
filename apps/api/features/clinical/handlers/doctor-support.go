@@ -9,6 +9,7 @@ import (
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	agenda_services "pengi-med-saas/features/agenda/services"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	doctor_services "pengi-med-saas/features/doctors/services"
 )
@@ -23,6 +24,16 @@ func doctorErrorResponse(logger *zap.Logger, err error) envelope.Response {
 		return resp
 	}
 	logger.Error("failed to resolve doctor", zap.Error(err))
+	return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+}
+
+// appointmentTypeErrorResponse answers an error from validating an
+// appointment's type, or a 500 for anything else.
+func appointmentTypeErrorResponse(logger *zap.Logger, err error) envelope.Response {
+	if resp, ok := agenda_services.ErrorResponse(err); ok {
+		return resp
+	}
+	logger.Error("failed to validate appointment type", zap.Error(err))
 	return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 }
 

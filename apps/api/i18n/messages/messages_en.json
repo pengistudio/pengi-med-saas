@@ -10138,5 +10138,513 @@
     {
         "key": "doctors.member.invite_hint",
         "value": "Once they accept the invitation, you can link them to an existing doctor profile or create a new one from this page (\"Doctor profile\" button)."
+    },
+    {
+        "key": "agenda.schedule.fetch.success",
+        "value": "Schedule fetched"
+    },
+    {
+        "key": "agenda.schedule.update.success",
+        "value": "Schedule saved"
+    },
+    {
+        "key": "agenda.blocks.list.success",
+        "value": "Blocks fetched"
+    },
+    {
+        "key": "agenda.blocks.create.success",
+        "value": "Block created"
+    },
+    {
+        "key": "agenda.blocks.update.success",
+        "value": "Block updated"
+    },
+    {
+        "key": "agenda.blocks.delete.success",
+        "value": "Block deleted"
+    },
+    {
+        "key": "agenda.types.list.success",
+        "value": "Appointment types fetched"
+    },
+    {
+        "key": "agenda.types.create.success",
+        "value": "Appointment type created"
+    },
+    {
+        "key": "agenda.types.update.success",
+        "value": "Appointment type updated"
+    },
+    {
+        "key": "agenda.types.delete.success",
+        "value": "Appointment type deleted"
+    },
+    {
+        "key": "agenda.availability.success",
+        "value": "Availability checked"
+    },
+    {
+        "key": "agenda.range.success",
+        "value": "Agenda fetched"
+    },
+    {
+        "key": "agenda.error.invalid_request",
+        "value": "Invalid schedule data."
+    },
+    {
+        "key": "agenda.error.invalid_time",
+        "value": "Times must be HH:MM in 5-minute steps, with the start before the end."
+    },
+    {
+        "key": "agenda.error.schedule_overlap",
+        "value": "Two time ranges of the same day overlap."
+    },
+    {
+        "key": "agenda.error.invalid_date_range",
+        "value": "Invalid dates: the start date must be on or before the end date."
+    },
+    {
+        "key": "agenda.error.block_not_found",
+        "value": "Schedule block not found."
+    },
+    {
+        "key": "agenda.error.type_not_found",
+        "value": "Appointment type not found."
+    },
+    {
+        "key": "agenda.error.invalid_duration",
+        "value": "The duration must be between 5 and 480 minutes, in 5-minute steps."
+    },
+    {
+        "key": "agenda.error.type_inactive",
+        "value": "The appointment type is inactive."
+    },
+    {
+        "key": "agenda.error.type_doctor_not_allowed",
+        "value": "The doctor does not attend this appointment type."
+    },
+    {
+        "key": "agenda.error.range_too_long",
+        "value": "The date range is too long."
+    },
+    {
+        "key": "E-AG-001",
+        "value": "Invalid schedule data."
+    },
+    {
+        "key": "E-AG-002",
+        "value": "Times must be HH:MM in 5-minute steps, with the start before the end."
+    },
+    {
+        "key": "E-AG-003",
+        "value": "Two time ranges of the same day overlap."
+    },
+    {
+        "key": "E-AG-004",
+        "value": "Invalid dates: the start date must be on or before the end date."
+    },
+    {
+        "key": "E-AG-005",
+        "value": "Schedule block not found."
+    },
+    {
+        "key": "E-AG-006",
+        "value": "Appointment type not found."
+    },
+    {
+        "key": "E-AG-007",
+        "value": "The duration must be between 5 and 480 minutes, in 5-minute steps."
+    },
+    {
+        "key": "E-AG-008",
+        "value": "The appointment type is inactive."
+    },
+    {
+        "key": "E-AG-009",
+        "value": "The doctor does not attend this appointment type."
+    },
+    {
+        "key": "E-AG-010",
+        "value": "The date range is too long."
+    },
+    {
+        "key": "agenda.availability.blocked",
+        "value": "That time is blocked: {reason}. You can still book it."
+    },
+    {
+        "key": "agenda.availability.day_off",
+        "value": "The doctor doesn't work this day per their schedule. You can still book it."
+    },
+    {
+        "key": "agenda.availability.outside",
+        "value": "Outside the doctor's hours ({ranges}). You can still book it."
+    },
+    {
+        "key": "agenda.blocks.affected.description.one",
+        "value": "There is {count} appointment in the blocked period. It was not cancelled; reschedule it or notify the patient if needed."
+    },
+    {
+        "key": "agenda.blocks.affected.description.other",
+        "value": "There are {count} appointments in the blocked period. They were not cancelled; reschedule them or notify the patients if needed."
+    },
+    {
+        "key": "agenda.blocks.affected.ok",
+        "value": "Got it"
+    },
+    {
+        "key": "agenda.blocks.affected.title",
+        "value": "Appointments affected by the block"
+    },
+    {
+        "key": "agenda.blocks.clinic_description",
+        "value": "Days or hours the clinic is closed (holidays, training). They apply to every doctor."
+    },
+    {
+        "key": "agenda.blocks.date_range",
+        "value": "{start} to {end}"
+    },
+    {
+        "key": "agenda.blocks.delete",
+        "value": "Delete block"
+    },
+    {
+        "key": "agenda.blocks.delete.description",
+        "value": "That time becomes available again in the agenda."
+    },
+    {
+        "key": "agenda.blocks.delete.title",
+        "value": "Delete this block?"
+    },
+    {
+        "key": "agenda.blocks.doctor_description",
+        "value": "Vacations, conferences or errands: full days or a range of hours."
+    },
+    {
+        "key": "agenda.blocks.edit",
+        "value": "Edit block"
+    },
+    {
+        "key": "agenda.blocks.empty",
+        "value": "No upcoming blocks."
+    },
+    {
+        "key": "agenda.blocks.error.date_order",
+        "value": "The end date can't be before the start date."
+    },
+    {
+        "key": "agenda.blocks.error.date_required",
+        "value": "Pick a date."
+    },
+    {
+        "key": "agenda.blocks.error.reason_too_long",
+        "value": "The reason is too long."
+    },
+    {
+        "key": "agenda.blocks.error.time_order",
+        "value": "The end time must be after the start time."
+    },
+    {
+        "key": "agenda.blocks.field.end_date",
+        "value": "To"
+    },
+    {
+        "key": "agenda.blocks.field.end_time",
+        "value": "End time"
+    },
+    {
+        "key": "agenda.blocks.field.full_day",
+        "value": "Full days"
+    },
+    {
+        "key": "agenda.blocks.field.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "agenda.blocks.field.reason_placeholder",
+        "value": "E.g. Conference, vacation"
+    },
+    {
+        "key": "agenda.blocks.field.start_date",
+        "value": "From"
+    },
+    {
+        "key": "agenda.blocks.field.start_time",
+        "value": "Start time"
+    },
+    {
+        "key": "agenda.blocks.full_day",
+        "value": "All day"
+    },
+    {
+        "key": "agenda.blocks.new",
+        "value": "New block"
+    },
+    {
+        "key": "agenda.blocks.no_reason",
+        "value": "No reason"
+    },
+    {
+        "key": "agenda.blocks.save",
+        "value": "Save block"
+    },
+    {
+        "key": "agenda.blocks.show_past",
+        "value": "Show past"
+    },
+    {
+        "key": "agenda.blocks.title",
+        "value": "Blocks"
+    },
+    {
+        "key": "agenda.schedule.add_range",
+        "value": "Add hours"
+    },
+    {
+        "key": "agenda.schedule.copy",
+        "value": "Copy to other days"
+    },
+    {
+        "key": "agenda.schedule.copy_apply",
+        "value": "Copy"
+    },
+    {
+        "key": "agenda.schedule.copy_to",
+        "value": "Copy this day to:"
+    },
+    {
+        "key": "agenda.schedule.day_off",
+        "value": "Day off"
+    },
+    {
+        "key": "agenda.schedule.description",
+        "value": "Weekly working hours and blocks. The agenda warns when booking outside them, without preventing it."
+    },
+    {
+        "key": "agenda.schedule.end",
+        "value": "To"
+    },
+    {
+        "key": "agenda.schedule.error.invalid_time",
+        "value": "Check the times: 5-minute steps and the end after the start."
+    },
+    {
+        "key": "agenda.schedule.error.overlap",
+        "value": "This day's hours overlap."
+    },
+    {
+        "key": "agenda.schedule.hint",
+        "value": "Without hours, the agenda shows no warnings or shading for this doctor. 00:00 as an end time means midnight."
+    },
+    {
+        "key": "agenda.schedule.remove_range",
+        "value": "Remove hours"
+    },
+    {
+        "key": "agenda.schedule.save",
+        "value": "Save schedule"
+    },
+    {
+        "key": "agenda.schedule.start",
+        "value": "From"
+    },
+    {
+        "key": "agenda.schedule.title",
+        "value": "Schedule"
+    },
+    {
+        "key": "agenda.settings.back",
+        "value": "Back to settings"
+    },
+    {
+        "key": "agenda.settings.description",
+        "value": "Appointment types and clinic-wide blocks."
+    },
+    {
+        "key": "agenda.settings.hint",
+        "value": "Define appointment types with their duration and the days the clinic is closed."
+    },
+    {
+        "key": "agenda.settings.open",
+        "value": "Configure agenda"
+    },
+    {
+        "key": "agenda.settings.section_description",
+        "value": "Appointment types and clinic blocks."
+    },
+    {
+        "key": "agenda.settings.tab.blocks",
+        "value": "Clinic blocks"
+    },
+    {
+        "key": "agenda.settings.tab.types",
+        "value": "Appointment types"
+    },
+    {
+        "key": "agenda.settings.title",
+        "value": "Agenda"
+    },
+    {
+        "key": "agenda.types.all_doctors",
+        "value": "All doctors"
+    },
+    {
+        "key": "agenda.types.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "agenda.types.delete.description",
+        "value": "Existing appointments keep their type; it can no longer be picked for new ones."
+    },
+    {
+        "key": "agenda.types.delete.title",
+        "value": "Delete the type {name}?"
+    },
+    {
+        "key": "agenda.types.description",
+        "value": "The type's duration sets the end time when booking (it can be changed)."
+    },
+    {
+        "key": "agenda.types.duration_value",
+        "value": "{minutes} min"
+    },
+    {
+        "key": "agenda.types.edit",
+        "value": "Edit appointment type"
+    },
+    {
+        "key": "agenda.types.error.duration",
+        "value": "The duration must be 5 to 480 minutes, in 5-minute steps."
+    },
+    {
+        "key": "agenda.types.error.name_required",
+        "value": "The name is required."
+    },
+    {
+        "key": "agenda.types.error.name_too_long",
+        "value": "The name is too long."
+    },
+    {
+        "key": "agenda.types.field.active",
+        "value": "Active"
+    },
+    {
+        "key": "agenda.types.field.color",
+        "value": "Color"
+    },
+    {
+        "key": "agenda.types.field.color_clear",
+        "value": "Remove color"
+    },
+    {
+        "key": "agenda.types.field.color_none",
+        "value": "No color."
+    },
+    {
+        "key": "agenda.types.field.doctors",
+        "value": "Doctors"
+    },
+    {
+        "key": "agenda.types.field.doctors_hint",
+        "value": "With no doctor ticked, the type is available to everyone."
+    },
+    {
+        "key": "agenda.types.field.duration",
+        "value": "Duration (minutes)"
+    },
+    {
+        "key": "agenda.types.field.duration_hint",
+        "value": "5-minute steps, up to 480."
+    },
+    {
+        "key": "agenda.types.field.name",
+        "value": "Name"
+    },
+    {
+        "key": "agenda.types.field.name_placeholder",
+        "value": "E.g. First visit"
+    },
+    {
+        "key": "agenda.types.field.type",
+        "value": "Appointment type"
+    },
+    {
+        "key": "agenda.types.inactive",
+        "value": "inactive"
+    },
+    {
+        "key": "agenda.types.new",
+        "value": "New appointment type"
+    },
+    {
+        "key": "agenda.types.none",
+        "value": "No type"
+    },
+    {
+        "key": "agenda.types.save",
+        "value": "Save type"
+    },
+    {
+        "key": "agenda.weekday.0",
+        "value": "Sunday"
+    },
+    {
+        "key": "agenda.weekday.1",
+        "value": "Monday"
+    },
+    {
+        "key": "agenda.weekday.2",
+        "value": "Tuesday"
+    },
+    {
+        "key": "agenda.weekday.3",
+        "value": "Wednesday"
+    },
+    {
+        "key": "agenda.weekday.4",
+        "value": "Thursday"
+    },
+    {
+        "key": "agenda.weekday.5",
+        "value": "Friday"
+    },
+    {
+        "key": "agenda.weekday.6",
+        "value": "Saturday"
+    },
+    {
+        "key": "appointments.day.doctors",
+        "value": "Visible doctors"
+    },
+    {
+        "key": "appointments.day.empty",
+        "value": "No doctor works this day."
+    },
+    {
+        "key": "appointments.day.no_doctor",
+        "value": "No doctor"
+    },
+    {
+        "key": "appointments.view.day",
+        "value": "Day"
+    },
+    {
+        "key": "appointments.view.label",
+        "value": "Agenda view"
+    },
+    {
+        "key": "appointments.view.week",
+        "value": "Week"
+    },
+    {
+        "key": "doctors.tab.profile",
+        "value": "Profile"
+    },
+    {
+        "key": "doctors.tab.schedule",
+        "value": "Schedule"
+    },
+    {
+        "key": "appointments.day.other_doctor",
+        "value": "Other doctor"
     }
 ]

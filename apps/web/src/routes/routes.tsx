@@ -105,6 +105,9 @@ const ExamOrderDetailPage = lazy(
 const ExamOrderEditorPage = lazy(
 	() => import("@/pages/clincal/exam-orders/exam-order-editor"),
 );
+const AgendaSettingsPage = lazy(
+	() => import("@/pages/settings/agenda-settings"),
+);
 const ExamCatalogSettingsPage = lazy(
 	() => import("@/pages/settings/exam-catalog-settings"),
 );
@@ -476,6 +479,16 @@ const router = createBrowserRouter([
 								]}
 							>
 								<ExamCatalogSettingsPage />
+							</CheckPermission>
+						),
+					},
+					{
+						path: "/settings/agenda",
+						element: (
+							<CheckPermission
+								permissions={[PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS]}
+							>
+								<AgendaSettingsPage />
 							</CheckPermission>
 						),
 					},

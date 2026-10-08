@@ -10138,5 +10138,513 @@
     {
         "key": "doctors.member.invite_hint",
         "value": "Cuando acepte la invitación, podrás vincularlo a una ficha médica existente o crear una nueva desde esta página (botón «Ficha médica»)."
+    },
+    {
+        "key": "agenda.schedule.fetch.success",
+        "value": "Horario obtenido"
+    },
+    {
+        "key": "agenda.schedule.update.success",
+        "value": "Horario guardado"
+    },
+    {
+        "key": "agenda.blocks.list.success",
+        "value": "Bloqueos obtenidos"
+    },
+    {
+        "key": "agenda.blocks.create.success",
+        "value": "Bloqueo creado"
+    },
+    {
+        "key": "agenda.blocks.update.success",
+        "value": "Bloqueo actualizado"
+    },
+    {
+        "key": "agenda.blocks.delete.success",
+        "value": "Bloqueo eliminado"
+    },
+    {
+        "key": "agenda.types.list.success",
+        "value": "Tipos de cita obtenidos"
+    },
+    {
+        "key": "agenda.types.create.success",
+        "value": "Tipo de cita creado"
+    },
+    {
+        "key": "agenda.types.update.success",
+        "value": "Tipo de cita actualizado"
+    },
+    {
+        "key": "agenda.types.delete.success",
+        "value": "Tipo de cita eliminado"
+    },
+    {
+        "key": "agenda.availability.success",
+        "value": "Disponibilidad consultada"
+    },
+    {
+        "key": "agenda.range.success",
+        "value": "Agenda obtenida"
+    },
+    {
+        "key": "agenda.error.invalid_request",
+        "value": "Datos de horario no válidos."
+    },
+    {
+        "key": "agenda.error.invalid_time",
+        "value": "Las horas deben tener el formato HH:MM en pasos de 5 minutos, y el inicio debe ser anterior al fin."
+    },
+    {
+        "key": "agenda.error.schedule_overlap",
+        "value": "Dos franjas del mismo día se superponen."
+    },
+    {
+        "key": "agenda.error.invalid_date_range",
+        "value": "Fechas no válidas: la fecha de inicio debe ser igual o anterior a la de fin."
+    },
+    {
+        "key": "agenda.error.block_not_found",
+        "value": "Bloqueo no encontrado."
+    },
+    {
+        "key": "agenda.error.type_not_found",
+        "value": "Tipo de cita no encontrado."
+    },
+    {
+        "key": "agenda.error.invalid_duration",
+        "value": "La duración debe estar entre 5 y 480 minutos, en pasos de 5 minutos."
+    },
+    {
+        "key": "agenda.error.type_inactive",
+        "value": "El tipo de cita está inactivo."
+    },
+    {
+        "key": "agenda.error.type_doctor_not_allowed",
+        "value": "El médico no atiende este tipo de cita."
+    },
+    {
+        "key": "agenda.error.range_too_long",
+        "value": "El rango de fechas es demasiado largo."
+    },
+    {
+        "key": "E-AG-001",
+        "value": "Datos de horario no válidos."
+    },
+    {
+        "key": "E-AG-002",
+        "value": "Las horas deben tener el formato HH:MM en pasos de 5 minutos, y el inicio debe ser anterior al fin."
+    },
+    {
+        "key": "E-AG-003",
+        "value": "Dos franjas del mismo día se superponen."
+    },
+    {
+        "key": "E-AG-004",
+        "value": "Fechas no válidas: la fecha de inicio debe ser igual o anterior a la de fin."
+    },
+    {
+        "key": "E-AG-005",
+        "value": "Bloqueo no encontrado."
+    },
+    {
+        "key": "E-AG-006",
+        "value": "Tipo de cita no encontrado."
+    },
+    {
+        "key": "E-AG-007",
+        "value": "La duración debe estar entre 5 y 480 minutos, en pasos de 5 minutos."
+    },
+    {
+        "key": "E-AG-008",
+        "value": "El tipo de cita está inactivo."
+    },
+    {
+        "key": "E-AG-009",
+        "value": "El médico no atiende este tipo de cita."
+    },
+    {
+        "key": "E-AG-010",
+        "value": "El rango de fechas es demasiado largo."
+    },
+    {
+        "key": "agenda.availability.blocked",
+        "value": "Ese horario está bloqueado: {reason}. Puedes agendar igual."
+    },
+    {
+        "key": "agenda.availability.day_off",
+        "value": "El médico no atiende este día según su horario. Puedes agendar igual."
+    },
+    {
+        "key": "agenda.availability.outside",
+        "value": "Fuera del horario del médico ({ranges}). Puedes agendar igual."
+    },
+    {
+        "key": "agenda.blocks.affected.description.one",
+        "value": "Hay {count} cita en el período bloqueado. No se canceló; reprográmala o avisa al paciente si hace falta."
+    },
+    {
+        "key": "agenda.blocks.affected.description.other",
+        "value": "Hay {count} citas en el período bloqueado. No se cancelaron; reprográmalas o avisa a los pacientes si hace falta."
+    },
+    {
+        "key": "agenda.blocks.affected.ok",
+        "value": "Entendido"
+    },
+    {
+        "key": "agenda.blocks.affected.title",
+        "value": "Citas afectadas por el bloqueo"
+    },
+    {
+        "key": "agenda.blocks.clinic_description",
+        "value": "Días u horas en que la clínica no atiende (feriados, capacitaciones). Aplican a todos los médicos."
+    },
+    {
+        "key": "agenda.blocks.date_range",
+        "value": "{start} al {end}"
+    },
+    {
+        "key": "agenda.blocks.delete",
+        "value": "Eliminar bloqueo"
+    },
+    {
+        "key": "agenda.blocks.delete.description",
+        "value": "El horario vuelve a quedar disponible en la agenda."
+    },
+    {
+        "key": "agenda.blocks.delete.title",
+        "value": "¿Eliminar este bloqueo?"
+    },
+    {
+        "key": "agenda.blocks.doctor_description",
+        "value": "Vacaciones, congresos o trámites: días completos o un rango de horas."
+    },
+    {
+        "key": "agenda.blocks.edit",
+        "value": "Editar bloqueo"
+    },
+    {
+        "key": "agenda.blocks.empty",
+        "value": "No hay bloqueos próximos."
+    },
+    {
+        "key": "agenda.blocks.error.date_order",
+        "value": "La fecha final no puede ser anterior a la inicial."
+    },
+    {
+        "key": "agenda.blocks.error.date_required",
+        "value": "Elige una fecha."
+    },
+    {
+        "key": "agenda.blocks.error.reason_too_long",
+        "value": "El motivo es demasiado largo."
+    },
+    {
+        "key": "agenda.blocks.error.time_order",
+        "value": "La hora final debe ser posterior a la inicial."
+    },
+    {
+        "key": "agenda.blocks.field.end_date",
+        "value": "Hasta"
+    },
+    {
+        "key": "agenda.blocks.field.end_time",
+        "value": "Hora final"
+    },
+    {
+        "key": "agenda.blocks.field.full_day",
+        "value": "Días completos"
+    },
+    {
+        "key": "agenda.blocks.field.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "agenda.blocks.field.reason_placeholder",
+        "value": "Ej.: Congreso, vacaciones"
+    },
+    {
+        "key": "agenda.blocks.field.start_date",
+        "value": "Desde"
+    },
+    {
+        "key": "agenda.blocks.field.start_time",
+        "value": "Hora inicial"
+    },
+    {
+        "key": "agenda.blocks.full_day",
+        "value": "Todo el día"
+    },
+    {
+        "key": "agenda.blocks.new",
+        "value": "Nuevo bloqueo"
+    },
+    {
+        "key": "agenda.blocks.no_reason",
+        "value": "Sin motivo"
+    },
+    {
+        "key": "agenda.blocks.save",
+        "value": "Guardar bloqueo"
+    },
+    {
+        "key": "agenda.blocks.show_past",
+        "value": "Mostrar pasados"
+    },
+    {
+        "key": "agenda.blocks.title",
+        "value": "Bloqueos"
+    },
+    {
+        "key": "agenda.schedule.add_range",
+        "value": "Agregar horario"
+    },
+    {
+        "key": "agenda.schedule.copy",
+        "value": "Copiar a otros días"
+    },
+    {
+        "key": "agenda.schedule.copy_apply",
+        "value": "Copiar"
+    },
+    {
+        "key": "agenda.schedule.copy_to",
+        "value": "Copiar este día a:"
+    },
+    {
+        "key": "agenda.schedule.day_off",
+        "value": "No atiende"
+    },
+    {
+        "key": "agenda.schedule.description",
+        "value": "Horario de atención semanal y bloqueos. La agenda avisa al agendar fuera de él, sin impedirlo."
+    },
+    {
+        "key": "agenda.schedule.end",
+        "value": "Hasta"
+    },
+    {
+        "key": "agenda.schedule.error.invalid_time",
+        "value": "Revisa las horas: múltiplos de 5 minutos y la final después de la inicial."
+    },
+    {
+        "key": "agenda.schedule.error.overlap",
+        "value": "Los horarios de este día se superponen."
+    },
+    {
+        "key": "agenda.schedule.hint",
+        "value": "Sin horarios, la agenda no muestra avisos ni sombreado para este médico. 00:00 como hora final es medianoche."
+    },
+    {
+        "key": "agenda.schedule.remove_range",
+        "value": "Quitar horario"
+    },
+    {
+        "key": "agenda.schedule.save",
+        "value": "Guardar horario"
+    },
+    {
+        "key": "agenda.schedule.start",
+        "value": "Desde"
+    },
+    {
+        "key": "agenda.schedule.title",
+        "value": "Horario"
+    },
+    {
+        "key": "agenda.settings.back",
+        "value": "Volver a configuración"
+    },
+    {
+        "key": "agenda.settings.description",
+        "value": "Tipos de cita y bloqueos de toda la clínica."
+    },
+    {
+        "key": "agenda.settings.hint",
+        "value": "Define tipos de cita con su duración y los días en que la clínica no atiende."
+    },
+    {
+        "key": "agenda.settings.open",
+        "value": "Configurar agenda"
+    },
+    {
+        "key": "agenda.settings.section_description",
+        "value": "Tipos de cita y bloqueos de la clínica."
+    },
+    {
+        "key": "agenda.settings.tab.blocks",
+        "value": "Bloqueos de la clínica"
+    },
+    {
+        "key": "agenda.settings.tab.types",
+        "value": "Tipos de cita"
+    },
+    {
+        "key": "agenda.settings.title",
+        "value": "Agenda"
+    },
+    {
+        "key": "agenda.types.all_doctors",
+        "value": "Todos los médicos"
+    },
+    {
+        "key": "agenda.types.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "agenda.types.delete.description",
+        "value": "Las citas existentes conservan su tipo; ya no se podrá elegir en citas nuevas."
+    },
+    {
+        "key": "agenda.types.delete.title",
+        "value": "¿Eliminar el tipo {name}?"
+    },
+    {
+        "key": "agenda.types.description",
+        "value": "La duración del tipo fija la hora final al agendar (se puede cambiar)."
+    },
+    {
+        "key": "agenda.types.duration_value",
+        "value": "{minutes} min"
+    },
+    {
+        "key": "agenda.types.edit",
+        "value": "Editar tipo de cita"
+    },
+    {
+        "key": "agenda.types.error.duration",
+        "value": "La duración debe estar entre 5 y 480 minutos, en múltiplos de 5."
+    },
+    {
+        "key": "agenda.types.error.name_required",
+        "value": "El nombre es obligatorio."
+    },
+    {
+        "key": "agenda.types.error.name_too_long",
+        "value": "El nombre es demasiado largo."
+    },
+    {
+        "key": "agenda.types.field.active",
+        "value": "Activo"
+    },
+    {
+        "key": "agenda.types.field.color",
+        "value": "Color"
+    },
+    {
+        "key": "agenda.types.field.color_clear",
+        "value": "Quitar color"
+    },
+    {
+        "key": "agenda.types.field.color_none",
+        "value": "Sin color."
+    },
+    {
+        "key": "agenda.types.field.doctors",
+        "value": "Médicos"
+    },
+    {
+        "key": "agenda.types.field.doctors_hint",
+        "value": "Sin médicos marcados, el tipo está disponible para todos."
+    },
+    {
+        "key": "agenda.types.field.duration",
+        "value": "Duración (minutos)"
+    },
+    {
+        "key": "agenda.types.field.duration_hint",
+        "value": "Múltiplos de 5, hasta 480."
+    },
+    {
+        "key": "agenda.types.field.name",
+        "value": "Nombre"
+    },
+    {
+        "key": "agenda.types.field.name_placeholder",
+        "value": "Ej.: Primera consulta"
+    },
+    {
+        "key": "agenda.types.field.type",
+        "value": "Tipo de cita"
+    },
+    {
+        "key": "agenda.types.inactive",
+        "value": "inactivo"
+    },
+    {
+        "key": "agenda.types.new",
+        "value": "Nuevo tipo de cita"
+    },
+    {
+        "key": "agenda.types.none",
+        "value": "Sin tipo"
+    },
+    {
+        "key": "agenda.types.save",
+        "value": "Guardar tipo"
+    },
+    {
+        "key": "agenda.weekday.0",
+        "value": "Domingo"
+    },
+    {
+        "key": "agenda.weekday.1",
+        "value": "Lunes"
+    },
+    {
+        "key": "agenda.weekday.2",
+        "value": "Martes"
+    },
+    {
+        "key": "agenda.weekday.3",
+        "value": "Miércoles"
+    },
+    {
+        "key": "agenda.weekday.4",
+        "value": "Jueves"
+    },
+    {
+        "key": "agenda.weekday.5",
+        "value": "Viernes"
+    },
+    {
+        "key": "agenda.weekday.6",
+        "value": "Sábado"
+    },
+    {
+        "key": "appointments.day.doctors",
+        "value": "Médicos visibles"
+    },
+    {
+        "key": "appointments.day.empty",
+        "value": "Ningún médico atiende este día."
+    },
+    {
+        "key": "appointments.day.no_doctor",
+        "value": "Sin médico"
+    },
+    {
+        "key": "appointments.view.day",
+        "value": "Día"
+    },
+    {
+        "key": "appointments.view.label",
+        "value": "Vista de la agenda"
+    },
+    {
+        "key": "appointments.view.week",
+        "value": "Semana"
+    },
+    {
+        "key": "doctors.tab.profile",
+        "value": "Perfil"
+    },
+    {
+        "key": "doctors.tab.schedule",
+        "value": "Horario"
+    },
+    {
+        "key": "appointments.day.other_doctor",
+        "value": "Otro médico"
     }
 ]

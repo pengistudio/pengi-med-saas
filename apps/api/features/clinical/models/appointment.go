@@ -24,6 +24,9 @@ type Appointment struct {
 	Patient       Patient               `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 	DoctorID      *uint                 `json:"doctor_id" gorm:"index"`
 	Doctor        *doctor_models.Doctor `json:"doctor,omitempty" gorm:"foreignKey:DoctorID"`
+	// AppointmentTypeID is the optional agenda_models.AppointmentType (no
+	// relation field, so models migrating Appointment don't need the type).
+	AppointmentTypeID *uint `json:"appointment_type_id" gorm:"index"`
 	// VitalSigns taken at triage; loaded by the waiting room list.
 	VitalSigns *VitalSigns `json:"vital_signs,omitempty" gorm:"foreignKey:AppointmentID"`
 }

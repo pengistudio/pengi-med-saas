@@ -3,6 +3,7 @@ package migrations
 import (
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/tenantdb"
+	agenda_models "pengi-med-saas/features/agenda/models"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
@@ -60,6 +61,9 @@ func RunMigrations(db *gorm.DB) error {
 		clinical_models.ExamOrderCounter{},
 		signature_models.UserSignature{},
 		doctor_models.Doctor{},
+		agenda_models.DoctorSchedule{},
+		agenda_models.ScheduleBlock{},
+		agenda_models.AppointmentType{},
 		integration_models.TenantIntegration{},
 		backoffice_models.BackofficeUser{},
 		billing_models.Invoice{},

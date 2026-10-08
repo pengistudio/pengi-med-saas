@@ -249,6 +249,7 @@ export function getEventPosition(startTime: string, endTime: string) {
 export const appointmentSchema = z.object({
 	title: z.string().min(1, "Requerido"),
 	doctor_id: z.number().nullable().optional(),
+	appointment_type_id: z.number().nullable().optional(),
 	date: z.date(),
 	start_time: z.string().min(1, "Requerido"),
 	end_time: z.string().min(1, "Requerido"),
@@ -256,3 +257,5 @@ export const appointmentSchema = z.object({
 	notes: z.string().optional(),
 	color_id: z.string().optional(),
 });
+
+export type AppointmentFormValues = z.input<typeof appointmentSchema>;

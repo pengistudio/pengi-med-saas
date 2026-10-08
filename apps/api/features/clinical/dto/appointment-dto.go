@@ -12,6 +12,9 @@ type CreateAppointmentDTO struct {
 	Notes     string    `json:"notes,omitempty"`
 	ColorID   string    `json:"color_id,omitempty" binding:"omitempty,oneof=1 2 3 4 5 6 7 8 9 10 11"`
 	DoctorID  *uint     `json:"doctor_id,omitempty"` // defaults per doctor_services.Resolve
+	// AppointmentTypeID is optional; it must be an active type of the tenant
+	// that the doctor attends (agenda_services.ValidateAppointmentType).
+	AppointmentTypeID *uint `json:"appointment_type_id,omitempty"`
 }
 
 type UpdateAppointmentDTO struct {
@@ -24,6 +27,8 @@ type UpdateAppointmentDTO struct {
 	Notes     *string    `json:"notes,omitempty"`
 	ColorID   *string    `json:"color_id,omitempty" binding:"omitempty,oneof=1 2 3 4 5 6 7 8 9 10 11"`
 	DoctorID  *uint      `json:"doctor_id,omitempty"` // omitted keeps the current doctor
+	// AppointmentTypeID: omitted keeps the current type, 0 removes it.
+	AppointmentTypeID *uint `json:"appointment_type_id,omitempty"`
 }
 
 type UpdateAppointmentStatusDTO struct {

@@ -6,6 +6,7 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	google_calendar "pengi-med-saas/core/google"
 	"pengi-med-saas/core/tenantdb"
+	agenda_services "pengi-med-saas/features/agenda/services"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	doctor_services "pengi-med-saas/features/doctors/services"
@@ -250,6 +251,15 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 	if err != nil {
 		return doctorErrorResponse(h.logger, err)
 	}
+	typeID := dto.AppointmentTypeID
+	if typeID != nil && *typeID == 0 {
+		typeID = nil
+	}
+	if typeID != nil {
+		if err := agenda_services.ValidateAppointmentType(tenantdb.For(c, h.db), *typeID, doctorID, nil); err != nil {
+			return appointmentTypeErrorResponse(h.logger, err)
+		}
+	}
 
 	tenantID, exists := c.Get("tenant_id")
 
@@ -263,16 +273,17 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 	}
 
 	appointment := &clinical_models.Appointment{
-		PatientID: dto.PatientID,
-		Title:     dto.Title,
-		Date:      dto.Date,
-		StartTime: dto.StartTime,
-		EndTime:   dto.EndTime,
-		Location:  dto.Location,
-		Notes:     dto.Notes,
-		ColorID:   dto.ColorID,
-		Status:    "scheduled",
-		DoctorID:  doctorID,
+		PatientID:         dto.PatientID,
+		Title:             dto.Title,
+		Date:              dto.Date,
+		StartTime:         dto.StartTime,
+		EndTime:           dto.EndTime,
+		Location:          dto.Location,
+		Notes:             dto.Notes,
+		ColorID:           dto.ColorID,
+		Status:            "scheduled",
+		DoctorID:          doctorID,
+		AppointmentTypeID: typeID,
 	}
 
 	if exists {
@@ -350,6 +361,23 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 		}
 		updates["doctor_id"] = *dto.DoctorID
 		newDoctorID = dto.DoctorID
+	}
+	// The type is checked when it or the doctor changes: active (unless kept)
+	// and attended by the appointment's doctor.
+	newTypeID := appointment.AppointmentTypeID
+	if dto.AppointmentTypeID != nil {
+		if *dto.AppointmentTypeID == 0 {
+			updates["appointment_type_id"] = nil
+			newTypeID = nil
+		} else {
+			updates["appointment_type_id"] = *dto.AppointmentTypeID
+			newTypeID = dto.AppointmentTypeID
+		}
+	}
+	if newTypeID != nil && (dto.AppointmentTypeID != nil || dto.DoctorID != nil) {
+		if err := agenda_services.ValidateAppointmentType(tenantdb.For(c, h.db), *newTypeID, newDoctorID, appointment.AppointmentTypeID); err != nil {
+			return appointmentTypeErrorResponse(h.logger, err)
+		}
 	}
 
 	// Check for overlap only when time or date fields are being changed

@@ -13,6 +13,8 @@ interface DoctorColorPickerProps<T extends FieldValues> {
 	field: UseFormReturn<T>;
 	name: Path<T>;
 	label?: React.ReactNode;
+	/** Hint while no color is set; defaults to "the next palette color". */
+	emptyDescription?: string;
 }
 
 /**
@@ -23,6 +25,7 @@ export function DoctorColorPicker<T extends FieldValues>({
 	field,
 	name,
 	label,
+	emptyDescription,
 }: DoctorColorPickerProps<T>) {
 	const { textGet } = useText();
 	return (
@@ -65,7 +68,7 @@ export function DoctorColorPicker<T extends FieldValues>({
 						</div>
 						{!current && (
 							<FieldDescription>
-								{textGet("doctors.form.color.auto")}
+								{emptyDescription ?? textGet("doctors.form.color.auto")}
 							</FieldDescription>
 						)}
 					</Field>
