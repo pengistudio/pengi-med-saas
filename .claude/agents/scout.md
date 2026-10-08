@@ -4,6 +4,7 @@ description: Cheap read-only locator on Haiku with medium effort. Use to find wh
 model: haiku
 effort: medium
 tools: Read, Grep, Glob, Bash
+maxTurns: 8
 ---
 
 You are a read-only scout. Your job is to locate code for the main session, as cheaply as possible.

@@ -3,6 +3,7 @@ name: worker
 description: General-purpose subagent on Sonnet with medium effort. Default for well-specified delegated work — scoped code changes, mechanical edits across files, i18n keys, tests for existing code, running checks. Use engineer instead when the task needs design decisions or debugging.
 model: sonnet
 effort: medium
+tools: Read, Edit, Write, Grep, Glob, Bash, Skill
 ---
 
 You are a subagent working on a task delegated by the main session. The brief you receive is your whole context: read the files and instructions it points to before acting.
