@@ -8,6 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 	Form,
+	FormCombobox,
 	FormInput,
 	FormRow,
 	FormSelect,
@@ -16,6 +17,7 @@ import { Loader2, Save } from "lucide-react";
 import { z } from "zod";
 import { type Doctor, SPECIALTY_OTHER } from "@/api/doctors-service";
 import { DoctorColorPicker } from "@/components/features/doctors/doctor-color-picker";
+import { cn } from "@/lib/utils";
 import { useSpecialties } from "@/store/doctors-store";
 
 /** "none" is the "no linked user" option of the user select. */
@@ -53,6 +55,8 @@ interface DoctorFormProps {
 	/** Card texts; defaults to the admin create/edit ones. */
 	title?: string;
 	description?: string;
+	/** Card width; centered at max-w-4xl by default. */
+	className?: string;
 }
 
 /**
@@ -66,6 +70,7 @@ export default function DoctorForm({
 	userOptions,
 	title,
 	description,
+	className,
 }: DoctorFormProps) {
 	const { textGet } = useText();
 	const specialties = useSpecialties();
@@ -91,7 +96,7 @@ export default function DoctorForm({
 	return (
 		<Form schema={formSchema} onSubmit={onSubmit} defaultValues={defaultValues}>
 			{(field) => (
-				<Card className="mx-auto w-full max-w-4xl">
+				<Card className={cn("mx-auto w-full max-w-4xl", className)}>
 					<CardHeader>
 						<CardTitle>
 							{title ??
@@ -113,7 +118,7 @@ export default function DoctorForm({
 								label={textGet("doctors.form.full_name")}
 								placeholder={textGet("doctors.form.full_name.placeholder")}
 							/>
-							<FormSelect
+							<FormCombobox
 								field={field}
 								name="specialty"
 								label={textGet("doctors.form.specialty")}

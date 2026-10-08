@@ -212,14 +212,15 @@ export function WeeklyScheduleEditor({
 					return (
 						<div
 							key={day}
-							className="grid gap-2 p-3 sm:grid-cols-[8rem_1fr_auto] sm:items-start"
+							className="grid gap-2 p-3 sm:grid-cols-[6.5rem_1fr_auto] sm:items-start"
 						>
 							<p className="pt-2 text-sm font-medium">
 								{textGet(WEEKDAY_KEYS[day])}
 							</p>
-							<div className="grid gap-2">
+							{/* Ranges of a day sit side by side when there is room. */}
+							<div className="flex flex-wrap items-center gap-x-6 gap-y-2">
 								{ranges.length === 0 && (
-									<p className="pt-2 text-sm text-muted-foreground">
+									<p className="py-2 text-sm text-muted-foreground">
 										{textGet("agenda.schedule.day_off")}
 									</p>
 								)}
@@ -231,7 +232,7 @@ export function WeeklyScheduleEditor({
 											value={range.start_time}
 											disabled={!canEdit}
 											aria-label={textGet("agenda.schedule.start")}
-											className="w-32"
+											className="w-[7.75rem]"
 											onChange={(e) =>
 												updateDay(day, (rs) =>
 													rs.map((r, i) =>
@@ -249,7 +250,7 @@ export function WeeklyScheduleEditor({
 											value={endToInput(range.end_time)}
 											disabled={!canEdit}
 											aria-label={textGet("agenda.schedule.end")}
-											className="w-32"
+											className="w-[7.75rem]"
 											onChange={(e) =>
 												updateDay(day, (rs) =>
 													rs.map((r, i) =>
@@ -278,7 +279,9 @@ export function WeeklyScheduleEditor({
 									</div>
 								))}
 								{error && (
-									<p className="text-sm text-destructive">{textGet(error)}</p>
+									<p className="basis-full text-sm text-destructive">
+										{textGet(error)}
+									</p>
 								)}
 							</div>
 							{canEdit && (

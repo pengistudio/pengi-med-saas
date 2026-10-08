@@ -10,7 +10,6 @@ import {
 import { Stethoscope } from "lucide-react";
 import React from "react";
 import { createMyDoctor, updateMyDoctor } from "@/api/doctors-service";
-import { DoctorScheduleSection } from "@/components/features/agenda/doctor-schedule-section";
 import { toProfilePayload } from "@/components/features/doctors/doctor-utils";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
@@ -21,8 +20,8 @@ import { useDoctorStatus, useDoctorStore } from "@/store/doctors-store";
 
 /**
  * "My doctor profile" on the profile page: a linked doctor edits their own
- * profile (not its active state or link) and their schedule; a user who
- * attends patients and has none can create it.
+ * profile (not its active state or link); a user who attends patients and
+ * has none can create it. The schedule lives in its own profile section.
  */
 export function MyDoctorProfileCard() {
 	const { textGet } = useText();
@@ -76,17 +75,14 @@ export function MyDoctorProfileCard() {
 	}
 
 	return (
-		<>
-			<DoctorForm
-				key={doctor?.UpdatedAt ?? "new"}
-				initialData={doctor}
-				loading={saving}
-				onSubmit={handleSubmit}
-				title={textGet("doctors.my_profile.title")}
-				description={textGet("doctors.my_profile.description")}
-			/>
-			{/* Own working hours and days off, once the profile exists. */}
-			{doctor && <DoctorScheduleSection scope="me" />}
-		</>
+		<DoctorForm
+			key={doctor?.UpdatedAt ?? "new"}
+			initialData={doctor}
+			loading={saving}
+			onSubmit={handleSubmit}
+			title={textGet("doctors.my_profile.title")}
+			description={textGet("doctors.my_profile.description")}
+			className="max-w-none"
+		/>
 	);
 }

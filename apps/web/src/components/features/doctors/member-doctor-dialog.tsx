@@ -10,8 +10,8 @@ import {
 	Field,
 	FieldLabel,
 	Form,
+	FormCombobox,
 	FormInput,
-	FormSelect,
 	Label,
 	RadioGroup,
 	RadioGroupItem,
@@ -220,7 +220,7 @@ export function MemberDoctorDialog({
 									name="full_name"
 									label={textGet("doctors.form.full_name")}
 								/>
-								<FormSelect
+								<FormCombobox
 									field={field}
 									name="specialty"
 									label={textGet("doctors.form.specialty")}

@@ -2220,6 +2220,14 @@
         "value": "My Profile"
     },
     {
+        "key": "profile.section.account",
+        "value": "Account"
+    },
+    {
+        "key": "profile.section.doctor",
+        "value": "Doctor profile"
+    },
+    {
         "key": "profile.user_info",
         "value": "User Information"
     },
@@ -9738,6 +9746,66 @@
     {
         "key": "doctors.specialty.general_surgery",
         "value": "General surgery"
+    },
+    {
+        "key": "doctors.specialty.oncology",
+        "value": "Oncology"
+    },
+    {
+        "key": "doctors.specialty.hematology",
+        "value": "Hematology"
+    },
+    {
+        "key": "doctors.specialty.rheumatology",
+        "value": "Rheumatology"
+    },
+    {
+        "key": "doctors.specialty.nephrology",
+        "value": "Nephrology"
+    },
+    {
+        "key": "doctors.specialty.infectious_diseases",
+        "value": "Infectious diseases"
+    },
+    {
+        "key": "doctors.specialty.geriatrics",
+        "value": "Geriatrics"
+    },
+    {
+        "key": "doctors.specialty.anesthesiology",
+        "value": "Anesthesiology"
+    },
+    {
+        "key": "doctors.specialty.radiology",
+        "value": "Radiology and imaging"
+    },
+    {
+        "key": "doctors.specialty.emergency_medicine",
+        "value": "Emergency medicine"
+    },
+    {
+        "key": "doctors.specialty.occupational_medicine",
+        "value": "Occupational medicine"
+    },
+    {
+        "key": "doctors.specialty.sports_medicine",
+        "value": "Sports medicine"
+    },
+    {
+        "key": "doctors.specialty.neurosurgery",
+        "value": "Neurosurgery"
+    },
+    {
+        "key": "doctors.specialty.plastic_surgery",
+        "value": "Plastic surgery"
+    },
+    {
+        "key": "doctors.specialty.vascular_surgery",
+        "value": "Vascular surgery"
+    },
+    {
+        "key": "doctors.specialty.pediatric_surgery",
+        "value": "Pediatric surgery"
     },
     {
         "key": "doctors.specialty.other",

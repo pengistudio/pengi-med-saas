@@ -8,8 +8,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 	Form,
+	FormCombobox,
 	FormInput,
-	FormSelect,
 } from "@pengi/ui";
 import { Loader2, Stethoscope } from "lucide-react";
 import React from "react";
@@ -199,7 +199,7 @@ function OnboardingForm({
 						label={textGet("doctors.form.full_name")}
 						placeholder={textGet("doctors.form.full_name.placeholder")}
 					/>
-					<FormSelect
+					<FormCombobox
 						field={field}
 						name="specialty"
 						label={textGet("doctors.form.specialty")}
