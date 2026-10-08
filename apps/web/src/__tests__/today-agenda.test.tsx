@@ -84,7 +84,8 @@ describe("TodayAgenda", () => {
 		expect(buttons).toHaveLength(2);
 		fireEvent.click(buttons[0]);
 		expect(mockNavigate).toHaveBeenCalledWith(
-			"/clinical/medical-records/create?patient_id=20",
+			// Linked to the appointment so the consultation gets its triage vital signs.
+			"/clinical/medical-records/create?patient_id=20&appointment_id=2",
 		);
 
 		const attended = screen.getByText("Ana Mora").closest("li") as HTMLElement;

@@ -10,7 +10,13 @@ import {
 } from "@dnd-kit/core";
 import { useText } from "@pengi/shared";
 import { Button, Spinner, Text } from "@pengi/ui";
-import { ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
+import {
+	ArrowLeft,
+	ArrowRight,
+	Check,
+	HeartPulse,
+	RefreshCw,
+} from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import {
@@ -27,6 +33,7 @@ import {
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { TriageVitalSignsDialog } from "@/sections/forms/clinical/triage-vital-signs-dialog";
 import { TvScreenPopover } from "./tv-screen-popover";
 
 type WaitingStatus = "scheduled" | "arrived" | "in_consultation" | "completed";
@@ -77,6 +84,7 @@ function AppointmentCard({
 	moving,
 	lifted = false,
 	canOpenRecords = false,
+	onVitalSigns,
 }: {
 	appointment: Appointment;
 	now: Date;
@@ -86,6 +94,8 @@ function AppointmentCard({
 	lifted?: boolean;
 	/** The records shortcut needs READ_MEDICAL_RECORD. */
 	canOpenRecords?: boolean;
+	/** Opens triage; absent without RECORD_VITAL_SIGNS. */
+	onVitalSigns?: (appointment: Appointment) => void;
 }) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
@@ -94,6 +104,10 @@ function AppointmentCard({
 	const prevStatus = index > 0 ? FLOW[index - 1] : undefined;
 	const nextStatus = index < FLOW.length - 1 ? FLOW[index + 1] : undefined;
 	const isDone = appointment.status === "completed";
+	// Triage happens once the patient is in the clinic.
+	const canTriage =
+		!!onVitalSigns && (lane === "arrived" || lane === "in_consultation");
+	const triageDone = !!appointment.vital_signs;
 
 	const patientName = appointment.patient
 		? `${appointment.patient.first_name} ${appointment.patient.last_name}`
@@ -147,6 +161,12 @@ function AppointmentCard({
 							{textGet(STATUS_I18N_KEYS.confirmed)}
 						</p>
 					)}
+					{triageDone && (
+						<p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+							<Check className="size-3" />
+							{textGet("waiting_room.vital_signs.done")}
+						</p>
+					)}
 					{late >= LATE_AFTER_MINUTES && (
 						<p className="mt-0.5 text-xs font-medium text-destructive">
 							{textGet("waiting_room.card.late", { count: late })}
@@ -155,15 +175,32 @@ function AppointmentCard({
 				</div>
 			</div>
 
-			{(onMove || canOpenRecords) && (
-				<div className="flex items-center gap-1">
+			{(onMove || canOpenRecords || canTriage) && (
+				<div className="flex flex-wrap items-center gap-1">
+					{canTriage && (
+						<Button
+							variant="ghost"
+							size="sm"
+							className="text-muted-foreground"
+							onClick={() => onVitalSigns?.(appointment)}
+						>
+							<HeartPulse />
+							{textGet(
+								triageDone
+									? "waiting_room.vital_signs.edit"
+									: "waiting_room.vital_signs.record",
+							)}
+						</Button>
+					)}
 					{canOpenRecords && appointment.patient && (
 						<Button
 							variant="ghost"
 							size="sm"
 							className="text-muted-foreground"
 							onClick={() =>
-								navigate(`/clinical/medical-records/${appointment.patient_id}`)
+								navigate(
+									`/clinical/medical-records/${appointment.patient_id}?appointment_id=${appointment.ID}`,
+								)
 							}
 						>
 							<Text uuid="waiting_room.card.records" />
@@ -292,6 +329,10 @@ const WaitingRoomPage = () => {
 	const canOpenRecords = checkPermission([
 		PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_MEDICAL_RECORD,
 	]);
+	const canRecordVitals = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_RECORD_VITAL_SIGNS,
+	]);
+	const [triageFor, setTriageFor] = React.useState<Appointment | null>(null);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -432,6 +473,7 @@ const WaitingRoomPage = () => {
 											onMove={handleMove}
 											moving={moving === a.ID}
 											canOpenRecords={canOpenRecords}
+											onVitalSigns={canRecordVitals ? setTriageFor : undefined}
 										/>
 									) : (
 										<AppointmentCard
@@ -439,6 +481,7 @@ const WaitingRoomPage = () => {
 											appointment={a}
 											now={now}
 											canOpenRecords={canOpenRecords}
+											onVitalSigns={canRecordVitals ? setTriageFor : undefined}
 										/>
 									),
 								)}
@@ -458,6 +501,12 @@ const WaitingRoomPage = () => {
 					</DragOverlay>
 				</DndContext>
 			)}
+
+			<TriageVitalSignsDialog
+				appointment={triageFor}
+				onClose={() => setTriageFor(null)}
+				onSaved={fetchAppointments}
+			/>
 		</div>
 	);
 };

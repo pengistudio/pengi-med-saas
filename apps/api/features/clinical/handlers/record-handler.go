@@ -209,15 +209,13 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordCreateError)
 	}
 
-	// Create vital signs if provided
-	if newRecord.VitalSigns != nil {
-		vitalSigns := newRecord.VitalSigns.Model(record.ID)
-		if err := tenantdb.For(c, h.db).Create(&vitalSigns).Error; err != nil {
-			h.logger.Error("Failed to create vital signs", zap.Error(err))
-			// Non-fatal: record was created, just log the error
-		} else {
-			record.VitalSigns = &vitalSigns
-		}
+	// Vital signs: the ones taken at triage are linked to the record; otherwise
+	// the ones sent with it are created.
+	if vitalSigns, err := h.saveRecordVitalSigns(c, record, newRecord.VitalSigns); err != nil {
+		h.logger.Error("Failed to save vital signs", zap.Error(err))
+		// Non-fatal: record was created, just log the error
+	} else {
+		record.VitalSigns = vitalSigns
 	}
 
 	h.syncPatientClinicalHistoryFromFirstVisit(c, record)
@@ -453,6 +451,40 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 // inTenant reports whether the row with this ID in model's table belongs to the
 // caller's tenant; client-supplied references (patient, appointment) must never
 // reach another clinic's data.
+// saveRecordVitalSigns stores a new record's vital signs. When the record
+// comes from an appointment whose vital signs were taken at triage, that same
+// row is linked to the record, updated with the measurements sent (the doctor
+// may correct them); otherwise the measurements sent, if any, are created.
+// Returns the record's vital signs, or nil when there are none.
+func (h *MedicalRecordHandler) saveRecordVitalSigns(c *gin.Context, record *clinical_models.MedicalRecord, input *clinical_dto.VitalSignsInput) (*clinical_models.VitalSigns, error) {
+	db := tenantdb.For(c, h.db)
+	var measurements clinical_models.VitalSigns
+	if input != nil {
+		measurements = input.Measurements()
+	}
+	measurements.MedicalRecordID = &record.ID
+
+	if record.AppointmentID != nil {
+		var triage clinical_models.VitalSigns
+		err := db.Where("appointment_id = ? AND medical_record_id IS NULL", *record.AppointmentID).First(&triage).Error
+		if err == nil {
+			if err := db.Model(&triage).Updates(&measurements).Error; err != nil {
+				return nil, err
+			}
+			return &triage, db.First(&triage, triage.ID).Error
+		}
+		if err != gorm.ErrRecordNotFound {
+			return nil, err
+		}
+	}
+
+	if input == nil {
+		return nil, nil
+	}
+	measurements.AppointmentID = record.AppointmentID
+	return &measurements, db.Create(&measurements).Error
+}
+
 func (h *MedicalRecordHandler) inTenant(c *gin.Context, model any, id uint) bool {
 	var count int64
 	tenantdb.For(c, h.db).Model(model).Where("id = ?", id).Count(&count)

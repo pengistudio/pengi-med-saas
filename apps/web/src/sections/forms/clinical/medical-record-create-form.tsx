@@ -23,6 +23,7 @@ import {
 	FormInput,
 	FormRadioGroup,
 	FormTextArea,
+	Spinner,
 	Tabs,
 	TabsContent,
 	TabsList,
@@ -51,6 +52,7 @@ import { z } from "zod";
 import {
 	type CreateMedicalRecordPayload,
 	createMedicalRecord,
+	getAppointmentVitalSigns,
 	getMedicalRecords,
 	type MedicalRecord,
 } from "@/api/clinical-service";
@@ -66,6 +68,12 @@ import { useSoapDraft } from "@/hooks/use-soap-draft";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { parseAllergies } from "@/lib/allergies";
 import { selectPatient, usePatientStore } from "@/store/patient-store";
+import {
+	fromVitalSigns,
+	toVitalSignsInput,
+	type VitalSignsValues,
+	vitalSignsSchema,
+} from "./vital-signs-schema";
 
 type VisitType = "first" | "followup";
 
@@ -110,22 +118,7 @@ const formSchema = z
 				items: z.array(prescriptionItemSchema).optional(),
 			})
 			.optional(),
-		vital_signs: z
-			.object({
-				weight: z.coerce.number().positive().optional().nullable(),
-				height: z.coerce.number().positive().optional().nullable(),
-				blood_pressure: z.string().optional(),
-				temperature: z.coerce.number().positive().optional().nullable(),
-				heart_rate: z.coerce.number().int().positive().optional().nullable(),
-				o2_saturation: z.coerce
-					.number()
-					.int()
-					.min(0)
-					.max(100)
-					.optional()
-					.nullable(),
-			})
-			.optional(),
+		vital_signs: vitalSignsSchema.optional(),
 		diagnoses: z
 			.array(z.object({ code: z.string(), title: z.string() }))
 			.optional(),
@@ -159,6 +152,7 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const patientId = searchParams.get("patient_id");
+	const appointmentId = searchParams.get("appointment_id");
 	const patient = usePatientStore(selectPatient);
 	const allergies = parseAllergies(patient?.allergies);
 	const clearDraftRef = React.useRef<() => void>(() => {});
@@ -167,6 +161,29 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 	const [pendingAttachments, setPendingAttachments] = React.useState<
 		PatientAttachment[]
 	>([]);
+
+	// Vital signs taken at triage start the form filled in. They are loaded
+	// before mounting it: as defaults they don't trigger the draft autosave.
+	// undefined while loading.
+	const [triageVitals, setTriageVitals] = React.useState<
+		VitalSignsValues | null | undefined
+	>(appointmentId ? undefined : null);
+	React.useEffect(() => {
+		if (!appointmentId) {
+			setTriageVitals(null);
+			return;
+		}
+		let cancelled = false;
+		getAppointmentVitalSigns(Number(appointmentId)).then((res) => {
+			if (cancelled) return;
+			setTriageVitals(
+				res.success && res.data ? fromVitalSigns(res.data) : null,
+			);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [appointmentId]);
 
 	React.useEffect(() => {
 		if (!patientId) return;
@@ -177,12 +194,23 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 		});
 	}, [patientId]);
 
+	if (triageVitals === undefined) {
+		return (
+			<div className="flex h-48 items-center justify-center">
+				<Spinner />
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<Form
 				schema={formSchema}
 				onSubmit={onSubmit}
-				defaultValues={emptyConsultation()}
+				defaultValues={{
+					...emptyConsultation(),
+					...(triageVitals ? { vital_signs: triageVitals } : {}),
+				}}
 			>
 				{(field) => (
 					<FormWithDraft
@@ -255,6 +283,8 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 
 		const payload = {
 			patient_id: Number(patientId),
+			// Links the consultation to its appointment (and its triage vital signs).
+			appointment_id: appointmentId ? Number(appointmentId) : undefined,
 			date: values.date.toISOString(),
 			motive: values.motive,
 			observation: values.observation || "",
@@ -268,14 +298,7 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 			prescription,
 			diagnoses: values.diagnoses ?? [],
 			vital_signs: values.vital_signs
-				? {
-						weight: values.vital_signs.weight ?? null,
-						height: values.vital_signs.height ?? null,
-						blood_pressure: values.vital_signs.blood_pressure || undefined,
-						temperature: values.vital_signs.temperature ?? null,
-						heart_rate: values.vital_signs.heart_rate ?? null,
-						o2_saturation: values.vital_signs.o2_saturation ?? null,
-					}
+				? toVitalSignsInput(values.vital_signs)
 				: undefined,
 			visit_type: visitType,
 			app: visitType === "first" ? values.app || undefined : undefined,

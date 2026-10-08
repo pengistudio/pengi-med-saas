@@ -117,6 +117,7 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		}
 
 		registerAppointmentRoutes(clinicalGroup.Group("/appointments"), db, appointmentHandler)
+		registerTriageVitalSignsRoutes(clinicalGroup.Group("/appointments"), db, vitalSignsHandler)
 	}
 }
 
@@ -127,6 +128,16 @@ func registerVitalSignsRoutes(recordGroup *gin.RouterGroup, db *gorm.DB, h *clin
 	anyOf := subscription_middleware.RequireAnyPermission
 	recordGroup.PUT("/:id/vital-signs", anyOf(db, "UPDATE_MEDICAL_RECORD", "RECORD_VITAL_SIGNS"), envelope.Handle(h.UpsertVitalSigns))
 	recordGroup.GET("/:id/vital-signs", anyOf(db, "READ_MEDICAL_RECORD", "RECORD_VITAL_SIGNS"), envelope.Handle(h.GetVitalSigns))
+}
+
+// registerTriageVitalSignsRoutes mounts the vital signs taken at triage on an
+// appointment, before its medical record exists. Saving them needs
+// RECORD_VITAL_SIGNS; reading them also READ_MEDICAL_RECORD, so the doctor
+// sees them when opening the consultation.
+func registerTriageVitalSignsRoutes(appointmentGroup *gin.RouterGroup, db *gorm.DB, h *clinical_handlers.VitalSignsHandler) {
+	rp, anyOf := subscription_middleware.RequirePermission, subscription_middleware.RequireAnyPermission
+	appointmentGroup.PUT("/:id/vital-signs", rp(db, "RECORD_VITAL_SIGNS"), envelope.Handle(h.UpsertAppointmentVitalSigns))
+	appointmentGroup.GET("/:id/vital-signs", anyOf(db, "RECORD_VITAL_SIGNS", "READ_MEDICAL_RECORD"), envelope.Handle(h.GetAppointmentVitalSigns))
 }
 
 // registerAppointmentRoutes mounts the agenda and waiting room: reading needs

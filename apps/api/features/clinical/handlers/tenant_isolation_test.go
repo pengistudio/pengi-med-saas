@@ -141,7 +141,7 @@ func TestVitalSigns_AnotherTenantsRecordIsNotFound(t *testing.T) {
 		t.Fatalf("create record: %v", err)
 	}
 	weight := 70.0
-	s.db.Create(&clinical_models.VitalSigns{MedicalRecordID: record.ID, Weight: &weight})
+	s.db.Create(&clinical_models.VitalSigns{MedicalRecordID: &record.ID, Weight: &weight})
 
 	if code := h.GetVitalSigns(s.ctx(record.ID, nil)).Code; code != 404 {
 		t.Fatalf("get code = %d, want 404", code)

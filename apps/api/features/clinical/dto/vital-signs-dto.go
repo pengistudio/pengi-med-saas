@@ -14,15 +14,15 @@ type VitalSignsInput struct {
 	O2Saturation  *uint    `json:"o2_saturation"`  // %
 }
 
-// Model returns the vital signs of the medical record recordID.
-func (v VitalSignsInput) Model(recordID uint) clinical_models.VitalSigns {
+// Measurements returns the vital signs without an owner; the caller sets the
+// medical record or appointment they belong to.
+func (v VitalSignsInput) Measurements() clinical_models.VitalSigns {
 	return clinical_models.VitalSigns{
-		MedicalRecordID: recordID,
-		Weight:          v.Weight,
-		Height:          v.Height,
-		BloodPressure:   v.BloodPressure,
-		Temperature:     v.Temperature,
-		HeartRate:       v.HeartRate,
-		O2Saturation:    v.O2Saturation,
+		Weight:        v.Weight,
+		Height:        v.Height,
+		BloodPressure: v.BloodPressure,
+		Temperature:   v.Temperature,
+		HeartRate:     v.HeartRate,
+		O2Saturation:  v.O2Saturation,
 	}
 }

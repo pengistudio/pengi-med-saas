@@ -2040,6 +2040,22 @@
         "value": "Records"
     },
     {
+        "key": "waiting_room.vital_signs.record",
+        "value": "Vital signs"
+    },
+    {
+        "key": "waiting_room.vital_signs.edit",
+        "value": "Edit vital signs"
+    },
+    {
+        "key": "waiting_room.vital_signs.done",
+        "value": "Vital signs taken"
+    },
+    {
+        "key": "waiting_room.vital_signs.description",
+        "value": "Triage for {name}. The doctor will see them when opening the consultation."
+    },
+    {
         "key": "waiting_room.advance.arrived",
         "value": "Arrived"
     },

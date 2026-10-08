@@ -208,7 +208,7 @@ export function TodayAgenda({
 															className="shrink-0"
 															onClick={() =>
 																navigate(
-																	`/clinical/medical-records/create?patient_id=${appt.patient_id}`,
+																	`/clinical/medical-records/create?patient_id=${appt.patient_id}&appointment_id=${appt.id}`,
 																)
 															}
 														>
