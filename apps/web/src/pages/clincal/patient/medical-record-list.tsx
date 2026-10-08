@@ -23,7 +23,7 @@ import {
 	TriangleAlert,
 } from "lucide-react";
 import React from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
 	downloadPrescription,
 	getMedicalRecords,
@@ -59,6 +59,10 @@ const MedicalRecords = () => {
 	const setPatient = usePatientStore(selectSetPatient);
 	const { patientId } = useParams<{ patientId: string }>();
 	const navigate = useNavigate();
+	// Set when coming from the waiting room: the new consultation is linked to
+	// that appointment (and gets its triage vital signs).
+	const [searchParams] = useSearchParams();
+	const appointmentId = searchParams.get("appointment_id");
 
 	React.useEffect(() => {
 		if (!patientId) return;
@@ -377,6 +381,7 @@ const MedicalRecords = () => {
 		const params = new URLSearchParams({
 			patient_id: String(patient?.ID),
 		});
+		if (appointmentId) params.set("appointment_id", appointmentId);
 		navigate(`/clinical/medical-records/create?${params.toString()}`);
 	}
 

@@ -2040,6 +2040,22 @@
         "value": "Historial"
     },
     {
+        "key": "waiting_room.vital_signs.record",
+        "value": "Signos vitales"
+    },
+    {
+        "key": "waiting_room.vital_signs.edit",
+        "value": "Editar signos"
+    },
+    {
+        "key": "waiting_room.vital_signs.done",
+        "value": "Signos vitales tomados"
+    },
+    {
+        "key": "waiting_room.vital_signs.description",
+        "value": "Triaje de {name}. El médico los verá al abrir la consulta."
+    },
+    {
         "key": "waiting_room.advance.arrived",
         "value": "Llegó"
     },

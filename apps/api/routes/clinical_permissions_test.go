@@ -2,9 +2,11 @@ package routes
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -91,6 +93,7 @@ func (f *clinicalPermsFixture) router(tenant tenant_models.Tenant, permissionIDs
 	})
 	registerAppointmentRoutes(group.Group("/appointments"), f.db, clinical_handlers.NewAppointmentHandler(f.db, zap.NewNop()))
 	registerVitalSignsRoutes(group.Group("/records"), f.db, clinical_handlers.NewVitalSignsHandler(f.db, zap.NewNop()))
+	registerTriageVitalSignsRoutes(group.Group("/appointments"), f.db, clinical_handlers.NewVitalSignsHandler(f.db, zap.NewNop()))
 	return router
 }
 
@@ -203,5 +206,105 @@ func TestAppointmentRoutes_AnotherTenantsAppointmentIsNotFound(t *testing.T) {
 	path := fmt.Sprintf("/clinical/appointments/%d", f.appointment.ID)
 	if w := serve(router, http.MethodGet, path, ""); w.Code != http.StatusNotFound {
 		t.Fatalf("GET another tenant's appointment = %d, want 404", w.Code)
+	}
+}
+
+// ─── Triage: vital signs on the appointment ──────────────────────────────────
+
+// Reception records the vital signs at triage and reads them back.
+func TestTriageVitalSignsRoutes_RecordVitalSignsSavesAndReads(t *testing.T) {
+	f := newClinicalPermsFixture(t)
+	router := f.router(f.tenant, []string{"READ_APPOINTMENT", "RECORD_VITAL_SIGNS"})
+	path := fmt.Sprintf("/clinical/appointments/%d/vital-signs", f.appointment.ID)
+	for _, weight := range []string{"70", "71.5"} { // create, then update
+		if w := serve(router, http.MethodPut, path, `{"weight":`+weight+`,"blood_pressure":"120/80"}`); w.Code != http.StatusOK {
+			t.Fatalf("PUT triage vital signs = %d, want 200: %s", w.Code, w.Body.String())
+		}
+	}
+	w := serve(router, http.MethodGet, path, "")
+	if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), `"weight":71.5`) {
+		t.Fatalf("GET triage vital signs = %d %s, want 200 with the last weight", w.Code, w.Body.String())
+	}
+	var rows int64
+	f.db.Model(&clinical_models.VitalSigns{}).Where("appointment_id = ?", f.appointment.ID).Count(&rows)
+	if rows != 1 {
+		t.Fatalf("triage vital signs rows = %d, want 1", rows)
+	}
+}
+
+// Managing the agenda doesn't give access to the measurements.
+func TestTriageVitalSignsRoutes_AppointmentPermissionsAloneAreForbidden(t *testing.T) {
+	f := newClinicalPermsFixture(t)
+	router := f.router(f.tenant, []string{"READ_APPOINTMENT", "MANAGE_APPOINTMENT"})
+	path := fmt.Sprintf("/clinical/appointments/%d/vital-signs", f.appointment.ID)
+	if w := serve(router, http.MethodPut, path, `{"weight":70}`); w.Code != http.StatusForbidden {
+		t.Fatalf("PUT triage vital signs = %d, want 403", w.Code)
+	}
+	if w := serve(router, http.MethodGet, path, ""); w.Code != http.StatusForbidden {
+		t.Fatalf("GET triage vital signs = %d, want 403", w.Code)
+	}
+}
+
+// The doctor reads them when opening the consultation, but triage is where
+// they are recorded.
+func TestTriageVitalSignsRoutes_ReadMedicalRecordReadsOnly(t *testing.T) {
+	f := newClinicalPermsFixture(t)
+	router := f.router(f.tenant, []string{"READ_MEDICAL_RECORD"})
+	path := fmt.Sprintf("/clinical/appointments/%d/vital-signs", f.appointment.ID)
+	if w := serve(router, http.MethodGet, path, ""); w.Code != http.StatusOK {
+		t.Fatalf("GET triage vital signs with READ_MEDICAL_RECORD = %d, want 200", w.Code)
+	}
+	if w := serve(router, http.MethodPut, path, `{"weight":70}`); w.Code != http.StatusForbidden {
+		t.Fatalf("PUT triage vital signs with READ_MEDICAL_RECORD = %d, want 403", w.Code)
+	}
+}
+
+func TestTriageVitalSignsRoutes_AnotherTenantsAppointmentIsNotFound(t *testing.T) {
+	f := newClinicalPermsFixture(t)
+	router := f.router(f.other, []string{"RECORD_VITAL_SIGNS"})
+	path := fmt.Sprintf("/clinical/appointments/%d/vital-signs", f.appointment.ID)
+	if w := serve(router, http.MethodPut, path, `{"weight":70}`); w.Code != http.StatusNotFound {
+		t.Fatalf("PUT another tenant's triage vital signs = %d, want 404", w.Code)
+	}
+	if w := serve(router, http.MethodGet, path, ""); w.Code != http.StatusNotFound {
+		t.Fatalf("GET another tenant's triage vital signs = %d, want 404", w.Code)
+	}
+	var rows int64
+	f.db.Model(&clinical_models.VitalSigns{}).Where("appointment_id = ?", f.appointment.ID).Count(&rows)
+	if rows != 0 {
+		t.Fatalf("vital signs written to another tenant's appointment")
+	}
+}
+
+// The waiting room only learns whether triage is done, not the measurements.
+func TestTodayAppointments_ShowTriageDoneWithoutMeasurements(t *testing.T) {
+	f := newClinicalPermsFixture(t)
+	weight := 70.0
+	mustCreate(t, f.db, &clinical_models.VitalSigns{AppointmentID: &f.appointment.ID, Weight: &weight, BloodPressure: "120/80"})
+	router := f.router(f.tenant, []string{"READ_APPOINTMENT"})
+
+	w := serve(router, http.MethodGet, "/clinical/appointments/today", "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("GET today = %d: %s", w.Code, w.Body.String())
+	}
+	var body struct {
+		Data []struct {
+			ID         uint `json:"ID"`
+			VitalSigns *struct {
+				ID            uint     `json:"ID"`
+				Weight        *float64 `json:"weight"`
+				BloodPressure string   `json:"blood_pressure"`
+			} `json:"vital_signs"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil || len(body.Data) != 1 {
+		t.Fatalf("decode today: %v %s", err, w.Body.String())
+	}
+	vs := body.Data[0].VitalSigns
+	if vs == nil || vs.ID == 0 {
+		t.Fatalf("today's appointment doesn't show triage as done: %s", w.Body.String())
+	}
+	if vs.Weight != nil || vs.BloodPressure != "" {
+		t.Fatalf("today's list exposes the measurements: %s", w.Body.String())
 	}
 }

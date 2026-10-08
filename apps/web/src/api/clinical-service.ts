@@ -320,6 +320,8 @@ export interface Appointment extends BaseModel {
 		| "cancelled";
 	color_id?: string;
 	patient?: Patient;
+	/** In the waiting room list: present when triage took the vital signs (only the ID). */
+	vital_signs?: Pick<VitalSigns, "ID"> | null;
 }
 
 export interface DiagnosisItem {
@@ -328,7 +330,9 @@ export interface DiagnosisItem {
 }
 
 export interface VitalSigns extends BaseModel {
-	medical_record_id: number;
+	medical_record_id: number | null;
+	/** Set when triage took them on the appointment. */
+	appointment_id?: number | null;
 	weight?: number | null;
 	height?: number | null;
 	blood_pressure?: string;
@@ -655,6 +659,36 @@ export const getTodayAppointments = async (): Promise<
 		notifyError: true,
 	});
 };
+
+/** The measurements a client sends; the server sets who they belong to. */
+export type VitalSignsInput = Pick<
+	VitalSigns,
+	| "weight"
+	| "height"
+	| "blood_pressure"
+	| "temperature"
+	| "heart_rate"
+	| "o2_saturation"
+>;
+
+/** Vital signs taken at triage; data is null when none were taken yet. */
+export const getAppointmentVitalSigns = async (
+	appointmentId: number,
+): Promise<ServiceResponse<VitalSigns | null>> =>
+	clinicalService.get<VitalSigns | null>(
+		`/clinical/appointments/${appointmentId}/vital-signs`,
+		{ notifyError: false },
+	);
+
+export const saveAppointmentVitalSigns = async (
+	appointmentId: number,
+	payload: VitalSignsInput,
+): Promise<ServiceResponse<VitalSigns>> =>
+	clinicalService.put<VitalSigns>(
+		`/clinical/appointments/${appointmentId}/vital-signs`,
+		payload,
+		{ notifySuccess: true, notifyError: true },
+	);
 
 export const deleteAppointment = async (
 	id: number,

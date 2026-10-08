@@ -148,6 +148,10 @@ func (h *AppointmentHandler) GetTodayAppointments(c *gin.Context) envelope.Respo
 	var appointments []clinical_models.Appointment
 	if err := tenantdb.For(c, h.db).Where("DATE(date) = ?", today).
 		Preload("Patient").
+		// Only whether triage took the vital signs (the card shows a check): the
+		// measurements need RECORD_VITAL_SIGNS or READ_MEDICAL_RECORD, not just
+		// READ_APPOINTMENT.
+		Preload("VitalSigns", func(db *gorm.DB) *gorm.DB { return db.Select("id", "appointment_id") }).
 		Order("start_time ASC").
 		Find(&appointments).Error; err != nil {
 		h.logger.Error("Failed to get today's appointments", zap.Error(err))
