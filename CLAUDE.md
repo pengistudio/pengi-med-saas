@@ -79,12 +79,14 @@ inline because every spawn starts cold and re-reads context (more tokens).
 
 | Agent | Model | Use for |
 |---|---|---|
-| `scout` | Haiku, effort medium, read-only | Locating code: files, symbols, call sites, i18n keys. Returns `path:line`. |
+| `scout` | Haiku, effort medium, read-only, max 8 turns | Locating code: files, symbols, call sites, i18n keys. Returns `path:line`. Prefer it over the built-in `Explore` (no output contract, longer reports); use `Explore` only for broad sweeps across many naming conventions. |
 | `worker` | Sonnet, effort medium | Fully specified work: scoped edits, mechanical changes, tests, running checks. |
 | `engineer` | Opus, effort medium | Long or hard work: features end to end, multi-file refactors, debugging, tenant/SRI/signature/migration code. |
 | `verifier` | Sonnet, effort medium, read-only | Checks a change against acceptance criteria; returns PASS/FAIL + issues. |
+| `researcher` | Haiku, effort medium, web + read-only, max 10 turns | Quick web lookups (official docs, SRI specs, Meta API, library versions). Returns facts with source URLs; flags unconfirmed or conflicting sources. Research worth keeping → `research` / `deep-research` skills. |
+| `runner` | Haiku, effort medium, Bash + Read, no edits, max 5 turns | Commands with long output: full test suites, e2e, CI logs (`gh run view --log-failed`), `docker compose logs`. Returns PASS or failures with `path:line`. |
 
-- **Inline is the default** (user decision, 2026-10-05): do the work in the main session. Delegate only when the plan spans many layers — e.g. a feature end to end across backend + migrations + frontend + backoffice + tests, or independent subtasks big enough to run in parallel. Bug fixes, scoped edits, a handful of files, searches and checks stay inline.
+- **Inline is the default** (user decision, 2026-10-05): do the work in the main session. Delegate only when the plan spans many layers — e.g. a feature end to end across backend + migrations + frontend + backoffice + tests, or independent subtasks big enough to run in parallel. Bug fixes, scoped edits, a handful of files, searches and checks stay inline. Exceptions, because their output is long and only the conclusion should reach the main session: web research that needs fetching pages goes to `researcher`; full test suites, e2e, CI logs and container logs go to `runner` (a single package or test file stays inline).
 - Pick the cheapest agent that can do the job; escalate (`worker` → `engineer`) only when it reports a blocker.
 - Briefs are self-contained: goal, exact paths, constraints, acceptance criteria, which checks to run. Point to files instead of pasting them.
 - Independent subtasks run in parallel with disjoint file scopes; never two agents on the same file.
