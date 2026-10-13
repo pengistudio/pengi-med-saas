@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
+	"pengi-med-saas/core/config"
 
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
@@ -22,19 +22,8 @@ type ICD11Handler struct {
 }
 
 func NewICD11Handler(logger *zap.Logger) *ICD11Handler {
-	apiURL := os.Getenv("ICD11_API_URL")
-	if apiURL == "" {
-		apiURL = "http://icd-api:80"
-	}
-	release := os.Getenv("ICD11_RELEASE")
-	if release == "" {
-		release = "2026-01"
-	}
-	language := os.Getenv("ICD11_LANGUAGE")
-	if language == "" {
-		language = "es"
-	}
-	return &ICD11Handler{logger: logger, apiURL: apiURL, release: release, language: language}
+	cfg := config.Get()
+	return &ICD11Handler{logger: logger, apiURL: cfg.ICD11APIURL, release: cfg.ICD11Release, language: cfg.ICD11Language}
 }
 
 type icd11SearchResult struct {

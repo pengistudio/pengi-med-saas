@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
+	"pengi-med-saas/core/config"
 	"strings"
 	"time"
 )
@@ -26,10 +26,11 @@ type CalendarService struct {
 }
 
 func NewCalendarService() *CalendarService {
+	cfg := config.Get()
 	return &CalendarService{
-		clientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		clientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		redirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+		clientID:     cfg.GoogleClientID,
+		clientSecret: cfg.GoogleClientSecret,
+		redirectURL:  cfg.GoogleRedirectURL,
 	}
 }
 
@@ -120,7 +121,7 @@ type CalendarEventResponse struct {
 }
 
 func BuildEvent(title, location, notes, patientName, colorID string, date time.Time, startTime, endTime string) *CalendarEvent {
-	tz := os.Getenv("TZ")
+	tz := config.Get().TZ
 	if tz == "" {
 		tz = "UTC"
 	}

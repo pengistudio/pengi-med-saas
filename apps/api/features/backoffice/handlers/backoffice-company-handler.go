@@ -369,7 +369,7 @@ func (h *BackofficeCompanyHandler) GenerateUserPasswordResetLink(c *gin.Context)
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
 
-	appURL := config.GetEnvWithDefault("PUBLIC_APP_URL", "http://localhost:5173")
+	appURL := config.Get().PublicAppURL
 	link := fmt.Sprintf("%s/reset-password?token=%s", appURL, token)
 
 	h.logger.Info("Password reset link generated", zap.String("user_id", userID))

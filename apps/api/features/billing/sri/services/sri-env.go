@@ -1,7 +1,7 @@
 package services
 
 import (
-	"os"
+	"pengi-med-saas/core/config"
 	"strings"
 )
 
@@ -9,7 +9,7 @@ import (
 // XML and access key: "1" pruebas, "2" producción. Accepts either the numeric code or
 // the human-readable "test"/"prod" (case-insensitive); anything else defaults to pruebas.
 func ResolveSriEnv() string {
-	sriEnv := os.Getenv("SRI_ENV")
+	sriEnv := config.Get().SRIEnv
 	if sriEnv == "2" || strings.EqualFold(sriEnv, "prod") {
 		return "2"
 	}

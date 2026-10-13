@@ -3,7 +3,7 @@ package rabbitmq
 import (
 	"errors"
 	"fmt"
-	"os"
+	"pengi-med-saas/core/config"
 	"runtime/debug"
 	"sync/atomic"
 	"time"
@@ -26,23 +26,8 @@ var errPanic = errors.New("queue handler panicked")
 var publishChannel atomic.Pointer[amqp.Channel]
 
 func getRabbitMQConnectionString() string {
-	user := os.Getenv("RABBITMQ_USER")
-	if user == "" {
-		user = "guest"
-	}
-	password := os.Getenv("RABBITMQ_PASSWORD")
-	if password == "" {
-		password = "guest"
-	}
-	host := os.Getenv("RABBITMQ_HOST")
-	if host == "" {
-		host = "rabbitmq"
-	}
-	port := os.Getenv("RABBITMQ_PORT")
-	if port == "" {
-		port = "5672"
-	}
-	return fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port)
+	cfg := config.Get()
+	return fmt.Sprintf("amqp://%s:%s@%s:%s/", cfg.RabbitMQUser, cfg.RabbitMQPassword, cfg.RabbitMQHost, cfg.RabbitMQPort)
 }
 
 func StartRabbitMQ() (*amqp.Connection, error) {

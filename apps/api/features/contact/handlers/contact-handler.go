@@ -2,8 +2,7 @@ package contact_handlers
 
 import (
 	"net/http"
-	"os"
-	"strconv"
+	"pengi-med-saas/core/config"
 	"strings"
 	"sync"
 	"time"
@@ -21,7 +20,7 @@ import (
 const rateLimitWindow = time.Hour
 
 func maxRequests() int {
-	if v, err := strconv.Atoi(os.Getenv("CONTACT_RATE_LIMIT")); err == nil && v > 0 {
+	if v := config.Get().ContactRateLimit; v > 0 {
 		return v
 	}
 	return 3
@@ -126,10 +125,7 @@ func (h *ContactHandler) SendContact(c *gin.Context) envelope.Response {
 		return envelope.SuccessResponse(nil, "contact.send.success")
 	}
 
-	recipient := os.Getenv("CONTACT_EMAIL")
-	if recipient == "" {
-		recipient = "pengiservicios@gmail.com"
-	}
+	recipient := config.Get().ContactEmail
 
 	if err := h.mailer.SendContactMessage(recipient, dto.Name, dto.Email, dto.Message); err != nil {
 		h.logger.Error("failed to send contact email", zap.Error(err))

@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/tenantdb"
 	"pengi-med-saas/core/tenantfiles"
 	"strings"
@@ -462,7 +462,7 @@ func displayTokenData(base, token string) gin.H {
 // displayBase is FRONTEND_URL, the web app base of the TV link (never the
 // request Host). Missing or not an absolute http(s) URL is a server error.
 func (h *TenantHandler) displayBase() (string, *envelope.Response) {
-	base := strings.TrimSpace(os.Getenv("FRONTEND_URL"))
+	base := strings.TrimSpace(config.Get().FrontendURL)
 	if parsed, err := url.Parse(base); base == "" || err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
 		h.logger.Error("FRONTEND_URL is missing or invalid; cannot build the TV link", zap.String("frontend_url", base))
 		r := envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)

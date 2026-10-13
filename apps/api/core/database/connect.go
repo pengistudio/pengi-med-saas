@@ -54,17 +54,14 @@ func Connect() (*gorm.DB, error) {
 	if err := EnsureDatabase(); err != nil {
 		return nil, err
 	}
-	host := config.GetEnv("DB_HOST")
-	port := config.GetEnv("DB_PORT")
-	user := config.GetEnv("DB_USER")
-	password := config.GetEnv("DB_PASSWORD")
-	dbname := config.GetEnv("DB_NAME")
+	cfg := config.Get()
+	host, port, user, password, dbname := cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName
 
 	if host == "" || port == "" || user == "" || password == "" || dbname == "" {
 		return nil, fmt.Errorf("missing required environment variables for database connection")
 	}
 
-	sslmode := config.GetEnvWithDefault("DB_SSL_MODE", "disable")
+	sslmode := cfg.DBSSLMode
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, dbname, sslmode)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: NewSQLLogger(os.Stdout)})
 	if err != nil {
@@ -79,7 +76,7 @@ func Connect() (*gorm.DB, error) {
 		return nil, err
 	}
 	// permissive | warn (default: logs unbound queries) | strict (rejects them)
-	tenantdb.SetMode(tenantdb.ParseMode(config.GetEnvWithDefault("TENANTDB_MODE", "warn")))
+	tenantdb.SetMode(tenantdb.ParseMode(cfg.TenantDBMode))
 
 	return db, nil
 }
@@ -96,19 +93,16 @@ It uses environment variables to get the database connection parameters:
 If any of these variables are not set, it will return an error.
 */
 func EnsureDatabase() error {
-	host := config.GetEnv("DB_HOST")
-	port := config.GetEnv("DB_PORT")
-	user := config.GetEnv("DB_USER")
-	password := config.GetEnv("DB_PASSWORD")
-	dbname := config.GetEnv("DB_NAME")
+	cfg := config.Get()
+	host, port, user, password, dbname := cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName
 
 	if host == "" || port == "" || user == "" || password == "" || dbname == "" {
 		return fmt.Errorf("missing required environment variables for database connection")
 	}
 
 	// 1️⃣ Conexión temporal a la base de datos por defecto (defaultdb en DO Managed PostgreSQL)
-	sslmode := config.GetEnvWithDefault("DB_SSL_MODE", "disable")
-	rootDBName := config.GetEnvWithDefault("DB_ROOT_NAME", "postgres")
+	sslmode := cfg.DBSSLMode
+	rootDBName := cfg.DBRootName
 	rootDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, rootDBName, sslmode)
 	rootDB, err := sql.Open("postgres", rootDSN)
 	if err != nil {

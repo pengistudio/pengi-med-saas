@@ -1,7 +1,7 @@
 package core_middleware
 
 import (
-	"os"
+	"pengi-med-saas/core/config"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ const DefaultTrustedProxies = "127.0.0.1/32,::1/128,10.0.0.0/8,172.16.0.0/12,192
 // Unset or empty means DefaultTrustedProxies; "none" trusts no proxy, so
 // ClientIP is always the TCP peer (use it when the API is exposed directly).
 func TrustedProxiesFromEnv() []string {
-	return ParseTrustedProxies(os.Getenv("TRUSTED_PROXIES"))
+	return ParseTrustedProxies(config.Get().TrustedProxies)
 }
 
 // ParseTrustedProxies splits a TRUSTED_PROXIES value; see TrustedProxiesFromEnv.

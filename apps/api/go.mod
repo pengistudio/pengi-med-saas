@@ -4,6 +4,7 @@ go 1.26.3
 
 require (
 	github.com/boombuler/barcode v1.1.0
+	github.com/caarlos0/env/v11 v11.4.1
 	github.com/digitorus/pdf v0.1.2
 	github.com/digitorus/pdfsign v0.9.0
 	github.com/gin-contrib/cors v1.7.7

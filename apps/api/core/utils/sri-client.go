@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"time"
 )
 
@@ -41,10 +41,7 @@ type SriAuthorizationResponse struct {
 }
 
 func NewSriSignerClient() *SriSignerClient {
-	url := os.Getenv("SRI_SIGNER_SERVICE_URL")
-	if url == "" {
-		url = "http://sri-xml-signer:9000"
-	}
+	url := config.Get().SRISignerServiceURL
 	return &SriSignerClient{
 		httpClient: &http.Client{Timeout: 30 * time.Second},
 		baseURL:    url,

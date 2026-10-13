@@ -1,11 +1,11 @@
 package main
 
 import (
-	"os"
 	"strings"
 	"time"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
@@ -36,11 +36,16 @@ import (
 var DB_CONNECTION *gorm.DB
 
 func main() {
-	mode := os.Getenv("GIN_MODE")
-	if mode == "release" {
+	// Stop before doing anything else if the environment is incomplete:
+	// required variables are listed in core/config.
+	cfg, err := config.Load()
+	if err != nil {
+		panic("Invalid environment configuration: " + err.Error())
+	}
+
+	mode := "development"
+	if cfg.IsRelease() {
 		mode = "production"
-	} else {
-		mode = "development"
 	}
 
 	logger.Init(mode)

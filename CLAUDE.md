@@ -350,6 +350,8 @@ Navigation items are managed in `src/config/nav-config.ts`. Top-level items can 
 
 ## Environment variables
 
+Backend: every variable the API reads is a field of `core/config.Config` (type + default). Read them with `config.Get().X`, never `os.Getenv`; a new variable = a new field there + `.env.example`. `config.Load()` runs first in `cmd/main.go` and the API refuses to start if a required one is missing or doesn't parse. Only committed code migrations and `core/secretbox` (keys by name) still call `os.Getenv`.
+
 Backend template: `apps/api/.env.example`. Key vars:
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
 - `AUTH_KEY` — JWT signing secret

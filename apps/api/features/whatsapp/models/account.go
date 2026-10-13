@@ -2,7 +2,7 @@ package whatsapp_models
 
 import (
 	"errors"
-	"os"
+	"pengi-med-saas/core/config"
 	"time"
 
 	"pengi-med-saas/core/secretbox"
@@ -66,7 +66,7 @@ func (WhatsAppAccount) TableName() string { return "whatsapp_accounts" }
 // set, otherwise the same fallback as secretbox.FromEnv
 // (SIGNATURE_ENCRYPTION_KEY, or a dev key outside release).
 func Box() (*secretbox.Box, error) {
-	if os.Getenv(EncryptionKeyEnv) != "" {
+	if config.Get().WhatsAppEncryptionKey != "" {
 		return secretbox.FromEnvVar(EncryptionKeyEnv)
 	}
 	return secretbox.FromEnv()
