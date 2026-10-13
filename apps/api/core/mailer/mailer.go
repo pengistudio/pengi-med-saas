@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 )
 
 const resendURL = "https://api.resend.com/emails"
@@ -18,18 +18,11 @@ type Mailer struct {
 }
 
 func NewMailer() *Mailer {
-	fromName := os.Getenv("SMTP_FROM_NAME")
-	if fromName == "" {
-		fromName = "Gentoo"
-	}
-	from := os.Getenv("SMTP_FROM")
-	if from == "" {
-		from = "noreply@pengistudio.com"
-	}
+	cfg := config.Get()
 	return &Mailer{
-		apiKey:   os.Getenv("RESEND_API_KEY"),
-		from:     from,
-		fromName: fromName,
+		apiKey:   cfg.ResendAPIKey,
+		from:     cfg.SMTPFrom,
+		fromName: cfg.SMTPFromName,
 	}
 }
 

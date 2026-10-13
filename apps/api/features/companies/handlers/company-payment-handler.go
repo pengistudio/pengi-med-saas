@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/tenantdb"
 	"time"
 
@@ -234,8 +234,8 @@ func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Respons
 				Currency:        "USD",
 				OrderID:         orderID,
 				Description:     fmt.Sprintf("Upgrade a %s - prorrateo", targetPlan.Name),
-				NotificationURL: os.Getenv("DLOCAL_NOTIFICATION_URL"),
-				SuccessURL:      os.Getenv("FRONTEND_URL") + "/subscription?status=success",
+				NotificationURL: config.Get().DLocalNotificationURL,
+				SuccessURL:      config.Get().FrontendURL + "/subscription?status=success",
 			})
 			if err != nil {
 				h.logger.Error("Failed to create dlocal upgrade payment", zap.Error(err))
@@ -283,8 +283,8 @@ func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Respons
 		Currency:        "USD",
 		OrderID:         orderID,
 		Description:     fmt.Sprintf("Suscripción Pengi - %s (%d mes(es))", targetPlan.Name, months),
-		NotificationURL: os.Getenv("DLOCAL_NOTIFICATION_URL"),
-		SuccessURL:      os.Getenv("FRONTEND_URL") + "/subscription?status=success",
+		NotificationURL: config.Get().DLocalNotificationURL,
+		SuccessURL:      config.Get().FrontendURL + "/subscription?status=success",
 	})
 	if err != nil {
 		h.logger.Error("Failed to create dlocal payment", zap.Error(err))

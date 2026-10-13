@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"pengi-med-saas/core/config"
 )
 
 // EnvKey is the environment variable holding the base64 encryption key.
@@ -48,7 +49,7 @@ func New(key []byte) (*Box, error) {
 func FromEnv() (*Box, error) {
 	raw := os.Getenv(EnvKey)
 	if raw == "" {
-		if os.Getenv("GIN_MODE") == "release" {
+		if config.Get().IsRelease() {
 			return nil, ErrNoKey
 		}
 		sum := sha256.Sum256([]byte(devKeySeed))

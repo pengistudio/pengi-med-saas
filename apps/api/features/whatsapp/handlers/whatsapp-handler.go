@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"strconv"
 	"time"
 
@@ -42,7 +42,8 @@ func NewWhatsAppHandler(db *gorm.DB, logger *zap.Logger, client *whatsapp.Client
 
 // GetConfig returns the public values the frontend needs for Embedded Signup.
 func (h *WhatsAppHandler) GetConfig(c *gin.Context) envelope.Response {
-	appID, configID := os.Getenv("META_APP_ID"), os.Getenv("META_ES_CONFIG_ID")
+	cfg := config.Get()
+	appID, configID := cfg.MetaAppID, cfg.MetaESConfigID
 	return envelope.SuccessResponse(whatsapp_dto.ConfigResponse{
 		AppID:                   appID,
 		ConfigID:                configID,
@@ -72,7 +73,7 @@ func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) envelope.Response {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "whatsapp.error.invalid_request", core_errors.ErrWhatsAppInvalidRequest)
 	}
-	if h.client.AppID == "" || h.client.AppSecret == "" || os.Getenv("META_ES_CONFIG_ID") == "" {
+	if h.client.AppID == "" || h.client.AppSecret == "" || config.Get().MetaESConfigID == "" {
 		return envelope.ErrorResponse(http.StatusServiceUnavailable, "whatsapp.error.embedded_unavailable", core_errors.ErrWhatsAppEmbeddedUnavailable)
 	}
 	if resp, taken := h.phoneTaken(c, req.PhoneNumberID); taken {

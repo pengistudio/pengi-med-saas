@@ -2,7 +2,7 @@ package whatsapp_services
 
 import (
 	"errors"
-	"os"
+	"pengi-med-saas/core/config"
 	"sort"
 	"time"
 
@@ -25,7 +25,7 @@ var ErrInvalidOffsets = errors.New("invalid reminder offsets")
 // ClinicLocation is the time zone appointment times are written in: TZ (as
 // Google Calendar sync uses), else America/Guayaquil.
 func ClinicLocation() *time.Location {
-	for _, name := range []string{os.Getenv("TZ"), DefaultTimeZone} {
+	for _, name := range []string{config.Get().TZ, DefaultTimeZone} {
 		if name == "" {
 			continue
 		}

@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
-	"os"
+	"pengi-med-saas/core/config"
 
 	"pengi-med-saas/core/tenantfiles"
 	"pengi-med-saas/core/utils"
@@ -99,11 +99,7 @@ func New(files tenantfiles.Store, converter Converter, docs ...Document) *Render
 // Gotenberg is the production converter, at GOTENBERG_URL (default the compose
 // service http://gotenberg:3000).
 func Gotenberg() *utils.GotenbergClient {
-	url := os.Getenv("GOTENBERG_URL")
-	if url == "" {
-		url = "http://gotenberg:3000"
-	}
-	return utils.NewGotenbergClient(url)
+	return utils.NewGotenbergClient(config.Get().GotenbergURL)
 }
 
 // Documents returns the catalog, in the order given to New.

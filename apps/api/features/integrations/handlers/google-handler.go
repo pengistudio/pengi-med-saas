@@ -2,7 +2,7 @@ package integration_handlers
 
 import (
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/tenantdb"
 	"time"
 
@@ -51,7 +51,7 @@ func (h *GoogleIntegrationHandler) GetAuthURL(c *gin.Context) envelope.Response 
 // Callback handles the OAuth redirect from Google.
 // This endpoint is public (no auth middleware) — tenant is identified via state param.
 func (h *GoogleIntegrationHandler) Callback(c *gin.Context) {
-	frontendURL := os.Getenv("FRONTEND_URL")
+	frontendURL := config.Get().FrontendURL
 	if frontendURL == "" {
 		frontendURL = "http://localhost:5173"
 	}

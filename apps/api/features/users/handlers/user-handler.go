@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/tenantdb"
 	clinical_services "pengi-med-saas/features/clinical/services"
 	"time"
@@ -227,7 +227,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	if tokenErr != nil {
 		h.logger.Error("Failed to generate verification token", zap.Error(tokenErr))
 	} else {
-		frontendURL := os.Getenv("FRONTEND_URL")
+		frontendURL := config.Get().FrontendURL
 		verificationURL := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, verificationToken)
 		go func() {
 			m := mailer.NewMailer()
@@ -408,9 +408,9 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
 		// 1. Tenant
 		newTenant := tenant_models.Tenant{
-			Name:      req.CompanyName,
-			Slug:      slug,
-			TradeName: req.CompanyName,
+			Name:         req.CompanyName,
+			Slug:         slug,
+			TradeName:    req.CompanyName,
 			DisplayToken: tenant_models.NewDisplayToken(),
 		}
 		if err := tx.Create(&newTenant).Error; err != nil {
@@ -488,7 +488,7 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 	if tokenErr != nil {
 		h.logger.Error("Failed to generate verification token", zap.Error(tokenErr))
 	} else {
-		frontendURL := os.Getenv("FRONTEND_URL")
+		frontendURL := config.Get().FrontendURL
 		verificationURL := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, verificationToken)
 		go func() {
 			m := mailer.NewMailer()

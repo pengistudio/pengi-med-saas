@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"time"
 )
 
@@ -42,15 +42,16 @@ func (r *DlocalCreatePaymentResponse) URL() string {
 }
 
 func NewDlocalClient() *DlocalClient {
+	cfg := config.Get()
 	baseURL := "https://api-sbx.dlocalgo.com/v1"
-	if os.Getenv("DLOCAL_ENV") == "production" {
+	if cfg.DLocalEnv == "production" {
 		baseURL = "https://api.dlocalgo.com/v1"
 	}
 	return &DlocalClient{
 		httpClient: &http.Client{Timeout: 30 * time.Second},
 		baseURL:    baseURL,
-		apiKey:     os.Getenv("DLOCAL_API_KEY"),
-		apiSecret:  os.Getenv("DLOCAL_SECRET"),
+		apiKey:     cfg.DLocalAPIKey,
+		apiSecret:  cfg.DLocalSecret,
 	}
 }
 

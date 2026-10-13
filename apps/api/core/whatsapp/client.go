@@ -13,7 +13,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
+	"pengi-med-saas/core/config"
 	"strings"
 	"time"
 )
@@ -62,7 +62,8 @@ func New(baseURL, version, appID, appSecret string) *Client {
 // NewFromEnv builds a client from META_APP_ID, META_APP_SECRET and
 // WHATSAPP_GRAPH_VERSION.
 func NewFromEnv() *Client {
-	return New(DefaultBaseURL, os.Getenv("WHATSAPP_GRAPH_VERSION"), os.Getenv("META_APP_ID"), os.Getenv("META_APP_SECRET"))
+	cfg := config.Get()
+	return New(DefaultBaseURL, cfg.WhatsAppGraphVersion, cfg.MetaAppID, cfg.MetaAppSecret)
 }
 
 // APIError is an error answered by the Graph API.

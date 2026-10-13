@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
@@ -99,8 +99,8 @@ func (h *BackofficePaymentHandler) GeneratePayments(c *gin.Context) envelope.Res
 			Currency:        "USD",
 			OrderID:         orderID,
 			Description:     fmt.Sprintf("Suscripción Pengi - %s (%d mes(es))", sub.Plan.Name, months),
-			NotificationURL: os.Getenv("DLOCAL_NOTIFICATION_URL"),
-			SuccessURL:      os.Getenv("FRONTEND_URL") + "/subscription?status=success",
+			NotificationURL: config.Get().DLocalNotificationURL,
+			SuccessURL:      config.Get().FrontendURL + "/subscription?status=success",
 		})
 		if err != nil {
 			h.logger.Error("Failed to create dlocal payment", zap.Uint("subscription_id", subID), zap.Error(err))
@@ -164,7 +164,7 @@ func (h *BackofficePaymentHandler) HandleDlocalWebhook(c *gin.Context) envelope.
 	}
 
 	// Verify HMAC-SHA256 signature
-	secret := os.Getenv("DLOCAL_SECRET")
+	secret := config.Get().DLocalSecret
 	mac := hmac.New(sha256.New, []byte(secret))
 	mac.Write(body)
 	expected := hex.EncodeToString(mac.Sum(nil))

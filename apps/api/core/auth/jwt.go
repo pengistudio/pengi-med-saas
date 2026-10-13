@@ -14,34 +14,61 @@ import (
 var (
 	ErrInvalidToken = errors.New("invalid token")
 	ErrExpiredToken = errors.New("token is expired")
+	// ErrNoAuthKey means AUTH_KEY is unset: tokens are never signed or
+	// accepted with an empty or well-known key.
+	ErrNoAuthKey = errors.New("AUTH_KEY is not set")
+	// ErrNoAuthExp means AUTH_EXP is unset or not a positive number of minutes.
+	ErrNoAuthExp = errors.New("AUTH_EXP is not a positive number of minutes")
 )
 
-func GenerateToken(username string, userId int64) (string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
-	exp, err := config.GetNumberEnv("AUTH_EXP")
+// authKey is the HMAC key every token is signed and verified with.
+func authKey() ([]byte, error) {
+	key := config.Get().AuthKey
+	if key == "" {
+		return nil, ErrNoAuthKey
+	}
+	return []byte(key), nil
+}
+
+func signedWithAuthKey(claims jwt.MapClaims) (string, error) {
+	key, err := authKey()
 	if err != nil {
 		return "", err
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(key)
+}
+
+// accessTokenMinutes is the access-token lifetime, AUTH_EXP minutes.
+func accessTokenMinutes() (int64, error) {
+	exp := config.Get().AuthExp
+	if exp <= 0 {
+		return 0, ErrNoAuthExp
+	}
+	return exp, nil
+}
+
+func GenerateToken(username string, userId int64) (string, error) {
+	exp, err := accessTokenMinutes()
+	if err != nil {
+		return "", err
+	}
+	return signedWithAuthKey(jwt.MapClaims{
 		"type":     "access_token",
 		"username": username,
 		"userId":   userId,
 		"exp":      time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
 	})
-	return token.SignedString([]byte(secretKey))
 
 }
 
 func GenerateExchangeToken(username string, userId int64) (string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	return signedWithAuthKey(jwt.MapClaims{
 		"type":     "exchange_token",
 		"username": username,
 		"userId":   userId,
 		// Short expiration, e.g., 5 minutes
 		"exp": time.Now().Add(5 * time.Minute).Unix(),
 	})
-	return token.SignedString([]byte(secretKey))
 }
 
 const refreshTokenCookieName = "refresh_token"
@@ -49,8 +76,8 @@ const refreshTokenCookieName = "refresh_token"
 // refreshTokenMaxAgeSeconds computes the sliding-window cookie lifetime from
 // AUTH_REFRESH_EXP (days), defaulting to 30 days if unset/invalid.
 func refreshTokenMaxAgeSeconds() int {
-	days, err := config.GetNumberEnv("AUTH_REFRESH_EXP")
-	if err != nil || days <= 0 {
+	days := config.Get().AuthRefreshExp
+	if days <= 0 {
 		days = 30
 	}
 	return int(days) * 24 * 60 * 60
@@ -67,7 +94,7 @@ func RefreshTokenTTL() time.Duration {
 // setting and clearing the cookie always agree on Path/Domain/SameSite —
 // browsers only delete a cookie if every defining attribute matches.
 func setRefreshTokenCookieAttrs(c *gin.Context, value string, maxAge int) {
-	httpsEnabled, _ := config.GetBoolEnv("HTTPS_ENABLED")
+	httpsEnabled := config.Get().HTTPSEnabled
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(
 		refreshTokenCookieName,
@@ -97,7 +124,6 @@ func ClearRefreshTokenCookie(c *gin.Context) {
 // issued token, used to look up its DB row). Expiry is the sliding window
 // from AUTH_REFRESH_EXP, reset on every successful rotation.
 func GenerateRefreshToken(username string, userId int64, familyID string) (string, string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	jti := uuid.NewString()
 	claims := jwt.MapClaims{
 		"username": username,
@@ -106,8 +132,7 @@ func GenerateRefreshToken(username string, userId int64, familyID string) (strin
 		"jti":      jti,
 		"exp":      time.Now().Add(time.Duration(refreshTokenMaxAgeSeconds()) * time.Second).Unix(),
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString([]byte(secretKey))
+	signed, err := signedWithAuthKey(claims)
 	return signed, jti, err
 }
 
@@ -122,10 +147,9 @@ type RefreshTokenClaims struct {
 }
 
 func ValidateRefreshToken(refreshToken string) (RefreshTokenClaims, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
+		return authKey()
 	})
 	if err != nil || !token.Valid {
 		return RefreshTokenClaims{}, errors.New("invalid refresh token")
@@ -190,13 +214,12 @@ func DecryptToken(c *gin.Context) (jwt.MapClaims, error) {
 }
 
 func ParseToken(token string) (jwt.MapClaims, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			return nil, ErrInvalidToken
 		}
-		return []byte(secretKey), nil
+		return authKey()
 	})
 	if err != nil || parsedToken == nil || !parsedToken.Valid {
 		return nil, ErrInvalidToken
@@ -232,13 +255,11 @@ func ParseExchangeToken(token string) (jwt.MapClaims, error) {
 // GeneratePasswordResetToken creates a JWT for password reset. It expires in
 // 24 hours and encodes the user_id of the tenant user that needs to reset.
 func GeneratePasswordResetToken(userID uint) (string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	return signedWithAuthKey(jwt.MapClaims{
 		"type":    "password_reset",
 		"user_id": userID,
 		"exp":     time.Now().Add(24 * time.Hour).Unix(),
 	})
-	return token.SignedString([]byte(secretKey))
 }
 
 // ParsePasswordResetToken validates the token and returns the user_id.
@@ -263,13 +284,11 @@ func ParsePasswordResetToken(tokenStr string) (uint, error) {
 
 // GenerateEmailVerificationToken creates a JWT for email verification. Expires in 24h.
 func GenerateEmailVerificationToken(userID uint) (string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	return signedWithAuthKey(jwt.MapClaims{
 		"type":    "email_verification",
 		"user_id": userID,
 		"exp":     time.Now().Add(24 * time.Hour).Unix(),
 	})
-	return token.SignedString([]byte(secretKey))
 }
 
 // ParseEmailVerificationToken validates the token and returns the user_id.
@@ -296,14 +315,12 @@ func ParseEmailVerificationToken(tokenStr string) (uint, error) {
 // optional role_id. It expires in 72 hours and is used to let new users
 // self-register under a specific company with a pre-assigned role.
 func GenerateCompanySignupToken(companyID uint, roleID uint) (string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	return signedWithAuthKey(jwt.MapClaims{
 		"type":       "company_signup",
 		"company_id": companyID,
 		"role_id":    roleID,
 		"exp":        time.Now().Add(72 * time.Hour).Unix(),
 	})
-	return token.SignedString([]byte(secretKey))
 }
 
 // ParseCompanySignupToken validates a company signup token and returns the
@@ -333,12 +350,10 @@ func ParseCompanySignupToken(tokenStr string) (uint, uint, error) {
 // allows a prospect to self-register a brand-new company via /register.
 // It expires in 72 hours.
 func GenerateCompanyRegisterToken() (string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	return signedWithAuthKey(jwt.MapClaims{
 		"type": "company_register",
 		"exp":  time.Now().Add(72 * time.Hour).Unix(),
 	})
-	return token.SignedString([]byte(secretKey))
 }
 
 // ParseCompanyRegisterToken validates a company register token.

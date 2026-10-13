@@ -28,14 +28,9 @@ const (
 
 var ErrNotBackofficeToken = errors.New("not a backoffice token")
 
-func signedWithAuthKey(claims jwt.MapClaims) (string, error) {
-	secretKey := config.GetEnvWithDefault("AUTH_KEY", "test-secret-key-for-jwt-signing-in-tests-only")
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secretKey))
-}
-
 // GenerateBackofficeToken issues a backoffice access token (AUTH_EXP minutes).
 func GenerateBackofficeToken(username string, userID int64) (string, error) {
-	exp, err := config.GetNumberEnv("AUTH_EXP")
+	exp, err := accessTokenMinutes()
 	if err != nil {
 		return "", err
 	}
@@ -112,7 +107,7 @@ func ParseBackofficeRefreshToken(token string) (BackofficeClaims, error) {
 // SetBackofficeRefreshCookie sets the backoffice refresh cookie with the same
 // attributes as the clinic app's refresh cookie.
 func SetBackofficeRefreshCookie(c *gin.Context, refreshToken string) {
-	httpsEnabled, _ := config.GetBoolEnv("HTTPS_ENABLED")
+	httpsEnabled := config.Get().HTTPSEnabled
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(BackofficeRefreshCookie, refreshToken, int(RefreshTokenTTL().Seconds()), "/", "", httpsEnabled, true)
 }
@@ -120,7 +115,7 @@ func SetBackofficeRefreshCookie(c *gin.Context, refreshToken string) {
 // ClearBackofficeRefreshCookie removes the backoffice refresh cookie, with the
 // same attributes it was set with so the browser deletes it.
 func ClearBackofficeRefreshCookie(c *gin.Context) {
-	httpsEnabled, _ := config.GetBoolEnv("HTTPS_ENABLED")
+	httpsEnabled := config.Get().HTTPSEnabled
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(BackofficeRefreshCookie, "", -1, "/", "", httpsEnabled, true)
 }

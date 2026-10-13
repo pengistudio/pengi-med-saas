@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
+	"pengi-med-saas/core/config"
 	"strconv"
 	"strings"
 	"time"
@@ -56,8 +56,8 @@ type WebhookHandler struct {
 func NewWebhookHandler(db *gorm.DB, logger *zap.Logger, calendar CalendarSync) *WebhookHandler {
 	return &WebhookHandler{
 		db: db, logger: logger, calendar: calendar,
-		appSecret:   os.Getenv("META_APP_SECRET"),
-		verifyToken: os.Getenv("WHATSAPP_WEBHOOK_VERIFY_TOKEN"),
+		appSecret:   config.Get().MetaAppSecret,
+		verifyToken: config.Get().WhatsAppWebhookVerifyToken,
 		now:         time.Now,
 	}
 }
