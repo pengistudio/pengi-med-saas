@@ -459,12 +459,12 @@ func displayTokenData(base, token string) gin.H {
 	return gin.H{"token": token, "display_url": DisplayURL(base, token)}
 }
 
-// displayBase is FRONTEND_URL, the web app base of the TV link (never the
+// displayBase is APP_URL, the web app base of the TV link (never the
 // request Host). Missing or not an absolute http(s) URL is a server error.
 func (h *TenantHandler) displayBase() (string, *envelope.Response) {
-	base := strings.TrimSpace(config.Get().FrontendURL)
+	base := strings.TrimSpace(config.Get().AppURL)
 	if parsed, err := url.Parse(base); base == "" || err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
-		h.logger.Error("FRONTEND_URL is missing or invalid; cannot build the TV link", zap.String("frontend_url", base))
+		h.logger.Error("APP_URL is missing or invalid; cannot build the TV link", zap.String("app_url", base))
 		r := envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 		return "", &r
 	}
@@ -505,7 +505,7 @@ func (h *TenantHandler) currentDisplayToken(c *gin.Context) (string, *envelope.R
 }
 
 // DisplayURL is the waiting-room TV link for token on the web app at base
-// (FRONTEND_URL): what the display-token responses return and the QR encodes.
+// (APP_URL): what the display-token responses return and the QR encodes.
 func DisplayURL(base, token string) string {
 	return strings.TrimRight(base, "/") + "/display/waiting-room?token=" + url.QueryEscape(token)
 }
@@ -516,7 +516,7 @@ const displayQRSize = 320
 
 // GetDisplayTokenQR streams a PNG QR code of the waiting-room TV link, so the
 // TV can be paired by scanning instead of typing. The link base is
-// FRONTEND_URL, never the request Host. The QR is a credential (anyone holding
+// APP_URL, never the request Host. The QR is a credential (anyone holding
 // it sees today's appointments), so it is not cached.
 func (h *TenantHandler) GetDisplayTokenQR(c *gin.Context) {
 	base, errResp := h.displayBase()

@@ -1,5 +1,5 @@
 ---
-const apiUrl = import.meta.env.PUBLIC_API_URL || "https://api.gentoo.pengistudio.com/api/v1";
+import { PUBLIC_API_URL as apiUrl } from "astro:env/client";
 ---
 
 <section id="contact" class="py-20 px-6">

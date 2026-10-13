@@ -38,12 +38,12 @@ func createDisplayTenant(t *testing.T, h *TenantHandler, token string) tenant_mo
 	return tenant
 }
 
-// testFrontendURL is the FRONTEND_URL every display handler test runs with.
-const testFrontendURL = "https://app.example.com"
+// testAppURL is the APP_URL every display handler test runs with.
+const testAppURL = "https://app.example.com"
 
 func newDisplayHandler(t *testing.T) *TenantHandler {
 	t.Helper()
-	t.Setenv("FRONTEND_URL", testFrontendURL)
+	t.Setenv("APP_URL", testAppURL)
 	db := testutils.SetupTestDB(t, &tenant_models.Tenant{})
 	return NewTenantHandler(db, zap.NewNop(), tenantfiles.Disk(t.TempDir()))
 }
@@ -60,7 +60,7 @@ func getDisplayToken(t *testing.T, h *TenantHandler, tenantID uint) string {
 		t.Fatalf("unexpected data %T", resp.Data)
 	}
 	token, _ := data["token"].(string)
-	if want := testFrontendURL + "/display/waiting-room?token=" + token; data["display_url"] != want {
+	if want := testAppURL + "/display/waiting-room?token=" + token; data["display_url"] != want {
 		t.Fatalf("display_url = %v, want %q", data["display_url"], want)
 	}
 	return token
@@ -150,9 +150,9 @@ func TestGetDisplayToken_WithoutTenant(t *testing.T) {
 	}
 }
 
-func TestGetDisplayToken_FailsWithoutFrontendURL(t *testing.T) {
+func TestGetDisplayToken_FailsWithoutAppURL(t *testing.T) {
 	h := newDisplayHandler(t)
-	t.Setenv("FRONTEND_URL", "not a url")
+	t.Setenv("APP_URL", "not a url")
 	tenant := createDisplayTenant(t, h, uniqueCode())
 
 	c, _ := testutils.NewGinContext(tenant.ID, 1)

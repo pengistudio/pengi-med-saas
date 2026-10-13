@@ -1,7 +1,8 @@
 import { useMessageStore } from "@pengi/shared";
 import axios, { type AxiosInstance } from "axios";
+import { env } from "@/lib/env";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const BASE_URL = env.VITE_API_URL;
 
 export const api = axios.create({
 	baseURL: BASE_URL,

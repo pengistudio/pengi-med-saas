@@ -9,7 +9,7 @@ func setRequired(t *testing.T) {
 	t.Helper()
 	for k, v := range map[string]string{
 		"DB_HOST": "db", "DB_PORT": "5432", "DB_USER": "u", "DB_PASSWORD": "p", "DB_NAME": "n",
-		"AUTH_KEY": "k", "AUTH_EXP": "60", "GIN_MODE": "debug",
+		"AUTH_KEY": "k", "AUTH_EXP": "60", "GIN_MODE": "debug", "APP_URL": "https://app.example.com",
 	} {
 		t.Setenv(k, v)
 	}
@@ -68,6 +68,39 @@ func TestLoadRequiresSignatureKeyInRelease(t *testing.T) {
 	t.Setenv("SIGNATURE_ENCRYPTION_KEY", "c2VjcmV0")
 	if _, err := Load(); err != nil {
 		t.Fatalf("Load() error = %v with the key set", err)
+	}
+}
+
+func TestAppURLFallsBackToOldNames(t *testing.T) {
+	t.Setenv("GIN_MODE", "debug")
+	t.Setenv("APP_URL", "")
+	t.Setenv("FRONTEND_URL", "")
+	t.Setenv("PUBLIC_APP_URL", "")
+	if got := Get().AppURL; got != devAppURL {
+		t.Fatalf("AppURL = %q, want the dev default", got)
+	}
+
+	t.Setenv("PUBLIC_APP_URL", "https://public.example.com")
+	t.Setenv("FRONTEND_URL", "https://frontend.example.com")
+	if got := Get().AppURL; got != "https://frontend.example.com" {
+		t.Fatalf("AppURL = %q, want FRONTEND_URL", got)
+	}
+
+	t.Setenv("APP_URL", "https://app.example.com")
+	if got := Get().AppURL; got != "https://app.example.com" {
+		t.Fatalf("AppURL = %q, want APP_URL", got)
+	}
+}
+
+func TestLoadRequiresAppURLInRelease(t *testing.T) {
+	setRequired(t)
+	t.Setenv("GIN_MODE", "release")
+	t.Setenv("SIGNATURE_ENCRYPTION_KEY", "c2VjcmV0")
+	t.Setenv("APP_URL", "")
+	t.Setenv("FRONTEND_URL", "")
+	t.Setenv("PUBLIC_APP_URL", "")
+	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "APP_URL") {
+		t.Fatalf("Load() error = %v, want an APP_URL error", err)
 	}
 }
 

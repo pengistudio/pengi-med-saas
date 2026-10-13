@@ -64,7 +64,7 @@ jobs:
           tags: ghcr.io/${{ env.ORG }}/pengi-backoffice:latest
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL }}
-            VITE_WEB_APP_URL=${{ secrets.VITE_WEB_APP_URL }}
+            VITE_APP_URL=${{ secrets.VITE_WEB_APP_URL }}
           cache-from: type=gha,scope=backoffice
           cache-to: type=gha,mode=max,scope=backoffice
 
@@ -77,6 +77,7 @@ jobs:
           tags: ghcr.io/${{ env.ORG }}/pengi-landing:latest
           build-args: |
             PUBLIC_APP_URL=${{ secrets.PUBLIC_APP_URL }}
+            PUBLIC_API_URL=${{ secrets.VITE_API_URL }}
           cache-from: type=gha,scope=landing
           cache-to: type=gha,mode=max,scope=landing
 

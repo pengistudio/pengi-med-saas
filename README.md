@@ -65,10 +65,11 @@ docker-compose -f docker-compose.dev.yaml up db gotenberg -d
 
 ### 2. Configurar y Levantar el Backend (API)
 ```bash
+# Un solo archivo de variables para todas las apps, en la raíz del repo
+cp .env.example .env
 cd apps/api
-# Duplicar archivo de variables de entorno y ajustarlo si es necesario
-cp .env.example .env 
-go run cmd/api/main.go
+set -a && . ../../.env && set +a   # fuera de Docker, Go no lee el .env solo
+go run cmd/main.go
 ```
 *La API estará corriendo en `http://localhost:8080`.*
 

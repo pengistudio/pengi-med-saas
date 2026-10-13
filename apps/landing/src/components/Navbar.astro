@@ -1,5 +1,5 @@
 ---
-const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:5173";
+import { PUBLIC_APP_URL as appUrl } from "astro:env/client";
 const loginUrl = `${appUrl}/login`;
 ---
 
