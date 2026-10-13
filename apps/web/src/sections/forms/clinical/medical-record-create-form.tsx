@@ -54,12 +54,14 @@ import {
 	createMedicalRecord,
 	getAppointmentVitalSigns,
 	getMedicalRecords,
+	getPatientAppointments,
 	type MedicalRecord,
 } from "@/api/clinical-service";
 import {
 	linkPatientAttachment,
 	type PatientAttachment,
 } from "@/api/patient-attachment-service";
+import { DoctorSelect } from "@/components/features/doctors/doctor-select";
 import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { FormIcd11Select } from "@/components/forms/form-icd11-select";
@@ -185,6 +187,28 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 		};
 	}, [appointmentId]);
 
+	// Who attends: defaults to the user's own profile, then the appointment's
+	// doctor, then the patient's cabecera. The appointment's doctor is looked
+	// up first (undefined while loading) so the default can use it.
+	const [doctorId, setDoctorId] = React.useState<number | null>(null);
+	const [appointmentDoctorId, setAppointmentDoctorId] = React.useState<
+		number | null | undefined
+	>(appointmentId && patientId ? undefined : null);
+	React.useEffect(() => {
+		if (!appointmentId || !patientId) return;
+		let cancelled = false;
+		getPatientAppointments(Number(patientId)).then((res) => {
+			if (cancelled) return;
+			const appointment = res.success
+				? res.data?.find((a) => a.ID === Number(appointmentId))
+				: undefined;
+			setAppointmentDoctorId(appointment?.doctor_id ?? null);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [appointmentId, patientId]);
+
 	React.useEffect(() => {
 		if (!patientId) return;
 		getMedicalRecords(Number(patientId), { page: 1, limit: 1 }).then((res) => {
@@ -227,6 +251,15 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 						onClearDraftReady={(fn) => {
 							clearDraftRef.current = fn;
 						}}
+						doctorSelect={
+							appointmentDoctorId !== undefined && (
+								<DoctorSelect
+									value={doctorId}
+									onChange={setDoctorId}
+									fallbacks={[appointmentDoctorId, patient?.doctor_id]}
+								/>
+							)
+						}
 						attachments={
 							patientId ? (
 								<MedicalRecordAttachments
@@ -283,6 +316,8 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 
 		const payload = {
 			patient_id: Number(patientId),
+			// Omitted: the backend picks it (own profile → appointment → cabecera).
+			doctor_id: doctorId ?? undefined,
 			// Links the consultation to its appointment (and its triage vital signs).
 			appointment_id: appointmentId ? Number(appointmentId) : undefined,
 			date: values.date.toISOString(),
@@ -348,6 +383,7 @@ function FormWithDraft({
 	onPreviewLastRecord,
 	onClearDraftReady,
 	attachments,
+	doctorSelect,
 }: {
 	field: UseFormReturn<
 		z.input<typeof formSchema>,
@@ -365,6 +401,8 @@ function FormWithDraft({
 	onPreviewLastRecord: () => void;
 	onClearDraftReady: (fn: () => void) => void;
 	attachments: React.ReactNode;
+	/** Who attends; rendered next to the date. */
+	doctorSelect: React.ReactNode;
 }) {
 	const { formatDateTime } = useText();
 	const {
@@ -421,6 +459,7 @@ function FormWithDraft({
 					field.reset(emptyConsultation());
 				}}
 				attachments={attachments}
+				doctorSelect={doctorSelect}
 			/>
 		</>
 	);
@@ -449,6 +488,7 @@ function FormInner({
 	lastSaved,
 	onDiscardDraft,
 	attachments,
+	doctorSelect,
 }: {
 	field: UseFormReturn<
 		z.input<typeof formSchema>,
@@ -467,6 +507,8 @@ function FormInner({
 	lastSaved: Date | null;
 	onDiscardDraft: () => void;
 	attachments: React.ReactNode;
+	/** Who attends; rendered next to the date. */
+	doctorSelect: React.ReactNode;
 }) {
 	const [activeTab, setActiveTab] = React.useState<TabId>("consulta");
 	const [footerStuck, setFooterStuck] = React.useState(false);
@@ -607,6 +649,7 @@ function FormInner({
 									label={textGet("form.create_medical_record.date")}
 									showMonthYearDropdowns
 								/>
+								{doctorSelect}
 							</div>
 							<FormTextArea
 								field={field}

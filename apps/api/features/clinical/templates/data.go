@@ -8,6 +8,7 @@ import (
 // PrescriptionData is the model passed to prescription_template.html.
 type PrescriptionData struct {
 	DoctorName          string
+	DoctorRegistry      string // professional registry (Senescyt/MSP); printed when set
 	Date                string
 	PatientName         string
 	PatientDocument     string
@@ -26,6 +27,7 @@ type PrescriptionData struct {
 type ReportData struct {
 	TradeName       string
 	DoctorName      string
+	DoctorRegistry  string // professional registry (Senescyt/MSP); printed when set
 	Date            string
 	PatientName     string
 	PatientDocument string
@@ -66,6 +68,7 @@ type ReportVitalSign struct {
 type CertificateData struct {
 	TradeName       string
 	DoctorName      string
+	DoctorRegistry  string // professional registry (Senescyt/MSP); printed when set
 	Date            string
 	PatientName     string
 	PatientDocument string
@@ -81,6 +84,7 @@ type CertificateData struct {
 type ExamOrderData struct {
 	TradeName       string
 	DoctorName      string
+	DoctorRegistry  string // professional registry (Senescyt/MSP); printed when set
 	Date            string
 	Code            string // ORD-000123
 	PatientName     string

@@ -13,13 +13,14 @@ import (
 
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/testutils"
 )
 
 func optInTenants(t *testing.T) (*PatientHandler, func(uint, string, bool) clinical_models.Patient, func(uint) clinical_models.Patient, [2]uint) {
 	t.Helper()
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{})
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{}, &tenant_models.Tenant{}, &clinical_models.Patient{})
 	var ids [2]uint
 	for i := range ids {
 		slug := fmt.Sprintf("optin-%d-%d", i, time.Now().UnixNano()%1000000)

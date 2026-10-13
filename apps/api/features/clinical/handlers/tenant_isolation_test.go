@@ -9,6 +9,7 @@ import (
 	"time"
 
 	clinical_models "pengi-med-saas/features/clinical/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	integration_models "pengi-med-saas/features/integrations/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/testutils"
@@ -30,7 +31,7 @@ type isolation struct {
 
 func newIsolation(t *testing.T) *isolation {
 	t.Helper()
-	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{}, &clinical_models.Appointment{},
+	db := testutils.SetupTestDB(t, &doctor_models.Doctor{}, &tenant_models.Tenant{}, &clinical_models.Patient{}, &clinical_models.Appointment{},
 		&clinical_models.MedicalRecord{}, &clinical_models.VitalSigns{}, &clinical_models.SOAPRecord{}, &clinical_models.Prescription{}, &integration_models.TenantIntegration{})
 	now := time.Now().UnixNano()
 	s := &isolation{t: t, db: db}
@@ -38,6 +39,11 @@ func newIsolation(t *testing.T) *isolation {
 		*tenant = tenant_models.Tenant{Name: fmt.Sprintf("Clinic %d", i), Slug: fmt.Sprintf("iso-%d-%d", i, now), DisplayToken: fmt.Sprintf("tok-iso-%d-%d", i, now)}
 		if err := db.Create(tenant).Error; err != nil {
 			t.Fatalf("create tenant: %v", err)
+		}
+	}
+	for _, tenant := range []tenant_models.Tenant{s.own, s.other} {
+		if err := db.Create(&doctor_models.Doctor{TenantID: tenant.ID, FullName: "Dra. Única", Specialty: "general_medicine", Active: true}).Error; err != nil {
+			t.Fatalf("create doctor: %v", err)
 		}
 	}
 	s.ownPatient = s.patient(s.own.ID, "OWN")

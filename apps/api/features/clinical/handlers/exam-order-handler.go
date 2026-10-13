@@ -29,6 +29,7 @@ import (
 	clinical_services "pengi-med-saas/features/clinical/services"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_services "pengi-med-saas/features/doctors/services"
 	signature_models "pengi-med-saas/features/signatures/models"
 	signature_services "pengi-med-saas/features/signatures/services"
 	user_models "pengi-med-saas/features/users/models"
@@ -433,6 +434,14 @@ func (h *ExamOrderHandler) CreateExamOrder(c *gin.Context) envelope.Response {
 	if !validateMedicalRecord(db, req.MedicalRecordID, patient.ID) {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
+	doctorID, err := doctor_services.Resolve(c, db, doctor_services.Choice{
+		Requested: req.DoctorID,
+		Fallbacks: []*uint{recordDoctorID(db, req.MedicalRecordID), patient.DoctorID},
+		Policy:    doctor_services.Required,
+	})
+	if err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
 	resolved, ok, err := resolveExamItems(db, req.Items)
 	if err != nil {
 		return h.examOrderSaveError(err)
@@ -446,6 +455,7 @@ func (h *ExamOrderHandler) CreateExamOrder(c *gin.Context) envelope.Response {
 		priority = clinical_models.ExamPriorityRoutine
 	}
 	order := clinical_models.ExamOrder{
+		DoctorID:        doctorID,
 		TenantID:        tenantID,
 		PatientID:       patient.ID,
 		MedicalRecordID: req.MedicalRecordID,
@@ -558,7 +568,13 @@ func (h *ExamOrderHandler) UpdateExamOrder(c *gin.Context) envelope.Response {
 		priority = clinical_models.ExamPriorityRoutine
 	}
 	notes, lab := strings.TrimSpace(req.Notes), strings.TrimSpace(req.DestinationLab)
-	headerChanged := !sameUintPtr(order.MedicalRecordID, req.MedicalRecordID) || order.Priority != priority ||
+	doctorChanged := req.DoctorID != nil && !sameUintPtr(order.DoctorID, req.DoctorID)
+	if doctorChanged {
+		if err := doctor_services.ValidateChange(db, *req.DoctorID, order.DoctorID); err != nil {
+			return doctorErrorResponse(h.logger, err)
+		}
+	}
+	headerChanged := doctorChanged || !sameUintPtr(order.MedicalRecordID, req.MedicalRecordID) || order.Priority != priority ||
 		order.Notes != notes || order.DestinationLab != lab || !sameDiagnoses(order.Diagnoses, req.Diagnoses)
 	if headerChanged && locked {
 		return lockedResponse
@@ -576,6 +592,9 @@ func (h *ExamOrderHandler) UpdateExamOrder(c *gin.Context) envelope.Response {
 	updates["notes"] = notes
 	updates["destination_lab"] = lab
 	updates["diagnoses"] = diagnosesJSON(req.Diagnoses)
+	if doctorChanged {
+		updates["doctor_id"] = *req.DoctorID
+	}
 	if len(toCreate) > 0 {
 		updates["closed_manually"] = false // new exams reopen an order closed by hand
 	}
@@ -724,9 +743,23 @@ func examOrderGroups(items []clinical_models.ExamOrderItem) []clinical_templates
 	return groups
 }
 
-// examOrderDoctorName is the name printed under the signature line: the
-// ordering doctor's certificate holder if they uploaded one, else their user name.
-func examOrderDoctorName(db *gorm.DB, order *clinical_models.ExamOrder) string {
+// examOrderDoctor is the doctor name and registry printed on the order: its
+// doctor, else its record's, else the patient's cabecera; orders from before
+// doctors existed print the ordering user (examOrderLegacyDoctorName).
+func examOrderDoctor(db *gorm.DB, order *clinical_models.ExamOrder) (name, registry string) {
+	var cabecera *uint
+	if order.Patient != nil {
+		cabecera = order.Patient.DoctorID
+	}
+	if d := doctor_services.First(db, order.DoctorID, recordDoctorID(db, order.MedicalRecordID), cabecera); d != nil {
+		return d.FullName, d.ProfessionalRegistry
+	}
+	return examOrderLegacyDoctorName(db, order), ""
+}
+
+// examOrderLegacyDoctorName is the ordering user's certificate holder name if
+// they uploaded one, else their user name.
+func examOrderLegacyDoctorName(db *gorm.DB, order *clinical_models.ExamOrder) string {
 	var sig signature_models.UserSignature
 	if err := db.Where("user_id = ?", order.OrderedByID).Limit(1).Find(&sig).Error; err == nil && sig.SubjectName != "" {
 		return sig.SubjectName
@@ -735,7 +768,7 @@ func examOrderDoctorName(db *gorm.DB, order *clinical_models.ExamOrder) string {
 	if err := db.Select("id", "user_name").Limit(1).Find(&user, order.OrderedByID).Error; err == nil && user.UserName != "" {
 		return user.UserName
 	}
-	return "Médico Tratante"
+	return defaultDoctorName
 }
 
 func (h *ExamOrderHandler) generateExamOrderPDF(c *gin.Context, order *clinical_models.ExamOrder, stamp *pdfsign.Stamp) ([]byte, error) {
@@ -762,9 +795,11 @@ func (h *ExamOrderHandler) generateExamOrderPDF(c *gin.Context, order *clinical_
 	var diagnoses []clinical_models.DiagnosisItem
 	_ = json.Unmarshal(order.Diagnoses, &diagnoses)
 
+	doctorName, doctorRegistry := examOrderDoctor(db, order)
 	data := clinical_templates.ExamOrderData{
 		TradeName:       tradeName,
-		DoctorName:      examOrderDoctorName(db, order),
+		DoctorName:      doctorName,
+		DoctorRegistry:  doctorRegistry,
 		Date:            order.CreatedAt.Format("02/01/2006"),
 		Code:            clinical_models.FormatExamOrderNumber(order.Number),
 		PatientName:     patientName,
@@ -858,6 +893,9 @@ func (h *ExamOrderHandler) SignExamOrder(c *gin.Context) envelope.Response {
 	}
 	if order.IsSigned() {
 		return signature_services.AlreadySignedResponse()
+	}
+	if err := doctor_services.CanSign(tenantdb.For(c, h.db), currentUserID(c), order.DoctorID); err != nil {
+		return doctorErrorResponse(h.logger, err)
 	}
 	_, err = signDocument(c, h.db, h.signer, h.files, &clinical_models.ExamOrder{}, "exam_order", order.ID, "Orden de exámenes",
 		func(stamp *pdfsign.Stamp) ([]byte, error) { return h.generateExamOrderPDF(c, order, stamp) })

@@ -25,6 +25,7 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_services "pengi-med-saas/features/doctors/services"
 	signature_services "pengi-med-saas/features/signatures/services"
 	auth_middleware "pengi-med-saas/features/users/middleware"
 )
@@ -103,9 +104,17 @@ func (h *MedicalDocumentHandler) CreateMedicalReport(c *gin.Context) envelope.Re
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrClinicalMedicalReportError)
 	}
 
+	doctorID, err := doctor_services.Resolve(c, tenantdb.For(c, h.db), doctor_services.Choice{
+		Requested: dto.DoctorID, Fallbacks: []*uint{patient.DoctorID}, Policy: doctor_services.Required,
+	})
+	if err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
+
 	report := &clinical_models.MedicalReport{
 		TenantID:      tenantdb.TenantID(c),
 		PatientID:     uint(patientID),
+		DoctorID:      doctorID,
 		Consultations: consultationsJSON,
 		Plan:          dto.Plan,
 	}
@@ -250,10 +259,7 @@ func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report
 	}
 
 	patient := report.Patient
-	doctorName := patient.Medic
-	if doctorName == "" {
-		doctorName = "Médico Tratante"
-	}
+	doctorName, doctorRegistry := documentDoctor(tenantdb.For(c, h.db), patient, report.DoctorID)
 
 	fullName := "No especificado"
 	if patient.FullName != nil && *patient.FullName != "" {
@@ -294,6 +300,7 @@ func (h *MedicalDocumentHandler) generateMedicalReportPDF(c *gin.Context, report
 	data := clinical_templates.ReportData{
 		TradeName:       tradeName,
 		DoctorName:      doctorName,
+		DoctorRegistry:  doctorRegistry,
 		Date:            report.CreatedAt.Format("02/01/2006 15:04"),
 		PatientName:     fullName,
 		PatientDocument: patient.Document,
@@ -327,9 +334,17 @@ func (h *MedicalDocumentHandler) CreateMedicalCertificate(c *gin.Context) envelo
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
 
+	doctorID, err := doctor_services.Resolve(c, tenantdb.For(c, h.db), doctor_services.Choice{
+		Requested: dto.DoctorID, Fallbacks: []*uint{patient.DoctorID}, Policy: doctor_services.Required,
+	})
+	if err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
+
 	certificate := &clinical_models.MedicalCertificate{
 		TenantID:     tenantdb.TenantID(c),
 		PatientID:    uint(patientID),
+		DoctorID:     doctorID,
 		Diagnosis:    dto.Diagnosis,
 		Observations: dto.Observations,
 		RestDays:     dto.RestDays,
@@ -441,10 +456,7 @@ func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, c
 	}
 
 	patient := certificate.Patient
-	doctorName := patient.Medic
-	if doctorName == "" {
-		doctorName = "Médico Tratante"
-	}
+	doctorName, doctorRegistry := documentDoctor(tenantdb.For(c, h.db), patient, certificate.DoctorID)
 
 	fullName := "No especificado"
 	if patient.FullName != nil && *patient.FullName != "" {
@@ -469,6 +481,7 @@ func (h *MedicalDocumentHandler) generateMedicalCertificatePDF(c *gin.Context, c
 	data := clinical_templates.CertificateData{
 		TradeName:       tradeName,
 		DoctorName:      doctorName,
+		DoctorRegistry:  doctorRegistry,
 		Date:            certificate.CreatedAt.Format("02/01/2006"),
 		PatientName:     fullName,
 		PatientDocument: patient.Document,
@@ -498,6 +511,9 @@ func (h *MedicalDocumentHandler) SignMedicalReport(c *gin.Context) envelope.Resp
 	if report.IsSigned() {
 		return signature_services.AlreadySignedResponse()
 	}
+	if err := h.canSign(c, report.DoctorID); err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
 
 	sig, err := signDocument(c, h.db, h.signer, h.files, &clinical_models.MedicalReport{}, "report", report.ID, "Informe médico",
 		func(stamp *pdfsign.Stamp) ([]byte, error) { return h.generateMedicalReportPDF(c, &report, stamp) })
@@ -521,6 +537,9 @@ func (h *MedicalDocumentHandler) SignMedicalCertificate(c *gin.Context) envelope
 	if certificate.IsSigned() {
 		return signature_services.AlreadySignedResponse()
 	}
+	if err := h.canSign(c, certificate.DoctorID); err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
 
 	sig, err := signDocument(c, h.db, h.signer, h.files, &clinical_models.MedicalCertificate{}, "certificate", certificate.ID, "Certificado médico",
 		func(stamp *pdfsign.Stamp) ([]byte, error) {
@@ -531,6 +550,12 @@ func (h *MedicalDocumentHandler) SignMedicalCertificate(c *gin.Context) envelope
 	}
 	certificate.DocumentSignature = sig
 	return envelope.SuccessResponse(certificate, "signature.document.sign.success")
+}
+
+// canSign checks the current user is the one linked to the document's doctor.
+func (h *MedicalDocumentHandler) canSign(c *gin.Context, doctorID *uint) error {
+	uid, _, _ := auth_middleware.GetUserFromContext(c)
+	return doctor_services.CanSign(tenantdb.For(c, h.db), uint(uid), doctorID)
 }
 
 func (h *MedicalDocumentHandler) signErrorResponse(err error) envelope.Response {

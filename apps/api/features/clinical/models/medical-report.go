@@ -5,6 +5,8 @@ import (
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
+
+	doctor_models "pengi-med-saas/features/doctors/models"
 )
 
 type MedicalReportVitalSigns struct {
@@ -56,12 +58,14 @@ type MedicalReportConsultationEntry struct {
 // underlying MedicalRecord/SOAPRecord data it was seeded from.
 type MedicalReport struct {
 	gorm.Model
-	TenantID      uint           `json:"tenant_id"`
-	PatientID     uint           `json:"patient_id"`
-	Patient       *Patient       `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
-	Consultations datatypes.JSON `json:"consultations" gorm:"type:jsonb;default:'[]'"`
-	Plan          string         `json:"plan"`
-	GeneratedByID uint           `json:"generated_by_id"`
+	TenantID      uint                  `json:"tenant_id"`
+	PatientID     uint                  `json:"patient_id"`
+	Patient       *Patient              `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
+	Consultations datatypes.JSON        `json:"consultations" gorm:"type:jsonb;default:'[]'"`
+	Plan          string                `json:"plan"`
+	GeneratedByID uint                  `json:"generated_by_id"`
+	DoctorID      *uint                 `json:"doctor_id" gorm:"index"`
+	Doctor        *doctor_models.Doctor `json:"doctor,omitempty" gorm:"foreignKey:DoctorID"`
 	DocumentSignature
 }
 

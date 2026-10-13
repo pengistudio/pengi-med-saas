@@ -23,6 +23,7 @@ import {
 	type ExamOrder,
 	type ExamProfile,
 } from "@/api/exam-order-service";
+import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { ExamPicker } from "@/components/features/exam-orders/exam-picker";
 import { SelectedExamsList } from "@/components/features/exam-orders/selected-exams-list";
 import { FormIcd11Select } from "@/components/forms/form-icd11-select";
@@ -49,6 +50,7 @@ const examOrderSchema = z.object({
 		.string()
 		.max(2000, "clinical.exam_orders.form.error.too_long")
 		.optional(),
+	doctor_id: z.number().nullable().optional(),
 });
 
 export type ExamOrderFormValues = z.infer<typeof examOrderSchema>;
@@ -59,6 +61,8 @@ interface ExamOrderFormProps {
 	/** The order being edited; absent on create. */
 	order?: ExamOrder;
 	loading?: boolean;
+	/** The patient's médico de cabecera, a default for the doctor on create. */
+	patientDoctorId?: number | null;
 	onSubmit: (values: ExamOrderFormValues) => void;
 	onCancel: () => void;
 }
@@ -73,6 +77,7 @@ export default function ExamOrderForm({
 	profiles,
 	order,
 	loading,
+	patientDoctorId,
 	onSubmit,
 	onCancel,
 }: ExamOrderFormProps) {
@@ -89,6 +94,7 @@ export default function ExamOrderForm({
 				priority: order?.priority ?? "routine",
 				destination_lab: order?.destination_lab ?? "",
 				notes: order?.notes ?? "",
+				doctor_id: order?.doctor_id ?? null,
 			}}
 		>
 			{(field) => (
@@ -149,6 +155,12 @@ export default function ExamOrderForm({
 									<LockedHeader order={order} />
 								) : (
 									<>
+										<FormDoctorSelect
+											field={field}
+											name="doctor_id"
+											autoDefault={!order}
+											fallbacks={[patientDoctorId]}
+										/>
 										<FormIcd11Select
 											field={field}
 											name="diagnoses"

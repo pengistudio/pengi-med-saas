@@ -20,6 +20,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { createPatient } from "@/api/clinical-service";
+import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { birthDateFromAge } from "@/lib/patient-age";
@@ -45,7 +46,7 @@ const formSchema = z.object({
 	age: z.coerce.number().int().min(0).max(150).optional(),
 	notes: z.string().optional(),
 	insurance: z.string().optional(),
-	medic: z.string().min(1, "No debe estar vacío"),
+	doctor_id: z.number().nullable().optional(),
 	gender: z.string().optional(),
 	institution: z.string(),
 });
@@ -63,7 +64,7 @@ const CreatePatientForm = () => {
 			schema={formSchema}
 			onSubmit={onSubmit}
 			defaultValues={{
-				medic: "",
+				doctor_id: null,
 				whatsapp_opt_in: true,
 			}}
 		>
@@ -186,11 +187,12 @@ const CreatePatientForm = () => {
 								field={field}
 								options={STATIC_INSTITUTIONS}
 							/>
-							<FormInput
+							<FormDoctorSelect
 								field={field}
-								name="medic"
-								placeholder={textGet("form.edit_patient.medic.placeholder")}
-								label={textGet("form.edit_patient.medic")}
+								name="doctor_id"
+								allowNone
+								autoDefault="single"
+								label={textGet("form.patient.doctor")}
 							/>
 							<FormInput
 								field={field}
@@ -230,9 +232,10 @@ const CreatePatientForm = () => {
 				: undefined
 			: values.birth_date;
 
-		const { age: _age, ...rest } = values;
+		const { age: _age, doctor_id, ...rest } = values;
 		const payload = {
 			...rest,
+			doctor_id: doctor_id ?? undefined,
 			birth_date,
 			birth_date_estimated: byAge && birth_date !== undefined,
 		};

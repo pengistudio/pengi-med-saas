@@ -9,7 +9,16 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@pengi/ui";
-import { Ban, Check, Clock, Edit, MapPin, Trash2, User } from "lucide-react";
+import {
+	Ban,
+	Check,
+	Clock,
+	Edit,
+	MapPin,
+	Stethoscope,
+	Trash2,
+	User,
+} from "lucide-react";
 import React from "react";
 import {
 	type Appointment,
@@ -120,6 +129,19 @@ export function AppointmentDetailDialog({
 						<User className="h-4 w-4 text-muted-foreground shrink-0" />
 						<span>{patientName}</span>
 					</div>
+					{appointment.doctor && (
+						<div className="flex items-center gap-3 text-sm">
+							<Stethoscope className="h-4 w-4 text-muted-foreground shrink-0" />
+							<span className="flex items-center gap-2">
+								<span
+									aria-hidden
+									className="h-2.5 w-2.5 rounded-full"
+									style={{ backgroundColor: appointment.doctor.color }}
+								/>
+								{appointment.doctor.full_name}
+							</span>
+						</div>
+					)}
 					{appointment.location && (
 						<div className="flex items-center gap-3 text-sm">
 							<MapPin className="h-4 w-4 text-muted-foreground shrink-0" />

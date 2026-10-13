@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
 import { Button, Text, useToast } from "@pengi/ui";
-import { AlertTriangle, FlaskConical } from "lucide-react";
+import { AlertTriangle, CalendarCog, FlaskConical } from "lucide-react";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
@@ -93,6 +93,9 @@ const SettingsPage = () => {
 	const navigate = useNavigate();
 	const canManageExamCatalog = checkPermission([
 		PERMISSIONS.EXAM_ORDERS.PERMISSION_MANAGE_EXAM_CATALOG,
+	]);
+	const canManageAgenda = checkPermission([
+		PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS,
 	]);
 	const canManageWhatsApp = checkPermission([
 		PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP,
@@ -277,6 +280,26 @@ const SettingsPage = () => {
 						>
 							<FlaskConical className="mr-2 h-4 w-4" />
 							<Text uuid="clinical.exam_catalog.settings.open" />
+						</Button>
+					</div>
+				</SettingsSection>
+			)}
+
+			{canManageAgenda && (
+				<SettingsSection
+					title={<Text uuid="agenda.settings.title" />}
+					description={<Text uuid="agenda.settings.section_description" />}
+				>
+					<div className="flex flex-wrap items-center justify-between gap-4">
+						<p className="text-sm text-muted-foreground">
+							<Text uuid="agenda.settings.hint" />
+						</p>
+						<Button
+							variant="outline"
+							onClick={() => navigate("/settings/agenda")}
+						>
+							<CalendarCog className="mr-2 h-4 w-4" />
+							<Text uuid="agenda.settings.open" />
 						</Button>
 					</div>
 				</SettingsSection>

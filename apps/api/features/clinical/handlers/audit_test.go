@@ -11,6 +11,7 @@ import (
 	"pengi-med-saas/core/audit"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/testutils"
 
@@ -19,7 +20,7 @@ import (
 )
 
 func TestUpdatePatient_CreatesUpdateAuditLog(t *testing.T) {
-	rawDB := testutils.SetupTestDB(t,
+	rawDB := testutils.SetupTestDB(t, &doctor_models.Doctor{},
 		&tenant_models.Tenant{},
 		&clinical_models.Patient{},
 		&audit.AuditLog{},
@@ -76,7 +77,7 @@ func TestUpdatePatient_CreatesUpdateAuditLog(t *testing.T) {
 }
 
 func TestGetPatientByID_CreatesReadAuditLog(t *testing.T) {
-	rawDB := testutils.SetupTestDB(t,
+	rawDB := testutils.SetupTestDB(t, &doctor_models.Doctor{},
 		&tenant_models.Tenant{},
 		&clinical_models.Patient{},
 		&audit.AuditLog{},
@@ -130,7 +131,7 @@ func TestGetPatientByID_CreatesReadAuditLog(t *testing.T) {
 }
 
 func TestDeleteMultiplePatients_CreatesDeleteAuditLogPerPatient(t *testing.T) {
-	rawDB := testutils.SetupTestDB(t,
+	rawDB := testutils.SetupTestDB(t, &doctor_models.Doctor{},
 		&tenant_models.Tenant{},
 		&clinical_models.Patient{},
 		&clinical_models.Appointment{}, &clinical_models.MedicalRecord{}, // read by the remaining-list query

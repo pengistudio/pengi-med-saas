@@ -33,6 +33,7 @@ import {
 	Lock,
 	Search,
 	ShieldAlert,
+	Stethoscope,
 	UserPlus,
 	Users,
 	X,
@@ -47,14 +48,17 @@ import {
 	updateTeamMemberRole,
 } from "@/api/team-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { MemberDoctorDialog } from "@/components/features/doctors/member-doctor-dialog";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { useDoctors } from "@/store/doctors-store";
 import { useSessionStore } from "@/store/session-store";
 
 // Fixed role catalog (apps/api/features/users/data/role-data.go), in the
 // order the filters and the invite dialog list them.
 const CANONICAL_ROLES = ["admin", "doctor", "recepcionista", "contador"];
+const DOCTOR_ROLE = "doctor";
 
 // One color per role: the avatar, the role pill and the filter dot share it,
 // so the roster reads by role at a glance.
@@ -124,6 +128,7 @@ function MemberRow({
 	roles,
 	updating,
 	onRoleChange,
+	doctorAction,
 }: {
 	member: TeamMember;
 	isSelf: boolean;
@@ -131,6 +136,8 @@ function MemberRow({
 	roles: TeamRole[];
 	updating: boolean;
 	onRoleChange: (member: TeamMember, role: TeamRole) => void;
+	/** "Doctor profile" action for a doctor-role member without one. */
+	doctorAction?: React.ReactNode;
 }) {
 	const { textGet } = useText();
 	const roleLabel = useRoleLabel();
@@ -168,6 +175,7 @@ function MemberRow({
 				</p>
 			</div>
 
+			{doctorAction}
 			<div className="ml-14 shrink-0 sm:ml-0">
 				{editable ? (
 					<Select
@@ -240,6 +248,24 @@ const TeamPage = () => {
 		PERMISSIONS.TEAM.PERMISSION_MANAGE_TEAM_MEMBERS,
 	]);
 	const currentEnvironmentId = useSessionStore((s) => s.environment?.id);
+	// Doctor-role members without a doctor profile get an action to link or
+	// create one (invites are links: the account exists only once they join).
+	const canManageDoctors = checkPermission([
+		PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS,
+	]);
+	const { doctors, loaded: doctorsLoaded } = useDoctors(canManageDoctors);
+	const linkedUserIds = React.useMemo(
+		() => new Set(doctors.map((d) => d.user_id).filter(Boolean)),
+		[doctors],
+	);
+	const [doctorMember, setDoctorMember] = React.useState<TeamMember | null>(
+		null,
+	);
+	const needsDoctorProfile = (m: TeamMember) =>
+		canManageDoctors &&
+		doctorsLoaded &&
+		m.role_name.toLowerCase() === DOCTOR_ROLE &&
+		!linkedUserIds.has(m.user_id);
 
 	const [members, setMembers] = React.useState<TeamMember[]>([]);
 	const [roles, setRoles] = React.useState<TeamRole[]>([]);
@@ -484,6 +510,19 @@ const TeamPage = () => {
 										roles={roles}
 										updating={updatingEnvironmentId === member.environment_id}
 										onRoleChange={handleRoleChange}
+										doctorAction={
+											needsDoctorProfile(member) && (
+												<Button
+													size="sm"
+													variant="outline"
+													className="ml-14 h-7 gap-1.5 rounded-full px-3 text-xs sm:ml-0"
+													onClick={() => setDoctorMember(member)}
+												>
+													<Stethoscope className="size-3" />
+													{textGet("doctors.member.action")}
+												</Button>
+											)
+										}
 									/>
 								))}
 							</ul>
@@ -570,6 +609,11 @@ const TeamPage = () => {
 				</DialogContent>
 			</Dialog>
 
+			<MemberDoctorDialog
+				member={doctorMember}
+				onOpenChange={(open) => !open && setDoctorMember(null)}
+			/>
+
 			{/* Step 2: share the link */}
 			<Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
 				<DialogContent className="max-w-md">
@@ -588,6 +632,12 @@ const TeamPage = () => {
 								</span>
 							)}
 							{textGet("team.invite_dialog.description")}
+							{canManageDoctors &&
+								selectedRole?.role.toLowerCase() === DOCTOR_ROLE && (
+									<span className="mt-2 block">
+										{textGet("doctors.member.invite_hint")}
+									</span>
+								)}
 						</DialogDescription>
 					</DialogHeader>
 

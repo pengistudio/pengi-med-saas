@@ -78,6 +78,7 @@ func mustPreviewStamp(name string) *pdfsign.Stamp {
 func samplePrescription(signature *pdfsign.Stamp) PrescriptionData {
 	return PrescriptionData{
 		DoctorName:      "María Fernanda Andrade López",
+		DoctorRegistry:  "1005-2019-2104567",
 		Date:            "15/09/2026",
 		PatientName:     "Juan Carlos Pérez Mora",
 		PatientDocument: "1712345678",
@@ -99,6 +100,7 @@ func sampleReport(signature *pdfsign.Stamp) ReportData {
 	return ReportData{
 		TradeName:       "Consultorio Médico Andrade",
 		DoctorName:      "María Fernanda Andrade López",
+		DoctorRegistry:  "1005-2019-2104567",
 		Date:            "15/09/2026 10:30",
 		PatientName:     "Juan Carlos Pérez Mora",
 		PatientDocument: "1712345678",
@@ -160,6 +162,7 @@ func sampleCertificate(signature *pdfsign.Stamp) CertificateData {
 	return CertificateData{
 		TradeName:       "Consultorio Médico Andrade",
 		DoctorName:      "María Fernanda Andrade López",
+		DoctorRegistry:  "1005-2019-2104567",
 		Date:            "15/09/2026",
 		PatientName:     "Juan Carlos Pérez Mora",
 		PatientDocument: "1712345678",
@@ -176,6 +179,7 @@ func sampleExamOrder(signature *pdfsign.Stamp) ExamOrderData {
 	return ExamOrderData{
 		TradeName:       "Consultorio Médico Andrade",
 		DoctorName:      "María Fernanda Andrade López",
+		DoctorRegistry:  "1005-2019-2104567",
 		Date:            "15/09/2026",
 		Code:            "ORD-000123",
 		PatientName:     "Juan Carlos Pérez Mora",

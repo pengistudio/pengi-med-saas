@@ -39,6 +39,7 @@ type CreateMedicalRecordDTO struct {
 	Observation           *string                       `json:"observation"`
 	PatientID             uint                          `json:"patient_id" binding:"required"`
 	AppointmentID         *uint                         `json:"appointment_id,omitempty"`
+	DoctorID              *uint                         `json:"doctor_id,omitempty"` // who attends; defaults per doctor_services.Resolve
 	NextAppointmentDate   *CustomDateTime               `json:"next_appointment_date,omitempty"`
 	NextAppointmentStatus *string                       `json:"next_appointment_status,omitempty" binding:"omitempty,oneof=scheduled pending not_required"`
 	SOAPRecord            clinical_models.SOAPRecord    `json:"soap_record"`
@@ -57,6 +58,7 @@ type UpdateMedicalRecordDTO struct {
 	Motive                *string                       `json:"motive,omitempty"`
 	Observation           *string                       `json:"observation,omitempty"`
 	AppointmentID         *uint                         `json:"appointment_id,omitempty"`
+	DoctorID              *uint                         `json:"doctor_id,omitempty"` // who attends; defaults per doctor_services.Resolve
 	NextAppointmentDate   *CustomDateTime               `json:"next_appointment_date,omitempty"`
 	NextAppointmentStatus *string                       `json:"next_appointment_status,omitempty" binding:"omitempty,oneof=scheduled pending not_required"`
 	SOAPRecord            *clinical_models.SOAPRecord   `json:"soap_record,omitempty"`

@@ -10,6 +10,7 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_services "pengi-med-saas/features/doctors/services"
 	"strconv"
 	"time"
 
@@ -47,6 +48,14 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 		}
 	}
 
+	// Médico de cabecera: optional, auto-assigned when the clinic has one doctor.
+	doctorID, err := doctor_services.Resolve(c, tenantdb.For(c, h.db), doctor_services.Choice{
+		Requested: newPatient.DoctorID, Policy: doctor_services.Optional,
+	})
+	if err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
+
 	birthDate := time.Time{}
 	if newPatient.BirthDate != nil {
 		birthDate = *newPatient.BirthDate
@@ -68,6 +77,7 @@ func (h *PatientHandler) CreatePatient(c *gin.Context) envelope.Response {
 		Notes:       newPatient.Notes,
 		Insurance:   newPatient.Insurance,
 		Medic:       newPatient.Medic,
+		DoctorID:    doctorID,
 	}
 
 	patient.TenantID = tid
@@ -160,6 +170,16 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) envelope.Response {
 	}
 	if updateData.Medic != nil {
 		updates["medic"] = *updateData.Medic
+	}
+	if updateData.DoctorID != nil {
+		if *updateData.DoctorID == 0 {
+			updates["doctor_id"] = nil // 0 clears the cabecera
+		} else {
+			if err := doctor_services.ValidateChange(tenantdb.For(c, h.db), *updateData.DoctorID, patient.DoctorID); err != nil {
+				return doctorErrorResponse(h.logger, err)
+			}
+			updates["doctor_id"] = *updateData.DoctorID
+		}
 	}
 
 	if err := tenantdb.For(c, h.db).Model(&patient).Updates(updates).Error; err != nil {

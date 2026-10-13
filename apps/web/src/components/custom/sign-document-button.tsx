@@ -13,13 +13,14 @@ import {
 	Button,
 	Text,
 } from "@pengi/ui";
-import { Loader2, PenLine, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Loader2, PenLine, ShieldCheck } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import type { DocumentSignature } from "@/api/signature-service";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { useDoctorStatus } from "@/store/doctors-store";
 import { useMySignature } from "@/store/signature-store";
 
 interface SignDocumentButtonProps {
@@ -52,6 +53,11 @@ export function SignDocumentButton({
 	]);
 	const isSigned = Boolean(signature?.signed_at);
 	const mySignature = useMySignature(canSign && !isSigned);
+	// Only the doctor's own user signs, so the signer's profile is the
+	// document's doctor: warn (don't block) when it has no registry number.
+	const doctorStatus = useDoctorStatus(canSign && !isSigned);
+	const missingRegistry =
+		!!doctorStatus?.doctor && !doctorStatus.doctor.professional_registry;
 	const [signing, setSigning] = React.useState(false);
 
 	if (isSigned) {
@@ -142,6 +148,12 @@ export function SignDocumentButton({
 							<Text uuid="signature.holder" />:
 						</span>{" "}
 						<span className="font-medium">{mySignature.subject_name}</span>
+					</p>
+				)}
+				{missingRegistry && (
+					<p className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2 text-sm text-amber-800 dark:text-amber-300">
+						<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+						<Text uuid="doctors.sign.missing_registry" type="span" />
 					</p>
 				)}
 				<AlertDialogFooter>

@@ -6,8 +6,10 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	google_calendar "pengi-med-saas/core/google"
 	"pengi-med-saas/core/tenantdb"
+	agenda_services "pengi-med-saas/features/agenda/services"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	doctor_services "pengi-med-saas/features/doctors/services"
 	integration_models "pengi-med-saas/features/integrations/models"
 	"strconv"
 	"time"
@@ -42,7 +44,7 @@ func (h *AppointmentHandler) syncCreate(tenantID uint, appointment *clinical_mod
 		return
 	}
 	patientName := appointment.Patient.FirstName + " " + appointment.Patient.LastName
-	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.ColorID, appointment.Date, appointment.StartTime, appointment.EndTime)
+	event := google_calendar.BuildEvent(h.calendarTitle(tenantID, appointment), appointment.Location, appointment.Notes, patientName, appointment.ColorID, appointment.Date, appointment.StartTime, appointment.EndTime)
 	eventID, err := h.googleSvc.CreateEvent(token, calendarID, event)
 	if err != nil {
 		h.logger.Warn("Google Calendar: failed to create event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
@@ -50,6 +52,34 @@ func (h *AppointmentHandler) syncCreate(tenantID uint, appointment *clinical_mod
 	}
 	tenantdb.ForTenant(h.db, tenantID).Model(appointment).Update("google_event_id", eventID)
 	h.logger.Info("Google Calendar: event created", zap.String("event_id", eventID), zap.Uint("appointment_id", appointment.ID))
+}
+
+// calendarTitle is the Google Calendar event title: the appointment title,
+// plus the doctor's name when the appointment has one (one calendar per tenant).
+func (h *AppointmentHandler) calendarTitle(tenantID uint, appointment *clinical_models.Appointment) string {
+	if appointment.DoctorID == nil {
+		return appointment.Title
+	}
+	doctor := appointment.Doctor
+	if doctor == nil {
+		doctor = doctor_services.First(tenantdb.ForTenant(h.db, tenantID), appointment.DoctorID)
+	}
+	if doctor == nil || doctor.FullName == "" {
+		return appointment.Title
+	}
+	return appointment.Title + " · " + doctor.FullName
+}
+
+// overlapQuery counts the appointments that overlap [start, end) on date,
+// for the same doctor when the appointment has one (several doctors attend
+// at once), else across the tenant as before doctors existed.
+func overlapQuery(db *gorm.DB, doctorID *uint, date time.Time, start, end string) *gorm.DB {
+	q := db.Model(&clinical_models.Appointment{}).
+		Where("DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ?", date, end, start)
+	if doctorID != nil {
+		q = q.Where("doctor_id = ?", *doctorID)
+	}
+	return q
 }
 
 // syncUpdate updates the Google Calendar event for the appointment.
@@ -62,7 +92,7 @@ func (h *AppointmentHandler) syncUpdate(tenantID uint, appointment *clinical_mod
 		return
 	}
 	patientName := appointment.Patient.FirstName + " " + appointment.Patient.LastName
-	event := google_calendar.BuildEvent(appointment.Title, appointment.Location, appointment.Notes, patientName, appointment.ColorID, appointment.Date, appointment.StartTime, appointment.EndTime)
+	event := google_calendar.BuildEvent(h.calendarTitle(tenantID, appointment), appointment.Location, appointment.Notes, patientName, appointment.ColorID, appointment.Date, appointment.StartTime, appointment.EndTime)
 	if err := h.googleSvc.UpdateEvent(token, calendarID, appointment.GoogleEventID, event); err != nil {
 		h.logger.Warn("Google Calendar: failed to update event", zap.Error(err), zap.Uint("appointment_id", appointment.ID))
 	}
@@ -123,7 +153,7 @@ func (h *AppointmentHandler) getValidToken(tenantID uint) (accessToken, calendar
 
 // GetAppointments returns all appointments for the tenant, optionally filtered by date range
 func (h *AppointmentHandler) GetAppointments(c *gin.Context) envelope.Response {
-	query := tenantdb.For(c, h.db).Preload("Patient")
+	query := tenantdb.For(c, h.db).Preload("Patient").Preload("Doctor")
 
 	// Optional date range filter
 	start := c.Query("start")
@@ -147,7 +177,7 @@ func (h *AppointmentHandler) GetTodayAppointments(c *gin.Context) envelope.Respo
 
 	var appointments []clinical_models.Appointment
 	if err := tenantdb.For(c, h.db).Where("DATE(date) = ?", today).
-		Preload("Patient").
+		Preload("Patient").Preload("Doctor").
 		// Only whether triage took the vital signs (the card shows a check): the
 		// measurements need RECORD_VITAL_SIGNS or READ_MEDICAL_RECORD, not just
 		// READ_APPOINTMENT.
@@ -213,31 +243,47 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 	if !h.patientInTenant(c, dto.PatientID) {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
+	doctorID, err := doctor_services.Resolve(c, tenantdb.For(c, h.db), doctor_services.Choice{
+		Requested: dto.DoctorID,
+		Fallbacks: []*uint{patientDoctorID(tenantdb.For(c, h.db), dto.PatientID)},
+		Policy:    doctor_services.RequiredWhenAny,
+	})
+	if err != nil {
+		return doctorErrorResponse(h.logger, err)
+	}
+	typeID := dto.AppointmentTypeID
+	if typeID != nil && *typeID == 0 {
+		typeID = nil
+	}
+	if typeID != nil {
+		if err := agenda_services.ValidateAppointmentType(tenantdb.For(c, h.db), *typeID, doctorID, nil); err != nil {
+			return appointmentTypeErrorResponse(h.logger, err)
+		}
+	}
 
 	tenantID, exists := c.Get("tenant_id")
 
-	// Check for overlapping appointments on the same date and tenant
+	// Check for overlapping appointments on the same date (and doctor)
 	if exists {
 		var count int64
-		tenantdb.For(c, h.db).Model(&clinical_models.Appointment{}).
-			Where("DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ?",
-				dto.Date, dto.EndTime, dto.StartTime).
-			Count(&count)
+		overlapQuery(tenantdb.For(c, h.db), doctorID, dto.Date, dto.StartTime, dto.EndTime).Count(&count)
 		if count > 0 {
 			return envelope.ErrorResponse(http.StatusConflict, "appointments.overlap.error", core_errors.ErrClinicalAppointmentOverlap)
 		}
 	}
 
 	appointment := &clinical_models.Appointment{
-		PatientID: dto.PatientID,
-		Title:     dto.Title,
-		Date:      dto.Date,
-		StartTime: dto.StartTime,
-		EndTime:   dto.EndTime,
-		Location:  dto.Location,
-		Notes:     dto.Notes,
-		ColorID:   dto.ColorID,
-		Status:    "scheduled",
+		PatientID:         dto.PatientID,
+		Title:             dto.Title,
+		Date:              dto.Date,
+		StartTime:         dto.StartTime,
+		EndTime:           dto.EndTime,
+		Location:          dto.Location,
+		Notes:             dto.Notes,
+		ColorID:           dto.ColorID,
+		Status:            "scheduled",
+		DoctorID:          doctorID,
+		AppointmentTypeID: typeID,
 	}
 
 	if exists {
@@ -249,8 +295,8 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	// Reload with patient
-	tenantdb.For(c, h.db).Preload("Patient").First(appointment, appointment.ID)
+	// Reload with patient and doctor
+	tenantdb.For(c, h.db).Preload("Patient").Preload("Doctor").First(appointment, appointment.ID)
 
 	// Sync to Google Calendar (non-blocking, errors are logged)
 	if exists {
@@ -308,6 +354,31 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 	if dto.ColorID != nil {
 		updates["color_id"] = *dto.ColorID
 	}
+	newDoctorID := appointment.DoctorID
+	if dto.DoctorID != nil {
+		if err := doctor_services.ValidateChange(tenantdb.For(c, h.db), *dto.DoctorID, appointment.DoctorID); err != nil {
+			return doctorErrorResponse(h.logger, err)
+		}
+		updates["doctor_id"] = *dto.DoctorID
+		newDoctorID = dto.DoctorID
+	}
+	// The type is checked when it or the doctor changes: active (unless kept)
+	// and attended by the appointment's doctor.
+	newTypeID := appointment.AppointmentTypeID
+	if dto.AppointmentTypeID != nil {
+		if *dto.AppointmentTypeID == 0 {
+			updates["appointment_type_id"] = nil
+			newTypeID = nil
+		} else {
+			updates["appointment_type_id"] = *dto.AppointmentTypeID
+			newTypeID = dto.AppointmentTypeID
+		}
+	}
+	if newTypeID != nil && (dto.AppointmentTypeID != nil || dto.DoctorID != nil) {
+		if err := agenda_services.ValidateAppointmentType(tenantdb.For(c, h.db), *newTypeID, newDoctorID, appointment.AppointmentTypeID); err != nil {
+			return appointmentTypeErrorResponse(h.logger, err)
+		}
+	}
 
 	// Check for overlap only when time or date fields are being changed
 	newDate := appointment.Date
@@ -325,10 +396,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 
 	tenantID, _ := c.Get("tenant_id")
 	var count int64
-	tenantdb.For(c, h.db).Model(&clinical_models.Appointment{}).
-		Where("DATE(date) = DATE(?) AND status != 'cancelled' AND start_time < ? AND end_time > ? AND id != ?",
-			newDate, newEnd, newStart, id).
-		Count(&count)
+	overlapQuery(tenantdb.For(c, h.db), newDoctorID, newDate, newStart, newEnd).Where("id != ?", id).Count(&count)
 	if count > 0 {
 		return envelope.ErrorResponse(http.StatusConflict, "appointments.overlap.error", core_errors.ErrClinicalAppointmentOverlap)
 	}
@@ -338,7 +406,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
 	}
 
-	tenantdb.For(c, h.db).Preload("Patient").First(&appointment, id)
+	tenantdb.For(c, h.db).Preload("Patient").Preload("Doctor").First(&appointment, id)
 
 	// Sync to Google Calendar (non-blocking, errors are logged)
 	go h.syncUpdate(tenantID.(uint), &appointment)

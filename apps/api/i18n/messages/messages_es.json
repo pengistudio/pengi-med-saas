@@ -2220,6 +2220,14 @@
         "value": "Mi Perfil"
     },
     {
+        "key": "profile.section.account",
+        "value": "Cuenta"
+    },
+    {
+        "key": "profile.section.doctor",
+        "value": "Perfil médico"
+    },
+    {
         "key": "profile.user_info",
         "value": "Información de Usuario"
     },
@@ -9522,5 +9530,1189 @@
     {
         "key": "backoffice.plans.limits.max_whatsapp_messages.desc",
         "value": "Plantillas enviadas por mes (recordatorios, pruebas y mensajes iniciados desde la bandeja). Pengi paga cada una."
+    },
+    {
+        "key": "doctors.list.success",
+        "value": "Médicos obtenidos correctamente."
+    },
+    {
+        "key": "doctors.get.success",
+        "value": "Médico obtenido correctamente."
+    },
+    {
+        "key": "doctors.create.success",
+        "value": "Médico registrado correctamente."
+    },
+    {
+        "key": "doctors.update.success",
+        "value": "Médico actualizado correctamente."
+    },
+    {
+        "key": "doctors.link.success",
+        "value": "Cuenta del médico actualizada."
+    },
+    {
+        "key": "doctors.activate.success",
+        "value": "Médico activado."
+    },
+    {
+        "key": "doctors.deactivate.success",
+        "value": "Médico desactivado."
+    },
+    {
+        "key": "doctors.delete.success",
+        "value": "Médico eliminado."
+    },
+    {
+        "key": "doctors.review.success",
+        "value": "Datos de los médicos revisados."
+    },
+    {
+        "key": "doctors.specialties.success",
+        "value": "Especialidades obtenidas correctamente."
+    },
+    {
+        "key": "doctors.status.success",
+        "value": "Estado de médicos obtenido correctamente."
+    },
+    {
+        "key": "doctors.me.fetch.success",
+        "value": "Perfil de médico obtenido correctamente."
+    },
+    {
+        "key": "doctors.me.create.success",
+        "value": "Tu perfil de médico fue creado."
+    },
+    {
+        "key": "doctors.me.update.success",
+        "value": "Tu perfil de médico fue actualizado."
+    },
+    {
+        "key": "doctors.error.not_found",
+        "value": "Médico no encontrado."
+    },
+    {
+        "key": "doctors.error.invalid_request",
+        "value": "Datos del médico inválidos."
+    },
+    {
+        "key": "doctors.error.invalid_specialty",
+        "value": "Especialidad inválida."
+    },
+    {
+        "key": "doctors.error.specialty_other_required",
+        "value": "Escribe el nombre de la especialidad."
+    },
+    {
+        "key": "doctors.error.invalid_color",
+        "value": "Color inválido."
+    },
+    {
+        "key": "doctors.error.user_not_in_tenant",
+        "value": "El usuario no pertenece a esta clínica."
+    },
+    {
+        "key": "doctors.error.user_already_linked",
+        "value": "Este usuario ya está vinculado a otro médico."
+    },
+    {
+        "key": "doctors.error.in_use",
+        "value": "El médico tiene registros asociados; desactívalo en lugar de eliminarlo."
+    },
+    {
+        "key": "doctors.error.profile_not_found",
+        "value": "No tienes un perfil de médico."
+    },
+    {
+        "key": "doctors.error.profile_exists",
+        "value": "Ya tienes un perfil de médico."
+    },
+    {
+        "key": "E-DR-001",
+        "value": "Médico no encontrado."
+    },
+    {
+        "key": "E-DR-002",
+        "value": "Datos del médico inválidos."
+    },
+    {
+        "key": "E-DR-003",
+        "value": "Especialidad inválida."
+    },
+    {
+        "key": "E-DR-004",
+        "value": "Color inválido."
+    },
+    {
+        "key": "E-DR-005",
+        "value": "El usuario no pertenece a esta clínica."
+    },
+    {
+        "key": "E-DR-006",
+        "value": "Este usuario ya está vinculado a otro médico."
+    },
+    {
+        "key": "E-DR-007",
+        "value": "El médico tiene registros asociados; desactívalo en lugar de eliminarlo."
+    },
+    {
+        "key": "E-DR-008",
+        "value": "No tienes un perfil de médico."
+    },
+    {
+        "key": "E-DR-009",
+        "value": "Ya tienes un perfil de médico."
+    },
+    {
+        "key": "doctors.specialty.general_medicine",
+        "value": "Medicina general"
+    },
+    {
+        "key": "doctors.specialty.family_medicine",
+        "value": "Medicina familiar"
+    },
+    {
+        "key": "doctors.specialty.internal_medicine",
+        "value": "Medicina interna"
+    },
+    {
+        "key": "doctors.specialty.pediatrics",
+        "value": "Pediatría"
+    },
+    {
+        "key": "doctors.specialty.gynecology_obstetrics",
+        "value": "Ginecología y obstetricia"
+    },
+    {
+        "key": "doctors.specialty.cardiology",
+        "value": "Cardiología"
+    },
+    {
+        "key": "doctors.specialty.dermatology",
+        "value": "Dermatología"
+    },
+    {
+        "key": "doctors.specialty.endocrinology",
+        "value": "Endocrinología"
+    },
+    {
+        "key": "doctors.specialty.gastroenterology",
+        "value": "Gastroenterología"
+    },
+    {
+        "key": "doctors.specialty.neurology",
+        "value": "Neurología"
+    },
+    {
+        "key": "doctors.specialty.ophthalmology",
+        "value": "Oftalmología"
+    },
+    {
+        "key": "doctors.specialty.otorhinolaryngology",
+        "value": "Otorrinolaringología"
+    },
+    {
+        "key": "doctors.specialty.orthopedics_traumatology",
+        "value": "Traumatología y ortopedia"
+    },
+    {
+        "key": "doctors.specialty.psychiatry",
+        "value": "Psiquiatría"
+    },
+    {
+        "key": "doctors.specialty.psychology",
+        "value": "Psicología"
+    },
+    {
+        "key": "doctors.specialty.urology",
+        "value": "Urología"
+    },
+    {
+        "key": "doctors.specialty.pulmonology",
+        "value": "Neumología"
+    },
+    {
+        "key": "doctors.specialty.nutrition",
+        "value": "Nutrición"
+    },
+    {
+        "key": "doctors.specialty.physiotherapy",
+        "value": "Fisioterapia"
+    },
+    {
+        "key": "doctors.specialty.dentistry",
+        "value": "Odontología"
+    },
+    {
+        "key": "doctors.specialty.general_surgery",
+        "value": "Cirugía general"
+    },
+    {
+        "key": "doctors.specialty.oncology",
+        "value": "Oncología"
+    },
+    {
+        "key": "doctors.specialty.hematology",
+        "value": "Hematología"
+    },
+    {
+        "key": "doctors.specialty.rheumatology",
+        "value": "Reumatología"
+    },
+    {
+        "key": "doctors.specialty.nephrology",
+        "value": "Nefrología"
+    },
+    {
+        "key": "doctors.specialty.infectious_diseases",
+        "value": "Infectología"
+    },
+    {
+        "key": "doctors.specialty.geriatrics",
+        "value": "Geriatría"
+    },
+    {
+        "key": "doctors.specialty.anesthesiology",
+        "value": "Anestesiología"
+    },
+    {
+        "key": "doctors.specialty.radiology",
+        "value": "Radiología e imagen"
+    },
+    {
+        "key": "doctors.specialty.emergency_medicine",
+        "value": "Medicina de emergencias"
+    },
+    {
+        "key": "doctors.specialty.occupational_medicine",
+        "value": "Medicina ocupacional"
+    },
+    {
+        "key": "doctors.specialty.sports_medicine",
+        "value": "Medicina deportiva"
+    },
+    {
+        "key": "doctors.specialty.neurosurgery",
+        "value": "Neurocirugía"
+    },
+    {
+        "key": "doctors.specialty.plastic_surgery",
+        "value": "Cirugía plástica"
+    },
+    {
+        "key": "doctors.specialty.vascular_surgery",
+        "value": "Cirugía vascular"
+    },
+    {
+        "key": "doctors.specialty.pediatric_surgery",
+        "value": "Cirugía pediátrica"
+    },
+    {
+        "key": "doctors.specialty.other",
+        "value": "Otra"
+    },
+    {
+        "key": "doctors.error.register_first",
+        "value": "Registra un médico antes de crear historias clínicas o documentos."
+    },
+    {
+        "key": "doctors.error.selection_required",
+        "value": "Selecciona el médico."
+    },
+    {
+        "key": "doctors.error.not_available",
+        "value": "El médico no existe o está inactivo."
+    },
+    {
+        "key": "doctors.error.sign_not_owner",
+        "value": "Solo el médico del documento puede firmarlo."
+    },
+    {
+        "key": "doctors.error.sign_no_account",
+        "value": "El médico del documento no tiene cuenta de usuario; imprímelo y fírmalo a mano."
+    },
+    {
+        "key": "E-DR-010",
+        "value": "Registra un médico antes de crear historias clínicas o documentos."
+    },
+    {
+        "key": "E-DR-011",
+        "value": "Selecciona el médico."
+    },
+    {
+        "key": "E-DR-012",
+        "value": "El médico no existe o está inactivo."
+    },
+    {
+        "key": "E-DR-013",
+        "value": "Solo el médico del documento puede firmarlo."
+    },
+    {
+        "key": "E-DR-014",
+        "value": "El médico del documento no tiene cuenta de usuario; imprímelo y fírmalo a mano."
+    },
+    {
+        "key": "appointments.filter.all_doctors",
+        "value": "Todos los médicos"
+    },
+    {
+        "key": "appointments.filter.doctor",
+        "value": "Filtrar por médico"
+    },
+    {
+        "key": "appointments.filter.mine",
+        "value": "Mis citas"
+    },
+    {
+        "key": "doctors.title",
+        "value": "Médicos"
+    },
+    {
+        "key": "doctors.page.description",
+        "value": "Profesionales que atienden pacientes en la clínica: aparecen en la agenda, las historias y los documentos."
+    },
+    {
+        "key": "doctors.create.button",
+        "value": "Nuevo médico"
+    },
+    {
+        "key": "doctors.search.placeholder",
+        "value": "Buscar por nombre…"
+    },
+    {
+        "key": "doctors.empty",
+        "value": "Aún no hay médicos registrados."
+    },
+    {
+        "key": "doctors.column.name",
+        "value": "Nombre"
+    },
+    {
+        "key": "doctors.column.specialty",
+        "value": "Especialidad"
+    },
+    {
+        "key": "doctors.column.registry",
+        "value": "Registro profesional"
+    },
+    {
+        "key": "doctors.column.user",
+        "value": "Usuario vinculado"
+    },
+    {
+        "key": "doctors.column.status",
+        "value": "Estado"
+    },
+    {
+        "key": "doctors.status.active",
+        "value": "Activo"
+    },
+    {
+        "key": "doctors.status.inactive",
+        "value": "Inactivo"
+    },
+    {
+        "key": "doctors.badge.needs_review",
+        "value": "Revisar"
+    },
+    {
+        "key": "doctors.user.none",
+        "value": "Sin cuenta"
+    },
+    {
+        "key": "doctors.user.linked",
+        "value": "Vinculado"
+    },
+    {
+        "key": "doctors.action.edit",
+        "value": "Editar"
+    },
+    {
+        "key": "doctors.action.link",
+        "value": "Vincular usuario"
+    },
+    {
+        "key": "doctors.action.activate",
+        "value": "Activar"
+    },
+    {
+        "key": "doctors.action.deactivate",
+        "value": "Desactivar"
+    },
+    {
+        "key": "doctors.action.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "doctors.delete.description",
+        "value": "Se eliminará a {name}. Solo es posible si no tiene citas, historias ni documentos asociados."
+    },
+    {
+        "key": "doctors.in_use.title",
+        "value": "No se puede eliminar"
+    },
+    {
+        "key": "doctors.in_use.description",
+        "value": "{name} tiene registros asociados. Puedes desactivarlo: dejará de aparecer en los selectores, pero se conserva en su historial."
+    },
+    {
+        "key": "doctors.review.mark",
+        "value": "Marcar como revisados"
+    },
+    {
+        "key": "doctors.link.title",
+        "value": "Vincular usuario"
+    },
+    {
+        "key": "doctors.link.description",
+        "value": "Elige la cuenta del equipo de {name}. Solo el usuario vinculado puede firmar sus documentos."
+    },
+    {
+        "key": "doctors.form.create.title",
+        "value": "Nuevo médico"
+    },
+    {
+        "key": "doctors.form.edit.title",
+        "value": "Editar médico"
+    },
+    {
+        "key": "doctors.form.description",
+        "value": "Datos profesionales que se imprimen en recetas, certificados e informes."
+    },
+    {
+        "key": "doctors.form.full_name",
+        "value": "Nombre completo"
+    },
+    {
+        "key": "doctors.form.full_name.placeholder",
+        "value": "Ej. Dra. Ana Pérez"
+    },
+    {
+        "key": "doctors.form.specialty",
+        "value": "Especialidad"
+    },
+    {
+        "key": "doctors.form.specialty.placeholder",
+        "value": "Selecciona la especialidad"
+    },
+    {
+        "key": "doctors.form.specialty_other",
+        "value": "Nombre de la especialidad"
+    },
+    {
+        "key": "doctors.form.specialty_other.placeholder",
+        "value": "Ej. Medicina deportiva"
+    },
+    {
+        "key": "doctors.form.professional_registry",
+        "value": "Registro profesional"
+    },
+    {
+        "key": "doctors.form.professional_registry.placeholder",
+        "value": "Registro Senescyt / MSP"
+    },
+    {
+        "key": "doctors.form.professional_registry.description",
+        "value": "Se imprime junto a la firma en los documentos."
+    },
+    {
+        "key": "doctors.form.id_number",
+        "value": "Cédula"
+    },
+    {
+        "key": "doctors.form.phone",
+        "value": "Teléfono"
+    },
+    {
+        "key": "doctors.form.email",
+        "value": "Correo electrónico"
+    },
+    {
+        "key": "doctors.form.user",
+        "value": "Usuario del equipo"
+    },
+    {
+        "key": "doctors.form.user.description",
+        "value": "Vincúlalo si el médico usa el sistema: así podrá firmar sus documentos y ver sus citas."
+    },
+    {
+        "key": "doctors.form.user.none",
+        "value": "Sin cuenta vinculada"
+    },
+    {
+        "key": "doctors.form.color",
+        "value": "Color en la agenda"
+    },
+    {
+        "key": "doctors.form.color.custom",
+        "value": "Otro color"
+    },
+    {
+        "key": "doctors.form.color.auto",
+        "value": "Si no eliges uno, se asigna automáticamente."
+    },
+    {
+        "key": "doctors.form.save",
+        "value": "Guardar"
+    },
+    {
+        "key": "doctors.form.error.required",
+        "value": "Campo requerido"
+    },
+    {
+        "key": "doctors.form.error.email",
+        "value": "Correo electrónico no válido"
+    },
+    {
+        "key": "doctors.form.error.specialty_other",
+        "value": "Escribe el nombre de la especialidad"
+    },
+    {
+        "key": "doctors.my_profile.title",
+        "value": "Mi perfil médico"
+    },
+    {
+        "key": "doctors.my_profile.description",
+        "value": "Tus datos profesionales: se imprimen en los documentos que emites."
+    },
+    {
+        "key": "doctors.my_profile.empty",
+        "value": "Si atiendes pacientes, crea tu perfil médico para aparecer en la agenda y firmar tus documentos."
+    },
+    {
+        "key": "doctors.my_profile.create",
+        "value": "Crear mi perfil médico"
+    },
+    {
+        "key": "doctors.notice.register.title",
+        "value": "Registra al menos un médico."
+    },
+    {
+        "key": "doctors.notice.register.description",
+        "value": "Las historias clínicas y los documentos necesitan un médico responsable."
+    },
+    {
+        "key": "doctors.notice.register.ask_admin",
+        "value": "Pide a un administrador que registre a los médicos de la clínica."
+    },
+    {
+        "key": "doctors.notice.register.cta",
+        "value": "Ir a Médicos"
+    },
+    {
+        "key": "doctors.notice.review.description",
+        "value": "Creamos los perfiles de tus médicos a partir de los usuarios existentes. Revisa sus datos (nombre, especialidad y registro)."
+    },
+    {
+        "key": "doctors.notice.review.cta",
+        "value": "Revisar médicos"
+    },
+    {
+        "key": "doctors.notice.review.dismiss",
+        "value": "Ya los revisé"
+    },
+    {
+        "key": "doctors.onboarding.title",
+        "value": "¿Tú atiendes pacientes?"
+    },
+    {
+        "key": "doctors.onboarding.description",
+        "value": "Si atiendes pacientes, crea tu perfil médico: aparecerás en la agenda y tus recetas y certificados llevarán tu nombre y registro."
+    },
+    {
+        "key": "doctors.onboarding.form.description",
+        "value": "Completa tus datos profesionales. Podrás editarlos luego en tu perfil."
+    },
+    {
+        "key": "doctors.onboarding.yes",
+        "value": "Sí, atiendo pacientes"
+    },
+    {
+        "key": "doctors.onboarding.no",
+        "value": "No"
+    },
+    {
+        "key": "doctors.onboarding.back",
+        "value": "Atrás"
+    },
+    {
+        "key": "doctors.onboarding.create",
+        "value": "Crear mi perfil"
+    },
+    {
+        "key": "doctors.select.label",
+        "value": "Médico"
+    },
+    {
+        "key": "doctors.select.placeholder",
+        "value": "Selecciona el médico"
+    },
+    {
+        "key": "doctors.select.none",
+        "value": "Sin asignar"
+    },
+    {
+        "key": "doctors.sign.missing_registry",
+        "value": "Tu perfil médico no tiene registro profesional: el documento se firmará sin él. Puedes agregarlo en tu perfil."
+    },
+    {
+        "key": "form.patient.doctor",
+        "value": "Médico de cabecera"
+    },
+    {
+        "key": "form.patient.doctor.legacy",
+        "value": "Registrado antes como: {name}"
+    },
+    {
+        "key": "doctors.in_use.description_inactive",
+        "value": "{name} tiene registros asociados, por eso no se puede eliminar. Ya está inactivo: no aparece en los selectores."
+    },
+    {
+        "key": "doctors.member.action",
+        "value": "Ficha médica"
+    },
+    {
+        "key": "doctors.member.title",
+        "value": "Ficha médica"
+    },
+    {
+        "key": "doctors.member.description",
+        "value": "{name} tiene el rol de médico pero aún no tiene ficha médica. Vincúlalo a una existente o crea una nueva para que aparezca en la agenda y pueda firmar."
+    },
+    {
+        "key": "doctors.member.mode.link",
+        "value": "Vincular a ficha existente"
+    },
+    {
+        "key": "doctors.member.mode.create",
+        "value": "Crear ficha nueva"
+    },
+    {
+        "key": "doctors.member.mode.none",
+        "value": "No crear ficha"
+    },
+    {
+        "key": "doctors.member.existing",
+        "value": "Ficha sin cuenta"
+    },
+    {
+        "key": "doctors.member.link",
+        "value": "Vincular"
+    },
+    {
+        "key": "doctors.member.create",
+        "value": "Crear ficha"
+    },
+    {
+        "key": "doctors.member.invite_hint",
+        "value": "Cuando acepte la invitación, podrás vincularlo a una ficha médica existente o crear una nueva desde esta página (botón «Ficha médica»)."
+    },
+    {
+        "key": "agenda.schedule.fetch.success",
+        "value": "Horario obtenido"
+    },
+    {
+        "key": "agenda.schedule.update.success",
+        "value": "Horario guardado"
+    },
+    {
+        "key": "agenda.blocks.list.success",
+        "value": "Bloqueos obtenidos"
+    },
+    {
+        "key": "agenda.blocks.create.success",
+        "value": "Bloqueo creado"
+    },
+    {
+        "key": "agenda.blocks.update.success",
+        "value": "Bloqueo actualizado"
+    },
+    {
+        "key": "agenda.blocks.delete.success",
+        "value": "Bloqueo eliminado"
+    },
+    {
+        "key": "agenda.types.list.success",
+        "value": "Tipos de cita obtenidos"
+    },
+    {
+        "key": "agenda.types.create.success",
+        "value": "Tipo de cita creado"
+    },
+    {
+        "key": "agenda.types.update.success",
+        "value": "Tipo de cita actualizado"
+    },
+    {
+        "key": "agenda.types.delete.success",
+        "value": "Tipo de cita eliminado"
+    },
+    {
+        "key": "agenda.availability.success",
+        "value": "Disponibilidad consultada"
+    },
+    {
+        "key": "agenda.range.success",
+        "value": "Agenda obtenida"
+    },
+    {
+        "key": "agenda.error.invalid_request",
+        "value": "Datos de horario no válidos."
+    },
+    {
+        "key": "agenda.error.invalid_time",
+        "value": "Las horas deben tener el formato HH:MM en pasos de 5 minutos, y el inicio debe ser anterior al fin."
+    },
+    {
+        "key": "agenda.error.schedule_overlap",
+        "value": "Dos franjas del mismo día se superponen."
+    },
+    {
+        "key": "agenda.error.invalid_date_range",
+        "value": "Fechas no válidas: la fecha de inicio debe ser igual o anterior a la de fin."
+    },
+    {
+        "key": "agenda.error.block_not_found",
+        "value": "Bloqueo no encontrado."
+    },
+    {
+        "key": "agenda.error.type_not_found",
+        "value": "Tipo de cita no encontrado."
+    },
+    {
+        "key": "agenda.error.invalid_duration",
+        "value": "La duración debe estar entre 5 y 480 minutos, en pasos de 5 minutos."
+    },
+    {
+        "key": "agenda.error.type_inactive",
+        "value": "El tipo de cita está inactivo."
+    },
+    {
+        "key": "agenda.error.type_doctor_not_allowed",
+        "value": "El médico no atiende este tipo de cita."
+    },
+    {
+        "key": "agenda.error.range_too_long",
+        "value": "El rango de fechas es demasiado largo."
+    },
+    {
+        "key": "E-AG-001",
+        "value": "Datos de horario no válidos."
+    },
+    {
+        "key": "E-AG-002",
+        "value": "Las horas deben tener el formato HH:MM en pasos de 5 minutos, y el inicio debe ser anterior al fin."
+    },
+    {
+        "key": "E-AG-003",
+        "value": "Dos franjas del mismo día se superponen."
+    },
+    {
+        "key": "E-AG-004",
+        "value": "Fechas no válidas: la fecha de inicio debe ser igual o anterior a la de fin."
+    },
+    {
+        "key": "E-AG-005",
+        "value": "Bloqueo no encontrado."
+    },
+    {
+        "key": "E-AG-006",
+        "value": "Tipo de cita no encontrado."
+    },
+    {
+        "key": "E-AG-007",
+        "value": "La duración debe estar entre 5 y 480 minutos, en pasos de 5 minutos."
+    },
+    {
+        "key": "E-AG-008",
+        "value": "El tipo de cita está inactivo."
+    },
+    {
+        "key": "E-AG-009",
+        "value": "El médico no atiende este tipo de cita."
+    },
+    {
+        "key": "E-AG-010",
+        "value": "El rango de fechas es demasiado largo."
+    },
+    {
+        "key": "agenda.availability.blocked",
+        "value": "Ese horario está bloqueado: {reason}. Puedes agendar igual."
+    },
+    {
+        "key": "agenda.availability.day_off",
+        "value": "El médico no atiende este día según su horario. Puedes agendar igual."
+    },
+    {
+        "key": "agenda.availability.outside",
+        "value": "Fuera del horario del médico ({ranges}). Puedes agendar igual."
+    },
+    {
+        "key": "agenda.blocks.affected.description.one",
+        "value": "Hay {count} cita en el período bloqueado. No se canceló; reprográmala o avisa al paciente si hace falta."
+    },
+    {
+        "key": "agenda.blocks.affected.description.other",
+        "value": "Hay {count} citas en el período bloqueado. No se cancelaron; reprográmalas o avisa a los pacientes si hace falta."
+    },
+    {
+        "key": "agenda.blocks.affected.ok",
+        "value": "Entendido"
+    },
+    {
+        "key": "agenda.blocks.affected.title",
+        "value": "Citas afectadas por el bloqueo"
+    },
+    {
+        "key": "agenda.blocks.clinic_description",
+        "value": "Días u horas en que la clínica no atiende (feriados, capacitaciones). Aplican a todos los médicos."
+    },
+    {
+        "key": "agenda.blocks.date_range",
+        "value": "{start} al {end}"
+    },
+    {
+        "key": "agenda.blocks.delete",
+        "value": "Eliminar bloqueo"
+    },
+    {
+        "key": "agenda.blocks.delete.description",
+        "value": "El horario vuelve a quedar disponible en la agenda."
+    },
+    {
+        "key": "agenda.blocks.delete.title",
+        "value": "¿Eliminar este bloqueo?"
+    },
+    {
+        "key": "agenda.blocks.doctor_description",
+        "value": "Vacaciones, congresos o trámites: días completos o un rango de horas."
+    },
+    {
+        "key": "agenda.blocks.edit",
+        "value": "Editar bloqueo"
+    },
+    {
+        "key": "agenda.blocks.empty",
+        "value": "No hay bloqueos próximos."
+    },
+    {
+        "key": "agenda.blocks.error.date_order",
+        "value": "La fecha final no puede ser anterior a la inicial."
+    },
+    {
+        "key": "agenda.blocks.error.date_required",
+        "value": "Elige una fecha."
+    },
+    {
+        "key": "agenda.blocks.error.reason_too_long",
+        "value": "El motivo es demasiado largo."
+    },
+    {
+        "key": "agenda.blocks.error.time_order",
+        "value": "La hora final debe ser posterior a la inicial."
+    },
+    {
+        "key": "agenda.blocks.field.end_date",
+        "value": "Hasta"
+    },
+    {
+        "key": "agenda.blocks.field.end_time",
+        "value": "Hora final"
+    },
+    {
+        "key": "agenda.blocks.field.full_day",
+        "value": "Días completos"
+    },
+    {
+        "key": "agenda.blocks.field.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "agenda.blocks.field.reason_placeholder",
+        "value": "Ej.: Congreso, vacaciones"
+    },
+    {
+        "key": "agenda.blocks.field.start_date",
+        "value": "Desde"
+    },
+    {
+        "key": "agenda.blocks.field.start_time",
+        "value": "Hora inicial"
+    },
+    {
+        "key": "agenda.blocks.full_day",
+        "value": "Todo el día"
+    },
+    {
+        "key": "agenda.blocks.new",
+        "value": "Nuevo bloqueo"
+    },
+    {
+        "key": "agenda.blocks.no_reason",
+        "value": "Sin motivo"
+    },
+    {
+        "key": "agenda.blocks.save",
+        "value": "Guardar bloqueo"
+    },
+    {
+        "key": "agenda.blocks.show_past",
+        "value": "Mostrar pasados"
+    },
+    {
+        "key": "agenda.blocks.title",
+        "value": "Bloqueos"
+    },
+    {
+        "key": "agenda.schedule.add_range",
+        "value": "Agregar horario"
+    },
+    {
+        "key": "agenda.schedule.copy",
+        "value": "Copiar a otros días"
+    },
+    {
+        "key": "agenda.schedule.copy_apply",
+        "value": "Copiar"
+    },
+    {
+        "key": "agenda.schedule.copy_to",
+        "value": "Copiar este día a:"
+    },
+    {
+        "key": "agenda.schedule.day_off",
+        "value": "No atiende"
+    },
+    {
+        "key": "agenda.schedule.description",
+        "value": "Horario de atención semanal y bloqueos. La agenda avisa al agendar fuera de él, sin impedirlo."
+    },
+    {
+        "key": "agenda.schedule.end",
+        "value": "Hasta"
+    },
+    {
+        "key": "agenda.schedule.error.invalid_time",
+        "value": "Revisa las horas: múltiplos de 5 minutos y la final después de la inicial."
+    },
+    {
+        "key": "agenda.schedule.error.overlap",
+        "value": "Los horarios de este día se superponen."
+    },
+    {
+        "key": "agenda.schedule.hint",
+        "value": "Sin horarios, la agenda no muestra avisos ni sombreado para este médico. 00:00 como hora final es medianoche."
+    },
+    {
+        "key": "agenda.schedule.remove_range",
+        "value": "Quitar horario"
+    },
+    {
+        "key": "agenda.schedule.save",
+        "value": "Guardar horario"
+    },
+    {
+        "key": "agenda.schedule.start",
+        "value": "Desde"
+    },
+    {
+        "key": "agenda.schedule.title",
+        "value": "Horario"
+    },
+    {
+        "key": "agenda.settings.back",
+        "value": "Volver a configuración"
+    },
+    {
+        "key": "agenda.settings.description",
+        "value": "Tipos de cita y bloqueos de toda la clínica."
+    },
+    {
+        "key": "agenda.settings.hint",
+        "value": "Define tipos de cita con su duración y los días en que la clínica no atiende."
+    },
+    {
+        "key": "agenda.settings.open",
+        "value": "Configurar agenda"
+    },
+    {
+        "key": "agenda.settings.section_description",
+        "value": "Tipos de cita y bloqueos de la clínica."
+    },
+    {
+        "key": "agenda.settings.tab.blocks",
+        "value": "Bloqueos de la clínica"
+    },
+    {
+        "key": "agenda.settings.tab.types",
+        "value": "Tipos de cita"
+    },
+    {
+        "key": "agenda.settings.title",
+        "value": "Agenda"
+    },
+    {
+        "key": "agenda.types.all_doctors",
+        "value": "Todos los médicos"
+    },
+    {
+        "key": "agenda.types.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "agenda.types.delete.description",
+        "value": "Las citas existentes conservan su tipo; ya no se podrá elegir en citas nuevas."
+    },
+    {
+        "key": "agenda.types.delete.title",
+        "value": "¿Eliminar el tipo {name}?"
+    },
+    {
+        "key": "agenda.types.description",
+        "value": "La duración del tipo fija la hora final al agendar (se puede cambiar)."
+    },
+    {
+        "key": "agenda.types.duration_value",
+        "value": "{minutes} min"
+    },
+    {
+        "key": "agenda.types.edit",
+        "value": "Editar tipo de cita"
+    },
+    {
+        "key": "agenda.types.error.duration",
+        "value": "La duración debe estar entre 5 y 480 minutos, en múltiplos de 5."
+    },
+    {
+        "key": "agenda.types.error.name_required",
+        "value": "El nombre es obligatorio."
+    },
+    {
+        "key": "agenda.types.error.name_too_long",
+        "value": "El nombre es demasiado largo."
+    },
+    {
+        "key": "agenda.types.field.active",
+        "value": "Activo"
+    },
+    {
+        "key": "agenda.types.field.color",
+        "value": "Color"
+    },
+    {
+        "key": "agenda.types.field.color_clear",
+        "value": "Quitar color"
+    },
+    {
+        "key": "agenda.types.field.color_none",
+        "value": "Sin color."
+    },
+    {
+        "key": "agenda.types.field.doctors",
+        "value": "Médicos"
+    },
+    {
+        "key": "agenda.types.field.doctors_hint",
+        "value": "Sin médicos marcados, el tipo está disponible para todos."
+    },
+    {
+        "key": "agenda.types.field.duration",
+        "value": "Duración (minutos)"
+    },
+    {
+        "key": "agenda.types.field.duration_hint",
+        "value": "Múltiplos de 5, hasta 480."
+    },
+    {
+        "key": "agenda.types.field.name",
+        "value": "Nombre"
+    },
+    {
+        "key": "agenda.types.field.name_placeholder",
+        "value": "Ej.: Primera consulta"
+    },
+    {
+        "key": "agenda.types.field.type",
+        "value": "Tipo de cita"
+    },
+    {
+        "key": "agenda.types.inactive",
+        "value": "inactivo"
+    },
+    {
+        "key": "agenda.types.new",
+        "value": "Nuevo tipo de cita"
+    },
+    {
+        "key": "agenda.types.none",
+        "value": "Sin tipo"
+    },
+    {
+        "key": "agenda.types.save",
+        "value": "Guardar tipo"
+    },
+    {
+        "key": "agenda.weekday.0",
+        "value": "Domingo"
+    },
+    {
+        "key": "agenda.weekday.1",
+        "value": "Lunes"
+    },
+    {
+        "key": "agenda.weekday.2",
+        "value": "Martes"
+    },
+    {
+        "key": "agenda.weekday.3",
+        "value": "Miércoles"
+    },
+    {
+        "key": "agenda.weekday.4",
+        "value": "Jueves"
+    },
+    {
+        "key": "agenda.weekday.5",
+        "value": "Viernes"
+    },
+    {
+        "key": "agenda.weekday.6",
+        "value": "Sábado"
+    },
+    {
+        "key": "appointments.day.doctors",
+        "value": "Médicos visibles"
+    },
+    {
+        "key": "appointments.day.empty",
+        "value": "Ningún médico atiende este día."
+    },
+    {
+        "key": "appointments.day.no_doctor",
+        "value": "Sin médico"
+    },
+    {
+        "key": "appointments.view.day",
+        "value": "Día"
+    },
+    {
+        "key": "appointments.view.label",
+        "value": "Vista de la agenda"
+    },
+    {
+        "key": "appointments.view.week",
+        "value": "Semana"
+    },
+    {
+        "key": "doctors.tab.profile",
+        "value": "Perfil"
+    },
+    {
+        "key": "doctors.tab.schedule",
+        "value": "Horario"
+    },
+    {
+        "key": "appointments.day.other_doctor",
+        "value": "Otro médico"
     }
 ]

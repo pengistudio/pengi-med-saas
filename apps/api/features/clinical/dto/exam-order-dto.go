@@ -54,6 +54,7 @@ type ExamOrderItemInput struct {
 type CreateExamOrderRequest struct {
 	PatientID       uint                            `json:"patient_id" binding:"required"`
 	MedicalRecordID *uint                           `json:"medical_record_id"`
+	DoctorID        *uint                           `json:"doctor_id"` // create: defaults per doctor_services.Resolve; update: omitted keeps it
 	Diagnoses       []clinical_models.DiagnosisItem `json:"diagnoses"`
 	Priority        string                          `json:"priority" binding:"omitempty,oneof=routine urgent"`
 	Notes           string                          `json:"notes"`
@@ -66,6 +67,7 @@ type CreateExamOrderRequest struct {
 // items must be sent unchanged.
 type UpdateExamOrderRequest struct {
 	MedicalRecordID *uint                           `json:"medical_record_id"`
+	DoctorID        *uint                           `json:"doctor_id"` // create: defaults per doctor_services.Resolve; update: omitted keeps it
 	Diagnoses       []clinical_models.DiagnosisItem `json:"diagnoses"`
 	Priority        string                          `json:"priority" binding:"omitempty,oneof=routine urgent"`
 	Notes           string                          `json:"notes"`

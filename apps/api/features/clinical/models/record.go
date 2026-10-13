@@ -5,6 +5,8 @@ import (
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
+
+	doctor_models "pengi-med-saas/features/doctors/models"
 )
 
 type DiagnosisItem struct {
@@ -14,27 +16,30 @@ type DiagnosisItem struct {
 
 type MedicalRecord struct {
 	gorm.Model
-	TenantID              uint           `json:"tenant_id"`
-	Date                  time.Time      `json:"date"`
-	Motive                string         `json:"motive"`
-	Observation           string         `json:"observation"`
-	PatientID             uint           `json:"patient_id"`
-	Patient               *Patient       `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
-	AppointmentID         *uint          `json:"appointment_id,omitempty"`
-	Appointment           *Appointment   `json:"appointment,omitempty" gorm:"foreignKey:AppointmentID"`
-	SOAPRecordID          uint           `json:"soap_record_id"`
-	SOAPRecord            SOAPRecord     `json:"soap_record" gorm:"foreignKey:SOAPRecordID"`
-	PrescriptionID        *uint          `json:"prescription_id"`
-	Prescription          *Prescription  `json:"prescription,omitempty" gorm:"foreignKey:PrescriptionID;constraint:OnDelete:SET NULL;"`
-	VitalSigns            *VitalSigns    `json:"vital_signs,omitempty" gorm:"foreignKey:MedicalRecordID"`
-	Diagnoses             datatypes.JSON `json:"diagnoses" gorm:"type:jsonb;default:'[]'"`
-	NextAppointmentDate   *time.Time     `json:"next_appointment_date,omitempty" gorm:"type:date"`
-	NextAppointmentStatus string         `json:"next_appointment_status" gorm:"default:'pending'"` // "scheduled" | "pending" | "not_required"
-	VisitType             string         `json:"visit_type" gorm:"default:'followup'"`             // "first" | "followup"
-	APP                   string         `json:"app"`
-	APF                   string         `json:"apf"`
-	APQX                  string         `json:"apqx"`
-	Allergies             string         `json:"allergies"`
+	TenantID              uint                  `json:"tenant_id"`
+	Date                  time.Time             `json:"date"`
+	Motive                string                `json:"motive"`
+	Observation           string                `json:"observation"`
+	PatientID             uint                  `json:"patient_id"`
+	Patient               *Patient              `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
+	AppointmentID         *uint                 `json:"appointment_id,omitempty"`
+	Appointment           *Appointment          `json:"appointment,omitempty" gorm:"foreignKey:AppointmentID"`
+	DoctorID              *uint                 `json:"doctor_id" gorm:"index"` // who attended
+	Doctor                *doctor_models.Doctor `json:"doctor,omitempty" gorm:"foreignKey:DoctorID"`
+	CreatedByUserID       *uint                 `json:"created_by_user_id"` // who wrote it
+	SOAPRecordID          uint                  `json:"soap_record_id"`
+	SOAPRecord            SOAPRecord            `json:"soap_record" gorm:"foreignKey:SOAPRecordID"`
+	PrescriptionID        *uint                 `json:"prescription_id"`
+	Prescription          *Prescription         `json:"prescription,omitempty" gorm:"foreignKey:PrescriptionID;constraint:OnDelete:SET NULL;"`
+	VitalSigns            *VitalSigns           `json:"vital_signs,omitempty" gorm:"foreignKey:MedicalRecordID"`
+	Diagnoses             datatypes.JSON        `json:"diagnoses" gorm:"type:jsonb;default:'[]'"`
+	NextAppointmentDate   *time.Time            `json:"next_appointment_date,omitempty" gorm:"type:date"`
+	NextAppointmentStatus string                `json:"next_appointment_status" gorm:"default:'pending'"` // "scheduled" | "pending" | "not_required"
+	VisitType             string                `json:"visit_type" gorm:"default:'followup'"`             // "first" | "followup"
+	APP                   string                `json:"app"`
+	APF                   string                `json:"apf"`
+	APQX                  string                `json:"apqx"`
+	Allergies             string                `json:"allergies"`
 }
 
 type SOAPRecord struct {

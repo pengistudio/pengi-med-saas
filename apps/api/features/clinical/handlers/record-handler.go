@@ -9,6 +9,8 @@ import (
 	"pengi-med-saas/core/tenantdb"
 	clinical_dto "pengi-med-saas/features/clinical/dto"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	doctor_services "pengi-med-saas/features/doctors/services"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 	"strconv"
 	"strings"
 	"time"
@@ -159,8 +161,21 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	if !h.inTenant(c, &clinical_models.Patient{}, newRecord.PatientID) {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
 	}
-	if newRecord.AppointmentID != nil && !h.inTenant(c, &clinical_models.Appointment{}, *newRecord.AppointmentID) {
-		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
+	var appointmentDoctorID *uint
+	if newRecord.AppointmentID != nil {
+		var appointment clinical_models.Appointment
+		if err := tenantdb.For(c, h.db).Select("id", "doctor_id").First(&appointment, *newRecord.AppointmentID).Error; err != nil {
+			return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
+		}
+		appointmentDoctorID = appointment.DoctorID
+	}
+	doctorID, err := doctor_services.Resolve(c, tenantdb.For(c, h.db), doctor_services.Choice{
+		Requested: newRecord.DoctorID,
+		Fallbacks: []*uint{appointmentDoctorID, patientDoctorID(tenantdb.For(c, h.db), newRecord.PatientID)},
+		Policy:    doctor_services.Required,
+	})
+	if err != nil {
+		return doctorErrorResponse(h.logger, err)
 	}
 
 	nextAppointmentDate := (*time.Time)(nil)
@@ -183,6 +198,7 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 		Observation:           *newRecord.Observation,
 		PatientID:             newRecord.PatientID,
 		AppointmentID:         newRecord.AppointmentID,
+		DoctorID:              doctorID,
 		NextAppointmentDate:   nextAppointmentDate,
 		NextAppointmentStatus: nextAppointmentStatus,
 		SOAPRecord:            newRecord.SOAPRecord,
@@ -197,6 +213,11 @@ func (h *MedicalRecordHandler) CreateMedicalRecord(c *gin.Context) envelope.Resp
 	// Create prescription if provided
 	if newRecord.Prescription != nil && (newRecord.Prescription.Content != "" || newRecord.Prescription.Indications != "" || len(newRecord.Prescription.Items) > 0) {
 		record.Prescription = newRecord.Prescription
+		record.Prescription.DoctorID = doctorID // the prescription's doctor is the record's
+	}
+	if uid, _, ok := auth_middleware.GetUserFromContext(c); ok {
+		createdBy := uint(uid)
+		record.CreatedByUserID = &createdBy
 	}
 
 	tenantID, exists := c.Get("tenant_id")
@@ -257,6 +278,12 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 		// Auto-complete the linked appointment
 		tenantdb.For(c, h.db).Model(&clinical_models.Appointment{}).Where("id = ?", *updatedRecord.AppointmentID).Update("status", "completed")
 	}
+	if updatedRecord.DoctorID != nil {
+		if err := doctor_services.ValidateChange(tenantdb.For(c, h.db), *updatedRecord.DoctorID, medicalRecord.DoctorID); err != nil {
+			return doctorErrorResponse(h.logger, err)
+		}
+		record["doctor_id"] = *updatedRecord.DoctorID
+	}
 	if updatedRecord.Motive != nil {
 		record["motive"] = *updatedRecord.Motive
 	}
@@ -293,6 +320,15 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 		if err := tenantdb.For(c, h.db).Model(&medicalRecord).Updates(record).Error; err != nil {
 			h.logger.Error("Failed to update medical record fields", zap.Error(err))
 			return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
+		}
+		if updatedRecord.DoctorID != nil {
+			medicalRecord.DoctorID = updatedRecord.DoctorID
+			// An unsigned prescription follows the record's doctor; a signed one keeps who signed for.
+			if medicalRecord.PrescriptionID != nil {
+				tenantdb.For(c, h.db).Model(&clinical_models.Prescription{}).
+					Where("id = ? AND (signed_file = '' OR signed_file IS NULL)", *medicalRecord.PrescriptionID).
+					Update("doctor_id", *updatedRecord.DoctorID)
+			}
 		}
 	}
 
@@ -340,6 +376,7 @@ func (h *MedicalRecordHandler) UpdateMedicalRecord(c *gin.Context) envelope.Resp
 		if medicalRecord.PrescriptionID == nil {
 			// Create new prescription if it doesn't exist
 			newPrescription := *updatedRecord.Prescription
+			newPrescription.DoctorID = medicalRecord.DoctorID
 			if err := tenantdb.For(c, h.db).Create(&newPrescription).Error; err != nil {
 				h.logger.Error("Failed to create prescription during update", zap.Error(err))
 				return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalRecordUpdateError)
@@ -410,6 +447,7 @@ func (h *MedicalRecordHandler) UpdatePrescription(c *gin.Context) envelope.Respo
 		newPrescription := clinical_models.Prescription{
 			Content:     prescriptionData.Content,
 			Indications: prescriptionData.Indications,
+			DoctorID:    medicalRecord.DoctorID,
 		}
 		if err := tenantdb.For(c, h.db).Create(&newPrescription).Error; err != nil {
 			h.logger.Error("Failed to create prescription", zap.Error(err))
