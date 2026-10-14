@@ -25,6 +25,15 @@ if [ -n "$STAGED" ]; then
   echo "$STAGED" | xargs git add 2>/dev/null || true
 fi
 
+echo "▶ Environment variables (scripts/check-env.mjs)..."
+# No dependencies, so it runs on the host when node is there (and checks the
+# checkout being committed, worktrees included).
+if command -v node >/dev/null 2>&1; then
+  node scripts/check-env.mjs
+else
+  in_container . "node scripts/check-env.mjs"
+fi
+
 echo "▶ TypeScript (apps/web)..."
 in_container apps/web "pnpm run typecheck"
 

@@ -363,6 +363,8 @@ One env file for local dev: the root `.env` (template `.env.example`). Compose p
 
 Frontend names: `VITE_API_URL` / `VITE_APP_URL` (web, backoffice) and `PUBLIC_API_URL` / `PUBLIC_APP_URL` (landing). Dev defaults live only in `env.ts` / `astro.config.mjs`; a production build without them fails.
 
+`just check-env` (`scripts/check-env.mjs`, also in CI and the pre-commit hook) fails when a variable is read but not documented in `.env.example` (and, for the API, `deploy/.env.prod.example`), when a template lists one no app reads, or when code calls `os.Getenv` / `import.meta.env.X` outside the config modules. Adding a variable = its reader (`config.go`, `env.ts`, `astro.config.mjs`) + both templates.
+
 ---
 
 ## Important Patterns to Remember
