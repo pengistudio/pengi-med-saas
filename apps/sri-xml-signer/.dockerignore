@@ -1,0 +1,6 @@
+# The build context is apps/sri-xml-signer and the Dockerfile copies
+# everything: keep local secrets and host builds out of the image.
+.env*
+node_modules
+dist
+.DS_Store

@@ -51,6 +51,9 @@ docker-compose.override.yml
 .pnpm-store
 storage
 
+# Go build output (go build -o main cmd/main.go)
+apps/api/main
+
 test-results
 playwright-report
 
