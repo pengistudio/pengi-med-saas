@@ -28,7 +28,7 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	manageDisplay := subscription_middleware.RequireRolePermission(db, "MANAGE_TEAM_MEMBERS")
 	tenantGroup.GET("/display-token", manageDisplay, envelope.Handle(tenantHandler.GetDisplayToken))
 	tenantGroup.POST("/display-token", manageDisplay, envelope.Handle(tenantHandler.GenerateDisplayToken))
-	// PNG QR of the TV link (FRONTEND_URL base), streamed: errors via envelope.Write.
+	// PNG QR of the TV link (APP_URL base), streamed: errors via envelope.Write.
 	tenantGroup.GET("/display-token/qr", manageDisplay, tenantHandler.GetDisplayTokenQR)
 
 	// Public — no auth required, validated via display token. 60 requests/min

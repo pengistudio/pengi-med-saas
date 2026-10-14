@@ -50,7 +50,7 @@ func qrRouter(t *testing.T, permission string) (*gin.Engine, *TenantHandler, ten
 
 func getQR(r *gin.Engine) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(http.MethodGet, "/display-token/qr", nil)
-	// The link base must come from FRONTEND_URL, never from the request.
+	// The link base must come from APP_URL, never from the request.
 	req.Host = "evil.example"
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -58,7 +58,7 @@ func getQR(r *gin.Engine) *httptest.ResponseRecorder {
 }
 
 func TestGetDisplayTokenQR_AdminGetsPNGOfTheTVLink(t *testing.T) {
-	t.Setenv("FRONTEND_URL", "https://app.example.com/")
+	t.Setenv("APP_URL", "https://app.example.com/")
 	r, _, tenant := qrRouter(t, "MANAGE_TEAM_MEMBERS")
 
 	w := getQR(r)
@@ -99,7 +99,7 @@ func TestGetDisplayTokenQR_AdminGetsPNGOfTheTVLink(t *testing.T) {
 }
 
 func TestGetDisplayTokenQR_ForbiddenWithoutManageTeamMembers(t *testing.T) {
-	t.Setenv("FRONTEND_URL", "https://app.example.com")
+	t.Setenv("APP_URL", "https://app.example.com")
 	r, _, _ := qrRouter(t, "READ_PATIENT")
 
 	w := getQR(r)
@@ -111,8 +111,8 @@ func TestGetDisplayTokenQR_ForbiddenWithoutManageTeamMembers(t *testing.T) {
 	}
 }
 
-func TestGetDisplayTokenQR_FailsWithoutFrontendURL(t *testing.T) {
-	t.Setenv("FRONTEND_URL", "")
+func TestGetDisplayTokenQR_FailsWithoutAppURL(t *testing.T) {
+	t.Setenv("APP_URL", "not a url")
 	r, _, _ := qrRouter(t, "MANAGE_TEAM_MEMBERS")
 
 	if w := getQR(r); w.Code != http.StatusInternalServerError {
@@ -121,7 +121,7 @@ func TestGetDisplayTokenQR_FailsWithoutFrontendURL(t *testing.T) {
 }
 
 func TestGetDisplayTokenQR_DoesNotRotateTheToken(t *testing.T) {
-	t.Setenv("FRONTEND_URL", "https://app.example.com")
+	t.Setenv("APP_URL", "https://app.example.com")
 	r, h, tenant := qrRouter(t, "MANAGE_TEAM_MEMBERS")
 
 	if w := getQR(r); w.Code != http.StatusOK {

@@ -16,8 +16,9 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    # The root .env (see .env.example) is the one env file for every app.
     env_file:
-      - ./apps/api/.env
+      - ./.env
     volumes:
       - ./apps/api:/app
       - ./storage:/app/storage
@@ -168,14 +169,16 @@ services:
   landing:
     image: node:24-alpine
     container_name: pengi-landing-dev
-    working_dir: /app
+    # The whole repo is mounted so astro.config.mjs can load the root .env
+    # (envDir). The landing keeps its own lockfile and node_modules.
+    working_dir: /workspace/apps/landing
     ports:
       - "3002:4321"
     environment:
       - CI=true
       - PNPM_HOME=/pnpm/store
     volumes:
-      - ./apps/landing:/app
+      - ./:/workspace
       - pnpm_store_landing:/pnpm/store
     command: sh -c "corepack enable && pnpm install && pnpm run dev --host"
     networks:

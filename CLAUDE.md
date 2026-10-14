@@ -350,17 +350,18 @@ Navigation items are managed in `src/config/nav-config.ts`. Top-level items can 
 
 ## Environment variables
 
-Backend: every variable the API reads is a field of `core/config.Config` (type + default). Read them with `config.Get().X`, never `os.Getenv`; a new variable = a new field there + `.env.example`. `config.Load()` runs first in `cmd/main.go` and the API refuses to start if a required one is missing or doesn't parse. Only committed code migrations and `core/secretbox` (keys by name) still call `os.Getenv`.
+Backend: every variable the API reads is a field of `core/config.Config` (type + default). Read them with `config.Get().X`, never `os.Getenv`; a new variable = a new field there + the root `.env.example`. `config.Load()` runs first in `cmd/main.go` and the API refuses to start if a required one is missing or doesn't parse. Only committed code migrations and `core/secretbox` (keys by name) still call `os.Getenv`.
 
-Backend template: `apps/api/.env.example`. Key vars:
+One env file for local dev: the root `.env` (template `.env.example`). Compose passes it to the api, and web/backoffice/landing load it via `envDir`; each frontend reads its variables only through `src/lib/env.ts` (web, backoffice) or `astro:env` (landing). Production: `deploy/.env.prod` for the API, build args for the frontends. Key vars:
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
 - `AUTH_KEY` — JWT signing secret
 - `SRI_SIGNER_SERVICE_URL` — Points to `sri-xml-signer` service
 - `SRI_ENV` — `test` or `prod` (Ecuador SRI environment)
 - `RABBITMQ_USER`, `RABBITMQ_PASSWORD`
 - `GIN_MODE` — `development` or `release`
+- `APP_URL` — public URL of the web app (required in release)
 
-Frontend env: Vite reads `VITE_API_URL` (defaults to `http://localhost:8000/api/v1`).
+Frontend names: `VITE_API_URL` / `VITE_APP_URL` (web, backoffice) and `PUBLIC_API_URL` / `PUBLIC_APP_URL` (landing). Dev defaults live only in `env.ts` / `astro.config.mjs`; a production build without them fails.
 
 ---
 

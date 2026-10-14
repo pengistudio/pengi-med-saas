@@ -97,7 +97,7 @@ el error 190.
     `whatsapp_business_management`.
 - [ ] Guárdalo en tu gestor de contraseñas, no en el repo.
 
-### 3.2 Variables de entorno (`apps/api/.env`)
+### 3.2 Variables de entorno (`.env` en la raíz)
 
 - [ ] `META_APP_ID`: el ID de la app en developers.facebook.com.
 - [ ] `META_APP_SECRET`: el *App secret* de la app. Sin él, el webhook rechaza
@@ -119,8 +119,8 @@ estático**: la URL nunca cambia y arranca sola con `just dev`.
 - [ ] Reclama tu dominio estático gratis en https://dashboard.ngrok.com/domains.
       Algo como `foo-bar.ngrok-free.app`.
 - [ ] Copia tu authtoken desde https://dashboard.ngrok.com/get-started/your-authtoken.
-- [ ] Crea el `.env` en la raíz del repo (`cp .env.example .env`, está en el
-      gitignore) con:
+- [ ] En el `.env` de la raíz del repo (`cp .env.example .env`, está en el
+      gitignore) pon:
       ```
       COMPOSE_PROFILES=tunnel
       NGROK_AUTHTOKEN=<tu authtoken>

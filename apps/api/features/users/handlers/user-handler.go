@@ -227,7 +227,7 @@ func (h *UserHandler) SignUpWithCompanyToken(c *gin.Context) envelope.Response {
 	if tokenErr != nil {
 		h.logger.Error("Failed to generate verification token", zap.Error(tokenErr))
 	} else {
-		frontendURL := config.Get().FrontendURL
+		frontendURL := config.Get().AppURL
 		verificationURL := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, verificationToken)
 		go func() {
 			m := mailer.NewMailer()
@@ -488,7 +488,7 @@ func (h *UserHandler) Register(c *gin.Context) envelope.Response {
 	if tokenErr != nil {
 		h.logger.Error("Failed to generate verification token", zap.Error(tokenErr))
 	} else {
-		frontendURL := config.Get().FrontendURL
+		frontendURL := config.Get().AppURL
 		verificationURL := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, verificationToken)
 		go func() {
 			m := mailer.NewMailer()

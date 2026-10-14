@@ -161,14 +161,14 @@ func TestGenerateDisplayToken_ReplacesWithLongToken(t *testing.T) {
 	if stored := storedDisplayToken(t, h, tenant.ID); stored != got {
 		t.Fatalf("stored = %q, want %q", stored, got)
 	}
-	if url := resp.Data.(gin.H)["display_url"]; url != testFrontendURL+"/display/waiting-room?token="+got {
+	if url := resp.Data.(gin.H)["display_url"]; url != testAppURL+"/display/waiting-room?token="+got {
 		t.Fatalf("display_url = %v, want the new token's link", url)
 	}
 }
 
-func TestGenerateDisplayToken_KeepsTokenWithoutFrontendURL(t *testing.T) {
+func TestGenerateDisplayToken_KeepsTokenWithoutAppURL(t *testing.T) {
 	h := newDisplayHandler(t)
-	t.Setenv("FRONTEND_URL", "")
+	t.Setenv("APP_URL", "not a url")
 	old := tenant_models.NewDisplayToken()
 	tenant := createDisplayTenant(t, h, old)
 

@@ -1,6 +1,7 @@
 import { useMessageStore } from "@pengi/shared";
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
+import { env } from "@/lib/env";
 import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
@@ -28,14 +29,14 @@ function handleSessionExpired() {
 }
 
 export const api = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
+	baseURL: env.VITE_API_URL,
 	headers: {
 		"Content-Type": "application/json",
 	},
 });
 
 export const noAuthApi = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
+	baseURL: env.VITE_API_URL,
 	headers: {
 		"Content-Type": "application/json",
 	},
@@ -43,7 +44,7 @@ export const noAuthApi = axios.create({
 });
 
 export const apiWithTenant = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
+	baseURL: env.VITE_API_URL,
 	headers: {
 		"Content-Type": "application/json",
 	},

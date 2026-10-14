@@ -15,8 +15,8 @@ COPY packages/shared packages/shared
 COPY apps/backoffice apps/backoffice
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
-ARG VITE_WEB_APP_URL
-ENV VITE_WEB_APP_URL=$VITE_WEB_APP_URL
+ARG VITE_APP_URL
+ENV VITE_APP_URL=$VITE_APP_URL
 RUN pnpm --filter backoffice run build
 
 # Serve stage

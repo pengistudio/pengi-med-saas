@@ -51,10 +51,7 @@ func (h *GoogleIntegrationHandler) GetAuthURL(c *gin.Context) envelope.Response 
 // Callback handles the OAuth redirect from Google.
 // This endpoint is public (no auth middleware) — tenant is identified via state param.
 func (h *GoogleIntegrationHandler) Callback(c *gin.Context) {
-	frontendURL := config.Get().FrontendURL
-	if frontendURL == "" {
-		frontendURL = "http://localhost:5173"
-	}
+	frontendURL := config.Get().AppURL
 
 	code := c.Query("code")
 	state := c.Query("state")

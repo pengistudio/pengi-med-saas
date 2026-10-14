@@ -1,4 +1,5 @@
 import { createHttpService, type ServiceResponse } from "@pengi/shared";
+import { env } from "@/lib/env";
 import { resource } from "@/lib/resource/http-resource";
 import { api } from ".";
 
@@ -143,7 +144,7 @@ export const getPasswordResetLink = async (
 	);
 };
 
-const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL || "http://localhost:5173";
+const WEB_APP_URL = env.VITE_APP_URL;
 
 /** Web app link where a company's owner signs up with a signup token. */
 export const companySignupLink = (token: string) =>

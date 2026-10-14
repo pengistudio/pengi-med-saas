@@ -9,6 +9,8 @@ RUN --mount=type=cache,id=pnpm-landing,target=/pnpm/store pnpm install --frozen-
 COPY . .
 ARG PUBLIC_APP_URL
 ENV PUBLIC_APP_URL=$PUBLIC_APP_URL
+ARG PUBLIC_API_URL
+ENV PUBLIC_API_URL=$PUBLIC_API_URL
 RUN pnpm run build
 
 # Serve stage

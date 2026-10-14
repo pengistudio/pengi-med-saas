@@ -235,7 +235,7 @@ func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Respons
 				OrderID:         orderID,
 				Description:     fmt.Sprintf("Upgrade a %s - prorrateo", targetPlan.Name),
 				NotificationURL: config.Get().DLocalNotificationURL,
-				SuccessURL:      config.Get().FrontendURL + "/subscription?status=success",
+				SuccessURL:      config.Get().AppURL + "/subscription?status=success",
 			})
 			if err != nil {
 				h.logger.Error("Failed to create dlocal upgrade payment", zap.Error(err))
@@ -284,7 +284,7 @@ func (h *CompanyPaymentHandler) PaySubscription(c *gin.Context) envelope.Respons
 		OrderID:         orderID,
 		Description:     fmt.Sprintf("Suscripción Pengi - %s (%d mes(es))", targetPlan.Name, months),
 		NotificationURL: config.Get().DLocalNotificationURL,
-		SuccessURL:      config.Get().FrontendURL + "/subscription?status=success",
+		SuccessURL:      config.Get().AppURL + "/subscription?status=success",
 	})
 	if err != nil {
 		h.logger.Error("Failed to create dlocal payment", zap.Error(err))

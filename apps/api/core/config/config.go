@@ -63,9 +63,13 @@ type Config struct {
 	// SRI ambiente: "1"/"test" pruebas, "2"/"prod" producción.
 	SRIEnv string `env:"SRI_ENV"`
 
-	// Public URLs of the web app (links in emails, redirects, TV display).
-	FrontendURL  string `env:"FRONTEND_URL"`
-	PublicAppURL string `env:"PUBLIC_APP_URL" envDefault:"http://localhost:5173"`
+	// Public URL of the web app (links in emails, redirects, TV display).
+	// Required in release; in dev it defaults to the compose web port.
+	AppURL string `env:"APP_URL"`
+	// Old names of APP_URL, read only when APP_URL is unset. Remove once no
+	// environment sets them.
+	LegacyFrontendURL  string `env:"FRONTEND_URL"`
+	LegacyPublicAppURL string `env:"PUBLIC_APP_URL"`
 
 	// Google Calendar (unset: integration disabled)
 	GoogleClientID     string `env:"GOOGLE_CLIENT_ID"`
@@ -101,18 +105,38 @@ type Config struct {
 // IsRelease reports whether the API runs in production mode (GIN_MODE=release).
 func (c Config) IsRelease() bool { return c.GinMode == "release" }
 
+// devAppURL is the web app in docker-compose.dev.yaml (host port 3000).
+const devAppURL = "http://localhost:3000"
+
 // Get returns the current configuration. Values that fail to parse are left
 // at their zero value; Load has already rejected them at startup.
 func Get() Config {
-	cfg, _ := env.ParseAs[Config]()
+	cfg, _ := parse()
 	return cfg
+}
+
+func parse() (Config, error) {
+	cfg, err := env.ParseAs[Config]()
+	for _, v := range []string{cfg.AppURL, cfg.LegacyFrontendURL, cfg.LegacyPublicAppURL} {
+		if v = strings.TrimSpace(v); v != "" {
+			cfg.AppURL = v
+			break
+		}
+	}
+	if cfg.AppURL == "" && !cfg.IsRelease() {
+		cfg.AppURL = devAppURL
+	}
+	return cfg, err
 }
 
 // Load parses and validates the environment: required variables, values that
 // don't parse, and the variables only release requires.
 func Load() (Config, error) {
-	cfg, err := env.ParseAs[Config]()
+	cfg, err := parse()
 	errs, reported := envErrors(err)
+	if cfg.AppURL == "" {
+		errs = append(errs, errors.New(`env: "APP_URL" is required with GIN_MODE=release`))
+	}
 	if cfg.AuthExp <= 0 && !reported["AUTH_EXP"] {
 		errs = append(errs, errors.New(`env: "AUTH_EXP" must be a positive number of minutes`))
 	}

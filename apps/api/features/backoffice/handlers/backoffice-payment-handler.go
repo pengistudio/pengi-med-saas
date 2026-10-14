@@ -100,7 +100,7 @@ func (h *BackofficePaymentHandler) GeneratePayments(c *gin.Context) envelope.Res
 			OrderID:         orderID,
 			Description:     fmt.Sprintf("Suscripción Pengi - %s (%d mes(es))", sub.Plan.Name, months),
 			NotificationURL: config.Get().DLocalNotificationURL,
-			SuccessURL:      config.Get().FrontendURL + "/subscription?status=success",
+			SuccessURL:      config.Get().AppURL + "/subscription?status=success",
 		})
 		if err != nil {
 			h.logger.Error("Failed to create dlocal payment", zap.Uint("subscription_id", subID), zap.Error(err))
