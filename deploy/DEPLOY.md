@@ -83,30 +83,14 @@ cd pengi-med-saas
 
 ## 4. Configurar secretos
 
-### Opción A — Doppler (recomendado)
+Los secretos viven en dos lugares:
 
-Doppler sincroniza los secretos al servidor sin tocar archivos en disco.
-
-```bash
-# Instalar Doppler CLI
-curl -Ls https://cli.doppler.com/install.sh | sh
-
-# Autenticarse (genera un token de servicio en doppler.com)
-doppler login
-
-# Configurar el proyecto
-doppler setup
-
-# Verificar
-doppler secrets
-```
-
-Luego para correr docker compose:
-```bash
-doppler run -- docker compose -f deploy/docker-compose.prod.yaml up -d
-```
-
-### Opción B — Archivo .env.prod (más simple)
+- **API (runtime):** `deploy/.env.prod` en el servidor. Compose lo pasa a la
+  `api` (`env_file`) y lo usa para interpolar (credenciales de RabbitMQ), por
+  eso todos los comandos llevan `--env-file .env.prod`.
+- **Frontends (build):** secrets de GitHub (`VITE_API_URL`, `VITE_WEB_APP_URL`,
+  `PUBLIC_APP_URL`), que `.github/workflows/deploy.yml` hornea en las imágenes.
+  Un build sin ellos falla.
 
 ```bash
 cp deploy/.env.prod.example deploy/.env.prod
@@ -114,10 +98,19 @@ nano deploy/.env.prod   # completar todos los valores
 chmod 600 deploy/.env.prod
 ```
 
-Generar AUTH_KEY segura:
+Generar `AUTH_KEY` y las claves de cifrado (`SIGNATURE_ENCRYPTION_KEY`,
+`ATTACHMENT_ENCRYPTION_KEY`, `WHATSAPP_ENCRYPTION_KEY`), cada una distinta:
 ```bash
 openssl rand -base64 32
 ```
+Guarda una copia de las claves de cifrado fuera del servidor: si se pierden,
+lo que cifran (P12, adjuntos, tokens de WhatsApp) queda ilegible.
+
+La API valida su configuración al arrancar (`apps/api/core/config`): si falta
+una variable obligatoria no arranca y el log dice cuál. Cada cambio en
+`.env.prod` necesita recrear el contenedor (`up -d api`); `restart` no vuelve a
+leer el archivo. Antes de editarlo, guarda una copia:
+`cp -p .env.prod .env.prod.bak-$(date +%Y%m%d%H%M)`.
 
 ---
 
@@ -134,20 +127,15 @@ nano deploy/Caddyfile
 
 ```bash
 cd deploy
-
-# Con Doppler:
-doppler run -- docker compose -f docker-compose.prod.yaml up -d --build
-
-# Sin Doppler:
-docker compose -f docker-compose.prod.yaml up -d --build
+docker compose --env-file .env.prod -f docker-compose.prod.yaml up -d --build
 ```
 
 Caddy obtiene el certificado SSL automáticamente al primer arranque.
 Verificar que todo esté corriendo:
 
 ```bash
-docker compose -f docker-compose.prod.yaml ps
-docker compose -f docker-compose.prod.yaml logs caddy
+docker compose --env-file .env.prod -f docker-compose.prod.yaml ps
+docker compose --env-file .env.prod -f docker-compose.prod.yaml logs caddy
 ```
 
 ---
@@ -162,9 +150,9 @@ git pull
 
 # Reconstruir y reiniciar solo los servicios afectados
 cd deploy
-docker compose -f docker-compose.prod.yaml up -d --build api
+docker compose --env-file .env.prod -f docker-compose.prod.yaml up -d --build api
 # o todos:
-docker compose -f docker-compose.prod.yaml up -d --build
+docker compose --env-file .env.prod -f docker-compose.prod.yaml up -d --build
 ```
 
 Los contenedores sin cambios no se reinician (Docker detecta el mismo image digest).
@@ -200,13 +188,13 @@ Considerar sincronizar `backups/` a DO Spaces (S3 compatible) con `s3cmd` o `rcl
 
 ```bash
 # Todos los servicios
-docker compose -f docker-compose.prod.yaml logs -f
+docker compose --env-file .env.prod -f docker-compose.prod.yaml logs -f
 
 # Solo la API
-docker compose -f docker-compose.prod.yaml logs -f api
+docker compose --env-file .env.prod -f docker-compose.prod.yaml logs -f api
 
 # Solo Caddy (útil para verificar SSL)
-docker compose -f docker-compose.prod.yaml logs -f caddy
+docker compose --env-file .env.prod -f docker-compose.prod.yaml logs -f caddy
 ```
 
 ---
@@ -215,10 +203,13 @@ docker compose -f docker-compose.prod.yaml logs -f caddy
 
 ```bash
 # Detener todo
-docker compose -f docker-compose.prod.yaml down
+docker compose --env-file .env.prod -f docker-compose.prod.yaml down
 
-# Reiniciar un servicio
-docker compose -f docker-compose.prod.yaml restart api
+# Reiniciar un servicio (no vuelve a leer .env.prod)
+docker compose --env-file .env.prod -f docker-compose.prod.yaml restart api
+
+# Aplicar cambios de .env.prod (recrea el contenedor)
+docker compose --env-file .env.prod -f docker-compose.prod.yaml up -d api
 
 # Ver uso de recursos
 docker stats

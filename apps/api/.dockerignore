@@ -1,0 +1,9 @@
+# The build context is apps/api and the Dockerfile copies everything: keep
+# local secrets, tenant files (P12s, logos, signed XML) and builds out of the
+# image.
+.env*
+storage
+tmp
+main
+*.test
+.DS_Store
