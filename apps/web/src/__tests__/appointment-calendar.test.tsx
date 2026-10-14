@@ -1,6 +1,6 @@
 import { useMessageStore } from "@pengi/shared";
 import { UiTextProvider } from "@pengi/ui";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
@@ -122,8 +122,13 @@ describe("AppointmentCalendar", () => {
 		localStorage.setItem("agenda-view", "day");
 		try {
 			renderWeek("es");
+			// Until the agenda arrives every active doctor gets a column, so wait
+			// for the filter instead of checking right after the first render.
 			expect(await screen.findByText("Ana Mora")).toBeInTheDocument();
-			expect(screen.queryByText("Beto Ruiz")).not.toBeInTheDocument();
+			await waitFor(() =>
+				expect(screen.queryByText("Beto Ruiz")).not.toBeInTheDocument(),
+			);
+			expect(screen.getByText("Ana Mora")).toBeInTheDocument();
 			expect(getAgendaRange).toHaveBeenCalledWith("2026-09-28", "2026-10-04");
 		} finally {
 			localStorage.removeItem("agenda-view");
