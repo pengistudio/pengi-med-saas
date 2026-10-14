@@ -15,6 +15,10 @@ check:
 lint:
 	npx @biomejs/biome check --write ./apps/web ./apps/backoffice ./packages/ui
 
+# Check that the env vars the apps read match .env.example and deploy/.env.prod.example
+check-env:
+	node scripts/check-env.mjs
+
 # Configure git to use shared hooks (run once after cloning)
 setup:
 	git config core.hooksPath .githooks
