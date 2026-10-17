@@ -82,12 +82,52 @@ type VisitType = "first" | "followup";
 type PrescriptionMode = "text" | "structured";
 
 const prescriptionItemSchema = z.object({
-	medication: z.string().min(1, "Campo requerido"),
-	dose: z.string().min(1, "Campo requerido"),
-	frequency: z.string().min(1, "Campo requerido"),
-	duration: z.string().min(1, "Campo requerido"),
+	medication: z.string(),
+	dose: z.string(),
+	frequency: z.string(),
+	duration: z.string(),
 	notes: z.string().optional(),
 });
+
+const REQUIRED_ITEM_FIELDS = [
+	"medication",
+	"dose",
+	"frequency",
+	"duration",
+] as const;
+
+type PrescriptionItem = z.infer<typeof prescriptionItemSchema>;
+
+function isBlankItem(item: PrescriptionItem) {
+	return (
+		REQUIRED_ITEM_FIELDS.every((key) => !item[key]?.trim()) &&
+		!item.notes?.trim()
+	);
+}
+
+// Items are only validated in structured mode: in free text they are hidden
+// and not sent, so their errors would block the submit without being visible.
+const prescriptionSchema = z
+	.object({
+		mode: z.enum(["text", "structured"]).default("text"),
+		content: z.string().optional(),
+		indications: z.string().optional(),
+		items: z.array(prescriptionItemSchema).optional(),
+	})
+	.superRefine((prescription, ctx) => {
+		if (prescription.mode !== "structured") return;
+		prescription.items?.forEach((item, index) => {
+			for (const key of REQUIRED_ITEM_FIELDS) {
+				if (!item[key]) {
+					ctx.addIssue({
+						code: "custom",
+						message: "Campo requerido",
+						path: ["items", index, key],
+					});
+				}
+			}
+		});
+	});
 
 const formSchema = z
 	.object({
@@ -113,13 +153,7 @@ const formSchema = z
 				.min(1, "Campo requerido"),
 			plan: z.string({ error: "Campo requerido" }).min(1, "Campo requerido"),
 		}),
-		prescription: z
-			.object({
-				content: z.string().optional(),
-				indications: z.string().optional(),
-				items: z.array(prescriptionItemSchema).optional(),
-			})
-			.optional(),
+		prescription: prescriptionSchema.optional(),
 		vital_signs: vitalSignsSchema.optional(),
 		diagnoses: z
 			.array(z.object({ code: z.string(), title: z.string() }))
@@ -144,8 +178,6 @@ type TabId = (typeof TABS)[number];
 
 const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 	const [loading, setLoading] = React.useState(false);
-	const [prescriptionMode, setPrescriptionMode] =
-		React.useState<PrescriptionMode>("text");
 	const [lastRecord, setLastRecord] = React.useState<MedicalRecord | null>(
 		null,
 	);
@@ -243,8 +275,6 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 						visitType={visitType}
 						loading={loading}
 						textGet={textGet}
-						prescriptionMode={prescriptionMode}
-						onPrescriptionModeChange={setPrescriptionMode}
 						allergies={allergies}
 						lastRecord={lastRecord}
 						onPreviewLastRecord={() => setPreviewOpen(true)}
@@ -289,7 +319,7 @@ const CreateMedicalRecordForm = ({ visitType }: { visitType: VisitType }) => {
 
 		let prescription: CreateMedicalRecordPayload["prescription"];
 
-		if (prescriptionMode === "text") {
+		if (values.prescription?.mode !== "structured") {
 			const hasText =
 				values.prescription?.content || values.prescription?.indications;
 			if (hasText) {
@@ -376,8 +406,6 @@ function FormWithDraft({
 	visitType,
 	loading,
 	textGet,
-	prescriptionMode,
-	onPrescriptionModeChange,
 	allergies,
 	lastRecord,
 	onPreviewLastRecord,
@@ -394,8 +422,6 @@ function FormWithDraft({
 	visitType: VisitType;
 	loading: boolean;
 	textGet: AppText["textGet"];
-	prescriptionMode: PrescriptionMode;
-	onPrescriptionModeChange: (mode: PrescriptionMode) => void;
 	allergies: string[];
 	lastRecord: MedicalRecord | null;
 	onPreviewLastRecord: () => void;
@@ -447,8 +473,6 @@ function FormWithDraft({
 				visitType={visitType}
 				loading={loading}
 				textGet={textGet}
-				prescriptionMode={prescriptionMode}
-				onPrescriptionModeChange={onPrescriptionModeChange}
 				allergies={allergies}
 				lastRecord={lastRecord}
 				onPreviewLastRecord={onPreviewLastRecord}
@@ -470,7 +494,7 @@ function emptyConsultation() {
 	return {
 		date: new Date(),
 		next_appointment_status: "scheduled" as const,
-		prescription: { items: [] },
+		prescription: { mode: "text" as const, items: [] },
 	};
 }
 
@@ -479,8 +503,6 @@ function FormInner({
 	visitType,
 	loading,
 	textGet,
-	prescriptionMode,
-	onPrescriptionModeChange,
 	allergies,
 	lastRecord,
 	onPreviewLastRecord,
@@ -498,8 +520,6 @@ function FormInner({
 	visitType: VisitType;
 	loading: boolean;
 	textGet: AppText["textGet"];
-	prescriptionMode: PrescriptionMode;
-	onPrescriptionModeChange: (mode: PrescriptionMode) => void;
 	allergies: string[];
 	lastRecord: MedicalRecord | null;
 	onPreviewLastRecord: () => void;
@@ -547,6 +567,22 @@ function FormInner({
 		control: field.control,
 		name: "prescription",
 	});
+	const prescriptionMode: PrescriptionMode =
+		watchedPrescription?.mode ?? "text";
+
+	// Back to free text: medications added but never filled are dropped, so
+	// an empty one doesn't linger in the draft or reappear in structured mode.
+	function changePrescriptionMode(mode: PrescriptionMode) {
+		if (mode === "text") {
+			const items = field.getValues("prescription.items") ?? [];
+			const blank = items.flatMap((item, index) =>
+				isBlankItem(item) ? [index] : [],
+			);
+			if (blank.length > 0) remove(blank);
+			field.clearErrors("prescription.items");
+		}
+		field.setValue("prescription.mode", mode, { shouldDirty: true });
+	}
 	const watchedDiagnoses = useWatch({
 		control: field.control,
 		name: "diagnoses",
@@ -1139,7 +1175,7 @@ function FormInner({
 							<Tabs
 								value={prescriptionMode}
 								onValueChange={(v) =>
-									onPrescriptionModeChange(v as PrescriptionMode)
+									changePrescriptionMode(v as PrescriptionMode)
 								}
 							>
 								<TabsList>

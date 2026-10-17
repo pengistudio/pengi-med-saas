@@ -18,6 +18,7 @@ type DraftValues = {
 		plan?: string;
 	};
 	prescription?: {
+		mode?: "text" | "structured";
 		content?: string;
 		indications?: string;
 		items?: Array<{
@@ -52,6 +53,7 @@ type FormValues = {
 		plan?: string;
 	};
 	prescription?: {
+		mode?: "text" | "structured";
 		content?: string;
 		indications?: string;
 		items?: Array<{
@@ -82,8 +84,16 @@ function toDraftValues(values: FormValues): DraftValues {
 }
 
 function fromDraftValues(parsed: DraftValues): FormValues {
+	const prescription = parsed.prescription;
 	return {
 		...parsed,
+		// Drafts saved before the mode was stored: medications mean structured.
+		prescription: prescription && {
+			...prescription,
+			mode:
+				prescription.mode ??
+				(prescription.items?.length ? "structured" : "text"),
+		},
 		date: parsed.date ? new Date(parsed.date) : new Date(),
 		next_appointment_date: parsed.next_appointment_date
 			? new Date(parsed.next_appointment_date)
