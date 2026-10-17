@@ -22,6 +22,7 @@ import {
 	MoreVertical,
 	Pill,
 	Plus,
+	Trash2,
 } from "lucide-react";
 import type { MedicalRecord } from "@/api/clinical-service";
 import { FormattedDate } from "@/components/custom/formatted";
@@ -37,6 +38,7 @@ interface ActionCellProps {
 	onEditPrescription?: (record: MedicalRecord) => void;
 	onDownloadPrescription?: (record: MedicalRecord) => void;
 	onSendWhatsApp?: (record: MedicalRecord) => void;
+	onDelete?: (record: MedicalRecord) => void;
 }
 
 function ActionsCell({
@@ -47,6 +49,7 @@ function ActionsCell({
 	onEditPrescription,
 	onDownloadPrescription,
 	onSendWhatsApp,
+	onDelete,
 }: ActionCellProps) {
 	const { checkPermission } = usePermission();
 	const hasPrescription = !!row.original.prescription;
@@ -132,6 +135,20 @@ function ActionsCell({
 						)
 					)}
 				</DropdownMenuGroup>
+				{checkPermission([
+					PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_MEDICAL_RECORD,
+				]) && (
+					<>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem
+							variant="destructive"
+							onClick={() => onDelete?.(row.original)}
+						>
+							<Trash2 className="w-4 h-4 mr-2" />
+							<Text uuid="clinical.medical_record.delete" />
+						</DropdownMenuItem>
+					</>
+				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
@@ -144,6 +161,7 @@ export const getMedicalRecordColumns = (
 	onEditPrescription?: (record: MedicalRecord) => void,
 	onDownloadPrescription?: (record: MedicalRecord) => void,
 	onSendWhatsApp?: (record: MedicalRecord) => void,
+	onDelete?: (record: MedicalRecord) => void,
 ): ColumnDef<MedicalRecord>[] => [
 	selectColumn<MedicalRecord>(),
 	{
@@ -230,6 +248,7 @@ export const getMedicalRecordColumns = (
 				onEditPrescription={onEditPrescription}
 				onDownloadPrescription={onDownloadPrescription}
 				onSendWhatsApp={onSendWhatsApp}
+				onDelete={onDelete}
 			/>
 		),
 		size: 50,

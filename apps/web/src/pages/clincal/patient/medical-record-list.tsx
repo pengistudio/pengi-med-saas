@@ -2,6 +2,11 @@ import { useText } from "@pengi/shared";
 import {
 	Badge,
 	Button,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
@@ -11,9 +16,11 @@ import {
 	useToast,
 } from "@pengi/ui";
 import {
+	ArchiveRestore,
 	Cake,
 	ChevronRight,
 	CircleAlert,
+	Files,
 	IdCard,
 	MessageCircle,
 	MoreHorizontal,
@@ -25,11 +32,15 @@ import {
 import React from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
+	type DeletedMedicalRecord,
+	deleteMedicalRecord,
 	downloadPrescription,
+	getDeletedMedicalRecords,
 	getMedicalRecords,
 	getPatientById,
 	type MedicalRecord,
 	type Patient,
+	restoreMedicalRecord,
 	updateCritical,
 	updateCriticalRevert,
 } from "@/api/clinical-service";
@@ -47,7 +58,11 @@ import {
 	buildPrescriptionWhatsAppMessage,
 	generateWhatsAppLink,
 } from "@/lib/utils";
+import { getDeletedMedicalRecordColumns } from "@/sections/columns/clinical/deleted-medical-record-columns";
 import { getMedicalRecordColumns } from "@/sections/columns/clinical/medical-record-columns";
+import MedicalRecordDeleteForm, {
+	type MedicalRecordDeleteValues,
+} from "@/sections/forms/clinical/medical-record-delete-form";
 import {
 	selectPatient,
 	selectSetPatient,
@@ -84,6 +99,32 @@ const MedicalRecords = () => {
 	const [showEditPrescription, setShowEditPrescription] = React.useState(false);
 	const [selectedRecord, setSelectedRecord] =
 		React.useState<MedicalRecord | null>(null);
+
+	// Soft delete with a reason; the deleted ones are listed apart and can be
+	// restored (DELETE_MEDICAL_RECORD).
+	const canDelete = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_MEDICAL_RECORD,
+	]);
+	const [deleting, setDeleting] = React.useState<MedicalRecord | null>(null);
+	const [deletingBusy, setDeletingBusy] = React.useState(false);
+	const [showDeleted, setShowDeleted] = React.useState(false);
+	const [deletedRecords, setDeletedRecords] = React.useState<
+		DeletedMedicalRecord[]
+	>([]);
+	const [deletedLoading, setDeletedLoading] = React.useState(false);
+	const [restoringId, setRestoringId] = React.useState<number | null>(null);
+
+	const loadDeleted = React.useCallback(() => {
+		if (!patient) return;
+		getDeletedMedicalRecords(patient.ID).then((res) => {
+			setDeletedRecords(res.success ? (res.data ?? []) : []);
+			setDeletedLoading(false);
+		});
+	}, [patient]);
+
+	React.useEffect(() => {
+		if (showDeleted) loadDeleted();
+	}, [showDeleted, loadDeleted]);
 
 	// Show the spinner as soon as the query changes (adjust state during render).
 	const [prevQuery, setPrevQuery] = React.useState({ patient, page });
@@ -249,46 +290,92 @@ const MedicalRecords = () => {
 					<PatientCard patient={patient} onEditPatient={handleEditPatient} />
 				)}
 				<section className="min-w-0">
-					<h2 className="text-lg font-semibold">
-						<Text uuid="clinical.medical_record.history_title" />
-					</h2>
-					<DataTable
-						searchKey="motive"
-						searchPlaceholder={textGet(
-							"clinical.medical_record.search.placeholder",
+					<div className="flex items-center justify-between gap-2">
+						<h2 className="text-lg font-semibold">
+							<Text
+								uuid={
+									showDeleted
+										? "clinical.medical_record.deleted.title"
+										: "clinical.medical_record.history_title"
+								}
+							/>
+						</h2>
+						{canDelete && (
+							<Button
+								type="button"
+								size="sm"
+								variant="ghost"
+								className="text-muted-foreground"
+								onClick={() => {
+									setDeletedLoading(!showDeleted);
+									setShowDeleted((v) => !v);
+								}}
+							>
+								{showDeleted ? <Files /> : <ArchiveRestore />}
+								<Text
+									uuid={
+										showDeleted
+											? "clinical.medical_record.deleted.hide"
+											: "clinical.medical_record.deleted.show"
+									}
+								/>
+							</Button>
 						)}
-						columns={getMedicalRecordColumns(
-							handleView,
-							handleEdit,
-							handleViewPrescription,
-							handleEditPrescription,
-							handleDownloadPrescription,
-							handleSendWhatsAppPrescription,
-						)}
-						data={medicalRecords}
-						loading={loading}
-						pageCount={totalPages}
-						page={page}
-						onPageChange={setPage}
-						emptyState={
-							<div className="flex flex-col items-center gap-3 py-4">
-								<p className="text-sm text-muted-foreground">
-									{textGet("clinical.medical_record.empty")}
+					</div>
+					{showDeleted ? (
+						<DataTable
+							columns={getDeletedMedicalRecordColumns(
+								handleRestore,
+								restoringId,
+							)}
+							data={deletedRecords}
+							loading={deletedLoading}
+							emptyState={
+								<p className="py-4 text-sm text-muted-foreground">
+									{textGet("clinical.medical_record.deleted.empty")}
 								</p>
-								{checkPermission([
-									PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
-								]) && (
-									<button
-										type="button"
-										onClick={handleCreateMedicalRecord}
-										className="text-sm text-primary underline-offset-4 hover:underline"
-									>
-										{textGet("clinical.medical_record.new_consultation")}
-									</button>
-								)}
-							</div>
-						}
-					/>
+							}
+						/>
+					) : (
+						<DataTable
+							searchKey="motive"
+							searchPlaceholder={textGet(
+								"clinical.medical_record.search.placeholder",
+							)}
+							columns={getMedicalRecordColumns(
+								handleView,
+								handleEdit,
+								handleViewPrescription,
+								handleEditPrescription,
+								handleDownloadPrescription,
+								handleSendWhatsAppPrescription,
+								canDelete ? setDeleting : undefined,
+							)}
+							data={medicalRecords}
+							loading={loading}
+							pageCount={totalPages}
+							page={page}
+							onPageChange={setPage}
+							emptyState={
+								<div className="flex flex-col items-center gap-3 py-4">
+									<p className="text-sm text-muted-foreground">
+										{textGet("clinical.medical_record.empty")}
+									</p>
+									{checkPermission([
+										PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+									]) && (
+										<button
+											type="button"
+											onClick={handleCreateMedicalRecord}
+											className="text-sm text-primary underline-offset-4 hover:underline"
+										>
+											{textGet("clinical.medical_record.new_consultation")}
+										</button>
+									)}
+								</div>
+							}
+						/>
+					)}
 				</section>
 			</div>
 
@@ -297,6 +384,33 @@ const MedicalRecords = () => {
 				onOpenChange={setShowPrescription}
 				prescription={selectedRecord?.prescription || latestPrescription}
 			/>
+
+			<Dialog
+				open={deleting !== null}
+				onOpenChange={(open) => {
+					if (!open) setDeleting(null);
+				}}
+			>
+				<DialogContent className="sm:max-w-[525px]">
+					<DialogHeader>
+						<DialogTitle>
+							{textGet("clinical.medical_record.delete.title")}
+						</DialogTitle>
+						<DialogDescription>
+							{deleting &&
+								textGet("clinical.medical_record.delete.description", {
+									date: formatDate(deleting.date),
+								})}
+						</DialogDescription>
+					</DialogHeader>
+					{deleting && (
+						<MedicalRecordDeleteForm
+							loading={deletingBusy}
+							onSubmit={handleDelete}
+						/>
+					)}
+				</DialogContent>
+			</Dialog>
 
 			<EditPrescriptionDialog
 				open={showEditPrescription}
@@ -324,6 +438,30 @@ const MedicalRecords = () => {
 	function handleEditPrescription(record: MedicalRecord) {
 		setSelectedRecord(record);
 		setShowEditPrescription(true);
+	}
+
+	async function handleDelete(values: MedicalRecordDeleteValues) {
+		if (!deleting) return;
+		setDeletingBusy(true);
+		const res = await deleteMedicalRecord(deleting.ID, values.reason.trim());
+		setDeletingBusy(false);
+		if (res.success) {
+			setDeleting(null);
+			// The last record of a page is gone: go back one page.
+			if (medicalRecords.length === 1 && page > 1) setPage(page - 1);
+			else reloadRecords();
+		}
+	}
+
+	async function handleRestore(record: DeletedMedicalRecord) {
+		setRestoringId(record.ID);
+		const res = await restoreMedicalRecord(record.ID);
+		setRestoringId(null);
+		if (res.success) {
+			setDeletedLoading(true);
+			loadDeleted();
+			reloadRecords();
+		}
 	}
 
 	function reloadRecords() {

@@ -10714,5 +10714,113 @@
     {
         "key": "appointments.day.other_doctor",
         "value": "Other doctor"
+    },
+    {
+        "key": "clinical.medical_record.delete.reason.required",
+        "value": "Enter the reason for the deletion."
+    },
+    {
+        "key": "clinical.medical_record.delete.reason.too_long",
+        "value": "The reason can't be longer than 500 characters."
+    },
+    {
+        "key": "clinical.medical_record.delete.error",
+        "value": "The medical record couldn't be deleted."
+    },
+    {
+        "key": "clinical.medical_record.delete.success",
+        "value": "Medical record deleted."
+    },
+    {
+        "key": "clinical.medical_record.deleted.list.success",
+        "value": "Deleted medical records retrieved."
+    },
+    {
+        "key": "clinical.medical_record.restore.error",
+        "value": "The medical record couldn't be restored."
+    },
+    {
+        "key": "clinical.medical_record.restore.success",
+        "value": "Medical record restored."
+    },
+    {
+        "key": "clinical.medical_record.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "clinical.medical_record.delete.title",
+        "value": "Delete medical record"
+    },
+    {
+        "key": "clinical.medical_record.delete.description",
+        "value": "The consultation of {date} will stop showing, but it stays on record with its prescription, vital signs and documents, and can be restored."
+    },
+    {
+        "key": "clinical.medical_record.delete.reason",
+        "value": "Reason for deletion"
+    },
+    {
+        "key": "clinical.medical_record.delete.reason.placeholder",
+        "value": "Why this medical record is being deleted"
+    },
+    {
+        "key": "clinical.medical_record.delete.confirm",
+        "value": "Delete record"
+    },
+    {
+        "key": "clinical.medical_record.delete.error.reason_required",
+        "value": "The reason is required."
+    },
+    {
+        "key": "clinical.medical_record.delete.error.reason_long",
+        "value": "The reason can't be longer than 500 characters."
+    },
+    {
+        "key": "clinical.medical_record.deleted.show",
+        "value": "Deleted"
+    },
+    {
+        "key": "clinical.medical_record.deleted.hide",
+        "value": "Show records"
+    },
+    {
+        "key": "clinical.medical_record.deleted.title",
+        "value": "Deleted medical records"
+    },
+    {
+        "key": "clinical.medical_record.deleted.empty",
+        "value": "There are no deleted medical records."
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.consultation",
+        "value": "Consultation"
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.by",
+        "value": "Deleted by"
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.at",
+        "value": "Deleted on"
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "clinical.medical_record.restore",
+        "value": "Restore"
+    },
+    {
+        "key": "table.column.vital_signs",
+        "value": "Vital signs"
+    },
+    {
+        "key": "table.column.diagnoses",
+        "value": "Diagnoses"
+    },
+    {
+        "key": "table.column.patient",
+        "value": "Patient"
     }
 ]

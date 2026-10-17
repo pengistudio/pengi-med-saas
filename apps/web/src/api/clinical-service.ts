@@ -419,6 +419,40 @@ export const getMedicalRecords = async (
 	);
 };
 
+/** A deleted medical record, with who deleted it, when (DeletedAt) and why. */
+export interface DeletedMedicalRecord extends MedicalRecord {
+	deleted_by_id?: number | null;
+	deleted_by_name?: string;
+	delete_reason?: string;
+}
+
+/** Soft delete: the record stays on file and can be restored. */
+export const deleteMedicalRecord = async (
+	id: number,
+	reason: string,
+): Promise<ServiceResponse<null>> =>
+	clinicalService.delete<null>(`/clinical/records/${id}`, {
+		data: { reason },
+		notifySuccess: true,
+		notifyError: true,
+	});
+
+export const getDeletedMedicalRecords = async (
+	patientId: number,
+): Promise<ServiceResponse<DeletedMedicalRecord[]>> =>
+	clinicalService.get<DeletedMedicalRecord[]>(
+		`/clinical/records/patient/${patientId}/deleted`,
+		{ notifyError: true },
+	);
+
+export const restoreMedicalRecord = async (
+	id: number,
+): Promise<ServiceResponse<null>> =>
+	clinicalService.post<null>(`/clinical/records/${id}/restore`, undefined, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+
 export const getMedicalRecordById = async (
 	id: number,
 ): Promise<ServiceResponse<MedicalRecord>> => {
