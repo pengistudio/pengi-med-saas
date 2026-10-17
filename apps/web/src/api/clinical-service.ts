@@ -437,6 +437,16 @@ export const deleteMedicalRecord = async (
 		notifyError: true,
 	});
 
+export const bulkDeleteMedicalRecords = async (
+	ids: number[],
+	reason: string,
+): Promise<ServiceResponse<null>> =>
+	clinicalService.post<null>(
+		"/clinical/records/bulk-delete",
+		{ ids, reason },
+		{ notifySuccess: true, notifyError: true },
+	);
+
 export const getDeletedMedicalRecords = async (
 	patientId: number,
 ): Promise<ServiceResponse<DeletedMedicalRecord[]>> =>

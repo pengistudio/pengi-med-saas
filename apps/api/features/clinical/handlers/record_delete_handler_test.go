@@ -75,6 +75,7 @@ func newRecordDeletion(t *testing.T) *recordDeletion {
 	h := NewMedicalRecordHandler(db, zap.NewNop())
 	records := router.Group("/records")
 	records.DELETE("/:id", envelope.Handle(h.DeleteMedicalRecord))
+	records.POST("/bulk-delete", envelope.Handle(h.BulkDeleteMedicalRecords))
 	records.GET("/patient/:id/deleted", envelope.Handle(h.ListDeletedMedicalRecords))
 	records.POST("/:id/restore", envelope.Handle(h.RestoreMedicalRecord))
 	s.router = router
@@ -193,5 +194,83 @@ func TestRecordDelete_AnotherTenantIsNotFoundOnEveryRoute(t *testing.T) {
 	}
 	if s.visible(s.otherRecord.ID) {
 		t.Fatal("another clinic's record was restored")
+	}
+}
+
+func (s *recordDeletion) bulkRemove(body string) *httptest.ResponseRecorder {
+	return s.do(http.MethodPost, "/records/bulk-delete", body)
+}
+
+// secondOwnRecord adds another record to the own patient.
+func (s *recordDeletion) secondOwnRecord() clinical_models.MedicalRecord {
+	r := clinical_models.MedicalRecord{TenantID: s.ownRecord.TenantID, PatientID: s.ownPatient.ID, Date: time.Now(), Motive: "Control 2", SOAPRecord: clinical_models.SOAPRecord{Subjective: "s"}}
+	if err := s.db.Create(&r).Error; err != nil {
+		s.t.Fatalf("create record: %v", err)
+	}
+	return r
+}
+
+func TestRecordBulkDelete_DeletesAllWithTheReason(t *testing.T) {
+	s := newRecordDeletion(t)
+	second := s.secondOwnRecord()
+
+	body := fmt.Sprintf(`{"ids":[%d,%d,%d],"reason":"  Duplicadas  "}`, s.ownRecord.ID, second.ID, second.ID)
+	if w := s.bulkRemove(body); w.Code != http.StatusOK {
+		t.Fatalf("bulk delete: status %d (%s)", w.Code, w.Body)
+	}
+	for _, id := range []uint{s.ownRecord.ID, second.ID} {
+		if s.visible(id) {
+			t.Fatalf("record %d still shows", id)
+		}
+		var stored clinical_models.MedicalRecord
+		s.db.Unscoped().First(&stored, id)
+		if stored.DeleteReason != "Duplicadas" || stored.DeletedByID == nil || *stored.DeletedByID != 42 {
+			t.Fatalf("record %d: reason %q by %v, want trimmed reason by 42", id, stored.DeleteReason, stored.DeletedByID)
+		}
+	}
+	if got := decode[[]deletedMedicalRecord](t, s.listDeleted(s.ownPatient.ID)); len(got) != 2 {
+		t.Fatalf("deleted list has %d records, want 2", len(got))
+	}
+}
+
+func TestRecordBulkDelete_RejectsBadRequests(t *testing.T) {
+	s := newRecordDeletion(t)
+	id := s.ownRecord.ID
+	for name, body := range map[string]string{
+		"no body":   "",
+		"no ids":    `{"ids":[],"reason":"x"}`,
+		"no reason": fmt.Sprintf(`{"ids":[%d],"reason":"  "}`, id),
+		"too long":  fmt.Sprintf(`{"ids":[%d],"reason":"%s"}`, id, strings.Repeat("x", 501)),
+	} {
+		if w := s.bulkRemove(body); w.Code != http.StatusBadRequest {
+			t.Errorf("%s: status %d, want 400 (%s)", name, w.Code, w.Body)
+		}
+	}
+	if !s.visible(id) {
+		t.Fatal("a rejected bulk delete hid the record")
+	}
+}
+
+// One id out of reach (another clinic's, or already deleted) and nothing is
+// deleted.
+func TestRecordBulkDelete_IsAllOrNothing(t *testing.T) {
+	s := newRecordDeletion(t)
+	second := s.secondOwnRecord()
+
+	body := fmt.Sprintf(`{"ids":[%d,%d],"reason":"x"}`, s.ownRecord.ID, s.otherRecord.ID)
+	if w := s.bulkRemove(body); w.Code != http.StatusNotFound {
+		t.Fatalf("with another clinic's id: status %d, want 404", w.Code)
+	}
+	if !s.visible(s.ownRecord.ID) || !s.visible(s.otherRecord.ID) {
+		t.Fatal("a rejected bulk delete deleted records")
+	}
+
+	s.remove(second.ID, `{"reason":"x"}`)
+	body = fmt.Sprintf(`{"ids":[%d,%d],"reason":"y"}`, s.ownRecord.ID, second.ID)
+	if w := s.bulkRemove(body); w.Code != http.StatusNotFound {
+		t.Fatalf("with an already deleted id: status %d, want 404", w.Code)
+	}
+	if !s.visible(s.ownRecord.ID) {
+		t.Fatal("a rejected bulk delete deleted the own record")
 	}
 }

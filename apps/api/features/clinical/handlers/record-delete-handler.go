@@ -16,6 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // A medical record is never erased: deleting it sets deleted_at with who and
@@ -26,16 +27,35 @@ import (
 // recordDeleteReason validates the required deletion reason.
 func recordDeleteReason(c *gin.Context) (string, *envelope.Response) {
 	var req deleteAttachmentRequest
-	if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.Reason) == "" {
+	if err := c.ShouldBindJSON(&req); err != nil {
+		req.Reason = ""
+	}
+	return checkRecordDeleteReason(req.Reason)
+}
+
+// checkRecordDeleteReason trims the reason; it must be present and at most
+// attachmentDeleteReasonMax runes.
+func checkRecordDeleteReason(raw string) (string, *envelope.Response) {
+	reason := strings.TrimSpace(raw)
+	if reason == "" {
 		resp := envelope.ErrorResponse(http.StatusBadRequest, "clinical.medical_record.delete.reason.required", core_errors.ErrClinicalInvalidRequest)
 		return "", &resp
 	}
-	reason := strings.TrimSpace(req.Reason)
 	if utf8.RuneCountInString(reason) > attachmentDeleteReasonMax {
 		resp := envelope.ErrorResponse(http.StatusBadRequest, "clinical.medical_record.delete.reason.too_long", core_errors.ErrClinicalInvalidRequest)
 		return "", &resp
 	}
 	return reason, nil
+}
+
+// recordDeleteUpdates is the UPDATE that soft-deletes a record: when, why and
+// who (when the user is known).
+func recordDeleteUpdates(c *gin.Context, reason string) map[string]any {
+	updates := map[string]any{"deleted_at": time.Now(), "delete_reason": reason}
+	if uid, _, ok := auth_middleware.GetUserFromContext(c); ok {
+		updates["deleted_by_id"] = uint(uid)
+	}
+	return updates
 }
 
 // DeleteMedicalRecord soft-deletes a medical record. The reason is required.
@@ -54,15 +74,66 @@ func (h *MedicalRecordHandler) DeleteMedicalRecord(c *gin.Context) envelope.Resp
 	if err := db.First(&record, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
 	}
-	updates := map[string]any{"deleted_at": time.Now(), "delete_reason": reason}
-	if uid, _, ok := auth_middleware.GetUserFromContext(c); ok {
-		updates["deleted_by_id"] = uint(uid)
-	}
-	if err := db.Model(&record).Updates(updates).Error; err != nil {
+	if err := db.Model(&record).Updates(recordDeleteUpdates(c, reason)).Error; err != nil {
 		h.logger.Error("failed to delete medical record", zap.Uint("id", record.ID), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.medical_record.delete.error", core_errors.ErrClinicalRecordUpdateError)
 	}
 	return envelope.SuccessResponse(nil, "clinical.medical_record.delete.success")
+}
+
+// maxBulkRecordDelete caps the ids of one bulk delete.
+const maxBulkRecordDelete = 100
+
+type bulkDeleteRecordsRequest struct {
+	IDs    []uint `json:"ids"`
+	Reason string `json:"reason"`
+}
+
+// BulkDeleteMedicalRecords soft-deletes several records with one reason. It is
+// all or nothing: if any id is unknown, already deleted or of another tenant,
+// nothing is deleted (404). Each record gets its own UPDATE so the audit
+// callback logs one change per record.
+func (h *MedicalRecordHandler) BulkDeleteMedicalRecords(c *gin.Context) envelope.Response {
+	var req bulkDeleteRecordsRequest
+	if err := c.ShouldBindJSON(&req); err != nil || len(req.IDs) == 0 || len(req.IDs) > maxBulkRecordDelete {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
+	}
+	reason, errResp := checkRecordDeleteReason(req.Reason)
+	if errResp != nil {
+		return *errResp
+	}
+
+	ids := make([]uint, 0, len(req.IDs))
+	seen := map[uint]bool{}
+	for _, id := range req.IDs {
+		if !seen[id] {
+			seen[id] = true
+			ids = append(ids, id)
+		}
+	}
+
+	db := tenantdb.For(c, h.db)
+	var records []clinical_models.MedicalRecord
+	if err := db.Where("id IN ?", ids).Find(&records).Error; err != nil {
+		h.logger.Error("failed to load medical records to delete", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.medical_record.delete.error", core_errors.ErrClinicalRecordUpdateError)
+	}
+	if len(records) != len(ids) {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalRecordNotFound)
+	}
+	updates := recordDeleteUpdates(c, reason)
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		for i := range records {
+			if err := tx.Model(&records[i]).Updates(updates).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		h.logger.Error("failed to bulk delete medical records", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "clinical.medical_record.delete.error", core_errors.ErrClinicalRecordUpdateError)
+	}
+	return envelope.SuccessResponse(nil, "clinical.medical_record.delete.bulk.success")
 }
 
 // deletedMedicalRecord is a deleted record with who deleted it.

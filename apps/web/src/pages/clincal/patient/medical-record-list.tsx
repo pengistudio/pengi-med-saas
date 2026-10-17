@@ -15,6 +15,7 @@ import {
 	Text,
 	useToast,
 } from "@pengi/ui";
+import type { Row } from "@tanstack/react-table";
 import {
 	ArchiveRestore,
 	Cake,
@@ -27,11 +28,13 @@ import {
 	Pencil,
 	Pill,
 	Plus,
+	Trash,
 	TriangleAlert,
 } from "lucide-react";
 import React from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
+	bulkDeleteMedicalRecords,
 	type DeletedMedicalRecord,
 	deleteMedicalRecord,
 	downloadPrescription,
@@ -68,6 +71,7 @@ import {
 	selectSetPatient,
 	usePatientStore,
 } from "@/store/patient-store";
+import { useRowStore } from "@/store/row-store";
 
 const MedicalRecords = () => {
 	const patient = usePatientStore(selectPatient);
@@ -105,7 +109,9 @@ const MedicalRecords = () => {
 	const canDelete = checkPermission([
 		PERMISSIONS.MEDICAL_RECORD.PERMISSION_DELETE_MEDICAL_RECORD,
 	]);
-	const [deleting, setDeleting] = React.useState<MedicalRecord | null>(null);
+	// The records being deleted: one from its row menu, or the selected rows.
+	const [deleting, setDeleting] = React.useState<MedicalRecord[]>([]);
+	const { rows: selectedRows } = useRowStore();
 	const [deletingBusy, setDeletingBusy] = React.useState(false);
 	const [showDeleted, setShowDeleted] = React.useState(false);
 	const [deletedRecords, setDeletedRecords] = React.useState<
@@ -349,8 +355,25 @@ const MedicalRecords = () => {
 								handleEditPrescription,
 								handleDownloadPrescription,
 								handleSendWhatsAppPrescription,
-								canDelete ? setDeleting : undefined,
+								canDelete ? (record) => setDeleting([record]) : undefined,
 							)}
+							bulkActions={
+								canDelete ? (
+									<Button
+										variant="outline"
+										onClick={() =>
+											setDeleting(
+												(selectedRows as Row<MedicalRecord>[]).map(
+													(row) => row.original,
+												),
+											)
+										}
+									>
+										<Trash />
+										<Text uuid="table.button.delete.all.selected" />
+									</Button>
+								) : undefined
+							}
 							data={medicalRecords}
 							loading={loading}
 							pageCount={totalPages}
@@ -386,24 +409,32 @@ const MedicalRecords = () => {
 			/>
 
 			<Dialog
-				open={deleting !== null}
+				open={deleting.length > 0}
 				onOpenChange={(open) => {
-					if (!open) setDeleting(null);
+					if (!open) setDeleting([]);
 				}}
 			>
 				<DialogContent className="sm:max-w-[525px]">
 					<DialogHeader>
 						<DialogTitle>
-							{textGet("clinical.medical_record.delete.title")}
+							{textGet(
+								deleting.length > 1
+									? "clinical.medical_record.delete.bulk.title"
+									: "clinical.medical_record.delete.title",
+							)}
 						</DialogTitle>
 						<DialogDescription>
-							{deleting &&
-								textGet("clinical.medical_record.delete.description", {
-									date: formatDate(deleting.date),
-								})}
+							{deleting.length > 1
+								? textGet("clinical.medical_record.delete.bulk.description", {
+										count: deleting.length,
+									})
+								: deleting.length === 1 &&
+									textGet("clinical.medical_record.delete.description", {
+										date: formatDate(deleting[0].date),
+									})}
 						</DialogDescription>
 					</DialogHeader>
-					{deleting && (
+					{deleting.length > 0 && (
 						<MedicalRecordDeleteForm
 							loading={deletingBusy}
 							onSubmit={handleDelete}
@@ -441,14 +472,22 @@ const MedicalRecords = () => {
 	}
 
 	async function handleDelete(values: MedicalRecordDeleteValues) {
-		if (!deleting) return;
+		if (deleting.length === 0) return;
+		const reason = values.reason.trim();
 		setDeletingBusy(true);
-		const res = await deleteMedicalRecord(deleting.ID, values.reason.trim());
+		const res =
+			deleting.length === 1
+				? await deleteMedicalRecord(deleting[0].ID, reason)
+				: await bulkDeleteMedicalRecords(
+						deleting.map((r) => r.ID),
+						reason,
+					);
 		setDeletingBusy(false);
 		if (res.success) {
-			setDeleting(null);
-			// The last record of a page is gone: go back one page.
-			if (medicalRecords.length === 1 && page > 1) setPage(page - 1);
+			setDeleting([]);
+			// The last records of a page are gone: go back one page.
+			if (medicalRecords.length <= deleting.length && page > 1)
+				setPage(page - 1);
 			else reloadRecords();
 		}
 	}
