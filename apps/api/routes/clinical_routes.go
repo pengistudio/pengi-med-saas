@@ -76,6 +76,10 @@ func RegisterClinicalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			recordGroup.POST("", rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(recordHandler.CreateMedicalRecord))
 			recordGroup.PUT("/:id", rp(db, "UPDATE_MEDICAL_RECORD"), envelope.Handle(recordHandler.UpdateMedicalRecord))
 			recordGroup.GET("/patient/:id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(recordHandler.GetMedicalRecords))
+			// Soft delete with a reason; the deleted ones can be listed and restored.
+			recordGroup.DELETE("/:id", rp(db, "DELETE_MEDICAL_RECORD"), envelope.Handle(recordHandler.DeleteMedicalRecord))
+			recordGroup.GET("/patient/:id/deleted", rp(db, "DELETE_MEDICAL_RECORD"), envelope.Handle(recordHandler.ListDeletedMedicalRecords))
+			recordGroup.POST("/:id/restore", rp(db, "DELETE_MEDICAL_RECORD"), envelope.Handle(recordHandler.RestoreMedicalRecord))
 			recordGroup.GET("/:id", rp(db, "READ_MEDICAL_RECORD"), envelope.Handle(recordHandler.GetMedicalRecord))
 			recordGroup.PUT("/:id/prescription", rp(db, "UPDATE_PRESCRIPTION"), envelope.Handle(recordHandler.UpdatePrescription))
 			recordGroup.GET("/:id/prescription/download", rp(db, "UPDATE_PRESCRIPTION"), downloadHandler.DownloadPrescription)

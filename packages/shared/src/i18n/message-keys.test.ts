@@ -12,7 +12,8 @@ import { describe, expect, it } from "vitest";
  * plural forms instead: `a.b.one` and `a.b.other`.
  *
  * Only literal keys are checked: `textGet("a.b")`, `textGet('a.b')`,
- * `uuid="a.b"` and `uuid={"a.b"}`. Keys built at runtime (template literals,
+ * `uuid="a.b"`, `uuid={"a.b"}` and column titles (`meta: { title: "a.b" }`,
+ * which the data table passes to textGet). Keys built at runtime (template literals,
  * variables, concatenation) can't be read statically and are skipped; the
  * test counts them (about a hundred, e.g. `textGet(\`status.${s}\`)`,
  * `uuid={item.labelKey}`) so a big jump is visible.
@@ -34,6 +35,8 @@ const LITERAL_TEXT_GET = /\btextGet\(\s*(["'])([^"'`\n]+)\1\s*[,)]/g;
 const ANY_TEXT_GET = /\btextGet\(/g;
 const LITERAL_UUID = /\buuid=\{?\s*(["'])([^"'`\n]+)\1\s*\}?/g;
 const ANY_UUID = /\buuid=/g;
+const LITERAL_COLUMN_TITLE =
+	/\bmeta:\s*\{[^}]*?\btitle:\s*(["'])([^"'`\n]+)\1/g;
 
 function sourceFiles(dir: string): string[] {
 	return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -76,6 +79,9 @@ function collectKeys() {
 				(source.match(ANY_TEXT_GET)?.length ?? 0) +
 				(source.match(ANY_UUID)?.length ?? 0);
 			dynamic += all - literal;
+			for (const match of source.matchAll(LITERAL_COLUMN_TITLE)) {
+				if (!used.has(match[2])) used.set(match[2], relative(ROOT, file));
+			}
 		}
 	}
 	return { used, dynamic };

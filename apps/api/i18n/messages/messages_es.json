@@ -10714,5 +10714,113 @@
     {
         "key": "appointments.day.other_doctor",
         "value": "Otro médico"
+    },
+    {
+        "key": "clinical.medical_record.delete.reason.required",
+        "value": "Indique el motivo de la eliminación."
+    },
+    {
+        "key": "clinical.medical_record.delete.reason.too_long",
+        "value": "El motivo no puede superar 500 caracteres."
+    },
+    {
+        "key": "clinical.medical_record.delete.error",
+        "value": "No se pudo eliminar la historia clínica."
+    },
+    {
+        "key": "clinical.medical_record.delete.success",
+        "value": "Historia clínica eliminada."
+    },
+    {
+        "key": "clinical.medical_record.deleted.list.success",
+        "value": "Historias clínicas eliminadas obtenidas."
+    },
+    {
+        "key": "clinical.medical_record.restore.error",
+        "value": "No se pudo restaurar la historia clínica."
+    },
+    {
+        "key": "clinical.medical_record.restore.success",
+        "value": "Historia clínica restaurada."
+    },
+    {
+        "key": "clinical.medical_record.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "clinical.medical_record.delete.title",
+        "value": "Eliminar historia clínica"
+    },
+    {
+        "key": "clinical.medical_record.delete.description",
+        "value": "La consulta del {date} dejará de mostrarse, pero queda registrada con su receta, signos vitales y documentos, y se puede restaurar."
+    },
+    {
+        "key": "clinical.medical_record.delete.reason",
+        "value": "Motivo de la eliminación"
+    },
+    {
+        "key": "clinical.medical_record.delete.reason.placeholder",
+        "value": "Por qué se elimina esta historia clínica"
+    },
+    {
+        "key": "clinical.medical_record.delete.confirm",
+        "value": "Eliminar historia"
+    },
+    {
+        "key": "clinical.medical_record.delete.error.reason_required",
+        "value": "El motivo es obligatorio."
+    },
+    {
+        "key": "clinical.medical_record.delete.error.reason_long",
+        "value": "El motivo no puede superar 500 caracteres."
+    },
+    {
+        "key": "clinical.medical_record.deleted.show",
+        "value": "Eliminadas"
+    },
+    {
+        "key": "clinical.medical_record.deleted.hide",
+        "value": "Ver historias"
+    },
+    {
+        "key": "clinical.medical_record.deleted.title",
+        "value": "Historias clínicas eliminadas"
+    },
+    {
+        "key": "clinical.medical_record.deleted.empty",
+        "value": "No hay historias clínicas eliminadas."
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.consultation",
+        "value": "Consulta"
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.by",
+        "value": "Eliminada por"
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.at",
+        "value": "Fecha de eliminación"
+    },
+    {
+        "key": "clinical.medical_record.deleted.column.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "clinical.medical_record.restore",
+        "value": "Restaurar"
+    },
+    {
+        "key": "table.column.vital_signs",
+        "value": "Signos vitales"
+    },
+    {
+        "key": "table.column.diagnoses",
+        "value": "Diagnósticos"
+    },
+    {
+        "key": "table.column.patient",
+        "value": "Paciente"
     }
 ]

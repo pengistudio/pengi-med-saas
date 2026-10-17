@@ -49,6 +49,12 @@ var ClinicalPermissions = []permission_models.Permission{
 		Description:  "Update medical records",
 	},
 	{
+		BaseStringID: database.BaseStringID{ID: "DELETE_MEDICAL_RECORD"},
+		Name:         "Delete Medical Record",
+		Category:     "CLINICAL",
+		Description:  "Delete medical records with a reason, see the deleted ones and restore them",
+	},
+	{
 		BaseStringID: database.BaseStringID{ID: "UPDATE_PRESCRIPTION"},
 		Name:         "Update Prescription",
 		Category:     "CLINICAL",

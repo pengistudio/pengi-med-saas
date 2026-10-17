@@ -40,6 +40,9 @@ type MedicalRecord struct {
 	APF                   string                `json:"apf"`
 	APQX                  string                `json:"apqx"`
 	Allergies             string                `json:"allergies"`
+	// Deletion is soft, with who and why; a deleted record can be restored.
+	DeletedByID  *uint  `json:"deleted_by_id,omitempty"`
+	DeleteReason string `json:"delete_reason,omitempty"`
 }
 
 type SOAPRecord struct {

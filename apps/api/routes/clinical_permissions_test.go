@@ -53,7 +53,13 @@ func newClinicalPermsFixture(t *testing.T) *clinicalPermsFixture {
 	mustCreate(t, db, &f.patient)
 	f.record = clinical_models.MedicalRecord{TenantID: f.tenant.ID, PatientID: f.patient.ID, Motive: "Control"}
 	mustCreate(t, db, &f.record)
-	f.appointment = clinical_models.Appointment{TenantID: f.tenant.ID, PatientID: f.patient.ID, Title: "Control", Date: time.Now(), StartTime: "09:00", EndTime: "09:30", Status: "scheduled"}
+	// Today at local noon, not time.Now(): DATE(date) reads the stored instant
+	// in UTC, so after 19:00 in Ecuador time.Now() is already tomorrow and the
+	// "today" list (local date) missed it. Noon is the same date in UTC for any
+	// zone within ±12h. The app stores appointment days the same way (local
+	// midnight).
+	y, m, d := time.Now().Date()
+	f.appointment = clinical_models.Appointment{TenantID: f.tenant.ID, PatientID: f.patient.ID, Title: "Control", Date: time.Date(y, m, d, 12, 0, 0, 0, time.Local), StartTime: "09:00", EndTime: "09:30", Status: "scheduled"}
 	mustCreate(t, db, &f.appointment)
 	return f
 }
