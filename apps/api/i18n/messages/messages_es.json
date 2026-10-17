@@ -10732,6 +10732,22 @@
         "value": "Historia clínica eliminada."
     },
     {
+        "key": "clinical.medical_record.delete.bulk.success",
+        "value": "Historias clínicas eliminadas."
+    },
+    {
+        "key": "clinical.medical_record.delete.bulk.title",
+        "value": "Eliminar historias clínicas"
+    },
+    {
+        "key": "clinical.medical_record.delete.bulk.description.one",
+        "value": "{count} consulta dejará de mostrarse, pero queda registrada con su receta, signos vitales y documentos, y se puede restaurar."
+    },
+    {
+        "key": "clinical.medical_record.delete.bulk.description.other",
+        "value": "{count} consultas dejarán de mostrarse, pero quedan registradas con su receta, signos vitales y documentos, y se pueden restaurar."
+    },
+    {
         "key": "clinical.medical_record.deleted.list.success",
         "value": "Historias clínicas eliminadas obtenidas."
     },

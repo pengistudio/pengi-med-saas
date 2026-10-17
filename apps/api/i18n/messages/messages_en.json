@@ -10732,6 +10732,22 @@
         "value": "Medical record deleted."
     },
     {
+        "key": "clinical.medical_record.delete.bulk.success",
+        "value": "Medical records deleted."
+    },
+    {
+        "key": "clinical.medical_record.delete.bulk.title",
+        "value": "Delete medical records"
+    },
+    {
+        "key": "clinical.medical_record.delete.bulk.description.one",
+        "value": "{count} consultation will stop showing, but it stays on record with its prescription, vital signs and documents, and can be restored."
+    },
+    {
+        "key": "clinical.medical_record.delete.bulk.description.other",
+        "value": "{count} consultations will stop showing, but they stay on record with their prescription, vital signs and documents, and can be restored."
+    },
+    {
         "key": "clinical.medical_record.deleted.list.success",
         "value": "Deleted medical records retrieved."
     },
