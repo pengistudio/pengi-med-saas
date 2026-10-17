@@ -13,6 +13,39 @@ Copia de un **dominio canónico**: **kanban** (backend y rutas, el más limpio)
 y el catálogo de **billing** (`catalog-item`, el frontend CRUD más completo).
 Si una doc de `docs/` contradice al código, gana el código.
 
+## Quién hace cada paso
+
+Solo el paso 0 pide juicio. Una vez escrito, los pasos 1–7 quedan totalmente
+especificados y los ejecuta un modelo más barato; hacerlos en la sesión
+principal es lo que vuelve cara esta skill.
+
+| Paso | Quién |
+|---|---|
+| 0. Mapa y gating | Sesión principal. Si el gating no es obvio, pregúntale al usuario. |
+| 1–7. Código, cableado, tests | Agente `worker` (Sonnet), con el brief de abajo. Si los pasos 1–3 y 4–5 no dependen entre sí (el contrato del DTO ya está escrito), dos `worker` en paralelo: backend y frontend. |
+| Revisión | Agente `verifier` con la Definition of Done como criterios. En FAIL, sus issues vuelven al `worker`. Máximo 2 rondas; luego para y pregunta. |
+| Suites completas, e2e, logs de docker | Agente `runner`. |
+| 8. Smoke test en navegador | Sesión principal (los subagentes no tienen navegador). Lee la página como texto (`get_page_text`, `read_page`); captura pantalla solo si algo se ve mal. |
+
+Escala a `engineer` (Opus) solo si el `worker` reporta un bloqueo, o si la
+feature toca firma electrónica, procesamiento SRI o el aislamiento de
+`tenantdb` en sí. Una extensión chica (un endpoint, un campo, una columna)
+se hace inline: delegar cuesta más que hacerla.
+
+**Brief para el `worker`** (autocontenido: el agente arranca sin contexto):
+
+```
+Sigue la skill create-feature, pasos 1 a 7, para: <qué hace la feature>.
+Decisiones del paso 0 (no las cambies):
+- Dominio: <nuevo | extensión de features/<domain>/>
+- Ramas: <ninguna | documentos | segundo plano | backoffice>
+- Gating: <plan + rol | solo rol | sin permisos>; permisos: <IDs>; roles canónicos: <cuáles reciben cada uno>
+- Modelo: <campos con tipo>; endpoints: <método, ruta, permiso>
+- Pantallas: <página + listado | dialog>; nav: <sí/no, dónde>
+Abre solo las references/ que nombra cada paso. No hagas commit.
+Reporta: archivos tocados, checks corridos con su resultado, dudas que no resolviste.
+```
+
 ## 0. Mapa y decisión de gating
 
 Antes de escribir código, deja por escrito:
@@ -37,7 +70,8 @@ Antes de escribir código, deja por escrito:
    [`references/permisos-y-plan.md`](references/permisos-y-plan.md).
 
 **Criterio de cierre:** hay una lista de ramas y una decisión de gating
-escrita, y leíste el dominio canónico o el existente.
+escrita, y leíste el dominio canónico o el existente. Con eso llenas el brief
+de *Quién hace cada paso* y delegas.
 
 ## 1. Backend: modelo, DTO, handler
 
