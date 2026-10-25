@@ -65,18 +65,91 @@ const formSchema = z.object({
 	items: z.array(invoiceItemSchema).min(1, "validation.min_1_item"),
 });
 
-export function InvoiceForm() {
+const PATIENT_SEARCH_DEBOUNCE_MS = 300;
+const PATIENT_RESULTS_LIMIT = 10;
+
+function patientLabel(p: Patient) {
+	const name = p.full_name || `${p.first_name} ${p.last_name}`;
+	return `${name} - ${p.document}`;
+}
+
+/**
+ * Patient combobox that searches on the server: the patient list is
+ * paginated, so loading one page and filtering it here misses most patients.
+ */
+function PatientCombobox({
+	value,
+	onChange,
+	disabled,
+	placeholder,
+}: {
+	value: Patient | null;
+	onChange: (patient: Patient | null) => void;
+	disabled: boolean;
+	placeholder: string;
+}) {
+	const { textGet } = useText();
+	const [search, setSearch] = useState("");
+	const [query, setQuery] = useState("");
 	const [patients, setPatients] = useState<Patient[]>([]);
+
+	// Debounce the typed text into the query sent to the server.
+	useEffect(() => {
+		const id = setTimeout(
+			() => setQuery(search.trim()),
+			PATIENT_SEARCH_DEBOUNCE_MS,
+		);
+		return () => clearTimeout(id);
+	}, [search]);
+
+	useEffect(() => {
+		// Picking a patient writes its label into the input: nothing to search.
+		if (!query || (value && query === patientLabel(value))) return;
+		let cancelled = false;
+		getAllPatientsWithLastFollowUp({
+			search: query,
+			limit: PATIENT_RESULTS_LIMIT,
+		}).then((res) => {
+			if (cancelled) return;
+			setPatients(res.success ? (res.data?.items ?? []) : []);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [query, value]);
+
+	return (
+		<Combobox
+			items={patients}
+			filter={null}
+			value={value}
+			onValueChange={(p) => onChange((p as Patient | null) ?? null)}
+			onInputValueChange={setSearch}
+			itemToStringLabel={(p: Patient) => patientLabel(p)}
+			isItemEqualToValue={(a: Patient, b: Patient) => a.ID === b.ID}
+			disabled={disabled}
+		>
+			<ComboboxInput placeholder={placeholder} disabled={disabled} />
+			<ComboboxContent>
+				<ComboboxEmpty>{textGet("common.no_results")}</ComboboxEmpty>
+				<ComboboxList>
+					{(p: Patient) => (
+						<ComboboxItem key={p.ID} value={p}>
+							{patientLabel(p)}
+						</ComboboxItem>
+					)}
+				</ComboboxList>
+			</ComboboxContent>
+		</Combobox>
+	);
+}
+
+export function InvoiceForm() {
 	const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		getAllPatientsWithLastFollowUp().then((res) => {
-			if (res.success && res.data) {
-				setPatients(res.data.items);
-			}
-		});
 		getAllCatalogItems({ limit: 100 }).then((res) => {
 			if (res.success && res.data) {
 				setCatalogItems(res.data.items);
@@ -134,7 +207,6 @@ export function InvoiceForm() {
 			{(form) => (
 				<InvoiceFormInner
 					form={form}
-					patients={patients}
 					catalogItems={catalogItems}
 					loading={loading}
 				/>
@@ -145,13 +217,11 @@ export function InvoiceForm() {
 
 function InvoiceFormInner({
 	form,
-	patients,
 	catalogItems,
 	loading,
 }: {
 	// biome-ignore lint/suspicious/noExplicitAny: UseFormReturn<any> is acceptable here
 	form: UseFormReturn<any>;
-	patients: Patient[];
 	catalogItems: CatalogItem[];
 	loading: boolean;
 }) {
@@ -162,6 +232,7 @@ function InvoiceFormInner({
 	const { textGet, formatMoney } = useText();
 	const navigate = useNavigate();
 	const [isFinalCustomer, setIsFinalCustomer] = useState(false);
+	const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 	const [itemInputValues, setItemInputValues] = useState<string[]>([]);
 
 	const itemsWatch: z.infer<typeof invoiceItemSchema>[] = form.watch("items");
@@ -194,6 +265,7 @@ function InvoiceFormInner({
 	const handleFinalCustomerChange = (isChecked: boolean) => {
 		setIsFinalCustomer(isChecked);
 		if (isChecked) {
+			setSelectedPatient(null);
 			form.setValue("patient_id", "");
 		}
 	};
@@ -273,17 +345,18 @@ function InvoiceFormInner({
 					</div>
 
 					<div className="flex flex-row gap-2 items-end w-full">
-						<FormSelect
-							name="patient_id"
-							label={textGet("billing.invoice.patient")}
-							placeholder={textGet("billing.invoice.patient.placeholder")}
-							field={form}
-							disabled={isFinalCustomer}
-							options={patients.map((p) => ({
-								label: `${p.first_name} ${p.last_name} - ${p.document}`,
-								value: p.ID.toString(),
-							}))}
-						/>
+						<Field className="flex-1">
+							<FieldLabel>{textGet("billing.invoice.patient")}</FieldLabel>
+							<PatientCombobox
+								value={selectedPatient}
+								onChange={(p) => {
+									setSelectedPatient(p);
+									form.setValue("patient_id", p ? p.ID.toString() : "");
+								}}
+								disabled={isFinalCustomer}
+								placeholder={textGet("billing.invoice.patient.placeholder")}
+							/>
+						</Field>
 						<Button
 							type="button"
 							disabled={isFinalCustomer}
