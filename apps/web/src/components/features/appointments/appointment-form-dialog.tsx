@@ -14,7 +14,7 @@ import {
 	Input,
 	useToast,
 } from "@pengi/ui";
-import { Edit, Plus, Search, User } from "lucide-react";
+import { Edit, Loader2, Plus, Search, User } from "lucide-react";
 import React from "react";
 import type { z } from "zod";
 import {
@@ -30,6 +30,9 @@ import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { appointmentSchema } from "./appointment-utils";
 import { ColorSwatchPicker } from "./color-swatch-picker";
+
+const PATIENT_SEARCH_DEBOUNCE_MS = 300;
+const PATIENT_RESULTS_LIMIT = 8;
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -58,8 +61,13 @@ export function AppointmentFormDialog({
 	onSuccess,
 }: AppointmentFormDialogProps) {
 	const [loading, setLoading] = React.useState(false);
-	const [patients, setPatients] = React.useState<Patient[]>([]);
 	const [patientSearch, setPatientSearch] = React.useState("");
+	const [patientQuery, setPatientQuery] = React.useState("");
+	// Results with the query they answer: searching while they don't match.
+	const [patientResults, setPatientResults] = React.useState<{
+		query: string;
+		patients: Patient[];
+	}>({ query: "", patients: [] });
 	const [selectedPatient, setSelectedPatient] = React.useState<Patient | null>(
 		null,
 	);
@@ -68,15 +76,34 @@ export function AppointmentFormDialog({
 	const { textGet } = useText();
 	const isEdit = !!appointment;
 
+	// Debounce the typed search into the query sent to the server: the patient
+	// list is paginated, so filtering one page here misses most patients.
 	React.useEffect(() => {
-		if (open && !isEdit) {
-			getAllPatientsWithLastFollowUp().then((res) => {
-				if (res.success && res.data) {
-					setPatients(res.data.items);
-				}
+		const id = setTimeout(
+			() => setPatientQuery(patientSearch.trim()),
+			PATIENT_SEARCH_DEBOUNCE_MS,
+		);
+		return () => clearTimeout(id);
+	}, [patientSearch]);
+
+	React.useEffect(() => {
+		if (!open || isEdit || !patientQuery || selectedPatient) return;
+		let cancelled = false;
+		getAllPatientsWithLastFollowUp({
+			search: patientQuery,
+			limit: PATIENT_RESULTS_LIMIT,
+		}).then((res) => {
+			if (cancelled) return;
+			setPatientResults({
+				query: patientQuery,
+				patients: res.success ? (res.data?.items ?? []) : [],
 			});
-		}
-	}, [open, isEdit]);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [open, isEdit, patientQuery, selectedPatient]);
+	const searchingPatients = patientSearch.trim() !== patientResults.query;
 
 	// Reset the selected patient when the dialog opens or its inputs change
 	// (adjust state during render instead of in an effect).
@@ -109,16 +136,6 @@ export function AppointmentFormDialog({
 			);
 		}
 	}
-
-	const filteredPatients = patients.filter((p) => {
-		const name = (
-			p.full_name || `${p.first_name} ${p.last_name}`
-		).toLowerCase();
-		return (
-			name.includes(patientSearch.toLowerCase()) ||
-			p.document.includes(patientSearch)
-		);
-	});
 
 	const formDate = appointment
 		? new Date(appointment.date)
@@ -216,12 +233,14 @@ export function AppointmentFormDialog({
 							!selectedPatient &&
 							patientSearch.length > 0 && (
 								<div className="absolute z-50 w-full mt-1 max-h-48 overflow-auto rounded-md border bg-popover shadow-lg">
-									{filteredPatients.length === 0 ? (
+									{searchingPatients ? (
+										<Loader2 className="mx-auto my-3 h-4 w-4 animate-spin text-muted-foreground" />
+									) : patientResults.patients.length === 0 ? (
 										<p className="p-3 text-sm text-muted-foreground">
 											{textGet("appointments.patient.not_found")}
 										</p>
 									) : (
-										filteredPatients.slice(0, 8).map((p) => (
+										patientResults.patients.map((p) => (
 											<button
 												type="button"
 												key={p.ID}
