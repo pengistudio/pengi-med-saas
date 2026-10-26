@@ -27,6 +27,7 @@ import {
 } from "@/api/billing-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
+import { BillingDocumentsTabs } from "@/components/features/billing/billing-documents-tabs";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import { getInvoiceColumns } from "@/sections/columns/billing/invoice-columns";
@@ -162,6 +163,7 @@ const InvoiceListPage = () => {
 
 	return (
 		<main className="grid grid-cols-1 items-start gap-4">
+			<BillingDocumentsTabs />
 			<PageHeader
 				title={textGet("dashboard.billing.invoices")}
 				description={textGet("billing.invoice.page.description")}

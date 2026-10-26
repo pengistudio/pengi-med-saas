@@ -6,6 +6,7 @@ import { MemoryRouter, Outlet, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	createNavItems,
+	createQuickActions,
 	filterNavItems,
 	pickBottomNav,
 } from "@/config/nav-config";
@@ -185,11 +186,13 @@ describe("AppShell bottom bar", () => {
 		phone = true,
 		path = "/",
 		bottomNav = links("/", "/clinical"),
+		quickActions = [],
 		badge,
 	}: {
 		phone?: boolean;
 		path?: string;
 		bottomNav?: ReturnType<typeof links>;
+		quickActions?: ReturnType<typeof links>;
 		badge?: number;
 	} = {}) => {
 		stubViewport({ phone });
@@ -203,9 +206,14 @@ describe("AppShell bottom bar", () => {
 						bottomNav={bottomNav.map((l) =>
 							l.href === "/clinical" ? { ...l, badge } : l,
 						)}
+						quickActions={quickActions}
 						title="T"
 					>
 						<p>page</p>
+						<Routes>
+							<Route path="/new-thing" element={<p>new thing page</p>} />
+							<Route path="*" element={null} />
+						</Routes>
 					</AppShell>
 				</MemoryRouter>
 			</UiTextProvider>,
@@ -237,6 +245,32 @@ describe("AppShell bottom bar", () => {
 		expect(more).toHaveClass("text-primary");
 		await user.click(more);
 		expect(more).toHaveAttribute("aria-expanded", "true");
+		await user.keyboard("{Escape}");
+		expect(more).toHaveFocus();
+	});
+
+	it("raises a create button that lists the quick actions", async () => {
+		const user = userEvent.setup();
+		renderBar({ quickActions: links("/new-thing") });
+		await user.click(screen.getByRole("button", { name: "shell.create" }));
+		await user.click(
+			await screen.findByRole("menuitem", { name: "L/new-thing" }),
+		);
+		expect(screen.getByText("new thing page")).toBeInTheDocument();
+	});
+
+	it("has no create button without quick actions", () => {
+		renderBar();
+		expect(
+			screen.queryByRole("button", { name: "shell.create" }),
+		).not.toBeInTheDocument();
+	});
+
+	it("drops the top menu button: Más opens the drawer", () => {
+		renderBar();
+		expect(
+			screen.queryByRole("button", { name: "shell.menu.open" }),
+		).not.toBeInTheDocument();
 	});
 
 	it("hides the badge at 0 and caps it at 99+", () => {
@@ -363,8 +397,34 @@ describe("pickBottomNav", () => {
 		expect(pick(ROLE_PERMISSIONS.contador)).toEqual([
 			"/",
 			"/billing",
-			"/billing/credit-notes",
 			"/billing/catalog-items",
 		]);
+	});
+});
+
+describe("createQuickActions", () => {
+	const actions = (granted: string[]) =>
+		filterNavItems(
+			createQuickActions((key) => key),
+			(needed) => needed.every((p) => granted.includes(p)),
+			{},
+		).map((a) => a.href);
+
+	it("opens with a new consultation for a doctor", () => {
+		expect(actions(ROLE_PERMISSIONS.doctor)[0]).toBe(
+			"/clinical/medical-records/create",
+		);
+	});
+
+	it("puts the new patient first for the front desk", () => {
+		expect(actions(ROLE_PERMISSIONS.recepcionista)).toEqual([
+			"/clinical/create",
+			"/clinical/appointments?new=1",
+			"/billing/create",
+		]);
+	});
+
+	it("gives an accountant only the invoice", () => {
+		expect(actions(ROLE_PERMISSIONS.contador)).toEqual(["/billing/create"]);
 	});
 });

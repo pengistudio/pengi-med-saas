@@ -504,6 +504,14 @@
         "value": "Mobile main navigation"
     },
     {
+        "key": "shell.create",
+        "value": "Create"
+    },
+    {
+        "key": "nav.quick.new_exam_order",
+        "value": "New exam order"
+    },
+    {
         "key": "nav.section.care",
         "value": "Care"
     },
@@ -512,8 +520,36 @@
         "value": "Finance"
     },
     {
-        "key": "nav.section.admin",
-        "value": "Administration"
+        "key": "nav.item.documents",
+        "value": "Documents"
+    },
+    {
+        "key": "settings.hub.billing.title",
+        "value": "Electronic invoicing"
+    },
+    {
+        "key": "settings.hub.billing.description",
+        "value": "Signing certificate and details for issuing documents to the SRI."
+    },
+    {
+        "key": "settings.hub.team.title",
+        "value": "Team and access"
+    },
+    {
+        "key": "settings.hub.team.description",
+        "value": "Who uses the account, doctors and the activity log."
+    },
+    {
+        "key": "settings.hub.plan.title",
+        "value": "Plan"
+    },
+    {
+        "key": "settings.hub.plan.description",
+        "value": "Your Pengi subscription and billing."
+    },
+    {
+        "key": "settings.hub.open",
+        "value": "Open"
     },
     {
         "key": "nav.item.agenda",
@@ -1186,6 +1222,10 @@
     {
         "key": "clinical.medical_record.new_consultation",
         "value": "New consultation"
+    },
+    {
+        "key": "clinical.medical_record.pick_patient.description",
+        "value": "Find the patient you are seeing."
     },
     {
         "key": "clinical.medical_record.view_prescriptions",

@@ -37,7 +37,8 @@ const NavItem = ({
 			title={!expanded ? label : undefined}
 			aria-current={isActive ? "page" : undefined}
 			className={cn(
-				"relative flex min-h-10 items-center rounded-lg px-3 py-2 transition-all duration-300 overflow-hidden outline-none focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:transition-none",
+				// Denser with a pointer; phones keep the 40px touch target.
+				"relative flex min-h-10 items-center rounded-lg px-3 py-2 md:min-h-9 md:py-1.5 md:text-sm transition-all duration-300 overflow-hidden outline-none focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:transition-none",
 				expanded ? "gap-3" : "gap-0",
 				isActive
 					? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"

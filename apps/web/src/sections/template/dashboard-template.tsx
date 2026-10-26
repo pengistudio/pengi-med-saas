@@ -42,8 +42,11 @@ import { DoctorReviewBanner } from "@/components/features/doctors/doctor-notices
 import { DoctorOnboardingDialog } from "@/components/features/doctors/doctor-onboarding-dialog";
 import {
 	createNavItems,
+	createQuickActions,
 	type EnabledFeatures,
 	filterNavItems,
+	MAX_BOTTOM_NAV,
+	MAX_BOTTOM_NAV_WITH_CREATE,
 	type NavBadgeKey,
 	pickBottomNav,
 } from "@/config/nav-config";
@@ -123,6 +126,15 @@ export function DashboardLayout() {
 		() => filterNavItems(unfilteredNavItems, checkPermission, enabledFeatures),
 		[unfilteredNavItems, enabledFeatures, checkPermission],
 	);
+	const quickActions = useMemo(
+		() =>
+			filterNavItems(
+				createQuickActions(textGet),
+				checkPermission,
+				enabledFeatures,
+			),
+		[textGet, enabledFeatures, checkPermission],
+	);
 	const pageTitle =
 		getPageTitle(unfilteredNavItems, pathname, textGet) ??
 		textGet("dashboard.title");
@@ -171,7 +183,13 @@ export function DashboardLayout() {
 			item.badgeKey ? { ...item, badge: badges[item.badgeKey] } : item,
 		);
 	const navItems = withBadges(allNavItems.filter((item) => !item.isBottom));
-	const bottomNavItems = withBadges(pickBottomNav(allNavItems, textGet));
+	const bottomNavItems = withBadges(
+		pickBottomNav(
+			allNavItems,
+			textGet,
+			quickActions.length ? MAX_BOTTOM_NAV_WITH_CREATE : MAX_BOTTOM_NAV,
+		),
+	);
 	const footerNavItems = [
 		...allNavItems.filter((item) => item.isBottom),
 		{
@@ -192,6 +210,7 @@ export function DashboardLayout() {
 			footerNav={footerNavItems}
 			matchNested
 			bottomNav={bottomNavItems}
+			quickActions={quickActions}
 			title={pageTitle}
 			actions={
 				<>

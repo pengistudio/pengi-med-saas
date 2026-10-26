@@ -11,6 +11,7 @@ import {
 } from "@/api/billing-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
+import { BillingDocumentsTabs } from "@/components/features/billing/billing-documents-tabs";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import { getDebitNoteColumns } from "@/sections/columns/billing/debit-note-columns";
@@ -110,6 +111,7 @@ const DebitNoteListPage = () => {
 
 	return (
 		<main className="grid grid-cols-1 items-start gap-4">
+			<BillingDocumentsTabs />
 			<PageHeader
 				title={textGet("dashboard.billing.debit-notes")}
 				description={textGet("billing.debit_note.page.description")}

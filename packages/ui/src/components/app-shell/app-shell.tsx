@@ -1,12 +1,25 @@
-import { Ellipsis, Menu, PanelLeft, PanelLeftClose, X } from "lucide-react";
+import {
+	Ellipsis,
+	Menu,
+	PanelLeft,
+	PanelLeftClose,
+	Plus,
+	X,
+} from "lucide-react";
 import type React from "react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useUiText } from "../../context/text-context";
 import { useViewport } from "../../hooks/use-viewport";
 import { cn } from "../../lib/utils";
 import { useSidebarStore } from "../../stores/sidebar-store";
 import { Button } from "../button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "../dropdown-menu";
 import NavAccordion from "../nav/nav-accordion";
 import { NavBadge } from "../nav/nav-badge";
 import NavItem from "../nav/nav-item";
@@ -51,6 +64,11 @@ interface AppShellProps {
 	 * that opens the drawer (the full menu). Omit it for no bar.
 	 */
 	bottomNav?: NavLinkEntry[];
+	/**
+	 * Raised "Crear" button in the middle of the tab bar listing these links.
+	 * Omit it (or pass none) for a bar of tabs only.
+	 */
+	quickActions?: NavLinkEntry[];
 	/** Page title in the top bar. */
 	title: React.ReactNode;
 	/** Right side of the top bar (language, notifications, user menu). */
@@ -103,7 +121,7 @@ const renderEntries = (
 					<div
 						role="presentation"
 						className={cn(
-							"mt-3 px-3 pt-2 pb-1 text-xs font-medium tracking-wide text-sidebar-foreground/60 uppercase",
+							"mt-2 px-3 pt-2 pb-1 text-xs font-medium text-sidebar-foreground/60",
 							!expanded && "hidden",
 						)}
 					>
@@ -142,6 +160,7 @@ export function AppShell({
 	footerNav = [],
 	matchNested = false,
 	bottomNav,
+	quickActions = [],
 	title,
 	actions,
 	banner,
@@ -164,6 +183,10 @@ export function AppShell({
 	const moreButtonRef = useRef<HTMLButtonElement>(null);
 	const openerRef = useRef<HTMLButtonElement | null>(null);
 	const showBottomBar = isPhone && !!bottomNav?.length;
+	const navigate = useNavigate();
+	const hasCreate = quickActions.length > 0;
+	// The create button sits in the middle of the tabs plus "Más".
+	const leftTabs = Math.ceil(((bottomNav?.length ?? 0) + 1) / 2);
 
 	useEffect(() => {
 		if (!drawerOpen) return;
@@ -198,6 +221,37 @@ export function AppShell({
 				: undefined,
 		[matchNested, nav, footerNav, bottomNav, pathname],
 	);
+
+	const renderTab = (item: NavLinkEntry) => {
+		const Icon = item.icon;
+		const isActive = activeHref === item.href;
+		return (
+			<Link
+				key={item.href}
+				to={item.href}
+				viewTransition
+				aria-current={isActive ? "page" : undefined}
+				className={cn(
+					"group relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-[0.6875rem] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+					isActive ? "font-medium text-primary" : "text-muted-foreground",
+				)}
+			>
+				<span
+					className={cn(
+						"flex h-7 w-11 items-center justify-center rounded-full transition-colors duration-200 motion-reduce:transition-none",
+						isActive ? "bg-primary/12" : "group-active:bg-muted",
+					)}
+				>
+					<Icon className="h-5 w-5 shrink-0" />
+				</span>
+				<span className="max-w-full truncate">{item.label}</span>
+				<NavBadge
+					count={item.badge}
+					className="absolute top-0.5 left-1/2 ml-2.5 h-4 min-w-4"
+				/>
+			</Link>
+		);
+	};
 
 	return (
 		<AppShellContext.Provider value={shell}>
@@ -281,33 +335,57 @@ export function AppShell({
 				{showBottomBar && bottomNav && (
 					<nav
 						aria-label={textGet("shell.nav.primary")}
-						className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-card pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+						// Floats above the content, clear of the screen edges and the
+						// home indicator; <main> reserves its height plus the gap.
+						className="fixed right-[max(0.75rem,env(safe-area-inset-right))] bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] z-30 flex h-16 rounded-2xl border border-border/70 bg-card/85 p-1 shadow-lg shadow-black/10 backdrop-blur-md"
 					>
-						{bottomNav.map((item) => {
-							const Icon = item.icon;
-							const isActive = activeHref === item.href;
-							return (
-								<Link
-									key={item.href}
-									to={item.href}
-									viewTransition
-									aria-current={isActive ? "page" : undefined}
-									className={cn(
-										"relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[0.6875rem] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-										isActive
-											? "font-medium text-primary"
-											: "text-muted-foreground",
-									)}
-								>
-									<Icon className="h-5 w-5 shrink-0" />
-									<span className="max-w-full truncate">{item.label}</span>
-									<NavBadge
-										count={item.badge}
-										className="absolute top-1 left-1/2 ml-2 h-4 min-w-4"
-									/>
-								</Link>
-							);
-						})}
+						{(hasCreate ? bottomNav.slice(0, leftTabs) : bottomNav).map(
+							renderTab,
+						)}
+						{hasCreate && (
+							<div className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-medium text-primary">
+								{/* Same height as a tab's icon, so the labels line up. */}
+								<span aria-hidden className="h-7" />
+								<DropdownMenu>
+									<DropdownMenuTrigger
+										aria-label={textGet("shell.create")}
+										// Raised out of the bar: the one action that stands out.
+										className="group absolute -top-6 left-1/2 flex size-13 -translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 ring-4 ring-background outline-none transition-transform duration-200 focus-visible:ring-ring/50 active:scale-95 motion-reduce:transition-none"
+									>
+										<Plus
+											className="size-6 transition-transform duration-200 group-data-popup-open:rotate-45 motion-reduce:transition-none"
+											strokeWidth={2.25}
+										/>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent
+										side="top"
+										align="center"
+										sideOffset={36}
+										className="w-max max-w-[calc(100vw-1.5rem)] min-w-60 p-1.5"
+									>
+										{quickActions.map((action) => {
+											const Icon = action.icon;
+											return (
+												<DropdownMenuItem
+													key={action.href}
+													onClick={() => navigate(action.href)}
+													className="min-h-11 gap-3 px-2.5 text-base"
+												>
+													<span className="flex size-8 items-center justify-center rounded-full bg-primary/12 text-primary">
+														<Icon className="size-4" />
+													</span>
+													{action.label}
+												</DropdownMenuItem>
+											);
+										})}
+									</DropdownMenuContent>
+								</DropdownMenu>
+								<span aria-hidden className="max-w-full truncate">
+									{textGet("shell.create")}
+								</span>
+							</div>
+						)}
+						{hasCreate && bottomNav.slice(leftTabs).map(renderTab)}
 						<button
 							ref={moreButtonRef}
 							type="button"
@@ -318,13 +396,22 @@ export function AppShell({
 							aria-expanded={drawerOpen}
 							aria-controls={DRAWER_ID}
 							className={cn(
-								"flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[0.6875rem] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+								"group flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-[0.6875rem] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
 								!bottomNav.some((i) => i.href === activeHref)
 									? "font-medium text-primary"
 									: "text-muted-foreground",
 							)}
 						>
-							<Ellipsis className="h-5 w-5 shrink-0" />
+							<span
+								className={cn(
+									"flex h-7 w-11 items-center justify-center rounded-full transition-colors duration-200 motion-reduce:transition-none",
+									!bottomNav.some((i) => i.href === activeHref)
+										? "bg-primary/12"
+										: "group-active:bg-muted",
+								)}
+							>
+								<Ellipsis className="h-5 w-5 shrink-0" />
+							</span>
 							<span className="max-w-full truncate">{textGet("nav.more")}</span>
 						</button>
 					</nav>
@@ -341,7 +428,8 @@ export function AppShell({
 				<div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 					<header className="flex h-[calc(4rem+env(safe-area-inset-top))] shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-2 pt-[env(safe-area-inset-top)] sm:px-4 md:px-6">
 						<div className="flex min-w-0 items-center gap-1">
-							{isPhone && (
+							{/* With the tab bar, its "Más" opens the drawer instead. */}
+							{isPhone && !showBottomBar && (
 								<Button
 									ref={menuButtonRef}
 									variant="ghost"
@@ -358,7 +446,14 @@ export function AppShell({
 									<Menu className="h-5 w-5" />
 								</Button>
 							)}
-							<span className="truncate text-lg font-semibold">{title}</span>
+							<span
+								className={cn(
+									"truncate text-lg font-semibold",
+									showBottomBar && "pl-2",
+								)}
+							>
+								{title}
+							</span>
 						</div>
 						{actions && (
 							<div className="flex shrink-0 items-center gap-1 sm:gap-2">
@@ -372,7 +467,9 @@ export function AppShell({
 					<main
 						className={cn(
 							"relative flex-1 overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:p-6 md:pb-[max(1.5rem,env(safe-area-inset-bottom))]",
-							showBottomBar && "pb-[calc(5rem+env(safe-area-inset-bottom))]",
+							// Bar (4rem) + its gap (0.75rem) + breathing room below the last row.
+							showBottomBar &&
+								"pb-[calc(6rem+max(0.75rem,env(safe-area-inset-bottom)))]",
 						)}
 					>
 						{children}

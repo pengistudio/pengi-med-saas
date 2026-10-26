@@ -1,20 +1,17 @@
 import {
 	Calendar,
-	CreditCard,
-	FileKey,
-	FileMinus,
-	FilePlus,
+	CalendarPlus,
 	FlaskConical,
 	Layers,
 	LayoutDashboard,
 	MessageCircle,
 	Package,
 	Receipt,
+	ReceiptText,
 	Settings,
-	ShieldCheck,
 	SquareActivity,
 	Stethoscope,
-	Users,
+	UserPlus,
 	UsersRound,
 } from "lucide-react";
 import type React from "react";
@@ -52,11 +49,11 @@ export interface EnabledFeatures {
 
 // Factory to create navigation items with localized labels
 /** Items the user may see: role permission and tenant feature flag both hold. */
-export const filterNavItems = (
-	items: NavItemType[],
+export const filterNavItems = <T extends BaseNavItem>(
+	items: T[],
 	checkPermission: (permissions: string[]) => boolean,
 	enabledFeatures: EnabledFeatures,
-): NavItemType[] =>
+): T[] =>
 	items.filter(
 		(item) =>
 			(!item.permission || checkPermission([item.permission].flat())) &&
@@ -71,7 +68,6 @@ export const createNavItems = (
 ): NavItemType[] => {
 	const care = textGet("nav.section.care");
 	const finance = textGet("nav.section.finance");
-	const admin = textGet("nav.section.admin");
 	const appointments = {
 		permission: PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT,
 		feature: "clinical",
@@ -139,23 +135,9 @@ export const createNavItems = (
 			feature: "whatsapp",
 		},
 		{
-			label: textGet("dashboard.billing.invoices"),
+			label: textGet("nav.item.documents"),
 			href: "/billing",
 			icon: Receipt,
-			section: finance,
-			...billing,
-		},
-		{
-			label: textGet("dashboard.billing.credit-notes"),
-			href: "/billing/credit-notes",
-			icon: FileMinus,
-			section: finance,
-			...billing,
-		},
-		{
-			label: textGet("dashboard.billing.debit-notes"),
-			href: "/billing/debit-notes",
-			icon: FilePlus,
 			section: finance,
 			...billing,
 		},
@@ -165,45 +147,6 @@ export const createNavItems = (
 			icon: Package,
 			section: finance,
 			...billing,
-		},
-		{
-			label: textGet("dashboard.billing.settings"),
-			href: "/billing/settings",
-			icon: FileKey,
-			section: finance,
-			...billing,
-		},
-		{
-			icon: Users,
-			label: textGet("team.title"),
-			href: "/team",
-			section: admin,
-			permission: PERMISSIONS.TEAM.PERMISSION_READ_TEAM,
-			feature: "team",
-		},
-		{
-			icon: Stethoscope,
-			label: textGet("doctors.title"),
-			href: "/doctors",
-			section: admin,
-			permission: PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS,
-			// MANAGE_DOCTORS belongs to the clinical module.
-			feature: "clinical",
-		},
-		{
-			icon: ShieldCheck,
-			label: textGet("audit.title"),
-			href: "/audit",
-			section: admin,
-			permission: PERMISSIONS.AUDIT.PERMISSION_READ_AUDIT_LOG,
-			// READ_AUDIT_LOG comes with the clinical module in every plan.
-			feature: "clinical",
-		},
-		{
-			icon: CreditCard,
-			label: textGet("subscription.nav.title"),
-			href: "/subscription",
-			isBottom: true,
 		},
 		{
 			icon: Settings,
@@ -222,15 +165,17 @@ const BOTTOM_NAV_CANDIDATES = [
 	"/clinical/exam-orders",
 	"/clinical/waiting-room",
 	"/billing",
-	"/billing/credit-notes",
 	"/billing/catalog-items",
 ];
 export const MAX_BOTTOM_NAV = 4;
+/** Tabs left when the create button takes the centre of the bar. */
+export const MAX_BOTTOM_NAV_WITH_CREATE = 3;
 
 /** The phone tab bar items out of the already permission-filtered nav items. */
 export const pickBottomNav = (
 	visible: NavItemType[],
 	textGet: (key: string) => string,
+	max = MAX_BOTTOM_NAV,
 ): (BaseNavItem & { href: string })[] =>
 	BOTTOM_NAV_CANDIDATES.flatMap((href) => {
 		const item = visible.find((i) => !i.isBottom && i.href === href);
@@ -242,4 +187,66 @@ export const pickBottomNav = (
 				label: href === "/" ? textGet("nav.item.home") : item.label,
 			},
 		];
-	}).slice(0, MAX_BOTTOM_NAV);
+	}).slice(0, max);
+
+/**
+ * What the phone's create button offers, in priority order; filtered like the
+ * nav items. Each needs the route's read permission too, or CheckPermission
+ * would turn the user away.
+ */
+export const createQuickActions = (
+	textGet: (key: string) => string,
+): (BaseNavItem & { href: string })[] => [
+	{
+		label: textGet("clinical.medical_record.new_consultation"),
+		// Without a patient_id the page asks for the patient first.
+		href: "/clinical/medical-records/create",
+		icon: Stethoscope,
+		permission: [
+			PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_PATIENT,
+			PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+		],
+		feature: "clinical",
+	},
+	{
+		label: textGet("dashboard.actions.new_patient"),
+		href: "/clinical/create",
+		icon: UserPlus,
+		permission: [
+			PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_PATIENT,
+			PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
+		],
+		feature: "clinical",
+	},
+	{
+		label: textGet("dashboard.upcoming.schedule_btn"),
+		// The agenda opens its new-appointment form on ?new=1.
+		href: "/clinical/appointments?new=1",
+		icon: CalendarPlus,
+		permission: [
+			PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT,
+			PERMISSIONS.APPOINTMENTS.PERMISSION_MANAGE_APPOINTMENT,
+		],
+		feature: "clinical",
+	},
+	{
+		label: textGet("nav.quick.new_exam_order"),
+		href: "/clinical/exam-orders/new",
+		icon: FlaskConical,
+		permission: [
+			PERMISSIONS.EXAM_ORDERS.PERMISSION_READ_EXAM_ORDER,
+			PERMISSIONS.EXAM_ORDERS.PERMISSION_CREATE_EXAM_ORDER,
+		],
+		feature: "clinical",
+	},
+	{
+		label: textGet("dashboard.actions.new_invoice"),
+		href: "/billing/create",
+		icon: ReceiptText,
+		permission: [
+			PERMISSIONS.BILLING.PERMISSION_READ_BILLING,
+			PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING,
+		],
+		feature: "billing",
+	},
+];

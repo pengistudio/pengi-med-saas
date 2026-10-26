@@ -28,6 +28,7 @@ import {
 	BellRing,
 	MessageCircle,
 	Plus,
+	Stethoscope,
 	Trash,
 } from "lucide-react";
 import React from "react";
@@ -91,6 +92,9 @@ const Clinical = () => {
 	const [optInAction, setOptInAction] = React.useState<boolean | null>(null);
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
+	const canConsult = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
+	]);
 	const patientColumns = usePatientColumns();
 	const { textGet } = useText();
 
@@ -183,14 +187,30 @@ const Clinical = () => {
 				title={textGet("dashboard.clinical.patients")}
 				description={textGet("clinical.patient.page.description")}
 				actions={
-					checkPermission([
-						PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
-					]) && (
-						<Button onClick={handleCreate}>
-							<Plus className="mr-2 h-4 w-4" />
-							<Text uuid="clinical.patient.create" />
-						</Button>
-					)
+					<div className="flex flex-wrap gap-2">
+						{checkPermission([
+							PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
+						]) && (
+							<Button
+								// The doctor's main action is the consultation; registering
+								// a patient steps back when both are offered.
+								variant={canConsult ? "outline" : "default"}
+								onClick={handleCreate}
+							>
+								<Plus className="mr-2 h-4 w-4" />
+								<Text uuid="clinical.patient.create" />
+							</Button>
+						)}
+						{canConsult && (
+							// Without a patient the page asks for one first.
+							<Button
+								onClick={() => navigate("/clinical/medical-records/create")}
+							>
+								<Stethoscope className="mr-2 h-4 w-4" />
+								<Text uuid="clinical.medical_record.new_consultation" />
+							</Button>
+						)}
+					</div>
 				}
 			/>
 			<RegisterDoctorNotice />
