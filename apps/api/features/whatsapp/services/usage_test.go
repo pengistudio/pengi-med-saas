@@ -211,11 +211,15 @@ func TestPatientText_FromSpanishCatalog(t *testing.T) {
 	}
 }
 
-func TestCatalog_TemplatesAreUtilityAndRender(t *testing.T) {
+func TestCatalog_TemplateCategoriesAndRender(t *testing.T) {
 	names := map[string]bool{}
 	for _, spec := range Catalog {
 		d := spec.Definition
-		if d.Category != "UTILITY" || d.Language != "es" || names[d.Name] {
+		want := "UTILITY"
+		if d.Name == whatsapp_models.TemplateContinueConversation {
+			want = "MARKETING"
+		}
+		if d.Category != want || d.Language != "es" || names[d.Name] {
 			t.Fatalf("template %+v", d)
 		}
 		names[d.Name] = true
