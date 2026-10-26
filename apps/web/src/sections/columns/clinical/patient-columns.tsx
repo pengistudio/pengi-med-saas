@@ -1,4 +1,5 @@
 import { parseDateOnly } from "@pengi/shared";
+import type { DataTableCellContext, DataTableColumnDef } from "@pengi/ui";
 import {
 	Avatar,
 	AvatarFallback,
@@ -15,7 +16,6 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@pengi/ui";
-import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
 	Eye,
 	FileCheck,
@@ -45,7 +45,7 @@ function getInitials(patient: Patient): string {
 	return (first + last).toUpperCase();
 }
 
-function RenderActions({ row }: CellContext<Patient, unknown>) {
+function RenderActions({ row }: DataTableCellContext<Patient, unknown>) {
 	const navigate = useNavigate();
 	const setPatient = usePatientStore(selectSetPatient);
 	const params = new URLSearchParams({
@@ -165,7 +165,7 @@ function RenderActions({ row }: CellContext<Patient, unknown>) {
 	);
 }
 
-export const patientColumns: ColumnDef<Patient>[] = [
+export const patientColumns: DataTableColumnDef<Patient>[] = [
 	selectColumn<Patient>(),
 	{
 		id: "patient",
@@ -380,7 +380,7 @@ const OPTIONAL_COLUMN_KEYS: Record<string, string> = {
 	medic: "show_medic",
 };
 
-export function usePatientColumns(): ColumnDef<Patient>[] {
+export function usePatientColumns(): DataTableColumnDef<Patient>[] {
 	const { settings } = useTenantSettings();
 	const clinical = settings.clinical;
 

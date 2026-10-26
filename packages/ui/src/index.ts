@@ -12,6 +12,7 @@ export * from "./components/chart";
 export * from "./components/checkbox";
 export * from "./components/combobox";
 export * from "./components/data-table-column-header";
+export * from "./components/data-table-features";
 export * from "./components/data-table-pagination";
 export * from "./components/data-table-view-options";
 export * from "./components/dialog";

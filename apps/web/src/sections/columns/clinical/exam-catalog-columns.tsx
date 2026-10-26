@@ -1,4 +1,5 @@
 import { useText } from "@pengi/shared";
+import type { DataTableColumnDef } from "@pengi/ui";
 import {
 	Button,
 	DataTableColumnHeader,
@@ -9,7 +10,6 @@ import {
 	DropdownMenuTrigger,
 	Text,
 } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { ExamCatalogItem, ExamProfile } from "@/api/exam-order-service";
 import { Switch } from "@/components/ui/switch";
@@ -43,7 +43,7 @@ interface RowActions<T> {
 function actionsColumn<T extends { ID: number }>({
 	onEdit,
 	onDelete,
-}: Pick<RowActions<T>, "onEdit" | "onDelete">): ColumnDef<T> {
+}: Pick<RowActions<T>, "onEdit" | "onDelete">): DataTableColumnDef<T> {
 	return {
 		id: "actions",
 		cell: ({ row }) => (
@@ -78,7 +78,7 @@ function actionsColumn<T extends { ID: number }>({
 
 function activeColumn<T extends { ID: number; active: boolean }>(
 	onToggleActive: RowActions<T>["onToggleActive"],
-): ColumnDef<T> {
+): DataTableColumnDef<T> {
 	return {
 		accessorKey: "active",
 		meta: { title: "clinical.exam_catalog.column.active", phone: "end" },
@@ -99,7 +99,7 @@ function activeColumn<T extends { ID: number; active: boolean }>(
 
 export const getExamCatalogColumns = (
 	actions: RowActions<ExamCatalogItem>,
-): ColumnDef<ExamCatalogItem>[] => [
+): DataTableColumnDef<ExamCatalogItem>[] => [
 	{
 		accessorKey: "name",
 		meta: { title: "clinical.exam_catalog.field.name", phone: "title" },
@@ -159,7 +159,7 @@ export const getExamCatalogColumns = (
 
 export const getExamProfileColumns = (
 	actions: RowActions<ExamProfile>,
-): ColumnDef<ExamProfile>[] => [
+): DataTableColumnDef<ExamProfile>[] => [
 	{
 		accessorKey: "name",
 		meta: { title: "clinical.exam_catalog.field.name", phone: "title" },

@@ -1,20 +1,36 @@
 import { useText } from "@pengi/shared";
+import type {
+	DataTableColumnDef,
+	DataTableFeatures,
+	DataTableRow,
+} from "@pengi/ui";
 import { Checkbox } from "@pengi/ui";
-import type { ColumnDef, Row, Table } from "@tanstack/react-table";
+import type { RowData, Table } from "@tanstack/react-table";
 
-function SelectAll<TData>({ table }: { table: Table<TData> }) {
+function SelectAll<TData extends RowData>({
+	table,
+}: {
+	table: Table<DataTableFeatures, TData>;
+}) {
 	const { textGet } = useText();
 	return (
 		<Checkbox
 			aria-label={textGet("table.select_all")}
 			checked={table.getIsAllPageRowsSelected()}
-			indeterminate={table.getIsSomePageRowsSelected()}
+			// v9: "some" is also true when all are selected.
+			indeterminate={
+				table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
+			}
 			onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 		/>
 	);
 }
 
-function SelectRow<TData>({ row }: { row: Row<TData> }) {
+function SelectRow<TData extends RowData>({
+	row,
+}: {
+	row: DataTableRow<TData>;
+}) {
 	const { textGet } = useText();
 	return (
 		<Checkbox
@@ -31,7 +47,9 @@ function SelectRow<TData>({ row }: { row: Row<TData> }) {
  * The checkbox column for multi-select. DataTable recognises it by its
  * `select` id: the bulk actions and the phone list's "select all" rely on it.
  */
-export function selectColumn<TData>(): ColumnDef<TData> {
+export function selectColumn<
+	TData extends RowData,
+>(): DataTableColumnDef<TData> {
 	return {
 		id: "select",
 		header: ({ table }) => <SelectAll table={table} />,

@@ -15,7 +15,6 @@ import {
 	Text,
 	useToast,
 } from "@pengi/ui";
-import type { Row } from "@tanstack/react-table";
 import {
 	ArchiveRestore,
 	Cake,
@@ -71,7 +70,7 @@ import {
 	selectSetPatient,
 	usePatientStore,
 } from "@/store/patient-store";
-import { useRowStore } from "@/store/row-store";
+import { rowsAs, useRowStore } from "@/store/row-store";
 
 const MedicalRecords = () => {
 	const patient = usePatientStore(selectPatient);
@@ -363,7 +362,7 @@ const MedicalRecords = () => {
 										variant="outline"
 										onClick={() =>
 											setDeleting(
-												(selectedRows as Row<MedicalRecord>[]).map(
+												rowsAs<MedicalRecord>(selectedRows).map(
 													(row) => row.original,
 												),
 											)

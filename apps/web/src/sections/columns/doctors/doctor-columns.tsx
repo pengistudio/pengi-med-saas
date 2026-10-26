@@ -1,3 +1,4 @@
+import type { DataTableColumnDef } from "@pengi/ui";
 import {
 	Badge,
 	Button,
@@ -11,7 +12,6 @@ import {
 	DropdownMenuTrigger,
 	Text,
 } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
 	Link2,
 	MoreHorizontal,
@@ -40,7 +40,7 @@ export const getDoctorColumns = ({
 	onLink,
 	onToggleActive,
 	onDelete,
-}: DoctorColumnProps): ColumnDef<Doctor>[] => [
+}: DoctorColumnProps): DataTableColumnDef<Doctor>[] => [
 	{
 		accessorKey: "full_name",
 		meta: { title: "doctors.column.name", phone: "title" },

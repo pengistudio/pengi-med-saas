@@ -1,5 +1,5 @@
+import type { DataTableColumnDef } from "@pengi/ui";
 import { DataTableColumnHeader, Text } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
 	messageErrorKey,
 	type WhatsAppMessage,
@@ -34,7 +34,7 @@ function statusBadge(status: WhatsAppMessageStatus) {
 }
 
 /** Columns of the WhatsApp sent-messages log (inbox → "Envíos" tab). */
-export const whatsappMessageColumns: ColumnDef<WhatsAppMessage>[] = [
+export const whatsappMessageColumns: DataTableColumnDef<WhatsAppMessage>[] = [
 	{
 		accessorKey: "created_at",
 		meta: { title: "settings.whatsapp.log.column.date", phone: "end" },

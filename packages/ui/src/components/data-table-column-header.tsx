@@ -1,7 +1,8 @@
-import type { Column } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
+import type { DataTableColumn } from "./data-table-features";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -11,13 +12,13 @@ import {
 } from "./dropdown-menu";
 import { Text } from "./text";
 
-interface DataTableColumnHeaderProps<TData, TValue>
+interface DataTableColumnHeaderProps<TData extends RowData, TValue>
 	extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
-	column: Column<TData, TValue>;
+	column: DataTableColumn<TData, TValue>;
 	title: React.ReactNode;
 }
 
-export function DataTableColumnHeader<TData, TValue>({
+export function DataTableColumnHeader<TData extends RowData, TValue>({
 	column,
 	title,
 	className,

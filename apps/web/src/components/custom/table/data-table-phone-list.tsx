@@ -1,11 +1,8 @@
 import { useText } from "@pengi/shared";
+import type { DataTableCell, DataTableInstance, DataTableRow } from "@pengi/ui";
 import { cn, Skeleton } from "@pengi/ui";
-import {
-	type Cell,
-	flexRender,
-	type Row,
-	type Table,
-} from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
 import type * as React from "react";
 
 type Slot =
@@ -18,16 +15,22 @@ type Slot =
 	| "detail"
 	| "hidden";
 
-type Slots<TData> = Partial<Record<Slot, Cell<TData, unknown>[]>>;
+type Slots<TData extends RowData> = Partial<
+	Record<Slot, DataTableCell<TData, unknown>[]>
+>;
 
-const slotOf = <TData,>(cell: Cell<TData, unknown>): Slot => {
+const slotOf = <TData extends RowData>(
+	cell: DataTableCell<TData, unknown>,
+): Slot => {
 	const { column } = cell;
 	if (column.id === "select") return "select";
 	if (column.id === "actions") return "actions";
 	return column.columnDef.meta?.phone ?? "detail";
 };
 
-function slotsOf<TData>(row: Row<TData>): Slots<TData> {
+function slotsOf<TData extends RowData>(
+	row: DataTableRow<TData>,
+): Slots<TData> {
 	const slots: Slots<TData> = {};
 	for (const cell of row.getVisibleCells()) {
 		const slot = slotOf(cell);
@@ -44,22 +47,25 @@ function slotsOf<TData>(row: Row<TData>): Slots<TData> {
 	return slots;
 }
 
-const isEmpty = <TData,>(cell: Cell<TData, unknown>) => {
+const isEmpty = <TData extends RowData>(
+	cell: DataTableCell<TData, unknown>,
+) => {
 	if (!cell.column.accessorFn) return false;
 	const value = cell.getValue();
 	return value === null || value === undefined || value === "";
 };
 
-const render = <TData,>(cell: Cell<TData, unknown>) =>
+const render = <TData extends RowData>(cell: DataTableCell<TData, unknown>) =>
 	flexRender(cell.column.columnDef.cell, cell.getContext());
 
-const renderAll = <TData,>(cells?: Cell<TData, unknown>[]) =>
-	cells?.map((cell) => <span key={cell.id}>{render(cell)}</span>);
+const renderAll = <TData extends RowData>(
+	cells?: DataTableCell<TData, unknown>[],
+) => cells?.map((cell) => <span key={cell.id}>{render(cell)}</span>);
 
-interface DataTablePhoneListProps<TData> {
-	table: Table<TData>;
+interface DataTablePhoneListProps<TData extends RowData> {
+	table: DataTableInstance<TData>;
 	loading?: boolean;
-	rowClassName?: (row: Row<TData>) => string;
+	rowClassName?: (row: DataTableRow<TData>) => string;
 	emptyState?: React.ReactNode;
 }
 
@@ -68,7 +74,7 @@ interface DataTablePhoneListProps<TData> {
  * `meta.phone` (title and end on the first line, subtitle and status on the
  * second, the rest as labelled details), selection and actions at the edges.
  */
-export function DataTablePhoneList<TData>({
+export function DataTablePhoneList<TData extends RowData>({
 	table,
 	loading,
 	rowClassName,

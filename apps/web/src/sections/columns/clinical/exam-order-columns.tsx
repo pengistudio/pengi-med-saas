@@ -1,5 +1,5 @@
+import type { DataTableColumnDef } from "@pengi/ui";
 import { DataTableColumnHeader, Text } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router";
 import type { ExamOrder } from "@/api/exam-order-service";
 import { FormattedDate } from "@/components/custom/formatted";
@@ -16,8 +16,8 @@ interface ExamOrderColumnOptions {
 
 export const getExamOrderColumns = ({
 	showPatient = true,
-}: ExamOrderColumnOptions = {}): ColumnDef<ExamOrder>[] => {
-	const columns: ColumnDef<ExamOrder>[] = [
+}: ExamOrderColumnOptions = {}): DataTableColumnDef<ExamOrder>[] => {
+	const columns: DataTableColumnDef<ExamOrder>[] = [
 		{
 			accessorKey: "code",
 			meta: { title: "clinical.exam_orders.column.code", phone: "title" },

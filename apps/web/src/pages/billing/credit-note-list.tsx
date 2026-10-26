@@ -1,6 +1,5 @@
 import { useText } from "@pengi/shared";
 import { Button, Text, ToggleGroup, ToggleGroupItem } from "@pengi/ui";
-import type { Row } from "@tanstack/react-table";
 import { Play, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
@@ -15,7 +14,7 @@ import { BillingDocumentsTabs } from "@/components/features/billing/billing-docu
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import { getCreditNoteColumns } from "@/sections/columns/billing/credit-note-columns";
-import { useRowStore } from "@/store/row-store";
+import { rowsAs, useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
 
@@ -178,7 +177,7 @@ const CreditNoteListPage = () => {
 	);
 
 	async function handleProcessSelected() {
-		const parsedRows = rows as Row<CreditNote>[];
+		const parsedRows = rowsAs<CreditNote>(rows);
 
 		setProcessing(true);
 		for (const row of parsedRows) {

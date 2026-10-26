@@ -21,7 +21,6 @@ import {
 	SelectValue,
 	Text,
 } from "@pengi/ui";
-import type { Row } from "@tanstack/react-table";
 import {
 	ArrowUpDown,
 	BellOff,
@@ -49,7 +48,7 @@ import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import { usePatientColumns } from "@/sections/columns/clinical/patient-columns";
 import { useClinicalListStore } from "@/store/clinical-list-store";
-import { useRowStore } from "@/store/row-store";
+import { rowsAs, useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
 
@@ -331,13 +330,13 @@ const Clinical = () => {
 		if (optInAction === null) return;
 		const optIn = optInAction;
 		setOptInAction(null);
-		const ids = (rows as Row<Patient>[]).map((row) => row.original.ID);
+		const ids = rowsAs<Patient>(rows).map((row) => row.original.ID);
 		const res = await setPatientsWhatsAppOptIn(ids, optIn);
 		if (res.success) fetchPatients(page, search, sortValue);
 	}
 
 	async function handleDelete() {
-		const parsedRows = rows as Row<Patient>[];
+		const parsedRows = rowsAs<Patient>(rows);
 		const res = await deleteMultiplePatients(
 			parsedRows.map((row) => row.original.ID),
 		);

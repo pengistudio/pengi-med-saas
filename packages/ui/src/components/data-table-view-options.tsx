@@ -1,8 +1,12 @@
-import type { RowData, Table } from "@tanstack/react-table";
+import type { CellData, RowData, TableFeatures } from "@tanstack/react-table";
 import { SlidersHorizontal } from "lucide-react";
 
 declare module "@tanstack/react-table" {
-	interface ColumnMeta<TData extends RowData, TValue> {
+	interface ColumnMeta<
+		TFeatures extends TableFeatures,
+		TData extends RowData,
+		TValue extends CellData = CellData,
+	> {
 		/** i18n key with the column's name, where its header can't render (Vista menu, phone labels). */
 		title?: string;
 		/**
@@ -16,6 +20,7 @@ declare module "@tanstack/react-table" {
 }
 
 import { Button } from "./button";
+import type { DataTableInstance } from "./data-table-features";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -27,11 +32,11 @@ import {
 } from "./dropdown-menu";
 import { Text } from "./text";
 
-interface DataTableViewOptionsProps<TData> {
-	table: Table<TData>;
+interface DataTableViewOptionsProps<TData extends RowData> {
+	table: DataTableInstance<TData>;
 }
 
-export function DataTableViewOptions<TData>({
+export function DataTableViewOptions<TData extends RowData>({
 	table,
 }: DataTableViewOptionsProps<TData>) {
 	return (

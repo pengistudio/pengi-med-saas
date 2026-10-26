@@ -2,8 +2,11 @@ import { useText } from "@pengi/shared";
 import {
 	Button,
 	cn,
+	type DataTableColumnDef,
 	DataTablePagination,
+	type DataTableRow,
 	DataTableViewOptions,
+	dataTableFeatures,
 	Input,
 	Skeleton,
 	Table,
@@ -15,25 +18,21 @@ import {
 	useViewport,
 } from "@pengi/ui";
 import {
-	type ColumnDef,
 	type ColumnFiltersState,
+	type ColumnVisibilityState,
 	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	type Row,
+	type RowData,
+	type RowSelectionState,
 	type SortingState,
-	useReactTable,
-	type VisibilityState,
+	useTable,
 } from "@tanstack/react-table";
 import * as React from "react";
 import { useEffect } from "react";
 import { useRowStore } from "@/store/row-store";
 import { DataTablePhoneList } from "./data-table-phone-list";
 
-interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData extends RowData> {
+	columns: DataTableColumnDef<TData>[];
 	data: TData[];
 	loading?: boolean;
 	searchKey?: string;
@@ -51,12 +50,12 @@ interface DataTableProps<TData, TValue> {
 	// least one row is selected, so they never sit idle above the table.
 	bulkActions?: React.ReactNode;
 	// Optional per-row className
-	rowClassName?: (row: Row<TData>) => string;
+	rowClassName?: (row: DataTableRow<TData>) => string;
 	// Optional custom empty state (replaces default "no results" text)
 	emptyState?: React.ReactNode;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
 	columns,
 	data,
 	loading,
@@ -71,7 +70,7 @@ export function DataTable<TData, TValue>({
 	bulkActions,
 	rowClassName,
 	emptyState,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
 	const { textGet } = useText();
 	const { isPhone } = useViewport();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -79,14 +78,15 @@ export function DataTable<TData, TValue>({
 		[],
 	);
 	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
-	const [rowSelection, setRowSelection] = React.useState({});
-	const { setRows } = useRowStore();
+		React.useState<ColumnVisibilityState>({});
+	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+	const setRows = useRowStore((s) => s.setRows);
 
 	const isServerPaginated =
 		pageCount !== undefined && onPageChange !== undefined;
 
-	const table = useReactTable({
+	const table = useTable({
+		features: dataTableFeatures,
 		data,
 		columns,
 		state: {
@@ -118,17 +118,16 @@ export function DataTable<TData, TValue>({
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
-		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
 	});
 
+	// The row model is memoized: same array until the selection or the data
+	// change. (The table object itself is new on every render in v9.)
+	const selectedRows = table.getFilteredSelectedRowModel().rows;
 	useEffect(() => {
-		setRows(table.getFilteredSelectedRowModel().rows as Row<unknown>[]);
-	}, [rowSelection, data, setRows, table]);
+		setRows(selectedRows as DataTableRow<RowData>[]);
+	}, [selectedRows, setRows]);
 
-	const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+	const selectedCount = selectedRows.length;
 	const showBulkActions = bulkActions !== undefined && selectedCount > 0;
 
 	return (

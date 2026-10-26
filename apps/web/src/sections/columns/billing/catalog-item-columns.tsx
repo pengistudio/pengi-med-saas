@@ -1,3 +1,4 @@
+import type { DataTableColumnDef } from "@pengi/ui";
 import {
 	Button,
 	DataTableColumnHeader,
@@ -9,7 +10,6 @@ import {
 	DropdownMenuTrigger,
 	Text,
 } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { CatalogItem } from "@/api/billing-service";
 import { FormattedDate, Money } from "@/components/custom/formatted";
@@ -23,7 +23,7 @@ interface CatalogItemColumnProps {
 export const getCatalogItemColumns = ({
 	onEdit,
 	onDelete,
-}: CatalogItemColumnProps): ColumnDef<CatalogItem>[] => [
+}: CatalogItemColumnProps): DataTableColumnDef<CatalogItem>[] => [
 	selectColumn<CatalogItem>(),
 	{
 		accessorKey: "sku",
