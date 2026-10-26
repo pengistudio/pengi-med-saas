@@ -22,7 +22,7 @@
 	"devDependencies": {
 		"@pengi/ui": "workspace:*",
 		"@testing-library/jest-dom": "^6.10.0",
-		"@testing-library/react": "^16.3.2",
+		"@testing-library/react": "^16.3.3",
 		"@types/react": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
 		"axios": "catalog:",
@@ -32,7 +32,7 @@
 		"react-dom": "catalog:",
 		"sonner": "catalog:",
 		"typescript": "catalog:",
-		"vitest": "^4.1.10",
+		"vitest": "^4.1.12",
 		"zod": "catalog:",
 		"zustand": "catalog:"
 	}
