@@ -21,18 +21,18 @@
 	},
 	"devDependencies": {
 		"@pengi/ui": "workspace:*",
-		"@testing-library/jest-dom": "^6.10.0",
+		"@testing-library/jest-dom": "^7.0.1",
 		"@testing-library/react": "^16.3.3",
 		"@types/react": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
 		"axios": "catalog:",
 		"date-fns": "catalog:",
-		"jsdom": "^29.1.1",
+		"jsdom": "^30.1.3",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"sonner": "catalog:",
 		"typescript": "catalog:",
-		"vitest": "^4.1.12",
+		"vitest": "^5.0.5",
 		"zod": "catalog:",
 		"zustand": "catalog:"
 	}

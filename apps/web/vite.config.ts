@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
 // The repo root .env is the one env file for every app (see .env.example).
-const envDir = path.resolve(__dirname, "../..");
+const envDir = path.resolve(import.meta.dirname, "../..");
 // A production build can't fall back to the dev defaults in src/lib/env.ts.
 const requiredInBuild = ["VITE_API_URL"];
 
@@ -25,7 +25,7 @@ export default defineConfig(({ command, mode }) => {
 		plugins: [react(), tailwindcss()],
 		resolve: {
 			alias: {
-				"@": path.resolve(__dirname, "./src"),
+				"@": path.resolve(import.meta.dirname, "./src"),
 			},
 		},
 		build: {
