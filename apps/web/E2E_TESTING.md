@@ -83,11 +83,11 @@ Agrega estos scripts a `apps/web/package.json`:
 
 ```json
 {
-  "scripts": {
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug"
-  }
+	"scripts": {
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:debug": "playwright test --debug"
+	}
 }
 ```
 
@@ -100,21 +100,25 @@ pnpm run test:e2e
 ## Tests Incluidos
 
 ### 1. **auth.spec.ts** (3 tests)
+
 - ✅ Login con credenciales válidas
-- ✅ Logout functionality  
+- ✅ Logout functionality
 - ✅ Error con credenciales inválidas
 
 ### 2. **patients.spec.ts** (3 tests)
+
 - ✅ Navegar a lista de pacientes
 - ✅ Crear nuevo paciente
 - ✅ Buscar pacientes
 
 ### 3. **invoices.spec.ts** (3 tests)
+
 - ✅ Navegar a lista de facturas
 - ✅ Ver facturas
 - ✅ Crear nueva factura
 
 ### 4. **multi-tenant.spec.ts** (3 tests)
+
 - ✅ Verificar aislamiento de datos
 - ✅ Mostrar nombre del tenant
 - ✅ Mantener aislamiento al navegar
@@ -180,8 +184,8 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
       - run: pnpm install
       - run: pnpm run build
       - run: pnpm exec playwright install --with-deps
