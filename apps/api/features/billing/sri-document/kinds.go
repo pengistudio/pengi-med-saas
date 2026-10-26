@@ -156,3 +156,28 @@ func establishmentAddress(tenant tenant_models.Tenant) string {
 func RideName(accessKey string) string {
 	return "invoices/" + accessKey + ".pdf"
 }
+
+// InvoiceXMLName is the tenant file holding an invoice's signed XML: the
+// comprobante the SRI authorized (it is removed when the SRI rejects it).
+func InvoiceXMLName(accessKey string) string {
+	return signedXMLName(Invoice, accessKey)
+}
+
+// InvoiceRide returns an authorized invoice's stored RIDE, rendering and
+// caching it when it is missing (e.g. invoices authorized before RIDEs were
+// stored). invoice must be loaded with its Patient and Items.
+func InvoiceRide(docs Documents, invoice billing_models.Invoice, tenant tenant_models.Tenant) ([]byte, error) {
+	if invoice.AccessKey == nil {
+		return nil, fmt.Errorf("invoice %d has no access key", invoice.ID)
+	}
+	name := RideName(*invoice.AccessKey)
+	if pdf, err := docs.Files.Read(tenant.ID, name); err == nil {
+		return pdf, nil
+	}
+	pdf, err := sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, establishmentAddress(tenant), sri_services.ResolveSriEnv())
+	if err != nil {
+		return nil, fmt.Errorf("render RIDE: %w", err)
+	}
+	_ = docs.Files.Write(tenant.ID, name, pdf) // a cache: the next download renders again if this fails
+	return pdf, nil
+}

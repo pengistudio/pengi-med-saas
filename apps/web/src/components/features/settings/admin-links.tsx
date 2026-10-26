@@ -16,6 +16,8 @@ interface HubLink {
 	href: string;
 	permission?: string;
 	feature?: string;
+	/** Off by default: shown only when the flag is explicitly true. */
+	optIn?: boolean;
 }
 
 interface HubGroup {
@@ -66,6 +68,20 @@ const GROUPS: HubGroup[] = [
 		],
 	},
 	{
+		key: "portal",
+		titleKey: "settings.portal.hub.title",
+		descriptionKey: "settings.portal.hub.description",
+		links: [
+			{
+				titleKey: "settings.portal.title",
+				href: "/settings/portal",
+				permission: PERMISSIONS.PATIENT_PORTAL.PERMISSION_MANAGE_PATIENT_PORTAL,
+				feature: "patient_portal",
+				optIn: true,
+			},
+		],
+	},
+	{
 		key: "plan",
 		titleKey: "settings.hub.plan.title",
 		descriptionKey: "settings.hub.plan.description",
@@ -102,6 +118,12 @@ export function AdminLinks() {
 			})) as unknown as NavItemType[],
 			checkPermission,
 			enabledFeatures,
+		).filter(
+			(l) =>
+				!(l as unknown as HubLink).optIn ||
+				(enabledFeatures as Record<string, boolean | undefined>)[
+					(l as unknown as HubLink).feature ?? ""
+				] === true,
 		) as unknown as (HubLink & { label: string })[];
 		if (visible.length === 0) return null;
 		return (

@@ -65,7 +65,11 @@ export const getAuditLogColumns = (
 		),
 		cell: ({ row }) => (
 			<span className="font-medium">
-				{row.original.user_name || `#${row.original.user_id}`}
+				{row.original.actor_type === "portal_patient" ? (
+					<Text uuid="audit.actor.portal_patient" />
+				) : (
+					row.original.user_name || `#${row.original.user_id}`
+				)}
 			</span>
 		),
 	},

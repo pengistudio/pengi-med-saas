@@ -7,6 +7,7 @@
 //   API         apps/api/core/config/config.go   `env:"NAME"` tags
 //   web         apps/web/src/lib/env.ts          zod schema keys
 //   backoffice  apps/backoffice/src/lib/env.ts   zod schema keys
+//   portal      apps/portal/src/lib/env.ts       zod schema keys
 //   landing     apps/landing/astro.config.mjs    env.schema keys
 //   compose     docker-compose.dev.yaml          ${NAME} interpolation
 // Templates:
@@ -40,6 +41,7 @@ const backoffice = keysOf(
 	"apps/backoffice/src/lib/env.ts",
 	/^\s*(VITE_[A-Z0-9_]+):/gm,
 );
+const portal = keysOf("apps/portal/src/lib/env.ts", /^\s*(VITE_[A-Z0-9_]+):/gm);
 const landing = keysOf(
 	"apps/landing/astro.config.mjs",
 	/^\s*(PUBLIC_[A-Z0-9_]+):/gm,
@@ -53,7 +55,13 @@ const compose = new Set(
 // COMPOSE_PROFILES is read by docker compose itself.
 compose.add("COMPOSE_PROFILES");
 
-for (const [label, set] of Object.entries({ api, web, backoffice, landing })) {
+for (const [label, set] of Object.entries({
+	api,
+	web,
+	backoffice,
+	portal,
+	landing,
+})) {
 	if (set.size === 0)
 		errors.push(`found no variables for ${label}: did its file move?`);
 }
@@ -92,6 +100,7 @@ compare(
 		tag(api, "apps/api core/config"),
 		tag(web, "apps/web src/lib/env.ts"),
 		tag(backoffice, "apps/backoffice src/lib/env.ts"),
+		tag(portal, "apps/portal src/lib/env.ts"),
 		tag(landing, "apps/landing astro.config.mjs"),
 		tag(compose, "docker-compose.dev.yaml"),
 	),
@@ -145,6 +154,7 @@ const builtIn = new Set(["DEV", "PROD", "MODE", "SSR", "BASE_URL"]);
 for (const [dir, allowed] of [
 	["apps/web/src", "apps/web/src/lib/env.ts"],
 	["apps/backoffice/src", "apps/backoffice/src/lib/env.ts"],
+	["apps/portal/src", "apps/portal/src/lib/env.ts"],
 	["apps/landing/src", null],
 ]) {
 	for (const path of files(dir, [".ts", ".tsx", ".astro"])) {
@@ -171,5 +181,5 @@ if (errors.length > 0) {
 	process.exit(1);
 }
 console.log(
-	`check-env: ok (${api.size} api, ${web.size} web, ${backoffice.size} backoffice, ${landing.size} landing, ${compose.size} compose)`,
+	`check-env: ok (${api.size} api, ${web.size} web, ${backoffice.size} backoffice, ${portal.size} portal, ${landing.size} landing, ${compose.size} compose)`,
 );

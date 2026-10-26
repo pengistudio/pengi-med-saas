@@ -1,6 +1,7 @@
 packages:
   - "apps/web"
   - "apps/backoffice"
+  - "apps/portal"
   - "packages/*"
 
 catalog:

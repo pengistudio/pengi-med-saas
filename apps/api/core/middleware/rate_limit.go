@@ -22,16 +22,37 @@ type RateLimiter struct {
 	limiters map[string]*ipLimiter
 	r        rate.Limit
 	burst    int
+	// idle is how long an IP's limiter is kept unused: at least until its
+	// bucket would be full again, so dropping it never gives an IP more room
+	// (a daily cap keeps its state for a day).
+	idle time.Duration
 }
+
+// minIdle is the shortest time an unused IP limiter is kept.
+const minIdle = 10 * time.Minute
 
 func NewRateLimiter(r rate.Limit, burst int) *RateLimiter {
 	rl := &RateLimiter{
 		limiters: make(map[string]*ipLimiter),
 		r:        r,
 		burst:    burst,
+		idle:     idleFor(r, burst),
 	}
 	go rl.cleanup()
 	return rl
+}
+
+// idleFor is the time a limiter of rate r and burst takes to refill from
+// empty, and never under minIdle.
+func idleFor(r rate.Limit, burst int) time.Duration {
+	if r <= 0 || r == rate.Inf {
+		return minIdle
+	}
+	refill := time.Duration(float64(burst) / float64(r) * float64(time.Second))
+	if refill < minIdle {
+		return minIdle
+	}
+	return refill
 }
 
 func (rl *RateLimiter) get(ip string) *rate.Limiter {
@@ -48,13 +69,13 @@ func (rl *RateLimiter) get(ip string) *rate.Limiter {
 	return entry.limiter
 }
 
-// cleanup removes limiters for IPs not seen in the last 10 minutes.
+// cleanup removes limiters for IPs not seen within rl.idle.
 func (rl *RateLimiter) cleanup() {
 	for {
 		time.Sleep(5 * time.Minute)
 		rl.mu.Lock()
 		for ip, entry := range rl.limiters {
-			if time.Since(entry.lastSeen) > 10*time.Minute {
+			if time.Since(entry.lastSeen) > rl.idle {
 				delete(rl.limiters, ip)
 			}
 		}

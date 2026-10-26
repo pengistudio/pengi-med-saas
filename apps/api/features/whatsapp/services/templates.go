@@ -21,6 +21,7 @@ const (
 	VarClinic  = "clinic"
 	VarDate    = "date"
 	VarTime    = "time"
+	VarCode    = "code"
 )
 
 // TemplateSpec is one template of the catalog: what is created on the WABA
@@ -105,6 +106,38 @@ var Catalog = []TemplateSpec{
 		Variables: []string{VarPatient, VarClinic},
 		Inbox:     true,
 	},
+	PortalCodeTemplate,
+}
+
+// PortalCodeExpirationMinutes is how long a patient portal code lasts; the
+// template's footer states it.
+const PortalCodeExpirationMinutes = 10
+
+// PortalCodeTemplate sends the patient portal's one-time sign-in code. Meta
+// writes the body of AUTHENTICATION templates itself; Body is only the
+// preview shown in settings. Not an inbox template.
+var PortalCodeTemplate = TemplateSpec{
+	Definition: whatsapp.TemplateDefinition{
+		Name:                  whatsapp_models.TemplatePortalCode,
+		Language:              ReminderLanguage,
+		Category:              whatsapp.CategoryAuthentication,
+		Body:                  "{{1}} es tu código de verificación. Por tu seguridad, no lo compartas.",
+		Example:               []string{"123456"},
+		CodeExpirationMinutes: PortalCodeExpirationMinutes,
+		CopyCodeText:          "Copiar código",
+	},
+	Variables: []string{VarCode},
+}
+
+// PortalCodeMessage builds the sign-in code message to "to".
+func PortalCodeMessage(to, code string) whatsapp.TemplateMessage {
+	return whatsapp.TemplateMessage{
+		To:         to,
+		Name:       PortalCodeTemplate.Definition.Name,
+		Language:   PortalCodeTemplate.Definition.Language,
+		BodyParams: []string{code},
+		CopyCode:   code,
+	}
 }
 
 // FindTemplate returns the catalog entry named name.
@@ -219,6 +252,7 @@ type ReminderData struct {
 	PatientName string
 	ClinicName  string
 	Start       time.Time // appointment start, in the clinic's time zone
+	Code        string    // one-time code (VarCode)
 }
 
 // TemplateData fills any catalog template; Start is only used by templates
@@ -264,6 +298,8 @@ func TemplateParams(spec TemplateSpec, data TemplateData) []string {
 			params = append(params, SpanishDate(data.Start))
 		case VarTime:
 			params = append(params, data.Start.Format("15:04"))
+		case VarCode:
+			params = append(params, data.Code)
 		}
 	}
 	return params

@@ -34,6 +34,8 @@ export interface AuditLog {
 	user_id: number;
 	/** Team name, or user name of someone no longer on the team. */
 	user_name: string;
+	/** "portal_patient" when the patient acted through the portal (user_id 0). */
+	actor_type?: "user" | "portal_patient";
 	action: AuditAction;
 	/** Table of the record, e.g. "patients". */
 	entity_type: string;

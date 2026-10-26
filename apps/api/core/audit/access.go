@@ -24,6 +24,7 @@ func RecordAccess(db *gorm.DB, c *gin.Context, entityType string, entityID uint,
 	log := AuditLog{
 		TenantID:   tenantID,
 		UserID:     uint(userIDRaw),
+		ActorType:  ActorUser,
 		Action:     "READ",
 		EntityType: entityType,
 		EntityID:   entityID,
@@ -33,4 +34,21 @@ func RecordAccess(db *gorm.DB, c *gin.Context, entityType string, entityID uint,
 
 	newDB := tenantdb.For(c, db).Session(&gorm.Session{NewDB: true})
 	_ = newDB.Create(&log).Error
+}
+
+// RecordPortalAccess logs a READ event made by a patient through the patient
+// portal: no staff user is involved, so UserID stays 0 and ActorType says who
+// acted; PatientID is that patient. Failures are swallowed like RecordAccess.
+func RecordPortalAccess(db *gorm.DB, tenantID, patientID uint, entityType string, entityID uint) {
+	pid := patientID
+	log := AuditLog{
+		TenantID:   tenantID,
+		ActorType:  ActorPortalPatient,
+		Action:     "READ",
+		EntityType: entityType,
+		EntityID:   entityID,
+		PatientID:  &pid,
+		CreatedAt:  time.Now(),
+	}
+	_ = tenantdb.ForTenant(db, tenantID).Session(&gorm.Session{NewDB: true}).Create(&log).Error
 }

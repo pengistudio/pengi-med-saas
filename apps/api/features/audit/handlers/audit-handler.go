@@ -147,7 +147,7 @@ func patientOf(l audit.AuditLog) uint {
 // user filter), including people no longer on the team.
 func (h *AuditLogHandler) GetAuditUsers(c *gin.Context) envelope.Response {
 	var ids []uint
-	if err := tenantdb.For(c, h.db).Model(&audit.AuditLog{}).Distinct("user_id").Pluck("user_id", &ids).Error; err != nil {
+	if err := tenantdb.For(c, h.db).Model(&audit.AuditLog{}).Where("user_id <> 0").Distinct("user_id").Pluck("user_id", &ids).Error; err != nil {
 		h.logger.Error("Failed to list audit users", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "audit.log.error.fetch_failed", core_errors.ErrAuditFetchError)
 	}

@@ -242,6 +242,9 @@ type TemplateMessage struct {
 	Language   string
 	BodyParams []string
 	Buttons    []QuickReplyButton // by index, matching the template's buttons
+	// CopyCode fills the copy-code (OTP) button of an AUTHENTICATION
+	// template; it is the same code as the body parameter.
+	CopyCode string
 }
 
 type textParam struct {
@@ -273,6 +276,14 @@ func (c *Client) SendTemplate(token, phoneNumberID string, msg TemplateMessage) 
 			SubType:    "quick_reply",
 			Index:      fmt.Sprint(i),
 			Parameters: []textParam{{Type: "payload", Payload: b.Payload}},
+		})
+	}
+	if msg.CopyCode != "" {
+		components = append(components, sendComponent{
+			Type:       "button",
+			SubType:    "url",
+			Index:      "0",
+			Parameters: []textParam{{Type: "text", Text: msg.CopyCode}},
 		})
 	}
 	payload := map[string]any{
@@ -331,7 +342,15 @@ type TemplateDefinition struct {
 	Body     string
 	Example  []string // one sample value per body variable
 	Buttons  []TemplateButton
+	// AUTHENTICATION templates only: Meta writes the body itself (Body is just
+	// the preview), adds the security recommendation, an expiry footer of
+	// CodeExpirationMinutes and a copy-code button labelled CopyCodeText.
+	CodeExpirationMinutes int
+	CopyCodeText          string
 }
+
+// CategoryAuthentication is Meta's category of one-time-code templates.
+const CategoryAuthentication = "AUTHENTICATION"
 
 // Template is a template as listed by the Graph API.
 type Template struct {
@@ -344,17 +363,22 @@ type Template struct {
 
 // CreateTemplate submits a template for review and returns its id and initial status.
 func (c *Client) CreateTemplate(token, wabaID string, def TemplateDefinition) (Template, error) {
-	body := map[string]any{"type": "BODY", "text": def.Body}
-	if len(def.Example) > 0 {
-		body["example"] = map[string]any{"body_text": [][]string{def.Example}}
-	}
-	components := []map[string]any{body}
-	if len(def.Buttons) > 0 {
-		buttons := make([]map[string]string, 0, len(def.Buttons))
-		for _, b := range def.Buttons {
-			buttons = append(buttons, map[string]string{"type": "QUICK_REPLY", "text": b.Text})
+	var components []map[string]any
+	if def.Category == CategoryAuthentication {
+		components = authenticationComponents(def)
+	} else {
+		body := map[string]any{"type": "BODY", "text": def.Body}
+		if len(def.Example) > 0 {
+			body["example"] = map[string]any{"body_text": [][]string{def.Example}}
 		}
-		components = append(components, map[string]any{"type": "BUTTONS", "buttons": buttons})
+		components = []map[string]any{body}
+		if len(def.Buttons) > 0 {
+			buttons := make([]map[string]string, 0, len(def.Buttons))
+			for _, b := range def.Buttons {
+				buttons = append(buttons, map[string]string{"type": "QUICK_REPLY", "text": b.Text})
+			}
+			components = append(components, map[string]any{"type": "BUTTONS", "buttons": buttons})
+		}
 	}
 	payload := map[string]any{
 		"name":       def.Name,
@@ -368,6 +392,21 @@ func (c *Client) CreateTemplate(token, wabaID string, def TemplateDefinition) (T
 	}
 	out.Name, out.Language = def.Name, def.Language
 	return out, nil
+}
+
+// authenticationComponents are the components of a one-time-code template:
+// Meta's fixed body with the security recommendation, the expiry footer and a
+// copy-code button.
+func authenticationComponents(def TemplateDefinition) []map[string]any {
+	components := []map[string]any{{"type": "BODY", "add_security_recommendation": true}}
+	if def.CodeExpirationMinutes > 0 {
+		components = append(components, map[string]any{"type": "FOOTER", "code_expiration_minutes": def.CodeExpirationMinutes})
+	}
+	button := map[string]any{"type": "OTP", "otp_type": "COPY_CODE"}
+	if def.CopyCodeText != "" {
+		button["text"] = def.CopyCodeText
+	}
+	return append(components, map[string]any{"type": "BUTTONS", "buttons": []map[string]any{button}})
 }
 
 // ListTemplates lists the WABA's templates, narrowed to name when non-empty.

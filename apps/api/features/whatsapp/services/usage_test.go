@@ -216,8 +216,11 @@ func TestCatalog_TemplateCategoriesAndRender(t *testing.T) {
 	for _, spec := range Catalog {
 		d := spec.Definition
 		want := "UTILITY"
-		if d.Name == whatsapp_models.TemplateContinueConversation {
+		switch d.Name {
+		case whatsapp_models.TemplateContinueConversation:
 			want = "MARKETING"
+		case whatsapp_models.TemplatePortalCode:
+			want = "AUTHENTICATION"
 		}
 		if d.Category != want || d.Language != "es" || names[d.Name] {
 			t.Fatalf("template %+v", d)
@@ -233,7 +236,7 @@ func TestCatalog_TemplateCategoriesAndRender(t *testing.T) {
 			}
 		}
 	}
-	if len(names) != 5 || !names[whatsapp_models.ReminderTemplate] {
+	if len(names) != 6 || !names[whatsapp_models.ReminderTemplate] || !names[whatsapp_models.TemplatePortalCode] {
 		t.Fatalf("catalog = %v", names)
 	}
 	// The reminder is unchanged.

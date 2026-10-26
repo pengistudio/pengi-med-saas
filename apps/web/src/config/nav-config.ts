@@ -45,6 +45,7 @@ export interface EnabledFeatures {
 	team?: boolean;
 	kanban?: boolean;
 	whatsapp?: boolean;
+	patient_portal?: boolean;
 }
 
 // Factory to create navigation items with localized labels

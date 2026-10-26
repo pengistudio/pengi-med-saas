@@ -5768,6 +5768,10 @@
         "value": "Date"
     },
     {
+        "key": "audit.actor.portal_patient",
+        "value": "Patient (portal)"
+    },
+    {
         "key": "audit.column.user",
         "value": "User"
     },
@@ -9340,6 +9344,14 @@
         "value": "You reached this month's limit of {limit} WhatsApp messages. Reminders are paused until next month."
     },
     {
+        "key": "notification.portal.code_budget.day",
+        "value": "The portal's daily sign-in code limit was reached; it may be an abuse attempt."
+    },
+    {
+        "key": "notification.portal.code_budget.hour",
+        "value": "The portal's hourly sign-in code limit was reached; it may be an abuse attempt."
+    },
+    {
         "key": "clinical.patient.whatsapp_opt_in.bulk.success",
         "value": "WhatsApp consent updated."
     },
@@ -10886,5 +10898,381 @@
     {
         "key": "table.column.patient",
         "value": "Patient"
+    },
+    {
+        "key": "E-PORTAL-001",
+        "value": "The patient portal is not available."
+    },
+    {
+        "key": "E-PORTAL-002",
+        "value": "The code is invalid or has expired."
+    },
+    {
+        "key": "E-PORTAL-003",
+        "value": "Your session has expired. Sign in again."
+    },
+    {
+        "key": "E-PORTAL-004",
+        "value": "Not found."
+    },
+    {
+        "key": "E-PORTAL-005",
+        "value": "Invalid request."
+    },
+    {
+        "key": "E-PORTAL-006",
+        "value": "Something went wrong. Try again later."
+    },
+    {
+        "key": "E-PORTAL-007",
+        "value": "The file is not available."
+    },
+    {
+        "key": "E-PORTAL-008",
+        "value": "We could not verify the request. Try again."
+    },
+    {
+        "key": "portal.settings.get.success",
+        "value": "Portal settings retrieved."
+    },
+    {
+        "key": "portal.settings.update.success",
+        "value": "Portal settings saved."
+    },
+    {
+        "key": "portal.clinic.get.success",
+        "value": "Clinic retrieved."
+    },
+    {
+        "key": "portal.login.code_sent",
+        "value": "If your details are on file at the clinic, we sent you an access code."
+    },
+    {
+        "key": "portal.verify.success",
+        "value": "You are signed in."
+    },
+    {
+        "key": "portal.refresh.success",
+        "value": "Session renewed."
+    },
+    {
+        "key": "portal.logout.success",
+        "value": "You are signed out."
+    },
+    {
+        "key": "portal.me.get.success",
+        "value": "Details retrieved."
+    },
+    {
+        "key": "portal.appointments.list.success",
+        "value": "Appointments retrieved."
+    },
+    {
+        "key": "portal.results.list.success",
+        "value": "Results retrieved."
+    },
+    {
+        "key": "portal.documents.list.success",
+        "value": "Documents retrieved."
+    },
+    {
+        "key": "portal.invoices.list.success",
+        "value": "Invoices retrieved."
+    },
+    {
+        "key": "portal.error.not_available",
+        "value": "The patient portal is not available."
+    },
+    {
+        "key": "portal.error.invalid_code",
+        "value": "The code is invalid or has expired."
+    },
+    {
+        "key": "portal.error.unauthorized",
+        "value": "Your session has expired. Sign in again."
+    },
+    {
+        "key": "portal.error.not_found",
+        "value": "Not found."
+    },
+    {
+        "key": "portal.error.invalid_request",
+        "value": "Invalid request."
+    },
+    {
+        "key": "portal.error.internal",
+        "value": "Something went wrong. Try again later."
+    },
+    {
+        "key": "portal.error.captcha_failed",
+        "value": "We could not verify the request. Try again."
+    },
+    {
+        "key": "portal.error.file_unavailable",
+        "value": "The file is not available."
+    },
+    {
+        "key": "portal.email.code.subject",
+        "value": "Your access code for {clinic}"
+    },
+    {
+        "key": "portal.email.code.heading",
+        "value": "Your access code"
+    },
+    {
+        "key": "portal.email.code.intro",
+        "value": "Use this code to sign in to the patient portal of {clinic}:"
+    },
+    {
+        "key": "portal.email.code.expiry",
+        "value": "The code expires in {minutes} minutes and can be used only once."
+    },
+    {
+        "key": "portal.email.code.ignore",
+        "value": "If you did not request it, you can ignore this message."
+    },
+    {
+        "key": "whatsapp.template.name.portal_code",
+        "value": "Patient portal access code"
+    },
+    {
+        "key": "portal.loading",
+        "value": "Loading"
+    },
+    {
+        "key": "portal.download",
+        "value": "Download"
+    },
+    {
+        "key": "portal.logout",
+        "value": "Sign out"
+    },
+    {
+        "key": "portal.section.error",
+        "value": "We could not load this information. Try again later."
+    },
+    {
+        "key": "portal.section.appointments",
+        "value": "Appointments"
+    },
+    {
+        "key": "portal.section.results",
+        "value": "Results"
+    },
+    {
+        "key": "portal.section.documents",
+        "value": "Documents"
+    },
+    {
+        "key": "portal.section.invoices",
+        "value": "Invoices"
+    },
+    {
+        "key": "portal.home.greeting",
+        "value": "Hello, {name}"
+    },
+    {
+        "key": "portal.home.no_sections",
+        "value": "Your clinic has no information available in the portal yet."
+    },
+    {
+        "key": "portal.landing.title",
+        "value": "Patient portal"
+    },
+    {
+        "key": "portal.landing.body",
+        "value": "Use the link your clinic gave you to sign in."
+    },
+    {
+        "key": "portal.unavailable.title",
+        "value": "Portal not available"
+    },
+    {
+        "key": "portal.unavailable.body",
+        "value": "This portal is not available. Check the link or ask your clinic."
+    },
+    {
+        "key": "portal.signin.document",
+        "value": "ID number"
+    },
+    {
+        "key": "portal.signin.send_code",
+        "value": "Send code"
+    },
+    {
+        "key": "portal.signin.title",
+        "value": "Sign in to your patient portal"
+    },
+    {
+        "key": "portal.signin.hint",
+        "value": "If your ID number is registered, we send you a 6-digit code by WhatsApp or email."
+    },
+    {
+        "key": "portal.signin.code_sent",
+        "value": "If your ID number is registered, we sent you a 6-digit code. Enter it here. It expires in 10 minutes."
+    },
+    {
+        "key": "portal.signin.code",
+        "value": "6-digit code"
+    },
+    {
+        "key": "portal.signin.verify",
+        "value": "Sign in"
+    },
+    {
+        "key": "portal.signin.back",
+        "value": "Use a different ID number"
+    },
+    {
+        "key": "portal.signin.code_invalid",
+        "value": "The code is not correct or has expired. Request a new one."
+    },
+    {
+        "key": "portal.signin.captcha_error",
+        "value": "The security check could not load. Reload the page and try again."
+    },
+    {
+        "key": "portal.appointments.empty",
+        "value": "You have no appointments yet."
+    },
+    {
+        "key": "portal.appointments.next",
+        "value": "Your next appointment"
+    },
+    {
+        "key": "portal.appointments.none_upcoming",
+        "value": "You have no appointments booked. To get one, contact the clinic."
+    },
+    {
+        "key": "portal.appointments.later",
+        "value": "Later"
+    },
+    {
+        "key": "portal.documents.hint",
+        "value": "Prescriptions, certificates and reports signed by your doctor."
+    },
+    {
+        "key": "portal.results.hint",
+        "value": "Results of your exams that your doctor has already reviewed."
+    },
+    {
+        "key": "portal.invoices.hint",
+        "value": "Your electronic invoices authorized by the SRI."
+    },
+    {
+        "key": "portal.home.sections",
+        "value": "Portal sections"
+    },
+    {
+        "key": "portal.appointments.past",
+        "value": "Past"
+    },
+    {
+        "key": "portal.results.empty",
+        "value": "No results are available yet."
+    },
+    {
+        "key": "portal.results.order",
+        "value": "Order {number}"
+    },
+    {
+        "key": "portal.documents.empty",
+        "value": "You have no signed documents yet."
+    },
+    {
+        "key": "portal.documents.type.prescription",
+        "value": "Prescription"
+    },
+    {
+        "key": "portal.documents.type.certificate",
+        "value": "Certificate"
+    },
+    {
+        "key": "portal.documents.type.report",
+        "value": "Report"
+    },
+    {
+        "key": "portal.invoices.empty",
+        "value": "You have no invoices yet."
+    },
+    {
+        "key": "portal.invoices.ride",
+        "value": "PDF"
+    },
+    {
+        "key": "portal.invoices.xml",
+        "value": "XML"
+    },
+    {
+        "key": "settings.portal.hub.title",
+        "value": "Patient portal"
+    },
+    {
+        "key": "settings.portal.hub.description",
+        "value": "Let your patients view their appointments, results, documents and invoices."
+    },
+    {
+        "key": "settings.portal.title",
+        "value": "Patient portal"
+    },
+    {
+        "key": "settings.portal.description",
+        "value": "Set up how your patients access their information."
+    },
+    {
+        "key": "settings.portal.back",
+        "value": "Back to settings"
+    },
+    {
+        "key": "settings.portal.access.title",
+        "value": "Access"
+    },
+    {
+        "key": "settings.portal.access.help",
+        "value": "Patients sign in with their ID number and a code sent to the WhatsApp or email registered at the clinic."
+    },
+    {
+        "key": "settings.portal.enabled",
+        "value": "Enable portal"
+    },
+    {
+        "key": "settings.portal.link",
+        "value": "Portal link"
+    },
+    {
+        "key": "settings.portal.copy",
+        "value": "Copy"
+    },
+    {
+        "key": "settings.portal.copied",
+        "value": "Copied"
+    },
+    {
+        "key": "settings.portal.sections.title",
+        "value": "What they can see"
+    },
+    {
+        "key": "settings.portal.sections.help",
+        "value": "Available only while the portal is enabled."
+    },
+    {
+        "key": "settings.portal.sections.appointments",
+        "value": "Appointments"
+    },
+    {
+        "key": "settings.portal.sections.results",
+        "value": "Exam results"
+    },
+    {
+        "key": "settings.portal.sections.documents",
+        "value": "Signed documents"
+    },
+    {
+        "key": "settings.portal.sections.invoices",
+        "value": "Invoices"
+    },
+    {
+        "key": "settings.portal.save",
+        "value": "Save"
     }
 ]

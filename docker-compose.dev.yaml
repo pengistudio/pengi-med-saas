@@ -113,8 +113,8 @@ services:
     networks:
       - gentoo_network
 
-  # Installs the pnpm workspace (web, backoffice, packages/*) once. web and
-  # backoffice share the bind-mounted node_modules, so installing from both
+  # Installs the pnpm workspace (web, backoffice, portal, packages/*) once. web,
+  # backoffice and portal share the bind-mounted node_modules, so installing from both
   # concurrently races on the same files (ENOENT on chmod of bins).
   workspace-deps:
     image: node:24-alpine
@@ -166,6 +166,25 @@ services:
     networks:
       - gentoo_network
 
+  portal:
+    image: node:24-alpine
+    container_name: pengi-portal-dev
+    working_dir: /workspace/apps/portal
+    ports:
+      - "3002:5173"
+    environment:
+      - CI=true
+      - PNPM_HOME=/pnpm/store
+    volumes:
+      - ./:/workspace
+      - pnpm_store_workspace:/pnpm/store
+    depends_on:
+      workspace-deps:
+        condition: service_completed_successfully
+    command: sh -c "corepack enable && pnpm run dev --host"
+    networks:
+      - gentoo_network
+
   landing:
     image: node:24-alpine
     container_name: pengi-landing-dev
@@ -173,7 +192,7 @@ services:
     # (envDir). The landing keeps its own lockfile and node_modules.
     working_dir: /workspace/apps/landing
     ports:
-      - "3002:4321"
+      - "3003:4321"
     environment:
       - CI=true
       - PNPM_HOME=/pnpm/store

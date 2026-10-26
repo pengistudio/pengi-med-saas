@@ -41,6 +41,13 @@ services:
     networks:
       - app
 
+  portal:
+    image: ghcr.io/pengistudio/pengi-portal:latest
+    container_name: pengi-portal
+    restart: unless-stopped
+    networks:
+      - app
+
   landing:
     image: ghcr.io/pengistudio/pengi-landing:latest
     container_name: pengi-landing

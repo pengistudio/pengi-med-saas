@@ -13,6 +13,11 @@ admin.gentoo.pengistudio.com {
     reverse_proxy backoffice:80
 }
 
+portal.gentoo.pengistudio.com {
+    encode zstd gzip
+    reverse_proxy portal:80
+}
+
 api.gentoo.pengistudio.com {
     encode zstd gzip
     reverse_proxy api:8000

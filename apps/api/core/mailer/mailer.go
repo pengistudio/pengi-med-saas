@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html"
 	"net/http"
 	"pengi-med-saas/core/config"
 )
@@ -135,4 +136,34 @@ func (m *Mailer) SendMedicalDocumentEmail(toEmail, subject, documentTitle, pdfFi
 	}
 
 	return m.sendWithAttachments(toEmail, subject, html, []resendAttachment{attachment})
+}
+
+// PortalCodeEmail is the already-translated text of a patient portal sign-in
+// code email (the caller resolves the i18n keys in the patient's language).
+type PortalCodeEmail struct {
+	Subject string
+	Heading string
+	Intro   string // e.g. "Use this code to sign in to the patient portal of Clínica X:"
+	Code    string
+	Expiry  string // e.g. "The code expires in 10 minutes and can be used only once."
+	Ignore  string // e.g. "If you did not request it, ignore this message."
+}
+
+// SendPortalCode emails a one-time patient portal sign-in code. Every text is
+// HTML-escaped: they carry the clinic's name.
+func (m *Mailer) SendPortalCode(toEmail string, e PortalCodeEmail) error {
+	esc := html.EscapeString
+	body := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color: #0d9488;">%s</h2>
+  <p>%s</p>
+  <p style="margin: 24px 0; font-size: 32px; font-weight: bold; letter-spacing: 8px; font-family: monospace;">%s</p>
+  <p style="color: #666; font-size: 14px;">%s</p>
+  <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+  <p style="color: #999; font-size: 12px;">%s</p>
+</body>
+</html>`, esc(e.Heading), esc(e.Intro), esc(e.Code), esc(e.Expiry), esc(e.Ignore))
+
+	return m.send(toEmail, e.Subject, body)
 }

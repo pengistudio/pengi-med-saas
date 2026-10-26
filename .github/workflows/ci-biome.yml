@@ -19,7 +19,7 @@ jobs:
           node-version: 24
 
       - name: "Ejecutar Biome en Aplicaciones Frontend"
-        run: npx @biomejs/biome@2.6.3 ci ./apps/web ./apps/backoffice ./packages/ui ./packages/shared
+        run: npx @biomejs/biome@2.6.3 ci ./apps/web ./apps/backoffice ./apps/portal ./packages/ui ./packages/shared
 
       # Lo que leen las apps y lo que documentan .env.example /
       # deploy/.env.prod.example tiene que coincidir.
@@ -50,6 +50,9 @@ jobs:
       - name: TypeScript check (backoffice)
         run: pnpm --filter backoffice typecheck
 
+      - name: TypeScript check (portal)
+        run: pnpm --filter portal typecheck
+
       - name: TypeScript check (@pengi/shared)
         run: pnpm --filter @pengi/shared typecheck
 
@@ -58,6 +61,9 @@ jobs:
 
       - name: Tests (backoffice)
         run: pnpm --filter backoffice test:run
+
+      - name: Tests (portal)
+        run: pnpm --filter portal test:run
 
       - name: Tests (@pengi/shared)
         run: pnpm --filter @pengi/shared test:run

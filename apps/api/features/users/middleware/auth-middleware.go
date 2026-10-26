@@ -40,8 +40,9 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		// 5) Only clinic access tokens: not refresh or exchange tokens, and not
-		// backoffice tokens (same signing key, different audience).
-		if claims["type"] != "access_token" || auth.IsBackofficeToken(claims) {
+		// backoffice or patient portal tokens (same signing key, different
+		// audience).
+		if claims["type"] != "access_token" || auth.IsBackofficeToken(claims) || auth.IsPortalToken(claims) {
 			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
 			return
 		}
@@ -143,6 +144,9 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 		}
 
 		claims, err := auth.ParseToken(token)
+		if err == nil && (auth.IsBackofficeToken(claims) || auth.IsPortalToken(claims)) {
+			err = auth.ErrInvalidToken // never a staff session
+		}
 		if err != nil {
 			// Token inválido, tratamos como no autenticado
 			c.Set("authenticated", false)
