@@ -71,6 +71,16 @@ type Config struct {
 	LegacyFrontendURL  string `env:"FRONTEND_URL"`
 	LegacyPublicAppURL string `env:"PUBLIC_APP_URL"`
 
+	// Public URL of the patient portal (apps/portal); the clinic's link is
+	// PORTAL_URL/<slug>. Also a CORS origin. In dev it defaults to the compose
+	// portal port; unset in release, the portal link is empty.
+	PortalURL string `env:"PORTAL_URL"`
+	// Cloudflare Turnstile secret for the portal sign-in captcha (unset: no
+	// captcha, e.g. dev and tests).
+	TurnstileSecretKey string `env:"TURNSTILE_SECRET_KEY"`
+	// Portal sign-in codes sent per day across every clinic (cost ceiling).
+	PortalMaxCodesPerDay int `env:"PORTAL_MAX_CODES_PER_DAY" envDefault:"500"`
+
 	// Google Calendar (unset: integration disabled)
 	GoogleClientID     string `env:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
@@ -108,6 +118,9 @@ func (c Config) IsRelease() bool { return c.GinMode == "release" }
 // devAppURL is the web app in docker-compose.dev.yaml (host port 3000).
 const devAppURL = "http://localhost:3000"
 
+// devPortalURL is the patient portal in docker-compose.dev.yaml (host port 3002).
+const devPortalURL = "http://localhost:3002"
+
 // Get returns the current configuration. Values that fail to parse are left
 // at their zero value; Load has already rejected them at startup.
 func Get() Config {
@@ -125,6 +138,10 @@ func parse() (Config, error) {
 	}
 	if cfg.AppURL == "" && !cfg.IsRelease() {
 		cfg.AppURL = devAppURL
+	}
+	cfg.PortalURL = strings.TrimRight(strings.TrimSpace(cfg.PortalURL), "/")
+	if cfg.PortalURL == "" && !cfg.IsRelease() {
+		cfg.PortalURL = devPortalURL
 	}
 	return cfg, err
 }

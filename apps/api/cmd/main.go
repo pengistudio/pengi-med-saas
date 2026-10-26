@@ -1,6 +1,7 @@
 package main
 
 import (
+	"slices"
 	"strings"
 	"time"
 
@@ -146,6 +147,11 @@ func main() {
 					allowedOrigins = append(allowedOrigins, trimmed)
 				}
 			}
+		}
+		// The patient portal is a separate origin; it is allowed from the
+		// environment as well as from the allowed_origins setting.
+		if portalURL := config.Get().PortalURL; portalURL != "" && !slices.Contains(allowedOrigins, portalURL) {
+			allowedOrigins = append(allowedOrigins, portalURL)
 		}
 		if len(allowedOrigins) == 0 {
 			logger.Log.Warn("no allowed_origins configured — CORS will deny all cross-origin requests")

@@ -20,11 +20,15 @@ const (
 	// KindSystem: free text Pengi sends on its own inside the window (asking
 	// for WhatsApp consent and confirming it). Free, so it is not counted.
 	KindSystem = "system"
+	// KindPortalCode: a patient portal sign-in code (AUTHENTICATION template).
+	// Counts toward the monthly plan cap; never part of a conversation, and
+	// its Body never holds the code.
+	KindPortalCode = "portal_code"
 )
 
 // CountedKinds are the kinds Meta charges for (templates): the ones the
 // monthly plan cap (max_whatsapp_messages) counts once sent.
-var CountedKinds = []string{KindReminder, KindTest, KindTemplate}
+var CountedKinds = []string{KindReminder, KindTest, KindTemplate, KindPortalCode}
 
 // Message directions.
 const (

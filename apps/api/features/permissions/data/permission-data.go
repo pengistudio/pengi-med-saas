@@ -293,6 +293,21 @@ var WhatsAppPermissions = []permission_models.Permission{
 	},
 }
 
+// PatientPortalPermissions guard the clinic's patient portal settings (turn it
+// on, choose its sections). Category PATIENT_PORTAL maps to the
+// EnabledFeatures.PatientPortal flag; backoffice assigns it to plans through
+// the PATIENT_PORTAL Feature. The portal itself has no staff permission: a
+// patient reaches it with a one-time code when the plan includes the Feature
+// and the clinic enabled it.
+var PatientPortalPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_PATIENT_PORTAL"},
+		Name:         "Manage patient portal",
+		Category:     "PATIENT_PORTAL",
+		Description:  "Turn the patient portal on or off and choose what patients see in it",
+	},
+}
+
 // DoctorPermissions guard the clinic's doctor profiles. Category CLINICAL:
 // doctors only matter with the clinical module (agenda, records, documents),
 // so the permission rides on the CLINICAL Feature. Reading the list for

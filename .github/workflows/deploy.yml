@@ -68,6 +68,19 @@ jobs:
           cache-from: type=gha,scope=backoffice
           cache-to: type=gha,mode=max,scope=backoffice
 
+      - name: Build & push Portal
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/portal/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.ORG }}/pengi-portal:latest
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
+            VITE_TURNSTILE_SITE_KEY=${{ secrets.VITE_TURNSTILE_SITE_KEY }}
+          cache-from: type=gha,scope=portal
+          cache-to: type=gha,mode=max,scope=portal
+
       - name: Build & push Landing
         uses: docker/build-push-action@v7
         with:

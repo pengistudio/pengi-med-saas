@@ -40,3 +40,19 @@ func TestRateLimiter_LimitsPerIP(t *testing.T) {
 		t.Fatalf("another IP: code = %d, want 200", code)
 	}
 }
+
+func TestRateLimiter_KeepsIdleIPsUntilRefilled(t *testing.T) {
+	for _, tc := range []struct {
+		r     rate.Limit
+		burst int
+		want  time.Duration
+	}{
+		{rate.Every(time.Minute / 5), 5, minIdle},
+		{rate.Every(24 * time.Hour / 20), 20, 24 * time.Hour},
+		{rate.Inf, 1, minIdle},
+	} {
+		if got := idleFor(tc.r, tc.burst); got.Round(time.Second) != tc.want {
+			t.Fatalf("idleFor(%v, %d) = %v, want %v", tc.r, tc.burst, got, tc.want)
+		}
+	}
+}

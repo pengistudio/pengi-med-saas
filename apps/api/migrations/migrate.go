@@ -13,6 +13,7 @@ import (
 	kanban_models "pengi-med-saas/features/kanban/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
 	permission_models "pengi-med-saas/features/permissions/models"
+	portal_models "pengi-med-saas/features/portal/models"
 	settings_models "pengi-med-saas/features/settings/models"
 	signature_models "pengi-med-saas/features/signatures/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
@@ -82,6 +83,7 @@ func RunMigrations(db *gorm.DB) error {
 		whatsapp_models.WhatsAppMessage{},
 		whatsapp_models.WhatsAppConversation{},
 		whatsapp_models.WhatsAppTemplate{},
+		portal_models.PortalLoginCode{},
 	)
 	if err != nil {
 		return err

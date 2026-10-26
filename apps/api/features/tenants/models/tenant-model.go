@@ -1,6 +1,8 @@
 package tenant_models
 
 import (
+	"encoding/json"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -54,10 +56,14 @@ type EnabledFeatures struct {
 	Team     bool `json:"team"`
 	Kanban   bool `json:"kanban"`
 	WhatsApp bool `json:"whatsapp"`
+	// PatientPortal: the plan includes the patient portal (category
+	// PATIENT_PORTAL). Off by default, like WhatsApp.
+	PatientPortal bool `json:"patient_portal"`
 }
 
 // DefaultEnabledFeatures returns the flags of a tenant without a subscription:
-// the core modules on, WhatsApp (a paid add-on with Meta costs) off.
+// the core modules on, WhatsApp (a paid add-on with Meta costs) and the
+// patient portal off.
 func DefaultEnabledFeatures() EnabledFeatures {
 	return EnabledFeatures{
 		Clinical: true,
@@ -65,6 +71,47 @@ func DefaultEnabledFeatures() EnabledFeatures {
 		Team:     true,
 		Kanban:   true,
 	}
+}
+
+// PortalSettings is the clinic's patient portal configuration, stored as JSON
+// in Tenant.PortalSettings. The portal answers only when the plan includes it
+// and Enabled is set; each section can be hidden on its own.
+type PortalSettings struct {
+	Enabled  bool           `json:"enabled"`
+	Sections PortalSections `json:"sections"`
+}
+
+// PortalSections are the parts of the portal a clinic can show or hide.
+type PortalSections struct {
+	Appointments bool `json:"appointments"`
+	Results      bool `json:"results"`
+	Documents    bool `json:"documents"`
+	Invoices     bool `json:"invoices"`
+}
+
+// DefaultPortalSettings: portal off, every section on once enabled.
+func DefaultPortalSettings() PortalSettings {
+	return PortalSettings{Sections: PortalSections{Appointments: true, Results: true, Documents: true, Invoices: true}}
+}
+
+// ParsePortalSettings reads the stored JSON over the defaults, so keys that
+// are absent keep their default value.
+func (t Tenant) ParsePortalSettings() PortalSettings {
+	settings := DefaultPortalSettings()
+	if strings.TrimSpace(t.PortalSettings) != "" {
+		if err := json.Unmarshal([]byte(t.PortalSettings), &settings); err != nil {
+			return DefaultPortalSettings()
+		}
+	}
+	return settings
+}
+
+// DisplayName is the name patients know the clinic by.
+func (t Tenant) DisplayName() string {
+	if strings.TrimSpace(t.TradeName) != "" {
+		return t.TradeName
+	}
+	return t.Name
 }
 
 type Tenant struct {
@@ -89,6 +136,7 @@ type Tenant struct {
 	UISettings               string     `gorm:"type:text;default:'{}'" json:"-"`                // JSON-encoded UISettings
 	EnabledFeatures          string     `gorm:"type:text;default:'{}'" json:"enabled_features"` // JSON-encoded EnabledFeatures
 	DisplayToken             string     `gorm:"type:varchar(36);uniqueIndex" json:"-"`          // Token for public TV display access
+	PortalSettings           string     `gorm:"type:text;default:'{}'" json:"-"`                // JSON-encoded PortalSettings
 }
 
 func NewTenant(name string) *Tenant {

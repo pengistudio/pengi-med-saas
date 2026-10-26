@@ -145,6 +145,7 @@ func recordAudit(db *gorm.DB, action string, oldValues, newValues interface{}) {
 	log := AuditLog{
 		TenantID:   tenantID,
 		UserID:     userID,
+		ActorType:  ActorUser,
 		Action:     action,
 		EntityType: entityType,
 		EntityID:   entityID,

@@ -5768,6 +5768,10 @@
         "value": "Fecha"
     },
     {
+        "key": "audit.actor.portal_patient",
+        "value": "Paciente (portal)"
+    },
+    {
         "key": "audit.column.user",
         "value": "Usuario"
     },
@@ -9340,6 +9344,14 @@
         "value": "Alcanzaste el límite de {limit} mensajes de WhatsApp de este mes. Los recordatorios se pausan hasta el próximo mes."
     },
     {
+        "key": "notification.portal.code_budget.day",
+        "value": "Se alcanzó el límite diario de códigos del portal; puede ser un intento de abuso."
+    },
+    {
+        "key": "notification.portal.code_budget.hour",
+        "value": "Se alcanzó el límite por hora de códigos del portal; puede ser un intento de abuso."
+    },
+    {
         "key": "clinical.patient.whatsapp_opt_in.bulk.success",
         "value": "Consentimiento de WhatsApp actualizado."
     },
@@ -10886,5 +10898,381 @@
     {
         "key": "table.column.patient",
         "value": "Paciente"
+    },
+    {
+        "key": "E-PORTAL-001",
+        "value": "El portal de pacientes no está disponible."
+    },
+    {
+        "key": "E-PORTAL-002",
+        "value": "El código no es válido o ya venció."
+    },
+    {
+        "key": "E-PORTAL-003",
+        "value": "Tu sesión expiró. Vuelve a ingresar."
+    },
+    {
+        "key": "E-PORTAL-004",
+        "value": "No encontrado."
+    },
+    {
+        "key": "E-PORTAL-005",
+        "value": "Solicitud inválida."
+    },
+    {
+        "key": "E-PORTAL-006",
+        "value": "Algo salió mal. Intenta más tarde."
+    },
+    {
+        "key": "E-PORTAL-007",
+        "value": "El archivo no está disponible."
+    },
+    {
+        "key": "E-PORTAL-008",
+        "value": "No pudimos verificar la solicitud. Intenta de nuevo."
+    },
+    {
+        "key": "portal.settings.get.success",
+        "value": "Configuración del portal obtenida."
+    },
+    {
+        "key": "portal.settings.update.success",
+        "value": "Configuración del portal guardada."
+    },
+    {
+        "key": "portal.clinic.get.success",
+        "value": "Clínica obtenida."
+    },
+    {
+        "key": "portal.login.code_sent",
+        "value": "Si tus datos están registrados en la clínica, te enviamos un código de acceso."
+    },
+    {
+        "key": "portal.verify.success",
+        "value": "Ingresaste al portal."
+    },
+    {
+        "key": "portal.refresh.success",
+        "value": "Sesión renovada."
+    },
+    {
+        "key": "portal.logout.success",
+        "value": "Cerraste sesión."
+    },
+    {
+        "key": "portal.me.get.success",
+        "value": "Datos obtenidos."
+    },
+    {
+        "key": "portal.appointments.list.success",
+        "value": "Citas obtenidas."
+    },
+    {
+        "key": "portal.results.list.success",
+        "value": "Resultados obtenidos."
+    },
+    {
+        "key": "portal.documents.list.success",
+        "value": "Documentos obtenidos."
+    },
+    {
+        "key": "portal.invoices.list.success",
+        "value": "Facturas obtenidas."
+    },
+    {
+        "key": "portal.error.not_available",
+        "value": "El portal de pacientes no está disponible."
+    },
+    {
+        "key": "portal.error.invalid_code",
+        "value": "El código no es válido o ya venció."
+    },
+    {
+        "key": "portal.error.unauthorized",
+        "value": "Tu sesión expiró. Vuelve a ingresar."
+    },
+    {
+        "key": "portal.error.not_found",
+        "value": "No encontrado."
+    },
+    {
+        "key": "portal.error.invalid_request",
+        "value": "Solicitud inválida."
+    },
+    {
+        "key": "portal.error.internal",
+        "value": "Algo salió mal. Intenta más tarde."
+    },
+    {
+        "key": "portal.error.captcha_failed",
+        "value": "No pudimos verificar la solicitud. Intenta de nuevo."
+    },
+    {
+        "key": "portal.error.file_unavailable",
+        "value": "El archivo no está disponible."
+    },
+    {
+        "key": "portal.email.code.subject",
+        "value": "Tu código de acceso a {clinic}"
+    },
+    {
+        "key": "portal.email.code.heading",
+        "value": "Tu código de acceso"
+    },
+    {
+        "key": "portal.email.code.intro",
+        "value": "Usa este código para ingresar al portal de pacientes de {clinic}:"
+    },
+    {
+        "key": "portal.email.code.expiry",
+        "value": "El código vence en {minutes} minutos y solo puede usarse una vez."
+    },
+    {
+        "key": "portal.email.code.ignore",
+        "value": "Si no lo solicitaste, puedes ignorar este mensaje."
+    },
+    {
+        "key": "whatsapp.template.name.portal_code",
+        "value": "Código de acceso al portal"
+    },
+    {
+        "key": "portal.loading",
+        "value": "Cargando"
+    },
+    {
+        "key": "portal.download",
+        "value": "Descargar"
+    },
+    {
+        "key": "portal.logout",
+        "value": "Salir"
+    },
+    {
+        "key": "portal.section.error",
+        "value": "No pudimos cargar esta información. Intenta de nuevo más tarde."
+    },
+    {
+        "key": "portal.section.appointments",
+        "value": "Citas"
+    },
+    {
+        "key": "portal.section.results",
+        "value": "Resultados"
+    },
+    {
+        "key": "portal.section.documents",
+        "value": "Documentos"
+    },
+    {
+        "key": "portal.section.invoices",
+        "value": "Facturas"
+    },
+    {
+        "key": "portal.home.greeting",
+        "value": "Hola, {name}"
+    },
+    {
+        "key": "portal.home.no_sections",
+        "value": "Tu clínica aún no tiene información disponible en el portal."
+    },
+    {
+        "key": "portal.landing.title",
+        "value": "Portal del paciente"
+    },
+    {
+        "key": "portal.landing.body",
+        "value": "Usa el enlace que te dio tu clínica para entrar."
+    },
+    {
+        "key": "portal.unavailable.title",
+        "value": "Portal no disponible"
+    },
+    {
+        "key": "portal.unavailable.body",
+        "value": "Este portal no está disponible. Revisa el enlace o consulta con tu clínica."
+    },
+    {
+        "key": "portal.signin.document",
+        "value": "Cédula"
+    },
+    {
+        "key": "portal.signin.send_code",
+        "value": "Enviar código"
+    },
+    {
+        "key": "portal.signin.title",
+        "value": "Entra a tu portal de paciente"
+    },
+    {
+        "key": "portal.signin.hint",
+        "value": "Si tu cédula está registrada, te enviamos un código de 6 dígitos por WhatsApp o correo."
+    },
+    {
+        "key": "portal.signin.code_sent",
+        "value": "Si tu cédula está registrada, te enviamos un código de 6 dígitos. Escríbelo aquí. Vence en 10 minutos."
+    },
+    {
+        "key": "portal.signin.code",
+        "value": "Código de 6 dígitos"
+    },
+    {
+        "key": "portal.signin.verify",
+        "value": "Entrar"
+    },
+    {
+        "key": "portal.signin.back",
+        "value": "Usar otra cédula"
+    },
+    {
+        "key": "portal.signin.code_invalid",
+        "value": "El código no es correcto o ya venció. Pide uno nuevo."
+    },
+    {
+        "key": "portal.signin.captcha_error",
+        "value": "No pudimos cargar la verificación de seguridad. Recarga la página e intenta de nuevo."
+    },
+    {
+        "key": "portal.appointments.empty",
+        "value": "Aún no tienes citas."
+    },
+    {
+        "key": "portal.appointments.next",
+        "value": "Tu próxima cita"
+    },
+    {
+        "key": "portal.appointments.none_upcoming",
+        "value": "No tienes citas agendadas. Para pedir una, comunícate con la clínica."
+    },
+    {
+        "key": "portal.appointments.later",
+        "value": "Después"
+    },
+    {
+        "key": "portal.documents.hint",
+        "value": "Recetas, certificados e informes firmados por tu médico."
+    },
+    {
+        "key": "portal.results.hint",
+        "value": "Resultados de tus exámenes que tu médico ya revisó."
+    },
+    {
+        "key": "portal.invoices.hint",
+        "value": "Tus facturas electrónicas autorizadas por el SRI."
+    },
+    {
+        "key": "portal.home.sections",
+        "value": "Secciones del portal"
+    },
+    {
+        "key": "portal.appointments.past",
+        "value": "Pasadas"
+    },
+    {
+        "key": "portal.results.empty",
+        "value": "Aún no hay resultados disponibles."
+    },
+    {
+        "key": "portal.results.order",
+        "value": "Orden {number}"
+    },
+    {
+        "key": "portal.documents.empty",
+        "value": "Aún no tienes documentos firmados."
+    },
+    {
+        "key": "portal.documents.type.prescription",
+        "value": "Receta"
+    },
+    {
+        "key": "portal.documents.type.certificate",
+        "value": "Certificado"
+    },
+    {
+        "key": "portal.documents.type.report",
+        "value": "Informe"
+    },
+    {
+        "key": "portal.invoices.empty",
+        "value": "Aún no tienes facturas."
+    },
+    {
+        "key": "portal.invoices.ride",
+        "value": "PDF"
+    },
+    {
+        "key": "portal.invoices.xml",
+        "value": "XML"
+    },
+    {
+        "key": "settings.portal.hub.title",
+        "value": "Portal del paciente"
+    },
+    {
+        "key": "settings.portal.hub.description",
+        "value": "Permite que tus pacientes consulten sus citas, resultados, documentos y facturas."
+    },
+    {
+        "key": "settings.portal.title",
+        "value": "Portal del paciente"
+    },
+    {
+        "key": "settings.portal.description",
+        "value": "Configura el acceso de tus pacientes a su información."
+    },
+    {
+        "key": "settings.portal.back",
+        "value": "Volver a configuración"
+    },
+    {
+        "key": "settings.portal.access.title",
+        "value": "Acceso"
+    },
+    {
+        "key": "settings.portal.access.help",
+        "value": "Los pacientes ingresan con su cédula y un código que se envía al WhatsApp o al correo registrado en la clínica."
+    },
+    {
+        "key": "settings.portal.enabled",
+        "value": "Activar portal"
+    },
+    {
+        "key": "settings.portal.link",
+        "value": "Enlace del portal"
+    },
+    {
+        "key": "settings.portal.copy",
+        "value": "Copiar"
+    },
+    {
+        "key": "settings.portal.copied",
+        "value": "Copiado"
+    },
+    {
+        "key": "settings.portal.sections.title",
+        "value": "Qué pueden ver"
+    },
+    {
+        "key": "settings.portal.sections.help",
+        "value": "Disponible solo con el portal activado."
+    },
+    {
+        "key": "settings.portal.sections.appointments",
+        "value": "Citas"
+    },
+    {
+        "key": "settings.portal.sections.results",
+        "value": "Resultados de exámenes"
+    },
+    {
+        "key": "settings.portal.sections.documents",
+        "value": "Documentos firmados"
+    },
+    {
+        "key": "settings.portal.sections.invoices",
+        "value": "Facturas"
+    },
+    {
+        "key": "settings.portal.save",
+        "value": "Guardar"
     }
 ]

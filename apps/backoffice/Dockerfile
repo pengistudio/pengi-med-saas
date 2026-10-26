@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/backoffice/package.json apps/backoffice/package.json
+COPY apps/portal/package.json apps/portal/package.json
 COPY packages/ui/package.json packages/ui/package.json
 COPY packages/shared/package.json packages/shared/package.json
 RUN --mount=type=cache,id=pnpm-backoffice,target=/pnpm/store pnpm install --frozen-lockfile --filter backoffice...

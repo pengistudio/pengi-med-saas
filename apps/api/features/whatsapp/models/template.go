@@ -3,12 +3,15 @@ package whatsapp_models
 import "gorm.io/gorm"
 
 // Template names of the catalog (whatsapp_services.Catalog). ReminderTemplate
-// (message.go) is the fifth one.
+// (message.go) is one more.
 const (
 	TemplateContinueConversation = "pengi_continuar_conversacion"
 	TemplateResultsReady         = "pengi_resultados_listos"
 	TemplateReschedule           = "pengi_reprogramar_cita"
 	TemplateFollowUp             = "pengi_control_seguimiento"
+	// TemplatePortalCode carries the patient portal's one-time sign-in code
+	// (category AUTHENTICATION).
+	TemplatePortalCode = "portal_code"
 )
 
 // WhatsAppTemplate is the review status of one catalog template on the
