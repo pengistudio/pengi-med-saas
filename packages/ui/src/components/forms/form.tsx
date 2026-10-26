@@ -34,7 +34,7 @@ type FormProps<
 	schema: T;
 	defaultValues?: DefaultValues<z.input<T>>;
 	children?: (
-		methods: UseFormReturn<z.input<T>, unknown, Output>,
+		methods: UseFormReturn<Input, unknown, Output>,
 	) => React.ReactNode;
 	onSubmit: (values: Output) => void;
 	onUpdateValuesCallback?: (values: Input) => void;
