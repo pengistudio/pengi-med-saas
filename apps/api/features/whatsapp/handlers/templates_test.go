@@ -118,7 +118,7 @@ func TestTemplates_ConnectProvisionsCatalogAndListsIt(t *testing.T) {
 	}
 	for _, spec := range whatsapp_services.Catalog {
 		body := f.graph.bodyWith("POST /v23.0/WABA-1/message_templates", fmt.Sprintf(`"name":%q`, spec.Definition.Name))
-		if !strings.Contains(body, `"category":"UTILITY"`) || !strings.Contains(body, `"language":"es"`) {
+		if !strings.Contains(body, fmt.Sprintf(`"category":%q`, spec.Definition.Category)) || !strings.Contains(body, `"language":"es"`) {
 			t.Fatalf("%s body = %s", spec.Definition.Name, body)
 		}
 	}

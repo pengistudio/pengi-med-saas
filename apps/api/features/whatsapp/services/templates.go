@@ -38,8 +38,12 @@ type TemplateSpec struct {
 
 // The catalog templates are message content reviewed by Meta, written in the
 // patients' language; they are not interface text, so they are not i18n keys.
-// All are UTILITY: neutral wording about the patient's care, no promotions,
+// They are UTILITY: neutral wording about the patient's care, no promotions,
 // inviting a reply (which opens the 24 h window for free-text replies).
+// Except continue-conversation: it names no appointment or result, so Meta
+// recategorizes it as MARKETING; declaring it so keeps every WABA consistent.
+// Templates already on a WABA are left as they are (EnsureTemplates only
+// creates missing ones).
 var reminderTemplate = TemplateSpec{
 	Definition: whatsapp.TemplateDefinition{
 		Name:     whatsapp_models.ReminderTemplate,
@@ -60,7 +64,7 @@ var Catalog = []TemplateSpec{
 		Definition: whatsapp.TemplateDefinition{
 			Name:     whatsapp_models.TemplateContinueConversation,
 			Language: ReminderLanguage,
-			Category: "UTILITY",
+			Category: "MARKETING",
 			Body:     "Hola {{1}}, te escribimos de {{2}} para dar seguimiento a tu atención. Responde a este mensaje para continuar la conversación.",
 			Example:  []string{"María Pérez", "Clínica Pengi"},
 		},
