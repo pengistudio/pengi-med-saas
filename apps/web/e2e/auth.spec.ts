@@ -8,7 +8,7 @@ test.describe("Authentication Flow", () => {
 		await page.waitForLoadState("networkidle").catch(() => {});
 
 		// Verify login page loads
-		expect(page).toHaveURL(/.*login/);
+		await expect(page).toHaveURL(/.*login/);
 
 		// Wait for inputs to be visible
 		await page

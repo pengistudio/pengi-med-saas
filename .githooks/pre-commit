@@ -20,7 +20,7 @@ in_container() {
 echo "▶ Biome check --write..."
 # Run biome, then re-stage any files it auto-fixed that were already staged
 STAGED=$(git diff --name-only --cached)
-in_container . "npx @biomejs/biome@2.4.7 check --write ./apps/web ./apps/backoffice"
+in_container . "npx @biomejs/biome@2.6.3 check --write ./apps/web ./apps/backoffice ./packages/ui ./packages/shared"
 if [ -n "$STAGED" ]; then
   echo "$STAGED" | xargs git add 2>/dev/null || true
 fi

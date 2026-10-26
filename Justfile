@@ -9,11 +9,11 @@ tunnel:
 
 # Check formatting and lint for all TS/JS apps
 check:
-	npx @biomejs/biome@2.4.7 check ./apps/web ./apps/backoffice ./packages/ui
+	npx @biomejs/biome@2.6.3 check ./apps/web ./apps/backoffice ./packages/ui ./packages/shared
 
 
 lint:
-	npx @biomejs/biome@2.4.7 check --write ./apps/web ./apps/backoffice ./packages/ui
+	npx @biomejs/biome@2.6.3 check --write ./apps/web ./apps/backoffice ./packages/ui ./packages/shared
 
 # Check that the env vars the apps read match .env.example and deploy/.env.prod.example
 check-env:
