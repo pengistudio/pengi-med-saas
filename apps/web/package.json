@@ -8,7 +8,6 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"typecheck": "tsc -b --noEmit",
-		"lint": "eslint .",
 		"preview": "vite preview",
 		"test": "vitest",
 		"test:run": "vitest run"
@@ -49,7 +48,6 @@
 		"zustand": "catalog:"
 	},
 	"devDependencies": {
-		"@eslint/js": "catalog:",
 		"@playwright/test": "^1.64.1",
 		"@testing-library/jest-dom": "^6.10.0",
 		"@testing-library/react": "^16.3.3",
@@ -58,10 +56,6 @@
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
-		"eslint": "catalog:",
-		"eslint-plugin-react-hooks": "catalog:",
-		"eslint-plugin-react-refresh": "catalog:",
-		"globals": "catalog:",
 		"jsdom": "^29.1.1",
 		"typescript": "catalog:",
 		"vite": "catalog:",

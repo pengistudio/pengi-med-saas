@@ -219,7 +219,6 @@ function FieldError({
 				)}
 			</ul>
 		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [children, errors, translate]);
 
 	if (!content) {

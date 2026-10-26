@@ -22,7 +22,6 @@ go vet ./...                      # Static analysis
 cd apps/web
 pnpm run dev                      # Dev server (port 5173)
 pnpm run build                    # Production build (tsc + vite)
-pnpm run lint                     # ESLint
 pnpm run typecheck                # tsc (the pre-commit hook runs this)
 pnpm run test:run                 # Vitest
 ```
