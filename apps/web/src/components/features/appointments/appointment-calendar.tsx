@@ -150,7 +150,7 @@ const doctorKey = (doctorId: number | null | undefined) =>
 	doctorId ? String(doctorId) : NO_DOCTOR;
 
 export default function AppointmentCalendar() {
-	const [searchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 	// ?date=YYYY-MM-DD opens that week (the dashboard's week strip links here).
 	const [currentDate, setCurrentDate] = React.useState(() => {
 		const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(
@@ -612,6 +612,25 @@ export default function AppointmentCalendar() {
 		setSuggestedPatient(null);
 		setShowFormDialog(true);
 	}
+
+	// ?new=1 (the phone's create button) opens the new-appointment form once.
+	const wantsNew = searchParams.get("new") === "1";
+	React.useEffect(() => {
+		if (!wantsNew) return;
+		if (canManage) {
+			setEditTarget(null);
+			setCreateDefaults({ date: new Date() });
+			setSuggestedPatient(null);
+			setShowFormDialog(true);
+		}
+		setSearchParams(
+			(params) => {
+				params.delete("new");
+				return params;
+			},
+			{ replace: true },
+		);
+	}, [wantsNew, canManage, setSearchParams]);
 
 	function handleScheduleFromSuggestion(patient: Patient, date: Date) {
 		setPendingOpen(false);

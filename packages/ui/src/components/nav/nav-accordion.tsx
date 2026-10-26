@@ -75,7 +75,7 @@ const NavAccordion = (props: Props) => {
 						/>
 						<span
 							className={cn(
-								"transition-all duration-300 truncate text-base font-normal",
+								"transition-all duration-300 truncate text-base font-normal md:text-sm",
 								expanded
 									? "opacity-100 w-auto"
 									: "opacity-0 w-0 overflow-hidden ml-0",

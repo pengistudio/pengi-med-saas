@@ -1,8 +1,15 @@
 import { navTitle } from "@pengi/ui";
 import type { NavItemType } from "@/config/nav-config";
 
-/** Pages reachable outside the sidebar (user menu, notification bell). */
+/** Pages reachable outside the sidebar (user menu, bell, settings hub, billing tabs). */
 const EXTRA_TITLES: { href: string; label: string }[] = [
+	{ href: "/billing/credit-notes", label: "dashboard.billing.credit-notes" },
+	{ href: "/billing/debit-notes", label: "dashboard.billing.debit-notes" },
+	{ href: "/billing/settings", label: "dashboard.billing.settings" },
+	{ href: "/team", label: "team.title" },
+	{ href: "/doctors", label: "doctors.title" },
+	{ href: "/audit", label: "audit.title" },
+	{ href: "/subscription", label: "subscription.nav.title" },
 	{ href: "/profile", label: "profile.title" },
 	{ href: "/notifications", label: "notification.page.title" },
 ];

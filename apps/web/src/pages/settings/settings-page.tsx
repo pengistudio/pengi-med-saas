@@ -15,6 +15,7 @@ import type {
 } from "@/api/settings-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { SettingsSection } from "@/components/custom/settings-section";
+import { AdminLinks } from "@/components/features/settings/admin-links";
 import { Switch } from "@/components/ui/switch";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
@@ -304,6 +305,8 @@ const SettingsPage = () => {
 					</div>
 				</SettingsSection>
 			)}
+
+			<AdminLinks />
 
 			<SettingsSection title={<Text uuid="settings.integrations.title" />}>
 				<div className="flex flex-wrap items-start justify-between gap-4">
