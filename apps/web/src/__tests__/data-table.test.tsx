@@ -1,5 +1,5 @@
+import type { DataTableColumnDef } from "@pengi/ui";
 import { UiTextProvider } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import { render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DataTable } from "@/components/custom/table/data-table";
@@ -20,7 +20,7 @@ function stubViewport({ phone }: { phone: boolean }) {
 
 type Invoice = { ID: number; number: string; patient: string; total: string };
 
-const columns: ColumnDef<Invoice>[] = [
+const columns: DataTableColumnDef<Invoice>[] = [
 	{ accessorKey: "patient", header: "Paciente", meta: { phone: "subtitle" } },
 	{ accessorKey: "number", header: "Número", meta: { phone: "title" } },
 	{ accessorKey: "total", header: "Total", meta: { phone: "end" } },
@@ -40,7 +40,7 @@ const data: Invoice[] = [
 	{ ID: 1, number: "001-001-1", patient: "Ana Pérez", total: "$45.00" },
 ];
 
-const renderTable = (cols: ColumnDef<Invoice>[]) =>
+const renderTable = (cols: DataTableColumnDef<Invoice>[]) =>
 	render(
 		<UiTextProvider value={{ textGet: (key) => key }}>
 			<DataTable columns={cols} data={data} />
@@ -69,7 +69,7 @@ describe("DataTable", () => {
 
 	it("leads with the first column when none is placed as title", () => {
 		stubViewport({ phone: true });
-		const plain: ColumnDef<Invoice>[] = [
+		const plain: DataTableColumnDef<Invoice>[] = [
 			{ accessorKey: "patient", header: "Paciente" },
 			{ accessorKey: "total", header: "Total" },
 		];

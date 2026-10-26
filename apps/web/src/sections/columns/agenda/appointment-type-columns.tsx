@@ -1,4 +1,5 @@
 import { useText } from "@pengi/shared";
+import type { DataTableColumnDef } from "@pengi/ui";
 import {
 	Button,
 	DataTableColumnHeader,
@@ -9,7 +10,6 @@ import {
 	DropdownMenuTrigger,
 	Text,
 } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { AppointmentType } from "@/api/agenda-service";
 import type { Doctor } from "@/api/doctors-service";
@@ -57,7 +57,7 @@ function DoctorsCell({
 export const getAppointmentTypeColumns = (
 	actions: TypeActions,
 	doctors: Doctor[],
-): ColumnDef<AppointmentType>[] => [
+): DataTableColumnDef<AppointmentType>[] => [
 	{
 		accessorKey: "name",
 		meta: { title: "agenda.types.field.name", phone: "title" },

@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
+import type { DataTableColumnDef } from "@pengi/ui";
 import { Badge, Button, DataTableColumnHeader, Text } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
 	AUDIT_ENTITY_TYPES,
 	type AuditAction,
@@ -36,7 +36,7 @@ export function ActionBadge({ action }: { action: AuditAction }) {
 export const getAuditLogColumns = (
 	/** Opens the row's detail (values before and after). */
 	onOpen: (log: AuditLog) => void,
-): ColumnDef<AuditLog>[] => [
+): DataTableColumnDef<AuditLog>[] => [
 	{
 		accessorKey: "created_at",
 		meta: { title: "audit.column.date", phone: "end" },

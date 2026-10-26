@@ -1,3 +1,4 @@
+import type { DataTableCellContext, DataTableColumnDef } from "@pengi/ui";
 import {
 	Button,
 	DropdownMenu,
@@ -9,7 +10,6 @@ import {
 	DropdownMenuTrigger,
 	Text,
 } from "@pengi/ui";
-import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
 	Activity,
 	BookOpen,
@@ -31,7 +31,7 @@ import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 
 interface ActionCellProps {
-	row: CellContext<MedicalRecord, unknown>["row"];
+	row: DataTableCellContext<MedicalRecord, unknown>["row"];
 	onView?: (id: number) => void;
 	onEdit?: (id: number) => void;
 	onViewPrescription?: (record: MedicalRecord) => void;
@@ -162,7 +162,7 @@ export const getMedicalRecordColumns = (
 	onDownloadPrescription?: (record: MedicalRecord) => void,
 	onSendWhatsApp?: (record: MedicalRecord) => void,
 	onDelete?: (record: MedicalRecord) => void,
-): ColumnDef<MedicalRecord>[] => [
+): DataTableColumnDef<MedicalRecord>[] => [
 	selectColumn<MedicalRecord>(),
 	{
 		accessorFn: (row) => row.date,

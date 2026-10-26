@@ -14,7 +14,6 @@ import {
 	ToggleGroup,
 	ToggleGroupItem,
 } from "@pengi/ui";
-import type { Row } from "@tanstack/react-table";
 import { Play, Plus, Trash } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
@@ -31,7 +30,7 @@ import { BillingDocumentsTabs } from "@/components/features/billing/billing-docu
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import { getInvoiceColumns } from "@/sections/columns/billing/invoice-columns";
-import { useRowStore } from "@/store/row-store";
+import { rowsAs, useRowStore } from "@/store/row-store";
 
 const PAGE_LIMIT = 20;
 const TRANSIENT_STATUSES = ["pending", "processing", "signed", "validated"];
@@ -265,7 +264,7 @@ const InvoiceListPage = () => {
 	);
 
 	async function handleDelete() {
-		const parsedRows = rows as Row<Invoice>[];
+		const parsedRows = rowsAs<Invoice>(rows);
 		for (const row of parsedRows) {
 			const res = await deleteInvoice(row.original.ID);
 			if (!res.success) break;
@@ -274,7 +273,7 @@ const InvoiceListPage = () => {
 	}
 
 	async function handleProcessSelected() {
-		const parsedRows = rows as Row<Invoice>[];
+		const parsedRows = rowsAs<Invoice>(rows);
 		const ids = parsedRows.map((row) => row.original.ID);
 
 		setProcessing(true);

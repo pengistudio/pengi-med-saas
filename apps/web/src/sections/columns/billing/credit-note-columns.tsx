@@ -1,5 +1,5 @@
+import type { DataTableColumnDef } from "@pengi/ui";
 import { DataTableColumnHeader, Text } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import type { CreditNote } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { Money } from "@/components/custom/formatted";
@@ -8,7 +8,7 @@ import { selectColumn } from "@/components/custom/table/select-column";
 
 export function getCreditNoteColumns(
 	onRetry: (id: number) => void | Promise<void>,
-): ColumnDef<CreditNote>[] {
+): DataTableColumnDef<CreditNote>[] {
 	return [
 		selectColumn<CreditNote>(),
 		{

@@ -1,5 +1,5 @@
+import type { DataTableColumnDef } from "@pengi/ui";
 import { Button, Text } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import { ArchiveRestore, Loader2 } from "lucide-react";
 import type { DeletedMedicalRecord } from "@/api/clinical-service";
 import { FormattedDate } from "@/components/custom/formatted";
@@ -8,7 +8,7 @@ import { FormattedDate } from "@/components/custom/formatted";
 export const getDeletedMedicalRecordColumns = (
 	onRestore: (record: DeletedMedicalRecord) => void,
 	restoringId: number | null,
-): ColumnDef<DeletedMedicalRecord>[] => [
+): DataTableColumnDef<DeletedMedicalRecord>[] => [
 	{
 		id: "date",
 		accessorFn: (row) => row.date,

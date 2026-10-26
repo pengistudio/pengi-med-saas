@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
+import type { DataTableColumnDef } from "@pengi/ui";
 import { Button, DataTableColumnHeader, Text } from "@pengi/ui";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { downloadInvoiceRide, type Invoice } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
@@ -37,7 +37,7 @@ function DownloadRideButton({ invoice }: { invoice: Invoice }) {
 
 export function getInvoiceColumns(
 	onRetry: (id: number) => void | Promise<void>,
-): ColumnDef<Invoice>[] {
+): DataTableColumnDef<Invoice>[] {
 	return [
 		selectColumn<Invoice>(),
 		{
