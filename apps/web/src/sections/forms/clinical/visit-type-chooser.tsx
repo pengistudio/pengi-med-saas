@@ -1,5 +1,6 @@
 import { Card, Text } from "@pengi/ui";
 import { ChevronRight, Stethoscope, UserPlus } from "lucide-react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type VisitType = "first" | "followup";
@@ -41,8 +42,11 @@ const ACCENT_CLASSES: Record<string, { icon: string; ring: string }> = {
 
 const VisitTypeChooser = ({
 	onSelect,
+	subject,
 }: {
 	onSelect: (visitType: VisitType) => void;
+	/** Who the consultation is for, shown under the title. */
+	subject?: ReactNode;
 }) => {
 	return (
 		<div className="max-w-3xl mx-auto py-8 sm:py-16 space-y-8">
@@ -53,6 +57,7 @@ const VisitTypeChooser = ({
 				<p className="text-sm text-muted-foreground">
 					<Text uuid="form.create_medical_record.visit_type.description" />
 				</p>
+				{subject && <div className="flex justify-center pt-3">{subject}</div>}
 			</div>
 
 			<div className="grid sm:grid-cols-2 grid-cols-1 gap-5">

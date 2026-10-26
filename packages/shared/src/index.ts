@@ -38,8 +38,4 @@ export {
 	type TextValues,
 	useText,
 } from "./i18n/use-text";
-export {
-	type SupportedLocale,
-	updateZodLocale,
-	zodLocales,
-} from "./i18n/zod-i18n";
+export { type SupportedLocale, updateZodLocale } from "./i18n/zod-i18n";

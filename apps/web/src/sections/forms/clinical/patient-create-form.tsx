@@ -17,7 +17,7 @@ import {
 } from "@pengi/ui";
 import { Plus } from "lucide-react";
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 import { createPatient } from "@/api/clinical-service";
 import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
@@ -54,6 +54,9 @@ const formSchema = z.object({
 const CreatePatientForm = () => {
 	const [loading, setLoading] = React.useState(false);
 	const navigate = useNavigate();
+	// Registered from the new-consultation search: go on to its first visit.
+	const [searchParams] = useSearchParams();
+	const thenConsult = searchParams.get("then") === "consult";
 	const { settings } = useTenantSettings();
 	const { textGet } = useText();
 	const useAgeInput = settings.clinical.patient_age_input;
@@ -243,7 +246,11 @@ const CreatePatientForm = () => {
 		try {
 			const res = await createPatient(payload);
 			if (res.success) {
-				navigate("/clinical");
+				navigate(
+					thenConsult
+						? `/clinical/medical-records/create?patient_id=${res.data.ID}&visit_type=first`
+						: "/clinical",
+				);
 			}
 		} finally {
 			setLoading(false);

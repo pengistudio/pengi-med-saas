@@ -48,6 +48,10 @@
         "value": "ID de usuario inválido."
     },
     {
+        "key": "form.validation.required",
+        "value": "Campo requerido"
+    },
+    {
         "key": "form.validation.invalid_fields",
         "value": "Campos inválidos"
     },
@@ -1222,6 +1226,10 @@
     {
         "key": "clinical.medical_record.new_consultation",
         "value": "Nueva consulta"
+    },
+    {
+        "key": "clinical.medical_record.pick_patient.change",
+        "value": "Cambiar paciente"
     },
     {
         "key": "clinical.medical_record.pick_patient.description",
