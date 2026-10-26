@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
-import { Input, Spinner } from "@pengi/ui";
-import { ChevronRight, Search } from "lucide-react";
+import { Button, Input, Spinner } from "@pengi/ui";
+import { ChevronRight, Search, UserPlus } from "lucide-react";
 import React from "react";
 import {
 	getAllPatientsWithLastFollowUp,
@@ -15,10 +15,16 @@ interface PatientSearchProps {
 	onPick: (patient: Patient) => void;
 	/** Skip searching while hidden (e.g. a closed dialog). */
 	active?: boolean;
+	/** Offered when nothing matches: register the patient instead. */
+	onCreate?: () => void;
 }
 
 /** Searches patients by name or document on the server and lists the matches. */
-export function PatientSearch({ onPick, active = true }: PatientSearchProps) {
+export function PatientSearch({
+	onPick,
+	active = true,
+	onCreate,
+}: PatientSearchProps) {
 	const { textGet } = useText();
 	const [search, setSearch] = React.useState("");
 	const [query, setQuery] = React.useState("");
@@ -74,9 +80,17 @@ export function PatientSearch({ onPick, active = true }: PatientSearchProps) {
 						<Spinner />
 					</div>
 				) : query && patients.length === 0 ? (
-					<p className="py-6 text-center text-sm text-muted-foreground">
-						{textGet("clinical.exam_orders.patient_picker.empty")}
-					</p>
+					<div className="flex flex-col items-center gap-3 py-6">
+						<p className="text-center text-sm text-muted-foreground">
+							{textGet("clinical.exam_orders.patient_picker.empty")}
+						</p>
+						{onCreate && (
+							<Button variant="outline" size="sm" onClick={onCreate}>
+								<UserPlus className="h-4 w-4" />
+								{textGet("clinical.patient.create")}
+							</Button>
+						)}
+					</div>
 				) : (
 					<ul className="divide-y">
 						{patients.map((patient) => (

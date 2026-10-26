@@ -48,6 +48,10 @@
         "value": "Invalid user ID."
     },
     {
+        "key": "form.validation.required",
+        "value": "Required field"
+    },
+    {
         "key": "form.validation.invalid_fields",
         "value": "Invalid fields"
     },
@@ -1222,6 +1226,10 @@
     {
         "key": "clinical.medical_record.new_consultation",
         "value": "New consultation"
+    },
+    {
+        "key": "clinical.medical_record.pick_patient.change",
+        "value": "Change patient"
     },
     {
         "key": "clinical.medical_record.pick_patient.description",

@@ -1,42 +1,26 @@
 import * as z from "zod";
+import { useMessageStore } from "./message-store";
 
-export const zodLocales = {
-	es: {
-		...z.locales.es(),
-		invalid_type: ({
-			expected,
-			received,
-		}: {
-			expected: unknown;
-			received: unknown;
-		}) => {
-			if (expected === "string" && received === "undefined") {
-				return "El campo no puede estar vacío";
-			}
-			return `Tipo inválido: se esperaba ${expected}, recibido ${received}`;
-		},
-		required: () => "El campo no puede estar vacío",
-	},
-	en: {
-		...z.locales.en(),
-		invalid_type: ({
-			expected,
-			received,
-		}: {
-			expected: unknown;
-			received: unknown;
-		}) => {
-			if (expected === "string" && received === "undefined") {
-				return "This field cannot be empty";
-			}
-			return `Invalid type: expected ${expected}, received ${received}`;
-		},
-		required: () => "This field is required",
-	},
-};
+const zodLocales = { es: z.locales.es, en: z.locales.en };
 
 export type SupportedLocale = keyof typeof zodLocales;
 
+/** A field left empty: missing, null, or "" where at least one character is required. */
+const isEmptyField = (issue: z.core.$ZodRawIssue) =>
+	(issue.code === "invalid_type" &&
+		(issue.input === undefined || issue.input === null)) ||
+	(issue.code === "too_small" &&
+		issue.origin === "string" &&
+		issue.minimum === 1 &&
+		issue.input === "");
+
+// Runs at validation time, so it reads the catalog of the current language.
+// Any other issue (or a catalog not loaded yet) falls back to zod's locale.
+const customError = (issue: z.core.$ZodRawIssue) =>
+	isEmptyField(issue)
+		? useMessageStore.getState().messages["form.validation.required"]
+		: undefined;
+
 export const updateZodLocale = (locale: SupportedLocale) => {
-	z.config(zodLocales[locale]);
+	z.config({ ...zodLocales[locale](), customError });
 };
