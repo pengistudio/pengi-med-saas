@@ -33,4 +33,7 @@ export default defineConfig({
 	},
 
 	integrations: [react()],
+
+	// Astro 7 defaults to "jsx" whitespace handling; keep the HTML as before.
+	compressHTML: true,
 });
