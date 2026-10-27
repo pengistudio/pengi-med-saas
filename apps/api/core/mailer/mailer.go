@@ -167,3 +167,35 @@ func (m *Mailer) SendPortalCode(toEmail string, e PortalCodeEmail) error {
 
 	return m.send(toEmail, e.Subject, body)
 }
+
+// PortalNoticeEmail is the already-translated text of a patient portal
+// notice (an appointment request confirmed, rejected or expired).
+type PortalNoticeEmail struct {
+	Subject string
+	Heading string
+	Lines   []string // paragraphs
+	Footer  string   // small print, e.g. how to reach the clinic
+}
+
+// SendPortalNotice emails a patient portal notice. Every text is HTML-escaped:
+// they carry the clinic's, doctor's and patient's names.
+func (m *Mailer) SendPortalNotice(toEmail string, e PortalNoticeEmail) error {
+	esc := html.EscapeString
+	var body bytes.Buffer
+	for _, line := range e.Lines {
+		if line == "" {
+			continue
+		}
+		fmt.Fprintf(&body, "  <p>%s</p>\n", esc(line))
+	}
+	page := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color: #0d9488;">%s</h2>
+%s  <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+  <p style="color: #999; font-size: 12px;">%s</p>
+</body>
+</html>`, esc(e.Heading), body.String(), esc(e.Footer))
+
+	return m.send(toEmail, e.Subject, page)
+}

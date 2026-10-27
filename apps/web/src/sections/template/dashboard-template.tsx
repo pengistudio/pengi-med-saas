@@ -57,6 +57,7 @@ import { usePolling } from "@/hooks/use-polling";
 import { PERMISSIONS } from "@/lib/constants";
 import { getPageTitle } from "@/lib/page-title";
 import { refreshEnvironment } from "@/lib/refresh-environment";
+import { useAppointmentRequestsStore } from "@/store/appointment-requests-store";
 import {
 	selectEnvironment,
 	selectSubscriptionExpired,
@@ -174,9 +175,26 @@ export function DashboardLayout() {
 		}
 		previousUnreadMessages.current = whatsappUnreadMessages;
 	}, [whatsappUnreadMessages, reloadNotifications]);
+	const canManageRequests =
+		checkPermission([
+			PERMISSIONS.PATIENT_PORTAL.PERMISSION_MANAGE_APPOINTMENT_REQUESTS,
+		]) && enabledFeatures.patient_portal === true;
+	const pendingAppointmentRequests = useAppointmentRequestsStore(
+		(s) => s.pendingCount,
+	);
+	const refreshPendingRequests = useAppointmentRequestsStore(
+		(s) => s.refreshPendingCount,
+	);
+	// Once per route change, like the exam reviews; the inbox refreshes it too.
+	useEffect(() => {
+		if (canManageRequests) refreshPendingRequests();
+	}, [canManageRequests, refreshPendingRequests, pathname]);
 	const badges: Record<NavBadgeKey, number> = {
 		pendingExamReviews,
 		whatsappUnread: canUseInbox ? whatsappUnread : 0,
+		pendingAppointmentRequests: canManageRequests
+			? pendingAppointmentRequests
+			: 0,
 	};
 	const withBadges = <T extends { badgeKey?: NavBadgeKey }>(items: T[]) =>
 		items.map((item) =>

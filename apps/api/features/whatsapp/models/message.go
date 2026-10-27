@@ -24,11 +24,15 @@ const (
 	// Counts toward the monthly plan cap; never part of a conversation, and
 	// its Body never holds the code.
 	KindPortalCode = "portal_code"
+	// KindBookingConfirmed / KindBookingNotConfirmed: the answer to a patient
+	// portal appointment request (UTILITY templates). Counted toward the cap.
+	KindBookingConfirmed    = "booking_confirmed"
+	KindBookingNotConfirmed = "booking_not_confirmed"
 )
 
 // CountedKinds are the kinds Meta charges for (templates): the ones the
 // monthly plan cap (max_whatsapp_messages) counts once sent.
-var CountedKinds = []string{KindReminder, KindTest, KindTemplate, KindPortalCode}
+var CountedKinds = []string{KindReminder, KindTest, KindTemplate, KindPortalCode, KindBookingConfirmed, KindBookingNotConfirmed}
 
 // Message directions.
 const (

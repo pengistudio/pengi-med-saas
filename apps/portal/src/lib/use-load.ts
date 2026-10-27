@@ -6,9 +6,15 @@ export type LoadState<T> =
 	| { status: "error" }
 	| { status: "ready"; data: T };
 
-/** Runs `load` once on mount and tracks its result. */
-export function useLoad<T>(load: () => Promise<ServiceResponse<T>>) {
+/**
+ * Runs `load` on mount and tracks its result. `reload` runs it again and
+ * keeps showing the current data until the new answer arrives.
+ */
+export function useReloadableLoad<T>(
+	load: () => Promise<ServiceResponse<T>>,
+): [LoadState<T>, () => void] {
 	const [state, setState] = React.useState<LoadState<T>>({ status: "loading" });
+	const [version, setVersion] = React.useState(0);
 	const loadRef = React.useRef(load);
 
 	React.useEffect(() => {
@@ -22,7 +28,13 @@ export function useLoad<T>(load: () => Promise<ServiceResponse<T>>) {
 		return () => {
 			active = false;
 		};
-	}, []);
+	}, [version]);
 
-	return state;
+	const reload = React.useCallback(() => setVersion((v) => v + 1), []);
+	return [state, reload];
+}
+
+/** Runs `load` once on mount and tracks its result. */
+export function useLoad<T>(load: () => Promise<ServiceResponse<T>>) {
+	return useReloadableLoad(load)[0];
 }

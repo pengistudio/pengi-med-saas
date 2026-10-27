@@ -60,6 +60,7 @@ export default function EditDoctorPage() {
 							initialData={doctor}
 							onSubmit={handleSubmit}
 							loading={loading}
+							showPortalBookable
 						/>
 					</TabsContent>
 					<TabsContent value="schedule" keepMounted>

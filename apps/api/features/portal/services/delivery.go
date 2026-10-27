@@ -24,6 +24,13 @@ type CodeMailer interface {
 	SendPortalCode(toEmail string, e mailer.PortalCodeEmail) error
 }
 
+// Mailer sends every portal email: sign-in codes and booking notices
+// (*mailer.Mailer in production).
+type Mailer interface {
+	CodeMailer
+	SendPortalNotice(toEmail string, e mailer.PortalNoticeEmail) error
+}
+
 // Translator resolves an i18n key in the patient's language.
 type Translator func(key string) string
 
@@ -38,12 +45,12 @@ var errNoChannel = errors.New("portal code not delivered")
 type Delivery struct {
 	db     *gorm.DB
 	logger *zap.Logger
-	mailer CodeMailer
+	mailer Mailer
 	client *whatsapp.Client
 	now    func() time.Time
 }
 
-func NewDelivery(db *gorm.DB, logger *zap.Logger, m CodeMailer, client *whatsapp.Client) *Delivery {
+func NewDelivery(db *gorm.DB, logger *zap.Logger, m Mailer, client *whatsapp.Client) *Delivery {
 	return &Delivery{db: db, logger: logger, mailer: m, client: client, now: time.Now}
 }
 
@@ -56,6 +63,12 @@ func (d *Delivery) WhatsAppReady(tenantID uint) bool {
 }
 
 func (d *Delivery) whatsAppAccount(tenantID uint) (whatsapp_models.WhatsAppAccount, string, bool) {
+	return d.accountWithTemplate(tenantID, whatsapp_models.TemplatePortalCode)
+}
+
+// accountWithTemplate returns the clinic's connected WhatsApp account and its
+// token when template is approved on it.
+func (d *Delivery) accountWithTemplate(tenantID uint, template string) (whatsapp_models.WhatsAppAccount, string, bool) {
 	var account whatsapp_models.WhatsAppAccount
 	if d.client == nil {
 		return account, "", false
@@ -65,7 +78,7 @@ func (d *Delivery) whatsAppAccount(tenantID uint) (whatsapp_models.WhatsAppAccou
 		return account, "", false
 	}
 	rows, err := whatsapp_services.TemplateRows(scoped)
-	if err != nil || rows[whatsapp_models.TemplatePortalCode].Status != whatsapp_models.TemplateStatusApproved {
+	if err != nil || rows[template].Status != whatsapp_models.TemplateStatusApproved {
 		return account, "", false
 	}
 	token, err := account.OpenAccessToken()
@@ -177,10 +190,16 @@ func codeEmail(clinic Clinic, code string, tr Translator) mailer.PortalCodeEmail
 	}
 }
 
-// EnsurePortalTemplate creates the portal_code template on the clinic's WABA
-// when the clinic has a connected WhatsApp account that does not have it yet
-// (accounts connected before the template joined the catalog). Meta reviews
-// it; until it is approved codes go by email. Best effort: failures are logged.
+// portalTemplates are the catalog templates the portal sends.
+var portalTemplates = []string{
+	whatsapp_models.TemplatePortalCode, whatsapp_models.TemplateBookingConfirmed, whatsapp_models.TemplateBookingNotConfirmed,
+}
+
+// EnsurePortalTemplate creates the portal's templates (portal_code and the
+// booking notices) on the clinic's WABA when the clinic has a connected
+// WhatsApp account that misses one of them (accounts connected before they
+// joined the catalog). Meta reviews them; until one is approved its messages
+// go by email. Best effort: failures are logged.
 func (d *Delivery) EnsurePortalTemplate(tenantID uint) {
 	if d.client == nil {
 		return
@@ -195,7 +214,13 @@ func (d *Delivery) EnsurePortalTemplate(tenantID uint) {
 		d.logger.Error("portal: failed to load whatsapp templates", zap.Uint("tenant_id", tenantID), zap.Error(err))
 		return
 	}
-	if _, ok := rows[whatsapp_models.TemplatePortalCode]; ok {
+	missing := false
+	for _, name := range portalTemplates {
+		if _, ok := rows[name]; !ok {
+			missing = true
+		}
+	}
+	if !missing {
 		return
 	}
 	token, err := account.OpenAccessToken()
@@ -204,7 +229,7 @@ func (d *Delivery) EnsurePortalTemplate(tenantID uint) {
 	}
 	states, err := whatsapp_services.EnsureTemplates(d.client, token, account.WabaID)
 	if err != nil {
-		d.logger.Warn("portal: failed to create the portal_code template", zap.Uint("tenant_id", tenantID), zap.Error(err))
+		d.logger.Warn("portal: failed to create the portal templates", zap.Uint("tenant_id", tenantID), zap.Error(err))
 	}
 	if err := whatsapp_services.SaveTemplateStates(scoped, tenantID, states); err != nil {
 		d.logger.Error("portal: failed to save whatsapp template states", zap.Uint("tenant_id", tenantID), zap.Error(err))

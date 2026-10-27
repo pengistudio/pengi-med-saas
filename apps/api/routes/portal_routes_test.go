@@ -26,12 +26,14 @@ func TestPortalRoutes_PatientEndpointsNeedAPortalToken(t *testing.T) {
 	r := gin.New()
 	registerPortalRoutes(r.Group("/portal"), db,
 		portal_handlers.NewAuthHandler(db, zap.NewNop(), files, delivery),
-		portal_handlers.NewPatientHandler(db, zap.NewNop(), files, nil, sri_document.Documents{Files: files}))
+		portal_handlers.NewPatientHandler(db, zap.NewNop(), files, nil, sri_document.Documents{Files: files}),
+		portal_handlers.NewBookingHandler(db, zap.NewNop(), nil, nil))
 
 	staff, _ := auth.GenerateToken("admin", 1)
 	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
 	paths := []string{"/portal/me", "/portal/appointments", "/portal/results", "/portal/results/files/1", "/portal/documents",
-		"/portal/documents/prescription/1/file", "/portal/invoices", "/portal/invoices/1/ride", "/portal/invoices/1/xml"}
+		"/portal/documents/prescription/1/file", "/portal/invoices", "/portal/invoices/1/ride", "/portal/invoices/1/xml",
+		"/portal/booking/options", "/portal/booking/slots", "/portal/booking/requests"}
 	for _, path := range paths {
 		for _, token := range []string{"", staff, backoffice} {
 			req := httptest.NewRequest(http.MethodGet, path, nil)

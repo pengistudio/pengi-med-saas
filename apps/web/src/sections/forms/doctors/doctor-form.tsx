@@ -17,6 +17,8 @@ import { Loader2, Save } from "lucide-react";
 import { z } from "zod";
 import { type Doctor, SPECIALTY_OTHER } from "@/api/doctors-service";
 import { DoctorColorPicker } from "@/components/features/doctors/doctor-color-picker";
+import { FormSwitch } from "@/components/forms/form-switch";
+import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import { cn } from "@/lib/utils";
 import { useSpecialties } from "@/store/doctors-store";
 
@@ -34,6 +36,8 @@ const formSchema = z
 		email: z.union([z.literal(""), z.email("doctors.form.error.email")]),
 		color: z.string().optional(),
 		user_id: z.string().optional(),
+		/** Undefined when the form does not offer it (own profile). */
+		portal_bookable: z.boolean().optional(),
 	})
 	.refine(
 		(data) =>
@@ -57,6 +61,11 @@ interface DoctorFormProps {
 	description?: string;
 	/** Card width; centered at max-w-4xl by default. */
 	className?: string;
+	/**
+	 * Admin create/edit: offers "accepts online booking" when the plan has the
+	 * patient portal. The doctor's own profile leaves it to the admin.
+	 */
+	showPortalBookable?: boolean;
 }
 
 /**
@@ -71,10 +80,13 @@ export default function DoctorForm({
 	title,
 	description,
 	className,
+	showPortalBookable = false,
 }: DoctorFormProps) {
 	const { textGet } = useText();
 	const specialties = useSpecialties();
 	const isEditing = Boolean(initialData);
+	const portalEnabled = useEnabledFeatures().patient_portal === true;
+	const offerPortal = showPortalBookable && portalEnabled;
 
 	const defaultValues: DoctorFormValues = {
 		full_name: initialData?.full_name ?? "",
@@ -86,6 +98,9 @@ export default function DoctorForm({
 		email: initialData?.email ?? "",
 		color: initialData?.color ?? "",
 		user_id: NO_USER,
+		portal_bookable: offerPortal
+			? (initialData?.portal_bookable ?? false)
+			: undefined,
 	};
 
 	const specialtyOptions = specialties.map((s) => ({
@@ -189,6 +204,16 @@ export default function DoctorForm({
 							name="color"
 							label={textGet("doctors.form.color")}
 						/>
+						{offerPortal && (
+							<FormSwitch
+								field={field}
+								name="portal_bookable"
+								label={textGet("doctors.form.portal_bookable")}
+								description={textGet(
+									"doctors.form.portal_bookable.description",
+								)}
+							/>
+						)}
 					</CardContent>
 					<CardFooter className="flex justify-end">
 						<Button type="submit" disabled={loading}>

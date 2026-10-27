@@ -10932,6 +10932,30 @@
         "value": "No pudimos verificar la solicitud. Intenta de nuevo."
     },
     {
+        "key": "E-PORTAL-009",
+        "value": "Las citas en línea no están disponibles."
+    },
+    {
+        "key": "E-PORTAL-010",
+        "value": "Ese horario ya no está disponible. Elige otro."
+    },
+    {
+        "key": "E-PORTAL-011",
+        "value": "Ya tienes 3 solicitudes de cita pendientes. Espera a que la clínica responda o cancela alguna."
+    },
+    {
+        "key": "E-PORTAL-012",
+        "value": "Esta cita ya no se puede cancelar en línea. Llama a la clínica."
+    },
+    {
+        "key": "E-PORTAL-013",
+        "value": "La solicitud de cita ya no está pendiente."
+    },
+    {
+        "key": "E-PORTAL-014",
+        "value": "Revisa la configuración de citas en línea."
+    },
+    {
         "key": "portal.settings.get.success",
         "value": "Configuración del portal obtenida."
     },
@@ -11144,6 +11168,10 @@
         "value": "No tienes citas agendadas. Para pedir una, comunícate con la clínica."
     },
     {
+        "key": "portal.appointments.none_upcoming_bookable",
+        "value": "No tienes citas agendadas. Pide una con el botón de arriba."
+    },
+    {
         "key": "portal.appointments.later",
         "value": "Después"
     },
@@ -11274,5 +11302,517 @@
     {
         "key": "settings.portal.save",
         "value": "Guardar"
+    },
+    {
+        "key": "portal.error.invalid_booking_settings",
+        "value": "Revisa la configuración de citas en línea."
+    },
+    {
+        "key": "portal.error.booking_not_available",
+        "value": "Las citas en línea no están disponibles."
+    },
+    {
+        "key": "portal.error.slot_taken",
+        "value": "Ese horario ya no está disponible. Elige otro."
+    },
+    {
+        "key": "portal.error.request_not_pending",
+        "value": "La solicitud de cita ya no está pendiente."
+    },
+    {
+        "key": "portal.error.too_many_requests",
+        "value": "Ya tienes demasiadas solicitudes de cita pendientes."
+    },
+    {
+        "key": "portal.error.cancel_too_late",
+        "value": "Esta cita ya no se puede cancelar en línea. Llama a la clínica."
+    },
+    {
+        "key": "portal.booking.options.success",
+        "value": "Opciones de citas en línea obtenidas."
+    },
+    {
+        "key": "portal.booking.slots.success",
+        "value": "Horarios disponibles obtenidos."
+    },
+    {
+        "key": "portal.booking.request.create.success",
+        "value": "Solicitud de cita enviada."
+    },
+    {
+        "key": "portal.booking.requests.list.success",
+        "value": "Solicitudes de cita obtenidas."
+    },
+    {
+        "key": "portal.booking.request.cancel.success",
+        "value": "Solicitud de cita cancelada."
+    },
+    {
+        "key": "portal.booking.appointment.cancel.success",
+        "value": "Cita cancelada."
+    },
+    {
+        "key": "appointment_requests.list.success",
+        "value": "Solicitudes de cita obtenidas."
+    },
+    {
+        "key": "appointment_requests.count.success",
+        "value": "Solicitudes pendientes contadas."
+    },
+    {
+        "key": "appointment_requests.approve.success",
+        "value": "Cita aprobada. Avisamos al paciente."
+    },
+    {
+        "key": "appointment_requests.reject.success",
+        "value": "Pedido rechazado. Avisamos al paciente."
+    },
+    {
+        "key": "notification.portal.booking.request",
+        "value": "{patient_name} pidió desde el portal una cita para el {date} a las {time}."
+    },
+    {
+        "key": "notification.portal.booking.booked",
+        "value": "{patient_name} reservó desde el portal una cita para el {date} a las {time}."
+    },
+    {
+        "key": "notification.portal.booking.appointment_cancelled",
+        "value": "{patient_name} canceló desde el portal su cita del {date} a las {time}."
+    },
+    {
+        "key": "portal.email.booking.confirmed.subject",
+        "value": "Tu cita en {clinic} está confirmada"
+    },
+    {
+        "key": "portal.email.booking.confirmed.heading",
+        "value": "Cita confirmada"
+    },
+    {
+        "key": "portal.email.booking.confirmed.body",
+        "value": "Hola {patient}, tu cita en {clinic} con {doctor} está confirmada para el {date} a las {time}."
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.subject",
+        "value": "{clinic} no pudo confirmar tu cita"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.heading",
+        "value": "Cita no confirmada"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.body",
+        "value": "Hola {patient}, {clinic} no pudo confirmar tu solicitud de cita del {date} a las {time}."
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.reason",
+        "value": "Motivo: {reason}"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.action",
+        "value": "Puedes elegir otro horario en el portal de pacientes: {url}"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.action_no_link",
+        "value": "Puedes elegir otro horario en el portal de pacientes."
+    },
+    {
+        "key": "portal.email.booking.footer",
+        "value": "Este es un mensaje automático de {clinic}."
+    },
+    {
+        "key": "whatsapp.template.name.pengi_cita_confirmada",
+        "value": "Cita confirmada (portal)"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_cita_no_confirmada",
+        "value": "Cita no confirmada (portal)"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.booking_confirmed",
+        "value": "Cita confirmada (portal)"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.booking_not_confirmed",
+        "value": "Cita no confirmada (portal)"
+    },
+    {
+        "key": "portal.booking.new",
+        "value": "Pedir cita"
+    },
+    {
+        "key": "portal.booking.back",
+        "value": "Volver"
+    },
+    {
+        "key": "portal.booking.step_of",
+        "value": "Paso {current} de {total}"
+    },
+    {
+        "key": "portal.booking.step.provider.doctor",
+        "value": "¿Con quién quieres tu cita?"
+    },
+    {
+        "key": "portal.booking.step.provider.specialty",
+        "value": "¿Qué especialidad necesitas?"
+    },
+    {
+        "key": "portal.booking.step.type",
+        "value": "¿Qué tipo de cita?"
+    },
+    {
+        "key": "portal.booking.step.when",
+        "value": "Elige día y hora"
+    },
+    {
+        "key": "portal.booking.step.review",
+        "value": "Revisa tu cita"
+    },
+    {
+        "key": "portal.booking.minutes",
+        "value": "{count} min"
+    },
+    {
+        "key": "portal.booking.days",
+        "value": "Días con horarios libres"
+    },
+    {
+        "key": "portal.booking.more_days",
+        "value": "Ver más fechas"
+    },
+    {
+        "key": "portal.booking.more_days_short",
+        "value": "Más fechas"
+    },
+    {
+        "key": "portal.booking.no_slots_yet",
+        "value": "No hay horarios libres en estas fechas. Prueba con las siguientes."
+    },
+    {
+        "key": "portal.booking.no_slots",
+        "value": "No hay horarios libres para pedir en línea. Llama a la clínica para agendar."
+    },
+    {
+        "key": "portal.booking.unavailable",
+        "value": "Por ahora no hay citas para pedir en línea. Llama a la clínica para agendar."
+    },
+    {
+        "key": "portal.booking.any_doctor",
+        "value": "La clínica te asignará un médico de esta especialidad"
+    },
+    {
+        "key": "portal.booking.reason",
+        "value": "Motivo de la consulta"
+    },
+    {
+        "key": "portal.booking.optional",
+        "value": "(opcional)"
+    },
+    {
+        "key": "portal.booking.reason.placeholder",
+        "value": "Cuéntale a la clínica brevemente qué necesitas"
+    },
+    {
+        "key": "portal.booking.submit",
+        "value": "Pedir esta cita"
+    },
+    {
+        "key": "portal.booking.error.slot_taken",
+        "value": "Ese horario se acaba de ocupar. Elige otro, por favor."
+    },
+    {
+        "key": "portal.booking.error.too_many_pending",
+        "value": "Ya tienes varios pedidos esperando respuesta. Espera a que la clínica responda o cancela uno."
+    },
+    {
+        "key": "portal.booking.done.pending.title",
+        "value": "Pedido enviado"
+    },
+    {
+        "key": "portal.booking.done.pending.body",
+        "value": "La clínica confirmará tu cita; te avisaremos por WhatsApp o correo."
+    },
+    {
+        "key": "portal.booking.done.confirmed.title",
+        "value": "¡Tu cita está confirmada!"
+    },
+    {
+        "key": "portal.booking.done.confirmed.body",
+        "value": "Te esperamos. Si no puedes asistir, cancélala desde aquí."
+    },
+    {
+        "key": "portal.booking.done.back",
+        "value": "Ver mis citas"
+    },
+    {
+        "key": "portal.booking.pending_title",
+        "value": "Esperando confirmación"
+    },
+    {
+        "key": "portal.booking.pending",
+        "value": "Pendiente de confirmación"
+    },
+    {
+        "key": "portal.booking.expires",
+        "value": "Si la clínica no responde, el pedido vence {when}"
+    },
+    {
+        "key": "portal.booking.cancel_request",
+        "value": "Cancelar pedido"
+    },
+    {
+        "key": "portal.booking.cancel_request.title",
+        "value": "¿Cancelar este pedido?"
+    },
+    {
+        "key": "portal.booking.cancel_request.body",
+        "value": "El horario quedará libre para otros pacientes."
+    },
+    {
+        "key": "portal.booking.cancel_appointment",
+        "value": "Cancelar cita"
+    },
+    {
+        "key": "portal.booking.cancel_appointment.title",
+        "value": "¿Cancelar tu cita?"
+    },
+    {
+        "key": "portal.booking.cancel_appointment.body",
+        "value": "Avisaremos a la clínica. Si quieres otra fecha, puedes pedir una cita nueva."
+    },
+    {
+        "key": "portal.booking.keep",
+        "value": "No, mantener"
+    },
+    {
+        "key": "portal.booking.call_to_cancel",
+        "value": "Para cancelar o cambiar esta cita, llama a la clínica."
+    },
+    {
+        "key": "portal.booking.closed_title",
+        "value": "Pedidos no confirmados"
+    },
+    {
+        "key": "portal.booking.status.rejected",
+        "value": "La clínica no pudo confirmar este pedido"
+    },
+    {
+        "key": "portal.booking.status.expired",
+        "value": "El pedido venció sin respuesta"
+    },
+    {
+        "key": "portal.booking.status.cancelled",
+        "value": "Cancelaste este pedido"
+    },
+    {
+        "key": "portal.booking.reject_reason",
+        "value": "Motivo: {reason}"
+    },
+    {
+        "key": "nav.item.appointment_requests",
+        "value": "Citas pedidas"
+    },
+    {
+        "key": "appointment_requests.title",
+        "value": "Citas pedidas en el portal"
+    },
+    {
+        "key": "appointment_requests.description",
+        "value": "Pedidos de cita de tus pacientes desde el portal. Apruébalos para crear la cita o recházalos."
+    },
+    {
+        "key": "appointment_requests.filter.pending",
+        "value": "Pendientes"
+    },
+    {
+        "key": "appointment_requests.filter.all",
+        "value": "Todos"
+    },
+    {
+        "key": "appointment_requests.column.patient",
+        "value": "Paciente"
+    },
+    {
+        "key": "appointment_requests.column.when",
+        "value": "Fecha y hora"
+    },
+    {
+        "key": "appointment_requests.column.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "appointment_requests.column.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "appointment_requests.column.status",
+        "value": "Estado"
+    },
+    {
+        "key": "appointment_requests.status.pending",
+        "value": "Pendiente"
+    },
+    {
+        "key": "appointment_requests.status.approved",
+        "value": "Aprobado"
+    },
+    {
+        "key": "appointment_requests.status.rejected",
+        "value": "Rechazado"
+    },
+    {
+        "key": "appointment_requests.status.cancelled",
+        "value": "Cancelado por el paciente"
+    },
+    {
+        "key": "appointment_requests.status.expired",
+        "value": "Vencido"
+    },
+    {
+        "key": "appointment_requests.expires",
+        "value": "Vence"
+    },
+    {
+        "key": "appointment_requests.action.approve",
+        "value": "Aprobar"
+    },
+    {
+        "key": "appointment_requests.action.reject",
+        "value": "Rechazar"
+    },
+    {
+        "key": "appointment_requests.empty.pending",
+        "value": "No hay pedidos pendientes."
+    },
+    {
+        "key": "appointment_requests.empty.all",
+        "value": "Todavía no hay pedidos de cita desde el portal."
+    },
+    {
+        "key": "appointment_requests.reject.title",
+        "value": "Rechazar pedido"
+    },
+    {
+        "key": "appointment_requests.reject.description",
+        "value": "Avisaremos a {patient} que no se pudo confirmar y que puede elegir otro horario en el portal."
+    },
+    {
+        "key": "appointment_requests.reject.reason",
+        "value": "Motivo para el paciente"
+    },
+    {
+        "key": "appointment_requests.reject.reason.placeholder",
+        "value": "Ej.: el médico no atiende ese día"
+    },
+    {
+        "key": "appointment_requests.reject.reason.description",
+        "value": "El paciente lo verá en el portal."
+    },
+    {
+        "key": "appointment_requests.reject.error.too_long",
+        "value": "Máximo 500 caracteres"
+    },
+    {
+        "key": "settings.portal.booking.title",
+        "value": "Citas en línea"
+    },
+    {
+        "key": "settings.portal.booking.help",
+        "value": "Los pacientes piden una cita desde el portal en los horarios libres de la agenda."
+    },
+    {
+        "key": "settings.portal.booking.opt_in_help",
+        "value": "Solo se ofrecen los médicos con «Acepta citas en línea» y los tipos de cita marcados para el portal."
+    },
+    {
+        "key": "settings.portal.booking.enabled",
+        "value": "Permitir pedir citas desde el portal"
+    },
+    {
+        "key": "settings.portal.booking.needs_appointments",
+        "value": "Requiere el portal activo y la sección Citas visible."
+    },
+    {
+        "key": "settings.portal.booking.choose_by",
+        "value": "El paciente elige"
+    },
+    {
+        "key": "settings.portal.booking.choose_by.doctor",
+        "value": "El médico"
+    },
+    {
+        "key": "settings.portal.booking.choose_by.specialty",
+        "value": "La especialidad (la clínica asigna el médico)"
+    },
+    {
+        "key": "settings.portal.booking.auto_confirm",
+        "value": "Confirmar automáticamente"
+    },
+    {
+        "key": "settings.portal.booking.auto_confirm.description",
+        "value": "La cita se agenda sin aprobación de la clínica."
+    },
+    {
+        "key": "settings.portal.booking.expiry",
+        "value": "Vencimiento de pedidos"
+    },
+    {
+        "key": "settings.portal.booking.expiry.description",
+        "value": "Si nadie lo aprueba en este tiempo, el pedido vence y el horario se libera."
+    },
+    {
+        "key": "settings.portal.booking.hours",
+        "value": "{count} horas"
+    },
+    {
+        "key": "settings.portal.booking.min_notice",
+        "value": "Anticipación mínima (horas)"
+    },
+    {
+        "key": "settings.portal.booking.min_notice.description",
+        "value": "De 0 a 72."
+    },
+    {
+        "key": "settings.portal.booking.max_days",
+        "value": "Días hacia adelante"
+    },
+    {
+        "key": "settings.portal.booking.max_days.description",
+        "value": "De 1 a 180."
+    },
+    {
+        "key": "settings.portal.booking.cancel_notice",
+        "value": "Cancelar hasta (horas antes)"
+    },
+    {
+        "key": "settings.portal.booking.cancel_notice.description",
+        "value": "De 0 a 168. Después, el paciente debe llamar."
+    },
+    {
+        "key": "settings.portal.booking.error.min_notice",
+        "value": "Ingresa un número entero entre 0 y 72"
+    },
+    {
+        "key": "settings.portal.booking.error.max_days",
+        "value": "Ingresa un número entero entre 1 y 180"
+    },
+    {
+        "key": "settings.portal.booking.error.cancel_notice",
+        "value": "Ingresa un número entero entre 0 y 168"
+    },
+    {
+        "key": "doctors.form.portal_bookable",
+        "value": "Acepta citas en línea"
+    },
+    {
+        "key": "doctors.form.portal_bookable.description",
+        "value": "Los pacientes pueden pedir citas con este médico desde el portal, dentro de su horario."
+    },
+    {
+        "key": "agenda.types.field.portal_bookable",
+        "value": "Se puede pedir en el portal"
+    },
+    {
+        "key": "agenda.types.field.portal_bookable_hint",
+        "value": "Los pacientes ven este tipo de cita al pedir una cita en línea."
     }
 ]

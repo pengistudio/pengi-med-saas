@@ -21,6 +21,8 @@ type DoctorProfileRequest struct {
 type CreateDoctorRequest struct {
 	DoctorProfileRequest
 	UserID *uint `json:"user_id"`
+	// PortalBookable: patients can book this doctor from the patient portal.
+	PortalBookable bool `json:"portal_bookable"`
 }
 
 // UpdateDoctorRequest is a partial profile update (admin or own profile).
@@ -33,6 +35,8 @@ type UpdateDoctorRequest struct {
 	Phone                *string `json:"phone"`
 	Email                *string `json:"email" binding:"omitempty,email"`
 	Color                *string `json:"color"`
+	// PortalBookable is admin-only: the doctor's own profile update ignores it.
+	PortalBookable *bool `json:"portal_bookable"`
 }
 
 // LinkUserRequest links a doctor to a user of the tenant, or unlinks it when

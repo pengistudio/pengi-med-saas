@@ -71,7 +71,7 @@ func (h *DoctorHandler) CreateMyDoctor(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusConflict, "doctors.error.profile_exists", core_errors.ErrDoctorProfileExists)
 	}
 	profileExists := &validationError{status: http.StatusConflict, message: "doctors.error.profile_exists", code: core_errors.ErrDoctorProfileExists}
-	return h.create(c, req, &userID, "doctors.me.create.success", profileExists)
+	return h.create(c, req, &userID, false, "doctors.me.create.success", profileExists)
 }
 
 // UpdateMyDoctor lets the linked user edit their own profile fields. Active
@@ -90,7 +90,7 @@ func (h *DoctorHandler) UpdateMyDoctor(c *gin.Context) envelope.Response {
 	if doctor == nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "doctors.error.profile_not_found", core_errors.ErrDoctorProfileNotFound)
 	}
-	return h.update(c, db, doctor, "doctors.me.update.success")
+	return h.update(c, db, doctor, false, "doctors.me.update.success")
 }
 
 // GetStatus tells the frontend which doctor onboarding/notices apply: whether

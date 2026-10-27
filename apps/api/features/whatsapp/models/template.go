@@ -12,6 +12,10 @@ const (
 	// TemplatePortalCode carries the patient portal's one-time sign-in code
 	// (category AUTHENTICATION).
 	TemplatePortalCode = "portal_code"
+	// TemplateBookingConfirmed / TemplateBookingNotConfirmed answer a patient
+	// portal appointment request (confirmed; rejected or expired).
+	TemplateBookingConfirmed    = "pengi_cita_confirmada"
+	TemplateBookingNotConfirmed = "pengi_cita_no_confirmada"
 )
 
 // WhatsAppTemplate is the review status of one catalog template on the

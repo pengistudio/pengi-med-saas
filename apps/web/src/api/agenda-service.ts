@@ -71,6 +71,8 @@ export interface AppointmentType extends BaseModel {
 	active: boolean;
 	/** Empty: every doctor. */
 	doctor_ids: number[];
+	/** Patients may request it from the portal (opt-in). */
+	portal_bookable: boolean;
 }
 
 export type AppointmentTypePayload = {
@@ -79,6 +81,7 @@ export type AppointmentTypePayload = {
 	color: string;
 	active: boolean;
 	doctor_ids: number[];
+	portal_bookable: boolean;
 };
 
 export interface TimeRange {

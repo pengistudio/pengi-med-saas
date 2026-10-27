@@ -79,6 +79,55 @@ func DefaultEnabledFeatures() EnabledFeatures {
 type PortalSettings struct {
 	Enabled  bool           `json:"enabled"`
 	Sections PortalSections `json:"sections"`
+	Booking  PortalBooking  `json:"booking"`
+}
+
+// Booking "choose by" modes: the patient picks a doctor, or a specialty and
+// the clinic assigns the doctor.
+const (
+	BookingChooseByDoctor    = "doctor"
+	BookingChooseBySpecialty = "specialty"
+)
+
+// PortalBooking configures booking from the portal (Entrega 2). It is
+// effective only when the portal is enabled, the appointments section is
+// shown and Enabled is set (PortalSettings.BookingEnabled).
+type PortalBooking struct {
+	Enabled            bool   `json:"enabled"`
+	ChooseBy           string `json:"choose_by"`            // BookingChooseBy*
+	AutoConfirm        bool   `json:"auto_confirm"`         // false: the clinic approves each request
+	RequestExpiryHours int    `json:"request_expiry_hours"` // 12 | 24 | 48
+	MinNoticeHours     int    `json:"min_notice_hours"`     // 0..72
+	MaxDaysAhead       int    `json:"max_days_ahead"`       // 1..180
+	CancelNoticeHours  int    `json:"cancel_notice_hours"`  // 0..168
+}
+
+// DefaultPortalBooking: off, pick a doctor, clinic approval, 24 h expiry,
+// 2 h notice, 60 days ahead, cancel up to 24 h before.
+func DefaultPortalBooking() PortalBooking {
+	return PortalBooking{
+		ChooseBy: BookingChooseByDoctor, RequestExpiryHours: 24, MinNoticeHours: 2, MaxDaysAhead: 60, CancelNoticeHours: 24,
+	}
+}
+
+// Valid reports whether every value is inside its allowed range.
+func (b PortalBooking) Valid() bool {
+	if b.ChooseBy != BookingChooseByDoctor && b.ChooseBy != BookingChooseBySpecialty {
+		return false
+	}
+	switch b.RequestExpiryHours {
+	case 12, 24, 48:
+	default:
+		return false
+	}
+	return b.MinNoticeHours >= 0 && b.MinNoticeHours <= 72 &&
+		b.MaxDaysAhead >= 1 && b.MaxDaysAhead <= 180 &&
+		b.CancelNoticeHours >= 0 && b.CancelNoticeHours <= 168
+}
+
+// BookingEnabled reports whether patients can book from the portal.
+func (s PortalSettings) BookingEnabled() bool {
+	return s.Enabled && s.Sections.Appointments && s.Booking.Enabled
 }
 
 // PortalSections are the parts of the portal a clinic can show or hide.
@@ -91,7 +140,10 @@ type PortalSections struct {
 
 // DefaultPortalSettings: portal off, every section on once enabled.
 func DefaultPortalSettings() PortalSettings {
-	return PortalSettings{Sections: PortalSections{Appointments: true, Results: true, Documents: true, Invoices: true}}
+	return PortalSettings{
+		Sections: PortalSections{Appointments: true, Results: true, Documents: true, Invoices: true},
+		Booking:  DefaultPortalBooking(),
+	}
 }
 
 // ParsePortalSettings reads the stored JSON over the defaults, so keys that

@@ -17,6 +17,8 @@ import type {
 	AppointmentTypePayload,
 } from "@/api/agenda-service";
 import { DoctorColorPicker } from "@/components/features/doctors/doctor-color-picker";
+import { FormSwitch } from "@/components/forms/form-switch";
+import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import { useDoctors } from "@/store/doctors-store";
 
 const typeSchema = z.object({
@@ -34,6 +36,7 @@ const typeSchema = z.object({
 	color: z.string(),
 	active: z.boolean(),
 	doctor_ids: z.array(z.number()),
+	portal_bookable: z.boolean(),
 });
 
 type TypeValues = z.infer<typeof typeSchema>;
@@ -54,6 +57,7 @@ export function AppointmentTypeForm({
 }) {
 	const { textGet } = useText();
 	const { doctors } = useDoctors();
+	const portalEnabled = useEnabledFeatures().patient_portal === true;
 	return (
 		<Form
 			schema={typeSchema}
@@ -66,6 +70,7 @@ export function AppointmentTypeForm({
 				color: type?.color ?? "",
 				active: type?.active ?? true,
 				doctor_ids: type?.doctor_ids ?? [],
+				portal_bookable: type?.portal_bookable ?? false,
 			}}
 		>
 			{(field) => {
@@ -164,6 +169,14 @@ export function AppointmentTypeForm({
 							name="active"
 							label={textGet("agenda.types.field.active")}
 						/>
+						{portalEnabled && (
+							<FormSwitch
+								field={field}
+								name="portal_bookable"
+								label={textGet("agenda.types.field.portal_bookable")}
+								description={textGet("agenda.types.field.portal_bookable_hint")}
+							/>
+						)}
 						<div className="flex justify-end">
 							<Button type="submit" disabled={loading}>
 								{loading ? (

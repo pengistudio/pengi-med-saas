@@ -52,3 +52,21 @@ func RecordPortalAccess(db *gorm.DB, tenantID, patientID uint, entityType string
 	}
 	_ = tenantdb.ForTenant(db, tenantID).Session(&gorm.Session{NewDB: true}).Create(&log).Error
 }
+
+// RecordPortalChange logs a change (action CREATE / UPDATE) a patient made
+// through the patient portal: portal handlers write on a tenant handle
+// without a staff user, so the audit plugin does not record them. Failures
+// are swallowed like RecordAccess.
+func RecordPortalChange(db *gorm.DB, tenantID, patientID uint, action, entityType string, entityID uint) {
+	pid := patientID
+	log := AuditLog{
+		TenantID:   tenantID,
+		ActorType:  ActorPortalPatient,
+		Action:     action,
+		EntityType: entityType,
+		EntityID:   entityID,
+		PatientID:  &pid,
+		CreatedAt:  time.Now(),
+	}
+	_ = tenantdb.ForTenant(db, tenantID).Session(&gorm.Session{NewDB: true}).Create(&log).Error
+}

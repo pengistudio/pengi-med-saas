@@ -93,6 +93,18 @@ func RequireSection(section string) gin.HandlerFunc {
 	}
 }
 
+// RequireBooking answers 404 E-PORTAL-009 unless the clinic takes
+// appointment requests from the portal (PortalSettings.BookingEnabled).
+func RequireBooking() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !Clinic(c).Settings.BookingEnabled() {
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusNotFound, "portal.error.booking_not_available", core_errors.ErrPortalBookingNotAvailable))
+			return
+		}
+		c.Next()
+	}
+}
+
 // SectionEnabled reports whether the clinic shows section.
 func SectionEnabled(clinic portal_services.Clinic, section string) bool {
 	s := clinic.Settings.Sections

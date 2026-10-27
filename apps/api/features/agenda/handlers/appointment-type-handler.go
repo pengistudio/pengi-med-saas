@@ -127,6 +127,7 @@ func (h *AgendaHandler) CreateAppointmentType(c *gin.Context) envelope.Response 
 
 	t := agenda_models.AppointmentType{
 		TenantID: tenantdb.TenantID(c), Name: name, DurationMinutes: req.DurationMinutes, Color: color, Active: true,
+		PortalBookable: req.PortalBookable,
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Omit("Doctors").Create(&t).Error; err != nil {
@@ -194,6 +195,9 @@ func (h *AgendaHandler) UpdateAppointmentType(c *gin.Context) envelope.Response 
 	}
 	if req.Active != nil {
 		updates["active"] = *req.Active
+	}
+	if req.PortalBookable != nil {
+		updates["portal_bookable"] = *req.PortalBookable
 	}
 	var doctors []doctor_models.Doctor
 	if req.DoctorIDs != nil {

@@ -23,6 +23,9 @@ type Doctor struct {
 	// Active is written with Update("active", ...): GORM skips a false zero
 	// value on create and the column default would win.
 	Active bool `gorm:"not null;default:true" json:"active"`
+	// PortalBookable: patients can book this doctor from the patient portal
+	// (opt-in, written with Update like Active).
+	PortalBookable bool `gorm:"not null;default:false" json:"portal_bookable"`
 	// NeedsReview marks profiles created by the data migration from existing
 	// users, so the admin is asked once to review them. Cleared on edit or ack.
 	NeedsReview bool `gorm:"not null;default:false" json:"needs_review"`

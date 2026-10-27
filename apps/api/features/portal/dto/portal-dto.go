@@ -45,6 +45,7 @@ type ClinicInfo struct {
 	Slug     string                       `json:"slug"`
 	HasLogo  bool                         `json:"has_logo"`
 	Sections tenant_models.PortalSections `json:"sections"`
+	Booking  BookingInfo                  `json:"booking"`
 }
 
 // Channels are the ways the clinic can deliver a sign-in code.
@@ -86,6 +87,9 @@ type Appointment struct {
 	SpecialtyOther  string `json:"specialty_other"` // the name when Specialty is "other"
 	AppointmentType string `json:"appointment_type"`
 	Location        string `json:"location"`
+	// CanCancel: the patient can cancel it from the portal (booking on,
+	// scheduled or confirmed, and before the clinic's cancel notice).
+	CanCancel bool `json:"can_cancel"`
 }
 
 // ResultFile is a result file of a reviewed exam.

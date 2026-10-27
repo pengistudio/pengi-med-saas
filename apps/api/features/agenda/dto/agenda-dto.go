@@ -54,6 +54,7 @@ type CreateAppointmentTypeRequest struct {
 	DurationMinutes int    `json:"duration_minutes"`
 	Color           string `json:"color"`
 	Active          *bool  `json:"active"` // omitted = true
+	PortalBookable  bool   `json:"portal_bookable"`
 	DoctorIDs       []uint `json:"doctor_ids"`
 }
 
@@ -64,6 +65,7 @@ type UpdateAppointmentTypeRequest struct {
 	DurationMinutes *int    `json:"duration_minutes"`
 	Color           *string `json:"color"`
 	Active          *bool   `json:"active"`
+	PortalBookable  *bool   `json:"portal_bookable"`
 	DoctorIDs       *[]uint `json:"doctor_ids"`
 }
 
