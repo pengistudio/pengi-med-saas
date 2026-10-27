@@ -1,21 +1,28 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PortalSettingsPage from "@/pages/settings/portal-settings";
+import { renderWithProviders } from "@/test/test-wrapper";
 
 const mockGet = vi.fn();
 const mockUpdate = vi.fn();
 
-vi.mock("@/api/portal-settings-service", () => ({
+vi.mock("@/api/portal-settings-service", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@/api/portal-settings-service")>()),
 	getPortalSettings: () => mockGet(),
 	updatePortalSettings: (s: unknown) => mockUpdate(s),
 }));
 
 vi.mock("react-router", () => ({ useNavigate: () => vi.fn() }));
 
-vi.mock("@pengi/shared", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@pengi/shared")>()),
-	useText: () => ({ textGet: (key: string) => key }),
-}));
+const booking = {
+	enabled: false,
+	choose_by: "doctor",
+	auto_confirm: false,
+	request_expiry_hours: 24,
+	min_notice_hours: 2,
+	max_days_ahead: 60,
+	cancel_notice_hours: 24,
+};
 
 const loaded = {
 	enabled: false,
@@ -25,8 +32,13 @@ const loaded = {
 		documents: false,
 		invoices: true,
 	},
+	booking,
 	portal_url: "https://portal.test/clinic",
 };
+
+// Messages are not loaded in tests: useText renders each key as *key*.
+const toggle = (key: string) =>
+	screen.getByRole("switch", { name: `*${key}*` });
 
 describe("PortalSettingsPage", () => {
 	beforeEach(() => {
@@ -37,25 +49,17 @@ describe("PortalSettingsPage", () => {
 	});
 
 	it("loads settings, enables sections with the portal and saves", async () => {
-		render(<PortalSettingsPage />);
+		renderWithProviders(<PortalSettingsPage />);
 		expect(await screen.findByText("https://portal.test/clinic")).toBeDefined();
 
-		const results = screen.getByRole("switch", {
-			name: "settings.portal.sections.results",
-		});
+		const results = toggle("settings.portal.sections.results");
 		expect(results.getAttribute("aria-disabled")).toBe("true");
 
-		fireEvent.click(
-			screen.getByRole("switch", { name: "settings.portal.enabled" }),
-		);
+		fireEvent.click(toggle("settings.portal.enabled"));
 		expect(results.getAttribute("aria-disabled")).not.toBe("true");
 
-		fireEvent.click(
-			screen.getByRole("switch", {
-				name: "settings.portal.sections.documents",
-			}),
-		);
-		fireEvent.click(screen.getByText("settings.portal.save"));
+		fireEvent.click(toggle("settings.portal.sections.documents"));
+		fireEvent.click(screen.getByText("*settings.portal.save*"));
 
 		await waitFor(() =>
 			expect(mockUpdate).toHaveBeenCalledWith({
@@ -66,7 +70,31 @@ describe("PortalSettingsPage", () => {
 					documents: true,
 					invoices: true,
 				},
+				booking,
 			}),
+		);
+	});
+
+	it("turns booking on only with the portal and its appointments section", async () => {
+		renderWithProviders(<PortalSettingsPage />);
+		await screen.findByText("https://portal.test/clinic");
+
+		const bookingSwitch = toggle("settings.portal.booking.enabled");
+		expect(bookingSwitch.getAttribute("aria-disabled")).toBe("true");
+
+		fireEvent.click(toggle("settings.portal.enabled"));
+		expect(bookingSwitch.getAttribute("aria-disabled")).not.toBe("true");
+		fireEvent.click(bookingSwitch);
+		fireEvent.click(toggle("settings.portal.booking.auto_confirm"));
+		fireEvent.click(screen.getByText("*settings.portal.save*"));
+
+		await waitFor(() =>
+			expect(mockUpdate).toHaveBeenCalledWith(
+				expect.objectContaining({
+					enabled: true,
+					booking: { ...booking, enabled: true, auto_confirm: true },
+				}),
+			),
 		);
 	});
 });

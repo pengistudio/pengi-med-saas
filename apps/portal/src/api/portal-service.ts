@@ -10,12 +10,23 @@ export interface PortalSections {
 	invoices: boolean;
 }
 
+/** How patients pick who sees them: a named doctor, or any doctor of a specialty. */
+export type BookingChooseBy = "doctor" | "specialty";
+
+/** Booking from the portal; on only when the clinic turned it on. */
+export interface ClinicBooking {
+	enabled: boolean;
+	choose_by: BookingChooseBy;
+}
+
 export interface Clinic {
 	name: string;
 	slug: string;
 	has_logo: boolean;
 	sections: PortalSections;
 	channels: { whatsapp: boolean; email: boolean };
+	/** Absent on an API without booking: treat as off. */
+	booking?: ClinicBooking;
 }
 
 export interface PortalPatient {
@@ -28,7 +39,7 @@ export interface PortalPatient {
 
 export interface Me {
 	patient: PortalPatient;
-	clinic: Pick<Clinic, "name" | "slug" | "has_logo" | "sections">;
+	clinic: Pick<Clinic, "name" | "slug" | "has_logo" | "sections" | "booking">;
 }
 
 export interface PortalAppointment {
@@ -43,6 +54,8 @@ export interface PortalAppointment {
 	specialty_other: string;
 	appointment_type: string;
 	location: string;
+	/** The patient may still cancel it from the portal (clinic's notice window). */
+	can_cancel?: boolean;
 }
 
 export interface ResultFile {
@@ -144,3 +157,131 @@ export const downloadInvoiceRide = (id: number) =>
 
 export const downloadInvoiceXml = (id: number) =>
 	download(`/invoices/${id}/xml`);
+
+// ─── Booking (Entrega 2) ─────────────────────────────────────────────────────
+
+/** A doctor patients can book; `type_ids` are the appointment types it offers. */
+export interface BookingDoctor {
+	id: number;
+	full_name: string;
+	specialty: string;
+	specialty_other: string;
+	type_ids: number[];
+}
+
+/** A specialty patients can book; `type_ids` are the types its doctors offer. */
+export interface BookingSpecialty {
+	specialty: string;
+	specialty_other: string;
+	type_ids: number[];
+}
+
+export interface BookingType {
+	id: number;
+	name: string;
+	duration_minutes: number;
+}
+
+export interface BookingOptions {
+	choose_by: BookingChooseBy;
+	/** First and last bookable day, YYYY-MM-DD. */
+	min_date: string;
+	max_date: string;
+	/** May be empty in specialty mode. */
+	doctors?: BookingDoctor[];
+	specialties: BookingSpecialty[];
+	types: BookingType[];
+}
+
+export interface SlotDay {
+	date: string;
+	/** "HH:MM" start times, ascending. */
+	times: string[];
+}
+
+export interface BookingSlots {
+	days: SlotDay[];
+}
+
+/** Who the slots are for: one doctor, or a specialty (any of its doctors). */
+export type BookingTarget =
+	| { doctor_id: number }
+	| { specialty: string; specialty_other: string };
+
+export type AppointmentRequestStatus =
+	| "pending"
+	| "approved"
+	| "rejected"
+	| "cancelled"
+	| "expired";
+
+export interface PortalAppointmentRequest {
+	id: number;
+	status: AppointmentRequestStatus;
+	date: string;
+	start_time: string;
+	end_time: string;
+	doctor: { full_name: string; specialty: string; specialty_other: string };
+	type_name: string;
+	reason: string;
+	reject_reason: string;
+	/** ISO timestamp; a pending request lapses then. */
+	expires_at: string;
+}
+
+// A type, not an interface: the HTTP client takes a Record<string, unknown>.
+export type CreateBookingRequest = {
+	type_id: number;
+	date: string;
+	start_time: string;
+	reason?: string;
+	doctor_id?: number;
+	specialty?: string;
+	specialty_other?: string;
+};
+
+/**
+ * Error codes of the booking endpoints. The HTTP status is the fallback when
+ * the code is not one of these: 409 = slot taken, 429 (the IP rate limit) is
+ * shown like too many pending requests.
+ */
+export const BOOKING_ERROR = {
+	slotTaken: "E-PORTAL-010",
+	tooManyPending: "E-PORTAL-011",
+	tooLateToCancel: "E-PORTAL-012",
+	notPending: "E-PORTAL-013",
+} as const;
+
+export const getBookingOptions = () =>
+	portalService.get<BookingOptions>("/booking/options");
+
+export const getBookingSlots = (
+	typeId: number,
+	target: BookingTarget,
+	from: string,
+	to: string,
+) =>
+	portalService.get<BookingSlots>("/booking/slots", {
+		params: { type_id: typeId, ...target, from, to },
+	});
+
+/** Errors (slot taken, too many pending) are shown inline by the caller. */
+export const createBookingRequest = (request: CreateBookingRequest) =>
+	portalService.post<PortalAppointmentRequest>("/booking/requests", request);
+
+export const getBookingRequests = () =>
+	portalService.get<PortalAppointmentRequest[]>("/booking/requests");
+
+export const cancelBookingRequest = (id: number) =>
+	portalService.post<PortalAppointmentRequest>(
+		`/booking/requests/${id}/cancel`,
+		undefined,
+		{ notifySuccess: true, notifyError: true },
+	);
+
+export const cancelAppointment = (id: number) =>
+	portalService.post<PortalAppointment>(
+		`/appointments/${id}/cancel`,
+		undefined,
+		{ notifySuccess: true, notifyError: true },
+	);

@@ -40,5 +40,8 @@ export function toProfilePayload(values: DoctorFormValues) {
 		phone: values.phone ?? "",
 		email: values.email ?? "",
 		...(values.color ? { color: values.color } : {}),
+		...(values.portal_bookable !== undefined
+			? { portal_bookable: values.portal_bookable }
+			: {}),
 	};
 }

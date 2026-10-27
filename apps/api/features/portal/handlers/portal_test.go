@@ -42,9 +42,10 @@ import (
 
 // fakeMailer records the codes it was asked to send.
 type fakeMailer struct {
-	mu    sync.Mutex
-	sent  map[string][]string // email -> codes, in order
-	calls int
+	mu      sync.Mutex
+	sent    map[string][]string // email -> codes, in order
+	calls   int
+	notices map[string][]mailer.PortalNoticeEmail // email -> booking notices
 }
 
 func (m *fakeMailer) SendPortalCode(to string, e mailer.PortalCodeEmail) error {
@@ -56,6 +57,22 @@ func (m *fakeMailer) SendPortalCode(to string, e mailer.PortalCodeEmail) error {
 	m.sent[to] = append(m.sent[to], e.Code)
 	m.calls++
 	return nil
+}
+
+func (m *fakeMailer) SendPortalNotice(to string, e mailer.PortalNoticeEmail) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.notices == nil {
+		m.notices = map[string][]mailer.PortalNoticeEmail{}
+	}
+	m.notices[to] = append(m.notices[to], e)
+	return nil
+}
+
+func (m *fakeMailer) noticesTo(to string) []mailer.PortalNoticeEmail {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return append([]mailer.PortalNoticeEmail(nil), m.notices[to]...)
 }
 
 func (m *fakeMailer) last(to string) string {
@@ -713,7 +730,7 @@ func TestGetClinic_PublicCard(t *testing.T) {
 	}
 	_ = json.Unmarshal(r.Raw, &envelopeBody)
 	data := string(envelopeBody.Data)
-	want := fmt.Sprintf(`{"name":"Clínica own","slug":"%s","has_logo":false,"sections":{"appointments":true,"results":true,"documents":true,"invoices":true},"channels":{"whatsapp":false,"email":true}}`, f.own.Slug)
+	want := fmt.Sprintf(`{"name":"Clínica own","slug":"%s","has_logo":false,"sections":{"appointments":true,"results":true,"documents":true,"invoices":true},"booking":{"enabled":false,"choose_by":"doctor"},"channels":{"whatsapp":false,"email":true}}`, f.own.Slug)
 	if data != want {
 		t.Fatalf("clinic = %s", data)
 	}

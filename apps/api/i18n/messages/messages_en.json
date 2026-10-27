@@ -10932,6 +10932,30 @@
         "value": "We could not verify the request. Try again."
     },
     {
+        "key": "E-PORTAL-009",
+        "value": "Online booking is not available."
+    },
+    {
+        "key": "E-PORTAL-010",
+        "value": "That time is no longer available. Choose another one."
+    },
+    {
+        "key": "E-PORTAL-011",
+        "value": "You already have 3 pending appointment requests. Wait for the clinic to answer or cancel one."
+    },
+    {
+        "key": "E-PORTAL-012",
+        "value": "This appointment can no longer be cancelled online. Call the clinic."
+    },
+    {
+        "key": "E-PORTAL-013",
+        "value": "The appointment request is no longer pending."
+    },
+    {
+        "key": "E-PORTAL-014",
+        "value": "Check the online booking settings."
+    },
+    {
         "key": "portal.settings.get.success",
         "value": "Portal settings retrieved."
     },
@@ -11144,6 +11168,10 @@
         "value": "You have no appointments booked. To get one, contact the clinic."
     },
     {
+        "key": "portal.appointments.none_upcoming_bookable",
+        "value": "You have no appointments booked. Book one with the button above."
+    },
+    {
         "key": "portal.appointments.later",
         "value": "Later"
     },
@@ -11274,5 +11302,517 @@
     {
         "key": "settings.portal.save",
         "value": "Save"
+    },
+    {
+        "key": "portal.error.invalid_booking_settings",
+        "value": "Check the online booking settings."
+    },
+    {
+        "key": "portal.error.booking_not_available",
+        "value": "Online booking is not available."
+    },
+    {
+        "key": "portal.error.slot_taken",
+        "value": "That time is no longer available. Choose another one."
+    },
+    {
+        "key": "portal.error.request_not_pending",
+        "value": "The appointment request is no longer pending."
+    },
+    {
+        "key": "portal.error.too_many_requests",
+        "value": "You already have too many pending appointment requests."
+    },
+    {
+        "key": "portal.error.cancel_too_late",
+        "value": "This appointment can no longer be cancelled online. Call the clinic."
+    },
+    {
+        "key": "portal.booking.options.success",
+        "value": "Online booking options retrieved."
+    },
+    {
+        "key": "portal.booking.slots.success",
+        "value": "Available times retrieved."
+    },
+    {
+        "key": "portal.booking.request.create.success",
+        "value": "Appointment request sent."
+    },
+    {
+        "key": "portal.booking.requests.list.success",
+        "value": "Appointment requests retrieved."
+    },
+    {
+        "key": "portal.booking.request.cancel.success",
+        "value": "Appointment request cancelled."
+    },
+    {
+        "key": "portal.booking.appointment.cancel.success",
+        "value": "Appointment cancelled."
+    },
+    {
+        "key": "appointment_requests.list.success",
+        "value": "Appointment requests retrieved."
+    },
+    {
+        "key": "appointment_requests.count.success",
+        "value": "Pending requests counted."
+    },
+    {
+        "key": "appointment_requests.approve.success",
+        "value": "Appointment approved. The patient has been notified."
+    },
+    {
+        "key": "appointment_requests.reject.success",
+        "value": "Request rejected. The patient has been notified."
+    },
+    {
+        "key": "notification.portal.booking.request",
+        "value": "{patient_name} requested an appointment from the portal on {date} at {time}."
+    },
+    {
+        "key": "notification.portal.booking.booked",
+        "value": "{patient_name} booked an appointment from the portal on {date} at {time}."
+    },
+    {
+        "key": "notification.portal.booking.appointment_cancelled",
+        "value": "{patient_name} cancelled from the portal their appointment on {date} at {time}."
+    },
+    {
+        "key": "portal.email.booking.confirmed.subject",
+        "value": "Your appointment at {clinic} is confirmed"
+    },
+    {
+        "key": "portal.email.booking.confirmed.heading",
+        "value": "Appointment confirmed"
+    },
+    {
+        "key": "portal.email.booking.confirmed.body",
+        "value": "Hi {patient}, your appointment at {clinic} with {doctor} is confirmed for {date} at {time}."
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.subject",
+        "value": "{clinic} could not confirm your appointment"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.heading",
+        "value": "Appointment not confirmed"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.body",
+        "value": "Hi {patient}, {clinic} could not confirm your appointment request for {date} at {time}."
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.reason",
+        "value": "Reason: {reason}"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.action",
+        "value": "You can pick another time in the patient portal: {url}"
+    },
+    {
+        "key": "portal.email.booking.not_confirmed.action_no_link",
+        "value": "You can pick another time in the patient portal."
+    },
+    {
+        "key": "portal.email.booking.footer",
+        "value": "This is an automatic message from {clinic}."
+    },
+    {
+        "key": "whatsapp.template.name.pengi_cita_confirmada",
+        "value": "Appointment confirmed (portal)"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_cita_no_confirmada",
+        "value": "Appointment not confirmed (portal)"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.booking_confirmed",
+        "value": "Appointment confirmed (portal)"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.booking_not_confirmed",
+        "value": "Appointment not confirmed (portal)"
+    },
+    {
+        "key": "portal.booking.new",
+        "value": "Book an appointment"
+    },
+    {
+        "key": "portal.booking.back",
+        "value": "Back"
+    },
+    {
+        "key": "portal.booking.step_of",
+        "value": "Step {current} of {total}"
+    },
+    {
+        "key": "portal.booking.step.provider.doctor",
+        "value": "Who would you like to see?"
+    },
+    {
+        "key": "portal.booking.step.provider.specialty",
+        "value": "Which specialty do you need?"
+    },
+    {
+        "key": "portal.booking.step.type",
+        "value": "What kind of appointment?"
+    },
+    {
+        "key": "portal.booking.step.when",
+        "value": "Pick a day and time"
+    },
+    {
+        "key": "portal.booking.step.review",
+        "value": "Review your appointment"
+    },
+    {
+        "key": "portal.booking.minutes",
+        "value": "{count} min"
+    },
+    {
+        "key": "portal.booking.days",
+        "value": "Days with free times"
+    },
+    {
+        "key": "portal.booking.more_days",
+        "value": "Show more dates"
+    },
+    {
+        "key": "portal.booking.more_days_short",
+        "value": "More dates"
+    },
+    {
+        "key": "portal.booking.no_slots_yet",
+        "value": "No free times on these dates. Try the next ones."
+    },
+    {
+        "key": "portal.booking.no_slots",
+        "value": "No free times to book online. Call the clinic to book."
+    },
+    {
+        "key": "portal.booking.unavailable",
+        "value": "There are no appointments to book online right now. Call the clinic to book."
+    },
+    {
+        "key": "portal.booking.any_doctor",
+        "value": "The clinic will assign you a doctor of this specialty"
+    },
+    {
+        "key": "portal.booking.reason",
+        "value": "Reason for the visit"
+    },
+    {
+        "key": "portal.booking.optional",
+        "value": "(optional)"
+    },
+    {
+        "key": "portal.booking.reason.placeholder",
+        "value": "Briefly tell the clinic what you need"
+    },
+    {
+        "key": "portal.booking.submit",
+        "value": "Request this appointment"
+    },
+    {
+        "key": "portal.booking.error.slot_taken",
+        "value": "That time was just taken. Please pick another one."
+    },
+    {
+        "key": "portal.booking.error.too_many_pending",
+        "value": "You already have several requests awaiting an answer. Wait for the clinic to reply or cancel one."
+    },
+    {
+        "key": "portal.booking.done.pending.title",
+        "value": "Request sent"
+    },
+    {
+        "key": "portal.booking.done.pending.body",
+        "value": "The clinic will confirm your appointment; we will let you know by WhatsApp or email."
+    },
+    {
+        "key": "portal.booking.done.confirmed.title",
+        "value": "Your appointment is confirmed!"
+    },
+    {
+        "key": "portal.booking.done.confirmed.body",
+        "value": "See you then. If you can't make it, cancel it here."
+    },
+    {
+        "key": "portal.booking.done.back",
+        "value": "See my appointments"
+    },
+    {
+        "key": "portal.booking.pending_title",
+        "value": "Awaiting confirmation"
+    },
+    {
+        "key": "portal.booking.pending",
+        "value": "Awaiting confirmation"
+    },
+    {
+        "key": "portal.booking.expires",
+        "value": "If the clinic doesn't reply, the request expires {when}"
+    },
+    {
+        "key": "portal.booking.cancel_request",
+        "value": "Cancel request"
+    },
+    {
+        "key": "portal.booking.cancel_request.title",
+        "value": "Cancel this request?"
+    },
+    {
+        "key": "portal.booking.cancel_request.body",
+        "value": "The time will be free for other patients."
+    },
+    {
+        "key": "portal.booking.cancel_appointment",
+        "value": "Cancel appointment"
+    },
+    {
+        "key": "portal.booking.cancel_appointment.title",
+        "value": "Cancel your appointment?"
+    },
+    {
+        "key": "portal.booking.cancel_appointment.body",
+        "value": "We will let the clinic know. If you want another date, you can request a new appointment."
+    },
+    {
+        "key": "portal.booking.keep",
+        "value": "No, keep it"
+    },
+    {
+        "key": "portal.booking.call_to_cancel",
+        "value": "To cancel or change this appointment, call the clinic."
+    },
+    {
+        "key": "portal.booking.closed_title",
+        "value": "Requests not confirmed"
+    },
+    {
+        "key": "portal.booking.status.rejected",
+        "value": "The clinic could not confirm this request"
+    },
+    {
+        "key": "portal.booking.status.expired",
+        "value": "The request expired without an answer"
+    },
+    {
+        "key": "portal.booking.status.cancelled",
+        "value": "You cancelled this request"
+    },
+    {
+        "key": "portal.booking.reject_reason",
+        "value": "Reason: {reason}"
+    },
+    {
+        "key": "nav.item.appointment_requests",
+        "value": "Appointment requests"
+    },
+    {
+        "key": "appointment_requests.title",
+        "value": "Portal appointment requests"
+    },
+    {
+        "key": "appointment_requests.description",
+        "value": "Appointments your patients requested from the portal. Approve them to book the appointment or reject them."
+    },
+    {
+        "key": "appointment_requests.filter.pending",
+        "value": "Pending"
+    },
+    {
+        "key": "appointment_requests.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "appointment_requests.column.patient",
+        "value": "Patient"
+    },
+    {
+        "key": "appointment_requests.column.when",
+        "value": "Date and time"
+    },
+    {
+        "key": "appointment_requests.column.doctor",
+        "value": "Doctor"
+    },
+    {
+        "key": "appointment_requests.column.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "appointment_requests.column.status",
+        "value": "Status"
+    },
+    {
+        "key": "appointment_requests.status.pending",
+        "value": "Pending"
+    },
+    {
+        "key": "appointment_requests.status.approved",
+        "value": "Approved"
+    },
+    {
+        "key": "appointment_requests.status.rejected",
+        "value": "Rejected"
+    },
+    {
+        "key": "appointment_requests.status.cancelled",
+        "value": "Cancelled by the patient"
+    },
+    {
+        "key": "appointment_requests.status.expired",
+        "value": "Expired"
+    },
+    {
+        "key": "appointment_requests.expires",
+        "value": "Expires"
+    },
+    {
+        "key": "appointment_requests.action.approve",
+        "value": "Approve"
+    },
+    {
+        "key": "appointment_requests.action.reject",
+        "value": "Reject"
+    },
+    {
+        "key": "appointment_requests.empty.pending",
+        "value": "No pending requests."
+    },
+    {
+        "key": "appointment_requests.empty.all",
+        "value": "No appointment requests from the portal yet."
+    },
+    {
+        "key": "appointment_requests.reject.title",
+        "value": "Reject request"
+    },
+    {
+        "key": "appointment_requests.reject.description",
+        "value": "We will tell {patient} it could not be confirmed and that they can pick another time in the portal."
+    },
+    {
+        "key": "appointment_requests.reject.reason",
+        "value": "Reason for the patient"
+    },
+    {
+        "key": "appointment_requests.reject.reason.placeholder",
+        "value": "E.g. the doctor is not in that day"
+    },
+    {
+        "key": "appointment_requests.reject.reason.description",
+        "value": "The patient will see it in the portal."
+    },
+    {
+        "key": "appointment_requests.reject.error.too_long",
+        "value": "500 characters at most"
+    },
+    {
+        "key": "settings.portal.booking.title",
+        "value": "Online booking"
+    },
+    {
+        "key": "settings.portal.booking.help",
+        "value": "Patients request an appointment from the portal in the agenda's free times."
+    },
+    {
+        "key": "settings.portal.booking.opt_in_help",
+        "value": "Only doctors with \"Accepts online booking\" and appointment types marked for the portal are offered."
+    },
+    {
+        "key": "settings.portal.booking.enabled",
+        "value": "Let patients request appointments from the portal"
+    },
+    {
+        "key": "settings.portal.booking.needs_appointments",
+        "value": "Requires the portal on and its Appointments section visible."
+    },
+    {
+        "key": "settings.portal.booking.choose_by",
+        "value": "The patient picks"
+    },
+    {
+        "key": "settings.portal.booking.choose_by.doctor",
+        "value": "The doctor"
+    },
+    {
+        "key": "settings.portal.booking.choose_by.specialty",
+        "value": "The specialty (the clinic assigns the doctor)"
+    },
+    {
+        "key": "settings.portal.booking.auto_confirm",
+        "value": "Confirm automatically"
+    },
+    {
+        "key": "settings.portal.booking.auto_confirm.description",
+        "value": "The appointment is booked without the clinic approving it."
+    },
+    {
+        "key": "settings.portal.booking.expiry",
+        "value": "Request expiry"
+    },
+    {
+        "key": "settings.portal.booking.expiry.description",
+        "value": "If nobody approves it within this time, the request expires and the time is freed."
+    },
+    {
+        "key": "settings.portal.booking.hours",
+        "value": "{count} hours"
+    },
+    {
+        "key": "settings.portal.booking.min_notice",
+        "value": "Minimum notice (hours)"
+    },
+    {
+        "key": "settings.portal.booking.min_notice.description",
+        "value": "From 0 to 72."
+    },
+    {
+        "key": "settings.portal.booking.max_days",
+        "value": "Days ahead"
+    },
+    {
+        "key": "settings.portal.booking.max_days.description",
+        "value": "From 1 to 180."
+    },
+    {
+        "key": "settings.portal.booking.cancel_notice",
+        "value": "Cancel up to (hours before)"
+    },
+    {
+        "key": "settings.portal.booking.cancel_notice.description",
+        "value": "From 0 to 168. After that, the patient must call."
+    },
+    {
+        "key": "settings.portal.booking.error.min_notice",
+        "value": "Enter a whole number between 0 and 72"
+    },
+    {
+        "key": "settings.portal.booking.error.max_days",
+        "value": "Enter a whole number between 1 and 180"
+    },
+    {
+        "key": "settings.portal.booking.error.cancel_notice",
+        "value": "Enter a whole number between 0 and 168"
+    },
+    {
+        "key": "doctors.form.portal_bookable",
+        "value": "Accepts online booking"
+    },
+    {
+        "key": "doctors.form.portal_bookable.description",
+        "value": "Patients can request appointments with this doctor from the portal, within their schedule."
+    },
+    {
+        "key": "agenda.types.field.portal_bookable",
+        "value": "Can be requested in the portal"
+    },
+    {
+        "key": "agenda.types.field.portal_bookable_hint",
+        "value": "Patients see this appointment type when booking online."
     }
 ]

@@ -219,9 +219,9 @@ func (h *DoctorHandler) GetSpecialties(c *gin.Context) envelope.Response {
 
 // create stores a new active doctor built from req, optionally linked to userID.
 // conflict is returned when the user already has a profile in the tenant.
-func (h *DoctorHandler) create(c *gin.Context, req doctor_dto.DoctorProfileRequest, userID *uint, successKey string, conflict *validationError) envelope.Response {
+func (h *DoctorHandler) create(c *gin.Context, req doctor_dto.DoctorProfileRequest, userID *uint, portalBookable bool, successKey string, conflict *validationError) envelope.Response {
 	db := tenantdb.For(c, h.db)
-	doctor := doctor_models.Doctor{TenantID: tenantdb.TenantID(c), Active: true}
+	doctor := doctor_models.Doctor{TenantID: tenantdb.TenantID(c), Active: true, PortalBookable: portalBookable}
 	if verr := applyProfile(&doctor, profileUpdate(req)); verr != nil {
 		return verr.response()
 	}
@@ -263,11 +263,12 @@ func (h *DoctorHandler) CreateDoctor(c *gin.Context) envelope.Response {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "doctors.error.invalid_request", core_errors.ErrDoctorInvalidRequest)
 	}
-	return h.create(c, req.DoctorProfileRequest, req.UserID, "doctors.create.success", alreadyLinked())
+	return h.create(c, req.DoctorProfileRequest, req.UserID, req.PortalBookable, "doctors.create.success", alreadyLinked())
 }
 
 // update applies a partial profile update to doctor and clears its review flag.
-func (h *DoctorHandler) update(c *gin.Context, db *gorm.DB, doctor *doctor_models.Doctor, successKey string) envelope.Response {
+// admin also lets it change portal_bookable (a clinic decision).
+func (h *DoctorHandler) update(c *gin.Context, db *gorm.DB, doctor *doctor_models.Doctor, admin bool, successKey string) envelope.Response {
 	var req doctor_dto.UpdateDoctorRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "doctors.error.invalid_request", core_errors.ErrDoctorInvalidRequest)
@@ -276,9 +277,13 @@ func (h *DoctorHandler) update(c *gin.Context, db *gorm.DB, doctor *doctor_model
 		return verr.response()
 	}
 	doctor.NeedsReview = false
+	columns := []any{"specialty", "specialty_other", "id_number", "professional_registry", "phone", "email", "color", "needs_review"}
+	if admin && req.PortalBookable != nil {
+		doctor.PortalBookable = *req.PortalBookable
+		columns = append(columns, "portal_bookable")
+	}
 	// Only profile columns: Active and UserID are never written here.
-	if err := db.Model(doctor).Select("full_name", "specialty", "specialty_other", "id_number",
-		"professional_registry", "phone", "email", "color", "needs_review").Updates(doctor).Error; err != nil {
+	if err := db.Model(doctor).Select("full_name", columns...).Updates(doctor).Error; err != nil {
 		h.logger.Error("failed to update doctor", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
@@ -292,7 +297,7 @@ func (h *DoctorHandler) UpdateDoctor(c *gin.Context) envelope.Response {
 	if errResp != nil {
 		return *errResp
 	}
-	return h.update(c, db, doctor, "doctors.update.success")
+	return h.update(c, db, doctor, true, "doctors.update.success")
 }
 
 // LinkUser links the doctor to a user of the tenant, or unlinks it (null).

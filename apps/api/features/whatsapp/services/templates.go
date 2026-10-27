@@ -22,6 +22,7 @@ const (
 	VarDate    = "date"
 	VarTime    = "time"
 	VarCode    = "code"
+	VarDoctor  = "doctor"
 )
 
 // TemplateSpec is one template of the catalog: what is created on the WABA
@@ -107,6 +108,37 @@ var Catalog = []TemplateSpec{
 		Inbox:     true,
 	},
 	PortalCodeTemplate,
+	BookingConfirmedTemplate,
+	BookingNotConfirmedTemplate,
+}
+
+// BookingConfirmedTemplate tells the patient that the appointment they asked
+// for in the patient portal is confirmed. Not an inbox template.
+var BookingConfirmedTemplate = TemplateSpec{
+	Definition: whatsapp.TemplateDefinition{
+		Name:     whatsapp_models.TemplateBookingConfirmed,
+		Language: ReminderLanguage,
+		Category: "UTILITY",
+		Body:     "Hola {{1}}, tu cita en {{2}} con {{3}} está confirmada para el {{4}} a las {{5}}. Si no puedes asistir, responde a este mensaje.",
+		Example:  []string{"María", "Clínica Pengi", "Dra. Ana Ruiz", "lunes 6 de octubre", "10:30"},
+	},
+	Variables:        []string{VarPatient, VarClinic, VarDoctor, VarDate, VarTime},
+	NeedsAppointment: true,
+}
+
+// BookingNotConfirmedTemplate tells the patient that the clinic could not
+// confirm the appointment they asked for (rejected or expired) and that they
+// can pick another time in the portal. Not an inbox template.
+var BookingNotConfirmedTemplate = TemplateSpec{
+	Definition: whatsapp.TemplateDefinition{
+		Name:     whatsapp_models.TemplateBookingNotConfirmed,
+		Language: ReminderLanguage,
+		Category: "UTILITY",
+		Body:     "Hola {{1}}, {{2}} no pudo confirmar tu solicitud de cita del {{3}} a las {{4}}. Puedes elegir otro horario en el portal de pacientes.",
+		Example:  []string{"María", "Clínica Pengi", "lunes 6 de octubre", "10:30"},
+	},
+	Variables:        []string{VarPatient, VarClinic, VarDate, VarTime},
+	NeedsAppointment: true,
 }
 
 // PortalCodeExpirationMinutes is how long a patient portal code lasts; the
@@ -253,6 +285,7 @@ type ReminderData struct {
 	ClinicName  string
 	Start       time.Time // appointment start, in the clinic's time zone
 	Code        string    // one-time code (VarCode)
+	DoctorName  string    // VarDoctor
 }
 
 // TemplateData fills any catalog template; Start is only used by templates
@@ -300,6 +333,8 @@ func TemplateParams(spec TemplateSpec, data TemplateData) []string {
 			params = append(params, data.Start.Format("15:04"))
 		case VarCode:
 			params = append(params, data.Code)
+		case VarDoctor:
+			params = append(params, nonEmpty(data.DoctorName, "tu médico"))
 		}
 	}
 	return params

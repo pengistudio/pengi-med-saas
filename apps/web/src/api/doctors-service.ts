@@ -27,6 +27,8 @@ export interface Doctor extends BaseModel {
 	active: boolean;
 	/** Created by the data migration and not reviewed yet. */
 	needs_review: boolean;
+	/** Patients may request appointments with them from the portal (opt-in). */
+	portal_bookable: boolean;
 }
 
 export interface Specialty {
@@ -54,6 +56,8 @@ export type DoctorProfilePayload = {
 	email?: string;
 	/** Empty: the backend assigns the next palette color. */
 	color?: string;
+	/** Admin create/edit only; left out, the backend keeps the current value. */
+	portal_bookable?: boolean;
 };
 
 export type CreateDoctorPayload = DoctorProfilePayload & {

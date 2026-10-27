@@ -10,6 +10,7 @@ import (
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
+	"pengi-med-saas/core/mailer"
 	core_middleware "pengi-med-saas/core/middleware"
 	"pengi-med-saas/core/secretbox"
 	"pengi-med-saas/core/whatsapp"
@@ -18,6 +19,8 @@ import (
 	"pengi-med-saas/features/health"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
 	notifications_workers "pengi-med-saas/features/notifications/workers"
+	portal_services "pengi-med-saas/features/portal/services"
+	portal_workers "pengi-med-saas/features/portal/workers"
 	settings_models "pengi-med-saas/features/settings/models"
 	whatsapp_services "pengi-med-saas/features/whatsapp/services"
 	whatsapp_workers "pengi-med-saas/features/whatsapp/workers"
@@ -114,6 +117,13 @@ func main() {
 	reminderScheduler := whatsapp_workers.NewReminderScheduler(DB_CONNECTION, logger.Log, whatsapp_services.RabbitPublisher{})
 	go reminderScheduler.Start()
 	logger.Log.Info("whatsapp reminder scheduler started")
+
+	// Initialize patient portal request expiry scheduler (expires undecided
+	// appointment requests and tells the patient)
+	portalNotices := portal_services.NewDelivery(DB_CONNECTION, logger.Log, mailer.NewMailer(), whatsapp.NewFromEnv())
+	requestExpiryScheduler := portal_workers.NewRequestExpiryScheduler(DB_CONNECTION, logger.Log, portalNotices)
+	go requestExpiryScheduler.Start()
+	logger.Log.Info("portal request expiry scheduler started")
 
 	// gin.Default() minus the query string in the access log (it carries the
 	// waiting-room TV token).

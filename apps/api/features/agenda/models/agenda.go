@@ -54,9 +54,12 @@ type AppointmentType struct {
 	Color           string `gorm:"type:varchar(7)" json:"color"` // #RRGGBB or empty
 	// Active is written with Update("active", ...): GORM skips a false zero
 	// value on create and the column default would win.
-	Active    bool                   `gorm:"not null;default:true" json:"active"`
-	Doctors   []doctor_models.Doctor `gorm:"many2many:appointment_type_doctors;" json:"-"`
-	DoctorIDs []uint                 `gorm:"-" json:"doctor_ids"` // filled from Doctors when served
+	Active bool `gorm:"not null;default:true" json:"active"`
+	// PortalBookable: patients can request this type from the patient portal
+	// (opt-in, written with Update like Active).
+	PortalBookable bool                   `gorm:"not null;default:false" json:"portal_bookable"`
+	Doctors        []doctor_models.Doctor `gorm:"many2many:appointment_type_doctors;" json:"-"`
+	DoctorIDs      []uint                 `gorm:"-" json:"doctor_ids"` // filled from Doctors when served
 }
 
 func (AppointmentType) IsAuditable() bool { return true }

@@ -1,5 +1,6 @@
 import {
 	Calendar,
+	CalendarClock,
 	CalendarPlus,
 	FlaskConical,
 	Layers,
@@ -23,6 +24,8 @@ export interface BaseNavItem {
 	/** Required permission(s); with several, the user needs all of them. */
 	permission?: string | string[];
 	feature?: string;
+	/** Off unless `feature` is explicitly true (add-on features like the patient portal). */
+	featureOptIn?: boolean;
 	isBottom?: boolean;
 	/** Title of the sidebar section this item opens; the items after it share it. */
 	section?: string;
@@ -30,7 +33,10 @@ export interface BaseNavItem {
 	badgeKey?: NavBadgeKey;
 }
 
-export type NavBadgeKey = "pendingExamReviews" | "whatsappUnread";
+export type NavBadgeKey =
+	| "pendingExamReviews"
+	| "whatsappUnread"
+	| "pendingAppointmentRequests";
 
 export type NavItemType =
 	| (BaseNavItem & { href: string; accordionItems?: never })
@@ -59,7 +65,10 @@ export const filterNavItems = <T extends BaseNavItem>(
 		(item) =>
 			(!item.permission || checkPermission([item.permission].flat())) &&
 			(!item.feature ||
-				(enabledFeatures as Record<string, boolean>)[item.feature] !== false),
+				(item.featureOptIn
+					? (enabledFeatures as Record<string, boolean>)[item.feature] === true
+					: (enabledFeatures as Record<string, boolean>)[item.feature] !==
+						false)),
 	);
 
 // Factory to create navigation items with localized labels. Items of a section
@@ -96,6 +105,17 @@ export const createNavItems = (
 			icon: Calendar,
 			section: care,
 			...appointments,
+		},
+		{
+			label: textGet("nav.item.appointment_requests"),
+			href: "/appointment-requests",
+			icon: CalendarClock,
+			section: care,
+			badgeKey: "pendingAppointmentRequests",
+			permission:
+				PERMISSIONS.PATIENT_PORTAL.PERMISSION_MANAGE_APPOINTMENT_REQUESTS,
+			feature: "patient_portal",
+			featureOptIn: true,
 		},
 		{
 			label: textGet("dashboard.clinical.waiting_room"),

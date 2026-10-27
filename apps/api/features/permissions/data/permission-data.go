@@ -308,6 +308,18 @@ var PatientPortalPermissions = []permission_models.Permission{
 	},
 }
 
+// AppointmentRequestPermissions guard the clinic's inbox of appointment
+// requests patients make from the portal (list, approve, reject). Category
+// PATIENT_PORTAL: it rides on the same plan Feature as the portal.
+var AppointmentRequestPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_APPOINTMENT_REQUESTS"},
+		Name:         "Manage appointment requests",
+		Category:     "PATIENT_PORTAL",
+		Description:  "See, approve and reject the appointment requests patients make from the patient portal",
+	},
+}
+
 // DoctorPermissions guard the clinic's doctor profiles. Category CLINICAL:
 // doctors only matter with the clinical module (agenda, records, documents),
 // so the permission rides on the CLINICAL Feature. Reading the list for

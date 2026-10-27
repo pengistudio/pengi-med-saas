@@ -112,6 +112,13 @@ func (h *AppointmentHandler) syncDelete(tenantID uint, appointment *clinical_mod
 	}
 }
 
+// SyncCreated creates the Google Calendar event of an appointment created
+// outside this handler (e.g. approved from a patient portal request), like
+// CreateAppointment does. Load Patient first. Errors are logged.
+func (h *AppointmentHandler) SyncCreated(tenantID uint, appointment *clinical_models.Appointment) {
+	h.syncCreate(tenantID, appointment)
+}
+
 // SyncStatusChange mirrors a status change made outside this handler (e.g. a
 // WhatsApp reply) to Google Calendar, like UpdateStatus does: cancelled and
 // completed remove the event, anything else updates it. Errors are logged.

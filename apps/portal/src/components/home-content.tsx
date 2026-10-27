@@ -19,7 +19,7 @@ import { ResultsSection } from "@/components/sections/results-section";
 const SECTIONS: {
 	key: keyof Me["clinic"]["sections"];
 	icon: LucideIcon;
-	Component: () => React.ReactNode;
+	Component: (props: { clinic: Me["clinic"] }) => React.ReactNode;
 }[] = [
 	{ key: "appointments", icon: CalendarDays, Component: AppointmentsSection },
 	{ key: "results", icon: FlaskConical, Component: ResultsSection },
@@ -106,7 +106,7 @@ export function HomeContent({
 							{tabs("top")}
 						</nav>
 					)}
-					<current.Component />
+					<current.Component clinic={me.clinic} />
 					{enabled.length > 1 && (
 						<nav
 							aria-label={textGet("portal.home.sections")}

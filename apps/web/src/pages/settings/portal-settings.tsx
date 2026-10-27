@@ -1,24 +1,16 @@
 import { useText } from "@pengi/shared";
 import { Button } from "@pengi/ui";
-import { ArrowLeft, Check, Copy } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
 import {
+	DEFAULT_PORTAL_BOOKING,
 	getPortalSettings,
-	type PortalSections,
 	type PortalSettings,
 	updatePortalSettings,
 } from "@/api/portal-settings-service";
 import { PageHeader } from "@/components/custom/page-header";
-import { SettingsSection } from "@/components/custom/settings-section";
-import { Switch } from "@/components/ui/switch";
-
-const SECTION_KEYS: (keyof PortalSections)[] = [
-	"appointments",
-	"results",
-	"documents",
-	"invoices",
-];
+import { PortalSettingsForm } from "@/sections/forms/settings/portal-settings-form";
 
 const DEFAULTS: PortalSettings = {
 	enabled: false,
@@ -28,45 +20,44 @@ const DEFAULTS: PortalSettings = {
 		documents: true,
 		invoices: true,
 	},
+	booking: DEFAULT_PORTAL_BOOKING,
 };
 
-/** `/settings/portal`: turn the patient portal on and choose what patients see. */
+/** `/settings/portal`: turn the patient portal on, choose what patients see and how they book. */
 export default function PortalSettingsPage() {
 	const { textGet } = useText();
 	const navigate = useNavigate();
-	const [settings, setSettings] = React.useState<PortalSettings>(DEFAULTS);
+	const [settings, setSettings] = React.useState<PortalSettings>();
 	const [portalUrl, setPortalUrl] = React.useState("");
-	const [loaded, setLoaded] = React.useState(false);
 	const [saving, setSaving] = React.useState(false);
-	const [copied, setCopied] = React.useState(false);
 
 	React.useEffect(() => {
 		let active = true;
 		getPortalSettings().then((res) => {
 			if (!active) return;
 			if (res.success && res.data) {
-				const { portal_url, enabled, sections } = res.data;
-				setSettings({ enabled, sections });
+				const { portal_url, enabled, sections, booking } = res.data;
+				setSettings({
+					enabled,
+					sections,
+					// An API without booking yet answers without the block.
+					booking: { ...DEFAULT_PORTAL_BOOKING, ...booking },
+				});
 				setPortalUrl(portal_url);
+			} else {
+				setSettings(DEFAULTS);
 			}
-			setLoaded(true);
 		});
 		return () => {
 			active = false;
 		};
 	}, []);
 
-	const handleSave = async () => {
+	const handleSave = async (values: PortalSettings) => {
 		setSaving(true);
-		const res = await updatePortalSettings(settings);
+		const res = await updatePortalSettings(values);
 		setSaving(false);
 		if (res.success && res.data) setPortalUrl(res.data.portal_url);
-	};
-
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(portalUrl);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
 	};
 
 	return (
@@ -82,84 +73,18 @@ export default function PortalSettingsPage() {
 				}
 			/>
 
-			<SettingsSection
-				title={textGet("settings.portal.access.title")}
-				description={<p>{textGet("settings.portal.access.help")}</p>}
-			>
-				<div className="flex items-center justify-between gap-4">
-					<label htmlFor="portal-enabled" className="text-sm font-medium">
-						{textGet("settings.portal.enabled")}
-					</label>
-					<Switch
-						id="portal-enabled"
-						checked={settings.enabled}
-						disabled={!loaded}
-						onCheckedChange={(enabled) =>
-							setSettings((s) => ({ ...s, enabled }))
-						}
-					/>
+			{settings ? (
+				<PortalSettingsForm
+					initialData={settings}
+					portalUrl={portalUrl}
+					loading={saving}
+					onSubmit={handleSave}
+				/>
+			) : (
+				<div className="flex h-[40vh] items-center justify-center">
+					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
-				<div className="grid gap-1.5">
-					<p className="text-sm font-medium">
-						{textGet("settings.portal.link")}
-					</p>
-					<div className="flex items-center gap-2">
-						<code className="min-w-0 flex-1 truncate rounded-md border bg-muted px-3 py-2 text-sm">
-							{portalUrl}
-						</code>
-						<Button
-							type="button"
-							variant="outline"
-							disabled={!portalUrl}
-							onClick={handleCopy}
-						>
-							{copied ? (
-								<Check className="mr-2 h-4 w-4" />
-							) : (
-								<Copy className="mr-2 h-4 w-4" />
-							)}
-							{textGet(
-								copied ? "settings.portal.copied" : "settings.portal.copy",
-							)}
-						</Button>
-					</div>
-				</div>
-			</SettingsSection>
-
-			<SettingsSection
-				title={textGet("settings.portal.sections.title")}
-				description={<p>{textGet("settings.portal.sections.help")}</p>}
-			>
-				<div className="divide-y">
-					{SECTION_KEYS.map((key) => (
-						<div
-							key={key}
-							className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
-						>
-							<label htmlFor={`portal-section-${key}`} className="text-sm">
-								{textGet(`settings.portal.sections.${key}`)}
-							</label>
-							<Switch
-								id={`portal-section-${key}`}
-								checked={settings.sections[key]}
-								disabled={!settings.enabled}
-								onCheckedChange={(value) =>
-									setSettings((s) => ({
-										...s,
-										sections: { ...s.sections, [key]: value },
-									}))
-								}
-							/>
-						</div>
-					))}
-				</div>
-			</SettingsSection>
-
-			<div className="flex justify-end">
-				<Button onClick={handleSave} disabled={!loaded || saving}>
-					{textGet("settings.portal.save")}
-				</Button>
-			</div>
+			)}
 		</main>
 	);
 }

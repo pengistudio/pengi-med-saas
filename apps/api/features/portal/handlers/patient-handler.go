@@ -20,6 +20,7 @@ import (
 	doctor_models "pengi-med-saas/features/doctors/models"
 	portal_dto "pengi-med-saas/features/portal/dto"
 	portal_middleware "pengi-med-saas/features/portal/middleware"
+	portal_services "pengi-med-saas/features/portal/services"
 	whatsapp_services "pengi-med-saas/features/whatsapp/services"
 
 	"github.com/gin-gonic/gin"
@@ -125,6 +126,8 @@ func (h *PatientHandler) Me(c *gin.Context) envelope.Response {
 // ListAppointments is GET /portal/appointments, newest first.
 func (h *PatientHandler) ListAppointments(c *gin.Context) envelope.Response {
 	db, _, patientID := h.session(c)
+	settings := portal_middleware.Clinic(c).Settings
+	now := timeNow()
 	var appts []clinical_models.Appointment
 	if err := db.Preload("Doctor").Where("patient_id = ?", patientID).
 		Order("date DESC").Order("start_time DESC").Order("id DESC").Find(&appts).Error; err != nil {
@@ -153,6 +156,7 @@ func (h *PatientHandler) ListAppointments(c *gin.Context) envelope.Response {
 		item := portal_dto.Appointment{
 			ID: a.ID, Date: clinicDate(a.Date), StartTime: a.StartTime, EndTime: a.EndTime, Status: a.Status,
 			DoctorName: doctorName(a.Doctor, ""), Location: a.Location,
+			CanCancel: portal_services.CanCancel(a, settings, now),
 		}
 		item.Specialty, item.SpecialtyOther = specialty(a.Doctor)
 		if a.AppointmentTypeID != nil {

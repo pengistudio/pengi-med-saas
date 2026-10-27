@@ -73,6 +73,9 @@ func (h *SettingsHandler) UpdateSettings(c *gin.Context) envelope.Response {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "portal.error.invalid_request", core_errors.ErrPortalInvalidData)
 	}
+	if !req.Booking.Valid() {
+		return envelope.ErrorResponse(http.StatusBadRequest, "portal.error.invalid_booking_settings", core_errors.ErrPortalInvalidBookingSettings)
+	}
 	raw, err := json.Marshal(req)
 	if err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "portal.error.invalid_request", core_errors.ErrPortalInvalidData)

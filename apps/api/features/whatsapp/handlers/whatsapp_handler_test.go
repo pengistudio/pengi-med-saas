@@ -78,7 +78,7 @@ func (g *fakeGraph) bodyWith(key, sub string) string {
 func catalogListing(status string) string {
 	names := []string{whatsapp_models.ReminderTemplate, whatsapp_models.TemplateContinueConversation,
 		whatsapp_models.TemplateResultsReady, whatsapp_models.TemplateReschedule, whatsapp_models.TemplateFollowUp,
-		whatsapp_models.TemplatePortalCode}
+		whatsapp_models.TemplatePortalCode, whatsapp_models.TemplateBookingConfirmed, whatsapp_models.TemplateBookingNotConfirmed}
 	items := make([]string, 0, len(names))
 	for i, n := range names {
 		items = append(items, fmt.Sprintf(`{"id":"T%d","name":%q,"status":%q,"language":"es"}`, i, n, status))

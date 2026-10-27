@@ -84,6 +84,9 @@ const SettingsPage = lazy(() => import("@/pages/settings/settings-page"));
 const Signup = lazy(() => import("@/pages/signup/signup-page"));
 const TeamPage = lazy(() => import("@/pages/team/team-page"));
 const AuditLogPage = lazy(() => import("@/pages/audit/audit-log-page"));
+const AppointmentRequestListPage = lazy(
+	() => import("@/pages/appointment-requests/appointment-request-list"),
+);
 const DoctorListPage = lazy(() => import("@/pages/doctors/doctor-list"));
 const CreateDoctorPage = lazy(() => import("@/pages/doctors/create-doctor"));
 const EditDoctorPage = lazy(() => import("@/pages/doctors/edit-doctor"));
@@ -540,6 +543,19 @@ const router = createBrowserRouter([
 								permissions={[PERMISSIONS.AUDIT.PERMISSION_READ_AUDIT_LOG]}
 							>
 								<AuditLogPage />
+							</CheckPermission>
+						),
+					},
+					{
+						path: "/appointment-requests",
+						element: (
+							<CheckPermission
+								permissions={[
+									PERMISSIONS.PATIENT_PORTAL
+										.PERMISSION_MANAGE_APPOINTMENT_REQUESTS,
+								]}
+							>
+								<AppointmentRequestListPage />
 							</CheckPermission>
 						),
 					},

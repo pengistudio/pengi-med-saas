@@ -37,6 +37,7 @@ export default function CreateDoctorPage() {
 				onSubmit={handleSubmit}
 				loading={loading}
 				userOptions={userOptions}
+				showPortalBookable
 			/>
 		</main>
 	);
