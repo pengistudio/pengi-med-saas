@@ -100,6 +100,9 @@ type PortalBooking struct {
 	MinNoticeHours     int    `json:"min_notice_hours"`     // 0..72
 	MaxDaysAhead       int    `json:"max_days_ahead"`       // 1..180
 	CancelNoticeHours  int    `json:"cancel_notice_hours"`  // 0..168
+	// SlotIntervalMinutes is the gap between offered start times: 0 steps by
+	// the appointment type's duration, else 10 | 15 | 20 | 30 | 60.
+	SlotIntervalMinutes int `json:"slot_interval_minutes"`
 }
 
 // DefaultPortalBooking: off, pick a doctor, clinic approval, 24 h expiry,
@@ -117,6 +120,11 @@ func (b PortalBooking) Valid() bool {
 	}
 	switch b.RequestExpiryHours {
 	case 12, 24, 48:
+	default:
+		return false
+	}
+	switch b.SlotIntervalMinutes {
+	case 0, 10, 15, 20, 30, 60:
 	default:
 		return false
 	}

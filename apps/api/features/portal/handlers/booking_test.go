@@ -608,24 +608,26 @@ func TestSettings_BookingValidation(t *testing.T) {
 	for _, bad := range []string{
 		`{"booking":{"request_expiry_hours":36}}`, `{"booking":{"choose_by":"room"}}`, `{"booking":{"min_notice_hours":73}}`,
 		`{"booking":{"max_days_ahead":0}}`, `{"booking":{"max_days_ahead":181}}`, `{"booking":{"cancel_notice_hours":-1}}`,
+		`{"booking":{"slot_interval_minutes":25}}`,
 	} {
 		if resp := put(bad); resp.Code != http.StatusBadRequest {
 			t.Fatalf("%s: %d", bad, resp.Code)
 		}
 	}
-	resp := put(`{"booking":{"enabled":true,"choose_by":"specialty","auto_confirm":true,"request_expiry_hours":48,"min_notice_hours":0,"max_days_ahead":180,"cancel_notice_hours":168}}`)
+	resp := put(`{"booking":{"enabled":true,"choose_by":"specialty","auto_confirm":true,"request_expiry_hours":48,"min_notice_hours":0,"max_days_ahead":180,"cancel_notice_hours":168,"slot_interval_minutes":30}}`)
 	if resp.Code != http.StatusOK {
 		t.Fatalf("valid: %+v", resp)
 	}
 	var saved tenant_models.Tenant
 	tenantdb.System(db).First(&saved, tenant.ID)
 	got := saved.ParsePortalSettings().Booking
-	if !got.Enabled || got.ChooseBy != "specialty" || !got.AutoConfirm || got.RequestExpiryHours != 48 || got.MaxDaysAhead != 180 {
+	if !got.Enabled || got.ChooseBy != "specialty" || !got.AutoConfirm || got.RequestExpiryHours != 48 || got.MaxDaysAhead != 180 ||
+		got.SlotIntervalMinutes != 30 {
 		t.Fatalf("saved = %+v", got)
 	}
 	// Defaults for clinics that never saved booking settings.
 	if d := tenant_models.DefaultPortalSettings().Booking; d.Enabled || d.ChooseBy != "doctor" || d.RequestExpiryHours != 24 ||
-		d.MinNoticeHours != 2 || d.MaxDaysAhead != 60 || d.CancelNoticeHours != 24 {
+		d.MinNoticeHours != 2 || d.MaxDaysAhead != 60 || d.CancelNoticeHours != 24 || d.SlotIntervalMinutes != 0 {
 		t.Fatalf("defaults = %+v", d)
 	}
 }

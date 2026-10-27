@@ -17,6 +17,9 @@ export type PortalBookingChooseBy = "doctor" | "specialty";
 export const REQUEST_EXPIRY_HOURS = [12, 24, 48] as const;
 
 /** Booking from the portal. Effective only with the portal and its appointments section on. */
+/** Gap between offered start times; 0 steps by the type's duration. */
+export const SLOT_INTERVAL_MINUTES = [0, 10, 15, 20, 30, 60] as const;
+
 export type PortalBooking = {
 	enabled: boolean;
 	choose_by: PortalBookingChooseBy;
@@ -29,6 +32,8 @@ export type PortalBooking = {
 	max_days_ahead: number;
 	/** 0..168: the patient may cancel up to this many hours before. */
 	cancel_notice_hours: number;
+	/** Minutes between offered start times; 0 = the appointment type's duration. */
+	slot_interval_minutes: (typeof SLOT_INTERVAL_MINUTES)[number];
 };
 
 export const DEFAULT_PORTAL_BOOKING: PortalBooking = {
@@ -39,6 +44,7 @@ export const DEFAULT_PORTAL_BOOKING: PortalBooking = {
 	min_notice_hours: 2,
 	max_days_ahead: 60,
 	cancel_notice_hours: 24,
+	slot_interval_minutes: 0,
 };
 
 export type PortalSettings = {
