@@ -20,9 +20,11 @@ const slotGrid = 5
 type SlotQuery struct {
 	DoctorIDs []uint
 	Duration  int // minutes of the appointment type
-	From, To  string
-	Now       time.Time
-	Loc       *time.Location
+	// Step is the minutes between candidate start times; 0 steps by Duration.
+	Step     int
+	From, To string
+	Now      time.Time
+	Loc      *time.Location
 	// MinNotice drops start times earlier than Now + MinNotice.
 	MinNotice time.Duration
 	// IgnoreRequestID is a request whose hold does not count (0 = none).
@@ -54,8 +56,8 @@ type busy struct {
 // take a new appointment of q.Duration minutes: inside the doctor's weekly
 // schedule, outside blocks (the doctor's or the clinic's), not overlapping an
 // appointment of the doctor (any status but cancelled) nor a pending,
-// unexpired portal request. Candidates step by the duration from the start of
-// each working range (on the 5-minute grid) and end within it. A doctor
+// unexpired portal request. Candidates step by q.Step (or the duration) from
+// the start of each working range (on the 5-minute grid) and end within it. A doctor
 // without a weekly schedule gets nothing.
 func FreeSlots(db *gorm.DB, q SlotQuery) (FreeSlotMap, error) {
 	out := FreeSlotMap{}
@@ -85,6 +87,10 @@ func FreeSlots(db *gorm.DB, q SlotQuery) (FreeSlotMap, error) {
 		return nil, err
 	}
 
+	step := q.Step
+	if step <= 0 {
+		step = q.Duration
+	}
 	earliest := q.Now.Add(q.MinNotice)
 	for _, doctorID := range q.DoctorIDs {
 		if len(byDoctor[doctorID]) == 0 {
@@ -92,7 +98,7 @@ func FreeSlots(db *gorm.DB, q SlotQuery) (FreeSlotMap, error) {
 		}
 		for d := from; !d.After(to); d = d.AddDate(0, 0, 1) {
 			date := d.Format(DateLayout)
-			times := daySlots(byDoctor[doctorID], blocks, taken, doctorID, date, d.Weekday(), q.Duration, func(start int) bool {
+			times := daySlots(byDoctor[doctorID], blocks, taken, doctorID, date, d.Weekday(), q.Duration, step, func(start int) bool {
 				instant := time.Date(d.Year(), d.Month(), d.Day(), start/60, start%60, 0, 0, q.Loc)
 				return !instant.Before(earliest)
 			})
@@ -110,7 +116,7 @@ func FreeSlots(db *gorm.DB, q SlotQuery) (FreeSlotMap, error) {
 
 // daySlots is one doctor's free start times on date.
 func daySlots(schedules []agenda_models.DoctorSchedule, blocks []agenda_models.ScheduleBlock, taken []busy,
-	doctorID uint, date string, weekday time.Weekday, duration int, notTooSoon func(int) bool) []string {
+	doctorID uint, date string, weekday time.Weekday, duration, step int, notTooSoon func(int) bool) []string {
 	var spans []span
 	for _, b := range blocks {
 		if b.DoctorID != nil && *b.DoctorID != doctorID {
@@ -139,7 +145,7 @@ func daySlots(schedules []agenda_models.DoctorSchedule, blocks []agenda_models.S
 		if rem := start % slotGrid; rem != 0 {
 			start += slotGrid - rem
 		}
-		for s := start; s+duration <= r.end; s += duration {
+		for s := start; s+duration <= r.end; s += step {
 			e := s + duration
 			free := true
 			for _, b := range spans {

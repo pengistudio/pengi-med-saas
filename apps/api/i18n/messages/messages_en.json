@@ -11760,6 +11760,22 @@
         "value": "If nobody approves it within this time, the request expires and the time is freed."
     },
     {
+        "key": "settings.portal.booking.slot_interval",
+        "value": "Time between slots"
+    },
+    {
+        "key": "settings.portal.booking.slot_interval.description",
+        "value": "How often start times are offered. The appointment still lasts as long as its type."
+    },
+    {
+        "key": "settings.portal.booking.slot_interval.type",
+        "value": "By the appointment type's duration"
+    },
+    {
+        "key": "settings.portal.booking.slot_interval.minutes",
+        "value": "Every {count} minutes"
+    },
+    {
         "key": "settings.portal.booking.hours",
         "value": "{count} hours"
     },

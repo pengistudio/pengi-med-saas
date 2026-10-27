@@ -112,6 +112,23 @@ func TestFreeSlots_ScheduleGrid(t *testing.T) {
 	}
 }
 
+func TestFreeSlots_Step(t *testing.T) {
+	f := newSlotFixture(t)
+	// 20-minute type offered every 60: whole hours, the last one ends by 12:00.
+	got := f.slots(SlotQuery{From: monday, To: monday, Duration: 20, Step: 60})
+	if !reflect.DeepEqual(got[f.doctor.ID][monday], []string{"08:00", "09:00", "10:00", "11:00"}) {
+		t.Fatalf("step 60 = %v", got[f.doctor.ID][monday])
+	}
+	// 30-minute type every 15: a start is offered only if the whole 30 fit;
+	// 09:00-09:30 taken drops 08:45 and 09:15 too.
+	f.appointment(monday, "09:00", "09:30", "scheduled")
+	got = f.slots(SlotQuery{From: monday, To: monday, Duration: 30, Step: 15})
+	want := []string{"08:00", "08:15", "08:30", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15", "11:30"}
+	if !reflect.DeepEqual(got[f.doctor.ID][monday], want) {
+		t.Fatalf("step 15 = %v", got[f.doctor.ID][monday])
+	}
+}
+
 func TestFreeSlots_NoScheduleNothing(t *testing.T) {
 	f := newSlotFixture(t)
 	got := f.slots(SlotQuery{DoctorIDs: []uint{f.idle.ID}, From: monday, To: monday})

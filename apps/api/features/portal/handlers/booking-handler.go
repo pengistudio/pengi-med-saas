@@ -288,7 +288,7 @@ func (h *BookingHandler) GetSlots(c *gin.Context) envelope.Response {
 		ids = append(ids, d.ID)
 	}
 	free, err := agenda_services.FreeSlots(db, agenda_services.SlotQuery{
-		DoctorIDs: ids, Duration: typ.DurationMinutes, From: from, To: to, Now: now, Loc: portal_services.Location(),
+		DoctorIDs: ids, Duration: typ.DurationMinutes, Step: booking.SlotIntervalMinutes, From: from, To: to, Now: now, Loc: portal_services.Location(),
 		MinNotice: time.Duration(booking.MinNoticeHours) * time.Hour,
 	})
 	if err != nil {
@@ -407,7 +407,7 @@ func (h *BookingHandler) CreateRequest(c *gin.Context) envelope.Response {
 		}
 		for _, d := range ranked {
 			free, err := agenda_services.FreeSlots(tx, agenda_services.SlotQuery{
-				DoctorIDs: []uint{d.ID}, Duration: typ.DurationMinutes, From: body.Date, To: body.Date, Now: now,
+				DoctorIDs: []uint{d.ID}, Duration: typ.DurationMinutes, Step: booking.SlotIntervalMinutes, From: body.Date, To: body.Date, Now: now,
 				Loc: portal_services.Location(), MinNotice: time.Duration(booking.MinNoticeHours) * time.Hour,
 			})
 			if err != nil {

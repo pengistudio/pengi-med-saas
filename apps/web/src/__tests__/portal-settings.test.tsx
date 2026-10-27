@@ -22,6 +22,7 @@ const booking = {
 	min_notice_hours: 2,
 	max_days_ahead: 60,
 	cancel_notice_hours: 24,
+	slot_interval_minutes: 0,
 };
 
 const loaded = {

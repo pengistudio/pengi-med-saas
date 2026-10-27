@@ -11760,6 +11760,22 @@
         "value": "Si nadie lo aprueba en este tiempo, el pedido vence y el horario se libera."
     },
     {
+        "key": "settings.portal.booking.slot_interval",
+        "value": "Intervalo entre horarios"
+    },
+    {
+        "key": "settings.portal.booking.slot_interval.description",
+        "value": "Cada cuánto se ofrecen las horas. La duración de la cita sigue siendo la del tipo de cita."
+    },
+    {
+        "key": "settings.portal.booking.slot_interval.type",
+        "value": "Según la duración del tipo de cita"
+    },
+    {
+        "key": "settings.portal.booking.slot_interval.minutes",
+        "value": "Cada {count} minutos"
+    },
+    {
         "key": "settings.portal.booking.hours",
         "value": "{count} horas"
     },

@@ -14,6 +14,7 @@ import {
 	type PortalSections,
 	type PortalSettings,
 	REQUEST_EXPIRY_HOURS,
+	SLOT_INTERVAL_MINUTES,
 } from "@/api/portal-settings-service";
 import { SettingsSection } from "@/components/custom/settings-section";
 import { FormSwitch } from "@/components/forms/form-switch";
@@ -41,6 +42,7 @@ const formSchema = z.object({
 		choose_by: z.enum(["doctor", "specialty"]),
 		auto_confirm: z.boolean(),
 		request_expiry_hours: z.enum(["12", "24", "48"]),
+		slot_interval_minutes: z.enum(["0", "10", "15", "20", "30", "60"]),
 		min_notice_hours: hours(72, "settings.portal.booking.error.min_notice"),
 		max_days_ahead: z
 			.number({ error: "settings.portal.booking.error.max_days" })
@@ -63,6 +65,9 @@ const toValues = (settings: PortalSettings): PortalSettingsValues => ({
 		request_expiry_hours: String(
 			settings.booking.request_expiry_hours,
 		) as PortalSettingsValues["booking"]["request_expiry_hours"],
+		slot_interval_minutes: String(
+			settings.booking.slot_interval_minutes ?? 0,
+		) as PortalSettingsValues["booking"]["slot_interval_minutes"],
 	},
 });
 
@@ -73,6 +78,9 @@ const toSettings = (values: PortalSettingsValues): PortalSettings => ({
 		request_expiry_hours: Number(
 			values.booking.request_expiry_hours,
 		) as PortalSettings["booking"]["request_expiry_hours"],
+		slot_interval_minutes: Number(
+			values.booking.slot_interval_minutes,
+		) as PortalSettings["booking"]["slot_interval_minutes"],
 	},
 });
 
@@ -204,6 +212,27 @@ export function PortalSettingsForm({
 										label: textGet("settings.portal.booking.hours", {
 											count: h,
 										}),
+									}))}
+								/>
+								<FormSelect
+									field={field}
+									name="booking.slot_interval_minutes"
+									label={textGet("settings.portal.booking.slot_interval")}
+									description={textGet(
+										"settings.portal.booking.slot_interval.description",
+									)}
+									disabled={bookingFields}
+									options={SLOT_INTERVAL_MINUTES.map((m) => ({
+										value: String(m),
+										label:
+											m === 0
+												? textGet("settings.portal.booking.slot_interval.type")
+												: textGet(
+														"settings.portal.booking.slot_interval.minutes",
+														{
+															count: m,
+														},
+													),
 									}))}
 								/>
 								<FormRow cols={3}>
