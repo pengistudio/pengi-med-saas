@@ -103,6 +103,9 @@ type PortalBooking struct {
 	// SlotIntervalMinutes is the gap between offered start times: 0 steps by
 	// the appointment type's duration, else 10 | 15 | 20 | 30 | 60.
 	SlotIntervalMinutes int `json:"slot_interval_minutes"`
+	// NewPatients lets people without a patient record request a first
+	// appointment (Entrega 3). Those requests always need approval.
+	NewPatients bool `json:"new_patients"`
 }
 
 // DefaultPortalBooking: off, pick a doctor, clinic approval, 24 h expiry,
@@ -136,6 +139,12 @@ func (b PortalBooking) Valid() bool {
 // BookingEnabled reports whether patients can book from the portal.
 func (s PortalSettings) BookingEnabled() bool {
 	return s.Enabled && s.Sections.Appointments && s.Booking.Enabled
+}
+
+// NewPatientsEnabled reports whether people without a patient record can
+// request a first appointment: booking is effective and NewPatients is set.
+func (s PortalSettings) NewPatientsEnabled() bool {
+	return s.BookingEnabled() && s.Booking.NewPatients
 }
 
 // PortalSections are the parts of the portal a clinic can show or hide.

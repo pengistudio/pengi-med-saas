@@ -70,3 +70,18 @@ func RecordPortalChange(db *gorm.DB, tenantID, patientID uint, action, entityTyp
 	}
 	_ = tenantdb.ForTenant(db, tenantID).Session(&gorm.Session{NewDB: true}).Create(&log).Error
 }
+
+// RecordPortalGuestChange logs a change made through the patient portal by a
+// person without a patient record (a verified contact requesting a first
+// appointment): like RecordPortalChange, with no PatientID.
+func RecordPortalGuestChange(db *gorm.DB, tenantID uint, action, entityType string, entityID uint) {
+	log := AuditLog{
+		TenantID:   tenantID,
+		ActorType:  ActorPortalPatient,
+		Action:     action,
+		EntityType: entityType,
+		EntityID:   entityID,
+		CreatedAt:  time.Now(),
+	}
+	_ = tenantdb.ForTenant(db, tenantID).Session(&gorm.Session{NewDB: true}).Create(&log).Error
+}

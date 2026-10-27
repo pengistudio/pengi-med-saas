@@ -65,6 +65,7 @@ type bookingFixture struct {
 	delivery *portal_services.Delivery
 	typ      agenda_models.AppointmentType
 	doctor2  doctor_models.Doctor // same specialty as f.doctor, bookable
+	first    *FirstAppointmentHandler
 }
 
 func newBookingFixture(t *testing.T) *bookingFixture {
@@ -108,10 +109,17 @@ func newBookingFixture(t *testing.T) *bookingFixture {
 	b.delivery = portal_services.NewDelivery(f.db, zap.NewNop(), f.mail, nil)
 	bh := NewBookingHandler(f.db, zap.NewNop(), b.delivery, b.calendar).WithSyncAfterCommit()
 	rh := NewRequestHandler(f.db, zap.NewNop(), b.delivery, b.calendar).WithSyncAfterCommit()
+	// Like registerPortalRoutes: the catalog takes a session or a guest token.
+	catalog := f.router.Group("/portal", portal_middleware.RequirePortalSessionOrGuest(f.db), portal_middleware.RequireBooking())
+	catalog.GET("/booking/options", envelope.Handle(bh.GetOptions))
+	catalog.GET("/booking/slots", envelope.Handle(bh.GetSlots))
+	b.first = NewFirstAppointmentHandler(f.db, zap.NewNop(), b.delivery).WithSync().WithCaptcha(nil)
+	f.router.POST("/portal/clinics/:slug/new-patient/code", envelope.Handle(b.first.RequestCode))
+	f.router.POST("/portal/clinics/:slug/new-patient/verify", envelope.Handle(b.first.Verify))
+	guest := f.router.Group("/portal/new-patient", portal_middleware.RequirePortalGuest(f.db), portal_middleware.RequireBooking())
+	guest.POST("/requests", envelope.Handle(b.first.CreateRequest))
 	authed := f.router.Group("/portal", portal_middleware.RequirePortalSession(f.db))
 	booking := authed.Group("", portal_middleware.RequireBooking())
-	booking.GET("/booking/options", envelope.Handle(bh.GetOptions))
-	booking.GET("/booking/slots", envelope.Handle(bh.GetSlots))
 	booking.GET("/booking/requests", envelope.Handle(bh.ListRequests))
 	booking.POST("/booking/requests", envelope.Handle(bh.CreateRequest))
 	booking.POST("/booking/requests/:id/cancel", envelope.Handle(bh.CancelRequest))

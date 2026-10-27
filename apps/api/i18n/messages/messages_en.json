@@ -11830,5 +11830,321 @@
     {
         "key": "agenda.types.field.portal_bookable_hint",
         "value": "Patients see this appointment type when booking online."
+    },
+    {
+        "key": "E-PORTAL-015",
+        "value": "This clinic does not take first-appointment requests online."
+    },
+    {
+        "key": "E-PORTAL-016",
+        "value": "Check your personal details."
+    },
+    {
+        "key": "E-PORTAL-017",
+        "value": "You already have a pending appointment request. Wait for the clinic to answer."
+    },
+    {
+        "key": "E-PORTAL-018",
+        "value": "The clinic has too many pending requests. Try again later or call the clinic."
+    },
+    {
+        "key": "portal.error.new_patients_not_available",
+        "value": "This clinic does not take first-appointment requests online."
+    },
+    {
+        "key": "portal.error.invalid_personal_data",
+        "value": "Check your personal details."
+    },
+    {
+        "key": "portal.error.request_already_pending",
+        "value": "You already have a pending appointment request."
+    },
+    {
+        "key": "portal.error.too_many_new_patient_requests",
+        "value": "The clinic has too many pending requests. Try again later or call the clinic."
+    },
+    {
+        "key": "portal.new_patient.code_sent",
+        "value": "We sent you a verification code."
+    },
+    {
+        "key": "portal.new_patient.verify.success",
+        "value": "Contact verified."
+    },
+    {
+        "key": "portal.new_patient.request.create.success",
+        "value": "Appointment request sent."
+    },
+    {
+        "key": "portal.email.new_patient_code.subject",
+        "value": "Your verification code for {clinic}"
+    },
+    {
+        "key": "portal.email.new_patient_code.heading",
+        "value": "Your verification code"
+    },
+    {
+        "key": "portal.email.new_patient_code.intro",
+        "value": "Use this code to confirm your contact and request your first appointment at {clinic}:"
+    },
+    {
+        "key": "notification.portal.booking.new_patient_request",
+        "value": "New patient: {patient_name} requested a first appointment from the portal on {date} at {time}."
+    },
+    {
+        "key": "portal.new_patient.signin_prompt",
+        "value": "First time at {clinic}?"
+    },
+    {
+        "key": "portal.new_patient.signin_link",
+        "value": "Request your first appointment"
+    },
+    {
+        "key": "portal.new_patient.intro",
+        "value": "Request your first appointment at {clinic}. First we confirm your contact with a 6-digit code."
+    },
+    {
+        "key": "portal.new_patient.step.contact",
+        "value": "Confirm your contact"
+    },
+    {
+        "key": "portal.new_patient.step.code",
+        "value": "Enter the code"
+    },
+    {
+        "key": "portal.new_patient.step.details",
+        "value": "Your details"
+    },
+    {
+        "key": "portal.new_patient.channel",
+        "value": "Where should we send the code?"
+    },
+    {
+        "key": "portal.new_patient.channel.whatsapp",
+        "value": "WhatsApp"
+    },
+    {
+        "key": "portal.new_patient.channel.email",
+        "value": "Email"
+    },
+    {
+        "key": "portal.new_patient.contact.whatsapp",
+        "value": "Your WhatsApp number"
+    },
+    {
+        "key": "portal.new_patient.contact.email",
+        "value": "Your email"
+    },
+    {
+        "key": "portal.new_patient.contact.whatsapp.placeholder",
+        "value": "0991234567"
+    },
+    {
+        "key": "portal.new_patient.contact.email.placeholder",
+        "value": "name@email.com"
+    },
+    {
+        "key": "portal.new_patient.contact.hint",
+        "value": "We'll let you know here when the clinic reviews your request."
+    },
+    {
+        "key": "portal.new_patient.code_sent.whatsapp",
+        "value": "We sent a 6-digit code by WhatsApp to {contact}. Enter it here."
+    },
+    {
+        "key": "portal.new_patient.code_sent.email",
+        "value": "We sent a 6-digit code to {contact}. Check your spam folder too."
+    },
+    {
+        "key": "portal.new_patient.verify",
+        "value": "Continue"
+    },
+    {
+        "key": "portal.new_patient.change_contact",
+        "value": "Use another contact"
+    },
+    {
+        "key": "portal.new_patient.not_accepted.title",
+        "value": "First appointments can't be requested online right now"
+    },
+    {
+        "key": "portal.new_patient.not_accepted.body",
+        "value": "Call the clinic to book your first appointment."
+    },
+    {
+        "key": "portal.new_patient.verified",
+        "value": "Verified"
+    },
+    {
+        "key": "portal.new_patient.first_name",
+        "value": "First names"
+    },
+    {
+        "key": "portal.new_patient.last_name",
+        "value": "Last names"
+    },
+    {
+        "key": "portal.new_patient.document_type",
+        "value": "ID document"
+    },
+    {
+        "key": "portal.new_patient.document_type.cedula",
+        "value": "Cédula"
+    },
+    {
+        "key": "portal.new_patient.document_type.passport",
+        "value": "Passport"
+    },
+    {
+        "key": "portal.new_patient.document.cedula",
+        "value": "Cédula number"
+    },
+    {
+        "key": "portal.new_patient.document.passport",
+        "value": "Passport number"
+    },
+    {
+        "key": "portal.new_patient.birth_date",
+        "value": "Date of birth"
+    },
+    {
+        "key": "portal.new_patient.phone",
+        "value": "Mobile phone"
+    },
+    {
+        "key": "portal.new_patient.email",
+        "value": "Email"
+    },
+    {
+        "key": "portal.new_patient.whatsapp_opt_in",
+        "value": "Send me appointment reminders by WhatsApp"
+    },
+    {
+        "key": "portal.new_patient.whatsapp_opt_in.description",
+        "value": "You can stop them at any time."
+    },
+    {
+        "key": "portal.new_patient.continue",
+        "value": "Continue"
+    },
+    {
+        "key": "portal.new_patient.summary",
+        "value": "Your details"
+    },
+    {
+        "key": "portal.new_patient.edit",
+        "value": "Change"
+    },
+    {
+        "key": "portal.new_patient.done.title",
+        "value": "Request sent"
+    },
+    {
+        "key": "portal.new_patient.done.body.whatsapp",
+        "value": "The clinic will review your details and let you know by WhatsApp."
+    },
+    {
+        "key": "portal.new_patient.done.body.email",
+        "value": "The clinic will review your details and let you know by email."
+    },
+    {
+        "key": "portal.new_patient.done.back",
+        "value": "Back to start"
+    },
+    {
+        "key": "portal.new_patient.error.contact_phone",
+        "value": "Enter a valid mobile number, e.g. 0991234567."
+    },
+    {
+        "key": "portal.new_patient.error.contact_email",
+        "value": "Enter a valid email, e.g. name@email.com."
+    },
+    {
+        "key": "portal.new_patient.error.expired",
+        "value": "Your verification expired. Request a new code to continue."
+    },
+    {
+        "key": "portal.new_patient.error.slot_taken",
+        "value": "That time was just taken. Please choose another one."
+    },
+    {
+        "key": "portal.new_patient.error.already_pending",
+        "value": "You already have an appointment request waiting for an answer. The clinic will contact you soon."
+    },
+    {
+        "key": "portal.new_patient.error.clinic_full",
+        "value": "The clinic is receiving many requests. Try again later or call to book."
+    },
+    {
+        "key": "portal.new_patient.error.invalid_data",
+        "value": "Check your details: something is not right."
+    },
+    {
+        "key": "portal.new_patient.error.first_name",
+        "value": "Enter your first names"
+    },
+    {
+        "key": "portal.new_patient.error.last_name",
+        "value": "Enter your last names"
+    },
+    {
+        "key": "portal.new_patient.error.name_too_long",
+        "value": "100 characters at most"
+    },
+    {
+        "key": "portal.new_patient.error.cedula",
+        "value": "This cédula is not valid. Check the 10 digits."
+    },
+    {
+        "key": "portal.new_patient.error.passport",
+        "value": "Enter 5 to 20 letters or digits"
+    },
+    {
+        "key": "portal.new_patient.error.birth_date",
+        "value": "Enter a valid date of birth"
+    },
+    {
+        "key": "portal.new_patient.error.phone",
+        "value": "Enter a valid mobile number"
+    },
+    {
+        "key": "portal.new_patient.error.email",
+        "value": "Enter a valid email"
+    },
+    {
+        "key": "settings.portal.booking.new_patients",
+        "value": "Accept new patients"
+    },
+    {
+        "key": "settings.portal.booking.new_patients.description",
+        "value": "People without a record can request their first appointment. They always need your approval."
+    },
+    {
+        "key": "appointment_requests.new_patient.badge",
+        "value": "New patient"
+    },
+    {
+        "key": "appointment_requests.new_patient.cedula",
+        "value": "Cédula"
+    },
+    {
+        "key": "appointment_requests.new_patient.passport",
+        "value": "Passport"
+    },
+    {
+        "key": "appointment_requests.new_patient.verified.whatsapp",
+        "value": "Contact verified by WhatsApp"
+    },
+    {
+        "key": "appointment_requests.new_patient.verified.email",
+        "value": "Contact verified by email"
+    },
+    {
+        "key": "appointment_requests.new_patient.matching",
+        "value": "A record with this ID already exists: {name}. It will be linked on approval."
+    },
+    {
+        "key": "appointment_requests.new_patient.will_create",
+        "value": "A record will be created on approval."
     }
 ]

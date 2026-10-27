@@ -25,6 +25,8 @@ export type PortalBooking = {
 	choose_by: PortalBookingChooseBy;
 	/** Requests become appointments without the clinic approving them. */
 	auto_confirm: boolean;
+	/** People without a record may request a first appointment (always approved by hand). */
+	new_patients: boolean;
 	request_expiry_hours: (typeof REQUEST_EXPIRY_HOURS)[number];
 	/** 0..72: the earliest bookable time is now + this. */
 	min_notice_hours: number;
@@ -40,6 +42,7 @@ export const DEFAULT_PORTAL_BOOKING: PortalBooking = {
 	enabled: false,
 	choose_by: "doctor",
 	auto_confirm: false,
+	new_patients: false,
 	request_expiry_hours: 24,
 	min_notice_hours: 2,
 	max_days_ahead: 60,

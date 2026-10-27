@@ -227,4 +227,9 @@ var (
 	ErrPortalCancelTooLate          AppError = NewAppError("E-PORTAL-012", "This appointment can no longer be cancelled online. Call the clinic.")
 	ErrPortalRequestNotPending      AppError = NewAppError("E-PORTAL-013", "The appointment request is no longer pending.")
 	ErrPortalInvalidBookingSettings AppError = NewAppError("E-PORTAL-014", "Invalid online booking settings.")
+	// Entrega 3: first appointments of people without a patient record.
+	ErrPortalNewPatientsNotAvailable AppError = NewAppError("E-PORTAL-015", "This clinic does not take first-appointment requests online.")
+	ErrPortalInvalidPersonalData     AppError = NewAppError("E-PORTAL-016", "Check your personal data.")
+	ErrPortalRequestAlreadyPending   AppError = NewAppError("E-PORTAL-017", "You already have a pending appointment request.")
+	ErrPortalTooManyNewPatients      AppError = NewAppError("E-PORTAL-018", "The clinic has too many pending requests. Try again later or call the clinic.")
 )

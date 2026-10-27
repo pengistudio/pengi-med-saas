@@ -148,7 +148,7 @@ func newFixture(t *testing.T) *fixture {
 		&clinical_models.MedicalRecord{}, &clinical_models.Prescription{}, &clinical_models.MedicalCertificate{}, &clinical_models.MedicalReport{},
 		&clinical_models.PatientAttachment{}, &clinical_models.ExamOrder{}, &clinical_models.ExamOrderItem{},
 		&billing_models.Invoice{}, &billing_models.InvoiceItem{},
-		&portal_models.PortalLoginCode{}, &audit.AuditLog{},
+		&portal_models.PortalLoginCode{}, &portal_models.PortalContactCode{}, &audit.AuditLog{},
 		&whatsapp_models.WhatsAppAccount{}, &whatsapp_models.WhatsAppTemplate{}, &whatsapp_models.WhatsAppMessage{},
 	)
 	f := &fixture{t: t, db: db, mail: &fakeMailer{}, graph: &fakeGraph{}, files: tenantfiles.Memory(), attach: tenantfiles.Memory()}
@@ -730,7 +730,7 @@ func TestGetClinic_PublicCard(t *testing.T) {
 	}
 	_ = json.Unmarshal(r.Raw, &envelopeBody)
 	data := string(envelopeBody.Data)
-	want := fmt.Sprintf(`{"name":"Clínica own","slug":"%s","has_logo":false,"sections":{"appointments":true,"results":true,"documents":true,"invoices":true},"booking":{"enabled":false,"choose_by":"doctor"},"channels":{"whatsapp":false,"email":true}}`, f.own.Slug)
+	want := fmt.Sprintf(`{"name":"Clínica own","slug":"%s","has_logo":false,"sections":{"appointments":true,"results":true,"documents":true,"invoices":true},"booking":{"enabled":false,"choose_by":"doctor","new_patients":false},"channels":{"whatsapp":false,"email":true}}`, f.own.Slug)
 	if data != want {
 		t.Fatalf("clinic = %s", data)
 	}

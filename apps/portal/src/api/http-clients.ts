@@ -1,3 +1,4 @@
+import type { CustomAxiosRequestConfig } from "@pengi/shared";
 import { useMessageStore } from "@pengi/shared";
 import axios, {
 	type AxiosError,
@@ -58,13 +59,30 @@ export function refreshAccessToken(): Promise<string | undefined> {
 	return refreshing;
 }
 
+/** A request made with a new patient's guest token instead of the session. */
+type GuestFlag = { portalGuest?: boolean };
+
+/**
+ * Config for a request with a guest token (new patients, no session): it is
+ * sent as is, never swapped for the session's token nor refreshed on a 401.
+ */
+export function guestConfig(guestToken: string): CustomAxiosRequestConfig {
+	const config: CustomAxiosRequestConfig & GuestFlag = {
+		headers: { Authorization: `Bearer ${guestToken}` },
+		portalGuest: true,
+	};
+	return config;
+}
+
 portalApi.interceptors.request.use((config) => {
+	if ((config as GuestFlag).portalGuest) return config;
 	const token = useSessionStore.getState().accessToken;
 	if (token) config.headers.Authorization = `Bearer ${token}`;
 	return config;
 });
 
-type Retriable = InternalAxiosRequestConfig & { _retried?: boolean };
+type Retriable = InternalAxiosRequestConfig &
+	GuestFlag & { _retried?: boolean };
 
 // On a 401 try the refresh cookie once; if that fails the session is over
 // (the store clears and the home page sends the patient back to sign in).
@@ -74,6 +92,7 @@ portalApi.interceptors.response.use(undefined, async (error: AxiosError) => {
 		error.response?.status !== 401 ||
 		!config ||
 		config._retried ||
+		config.portalGuest ||
 		NO_REFRESH.some((path) => config.url?.startsWith(path))
 	) {
 		return Promise.reject(error);

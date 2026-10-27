@@ -1,7 +1,7 @@
 import { useText } from "@pengi/shared";
 import { Spinner } from "@pengi/ui";
 import React from "react";
-import { Navigate, useNavigate, useParams } from "react-router";
+import { Link, Navigate, useNavigate, useParams } from "react-router";
 import { type Clinic, getClinic } from "@/api/portal-service";
 import { ClinicBrand } from "@/components/clinic-brand";
 import { SignInForm } from "@/components/sign-in-form";
@@ -58,6 +58,19 @@ export function SignInPage() {
 						navigate(`/${slug}`, { replace: true });
 					}}
 				/>
+				{clinic.booking?.new_patients && (
+					<p className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
+						{textGet("portal.new_patient.signin_prompt", {
+							clinic: clinic.name,
+						})}{" "}
+						<Link
+							to={`/${slug}/primera-cita`}
+							className="rounded-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+						>
+							{textGet("portal.new_patient.signin_link")}
+						</Link>
+					</p>
+				)}
 			</main>
 		</div>
 	);

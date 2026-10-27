@@ -1,12 +1,14 @@
 import type { DataTableColumnDef } from "@pengi/ui";
 import { Badge, Button, Text } from "@pengi/ui";
 import { Check, X } from "lucide-react";
-import type {
-	AppointmentRequest,
-	AppointmentRequestStatus,
+import {
+	type AppointmentRequest,
+	type AppointmentRequestStatus,
+	requesterName,
 } from "@/api/appointment-request-service";
 import { FormattedDate } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
+import { RequesterCell } from "@/components/features/appointment-requests/requester-cell";
 import { specialtyLabel } from "@/components/features/doctors/doctor-utils";
 
 interface AppointmentRequestColumnProps {
@@ -38,22 +40,10 @@ export const getAppointmentRequestColumns = ({
 }: AppointmentRequestColumnProps): DataTableColumnDef<AppointmentRequest>[] => [
 	{
 		id: "patient",
-		accessorFn: (r) => `${r.patient.first_name} ${r.patient.last_name}`,
+		accessorFn: requesterName,
 		meta: { title: "appointment_requests.column.patient", phone: "title" },
 		header: () => <Text uuid="appointment_requests.column.patient" />,
-		cell: ({ row }) => {
-			const { patient } = row.original;
-			return (
-				<div className="min-w-0">
-					<p className="font-medium">
-						{patient.first_name} {patient.last_name}
-					</p>
-					<p className="text-sm text-muted-foreground">
-						{[patient.document, patient.phone].filter(Boolean).join(" · ")}
-					</p>
-				</div>
-			);
-		},
+		cell: ({ row }) => <RequesterCell request={row.original} />,
 	},
 	{
 		id: "when",

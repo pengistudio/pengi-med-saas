@@ -1,13 +1,14 @@
 package portal_services
 
 import (
+	"encoding/json"
 	"strings"
 
 	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/mailer"
 	"pengi-med-saas/core/tenantdb"
-	clinical_models "pengi-med-saas/features/clinical/models"
 	doctor_models "pengi-med-saas/features/doctors/models"
+	portal_dto "pengi-med-saas/features/portal/dto"
 	portal_models "pengi-med-saas/features/portal/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
@@ -23,15 +24,24 @@ const (
 	NoticeEmail    = "email"
 )
 
-// noticeData is what a request notice says.
+// noticeData is what a request notice says, and to whom.
 type noticeData struct {
 	confirmed bool
-	patient   clinical_models.Patient
-	clinic    tenant_models.Tenant
-	doctor    string
-	date      string // "lunes 6 de octubre"
-	time      string // "HH:MM"
-	reason    string // rejection reason, if any
+	name      string // first name of the person told
+	// patientID is the patient told (its WhatsApp thread); nil for a
+	// new-patient request not approved.
+	patientID *uint
+	phone     string // WhatsApp target ("" none)
+	optIn     bool   // WhatsApp consent of the phone's owner
+	email     string // email target ("" none)
+	// newPatient: a first-appointment request, told at its verified contact;
+	// the "not confirmed" action line points to the first-appointment page.
+	newPatient bool
+	clinic     tenant_models.Tenant
+	doctor     string
+	date       string // "lunes 6 de octubre"
+	time       string // "HH:MM"
+	reason     string // rejection reason, if any
 }
 
 // SendRequestNotice tells the patient how their portal request ended:
@@ -39,8 +49,11 @@ type noticeData struct {
 // when the clinic has a connected account with the template approved, the
 // patient has a valid phone and WhatsApp consent and the monthly cap has
 // room; otherwise (or when the send fails) by email when the patient has
-// one; otherwise nothing. Returns the channel used. Never fails the caller:
-// problems are logged.
+// one; otherwise nothing. A new-patient request (approved or not) goes to
+// the contact the person verified (WhatsApp when that was
+// the channel, the verification standing for consent; else, or as the
+// fallback, the verified email or the form's email). Returns the channel
+// used. Never fails the caller: problems are logged.
 func (d *Delivery) SendRequestNotice(tenantID, requestID uint) string {
 	data, ok := d.noticeData(tenantID, requestID)
 	if !ok {
@@ -49,7 +62,7 @@ func (d *Delivery) SendRequestNotice(tenantID, requestID uint) string {
 	if d.sendNoticeWhatsApp(tenantID, requestID, data) {
 		return NoticeWhatsApp
 	}
-	email := strings.TrimSpace(data.patient.Email)
+	email := strings.TrimSpace(data.email)
 	if email == "" || d.mailer == nil {
 		return NoticeNone
 	}
@@ -79,9 +92,19 @@ func (d *Delivery) noticeData(tenantID, requestID uint) (noticeData, bool) {
 	default:
 		return noticeData{}, false
 	}
-	patient, found, err := PatientByID(d.db, tenantID, req.PatientID)
-	if err != nil || !found {
-		return noticeData{}, false
+	if req.NewPatient {
+		// Approved or not, a new patient is told at the contact they verified.
+		if !data.toContact(req) {
+			return noticeData{}, false
+		}
+	} else {
+		patient, found, err := PatientByID(d.db, tenantID, req.PatientID)
+		if err != nil || !found {
+			return noticeData{}, false
+		}
+		id := patient.ID
+		data.name, data.patientID = strings.TrimSpace(patient.FirstName), &id
+		data.phone, data.optIn, data.email = patient.Phone, patient.WhatsAppOptIn, patient.Email
 	}
 	if err := tenantdb.System(d.db).Where("id = ?", tenantID).Limit(1).Find(&data.clinic).Error; err != nil || data.clinic.ID == 0 {
 		return noticeData{}, false
@@ -92,7 +115,7 @@ func (d *Delivery) noticeData(tenantID, requestID uint) (noticeData, bool) {
 	if !ok {
 		return noticeData{}, false
 	}
-	data.patient, data.doctor = patient, doctor.FullName
+	data.doctor = doctor.FullName
 	data.date, data.time = whatsapp_services.SpanishDate(start), req.StartTime
 	return data, true
 }
@@ -104,14 +127,14 @@ func (d *Delivery) sendNoticeWhatsApp(tenantID, requestID uint, data noticeData)
 	if data.confirmed {
 		spec, kind = whatsapp_services.BookingConfirmedTemplate, whatsapp_models.KindBookingConfirmed
 	}
-	if !data.patient.WhatsAppOptIn {
+	if !data.optIn || data.phone == "" {
 		return false
 	}
 	account, token, ok := d.accountWithTemplate(tenantID, spec.Definition.Name)
 	if !ok {
 		return false
 	}
-	to, err := whatsapp_services.NormalizePhone(data.patient.Phone)
+	to, err := whatsapp_services.NormalizePhone(data.phone)
 	if err != nil {
 		return false
 	}
@@ -125,7 +148,7 @@ func (d *Delivery) sendNoticeWhatsApp(tenantID, requestID uint, data noticeData)
 		return false
 	}
 	params := whatsapp_services.TemplateParams(spec, whatsapp_services.TemplateData{
-		PatientName: strings.TrimSpace(data.patient.FirstName),
+		PatientName: data.name,
 		ClinicName:  data.clinic.DisplayName(),
 		DoctorName:  data.doctor,
 	})
@@ -140,11 +163,11 @@ func (d *Delivery) sendNoticeWhatsApp(tenantID, requestID uint, data noticeData)
 		}
 	}
 	scoped := tenantdb.ForTenant(d.db, tenantID)
-	patientID := data.patient.ID
+	patientID := data.patientID
 	msg := whatsapp_models.WhatsAppMessage{
 		TenantID:    tenantID,
 		Kind:        kind,
-		PatientID:   &patientID,
+		PatientID:   patientID,
 		ToPhone:     to,
 		Template:    spec.Definition.Name,
 		Status:      whatsapp_models.MessageStatusSending,
@@ -152,7 +175,7 @@ func (d *Delivery) sendNoticeWhatsApp(tenantID, requestID uint, data noticeData)
 		ContentType: whatsapp_models.ContentText,
 	}
 	// In the patient's thread, so staff see it in the inbox.
-	conv, err := whatsapp_services.EnsureConversation(scoped, tenantID, to, &patientID)
+	conv, err := whatsapp_services.EnsureConversation(scoped, tenantID, to, patientID)
 	if err == nil {
 		err = whatsapp_services.RecordOutbound(scoped, &conv, &msg, now)
 	}
@@ -173,16 +196,20 @@ func (d *Delivery) sendNoticeWhatsApp(tenantID, requestID uint, data noticeData)
 // noticeEmail is the notice's email, in the patients' language.
 func noticeEmail(data noticeData) mailer.PortalNoticeEmail {
 	clinic := data.clinic.DisplayName()
+	link := portalLink(data.clinic.Slug)
+	if data.newPatient && link != "" {
+		link += FirstAppointmentPath
+	}
 	fill := func(key string) string {
 		s := whatsapp_services.PatientText(key)
 		return strings.NewReplacer(
-			"{patient}", strings.TrimSpace(data.patient.FirstName),
+			"{patient}", data.name,
 			"{clinic}", clinic,
 			"{doctor}", data.doctor,
 			"{date}", data.date,
 			"{time}", data.time,
 			"{reason}", data.reason,
-			"{url}", portalLink(data.clinic.Slug),
+			"{url}", link,
 		).Replace(s)
 	}
 	footer := fill("portal.email.booking.footer")
@@ -198,7 +225,7 @@ func noticeEmail(data noticeData) mailer.PortalNoticeEmail {
 	if data.reason != "" {
 		lines = append(lines, fill("portal.email.booking.not_confirmed.reason"))
 	}
-	if portalLink(data.clinic.Slug) != "" {
+	if link != "" {
 		lines = append(lines, fill("portal.email.booking.not_confirmed.action"))
 	} else {
 		lines = append(lines, fill("portal.email.booking.not_confirmed.action_no_link"))
@@ -218,4 +245,32 @@ func portalLink(slug string) string {
 		return ""
 	}
 	return base + "/" + slug
+}
+
+// FirstAppointmentPath is the portal page (under the clinic's link) where a
+// person without a patient record requests a first appointment.
+const FirstAppointmentPath = "/primera-cita"
+
+// toContact aims the notice of a new-patient request at the contact the
+// person verified (approved ones too: the record may lack that contact or
+// WhatsApp consent); false when there is nowhere to send it.
+func (n *noticeData) toContact(req portal_models.AppointmentRequest) bool {
+	var form portal_dto.NewPatientForm
+	if err := json.Unmarshal([]byte(req.NewPatientData), &form); err != nil {
+		return false
+	}
+	n.name, n.newPatient = strings.TrimSpace(form.FirstName), true
+	if req.PatientID != 0 {
+		id := req.PatientID // approved: the message joins the patient's thread
+		n.patientID = &id
+	}
+	switch req.ContactChannel {
+	case portal_models.ChannelWhatsApp:
+		n.phone, n.optIn, n.email = req.ContactValue, true, form.Email
+	case portal_models.ChannelEmail:
+		n.email = req.ContactValue
+	default:
+		return false
+	}
+	return n.phone != "" || n.email != ""
 }
