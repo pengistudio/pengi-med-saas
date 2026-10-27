@@ -99,19 +99,27 @@ export function BookingFlow({ clinic }: { clinic: Me["clinic"] }) {
 	return <BookingSteps options={state.data} home={home} />;
 }
 
-/** Page frame: a back button and a centered column. */
+/** Page frame: a back button and a centered column (wider for the steps). */
 function BookingShell({
 	onBack,
+	wide = false,
 	children,
 }: {
 	/** A path, or a handler for going one step back. */
 	onBack: string | (() => void);
+	/** From `lg`, room for the step aside next to its content. */
+	wide?: boolean;
 	children: React.ReactNode;
 }) {
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	return (
-		<div className="mx-auto min-h-screen w-full max-w-xl px-4 pb-16">
+		<div
+			className={cn(
+				"mx-auto min-h-screen w-full max-w-xl px-4 pb-16",
+				wide && "lg:max-w-5xl lg:px-10",
+			)}
+		>
 			<header className="py-4">
 				<Button
 					type="button"
@@ -215,119 +223,123 @@ export function BookingSteps({
 			: `portal.booking.step.${step}`;
 
 	return (
-		<BookingShell onBack={goBack}>
-			<div className="space-y-1 pb-6">
-				<p className="text-sm text-muted-foreground">
-					{textGet("portal.booking.step_of", {
-						current: position,
-						total: steps.length,
-					})}
-				</p>
-				<div aria-hidden="true" className="flex gap-1 pb-2">
-					{steps.map((s, i) => (
-						<span
-							key={s}
-							className={cn(
-								"h-1 flex-1 rounded-full",
-								i < position ? "bg-primary" : "bg-muted",
-							)}
-						/>
-					))}
-				</div>
-				<h1
-					ref={headingRef}
-					tabIndex={-1}
-					className="text-2xl font-semibold tracking-tight outline-none"
-				>
-					{textGet(titleKey)}
-				</h1>
-				{provider && step !== "provider" && step !== "review" && (
+		<BookingShell onBack={goBack} wide>
+			<div className="lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-16 lg:pt-6">
+				<div className="space-y-1 pb-6 lg:sticky lg:top-8 lg:self-start">
 					<p className="text-sm text-muted-foreground">
-						{[
-							providerText(provider).title,
-							type &&
-								`${type.name} · ${textGet("portal.booking.minutes", { count: type.duration_minutes })}`,
-						]
-							.filter(Boolean)
-							.join(" · ")}
+						{textGet("portal.booking.step_of", {
+							current: position,
+							total: steps.length,
+						})}
 					</p>
-				)}
-			</div>
-
-			{error && (
-				<p
-					role="alert"
-					className="mb-5 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive"
-				>
-					{error.kind === "other"
-						? error.message
-						: textGet(`portal.booking.error.${error.kind}`)}
-				</p>
-			)}
-
-			{step === "provider" && (
-				<OptionList>
-					{providersOf(options).map((p) => {
-						const text = providerText(p);
-						return (
-							<OptionButton
-								key={p.key}
-								leading={
-									p.kind === "doctor" ? (
-										initials(p.doctor.full_name)
-									) : (
-										<Stethoscope className="size-5" />
-									)
-								}
-								title={text.title}
-								subtitle={text.subtitle}
-								onClick={() => setSelection(selectProvider(options, p))}
+					<div aria-hidden="true" className="flex gap-1 pb-2">
+						{steps.map((s, i) => (
+							<span
+								key={s}
+								className={cn(
+									"h-1 flex-1 rounded-full",
+									i < position ? "bg-primary" : "bg-muted",
+								)}
 							/>
-						);
-					})}
-				</OptionList>
-			)}
+						))}
+					</div>
+					<h1
+						ref={headingRef}
+						tabIndex={-1}
+						className="text-2xl font-semibold tracking-tight outline-none"
+					>
+						{textGet(titleKey)}
+					</h1>
+					{provider && step !== "provider" && step !== "review" && (
+						<p className="text-sm text-muted-foreground lg:pt-2 lg:text-[15px]">
+							{[
+								providerText(provider).title,
+								type &&
+									`${type.name} · ${textGet("portal.booking.minutes", { count: type.duration_minutes })}`,
+							]
+								.filter(Boolean)
+								.join(" · ")}
+						</p>
+					)}
+				</div>
 
-			{step === "type" && provider && (
-				<OptionList>
-					{typesFor(options, provider).map((t) => (
-						<OptionButton
-							key={t.id}
-							leading={<Clock className="size-5" />}
-							title={t.name}
-							subtitle={textGet("portal.booking.minutes", {
-								count: t.duration_minutes,
+				<div className="min-w-0">
+					{error && (
+						<p
+							role="alert"
+							className="mb-5 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive"
+						>
+							{error.kind === "other"
+								? error.message
+								: textGet(`portal.booking.error.${error.kind}`)}
+						</p>
+					)}
+
+					{step === "provider" && (
+						<OptionList>
+							{providersOf(options).map((p) => {
+								const text = providerText(p);
+								return (
+									<OptionButton
+										key={p.key}
+										leading={
+											p.kind === "doctor" ? (
+												initials(p.doctor.full_name)
+											) : (
+												<Stethoscope className="size-5" />
+											)
+										}
+										title={text.title}
+										subtitle={text.subtitle}
+										onClick={() => setSelection(selectProvider(options, p))}
+									/>
+								);
 							})}
-							onClick={() => setSelection({ provider, type: t })}
+						</OptionList>
+					)}
+
+					{step === "type" && provider && (
+						<OptionList>
+							{typesFor(options, provider).map((t) => (
+								<OptionButton
+									key={t.id}
+									leading={<Clock className="size-5" />}
+									title={t.name}
+									subtitle={textGet("portal.booking.minutes", {
+										count: t.duration_minutes,
+									})}
+									onClick={() => setSelection({ provider, type: t })}
+								/>
+							))}
+						</OptionList>
+					)}
+
+					{step === "when" && provider && type && (
+						<SlotPicker
+							key={`${provider.key}-${type.id}-${slotsVersion}`}
+							typeId={type.id}
+							target={targetOf(provider)}
+							minDate={options.min_date}
+							maxDate={options.max_date}
+							initialDate={selection.date}
+							onPick={(date, time) => {
+								setError(undefined);
+								setSelection({ provider, type, date, time });
+							}}
 						/>
-					))}
-				</OptionList>
-			)}
+					)}
 
-			{step === "when" && provider && type && (
-				<SlotPicker
-					key={`${provider.key}-${type.id}-${slotsVersion}`}
-					typeId={type.id}
-					target={targetOf(provider)}
-					minDate={options.min_date}
-					maxDate={options.max_date}
-					initialDate={selection.date}
-					onPick={(date, time) => {
-						setError(undefined);
-						setSelection({ provider, type, date, time });
-					}}
-				/>
-			)}
-
-			{step === "review" && provider && type && selection.date && (
-				<ReviewStep
-					selection={{ ...selection, provider, type, date: selection.date }}
-					reason={reason}
-					onReason={setReason}
-					submitting={submitting}
-					onSubmit={submit}
-				/>
-			)}
+					{step === "review" && provider && type && selection.date && (
+						<ReviewStep
+							selection={{ ...selection, provider, type, date: selection.date }}
+							reason={reason}
+							onReason={setReason}
+							submitting={submitting}
+							onSubmit={submit}
+						/>
+					)}
+				</div>
+			</div>
 		</BookingShell>
 	);
 }

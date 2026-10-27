@@ -41,11 +41,12 @@ describe("HomeContent", () => {
 			/>,
 		);
 
-		// Each section is in the top bar (desktop) and the bottom bar (phone).
+		// Each section is in the sidebar (desktop), the top bar (tablet) and the
+		// bottom bar (phone).
 		const section = (key: string) =>
 			screen.queryAllByRole("button", { name: `*portal.section.${key}*` });
-		expect(section("appointments")).toHaveLength(2);
-		expect(section("documents")).toHaveLength(2);
+		expect(section("appointments")).toHaveLength(3);
+		expect(section("documents")).toHaveLength(3);
 		expect(section("results")).toHaveLength(0);
 		expect(section("invoices")).toHaveLength(0);
 		expect(

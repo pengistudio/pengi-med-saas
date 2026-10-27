@@ -60,11 +60,14 @@ function CancelControl({
 	booking,
 	onCancel,
 	className,
+	onTint = false,
 }: {
 	appointment: PortalAppointment;
 	booking: boolean;
 	onCancel: (appointment: PortalAppointment) => void;
 	className?: string;
+	/** On the tinted card: the button needs a white face to stand out. */
+	onTint?: boolean;
 }) {
 	const { textGet } = useText();
 	if (!CANCELLABLE_STATUS.includes(appointment.status)) return null;
@@ -74,7 +77,11 @@ function CancelControl({
 				type="button"
 				variant="secondary"
 				size="sm"
-				className={cn("rounded-full", className)}
+				className={cn(
+					"rounded-full",
+					onTint && "bg-card hover:bg-card/80",
+					className,
+				)}
 				onClick={() => onCancel(appointment)}
 			>
 				{textGet("portal.booking.cancel_appointment")}
@@ -89,7 +96,10 @@ function CancelControl({
 	);
 }
 
-/** The one thing a patient opens the portal for: when and with whom. */
+/**
+ * The one thing a patient opens the portal for: when and with whom. From
+ * `sm` the day is set large on its own, like the page of an appointment book.
+ */
 function NextAppointment({
 	appointment,
 	booking,
@@ -105,33 +115,50 @@ function NextAppointment({
 	return (
 		<section
 			aria-labelledby="next-appointment"
-			className="rounded-3xl bg-secondary px-5 py-6 text-secondary-foreground"
+			className="rounded-3xl bg-secondary px-5 py-6 text-secondary-foreground sm:flex sm:gap-8 sm:px-8 sm:py-8"
 		>
-			<h2 id="next-appointment" className="text-sm font-medium">
-				{textGet("portal.appointments.next")}
-			</h2>
-			<p className="mt-3 text-3xl font-semibold tracking-tight text-foreground first-letter:uppercase">
-				{formatDate(appointment.date, "weekday-day-month")}
-			</p>
-			<p className="text-3xl font-semibold tracking-tight text-primary tabular-nums">
-				{hhmm(appointment.start_time)}
-			</p>
-			<div className="mt-5 space-y-0.5 text-foreground">
-				{appointment.doctor_name && (
-					<p className="font-medium">{nameCase(appointment.doctor_name)}</p>
-				)}
-				{specialty && <p className="text-muted-foreground">{specialty}</p>}
-				{appointment.location && (
-					<p className="text-muted-foreground">{appointment.location}</p>
-				)}
-				<StatusText status={appointment.status} shown={UPCOMING_STATUS} />
+			<div
+				aria-hidden="true"
+				className="hidden w-28 shrink-0 flex-col items-center justify-center border-primary/15 border-r pr-8 leading-none tabular-nums sm:flex"
+			>
+				<span className="text-sm text-muted-foreground first-letter:uppercase">
+					{formatDate(appointment.date, "weekday")}
+				</span>
+				<span className="mt-2 text-7xl font-semibold tracking-tighter text-foreground">
+					{Number(appointment.date.slice(8, 10))}
+				</span>
+				<span className="mt-2 text-sm text-muted-foreground">
+					{formatDate(appointment.date, "month")}
+				</span>
 			</div>
-			<CancelControl
-				appointment={appointment}
-				booking={booking}
-				onCancel={onCancel}
-				className="mt-5 bg-card hover:bg-card/80"
-			/>
+			<div className="min-w-0 flex-1">
+				<h2 id="next-appointment" className="text-sm font-medium">
+					{textGet("portal.appointments.next")}
+				</h2>
+				<p className="mt-3 text-3xl font-semibold tracking-tight text-foreground first-letter:uppercase sm:sr-only">
+					{formatDate(appointment.date, "weekday-day-month")}
+				</p>
+				<p className="text-3xl font-semibold tracking-tight text-primary tabular-nums sm:mt-3 sm:text-5xl">
+					{hhmm(appointment.start_time)}
+				</p>
+				<div className="mt-5 space-y-0.5 text-foreground">
+					{appointment.doctor_name && (
+						<p className="font-medium">{nameCase(appointment.doctor_name)}</p>
+					)}
+					{specialty && <p className="text-muted-foreground">{specialty}</p>}
+					{appointment.location && (
+						<p className="text-muted-foreground">{appointment.location}</p>
+					)}
+					<StatusText status={appointment.status} shown={UPCOMING_STATUS} />
+				</div>
+				<CancelControl
+					appointment={appointment}
+					booking={booking}
+					onCancel={onCancel}
+					onTint
+					className="mt-5"
+				/>
+			</div>
 		</section>
 	);
 }
@@ -312,7 +339,7 @@ export function AppointmentsSection({ clinic }: { clinic: Me["clinic"] }) {
 					to={`/${clinic.slug}/citas/nueva`}
 					className={cn(
 						buttonVariants(),
-						"h-12 w-full gap-2 rounded-full text-base sm:w-auto sm:px-6",
+						"h-12 w-full gap-2 rounded-full text-base sm:w-auto sm:px-6 lg:hidden",
 					)}
 				>
 					<CalendarPlus className="size-5" />

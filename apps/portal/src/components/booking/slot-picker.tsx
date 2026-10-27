@@ -137,7 +137,7 @@ export function SlotPicker({
 
 	return (
 		<div className="space-y-6">
-			<fieldset className="-mx-4 flex min-w-0 snap-x gap-2 overflow-x-auto border-0 px-4 pt-1 pb-3">
+			<fieldset className="-mx-4 flex min-w-0 snap-x gap-2 overflow-x-auto border-0 px-4 pt-1 pb-3 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
 				<legend className="sr-only">{textGet("portal.booking.days")}</legend>
 				{days.map((d) => {
 					const active = d.date === day.date;
@@ -197,7 +197,7 @@ export function SlotPicker({
 				>
 					{formatDate(day.date, "weekday-day-month")}
 				</h2>
-				<ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+				<ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
 					{day.times.map((time) => (
 						<li key={time}>
 							<button
