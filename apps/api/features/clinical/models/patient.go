@@ -51,6 +51,7 @@ const (
 	WhatsAppOptInSourceBulk         = "bulk"          // set from the patient list selection
 	WhatsAppOptInSourceWhatsApp     = "whatsapp"      // the patient replied SÍ when asked by WhatsApp
 	WhatsAppOptInSourceStop         = "whatsapp_stop" // the patient replied STOP / BAJA
+	WhatsAppOptInSourcePortal       = "portal"        // checked on the portal's first-appointment form
 )
 
 func (Patient) IsAuditable() bool { return true }

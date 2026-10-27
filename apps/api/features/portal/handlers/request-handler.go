@@ -1,6 +1,7 @@
 package portal_handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -137,6 +138,10 @@ func (h *RequestHandler) clinicItems(db *gorm.DB, reqs []portal_models.Appointme
 	for _, p := range patients {
 		pByID[p.ID] = p
 	}
+	forms, matches, err := newPatientDetails(db, reqs)
+	if err != nil {
+		return nil, err
+	}
 	dByID := map[uint]doctor_models.Doctor{}
 	for _, d := range doctors {
 		dByID[d.ID] = d
@@ -146,21 +151,71 @@ func (h *RequestHandler) clinicItems(db *gorm.DB, reqs []portal_models.Appointme
 		tByID[t.ID] = t.Name
 	}
 	for _, r := range reqs {
-		p, d := pByID[r.PatientID], dByID[r.DoctorID]
+		d := dByID[r.DoctorID]
 		status := r.Status
 		if status == portal_models.RequestPending && !r.ExpiresAt.After(now) {
 			status = portal_models.RequestExpired
 		}
-		out = append(out, portal_dto.ClinicRequest{
+		var patient *portal_dto.RequestPatient
+		if p, ok := pByID[r.PatientID]; ok && r.PatientID != 0 {
+			patient = &portal_dto.RequestPatient{ID: p.ID, FirstName: p.FirstName, LastName: p.LastName, Document: p.Document, Phone: p.Phone}
+		}
+		item := portal_dto.ClinicRequest{
 			ID: r.ID, Status: status, Date: r.Date, StartTime: r.StartTime, EndTime: r.EndTime,
 			Reason: r.Reason, RejectReason: r.RejectReason, ExpiresAt: r.ExpiresAt, CreatedAt: r.CreatedAt,
 			DecidedAt: r.DecidedAt, AppointmentID: r.AppointmentID, AppointmentTypeID: r.AppointmentTypeID,
 			TypeName: tByID[r.AppointmentTypeID],
-			Patient:  portal_dto.RequestPatient{ID: p.ID, FirstName: p.FirstName, LastName: p.LastName, Document: p.Document, Phone: p.Phone},
+			Patient:  patient,
 			Doctor:   portal_dto.ClinicRequestDoctor{ID: d.ID, FullName: d.FullName, Specialty: d.Specialty, SpecialtyOther: d.SpecialtyOther},
-		})
+		}
+		if form, ok := forms[r.ID]; ok {
+			item.NewPatient = &portal_dto.NewPatientInfo{
+				FirstName: form.FirstName, LastName: form.LastName, DocumentType: form.DocumentType, Document: form.Document,
+				BirthDate: form.BirthDate, Phone: form.Phone, Email: form.Email, ContactChannel: r.ContactChannel,
+			}
+			if m, ok := matches[form.Document]; ok && r.PatientID == 0 {
+				item.MatchingPatient = &portal_dto.MatchingPatient{ID: m.ID, FirstName: m.FirstName, LastName: m.LastName}
+			}
+		}
+		out = append(out, item)
 	}
 	return out, nil
+}
+
+// newPatientDetails decodes the forms of reqs' new-patient requests (by
+// request id) and finds, for those not approved yet, the tenant's existing
+// patient with the same document (by document; the oldest, like
+// PatientByDocument).
+func newPatientDetails(db *gorm.DB, reqs []portal_models.AppointmentRequest) (map[uint]portal_dto.NewPatientForm, map[string]clinical_models.Patient, error) {
+	forms := map[uint]portal_dto.NewPatientForm{}
+	matches := map[string]clinical_models.Patient{}
+	documents := []string{}
+	for _, r := range reqs {
+		if !r.NewPatient {
+			continue
+		}
+		var form portal_dto.NewPatientForm
+		if err := json.Unmarshal([]byte(r.NewPatientData), &form); err != nil {
+			continue
+		}
+		forms[r.ID] = form
+		if r.PatientID == 0 && form.Document != "" {
+			documents = append(documents, form.Document)
+		}
+	}
+	if len(documents) == 0 {
+		return forms, matches, nil
+	}
+	var patients []clinical_models.Patient
+	if err := db.Select("id", "first_name", "last_name", "document").Where("document IN ?", documents).Order("id ASC").Find(&patients).Error; err != nil {
+		return nil, nil, err
+	}
+	for _, p := range patients {
+		if _, ok := matches[p.Document]; !ok {
+			matches[p.Document] = p
+		}
+	}
+	return forms, matches, nil
 }
 
 // item answers one request with message (the i18n key of what was done).
@@ -197,7 +252,9 @@ var errOverlap = errors.New("appointment overlap")
 
 // Approve is POST /appointment-requests/:id/approve: the request must be
 // pending and not expired, and the slot still free of appointments (staff
-// may have booked over it: 409 E-CLIN-009). Creates the appointment.
+// may have booked over it: 409 E-CLIN-009). Creates the appointment. A
+// new-patient request is first linked to the tenant's patient with the same
+// document, or a patient is created from its form (ResolveNewPatient).
 func (h *RequestHandler) Approve(c *gin.Context) envelope.Response {
 	db := tenantdb.For(c, h.db)
 	tenantID := tenantdb.TenantID(c)
@@ -221,12 +278,17 @@ func (h *RequestHandler) Approve(c *gin.Context) envelope.Response {
 		if overlaps {
 			return errOverlap
 		}
+		if req.NewPatient && req.PatientID == 0 {
+			if req.PatientID, err = portal_services.ResolveNewPatient(tx, req, now); err != nil {
+				return err
+			}
+		}
 		if appt, err = portal_services.CreateAppointment(tx, req, portal_services.TypeName(tx, req.AppointmentTypeID)); err != nil {
 			return err
 		}
 		decided := now.UTC()
 		res := pendingScope(tx.Model(&req), now).Updates(map[string]any{
-			"status": portal_models.RequestApproved, "appointment_id": appt.ID,
+			"status": portal_models.RequestApproved, "appointment_id": appt.ID, "patient_id": req.PatientID,
 			"decided_by_user_id": staffUserID(c), "decided_at": decided, "updated_at": decided,
 		})
 		if res.Error != nil {

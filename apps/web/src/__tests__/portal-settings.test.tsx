@@ -18,6 +18,7 @@ const booking = {
 	enabled: false,
 	choose_by: "doctor",
 	auto_confirm: false,
+	new_patients: false,
 	request_expiry_hours: 24,
 	min_notice_hours: 2,
 	max_days_ahead: 60,
@@ -82,18 +83,29 @@ describe("PortalSettingsPage", () => {
 
 		const bookingSwitch = toggle("settings.portal.booking.enabled");
 		expect(bookingSwitch.getAttribute("aria-disabled")).toBe("true");
+		expect(
+			toggle("settings.portal.booking.new_patients").getAttribute(
+				"aria-disabled",
+			),
+		).toBe("true");
 
 		fireEvent.click(toggle("settings.portal.enabled"));
 		expect(bookingSwitch.getAttribute("aria-disabled")).not.toBe("true");
 		fireEvent.click(bookingSwitch);
 		fireEvent.click(toggle("settings.portal.booking.auto_confirm"));
+		fireEvent.click(toggle("settings.portal.booking.new_patients"));
 		fireEvent.click(screen.getByText("*settings.portal.save*"));
 
 		await waitFor(() =>
 			expect(mockUpdate).toHaveBeenCalledWith(
 				expect.objectContaining({
 					enabled: true,
-					booking: { ...booking, enabled: true, auto_confirm: true },
+					booking: {
+						...booking,
+						enabled: true,
+						auto_confirm: true,
+						new_patients: true,
+					},
 				}),
 			),
 		);

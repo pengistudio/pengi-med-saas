@@ -5,6 +5,8 @@ import (
 	"encoding/asn1"
 	"strings"
 	"unicode/utf8"
+
+	"pengi-med-saas/core/ecid"
 )
 
 // Where Ecuadorian CAs put the holder's cédula and RUC. Source: MINTEL's
@@ -82,7 +84,7 @@ func (c *Certificate) TaxIDs() []string {
 	if serial := strings.TrimSpace(c.Cert.Subject.SerialNumber); serial != "" {
 		if strings.HasPrefix(strings.ToUpper(serial), "IDCEC") || strings.HasPrefix(strings.ToUpper(serial), "VATEC") {
 			add(normalizeTaxID(serial))
-		} else if id := normalizeTaxID(serial); validCedula(id) || (len(id) == 13 && strings.HasSuffix(id, "001")) {
+		} else if id := normalizeTaxID(serial); ecid.ValidCedula(id) || (len(id) == 13 && strings.HasSuffix(id, "001")) {
 			add(id)
 		}
 	}
@@ -135,33 +137,6 @@ func digits(s string) string {
 		}
 	}
 	return b.String()
-}
-
-// validCedula checks an Ecuadorian cédula: province 01-24 or 30, third digit
-// below 6, and the módulo-10 check digit.
-func validCedula(id string) bool {
-	if len(id) != 10 || digits(id) != id {
-		return false
-	}
-	province := int(id[0]-'0')*10 + int(id[1]-'0')
-	if (province < 1 || province > 24) && province != 30 {
-		return false
-	}
-	if id[2] >= '6' {
-		return false
-	}
-	sum := 0
-	for i := 0; i < 9; i++ {
-		v := int(id[i] - '0')
-		if i%2 == 0 {
-			v *= 2
-			if v > 9 {
-				v -= 9
-			}
-		}
-		sum += v
-	}
-	return (10-sum%10)%10 == int(id[9]-'0')
 }
 
 // asn1Text decodes a DER-encoded ASN.1 string (UTF8String, PrintableString,

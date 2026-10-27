@@ -34,8 +34,11 @@ type Mailer interface {
 // Translator resolves an i18n key in the patient's language.
 type Translator func(key string) string
 
-// errNoChannel: the code could not be delivered by any channel.
-var errNoChannel = errors.New("portal code not delivered")
+// errNoChannel / ErrNoChannel: the code could not be delivered by any channel.
+var (
+	ErrNoChannel = errors.New("portal code not delivered")
+	errNoChannel = ErrNoChannel
+)
 
 // Delivery issues sign-in codes and sends them: by WhatsApp when the clinic
 // has a connected number with the portal_code template approved, the patient
@@ -130,7 +133,8 @@ func (d *Delivery) SendLoginCode(clinic Clinic, patient clinical_models.Patient,
 	}
 
 	if waTo != "" {
-		if err := d.sendWhatsApp(account, token, patient, waTo, code); err == nil {
+		patientID := patient.ID
+		if err := d.sendWhatsApp(account, token, &patientID, waTo, code); err == nil {
 			return portal_models.ChannelWhatsApp, nil
 		} else {
 			d.logger.Warn("portal: whatsapp code not sent, falling back to email", zap.Uint("tenant_id", tenantID), zap.Error(err))
@@ -142,23 +146,66 @@ func (d *Delivery) SendLoginCode(clinic Clinic, patient clinical_models.Patient,
 			d.logger.Error("portal: failed to record the code's channel", zap.Error(err))
 		}
 	}
-	if err := d.mailer.SendPortalCode(email, codeEmail(clinic, code, tr)); err != nil {
+	if err := d.mailer.SendPortalCode(email, codeEmail(clinic, code, tr, codeEmailSignIn)); err != nil {
 		return "", err
 	}
 	return portal_models.ChannelEmail, nil
 }
 
+// SendContactCode issues a code for a new patient's normalized contact on
+// channel and delivers it there (no fallback: the code must reach the
+// contact being verified). By WhatsApp the clinic needs the portal_code
+// template approved and room under the plan's monthly cap; otherwise nothing
+// is sent (ErrNoChannel). A *LimitError when a budget is spent.
+func (d *Delivery) SendContactCode(clinic Clinic, channel, contact string, tr Translator) error {
+	tenantID := clinic.Tenant.ID
+	now := d.now()
+	var account whatsapp_models.WhatsAppAccount
+	var token string
+	switch channel {
+	case portal_models.ChannelWhatsApp:
+		var ok bool
+		if account, token, ok = d.whatsAppAccount(tenantID); !ok {
+			return errNoChannel
+		}
+		allowed, _, err := whatsapp_services.CanSendTemplate(d.db, tenantID, now)
+		if err != nil {
+			return err
+		}
+		if !allowed {
+			return errNoChannel
+		}
+	case portal_models.ChannelEmail:
+		if d.mailer == nil {
+			return errNoChannel
+		}
+	default:
+		return ErrInvalidContact
+	}
+	code, _, err := IssueContactCode(d.db, tenantID, channel, contact, now)
+	if err != nil {
+		return err
+	}
+	if !config.Get().IsRelease() {
+		// Dev only (no Resend key / no WhatsApp locally): lets a developer verify.
+		d.logger.Info("portal: dev contact code", zap.Uint("tenant_id", tenantID), zap.String("channel", channel), zap.String("code", code))
+	}
+	if channel == portal_models.ChannelWhatsApp {
+		return d.sendWhatsApp(account, token, nil, contact, code)
+	}
+	return d.mailer.SendPortalCode(contact, codeEmail(clinic, code, tr, codeEmailNewPatient))
+}
+
 // sendWhatsApp records the message (kind portal_code, counted toward the
 // monthly cap, outside any conversation, its body without the code) and sends
-// the template.
-func (d *Delivery) sendWhatsApp(account whatsapp_models.WhatsAppAccount, token string, patient clinical_models.Patient, to, code string) error {
+// the template. patientID is nil for a new patient's contact code.
+func (d *Delivery) sendWhatsApp(account whatsapp_models.WhatsAppAccount, token string, patientID *uint, to, code string) error {
 	scoped := tenantdb.ForTenant(d.db, account.TenantID)
 	spec := whatsapp_services.PortalCodeTemplate
-	patientID := patient.ID
 	msg := whatsapp_models.WhatsAppMessage{
 		TenantID:    account.TenantID,
 		Kind:        whatsapp_models.KindPortalCode,
-		PatientID:   &patientID,
+		PatientID:   patientID,
 		ToPhone:     to,
 		Template:    spec.Definition.Name,
 		Status:      whatsapp_models.MessageStatusSending,
@@ -172,8 +219,15 @@ func (d *Delivery) sendWhatsApp(account whatsapp_models.WhatsAppAccount, token s
 	return sender.DeliverTemplate(scoped, &msg, account, token, whatsapp_services.PortalCodeMessage(to, code))
 }
 
-// codeEmail is the email's text in the request's language.
-func codeEmail(clinic Clinic, code string, tr Translator) mailer.PortalCodeEmail {
+// Kinds of code email (the i18n key prefix of their texts).
+const (
+	codeEmailSignIn     = "portal.email.code"
+	codeEmailNewPatient = "portal.email.new_patient_code"
+)
+
+// codeEmail is the email's text in the request's language. kind picks the
+// subject, heading and intro (codeEmail*); expiry and ignore are shared.
+func codeEmail(clinic Clinic, code string, tr Translator, kind string) mailer.PortalCodeEmail {
 	name := clinic.Tenant.DisplayName()
 	fill := func(key string) string {
 		s := tr(key)
@@ -181,9 +235,9 @@ func codeEmail(clinic Clinic, code string, tr Translator) mailer.PortalCodeEmail
 		return strings.ReplaceAll(s, "{minutes}", strconv.Itoa(int(CodeTTL.Minutes())))
 	}
 	return mailer.PortalCodeEmail{
-		Subject: fill("portal.email.code.subject"),
-		Heading: fill("portal.email.code.heading"),
-		Intro:   fill("portal.email.code.intro"),
+		Subject: fill(kind + ".subject"),
+		Heading: fill(kind + ".heading"),
+		Intro:   fill(kind + ".intro"),
 		Code:    code,
 		Expiry:  fill("portal.email.code.expiry"),
 		Ignore:  fill("portal.email.code.ignore"),

@@ -324,6 +324,117 @@ var (
 	errTooMany   = errors.New("too many pending requests")
 )
 
+// slotRequest is a request for a slot checked against the clinic's catalog
+// and booking window, ready to be placed.
+type slotRequest struct {
+	typ     agenda_models.AppointmentType
+	doctors []doctor_models.Doctor // candidates, any order
+	req     portal_models.AppointmentRequest
+}
+
+// prepareRequest checks body against the clinic's window and catalog (db
+// bound to the tenant) and drafts the pending request. ok is false (answer
+// invalidData, or internalError when resp says so) when it can't be placed.
+func (b *bookingSide) prepareRequest(db *gorm.DB, booking tenant_models.PortalBooking, tenantID uint, body portal_dto.CreateRequestBody, now time.Time) (slotRequest, envelope.Response, bool) {
+	body.Reason = strings.TrimSpace(body.Reason)
+	if utf8.RuneCountInString(body.Reason) > maxReasonRunes {
+		return slotRequest{}, invalidData(), false
+	}
+	minDate, maxDate := portal_services.Window(now, booking)
+	if _, ok := agenda_services.ParseDate(body.Date); !ok || body.Date < minDate || body.Date > maxDate {
+		return slotRequest{}, invalidData(), false
+	}
+	startMin, ok := agenda_services.ParseClock(body.StartTime, 5)
+	if !ok {
+		return slotRequest{}, invalidData(), false
+	}
+	k, err := loadCatalog(db)
+	if err != nil {
+		b.logger.Error("portal booking: failed to load options", zap.Error(err))
+		return slotRequest{}, internalError(), false
+	}
+	typ, ok := k.typeByID(body.TypeID)
+	if !ok {
+		return slotRequest{}, invalidData(), false
+	}
+	endMin := startMin + typ.DurationMinutes
+	if endMin > 24*60 {
+		return slotRequest{}, invalidData(), false
+	}
+	doctors := k.candidates(booking.ChooseBy, typ, body.DoctorID, body.Specialty, body.SpecialtyOther)
+	if len(doctors) == 0 {
+		return slotRequest{}, invalidData(), false
+	}
+	start, _ := portal_services.SlotStart(body.Date, body.StartTime)
+	return slotRequest{typ: typ, doctors: doctors, req: portal_models.AppointmentRequest{
+		TenantID: tenantID, AppointmentTypeID: typ.ID, Date: body.Date,
+		StartTime: body.StartTime, EndTime: agenda_services.FormatClock(endMin), Reason: body.Reason,
+		Status: portal_models.RequestPending, ExpiresAt: portal_services.ExpiresAt(now, start, booking.RequestExpiryHours),
+	}}, envelope.Response{}, true
+}
+
+// placeRequest stores sr.req in a transaction: first limits (the caller's
+// locks and caps; its error ends the transaction), then it locks (tenant,
+// doctor, date) of every candidate, re-checks the slot is free and assigns
+// the first free doctor (errSlotTaken if none). With autoConfirm the request
+// is stored approved with its appointment.
+func (b *bookingSide) placeRequest(db *gorm.DB, booking tenant_models.PortalBooking, sr *slotRequest, autoConfirm bool, now time.Time,
+	limits func(tx *gorm.DB) error) (clinical_models.Appointment, error) {
+	req := &sr.req
+	var appt clinical_models.Appointment
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := limits(tx); err != nil {
+			return err
+		}
+		ranked := sr.doctors
+		if len(ranked) > 1 {
+			var err error
+			if ranked, err = portal_services.RankBySchedule(tx, sr.doctors, req.Date); err != nil {
+				return err
+			}
+		}
+		// Lock every candidate in id order before checking any, so two
+		// requests that rank the doctors differently can't deadlock.
+		lockIDs := make([]uint, 0, len(ranked))
+		for _, d := range ranked {
+			lockIDs = append(lockIDs, d.ID)
+		}
+		slices.Sort(lockIDs)
+		for _, id := range lockIDs {
+			if err := portal_services.LockSlot(tx, req.TenantID, id, req.Date); err != nil {
+				return err
+			}
+		}
+		for _, d := range ranked {
+			free, err := agenda_services.FreeSlots(tx, agenda_services.SlotQuery{
+				DoctorIDs: []uint{d.ID}, Duration: sr.typ.DurationMinutes, Step: booking.SlotIntervalMinutes, From: req.Date, To: req.Date, Now: now,
+				Loc: portal_services.Location(), MinNotice: time.Duration(booking.MinNoticeHours) * time.Hour,
+			})
+			if err != nil {
+				return err
+			}
+			if free.Has(d.ID, req.Date, req.StartTime) {
+				req.DoctorID = d.ID
+				break
+			}
+		}
+		if req.DoctorID == 0 {
+			return errSlotTaken
+		}
+		if autoConfirm {
+			created, err := portal_services.CreateAppointment(tx, *req, sr.typ.Name)
+			if err != nil {
+				return err
+			}
+			appt = created
+			decided := now.UTC()
+			req.Status, req.AppointmentID, req.DecidedAt = portal_models.RequestApproved, &appt.ID, &decided
+		}
+		return tx.Create(req).Error
+	})
+	return appt, err
+}
+
 // CreateRequest is POST /portal/booking/requests. Inside a transaction it
 // locks (tenant, doctor, date), re-checks the slot is free and stores the
 // request: pending (holding the slot until it expires), or approved with its
@@ -336,45 +447,13 @@ func (h *BookingHandler) CreateRequest(c *gin.Context) envelope.Response {
 	if err := c.ShouldBindJSON(&body); err != nil {
 		return invalidData()
 	}
-	body.Reason = strings.TrimSpace(body.Reason)
-	if utf8.RuneCountInString(body.Reason) > maxReasonRunes {
-		return invalidData()
-	}
 	now := timeNow()
-	minDate, maxDate := portal_services.Window(now, booking)
-	if _, ok := agenda_services.ParseDate(body.Date); !ok || body.Date < minDate || body.Date > maxDate {
-		return invalidData()
-	}
-	startMin, ok := agenda_services.ParseClock(body.StartTime, 5)
+	sr, resp, ok := h.prepareRequest(db, booking, tenantID, body, now)
 	if !ok {
-		return invalidData()
+		return resp
 	}
-	k, err := loadCatalog(db)
-	if err != nil {
-		h.logger.Error("portal booking: failed to load options", zap.Error(err))
-		return internalError()
-	}
-	typ, ok := k.typeByID(body.TypeID)
-	if !ok {
-		return invalidData()
-	}
-	endMin := startMin + typ.DurationMinutes
-	if endMin > 24*60 {
-		return invalidData()
-	}
-	doctors := k.candidates(booking.ChooseBy, typ, body.DoctorID, body.Specialty, body.SpecialtyOther)
-	if len(doctors) == 0 {
-		return invalidData()
-	}
-	start, _ := portal_services.SlotStart(body.Date, body.StartTime)
-
-	req := portal_models.AppointmentRequest{
-		TenantID: tenantID, PatientID: patient.ID, AppointmentTypeID: typ.ID, Date: body.Date,
-		StartTime: body.StartTime, EndTime: agenda_services.FormatClock(endMin), Reason: body.Reason,
-		Status: portal_models.RequestPending, ExpiresAt: portal_services.ExpiresAt(now, start, booking.RequestExpiryHours),
-	}
-	var appt clinical_models.Appointment
-	err = db.Transaction(func(tx *gorm.DB) error {
+	sr.req.PatientID = patient.ID
+	appt, err := h.placeRequest(db, booking, &sr, booking.AutoConfirm, now, func(tx *gorm.DB) error {
 		if err := portal_services.LockPatient(tx, tenantID, patient.ID); err != nil {
 			return err
 		}
@@ -387,50 +466,7 @@ func (h *BookingHandler) CreateRequest(c *gin.Context) envelope.Response {
 		if pending >= portal_services.MaxPendingRequests {
 			return errTooMany
 		}
-		ranked := doctors
-		if len(doctors) > 1 {
-			if ranked, err = portal_services.RankBySchedule(tx, doctors, body.Date); err != nil {
-				return err
-			}
-		}
-		// Lock every candidate in id order before checking any, so two
-		// requests that rank the doctors differently can't deadlock.
-		lockIDs := make([]uint, 0, len(ranked))
-		for _, d := range ranked {
-			lockIDs = append(lockIDs, d.ID)
-		}
-		slices.Sort(lockIDs)
-		for _, id := range lockIDs {
-			if err := portal_services.LockSlot(tx, tenantID, id, body.Date); err != nil {
-				return err
-			}
-		}
-		for _, d := range ranked {
-			free, err := agenda_services.FreeSlots(tx, agenda_services.SlotQuery{
-				DoctorIDs: []uint{d.ID}, Duration: typ.DurationMinutes, Step: booking.SlotIntervalMinutes, From: body.Date, To: body.Date, Now: now,
-				Loc: portal_services.Location(), MinNotice: time.Duration(booking.MinNoticeHours) * time.Hour,
-			})
-			if err != nil {
-				return err
-			}
-			if free.Has(d.ID, body.Date, body.StartTime) {
-				req.DoctorID = d.ID
-				break
-			}
-		}
-		if req.DoctorID == 0 {
-			return errSlotTaken
-		}
-		if booking.AutoConfirm {
-			created, err := portal_services.CreateAppointment(tx, req, typ.Name)
-			if err != nil {
-				return err
-			}
-			appt = created
-			decided := now.UTC()
-			req.Status, req.AppointmentID, req.DecidedAt = portal_models.RequestApproved, &appt.ID, &decided
-		}
-		return tx.Create(&req).Error
+		return nil
 	})
 	switch {
 	case errors.Is(err, errTooMany):
@@ -441,6 +477,7 @@ func (h *BookingHandler) CreateRequest(c *gin.Context) envelope.Response {
 		h.logger.Error("portal booking: failed to create request", zap.Uint("tenant_id", tenantID), zap.Error(err))
 		return internalError()
 	}
+	req := sr.req
 
 	audit.RecordPortalChange(h.db, tenantID, patient.ID, "CREATE", auditRequests, req.ID)
 	if appt.ID != 0 {

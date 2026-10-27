@@ -16,6 +16,7 @@ import { z } from "zod";
 import {
 	type AppointmentRequest,
 	rejectAppointmentRequest,
+	requesterName,
 } from "@/api/appointment-request-service";
 
 const rejectSchema = z.object({
@@ -63,7 +64,7 @@ export function RejectRequestDialog({
 					<DialogDescription>
 						{request &&
 							textGet("appointment_requests.reject.description", {
-								patient: `${request.patient.first_name} ${request.patient.last_name}`,
+								patient: requesterName(request),
 							})}
 					</DialogDescription>
 				</DialogHeader>

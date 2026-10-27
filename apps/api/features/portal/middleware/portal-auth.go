@@ -22,6 +22,7 @@ import (
 const (
 	ContextClinic  = "portal_clinic"
 	ContextPatient = "portal_patient"
+	ContextGuest   = "portal_guest" // auth.PortalGuestClaims, set by the guest middlewares
 )
 
 // Sections of the portal (RequireSection).
@@ -40,6 +41,86 @@ func unauthorized() envelope.Response {
 // does not exist or a section is hidden.
 func NotAvailable() envelope.Response {
 	return envelope.ErrorResponse(http.StatusNotFound, "portal.error.not_available", core_errors.ErrPortalNotAvailable)
+}
+
+// NewPatientsNotAvailable is the answer when the clinic does not take
+// first-appointment requests from people without a patient record.
+func NewPatientsNotAvailable() envelope.Response {
+	return envelope.ErrorResponse(http.StatusNotFound, "portal.error.new_patients_not_available", core_errors.ErrPortalNewPatientsNotAvailable)
+}
+
+func bearer(c *gin.Context) string {
+	header := c.GetHeader("Authorization")
+	if !strings.HasPrefix(header, "Bearer ") {
+		return ""
+	}
+	return strings.TrimPrefix(header, "Bearer ")
+}
+
+// RequirePortalGuest accepts only portal guest tokens (a verified contact
+// without a patient record): the clinic's portal must be open and take new
+// patients (else 404 E-PORTAL-001 / E-PORTAL-015). Puts the clinic and the
+// guest's claims in the context.
+func RequirePortalGuest(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := bearer(c)
+		if token == "" {
+			envelope.Abort(c, unauthorized())
+			return
+		}
+		claims, err := auth.ParsePortalGuestToken(token)
+		if err != nil {
+			envelope.Abort(c, unauthorized())
+			return
+		}
+		if resp, ok := setGuest(c, db, claims); !ok {
+			envelope.Abort(c, resp)
+			return
+		}
+		c.Next()
+	}
+}
+
+// RequirePortalSessionOrGuest accepts a portal access token (like
+// RequirePortalSession) or a portal guest token (like RequirePortalGuest).
+// Only for endpoints that read nothing of a patient: the booking catalog.
+func RequirePortalSessionOrGuest(db *gorm.DB) gin.HandlerFunc {
+	session := RequirePortalSession(db)
+	return func(c *gin.Context) {
+		if claims, err := auth.ParsePortalGuestToken(bearer(c)); err == nil {
+			if resp, ok := setGuest(c, db, claims); !ok {
+				envelope.Abort(c, resp)
+				return
+			}
+			c.Next()
+			return
+		}
+		session(c)
+	}
+}
+
+func setGuest(c *gin.Context, db *gorm.DB, claims auth.PortalGuestClaims) (envelope.Response, bool) {
+	clinic, err := portal_services.ClinicByID(db, claims.TenantID)
+	if err != nil {
+		if errors.Is(err, portal_services.ErrUnavailable) {
+			return NotAvailable(), false
+		}
+		return envelope.ErrorResponse(http.StatusInternalServerError, "portal.error.internal", core_errors.ErrPortalInternal), false
+	}
+	if !clinic.Settings.NewPatientsEnabled() {
+		return NewPatientsNotAvailable(), false
+	}
+	c.Set(ContextClinic, clinic)
+	c.Set(ContextGuest, claims)
+	return envelope.Response{}, true
+}
+
+// Guest is the request's guest claims (set by RequirePortalGuest or
+// RequirePortalSessionOrGuest); ok is false on a patient session.
+func Guest(c *gin.Context) (auth.PortalGuestClaims, bool) {
+	v, _ := c.Get(ContextGuest)
+	claims, ok := v.(auth.PortalGuestClaims)
+	return claims, ok
 }
 
 // RequirePortalSession accepts only portal access tokens (any staff, backoffice,

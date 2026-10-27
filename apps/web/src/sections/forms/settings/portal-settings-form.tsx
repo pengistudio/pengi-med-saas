@@ -41,6 +41,7 @@ const formSchema = z.object({
 		enabled: z.boolean(),
 		choose_by: z.enum(["doctor", "specialty"]),
 		auto_confirm: z.boolean(),
+		new_patients: z.boolean(),
 		request_expiry_hours: z.enum(["12", "24", "48"]),
 		slot_interval_minutes: z.enum(["0", "10", "15", "20", "30", "60"]),
 		min_notice_hours: hours(72, "settings.portal.booking.error.min_notice"),
@@ -62,6 +63,7 @@ const toValues = (settings: PortalSettings): PortalSettingsValues => ({
 	...settings,
 	booking: {
 		...settings.booking,
+		new_patients: settings.booking.new_patients ?? false,
 		request_expiry_hours: String(
 			settings.booking.request_expiry_hours,
 		) as PortalSettingsValues["booking"]["request_expiry_hours"],
@@ -194,6 +196,15 @@ export function PortalSettingsForm({
 									label={textGet("settings.portal.booking.auto_confirm")}
 									description={textGet(
 										"settings.portal.booking.auto_confirm.description",
+									)}
+									disabled={bookingFields}
+								/>
+								<FormSwitch
+									field={field}
+									name="booking.new_patients"
+									label={textGet("settings.portal.booking.new_patients")}
+									description={textGet(
+										"settings.portal.booking.new_patients.description",
 									)}
 									disabled={bookingFields}
 								/>

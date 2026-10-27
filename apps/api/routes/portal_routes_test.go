@@ -27,15 +27,21 @@ func TestPortalRoutes_PatientEndpointsNeedAPortalToken(t *testing.T) {
 	registerPortalRoutes(r.Group("/portal"), db,
 		portal_handlers.NewAuthHandler(db, zap.NewNop(), files, delivery),
 		portal_handlers.NewPatientHandler(db, zap.NewNop(), files, nil, sri_document.Documents{Files: files}),
-		portal_handlers.NewBookingHandler(db, zap.NewNop(), nil, nil))
+		portal_handlers.NewBookingHandler(db, zap.NewNop(), nil, nil),
+		portal_handlers.NewFirstAppointmentHandler(db, zap.NewNop(), delivery))
 
 	staff, _ := auth.GenerateToken("admin", 1)
 	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
+	guest, _ := auth.GeneratePortalGuestToken(1, "email", "ana@example.com")
 	paths := []string{"/portal/me", "/portal/appointments", "/portal/results", "/portal/results/files/1", "/portal/documents",
 		"/portal/documents/prescription/1/file", "/portal/invoices", "/portal/invoices/1/ride", "/portal/invoices/1/xml",
 		"/portal/booking/options", "/portal/booking/slots", "/portal/booking/requests"}
 	for _, path := range paths {
-		for _, token := range []string{"", staff, backoffice} {
+		tokens := []string{"", staff, backoffice}
+		if path != "/portal/booking/options" && path != "/portal/booking/slots" {
+			tokens = append(tokens, guest) // the catalog takes a guest token, nothing else does
+		}
+		for _, token := range tokens {
 			req := httptest.NewRequest(http.MethodGet, path, nil)
 			if token != "" {
 				req.Header.Set("Authorization", "Bearer "+token)
@@ -45,6 +51,36 @@ func TestPortalRoutes_PatientEndpointsNeedAPortalToken(t *testing.T) {
 			if w.Code != http.StatusUnauthorized {
 				t.Fatalf("%s: %d %s", path, w.Code, w.Body.String())
 			}
+		}
+	}
+}
+
+// The new-patient request takes only a guest token: no staff, backoffice or
+// patient session token.
+func TestPortalRoutes_NewPatientRequestNeedsAGuestToken(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db := testutils.SetupTestDB(t, &tenant_models.Tenant{})
+	files := tenantfiles.Memory()
+	delivery := portal_services.NewDelivery(db, zap.NewNop(), nil, nil)
+	r := gin.New()
+	registerPortalRoutes(r.Group("/portal"), db,
+		portal_handlers.NewAuthHandler(db, zap.NewNop(), files, delivery),
+		portal_handlers.NewPatientHandler(db, zap.NewNop(), files, nil, sri_document.Documents{Files: files}),
+		portal_handlers.NewBookingHandler(db, zap.NewNop(), nil, nil),
+		portal_handlers.NewFirstAppointmentHandler(db, zap.NewNop(), delivery))
+
+	staff, _ := auth.GenerateToken("admin", 1)
+	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
+	access, _ := auth.GeneratePortalAccessToken(1, 1)
+	for _, token := range []string{"", staff, backoffice, access} {
+		req := httptest.NewRequest(http.MethodPost, "/portal/new-patient/requests", nil)
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		if w.Code != http.StatusUnauthorized {
+			t.Fatalf("%d %s", w.Code, w.Body.String())
 		}
 	}
 }

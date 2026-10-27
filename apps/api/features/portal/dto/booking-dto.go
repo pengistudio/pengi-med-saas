@@ -6,6 +6,9 @@ import "time"
 type BookingInfo struct {
 	Enabled  bool   `json:"enabled"`
 	ChooseBy string `json:"choose_by"` // "doctor" | "specialty"
+	// NewPatients: people without a patient record can request a first
+	// appointment (booking effective and the setting on).
+	NewPatients bool `json:"new_patients"`
 }
 
 // BookingDoctor is a doctor patients can book.
@@ -111,21 +114,46 @@ type ClinicRequestDoctor struct {
 
 // ClinicRequest is an appointment request in the clinic's inbox.
 type ClinicRequest struct {
-	ID                uint                `json:"id"`
-	Status            string              `json:"status"`
-	Date              string              `json:"date"`
-	StartTime         string              `json:"start_time"`
-	EndTime           string              `json:"end_time"`
-	Reason            string              `json:"reason"`
-	RejectReason      string              `json:"reject_reason"`
-	ExpiresAt         time.Time           `json:"expires_at"`
-	CreatedAt         time.Time           `json:"created_at"`
-	DecidedAt         *time.Time          `json:"decided_at"`
-	AppointmentID     *uint               `json:"appointment_id"`
-	AppointmentTypeID uint                `json:"appointment_type_id"`
-	TypeName          string              `json:"type_name"`
-	Patient           RequestPatient      `json:"patient"`
-	Doctor            ClinicRequestDoctor `json:"doctor"`
+	ID                uint       `json:"id"`
+	Status            string     `json:"status"`
+	Date              string     `json:"date"`
+	StartTime         string     `json:"start_time"`
+	EndTime           string     `json:"end_time"`
+	Reason            string     `json:"reason"`
+	RejectReason      string     `json:"reject_reason"`
+	ExpiresAt         time.Time  `json:"expires_at"`
+	CreatedAt         time.Time  `json:"created_at"`
+	DecidedAt         *time.Time `json:"decided_at"`
+	AppointmentID     *uint      `json:"appointment_id"`
+	AppointmentTypeID uint       `json:"appointment_type_id"`
+	TypeName          string     `json:"type_name"`
+	// Patient is nil for a new-patient request not approved yet.
+	Patient *RequestPatient     `json:"patient"`
+	Doctor  ClinicRequestDoctor `json:"doctor"`
+	// NewPatient is the form of a new-patient request (nil otherwise).
+	NewPatient *NewPatientInfo `json:"new_patient"`
+	// MatchingPatient is the tenant's patient with the same document as a
+	// pending new-patient request: approving links the request to it.
+	MatchingPatient *MatchingPatient `json:"matching_patient"`
+}
+
+// NewPatientInfo is a new-patient request's form, as staff see it.
+type NewPatientInfo struct {
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	DocumentType   string `json:"document_type"`
+	Document       string `json:"document"`
+	BirthDate      string `json:"birth_date"` // YYYY-MM-DD
+	Phone          string `json:"phone"`
+	Email          string `json:"email"`
+	ContactChannel string `json:"contact_channel"` // the verified one: email | whatsapp
+}
+
+// MatchingPatient is an existing patient a new-patient request will be linked to.
+type MatchingPatient struct {
+	ID        uint   `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 // PendingCountResponse is GET /appointment-requests/pending-count.

@@ -85,7 +85,10 @@ func ClinicInfo(clinic portal_services.Clinic) portal_dto.ClinicInfo {
 		Slug:     clinic.Tenant.Slug,
 		HasLogo:  clinic.HasLogo(),
 		Sections: clinic.Settings.Sections,
-		Booking:  portal_dto.BookingInfo{Enabled: clinic.Settings.BookingEnabled(), ChooseBy: clinic.Settings.Booking.ChooseBy},
+		Booking: portal_dto.BookingInfo{
+			Enabled: clinic.Settings.BookingEnabled(), ChooseBy: clinic.Settings.Booking.ChooseBy,
+			NewPatients: clinic.Settings.NewPatientsEnabled(),
+		},
 	}
 }
 

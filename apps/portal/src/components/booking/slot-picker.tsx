@@ -6,6 +6,7 @@ import {
 	type BookingTarget,
 	getBookingSlots,
 	type SlotDay,
+	type SlotsLoader,
 } from "@/api/portal-service";
 import { addDays, slotRange } from "@/lib/booking-flow";
 
@@ -24,6 +25,7 @@ export function SlotPicker({
 	minDate,
 	maxDate,
 	initialDate,
+	loadSlots = getBookingSlots,
 	onPick,
 }: {
 	typeId: number;
@@ -32,6 +34,8 @@ export function SlotPicker({
 	maxDate: string;
 	/** The day to open on when it has free times (e.g. after going back). */
 	initialDate?: string;
+	/** Where the times come from (default: the patient's session). */
+	loadSlots?: SlotsLoader;
 	onPick: (date: string, time: string) => void;
 }) {
 	const { textGet, formatDate } = useText();
@@ -39,12 +43,13 @@ export function SlotPicker({
 	const [loadingMore, setLoadingMore] = React.useState(false);
 	const [selected, setSelected] = React.useState(initialDate);
 	const targetRef = React.useRef(target);
+	const loadRef = React.useRef(loadSlots);
 
 	const fetchPage = React.useCallback(
 		async (from: string) => {
 			const range = slotRange(from, maxDate);
 			if (!range) return { days: [] as SlotDay[], nextFrom: undefined };
-			const res = await getBookingSlots(
+			const res = await loadRef.current(
 				typeId,
 				targetRef.current,
 				range.from,

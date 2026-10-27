@@ -31,12 +31,14 @@ const (
 	CodeWindow        = 15 * time.Minute
 )
 
-// Cost ceiling of sign-in codes (each one is a paid email or WhatsApp
-// message). Counted from portal_login_codes rows created in the window, any
-// channel, so they survive restarts. "Day" is the last 24 hours. Over any of
+// Cost ceiling of sign-in and contact codes (each one is a paid email or
+// WhatsApp message). Counted from portal_login_codes and portal_contact_codes
+// rows created in the window, any channel, so they survive restarts; the
+// clinic and global budgets count both tables. "Day" is the last 24 hours. Over any of
 // them nothing is sent and the login answers as usual.
 const (
 	MaxCodesPerPatientPerDay = 6
+	MaxCodesPerContactPerDay = 6
 	MaxCodesPerTenantPerHour = 30
 	MaxCodesPerTenantPerDay  = 150
 	// The global daily ceiling, across every clinic, is
@@ -51,6 +53,8 @@ const (
 	BudgetTenantHour    = "tenant_hour"    // MaxCodesPerTenantPerHour
 	BudgetTenantDay     = "tenant_day"     // MaxCodesPerTenantPerDay
 	BudgetGlobalDay     = "global_day"     // PORTAL_MAX_CODES_PER_DAY
+	BudgetContactWindow = "contact_window" // MaxCodesPerWindow / CodeWindow, per contact
+	BudgetContactDay    = "contact_day"    // MaxCodesPerContactPerDay
 )
 
 // LimitError is a code not issued because Budget is spent. It matches
@@ -60,10 +64,14 @@ type LimitError struct{ Budget string }
 func (e *LimitError) Error() string { return "portal code budget reached: " + e.Budget }
 func (e *LimitError) Unwrap() error { return ErrTooManyCodes }
 
-// PatientBudget reports whether one patient's budget is spent (normal use,
-// not abuse of the clinic).
+// PatientBudget reports whether one person's budget (a patient's or a
+// verified contact's) is spent (normal use, not abuse of the clinic).
 func (e *LimitError) PatientBudget() bool {
-	return e.Budget == BudgetPatientWindow || e.Budget == BudgetPatientDay
+	switch e.Budget {
+	case BudgetPatientWindow, BudgetPatientDay, BudgetContactWindow, BudgetContactDay:
+		return true
+	}
+	return false
 }
 
 // TenantBudget reports whether the clinic's own budget (not one patient's or
@@ -142,45 +150,83 @@ func IssueCode(db *gorm.DB, tenantID, patientID uint, channel string, now time.T
 	return code, row, nil
 }
 
-// spentBudget is the first budget the next code would exceed, "" if none.
+// spentBudget is the first budget the next sign-in code would exceed, "" if
+// none: the global and clinic budgets (shared with contact codes), then the
+// patient's.
 func spentBudget(db *gorm.DB, tenantID, patientID uint, now time.Time) (string, error) {
-	// UTC like every bound here: SQLite (CI) compares timestamps as text.
-	dayAgo := now.Add(-BudgetDay).UTC()
-	var global int64
-	if err := tenantdb.System(db).Model(&portal_models.PortalLoginCode{}).
-		Where("created_at > ?", dayAgo).Count(&global).Error; err != nil {
-		return "", err
+	if budget, err := clinicBudget(db, tenantID, now); err != nil || budget != "" {
+		return budget, err
 	}
-	if global >= int64(config.Get().PortalMaxCodesPerDay) {
-		return BudgetGlobalDay, nil
-	}
-	var counts struct {
-		TenantDay     int64
-		TenantHour    int64
-		PatientDay    int64
-		PatientWindow int64
-	}
-	if err := tenantdb.ForTenant(db, tenantID).Model(&portal_models.PortalLoginCode{}).
-		Select(`COUNT(*) AS tenant_day,
-			COALESCE(SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END), 0) AS tenant_hour,
-			COALESCE(SUM(CASE WHEN patient_id = ? THEN 1 ELSE 0 END), 0) AS patient_day,
-			COALESCE(SUM(CASE WHEN patient_id = ? AND created_at > ? THEN 1 ELSE 0 END), 0) AS patient_window`,
-			now.Add(-time.Hour).UTC(), patientID, patientID, now.Add(-CodeWindow).UTC()).
-		Where("created_at > ?", dayAgo).
-		Scan(&counts).Error; err != nil {
+	counts, err := personCodeCounts(db, &portal_models.PortalLoginCode{}, tenantID, "patient_id", patientID, now)
+	if err != nil {
 		return "", err
 	}
 	switch {
-	case counts.TenantDay >= MaxCodesPerTenantPerDay:
-		return BudgetTenantDay, nil
-	case counts.TenantHour >= MaxCodesPerTenantPerHour:
-		return BudgetTenantHour, nil
-	case counts.PatientDay >= MaxCodesPerPatientPerDay:
+	case counts.PersonDay >= MaxCodesPerPatientPerDay:
 		return BudgetPatientDay, nil
-	case counts.PatientWindow >= MaxCodesPerWindow:
+	case counts.PersonWindow >= MaxCodesPerWindow:
 		return BudgetPatientWindow, nil
 	}
 	return "", nil
+}
+
+// codeModels are the tables whose rows count toward the global and clinic
+// budgets: sign-in codes and new-patient contact codes.
+var codeModels = []any{&portal_models.PortalLoginCode{}, &portal_models.PortalContactCode{}}
+
+// clinicBudget is the global or clinic budget the next code (of any kind)
+// would exceed, "" if none.
+func clinicBudget(db *gorm.DB, tenantID uint, now time.Time) (string, error) {
+	// UTC like every bound here: SQLite (CI) compares timestamps as text.
+	dayAgo := now.Add(-BudgetDay).UTC()
+	var global, tenantDay, tenantHour int64
+	for _, model := range codeModels {
+		var n int64
+		if err := tenantdb.System(db).Model(model).Where("created_at > ?", dayAgo).Count(&n).Error; err != nil {
+			return "", err
+		}
+		global += n
+		var counts struct {
+			TenantDay  int64
+			TenantHour int64
+		}
+		if err := tenantdb.ForTenant(db, tenantID).Model(model).
+			Select(`COUNT(*) AS tenant_day,
+				COALESCE(SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END), 0) AS tenant_hour`, now.Add(-time.Hour).UTC()).
+			Where("created_at > ?", dayAgo).
+			Scan(&counts).Error; err != nil {
+			return "", err
+		}
+		tenantDay += counts.TenantDay
+		tenantHour += counts.TenantHour
+	}
+	switch {
+	case global >= int64(config.Get().PortalMaxCodesPerDay):
+		return BudgetGlobalDay, nil
+	case tenantDay >= MaxCodesPerTenantPerDay:
+		return BudgetTenantDay, nil
+	case tenantHour >= MaxCodesPerTenantPerHour:
+		return BudgetTenantHour, nil
+	}
+	return "", nil
+}
+
+// personCounts are one person's codes in the last day and in CodeWindow.
+type personCounts struct {
+	PersonDay    int64
+	PersonWindow int64
+}
+
+// personCodeCounts counts the tenant's codes of model whose column (a
+// constant, never user input) equals value.
+func personCodeCounts(db *gorm.DB, model any, tenantID uint, column string, value any, now time.Time) (personCounts, error) {
+	var counts personCounts
+	err := tenantdb.ForTenant(db, tenantID).Model(model).
+		Select(`COUNT(*) AS person_day,
+			COALESCE(SUM(CASE WHEN created_at > ? THEN 1 ELSE 0 END), 0) AS person_window`, now.Add(-CodeWindow).UTC()).
+		Where(column+" = ? AND created_at > ?", value, now.Add(-BudgetDay).UTC()).
+		Scan(&counts).Error
+	return counts, err
 }
 
 // VerifyCode checks code against the patient's latest code and consumes it.
@@ -195,11 +241,29 @@ func VerifyCode(db *gorm.DB, tenantID, patientID uint, code string, now time.Tim
 	if err := scoped.Where("patient_id = ?", patientID).Order("id DESC").Limit(1).Find(&row).Error; err != nil {
 		return err
 	}
+	return consumeCode(scoped, &portal_models.PortalLoginCode{}, codeRow{
+		ID: row.ID, UsedAt: row.UsedAt, ExpiresAt: row.ExpiresAt, Attempts: row.Attempts, CodeHash: row.CodeHash,
+	}, HashCode(tenantID, patientID, code), now)
+}
+
+// codeRow is what consumeCode needs of a stored code.
+type codeRow struct {
+	ID        uint
+	UsedAt    *time.Time
+	ExpiresAt time.Time
+	Attempts  int
+	CodeHash  string
+}
+
+// consumeCode checks a code against row (of model's table, on the tenant's
+// handle scoped) and consumes it. Every try counts toward MaxAttempts, and
+// the code works only once. got is the HMAC of the code tried.
+func consumeCode(scoped *gorm.DB, model any, row codeRow, got string, now time.Time) error {
 	if row.ID == 0 || row.UsedAt != nil || !now.Before(row.ExpiresAt) || row.Attempts >= MaxAttempts {
 		return ErrInvalidCode
 	}
 	// Count the try first, atomically, so parallel guesses can't exceed the limit.
-	res := scoped.Model(&portal_models.PortalLoginCode{}).
+	res := scoped.Model(model).
 		Where("id = ? AND used_at IS NULL AND attempts < ?", row.ID, MaxAttempts).
 		Update("attempts", gorm.Expr("attempts + 1"))
 	if res.Error != nil {
@@ -208,10 +272,10 @@ func VerifyCode(db *gorm.DB, tenantID, patientID uint, code string, now time.Tim
 	if res.RowsAffected != 1 {
 		return ErrInvalidCode
 	}
-	if !hmac.Equal([]byte(HashCode(tenantID, patientID, code)), []byte(row.CodeHash)) {
+	if !hmac.Equal([]byte(got), []byte(row.CodeHash)) {
 		return ErrInvalidCode
 	}
-	res = scoped.Model(&portal_models.PortalLoginCode{}).
+	res = scoped.Model(model).
 		Where("id = ? AND used_at IS NULL", row.ID).
 		Update("used_at", now.UTC())
 	if res.Error != nil {

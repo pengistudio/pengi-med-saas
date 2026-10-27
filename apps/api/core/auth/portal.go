@@ -21,12 +21,17 @@ const PortalAudience = "portal"
 const (
 	PortalAccessTokenType  = "portal_access"
 	PortalRefreshTokenType = "portal_refresh"
+	// PortalGuestTokenType: a person without a patient record who verified a
+	// contact to request a first appointment. It opens only the booking
+	// catalog and the new-patient request, never a patient's data.
+	PortalGuestTokenType = "portal_guest"
 )
 
 // Portal token lifetimes.
 const (
 	PortalAccessTTL  = 15 * time.Minute
 	PortalRefreshTTL = 7 * 24 * time.Hour
+	PortalGuestTTL   = 30 * time.Minute
 )
 
 // PortalRefreshCookie holds the portal refresh token, scoped to the portal API
@@ -66,7 +71,7 @@ func GeneratePortalRefreshToken(tenantID, patientID uint) (string, error) {
 
 // IsPortalToken reports whether parsed claims belong to a patient portal token.
 func IsPortalToken(claims jwt.MapClaims) bool {
-	if t, _ := claims["type"].(string); t == PortalAccessTokenType || t == PortalRefreshTokenType {
+	if t, _ := claims["type"].(string); t == PortalAccessTokenType || t == PortalRefreshTokenType || t == PortalGuestTokenType {
 		return true
 	}
 	aud, err := claims.GetAudience()
@@ -106,6 +111,46 @@ func ParsePortalAccessToken(token string) (PortalClaims, error) {
 // ParsePortalRefreshToken accepts only unexpired portal refresh tokens.
 func ParsePortalRefreshToken(token string) (PortalClaims, error) {
 	return parsePortal(token, PortalRefreshTokenType)
+}
+
+// PortalGuestClaims identifies a verified contact (of one tenant) without a
+// patient record: Channel is "email" or "whatsapp" and Contact the normalized
+// email or E.164 phone (digits only).
+type PortalGuestClaims struct {
+	TenantID uint
+	Channel  string
+	Contact  string
+}
+
+// GeneratePortalGuestToken issues a portal guest token (30 minutes, no refresh).
+func GeneratePortalGuestToken(tenantID uint, channel, contact string) (string, error) {
+	return signedWithAuthKey(jwt.MapClaims{
+		"type":      PortalGuestTokenType,
+		"aud":       PortalAudience,
+		"tenant_id": tenantID,
+		"channel":   channel,
+		"contact":   contact,
+		"exp":       time.Now().Add(PortalGuestTTL).Unix(),
+	})
+}
+
+// ParsePortalGuestToken accepts only unexpired portal guest tokens.
+func ParsePortalGuestToken(token string) (PortalGuestClaims, error) {
+	claims, err := ParseToken(token)
+	if err != nil {
+		return PortalGuestClaims{}, err
+	}
+	aud, err := claims.GetAudience()
+	if err != nil || len(aud) != 1 || aud[0] != PortalAudience || claims["type"] != PortalGuestTokenType {
+		return PortalGuestClaims{}, ErrNotPortalToken
+	}
+	tenantID, ok1 := claims["tenant_id"].(float64)
+	channel, ok2 := claims["channel"].(string)
+	contact, ok3 := claims["contact"].(string)
+	if !ok1 || !ok2 || !ok3 || tenantID <= 0 || channel == "" || contact == "" {
+		return PortalGuestClaims{}, ErrInvalidToken
+	}
+	return PortalGuestClaims{TenantID: uint(tenantID), Channel: channel, Contact: contact}, nil
 }
 
 // portalCookieSecure: Secure in release (the portal is served over HTTPS

@@ -20,6 +20,10 @@ const (
 // for it and the portal doesn't offer it); it ends approved (an Appointment
 // is created), rejected, cancelled by the patient or expired. Auto-confirm
 // clinics still write the row, approved with no DecidedByUserID.
+// A new-patient request (NewPatient) comes from a person without a patient
+// record who verified a contact: PatientID is 0 until the clinic approves it
+// (the patient is created or linked then), NewPatientData holds the form and
+// ContactValue the verified contact. It always needs approval.
 // Dates are "YYYY-MM-DD" and times "HH:MM" in the clinic's time zone, like
 // the agenda.
 type AppointmentRequest struct {
@@ -38,6 +42,10 @@ type AppointmentRequest struct {
 	DecidedByUserID   *uint      `json:"decided_by_user_id"`
 	DecidedAt         *time.Time `json:"decided_at"`
 	RejectReason      string     `gorm:"type:varchar(500);not null;default:''" json:"reject_reason"`
+	NewPatient        bool       `gorm:"not null;default:false" json:"new_patient"`
+	NewPatientData    string     `gorm:"type:text;not null;default:''" json:"-"` // JSON of portal_dto.NewPatientForm
+	ContactChannel    string     `gorm:"type:varchar(20);not null;default:''" json:"contact_channel"`
+	ContactValue      string     `gorm:"type:varchar(255);not null;default:''" json:"-"` // normalized verified contact
 }
 
 func (AppointmentRequest) IsAuditable() bool { return true }

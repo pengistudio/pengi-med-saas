@@ -1,5 +1,5 @@
-import { createHttpService } from "@pengi/shared";
-import { portalApi } from "./http-clients";
+import { createHttpService, type ServiceResponse } from "@pengi/shared";
+import { guestConfig, portalApi } from "./http-clients";
 
 const portalService = createHttpService(portalApi);
 
@@ -17,6 +17,8 @@ export type BookingChooseBy = "doctor" | "specialty";
 export interface ClinicBooking {
 	enabled: boolean;
 	choose_by: BookingChooseBy;
+	/** People without a patient record may request a first appointment. */
+	new_patients?: boolean;
 }
 
 export interface Clinic {
@@ -252,18 +254,34 @@ export const BOOKING_ERROR = {
 	notPending: "E-PORTAL-013",
 } as const;
 
-export const getBookingOptions = () =>
-	portalService.get<BookingOptions>("/booking/options");
+/** With a guest token, for a new patient (no session). */
+export const getBookingOptions = (guestToken?: string) =>
+	portalService.get<BookingOptions>(
+		"/booking/options",
+		guestToken ? guestConfig(guestToken) : undefined,
+	);
 
-export const getBookingSlots = (
+/** Loads the free slots of a page of days (patient session or guest token). */
+export type SlotsLoader = (
 	typeId: number,
 	target: BookingTarget,
 	from: string,
 	to: string,
-) =>
+) => Promise<ServiceResponse<BookingSlots>>;
+
+export const getBookingSlots: SlotsLoader = (typeId, target, from, to) =>
 	portalService.get<BookingSlots>("/booking/slots", {
 		params: { type_id: typeId, ...target, from, to },
 	});
+
+/** The slots loader of a new patient's guest token. */
+export const guestSlotsLoader =
+	(guestToken: string): SlotsLoader =>
+	(typeId, target, from, to) =>
+		portalService.get<BookingSlots>("/booking/slots", {
+			...guestConfig(guestToken),
+			params: { type_id: typeId, ...target, from, to },
+		});
 
 /** Errors (slot taken, too many pending) are shown inline by the caller. */
 export const createBookingRequest = (request: CreateBookingRequest) =>
@@ -284,4 +302,97 @@ export const cancelAppointment = (id: number) =>
 		`/appointments/${id}/cancel`,
 		undefined,
 		{ notifySuccess: true, notifyError: true },
+	);
+
+// ─── New patients (Entrega 3) ────────────────────────────────────────────────
+
+/** How a new patient proves a contact: WhatsApp only when the clinic has it. */
+export type ContactChannel = "whatsapp" | "email";
+
+export type DocumentType = "cedula" | "passport";
+
+// A type, not an interface: the HTTP client takes a Record<string, unknown>.
+export type NewPatientCodeRequest = {
+	channel: ContactChannel;
+	contact: string;
+	/** Honeypot: empty for people. */
+	website: string;
+	captcha_token?: string;
+};
+
+/**
+ * Same answer for any well-formed contact. Errors are shown inline: 400
+ * E-PORTAL-005 (malformed contact or channel off), 400 E-PORTAL-008 (captcha),
+ * 404 E-PORTAL-015 (the clinic does not take new patients), 429 (IP limit).
+ */
+export const requestNewPatientCode = (
+	slug: string,
+	request: NewPatientCodeRequest,
+) =>
+	portalService.post<{ expires_in: number }>(
+		`/clinics/${encodeURIComponent(slug)}/new-patient/code`,
+		request,
+	);
+
+/** Every failure answers 401 E-PORTAL-002; shown inline. */
+export const verifyNewPatientCode = (
+	slug: string,
+	request: { channel: ContactChannel; contact: string; code: string },
+) =>
+	portalService.post<{ guest_token: string; expires_in: number }>(
+		`/clinics/${encodeURIComponent(slug)}/new-patient/verify`,
+		request,
+	);
+
+export type NewPatientData = {
+	first_name: string;
+	last_name: string;
+	document_type: DocumentType;
+	document: string;
+	/** YYYY-MM-DD. */
+	birth_date: string;
+	phone?: string;
+	email?: string;
+	whatsapp_opt_in?: boolean;
+};
+
+export type CreateNewPatientRequest = CreateBookingRequest & {
+	patient: NewPatientData;
+};
+
+export interface NewPatientRequestResult {
+	id: number;
+	status: AppointmentRequestStatus;
+	date: string;
+	start_time: string;
+	end_time: string;
+	doctor: { full_name: string; specialty: string; specialty_other: string };
+	type_name: string;
+	expires_at: string;
+	/** The verified channel the clinic will answer by. */
+	contact_channel: ContactChannel;
+}
+
+/**
+ * Error codes of the new-patient endpoints (shown inline). Slot taken is
+ * BOOKING_ERROR.slotTaken, as for patients.
+ */
+export const NEW_PATIENT_ERROR = {
+	invalidContact: "E-PORTAL-005",
+	captcha: "E-PORTAL-008",
+	notAccepted: "E-PORTAL-015",
+	invalidData: "E-PORTAL-016",
+	alreadyPending: "E-PORTAL-017",
+	clinicFull: "E-PORTAL-018",
+} as const;
+
+/** Always pending: the clinic approves every new patient. */
+export const createNewPatientRequest = (
+	guestToken: string,
+	request: CreateNewPatientRequest,
+) =>
+	portalService.post<NewPatientRequestResult>(
+		"/new-patient/requests",
+		request,
+		guestConfig(guestToken),
 	);
