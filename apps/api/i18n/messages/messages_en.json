@@ -3624,12 +3624,12 @@
         "value": "No logo has been uploaded for this company"
     },
     {
-        "key": "billing.sri.logo.title",
-        "value": "Company Logo"
+        "key": "settings.logo.title",
+        "value": "Clinic logo"
     },
     {
-        "key": "billing.sri.logo.description",
-        "value": "Shown on the RIDE (printed invoice representation) header. Not required by the SRI, but looks more professional."
+        "key": "settings.logo.description",
+        "value": "Shown in the side menu and, if you issue electronic invoices, on the RIDE (printed invoice). Without one, the Gentoo penguin is shown."
     },
     {
         "key": "billing.sri.logo.file.label",

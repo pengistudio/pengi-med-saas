@@ -3624,12 +3624,12 @@
         "value": "No se ha subido un logo para esta empresa"
     },
     {
-        "key": "billing.sri.logo.title",
-        "value": "Logo de la Empresa"
+        "key": "settings.logo.title",
+        "value": "Logo de la clínica"
     },
     {
-        "key": "billing.sri.logo.description",
-        "value": "Aparece en el encabezado del RIDE (representación impresa de la factura). No es obligatorio por el SRI, pero se ve más profesional."
+        "key": "settings.logo.description",
+        "value": "Se muestra en el menú lateral y, si emites facturas electrónicas, en el RIDE (la factura impresa). Si no subes uno, se muestra el pingüino de Gentoo."
     },
     {
         "key": "billing.sri.logo.file.label",

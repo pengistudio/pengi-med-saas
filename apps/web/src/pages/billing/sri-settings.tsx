@@ -7,7 +7,6 @@ import { getSriStatus, type SriStatus } from "@/api/tenant-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { SettingsSection } from "@/components/custom/settings-section";
 import { cn } from "@/lib/utils";
-import { LogoUploadForm } from "@/sections/forms/billing/logo-upload-form";
 import { SriInfoForm } from "@/sections/forms/billing/sri-info-form";
 import { SriSignatureForm } from "@/sections/forms/billing/sri-signature-form";
 
@@ -135,15 +134,6 @@ const SriSettingsPage = () => {
 					description={<Text uuid="billing.sri.company_info.description" />}
 				>
 					<SriInfoForm initialData={status} onSuccess={fetchStatus} />
-				</SettingsSection>
-			)}
-
-			{status && (
-				<SettingsSection
-					title={<Text uuid="billing.sri.logo.title" />}
-					description={<Text uuid="billing.sri.logo.description" />}
-				>
-					<LogoUploadForm hasLogo={status.has_logo} onSuccess={fetchStatus} />
 				</SettingsSection>
 			)}
 		</div>

@@ -61,11 +61,10 @@ func tenantSettingsRouter(t *testing.T, permissionIDs []string) *gin.Engine {
 var sriWrites = []struct{ method, path string }{
 	{http.MethodPut, "/tenants/sri/signature"},
 	{http.MethodPut, "/tenants/sri/info"},
-	{http.MethodPut, "/tenants/logo"},
 }
 
-// Only who manages SRI settings may replace the clinic's certificate, issuer
-// data or logo: a receptionist or a doctor of the clinic must not.
+// Only who manages SRI settings may replace the clinic's certificate or
+// issuer data: a receptionist or a doctor of the clinic must not.
 func TestTenantRoutes_SriWritesNeedManageSriSettings(t *testing.T) {
 	for _, roleName := range []string{role_data.RoleRecepcionista, role_data.RoleDoctor} {
 		router := tenantSettingsRouter(t, role_data.RolePermissionMatrix[roleName])
@@ -84,5 +83,26 @@ func TestTenantRoutes_ContadorReachesSriWrites(t *testing.T) {
 		if w := serve(router, tc.method, tc.path, ""); w.Code == http.StatusForbidden {
 			t.Errorf("contador %s %s = 403, want past the permission check: %s", tc.method, tc.path, w.Body.String())
 		}
+	}
+}
+
+// The logo is admin-only (MANAGE_CLINIC_BRANDING): no other canonical role
+// may replace it, contador included.
+func TestTenantRoutes_LogoNeedsManageClinicBranding(t *testing.T) {
+	for _, roleName := range []string{role_data.RoleRecepcionista, role_data.RoleDoctor, role_data.RoleContador} {
+		router := tenantSettingsRouter(t, role_data.RolePermissionMatrix[roleName])
+		if w := serve(router, http.MethodPut, "/tenants/logo", ""); w.Code != http.StatusForbidden {
+			t.Errorf("%s PUT /tenants/logo = %d, want 403: %s", roleName, w.Code, w.Body.String())
+		}
+	}
+}
+
+// The test plan holds only the canonical roles' permissions, so passing here
+// shows the logo isn't gated on the plan.
+func TestTenantRoutes_LogoNotGatedOnPlan(t *testing.T) {
+	router := tenantSettingsRouter(t, []string{"MANAGE_CLINIC_BRANDING"})
+	// The empty body fails validation; what matters is the permission let it through.
+	if w := serve(router, http.MethodPut, "/tenants/logo", ""); w.Code == http.StatusForbidden {
+		t.Errorf("PUT /tenants/logo = 403, want past the permission check: %s", w.Body.String())
 	}
 }

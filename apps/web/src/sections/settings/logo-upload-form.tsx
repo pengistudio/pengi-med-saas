@@ -2,38 +2,21 @@ import { Button, Label, Text } from "@pengi/ui";
 import { Loader2, UploadCloud } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { getLogo, uploadLogo } from "@/api/tenant-service";
+import { uploadLogo } from "@/api/tenant-service";
 import { FilePicker } from "@/components/custom/file-picker";
+import { selectTenantSlug, useSessionStore } from "@/store/session-store";
+import { useTenantLogoStore } from "@/store/tenant-logo-store";
 
-export function LogoUploadForm({
-	hasLogo,
-	onSuccess,
-}: {
-	hasLogo: boolean;
-	onSuccess?: () => void;
-}) {
+export function LogoUploadForm({ onSuccess }: { onSuccess?: () => void }) {
 	const [file, setFile] = useState<File | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-	// Drop the preview once the logo is gone (adjust state during render).
-	if (!hasLogo && previewUrl !== null) setPreviewUrl(null);
+	const slug = useSessionStore(selectTenantSlug);
+	// Same logo the sidebar shows: reloading it here updates both.
+	const { url: previewUrl, load: loadLogo } = useTenantLogoStore();
 
 	useEffect(() => {
-		if (!hasLogo) return;
-
-		let objectUrl: string | null = null;
-		getLogo().then((res) => {
-			if (res.success && res.data) {
-				objectUrl = window.URL.createObjectURL(res.data);
-				setPreviewUrl(objectUrl);
-			}
-		});
-
-		return () => {
-			if (objectUrl) window.URL.revokeObjectURL(objectUrl);
-		};
-	}, [hasLogo]);
+		if (slug) loadLogo(slug);
+	}, [slug, loadLogo]);
 
 	async function handleSubmit(event: React.FormEvent) {
 		event.preventDefault();
@@ -44,6 +27,7 @@ export function LogoUploadForm({
 			const res = await uploadLogo(file);
 			if (res.success) {
 				setFile(null);
+				if (slug) loadLogo(slug, true);
 				onSuccess?.();
 			}
 		} finally {

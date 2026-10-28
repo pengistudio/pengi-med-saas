@@ -21,7 +21,6 @@ import {
 import {
 	AlertTriangle,
 	Bug,
-	Building2,
 	CreditCard,
 	HelpCircle,
 	Mail,
@@ -39,6 +38,7 @@ import {
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { getPendingReviewCount } from "@/api/exam-order-service";
 import { initiatePayment } from "@/api/subscription-service";
+import { ClinicBrand } from "@/components/custom/clinic-brand";
 import NotificationBell from "@/components/custom/notification-bell";
 import { PageSkeleton } from "@/components/custom/page-skeleton";
 import { DoctorReviewBanner } from "@/components/features/doctors/doctor-notices";
@@ -253,7 +253,7 @@ export function DashboardLayout() {
 
 	return (
 		<AppShell
-			brand={{ icon: Building2, name: environment?.trade_name }}
+			brand={{ mark: <ClinicBrand /> }}
 			nav={navItems}
 			footerNav={footerNavItems}
 			matchNested
