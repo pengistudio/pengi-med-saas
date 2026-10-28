@@ -6,6 +6,7 @@ import (
 
 	"pengi-med-saas/core/tenantdb"
 	portal_models "pengi-med-saas/features/portal/models"
+	portal_services "pengi-med-saas/features/portal/services"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -25,6 +26,7 @@ type RequestNotifier interface {
 // whose ExpiresAt passed becomes expired and its patient is told. The update
 // is conditional (status still pending), so a request decided meanwhile, or
 // expired by another API instance, is left alone and notified only once.
+// Each tick also deletes expired portal sessions (PurgeSessions).
 type RequestExpiryScheduler struct {
 	db      *gorm.DB
 	logger  *zap.Logger
@@ -42,12 +44,20 @@ func (s *RequestExpiryScheduler) WithClock(now func() time.Time) *RequestExpiryS
 	return s
 }
 
-// Start runs Tick every 5 minutes.
+// Start runs Tick and PurgeSessions every 5 minutes.
 func (s *RequestExpiryScheduler) Start() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 	for range ticker.C {
 		s.Tick()
+		s.PurgeSessions()
+	}
+}
+
+// PurgeSessions deletes the expired portal refresh tokens.
+func (s *RequestExpiryScheduler) PurgeSessions() {
+	if _, err := portal_services.PurgeSessions(s.db, s.now()); err != nil {
+		s.logger.Error("portal sessions: failed to purge expired refresh tokens", zap.Error(err))
 	}
 }
 

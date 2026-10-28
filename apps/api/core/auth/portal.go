@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 // Patient portal tokens are signed with the same key as the clinic app's, so
@@ -43,10 +44,14 @@ const (
 
 var ErrNotPortalToken = errors.New("not a portal token")
 
-// PortalClaims identifies the patient (of one tenant) a portal token was issued to.
+// PortalClaims identifies the patient (of one tenant) a portal token was
+// issued to. Refresh tokens also carry their session (FamilyID) and their own
+// id (JTI), which the portal looks up to rotate or revoke them.
 type PortalClaims struct {
 	TenantID  uint
 	PatientID uint
+	FamilyID  string
+	JTI       string
 }
 
 func generatePortal(tokenType string, ttl time.Duration, tenantID, patientID uint) (string, error) {
@@ -64,9 +69,20 @@ func GeneratePortalAccessToken(tenantID, patientID uint) (string, error) {
 	return generatePortal(PortalAccessTokenType, PortalAccessTTL, tenantID, patientID)
 }
 
-// GeneratePortalRefreshToken issues a portal refresh token (7 days).
-func GeneratePortalRefreshToken(tenantID, patientID uint) (string, error) {
-	return generatePortal(PortalRefreshTokenType, PortalRefreshTTL, tenantID, patientID)
+// GeneratePortalRefreshToken issues a portal refresh token (7 days) in the
+// session familyID and returns it with its jti.
+func GeneratePortalRefreshToken(tenantID, patientID uint, familyID string) (token, jti string, err error) {
+	jti = uuid.NewString()
+	token, err = signedWithAuthKey(jwt.MapClaims{
+		"type":       PortalRefreshTokenType,
+		"aud":        PortalAudience,
+		"tenant_id":  tenantID,
+		"patient_id": patientID,
+		"family":     familyID,
+		"jti":        jti,
+		"exp":        time.Now().Add(PortalRefreshTTL).Unix(),
+	})
+	return token, jti, err
 }
 
 // IsPortalToken reports whether parsed claims belong to a patient portal token.
@@ -100,7 +116,9 @@ func parsePortal(token, wantType string) (PortalClaims, error) {
 	if !ok1 || !ok2 || tenantID <= 0 || patientID <= 0 {
 		return PortalClaims{}, ErrInvalidToken
 	}
-	return PortalClaims{TenantID: uint(tenantID), PatientID: uint(patientID)}, nil
+	family, _ := claims["family"].(string)
+	jti, _ := claims["jti"].(string)
+	return PortalClaims{TenantID: uint(tenantID), PatientID: uint(patientID), FamilyID: family, JTI: jti}, nil
 }
 
 // ParsePortalAccessToken accepts only unexpired portal access tokens.
@@ -108,9 +126,17 @@ func ParsePortalAccessToken(token string) (PortalClaims, error) {
 	return parsePortal(token, PortalAccessTokenType)
 }
 
-// ParsePortalRefreshToken accepts only unexpired portal refresh tokens.
+// ParsePortalRefreshToken accepts only unexpired portal refresh tokens with
+// a session (tokens issued before sessions were stored have none).
 func ParsePortalRefreshToken(token string) (PortalClaims, error) {
-	return parsePortal(token, PortalRefreshTokenType)
+	claims, err := parsePortal(token, PortalRefreshTokenType)
+	if err != nil {
+		return PortalClaims{}, err
+	}
+	if claims.FamilyID == "" || claims.JTI == "" {
+		return PortalClaims{}, ErrInvalidToken
+	}
+	return claims, nil
 }
 
 // PortalGuestClaims identifies a verified contact (of one tenant) without a

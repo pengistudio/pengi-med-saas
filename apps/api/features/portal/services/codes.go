@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
-	"sync"
 	"time"
 
 	"pengi-med-saas/core/config"
@@ -80,9 +79,12 @@ func (e *LimitError) TenantBudget() bool {
 	return e.Budget == BudgetTenantHour || e.Budget == BudgetTenantDay
 }
 
-// issueMu serializes the budget check and the insert, so parallel requests
-// can't overshoot a budget (one API process in production).
-var issueMu sync.Mutex
+// lockCodeBudgets serializes, until tx ends, the budget check and the insert
+// of every portal code across API instances, so parallel requests can't
+// overshoot a budget (the global one spans clinics, hence one key).
+func lockCodeBudgets(tx *gorm.DB) error {
+	return advisoryLock(tx, "portal-code-budgets")
+}
 
 var (
 	// ErrInvalidCode covers every verification failure (unknown, wrong,
@@ -115,28 +117,30 @@ func HashCode(tenantID, patientID uint, code string) string {
 // when a budget is spent: the clinic's or the global one first, then the
 // patient's.
 func IssueCode(db *gorm.DB, tenantID, patientID uint, channel string, now time.Time) (string, portal_models.PortalLoginCode, error) {
-	issueMu.Lock()
-	defer issueMu.Unlock()
-	scoped := tenantdb.ForTenant(db, tenantID)
-	if budget, err := spentBudget(db, tenantID, patientID, now); err != nil {
-		return "", portal_models.PortalLoginCode{}, err
-	} else if budget != "" {
-		return "", portal_models.PortalLoginCode{}, &LimitError{Budget: budget}
-	}
-	code, err := GenerateCode()
-	if err != nil {
-		return "", portal_models.PortalLoginCode{}, err
-	}
-	row := portal_models.PortalLoginCode{
-		// UTC like every bound here: SQLite (CI) compares timestamps as text.
-		Model:     gorm.Model{CreatedAt: now.UTC()},
-		TenantID:  tenantID,
-		PatientID: patientID,
-		Channel:   channel,
-		CodeHash:  HashCode(tenantID, patientID, code),
-		ExpiresAt: now.Add(CodeTTL).UTC(),
-	}
-	err = scoped.Transaction(func(tx *gorm.DB) error {
+	var code string
+	var row portal_models.PortalLoginCode
+	err := tenantdb.ForTenant(db, tenantID).Transaction(func(tx *gorm.DB) error {
+		if err := lockCodeBudgets(tx); err != nil {
+			return err
+		}
+		if budget, err := spentBudget(tx, tenantID, patientID, now); err != nil {
+			return err
+		} else if budget != "" {
+			return &LimitError{Budget: budget}
+		}
+		var err error
+		if code, err = GenerateCode(); err != nil {
+			return err
+		}
+		row = portal_models.PortalLoginCode{
+			// UTC like every bound here: SQLite (CI) compares timestamps as text.
+			Model:     gorm.Model{CreatedAt: now.UTC()},
+			TenantID:  tenantID,
+			PatientID: patientID,
+			Channel:   channel,
+			CodeHash:  HashCode(tenantID, patientID, code),
+			ExpiresAt: now.Add(CodeTTL).UTC(),
+		}
 		if err := tx.Model(&portal_models.PortalLoginCode{}).
 			Where("patient_id = ? AND used_at IS NULL AND expires_at > ?", patientID, now.UTC()).
 			Update("expires_at", now.UTC()).Error; err != nil {

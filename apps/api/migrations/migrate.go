@@ -85,6 +85,7 @@ func RunMigrations(db *gorm.DB) error {
 		whatsapp_models.WhatsAppTemplate{},
 		portal_models.PortalLoginCode{},
 		portal_models.PortalContactCode{},
+		portal_models.PortalRefreshToken{},
 		portal_models.AppointmentRequest{},
 	)
 	if err != nil {

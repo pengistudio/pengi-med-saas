@@ -81,28 +81,31 @@ func hashContactCode(tenantID uint, contactHash, code string) string {
 // with sign-in codes) first, then the contact's (MaxCodesPerWindow per
 // CodeWindow, MaxCodesPerContactPerDay a day).
 func IssueContactCode(db *gorm.DB, tenantID uint, channel, contact string, now time.Time) (string, portal_models.PortalContactCode, error) {
-	issueMu.Lock()
-	defer issueMu.Unlock()
 	hash := ContactHash(tenantID, channel, contact)
-	if budget, err := spentContactBudget(db, tenantID, hash, now); err != nil {
-		return "", portal_models.PortalContactCode{}, err
-	} else if budget != "" {
-		return "", portal_models.PortalContactCode{}, &LimitError{Budget: budget}
-	}
-	code, err := GenerateCode()
-	if err != nil {
-		return "", portal_models.PortalContactCode{}, err
-	}
-	row := portal_models.PortalContactCode{
-		// UTC like every bound here: SQLite (CI) compares timestamps as text.
-		Model:       gorm.Model{CreatedAt: now.UTC()},
-		TenantID:    tenantID,
-		Channel:     channel,
-		ContactHash: hash,
-		CodeHash:    hashContactCode(tenantID, hash, code),
-		ExpiresAt:   now.Add(CodeTTL).UTC(),
-	}
-	err = tenantdb.ForTenant(db, tenantID).Transaction(func(tx *gorm.DB) error {
+	var code string
+	var row portal_models.PortalContactCode
+	err := tenantdb.ForTenant(db, tenantID).Transaction(func(tx *gorm.DB) error {
+		if err := lockCodeBudgets(tx); err != nil {
+			return err
+		}
+		if budget, err := spentContactBudget(tx, tenantID, hash, now); err != nil {
+			return err
+		} else if budget != "" {
+			return &LimitError{Budget: budget}
+		}
+		var err error
+		if code, err = GenerateCode(); err != nil {
+			return err
+		}
+		row = portal_models.PortalContactCode{
+			// UTC like every bound here: SQLite (CI) compares timestamps as text.
+			Model:       gorm.Model{CreatedAt: now.UTC()},
+			TenantID:    tenantID,
+			Channel:     channel,
+			ContactHash: hash,
+			CodeHash:    hashContactCode(tenantID, hash, code),
+			ExpiresAt:   now.Add(CodeTTL).UTC(),
+		}
 		if err := tx.Model(&portal_models.PortalContactCode{}).
 			Where("contact_hash = ? AND used_at IS NULL AND expires_at > ?", hash, now.UTC()).
 			Update("expires_at", now.UTC()).Error; err != nil {
