@@ -53,11 +53,31 @@ const formSchema = z
 	});
 
 const features = [
-	{ icon: UsersRound, label: "Gestión de pacientes y expedientes ICD-11" },
-	{ icon: CalendarDays, label: "Agenda de citas integrada" },
-	{ icon: ClipboardList, label: "Recetas médicas en PDF" },
-	{ icon: Building2, label: "Multi-consultorio y roles" },
-	{ icon: ReceiptText, label: "Facturación electrónica SRI" },
+	{
+		icon: UsersRound,
+		id: "patients",
+		label: <Text uuid="register.brand.feature.patients" />,
+	},
+	{
+		icon: CalendarDays,
+		id: "agenda",
+		label: <Text uuid="register.brand.feature.agenda" />,
+	},
+	{
+		icon: ClipboardList,
+		id: "prescriptions",
+		label: <Text uuid="register.brand.feature.prescriptions" />,
+	},
+	{
+		icon: Building2,
+		id: "clinics",
+		label: <Text uuid="register.brand.feature.clinics" />,
+	},
+	{
+		icon: ReceiptText,
+		id: "billing",
+		label: <Text uuid="register.brand.feature.billing" />,
+	},
 ];
 
 const BrandPanel = () => (
@@ -91,20 +111,17 @@ const BrandPanel = () => (
 
 		<div className="relative z-10 space-y-8">
 			<div className="space-y-3">
-				<h2 className="text-white font-bold text-3xl leading-tight">
-					Tu consultorio,
-					<br />
-					completamente digital
+				<h2 className="text-white font-bold text-3xl leading-tight text-balance">
+					<Text uuid="register.brand.title" />
 				</h2>
 				<p className="text-white/70 text-base leading-relaxed">
-					Todo lo que necesitas para gestionar tu práctica médica en un solo
-					lugar.
+					<Text uuid="register.brand.subtitle" />
 				</p>
 			</div>
 
 			<ul className="space-y-4">
-				{features.map(({ icon: Icon, label }) => (
-					<li key={label} className="flex items-center gap-3">
+				{features.map(({ id, icon: Icon, label }) => (
+					<li key={id} className="flex items-center gap-3">
 						<div
 							className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
 							style={{ background: "oklch(100% 0 0 / 15%)" }}
@@ -125,7 +142,7 @@ const BrandPanel = () => (
 				className="opacity-70"
 			/>
 			<span className="text-white/70 text-sm">
-				14 días gratis · Sin tarjeta de crédito
+				<Text uuid="register.brand.trial" />
 			</span>
 		</div>
 	</div>

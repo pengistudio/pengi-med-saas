@@ -2376,10 +2376,6 @@
         "value": "Mi Cuenta"
     },
     {
-        "key": "backoffice.dropdown.settings",
-        "value": "Ajustes"
-    },
-    {
         "key": "backoffice.dropdown.logout",
         "value": "Cerrar Sesión"
     },
@@ -12254,5 +12250,61 @@
     {
         "key": "appointment_requests.new_patient.will_create",
         "value": "Se creará la ficha al aprobar."
+    },
+    {
+        "key": "register.brand.title",
+        "value": "Tu consultorio, completamente digital"
+    },
+    {
+        "key": "register.brand.subtitle",
+        "value": "Todo lo que necesitas para gestionar tu práctica médica en un solo lugar."
+    },
+    {
+        "key": "register.brand.trial",
+        "value": "14 días gratis · Sin tarjeta de crédito"
+    },
+    {
+        "key": "register.brand.feature.patients",
+        "value": "Gestión de pacientes y expedientes ICD-11"
+    },
+    {
+        "key": "register.brand.feature.agenda",
+        "value": "Agenda de citas integrada"
+    },
+    {
+        "key": "register.brand.feature.prescriptions",
+        "value": "Recetas médicas en PDF"
+    },
+    {
+        "key": "register.brand.feature.clinics",
+        "value": "Multi-consultorio y roles"
+    },
+    {
+        "key": "register.brand.feature.billing",
+        "value": "Facturación electrónica SRI"
+    },
+    {
+        "key": "waiting_room.video.title",
+        "value": "Video de la sala de espera"
+    },
+    {
+        "key": "waiting_room.video.configure",
+        "value": "Configurar video"
+    },
+    {
+        "key": "waiting_room.video.url",
+        "value": "URL de YouTube"
+    },
+    {
+        "key": "waiting_room.video.invalid_url",
+        "value": "URL de YouTube no válida"
+    },
+    {
+        "key": "waiting_room.video.id",
+        "value": "ID del video: {id}"
+    },
+    {
+        "key": "waiting_room.video.remove",
+        "value": "Quitar video"
     }
 ]

@@ -128,6 +128,7 @@ function useWakeLock() {
 }
 
 function VideoPanel({ embedUrl }: { embedUrl: string }) {
+	const { textGet } = useText();
 	return (
 		<div className="w-full shrink-0 rounded-xl overflow-hidden bg-black shadow-lg">
 			<div className="relative w-full" style={{ aspectRatio: "16/9" }}>
@@ -136,7 +137,7 @@ function VideoPanel({ embedUrl }: { embedUrl: string }) {
 					className="absolute inset-0 w-full h-full"
 					allow="autoplay; encrypted-media"
 					allowFullScreen={false}
-					title="Display video"
+					title={textGet("waiting_room.video.title")}
 				/>
 			</div>
 		</div>
@@ -152,6 +153,7 @@ function VideoConfigModal({
 	onSave: (url: string) => void;
 	onClose: () => void;
 }) {
+	const { textGet } = useText();
 	const [value, setValue] = React.useState(currentUrl);
 	const videoId = value ? extractYouTubeId(value) : null;
 
@@ -159,7 +161,9 @@ function VideoConfigModal({
 		<div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
 			<div className="bg-background rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
 				<div className="flex items-center justify-between">
-					<h2 className="text-lg font-semibold">Configurar video</h2>
+					<h2 className="text-lg font-semibold">
+						{textGet("waiting_room.video.configure")}
+					</h2>
 					<button
 						type="button"
 						onClick={onClose}
@@ -170,7 +174,7 @@ function VideoConfigModal({
 				</div>
 				<div className="space-y-2">
 					<label className="text-sm text-muted-foreground" htmlFor="video-url">
-						URL de YouTube
+						{textGet("waiting_room.video.url")}
 					</label>
 					<input
 						id="video-url"
@@ -181,10 +185,14 @@ function VideoConfigModal({
 						className="w-full rounded-lg border bg-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
 					/>
 					{value && !videoId && (
-						<p className="text-xs text-destructive">URL de YouTube no válida</p>
+						<p className="text-xs text-destructive">
+							{textGet("waiting_room.video.invalid_url")}
+						</p>
 					)}
 					{videoId && (
-						<p className="text-xs text-emerald-600">Video ID: {videoId}</p>
+						<p className="text-xs text-emerald-600">
+							{textGet("waiting_room.video.id", { id: videoId })}
+						</p>
 					)}
 				</div>
 				<div className="flex gap-2 justify-end">
@@ -197,7 +205,7 @@ function VideoConfigModal({
 							}}
 							className="px-4 py-2 text-sm rounded-lg text-destructive hover:bg-destructive/10"
 						>
-							Quitar video
+							{textGet("waiting_room.video.remove")}
 						</button>
 					)}
 					<button
@@ -205,7 +213,7 @@ function VideoConfigModal({
 						onClick={onClose}
 						className="px-4 py-2 text-sm rounded-lg border hover:bg-muted"
 					>
-						Cancelar
+						{textGet("common.cancel")}
 					</button>
 					<button
 						type="button"
@@ -216,7 +224,7 @@ function VideoConfigModal({
 						}}
 						className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
 					>
-						Guardar
+						{textGet("common.save")}
 					</button>
 				</div>
 			</div>
@@ -345,7 +353,7 @@ const WaitingRoomDisplayPage = () => {
 							type="button"
 							onClick={() => setShowConfig(true)}
 							className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-							title="Configurar video"
+							title={textGet("waiting_room.video.configure")}
 						>
 							<Settings className="h-5 w-5" />
 						</button>
