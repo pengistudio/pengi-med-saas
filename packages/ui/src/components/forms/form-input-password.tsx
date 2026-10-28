@@ -17,6 +17,7 @@ const PasswordInput = forwardRef<
 	HTMLInputElement,
 	React.ComponentProps<"input">
 >(({ className, ...props }, ref) => {
+	const { textGet } = useUiText();
 	const [showPassword, setShowPassword] = useState(false);
 	const isValueEmpty = props.value === "" || props.value === undefined;
 	const isButtonDisabled = isValueEmpty || props.disabled;
@@ -57,7 +58,9 @@ const PasswordInput = forwardRef<
 						<EyeOffIcon aria-hidden="true" className="h-4 w-4" />
 					)}
 					<span className="sr-only">
-						{showPassword ? "Hide password" : "Show password"}
+						{textGet(
+							showPassword ? "form.password.hide" : "form.password.show",
+						)}
 					</span>
 				</Button>
 			</InputGroupAddon>

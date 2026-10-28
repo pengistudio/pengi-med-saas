@@ -152,3 +152,6 @@ export const SUPPORT = {
 	WHATSAPP: "593985136947",
 	EMAIL: "pengiservicios@gmail.com",
 } as const;
+
+/** Public landing site (terms, privacy, contact). */
+export const LANDING_URL = "https://gentoo.pengistudio.com";

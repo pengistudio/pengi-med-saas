@@ -10,6 +10,11 @@ import { useLanguage } from "./language-context";
 import { useMessageStore } from "./message-store";
 import type { SupportedLocale } from "./zod-i18n";
 
+const LANGUAGES: Record<SupportedLocale, string> = {
+	es: "Español",
+	en: "English",
+};
+
 export function SelectLanguage() {
 	const { changeLanguage } = useLanguage();
 	const { lang } = useMessageStore();
@@ -21,12 +26,17 @@ export function SelectLanguage() {
 			}}
 		>
 			<SelectTrigger className="w-fit">
-				<SelectValue />
+				<SelectValue>
+					{(value: SupportedLocale) => LANGUAGES[value] ?? value}
+				</SelectValue>
 			</SelectTrigger>
 			<SelectContent>
 				<SelectGroup>
-					<SelectItem value="es">Español</SelectItem>
-					<SelectItem value="en">English</SelectItem>
+					{Object.entries(LANGUAGES).map(([value, label]) => (
+						<SelectItem key={value} value={value}>
+							{label}
+						</SelectItem>
+					))}
 				</SelectGroup>
 			</SelectContent>
 		</Select>

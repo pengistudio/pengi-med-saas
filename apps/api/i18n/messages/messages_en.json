@@ -84,10 +84,6 @@
         "value": "Sign in"
     },
     {
-        "key": "login.subtitle",
-        "value": "Welcome back, please login to your account."
-    },
-    {
         "key": "login.new_company.title",
         "value": "Log in to create another company"
     },
@@ -96,16 +92,8 @@
         "value": "Use your existing Gentoo account to create an independent company."
     },
     {
-        "key": "login.username.placeholder",
-        "value": "Enter your username"
-    },
-    {
         "key": "login.username",
-        "value": "Username"
-    },
-    {
-        "key": "login.password.placeholder",
-        "value": "Enter your password"
+        "value": "Username or email"
     },
     {
         "key": "login.password",
@@ -5658,6 +5646,90 @@
     {
         "key": "login.email_not_verified.description",
         "value": "Check your inbox and click the verification link."
+    },
+    {
+        "key": "login.forgot_password",
+        "value": "Forgot your password?"
+    },
+    {
+        "key": "login.caps_lock",
+        "value": "Caps Lock is on."
+    },
+    {
+        "key": "login.no_account",
+        "value": "Don't have an account yet?"
+    },
+    {
+        "key": "login.contact_us",
+        "value": "Contact us"
+    },
+    {
+        "key": "auth.forgot_password.sent",
+        "value": "If the details match an account, we sent an email to reset the password."
+    },
+    {
+        "key": "forgot_password.title",
+        "value": "Recover your password"
+    },
+    {
+        "key": "forgot_password.description",
+        "value": "Enter your username or email and we'll send you a link to choose a new one."
+    },
+    {
+        "key": "forgot_password.identifier",
+        "value": "Username or email"
+    },
+    {
+        "key": "forgot_password.submit",
+        "value": "Send link"
+    },
+    {
+        "key": "forgot_password.sent.title",
+        "value": "Check your email"
+    },
+    {
+        "key": "forgot_password.sent.description",
+        "value": "If {identifier} matches an account, we sent you a link to choose a new password. It expires in 1 hour."
+    },
+    {
+        "key": "forgot_password.no_email",
+        "value": "No email on your account? Message us"
+    },
+    {
+        "key": "forgot_password.no_email.message",
+        "value": "Hi, I need to reset my Gentoo password and my account has no email."
+    },
+    {
+        "key": "forgot_password.back_to_login",
+        "value": "Back to sign in"
+    },
+    {
+        "key": "form.password.show",
+        "value": "Show password"
+    },
+    {
+        "key": "form.password.hide",
+        "value": "Hide password"
+    },
+    {
+        "key": "auth.tagline",
+        "value": "Your practice, in order."
+    },
+    {
+        "key": "auth.footer.terms",
+        "value": "Terms"
+    },
+    {
+        "key": "auth.footer.privacy",
+        "value": "Privacy"
+    },
+    {
+        "key": "auth.footer.help",
+        "value": "Help"
+    },
+    {
+        "key": "auth.footer.help.message",
+        "value": "Hi, I need help signing in to Gentoo."
     },
     {
         "key": "privacy.section.contact.desc",

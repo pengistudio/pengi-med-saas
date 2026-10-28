@@ -1,12 +1,6 @@
 import { useText } from "@pengi/shared";
 import {
 	Button,
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
 	Form,
 	FormInput,
 	FormPasswordInput,
@@ -14,10 +8,11 @@ import {
 	Text,
 } from "@pengi/ui";
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import z from "zod";
 import { userLogin } from "@/api/auth-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LANDING_URL } from "@/lib/constants";
 import { useTokenStore } from "@/store/token-store";
 
 const formSchema = z.object({
@@ -35,6 +30,7 @@ const LoginForm = () => {
 	const { textGet } = useText();
 	const [load, setLoad] = React.useState(false);
 	const [emailNotVerified, setEmailNotVerified] = React.useState(false);
+	const [capsLock, setCapsLock] = React.useState(false);
 	const { setToken } = useTokenStore();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
@@ -44,72 +40,87 @@ const LoginForm = () => {
 		<Form<typeof formSchema>
 			schema={formSchema}
 			onSubmit={onSubmit}
-			className="max-w-md w-full min-w-xs"
+			className="w-full"
 			defaultValues={{
 				password: "",
 				user_name: "",
 			}}
 		>
-			{(field) => {
-				return (
-					<Card className="md:shadow-none md:border-none">
-						<CardHeader>
-							<CardTitle>
-								<Text
-									uuid={
-										intent === "new_company"
-											? "login.new_company.title"
-											: "login.title"
-									}
-								/>
-							</CardTitle>
-							<CardDescription>
-								<Text
-									uuid={
-										intent === "new_company"
-											? "login.new_company.subtitle"
-											: "login.subtitle"
-									}
-								/>
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							{emailNotVerified && (
-								<Alert variant="destructive">
-									<AlertTitle>
-										<Text uuid="login.email_not_verified.title" />
-									</AlertTitle>
-									<AlertDescription>
-										<Text uuid="login.email_not_verified.description" />
-									</AlertDescription>
-								</Alert>
-							)}
-							<FormInput
-								field={field}
-								name="user_name"
-								type="text"
-								placeholder={textGet("login.username.placeholder")}
-								label={textGet("login.username")}
-								autoComplete="username"
+			{(field) => (
+				<div className="space-y-6">
+					<div className="space-y-2">
+						<h1 className="text-3xl font-semibold tracking-tight">
+							<Text
+								uuid={
+									intent === "new_company"
+										? "login.new_company.title"
+										: "login.title"
+								}
 							/>
+						</h1>
+						{intent === "new_company" && (
+							<p className="text-muted-foreground">
+								<Text uuid="login.new_company.subtitle" />
+							</p>
+						)}
+					</div>
+					{emailNotVerified && (
+						<Alert variant="destructive">
+							<AlertTitle>
+								<Text uuid="login.email_not_verified.title" />
+							</AlertTitle>
+							<AlertDescription>
+								<Text uuid="login.email_not_verified.description" />
+							</AlertDescription>
+						</Alert>
+					)}
+					<div className="space-y-4">
+						<FormInput
+							field={field}
+							name="user_name"
+							type="text"
+							label={textGet("login.username")}
+							autoComplete="username"
+							autoFocus
+						/>
+						<div className="relative">
 							<FormPasswordInput
 								field={field}
 								name="password"
-								placeholder={textGet("login.password.placeholder")}
 								label={textGet("login.password")}
+								description={capsLock ? textGet("login.caps_lock") : undefined}
+								onKeyDown={detectCapsLock}
+								onKeyUp={detectCapsLock}
 							/>
-						</CardContent>
-						<CardFooter className="flex flex-col gap-4">
-							<Button type="submit" className="w-full" disabled={load}>
-								{load && <Spinner />}
-								<Text uuid="login.login_button" />
-							</Button>
-						</CardFooter>
-					</Card>
-				);
-			}}
+							<Link
+								to="/forgot-password"
+								className="absolute top-0 right-0 text-sm text-primary hover:underline underline-offset-4"
+							>
+								<Text uuid="login.forgot_password" />
+							</Link>
+						</div>
+					</div>
+					<Button type="submit" size="lg" className="w-full" disabled={load}>
+						{load && <Spinner />}
+						<Text uuid="login.login_button" />
+					</Button>
+					<p className="text-sm text-muted-foreground text-center">
+						<Text uuid="login.no_account" />{" "}
+						<a
+							href={`${LANDING_URL}/#contact`}
+							className="font-medium text-primary hover:underline underline-offset-4"
+						>
+							<Text uuid="login.contact_us" />
+						</a>
+					</p>
+				</div>
+			)}
 		</Form>
 	);
+
+	function detectCapsLock(e: React.KeyboardEvent<HTMLInputElement>) {
+		setCapsLock(e.getModifierState("CapsLock"));
+	}
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoad(true);

@@ -363,7 +363,7 @@ func (h *BackofficeCompanyHandler) GenerateUserPasswordResetLink(c *gin.Context)
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
-	token, err := auth.GeneratePasswordResetToken(user.ID)
+	token, err := auth.GeneratePasswordResetToken(user.ID, user.Password, auth.PasswordResetBackofficeTTL)
 	if err != nil {
 		h.logger.Error("Failed to generate password reset token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
