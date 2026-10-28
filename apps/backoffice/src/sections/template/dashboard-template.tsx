@@ -12,7 +12,7 @@ import {
 	DropdownMenuTrigger,
 	navTitle,
 } from "@pengi/ui";
-import { HelpCircle, Power, Shield } from "lucide-react";
+import { Power, Shield } from "lucide-react";
 import { Suspense, useMemo } from "react";
 import { Outlet, useLocation } from "react-router";
 import { createNavItems } from "@/config/nav-config";
@@ -25,20 +25,10 @@ export function DashboardLayout() {
 
 	const { pathname } = useLocation();
 	const navItems = useMemo(() => createNavItems(textGet), [textGet]);
-	const footerNavItems = [
-		{
-			label: textGet("backoffice.help"),
-			href: "/",
-			icon: HelpCircle,
-			matchActive: false,
-		},
-	];
-
 	return (
 		<AppShell
 			brand={{ icon: Shield, name: "Pengi Admin" }}
 			nav={navItems}
-			footerNav={footerNavItems}
 			title={
 				navTitle(navItems, pathname) ?? textGet("backoffice.nav.dashboard")
 			}

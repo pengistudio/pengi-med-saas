@@ -23,6 +23,7 @@ import {
 import NavAccordion from "../nav/nav-accordion";
 import { NavBadge } from "../nav/nav-badge";
 import NavItem from "../nav/nav-item";
+import NavMenu, { type NavMenuItem } from "../nav/nav-menu";
 import { AppShellContext, type AppShellState } from "./app-shell-context";
 
 type Icon = React.ComponentType<{ className?: string }>;
@@ -44,7 +45,15 @@ export type NavGroupEntry = {
 	section?: string;
 	accordionItems: NavLinkEntry[];
 };
-export type NavEntry = NavLinkEntry | NavGroupEntry;
+/** Opens a menu of external links instead of navigating (e.g. help). */
+export type NavMenuEntry = {
+	label: string;
+	icon: Icon;
+	section?: string;
+	menuItems: NavMenuItem[];
+};
+export type NavEntry = NavLinkEntry | NavGroupEntry | NavMenuEntry;
+export type { NavMenuItem };
 
 interface AppShellProps {
 	brand: {
@@ -80,10 +89,12 @@ interface AppShellProps {
 
 const DRAWER_ID = "app-shell-nav";
 
-const linksOf = (entry: NavEntry): NavLinkEntry[] =>
-	"accordionItems" in entry && entry.accordionItems
+const linksOf = (entry: NavEntry): NavLinkEntry[] => {
+	if ("menuItems" in entry) return [];
+	return "accordionItems" in entry && entry.accordionItems
 		? entry.accordionItems
 		: [entry as NavLinkEntry];
+};
 
 /** Longest-prefix match of `pathname` among the links, as in `navTitle`. */
 function activeHrefFor(entries: NavEntry[], pathname: string) {
@@ -128,7 +139,9 @@ const renderEntries = (
 						{title}
 					</div>
 				)}
-				{"accordionItems" in entry && entry.accordionItems ? (
+				{"menuItems" in entry ? (
+					<NavMenu {...entry} />
+				) : "accordionItems" in entry && entry.accordionItems ? (
 					<NavAccordion {...entry} />
 				) : (
 					<NavItem

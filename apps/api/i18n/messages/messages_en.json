@@ -156,6 +156,46 @@
         "value": "Help"
     },
     {
+        "key": "dashboard.help.whatsapp.label",
+        "value": "Chat on WhatsApp"
+    },
+    {
+        "key": "dashboard.help.whatsapp.description",
+        "value": "The Gentoo team will answer you"
+    },
+    {
+        "key": "dashboard.help.whatsapp.message",
+        "value": "Hi, I'm from {clinic} ({slug}). I have a question about {page}: "
+    },
+    {
+        "key": "dashboard.help.email.label",
+        "value": "Send an email"
+    },
+    {
+        "key": "dashboard.help.email.description",
+        "value": "pengiservicios@gmail.com"
+    },
+    {
+        "key": "dashboard.help.email.subject",
+        "value": "Gentoo support: {clinic}"
+    },
+    {
+        "key": "dashboard.help.email.body",
+        "value": "Clinic: {clinic} ({slug})\nPage: {page}\n\nTell us your question:\n"
+    },
+    {
+        "key": "dashboard.help.report.label",
+        "value": "Report a problem"
+    },
+    {
+        "key": "dashboard.help.report.description",
+        "value": "Something doesn't work as expected"
+    },
+    {
+        "key": "dashboard.help.report.message",
+        "value": "Hi, I found a problem on {page} ({clinic}, {slug}). What happened: "
+    },
+    {
         "key": "shell.nav",
         "value": "Main navigation"
     },
@@ -2342,10 +2382,6 @@
     {
         "key": "backoffice.nav.team",
         "value": "Internal Team"
-    },
-    {
-        "key": "backoffice.help",
-        "value": "Help"
     },
     {
         "key": "backoffice.dropdown.account",

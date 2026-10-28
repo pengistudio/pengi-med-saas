@@ -156,6 +156,46 @@
         "value": "Ayuda"
     },
     {
+        "key": "dashboard.help.whatsapp.label",
+        "value": "Escribir por WhatsApp"
+    },
+    {
+        "key": "dashboard.help.whatsapp.description",
+        "value": "Te responde el equipo de Gentoo"
+    },
+    {
+        "key": "dashboard.help.whatsapp.message",
+        "value": "Hola, soy de {clinic} ({slug}). Tengo una consulta sobre {page}: "
+    },
+    {
+        "key": "dashboard.help.email.label",
+        "value": "Escribir por correo"
+    },
+    {
+        "key": "dashboard.help.email.description",
+        "value": "pengiservicios@gmail.com"
+    },
+    {
+        "key": "dashboard.help.email.subject",
+        "value": "Soporte Gentoo: {clinic}"
+    },
+    {
+        "key": "dashboard.help.email.body",
+        "value": "Clínica: {clinic} ({slug})\nPantalla: {page}\n\nCuéntanos tu consulta:\n"
+    },
+    {
+        "key": "dashboard.help.report.label",
+        "value": "Reportar un problema"
+    },
+    {
+        "key": "dashboard.help.report.description",
+        "value": "Algo no funciona como esperabas"
+    },
+    {
+        "key": "dashboard.help.report.message",
+        "value": "Hola, encontré un problema en {page} ({clinic}, {slug}). Lo que pasó: "
+    },
+    {
         "key": "shell.nav",
         "value": "Navegación principal"
     },
@@ -2342,10 +2382,6 @@
     {
         "key": "backoffice.nav.team",
         "value": "Equipo Interno"
-    },
-    {
-        "key": "backoffice.help",
-        "value": "Ayuda"
     },
     {
         "key": "backoffice.dropdown.account",
