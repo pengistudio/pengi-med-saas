@@ -102,6 +102,10 @@ const SettingsPage = () => {
 	const canManageLogo = checkPermission([
 		PERMISSIONS.SETTINGS.PERMISSION_MANAGE_CLINIC_BRANDING,
 	]);
+	// Clinic-wide UI settings (table columns, consultation form, tasks).
+	const canManageSettings = checkPermission([
+		PERMISSIONS.SETTINGS.PERMISSION_MANAGE_CLINIC_SETTINGS,
+	]);
 	const canManageWhatsApp = checkPermission([
 		PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP,
 	]);
@@ -201,72 +205,76 @@ const SettingsPage = () => {
 				</SettingsSection>
 			)}
 
-			<SettingsSection
-				title={<Text uuid="settings.clinical.title" />}
-				description={<Text uuid="settings.clinical.description" />}
-			>
-				<SettingsGroup title={<Text uuid="settings.clinical.section.table" />}>
-					{tableToggles.map(({ key, labelKey }) => (
-						<SwitchRow
-							key={key}
-							id={`setting-${key}`}
-							label={<Text uuid={labelKey} />}
-							checked={settings.clinical[key] as boolean}
-							onToggle={() => toggleClinical(key)}
-						/>
-					))}
-				</SettingsGroup>
+			{canManageSettings && (
+				<SettingsSection
+					title={<Text uuid="settings.clinical.title" />}
+					description={<Text uuid="settings.clinical.description" />}
+				>
+					<SettingsGroup
+						title={<Text uuid="settings.clinical.section.table" />}
+					>
+						{tableToggles.map(({ key, labelKey }) => (
+							<SwitchRow
+								key={key}
+								id={`setting-${key}`}
+								label={<Text uuid={labelKey} />}
+								checked={settings.clinical[key] as boolean}
+								onToggle={() => toggleClinical(key)}
+							/>
+						))}
+					</SettingsGroup>
 
-				<SettingsGroup title={<Text uuid="settings.clinical.section.form" />}>
-					{formToggles.map(({ key, labelKey }) => (
-						<SwitchRow
-							key={key}
-							id={`setting-${key}`}
-							label={<Text uuid={labelKey} />}
-							checked={settings.clinical[key] as boolean}
-							onToggle={() => toggleClinical(key)}
-						/>
-					))}
+					<SettingsGroup title={<Text uuid="settings.clinical.section.form" />}>
+						{formToggles.map(({ key, labelKey }) => (
+							<SwitchRow
+								key={key}
+								id={`setting-${key}`}
+								label={<Text uuid={labelKey} />}
+								checked={settings.clinical[key] as boolean}
+								onToggle={() => toggleClinical(key)}
+							/>
+						))}
 
-					{/* Diagnosis system: only matters while diagnoses are on */}
-					{settings.clinical.show_diagnoses && (
-						<div className="grid gap-2 py-2.5">
-							<div className="flex items-center justify-between gap-4">
-								<span className="text-sm" id="diagnosis-system-label">
-									<Text uuid="settings.clinical.diagnosis_system" />
-								</span>
-								<fieldset
-									aria-labelledby="diagnosis-system-label"
-									className="inline-flex rounded-lg bg-muted p-0.5"
-								>
-									{(["cie11", "cie10"] as const).map((sys) => (
-										<label
-											key={sys}
-											className="cursor-pointer rounded-md px-3 py-1 text-sm font-medium tabular-nums text-muted-foreground transition-colors hover:text-foreground has-checked:bg-background has-checked:text-foreground has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-ring"
-										>
-											<input
-												type="radio"
-												name="diagnosis-system"
-												value={sys}
-												checked={settings.clinical.diagnosis_system === sys}
-												onChange={() => setDiagnosisSystem(sys)}
-												className="sr-only"
-											/>
-											{sys === "cie11" ? "CIE-11" : "CIE-10"}
-										</label>
-									))}
-								</fieldset>
+						{/* Diagnosis system: only matters while diagnoses are on */}
+						{settings.clinical.show_diagnoses && (
+							<div className="grid gap-2 py-2.5">
+								<div className="flex items-center justify-between gap-4">
+									<span className="text-sm" id="diagnosis-system-label">
+										<Text uuid="settings.clinical.diagnosis_system" />
+									</span>
+									<fieldset
+										aria-labelledby="diagnosis-system-label"
+										className="inline-flex rounded-lg bg-muted p-0.5"
+									>
+										{(["cie11", "cie10"] as const).map((sys) => (
+											<label
+												key={sys}
+												className="cursor-pointer rounded-md px-3 py-1 text-sm font-medium tabular-nums text-muted-foreground transition-colors hover:text-foreground has-checked:bg-background has-checked:text-foreground has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-ring"
+											>
+												<input
+													type="radio"
+													name="diagnosis-system"
+													value={sys}
+													checked={settings.clinical.diagnosis_system === sys}
+													onChange={() => setDiagnosisSystem(sys)}
+													className="sr-only"
+												/>
+												{sys === "cie11" ? "CIE-11" : "CIE-10"}
+											</label>
+										))}
+									</fieldset>
+								</div>
+								{settings.clinical.diagnosis_system === "cie10" && (
+									<p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+										<AlertTriangle className="mt-px size-3.5 shrink-0" />
+										<Text uuid="settings.clinical.cie10_lang_warning" />
+									</p>
+								)}
 							</div>
-							{settings.clinical.diagnosis_system === "cie10" && (
-								<p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-									<AlertTriangle className="mt-px size-3.5 shrink-0" />
-									<Text uuid="settings.clinical.cie10_lang_warning" />
-								</p>
-							)}
-						</div>
-					)}
-				</SettingsGroup>
-			</SettingsSection>
+						)}
+					</SettingsGroup>
+				</SettingsSection>
+			)}
 
 			{canManageTemplates && (
 				<SettingsSection
@@ -385,9 +393,11 @@ const SettingsPage = () => {
 				{canManageWhatsApp && <WhatsAppSettings />}
 			</SettingsSection>
 
-			<SettingsSection title={<Text uuid="tasks.title" />}>
-				<KanbanSettings />
-			</SettingsSection>
+			{canManageSettings && (
+				<SettingsSection title={<Text uuid="tasks.title" />}>
+					<KanbanSettings />
+				</SettingsSection>
+			)}
 		</div>
 	);
 };

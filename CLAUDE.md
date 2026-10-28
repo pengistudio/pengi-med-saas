@@ -227,6 +227,8 @@ When creating endpoints or features:
 
 To add a migration: create a file in `migrations/code-migrations/{year}/`, register it in `GlobalDBMap`.
 
+A fresh database (no migration recorded) doesn't replay them: it gets `database.Baseline` (`migrations/baseline.go`, seeded from the current catalogs) and every ID is recorded as executed. Reference data a migration seeds (permissions, roles, features, plans) must also live in those catalogs.
+
 **Never edit a code-migration file that is already committed to `origin/main`** — IDs are immutable, editing one that already ran elsewhere is a silent no-op there (drift between environments). Always create a new file with a new ID instead. This is enforced automatically by `.claude/hooks/guard-migrations.mjs` (blocks Edit/Write on any migration file already in `origin/main`); see `docs/backend/api-code-migration.md` rule #1.
 
 ### Tenant files and PDFs

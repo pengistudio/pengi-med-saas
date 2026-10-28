@@ -53,5 +53,7 @@ func registerTenantSettingsRoutes(tenantGroup *gin.RouterGroup, db *gorm.DB, ten
 	tenantGroup.GET("/logo", tenantHandler.DownloadLogo)
 	tenantGroup.PUT("/sri/info", manageSri, envelope.Handle(tenantHandler.UpdateSriInfo))
 	tenantGroup.GET("/settings", envelope.Handle(tenantHandler.GetUISettings))
-	tenantGroup.PUT("/settings", envelope.Handle(tenantHandler.UpdateUISettings))
+	// The UI settings apply to every user of the clinic (patient table
+	// columns, consultation form, diagnosis system): admin only, any plan.
+	tenantGroup.PUT("/settings", subscription_middleware.RequireRolePermission(db, "MANAGE_CLINIC_SETTINGS"), envelope.Handle(tenantHandler.UpdateUISettings))
 }

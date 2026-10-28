@@ -76,11 +76,17 @@ grep -rho 'GlobalDBMap\["[^"]*"\]' apps/api/migrations/code-migrations/2026/*.go
   tenants.
 - En dev (`air`), guardar el archivo recompila y ejecuta la migración nueva;
   confirma con `docker logs pengi-api | grep <ID>`.
-- **Orden entre años:** `database.ParseFileName` interpreta la fecha del ID
-  como `DDMMYYYY`, no `YYYYMMDD`. Dentro de 2026 el orden resultante es
-  correcto, pero un ID de 2027 se ordenaría antes que los de fines de 2026.
-  Si una migración de 2027 depende de otra anterior, arregla primero
-  `ParseFileName`.
+- **Orden:** por fecha `YYYYMMDD` del ID y luego por índice
+  (`database.ParseFileName`); un ID de 2027 corre después de todos los de 2026.
+- **DB nueva → baseline:** si la tabla de migraciones está vacía, `ExecuteAll`
+  no reproduce el historial (las migraciones viejas asumen el esquema de su
+  época y `AutoMigrate` ya creó el actual). Corre `database.Baseline`
+  (`migrations/baseline.go`) y registra todas las IDs como ejecutadas. El
+  baseline siembra desde los catálogos actuales: `permission_data.All()`, los
+  roles de `role_data`, `permission_data.Features`, el plan TRIAL, y reutiliza
+  las migraciones idempotentes de `baselineMigrations` (CIE-10, orígenes,
+  admins del backoffice, índices de auditoría). Lo cubre
+  `migrations/baseline_test.go`.
 - Sufijos no numéricos (`DB20260315_CIE10_SEED`) se ordenan como índice 0 de su
   fecha.
 
@@ -186,3 +192,4 @@ import [dominio]_models "pengi-med-saas/features/[dominio]/models"
 4. **Errores con `fmt.Errorf("...: %w", err)`** — wrapping obligatorio para trazabilidad.
 5. **Logs con `fmt.Printf("✅ ...")`** — usar emojis para distinguir visualmente en los logs de inicio.
 6. **NO usar `logger.Log`** — las migrations usan `fmt` directamente, no zap.
+7. **Los datos de referencia viven en catálogos** — una DB nueva no corre tu migración (queda registrada como ejecutada por el baseline). Si la migración siembra datos que toda DB necesita (permisos, roles, features, planes), agrégalos también al catálogo que lee el baseline (`permission-data.go`, `role-data.go`, `permission_data.Features`) o suma su ID a `baselineMigrations` si es idempotente sobre una DB nueva.
