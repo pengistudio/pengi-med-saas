@@ -326,7 +326,8 @@ export interface Appointment extends BaseModel {
 		| "arrived"
 		| "in_consultation"
 		| "completed"
-		| "cancelled";
+		| "cancelled"
+		| "no_show";
 	color_id?: string;
 	doctor_id?: number | null;
 	/** Optional appointment type (map it with the agenda store's types). */
@@ -705,6 +706,23 @@ export const updateAppointment = async (
 		`/clinical/appointments/${id}`,
 		payload,
 		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+/** A patient's no-shows in the last `months` months (GET .../no-shows). */
+export interface PatientNoShows {
+	count: number;
+	last_date: string | null;
+	months: number;
+}
+
+/** Quiet on error: the history is a hint, never in the way of the screen. */
+export const getPatientNoShows = async (
+	patientId: number,
+): Promise<ServiceResponse<PatientNoShows>> => {
+	return clinicalService.get<PatientNoShows>(
+		`/clinical/appointments/patient/${patientId}/no-shows`,
+		{ notifyError: false },
 	);
 };
 

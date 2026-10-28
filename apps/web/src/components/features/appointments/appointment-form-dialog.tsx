@@ -30,6 +30,7 @@ import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { FormCalendar } from "@/components/forms/form-calendar";
 import { appointmentSchema } from "./appointment-utils";
 import { ColorSwatchPicker } from "./color-swatch-picker";
+import { NoShowWarning } from "./no-show-history";
 
 const PATIENT_SEARCH_DEBOUNCE_MS = 300;
 const PATIENT_RESULTS_LIMIT = 8;
@@ -229,6 +230,7 @@ export function AppointmentFormDialog({
 								{selectedPatient.document}
 							</Badge>
 						)}
+						<NoShowWarning patientId={selectedPatient?.ID ?? null} />
 						{showPatientList &&
 							!selectedPatient &&
 							patientSearch.length > 0 && (

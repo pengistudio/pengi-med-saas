@@ -12306,5 +12306,85 @@
     {
         "key": "waiting_room.video.remove",
         "value": "Quitar video"
+    },
+    {
+        "key": "appointments.no_shows.fetch.success",
+        "value": "Historial de inasistencias obtenido"
+    },
+    {
+        "key": "tenant.settings.agenda.invalid_no_show_minutes",
+        "value": "Los minutos para marcar una inasistencia deben estar entre 5 y 240"
+    },
+    {
+        "key": "appointments.status.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "appointments.action.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "appointments.action.mark_scheduled",
+        "value": "Volver a programada"
+    },
+    {
+        "key": "appointments.action.mark_arrived",
+        "value": "Sí llegó"
+    },
+    {
+        "key": "appointments.no_shows.warning.one",
+        "value": "Faltó {count} vez en los últimos 12 meses"
+    },
+    {
+        "key": "appointments.no_shows.warning.other",
+        "value": "Faltó {count} veces en los últimos 12 meses"
+    },
+    {
+        "key": "appointments.no_shows.badge.one",
+        "value": "{count} inasistencia (12 meses)"
+    },
+    {
+        "key": "appointments.no_shows.badge.other",
+        "value": "{count} inasistencias (12 meses)"
+    },
+    {
+        "key": "appointments.no_shows.last",
+        "value": "Última inasistencia: {date}"
+    },
+    {
+        "key": "agenda.settings.tab.no_show",
+        "value": "Inasistencias"
+    },
+    {
+        "key": "agenda.no_show.title",
+        "value": "Inasistencias automáticas"
+    },
+    {
+        "key": "agenda.no_show.description",
+        "value": "Marca como «No asistió» las citas que siguen programadas o confirmadas un tiempo después de su hora de fin, si el paciente no tiene una consulta registrada ese día."
+    },
+    {
+        "key": "agenda.no_show.auto",
+        "value": "Marcar inasistencias automáticamente"
+    },
+    {
+        "key": "agenda.no_show.auto.description",
+        "value": "Solo se marcan las citas que terminan después de activarlo; el historial no cambia."
+    },
+    {
+        "key": "agenda.no_show.minutes",
+        "value": "Minutos después de la hora de fin"
+    },
+    {
+        "key": "agenda.no_show.minutes.description",
+        "value": "Entre 5 y 240 minutos."
+    },
+    {
+        "key": "agenda.no_show.error.minutes",
+        "value": "Ingresa un número entero entre 5 y 240"
+    },
+    {
+        "key": "agenda.no_show.warning",
+        "value": "Úsalo solo si la recepción registra las llegadas o el médico registra la consulta: de lo contrario, se marcará como inasistencia a pacientes que sí vinieron. Siempre puedes corregir el estado desde la cita."
     }
 ]

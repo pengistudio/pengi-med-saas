@@ -12,6 +12,7 @@ import (
 type UISettings struct {
 	Clinical ClinicalSettings `json:"clinical"`
 	Kanban   KanbanSettings   `json:"kanban"`
+	Agenda   AgendaSettings   `json:"agenda"`
 }
 
 type ClinicalSettings struct {
@@ -32,6 +33,43 @@ type KanbanSettings struct {
 	AutoArchiveDelay string `json:"auto_archive_delay"` // "never", "1_day", "1_week", "2_weeks", "1_month"
 }
 
+// No-show marking limits (minutes after an appointment's end time).
+const (
+	MinNoShowAfterMinutes     = 5
+	MaxNoShowAfterMinutes     = 240
+	DefaultNoShowAfterMinutes = 30
+)
+
+// AgendaSettings configures the agenda. AutoNoShow marks as no_show the
+// appointments still scheduled or confirmed NoShowAfterMinutes after their
+// end (clinical_workers.NoShowScheduler). AutoNoShowSince is when the clinic
+// turned it on: only appointments ending after it are marked (no backfill).
+// It is set by the server (UpdateUISettings), never taken from the client.
+type AgendaSettings struct {
+	AutoNoShow         bool       `json:"auto_no_show"`
+	NoShowAfterMinutes int        `json:"no_show_after_minutes"`
+	AutoNoShowSince    *time.Time `json:"auto_no_show_since"`
+}
+
+// ValidNoShowAfterMinutes reports whether m is inside the allowed range.
+func ValidNoShowAfterMinutes(m int) bool {
+	return m >= MinNoShowAfterMinutes && m <= MaxNoShowAfterMinutes
+}
+
+// ParseUISettings reads the stored JSON over the defaults, so sections and
+// keys that are absent keep their default value. Unparseable JSON yields the
+// defaults.
+func ParseUISettings(raw string) UISettings {
+	settings := DefaultUISettings()
+	if strings.TrimSpace(raw) == "" {
+		return settings
+	}
+	if err := json.Unmarshal([]byte(raw), &settings); err != nil {
+		return DefaultUISettings()
+	}
+	return settings
+}
+
 // DefaultUISettings returns sensible defaults (all visible, CIE-11).
 func DefaultUISettings() UISettings {
 	return UISettings{
@@ -46,6 +84,9 @@ func DefaultUISettings() UISettings {
 		},
 		Kanban: KanbanSettings{
 			AutoArchiveDelay: "never",
+		},
+		Agenda: AgendaSettings{
+			NoShowAfterMinutes: DefaultNoShowAfterMinutes,
 		},
 	}
 }

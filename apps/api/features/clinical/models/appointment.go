@@ -8,6 +8,25 @@ import (
 	doctor_models "pengi-med-saas/features/doctors/models"
 )
 
+// Appointment statuses that end an appointment without the patient being
+// attended, plus the ones before arrival (the only ones a no-show can follow).
+const (
+	AppointmentStatusScheduled = "scheduled"
+	AppointmentStatusConfirmed = "confirmed"
+	AppointmentStatusCompleted = "completed"
+	AppointmentStatusCancelled = "cancelled"
+	// AppointmentStatusNoShow: the patient didn't come. Set by reception or,
+	// when the clinic turns it on, by clinical_workers.NoShowScheduler.
+	AppointmentStatusNoShow = "no_show"
+)
+
+// IsClosedStatus reports whether status takes the appointment off the
+// calendars (its Google Calendar event is removed): completed, cancelled or
+// no_show.
+func IsClosedStatus(status string) bool {
+	return status == AppointmentStatusCompleted || status == AppointmentStatusCancelled || status == AppointmentStatusNoShow
+}
+
 type Appointment struct {
 	gorm.Model
 	TenantID      uint                  `json:"tenant_id"`

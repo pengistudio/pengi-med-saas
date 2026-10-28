@@ -49,6 +49,7 @@ import {
 import { PageHeader } from "@/components/custom/page-header";
 import PatientCard, { formatAge } from "@/components/custom/patient-card";
 import { DataTable } from "@/components/custom/table/data-table";
+import { NoShowBadge } from "@/components/features/appointments/no-show-history";
 import EditPrescriptionDialog from "@/components/features/patient/edit-prescription-dialog";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
 import { OpenChatButton } from "@/components/features/whatsapp/open-chat-button";
@@ -203,6 +204,9 @@ const MedicalRecords = () => {
 										<Text uuid="clinical.patient_card.has_allergies" />
 									</Badge>
 								)}
+								{checkPermission([
+									PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT,
+								]) && <NoShowBadge patientId={patient.ID} />}
 							</span>
 						}
 						description={

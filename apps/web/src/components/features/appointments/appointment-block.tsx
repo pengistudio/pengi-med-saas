@@ -25,7 +25,8 @@ export function AppointmentBlock({
 			disabled:
 				!draggable ||
 				appointment.status === "cancelled" ||
-				appointment.status === "completed",
+				appointment.status === "completed" ||
+				appointment.status === "no_show",
 		});
 
 	// Dropped on another day, the block remounts in that column: start it where
@@ -65,6 +66,7 @@ export function AppointmentBlock({
 					"animate-in fade-in-0 zoom-in-95 [animation-fill-mode:backwards]",
 				color.className,
 				appointment.status === "cancelled" && "opacity-50 line-through",
+				appointment.status === "no_show" && "opacity-60",
 				isDragging && "z-30 shadow-lg opacity-80 cursor-grabbing",
 			)}
 			style={{

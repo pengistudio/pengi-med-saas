@@ -154,6 +154,7 @@ func registerAppointmentRoutes(group *gin.RouterGroup, db *gorm.DB, h *clinical_
 	group.GET("/today", read, envelope.Handle(h.GetTodayAppointments))
 	group.GET("/:id", read, envelope.Handle(h.GetAppointment))
 	group.GET("/patient/:id", read, envelope.Handle(h.GetPatientAppointments))
+	group.GET("/patient/:id/no-shows", read, envelope.Handle(h.GetPatientNoShows))
 	group.POST("", manage, envelope.Handle(h.CreateAppointment))
 	group.PUT("/:id", manage, envelope.Handle(h.UpdateAppointment))
 	group.PUT("/:id/status", manage, envelope.Handle(h.UpdateStatus))

@@ -1,3 +1,4 @@
+import { parseDateOnly } from "@pengi/shared";
 import type { CSSProperties } from "react";
 import { z } from "zod";
 import { doctorColorStyle } from "@/components/features/doctors/doctor-utils";
@@ -53,6 +54,13 @@ export const STATUS_COLORS = {
 		dot: "bg-gray-400",
 		badge: "bg-gray-400/20 text-gray-500 dark:text-gray-400",
 	},
+	no_show: {
+		bg: "bg-rose-500/15",
+		border: "border-rose-500",
+		text: "text-rose-700 dark:text-rose-400",
+		dot: "bg-rose-500",
+		badge: "bg-rose-500/20 text-rose-700 dark:text-rose-400",
+	},
 };
 
 export type StatusColorKey = keyof typeof STATUS_COLORS;
@@ -64,6 +72,21 @@ export function getStatusColor(status: string) {
 /** Upcoming, not yet attended: scheduled, or confirmed by the patient. */
 export function isUpcomingStatus(status: string) {
 	return status === "scheduled" || status === "confirmed";
+}
+
+/**
+ * Whether the appointment's start time has passed (in the browser's time
+ * zone): only then can reception mark it as a no-show.
+ */
+export function hasStarted(
+	appointment: { date: string; start_time: string },
+	now: Date = new Date(),
+) {
+	const day = parseDateOnly(appointment.date);
+	if (!day) return false;
+	const start = new Date(day);
+	start.setHours(0, timeToMinutes(appointment.start_time), 0, 0);
+	return start.getTime() <= now.getTime();
 }
 
 // ─── Event Colors (manual, synced to Google Calendar) ───────────────────────
@@ -219,6 +242,7 @@ export const STATUS_I18N_KEYS: Record<string, string> = {
 	in_consultation: "appointments.status.in_consultation",
 	completed: "appointments.status.completed",
 	cancelled: "appointments.status.cancelled",
+	no_show: "appointments.status.no_show",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
