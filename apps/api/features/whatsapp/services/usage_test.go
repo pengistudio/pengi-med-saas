@@ -236,8 +236,9 @@ func TestCatalog_TemplateCategoriesAndRender(t *testing.T) {
 			}
 		}
 	}
-	if len(names) != 8 || !names[whatsapp_models.ReminderTemplate] || !names[whatsapp_models.TemplatePortalCode] ||
-		!names[whatsapp_models.TemplateBookingConfirmed] || !names[whatsapp_models.TemplateBookingNotConfirmed] {
+	if len(names) != 10 || !names[whatsapp_models.ReminderTemplate] || !names[whatsapp_models.TemplatePortalCode] ||
+		!names[whatsapp_models.TemplateBookingConfirmed] || !names[whatsapp_models.TemplateBookingNotConfirmed] ||
+		!names[whatsapp_models.TemplateNoShow] || !names[whatsapp_models.TemplateSlotOffer] {
 		t.Fatalf("catalog = %v", names)
 	}
 	// The reminder is unchanged.

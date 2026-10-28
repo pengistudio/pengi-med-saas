@@ -16,6 +16,10 @@ const (
 	// portal appointment request (confirmed; rejected or expired).
 	TemplateBookingConfirmed    = "pengi_cita_confirmada"
 	TemplateBookingNotConfirmed = "pengi_cita_no_confirmada"
+	// TemplateNoShow invites a patient who missed an appointment to book a
+	// new one; TemplateSlotOffer offers a freed slot to a waitlisted patient.
+	TemplateNoShow    = "pengi_cita_no_asistio"
+	TemplateSlotOffer = "pengi_turno_disponible"
 )
 
 // WhatsAppTemplate is the review status of one catalog template on the

@@ -11532,6 +11532,14 @@
         "value": "Appointment not confirmed (portal)"
     },
     {
+        "key": "whatsapp.template.name.pengi_cita_no_asistio",
+        "value": "Missed appointment"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_turno_disponible",
+        "value": "Slot available (waitlist)"
+    },
+    {
         "key": "settings.whatsapp.log.kind.booking_confirmed",
         "value": "Appointment confirmed (portal)"
     },

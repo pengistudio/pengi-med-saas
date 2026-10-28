@@ -110,6 +110,8 @@ var Catalog = []TemplateSpec{
 	PortalCodeTemplate,
 	BookingConfirmedTemplate,
 	BookingNotConfirmedTemplate,
+	NoShowTemplate,
+	SlotOfferTemplate,
 }
 
 // BookingConfirmedTemplate tells the patient that the appointment they asked
@@ -139,6 +141,38 @@ var BookingNotConfirmedTemplate = TemplateSpec{
 	},
 	Variables:        []string{VarPatient, VarClinic, VarDate, VarTime},
 	NeedsAppointment: true,
+}
+
+// NoShowTemplate invites a patient marked as no-show to book a new date. It
+// says neither "today" nor that the patient missed it: it may go out the
+// next morning (send hours). The button reply depends on the appointment, so
+// it is not an inbox template.
+var NoShowTemplate = TemplateSpec{
+	Definition: whatsapp.TemplateDefinition{
+		Name:     whatsapp_models.TemplateNoShow,
+		Language: ReminderLanguage,
+		Category: "UTILITY",
+		Body:     "Hola {{1}}, te esperábamos en {{2}} el {{3}} a las {{4}} para tu cita con {{5}}. Si deseas agendar una nueva fecha, toca \"Reagendar\" o responde a este mensaje.",
+		Example:  []string{"María Pérez", "Clínica Pengi", "lunes 6 de octubre", "10:30", "Dra. Ana Torres"},
+		Buttons:  []whatsapp.TemplateButton{{Text: "Reagendar"}},
+	},
+	Variables:        []string{VarPatient, VarClinic, VarDate, VarTime, VarDoctor},
+	NeedsAppointment: true,
+}
+
+// SlotOfferTemplate offers a freed slot to a patient on the waitlist. It
+// promises nothing: the reply leads to the normal booking flow. Not an inbox
+// template (date, time and doctor are the freed slot's, not an appointment's).
+var SlotOfferTemplate = TemplateSpec{
+	Definition: whatsapp.TemplateDefinition{
+		Name:     whatsapp_models.TemplateSlotOffer,
+		Language: ReminderLanguage,
+		Category: "UTILITY",
+		Body:     "Hola {{1}}, se liberó un turno en {{2}} el {{3}} a las {{4}} con {{5}}. Como estás en nuestra lista de espera, te lo ofrecemos: si te interesa, toca \"Lo quiero\" o responde a este mensaje.",
+		Example:  []string{"María Pérez", "Clínica Pengi", "lunes 6 de octubre", "10:30", "Dra. Ana Torres"},
+		Buttons:  []whatsapp.TemplateButton{{Text: "Lo quiero"}},
+	},
+	Variables: []string{VarPatient, VarClinic, VarDate, VarTime, VarDoctor},
 }
 
 // PortalCodeExpirationMinutes is how long a patient portal code lasts; the
