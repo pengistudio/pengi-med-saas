@@ -146,3 +146,9 @@ export const PERMISSIONS = {
 		PERMISSION_MANAGE_EXAM_CATALOG: "MANAGE_EXAM_CATALOG",
 	},
 };
+
+/** Gentoo support contact (help menu in the sidebar). */
+export const SUPPORT = {
+	WHATSAPP: "593985136947",
+	EMAIL: "pengiservicios@gmail.com",
+} as const;

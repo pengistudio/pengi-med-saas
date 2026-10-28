@@ -20,9 +20,12 @@ import {
 } from "@pengi/ui";
 import {
 	AlertTriangle,
+	Bug,
 	Building2,
 	CreditCard,
 	HelpCircle,
+	Mail,
+	MessageCircle,
 	Power,
 } from "lucide-react";
 import {
@@ -57,6 +60,7 @@ import { usePolling } from "@/hooks/use-polling";
 import { PERMISSIONS } from "@/lib/constants";
 import { getPageTitle } from "@/lib/page-title";
 import { refreshEnvironment } from "@/lib/refresh-environment";
+import { supportLinks } from "@/lib/support-links";
 import { useAppointmentRequestsStore } from "@/store/appointment-requests-store";
 import {
 	selectEnvironment,
@@ -208,13 +212,39 @@ export function DashboardLayout() {
 			quickActions.length ? MAX_BOTTOM_NAV_WITH_CREATE : MAX_BOTTOM_NAV,
 		),
 	);
+	const support = supportLinks(
+		{
+			clinic: environment?.trade_name || environment?.name || "",
+			slug: environment?.tenant_slug ?? "",
+			page: `${window.location.origin}${pathname}`,
+		},
+		textGet,
+	);
 	const footerNavItems = [
 		...allNavItems.filter((item) => item.isBottom),
 		{
 			label: textGet("dashboard.help"),
-			href: "/",
 			icon: HelpCircle,
-			matchActive: false,
+			menuItems: [
+				{
+					label: textGet("dashboard.help.whatsapp.label"),
+					description: textGet("dashboard.help.whatsapp.description"),
+					icon: MessageCircle,
+					href: support.whatsapp,
+				},
+				{
+					label: textGet("dashboard.help.email.label"),
+					description: textGet("dashboard.help.email.description"),
+					icon: Mail,
+					href: support.email,
+				},
+				{
+					label: textGet("dashboard.help.report.label"),
+					description: textGet("dashboard.help.report.description"),
+					icon: Bug,
+					href: support.report,
+				},
+			],
 		},
 	];
 
