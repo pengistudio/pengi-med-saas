@@ -11532,6 +11532,14 @@
         "value": "Cita no confirmada (portal)"
     },
     {
+        "key": "whatsapp.template.name.pengi_cita_no_asistio",
+        "value": "Cita no asistida"
+    },
+    {
+        "key": "whatsapp.template.name.pengi_turno_disponible",
+        "value": "Turno disponible (lista de espera)"
+    },
+    {
         "key": "settings.whatsapp.log.kind.booking_confirmed",
         "value": "Cita confirmada (portal)"
     },
