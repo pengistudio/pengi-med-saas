@@ -419,10 +419,24 @@ func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrTenantNotFound)
 	}
 
-	var settings tenant_models.UISettings
+	var tenantRecord tenant_models.Tenant
+	if err := h.db.Select("id", "ui_settings").First(&tenantRecord, tenantID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrTenantNotFound)
+	}
+	current := tenant_models.ParseUISettings(tenantRecord.UISettings)
+	wasOn, since := current.Agenda.AutoNoShow, current.Agenda.AutoNoShowSince
+
+	// The body is read over the stored settings: a client that doesn't know a
+	// section (e.g. an older build without "agenda") leaves it as it was.
+	settings := current
+	settings.Agenda.AutoNoShowSince = nil // a fresh pointer, never shared with since
 	if err := c.ShouldBindJSON(&settings); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
+	if !tenant_models.ValidNoShowAfterMinutes(settings.Agenda.NoShowAfterMinutes) {
+		return envelope.ErrorResponse(http.StatusBadRequest, "tenant.settings.agenda.invalid_no_show_minutes", core_errors.ErrInvalidRequest)
+	}
+	settings.Agenda.AutoNoShowSince = noShowSince(wasOn, since, settings.Agenda.AutoNoShow, time.Now())
 
 	raw, err := json.Marshal(settings)
 	if err != nil {
@@ -435,6 +449,20 @@ func (h *TenantHandler) UpdateUISettings(c *gin.Context) envelope.Response {
 	}
 
 	return envelope.SuccessResponse(settings, "tenant.settings.update.success")
+}
+
+// noShowSince is the AutoNoShowSince to store, whatever the client sent: set
+// to now when automatic no-show marking goes from off to on, kept while it
+// stays on, cleared when it is off (turning it on again starts a new period,
+// so the time it was off is never marked).
+func noShowSince(wasOn bool, since *time.Time, on bool, now time.Time) *time.Time {
+	if !on {
+		return nil
+	}
+	if wasOn && since != nil {
+		return since
+	}
+	return &now
 }
 
 // GetDisplayToken returns the tenant's current TV display token without

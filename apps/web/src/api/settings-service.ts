@@ -22,10 +22,31 @@ export interface KanbanSettings {
 	auto_archive_delay: "never" | "1_day" | "1_week" | "2_weeks" | "1_month";
 }
 
+/** Automatic no-show marking limits (minutes after the end time). */
+export const NO_SHOW_MINUTES = { min: 5, max: 240, default: 30 } as const;
+
+export interface AgendaSettings {
+	/** Mark as no-show the appointments still pending after their end time. */
+	auto_no_show: boolean;
+	/** Minutes after the end time (NO_SHOW_MINUTES). */
+	no_show_after_minutes: number;
+	/** When it was turned on; set by the server, ignored when sent. */
+	auto_no_show_since?: string | null;
+}
+
+/** Off: existing clinics never get no-shows marked until they turn it on. */
+export const DEFAULT_AGENDA_SETTINGS: AgendaSettings = {
+	auto_no_show: false,
+	no_show_after_minutes: NO_SHOW_MINUTES.default,
+	auto_no_show_since: null,
+};
+
 export interface TenantUISettings {
 	[key: string]: unknown;
 	clinical: ClinicalSettings;
 	kanban?: KanbanSettings;
+	/** Absent in answers from an API without it (and in old local copies). */
+	agenda?: AgendaSettings;
 }
 
 export const DEFAULT_UI_SETTINGS: TenantUISettings = {
@@ -42,6 +63,7 @@ export const DEFAULT_UI_SETTINGS: TenantUISettings = {
 	kanban: {
 		auto_archive_delay: "never",
 	},
+	agenda: DEFAULT_AGENDA_SETTINGS,
 };
 
 export const getUISettings = async (): Promise<

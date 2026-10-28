@@ -15,6 +15,7 @@ import (
 	"pengi-med-saas/core/secretbox"
 	"pengi-med-saas/core/whatsapp"
 	sri_document "pengi-med-saas/features/billing/sri-document"
+	clinical_handlers "pengi-med-saas/features/clinical/handlers"
 	clinical_workers "pengi-med-saas/features/clinical/workers"
 	"pengi-med-saas/features/health"
 	kanban_workers "pengi-med-saas/features/kanban/workers"
@@ -107,6 +108,12 @@ func main() {
 	staleDraftScheduler := clinical_workers.NewStaleDraftScheduler(DB_CONNECTION, logger.Log)
 	go staleDraftScheduler.Start()
 	logger.Log.Info("stale draft scheduler started")
+
+	// Initialize no-show scheduler (marks no-shows for clinics that turned it on;
+	// removes their Google Calendar events like manual marking does)
+	noShowScheduler := clinical_workers.NewNoShowScheduler(DB_CONNECTION, logger.Log, clinical_handlers.NewAppointmentHandler(DB_CONNECTION, logger.Log))
+	go noShowScheduler.Start()
+	logger.Log.Info("no-show scheduler started")
 
 	// Initialize announcement scheduler (scheduled backoffice announcements)
 	announcementScheduler := notifications_workers.NewAnnouncementScheduler(DB_CONNECTION, logger.Log)

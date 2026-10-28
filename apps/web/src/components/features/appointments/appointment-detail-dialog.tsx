@@ -13,11 +13,14 @@ import {
 	Ban,
 	Check,
 	Clock,
+	DoorOpen,
 	Edit,
 	MapPin,
+	RotateCcw,
 	Stethoscope,
 	Trash2,
 	User,
+	UserX,
 } from "lucide-react";
 import React from "react";
 import {
@@ -28,6 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
 	getStatusColor,
+	hasStarted,
 	isUpcomingStatus,
 	STATUS_I18N_KEYS,
 } from "./appointment-utils";
@@ -65,21 +69,10 @@ export function AppointmentDetailDialog({
 			`${appointment.patient.first_name} ${appointment.patient.last_name}`
 		: textGet("appointments.patient");
 
-	async function handleCancel() {
+	async function setStatus(status: Appointment["status"]) {
 		if (!appointment) return;
 		setLoading(true);
-		const res = await updateAppointmentStatus(appointment.ID, "cancelled");
-		if (res.success) {
-			onOpenChange(false);
-			onRefresh();
-		}
-		setLoading(false);
-	}
-
-	async function handleComplete() {
-		if (!appointment) return;
-		setLoading(true);
-		const res = await updateAppointmentStatus(appointment.ID, "completed");
+		const res = await updateAppointmentStatus(appointment.ID, status);
 		if (res.success) {
 			onOpenChange(false);
 			onRefresh();
@@ -178,7 +171,7 @@ export function AppointmentDetailDialog({
 									variant="outline"
 									size="sm"
 									className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-									onClick={handleComplete}
+									onClick={() => setStatus("completed")}
 									disabled={loading}
 								>
 									<Check className="mr-2 h-4 w-4" />
@@ -188,12 +181,25 @@ export function AppointmentDetailDialog({
 									variant="outline"
 									size="sm"
 									className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-									onClick={handleCancel}
+									onClick={() => setStatus("cancelled")}
 									disabled={loading}
 								>
 									<Ban className="mr-2 h-4 w-4" />
 									{textGet("appointments.action.cancel")}
 								</Button>
+								{/* Only once it has started: the patient can't have missed it before. */}
+								{hasStarted(appointment) && (
+									<Button
+										variant="outline"
+										size="sm"
+										className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+										onClick={() => setStatus("no_show")}
+										disabled={loading}
+									>
+										<UserX className="mr-2 h-4 w-4" />
+										{textGet("appointments.action.no_show")}
+									</Button>
+								)}
 								<Button
 									variant="destructive"
 									size="sm"
@@ -205,8 +211,43 @@ export function AppointmentDetailDialog({
 								</Button>
 							</>
 						)}
+						{/* Corrections: marked by mistake, or by the automatic no-show marking. */}
+						{appointment.status === "no_show" && (
+							<>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setStatus("scheduled")}
+									disabled={loading}
+								>
+									<RotateCcw className="mr-2 h-4 w-4" />
+									{textGet("appointments.action.mark_scheduled")}
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+									onClick={() => setStatus("arrived")}
+									disabled={loading}
+								>
+									<DoorOpen className="mr-2 h-4 w-4" />
+									{textGet("appointments.action.mark_arrived")}
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+									onClick={() => setStatus("completed")}
+									disabled={loading}
+								>
+									<Check className="mr-2 h-4 w-4" />
+									{textGet("appointments.action.complete")}
+								</Button>
+							</>
+						)}
 						{(appointment.status === "cancelled" ||
-							appointment.status === "completed") && (
+							appointment.status === "completed" ||
+							appointment.status === "no_show") && (
 							<Button
 								variant="destructive"
 								size="sm"

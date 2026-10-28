@@ -120,10 +120,11 @@ func (h *AppointmentHandler) SyncCreated(tenantID uint, appointment *clinical_mo
 }
 
 // SyncStatusChange mirrors a status change made outside this handler (e.g. a
-// WhatsApp reply) to Google Calendar, like UpdateStatus does: cancelled and
-// completed remove the event, anything else updates it. Errors are logged.
+// WhatsApp reply, the no-show scheduler) to Google Calendar, like UpdateStatus
+// does: cancelled, completed and no_show remove the event, anything else
+// updates it. Errors are logged.
 func (h *AppointmentHandler) SyncStatusChange(tenantID uint, appointment *clinical_models.Appointment) {
-	if appointment.Status == "cancelled" || appointment.Status == "completed" {
+	if clinical_models.IsClosedStatus(appointment.Status) {
 		h.syncDelete(tenantID, appointment)
 		return
 	}
@@ -221,6 +222,42 @@ func (h *AppointmentHandler) GetPatientAppointments(c *gin.Context) envelope.Res
 	}
 
 	return envelope.SuccessResponse(appointments, "appointments.get.success")
+}
+
+// NoShowWindowMonths is how far back a patient's no-shows are counted.
+const NoShowWindowMonths = 12
+
+// GetPatientNoShows is GET /clinical/appointments/patient/:id/no-shows: how
+// many of the patient's appointments were marked no_show in the last
+// NoShowWindowMonths months, and the date of the latest one.
+func (h *AppointmentHandler) GetPatientNoShows(c *gin.Context) envelope.Response {
+	patientID, err := strconv.Atoi(c.Param("id"))
+	if err != nil || patientID <= 0 {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
+	}
+	if !h.patientInTenant(c, uint(patientID)) {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalPatientNotFound)
+	}
+
+	since := time.Now().AddDate(0, -NoShowWindowMonths, 0)
+	q := tenantdb.For(c, h.db).Model(&clinical_models.Appointment{}).
+		Where("patient_id = ? AND status = ? AND date >= ?", patientID, clinical_models.AppointmentStatusNoShow, since)
+
+	out := clinical_dto.PatientNoShowsDTO{Months: NoShowWindowMonths}
+	if err := q.Session(&gorm.Session{}).Count(&out.Count).Error; err != nil {
+		h.logger.Error("Failed to count patient no-shows", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+	if out.Count > 0 {
+		var last clinical_models.Appointment
+		if err := q.Session(&gorm.Session{}).Select("id", "date").Order("date DESC").First(&last).Error; err != nil {
+			h.logger.Error("Failed to get last patient no-show", zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+		}
+		out.LastDate = &last.Date
+	}
+
+	return envelope.SuccessResponse(out, "appointments.no_shows.fetch.success")
 }
 
 // GetAppointment returns a single appointment by ID
@@ -443,6 +480,7 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 		"in_consultation": true,
 		"completed":       true,
 		"cancelled":       true,
+		"no_show":         true, // the patient didn't come; correctable back to scheduled/arrived/completed
 	}
 	if !validStatuses[dto.Status] {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
@@ -452,6 +490,7 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 	if err := tenantdb.For(c, h.db).First(&appointment, id).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
+	previousStatus := appointment.Status
 
 	if err := tenantdb.For(c, h.db).Model(&appointment).Update("status", dto.Status).Error; err != nil {
 		h.logger.Error("Failed to update appointment status", zap.Error(err))
@@ -462,9 +501,17 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 
 	tenantID, _ := c.Get("tenant_id")
 	if tenantID != nil {
-		if dto.Status == "cancelled" || dto.Status == "completed" {
+		wasClosed, closed := clinical_models.IsClosedStatus(previousStatus), clinical_models.IsClosedStatus(dto.Status)
+		switch {
+		case closed && !wasClosed:
 			go h.syncDelete(tenantID.(uint), &appointment)
-		} else {
+		case closed:
+			// Already off the calendar (e.g. no_show corrected to completed).
+		case wasClosed:
+			// Reopened (e.g. a no_show corrected to arrived): its event was
+			// removed, so create it again.
+			go h.syncCreate(tenantID.(uint), &appointment)
+		default:
 			go h.syncUpdate(tenantID.(uint), &appointment)
 		}
 	}
@@ -485,7 +532,7 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrClinicalAppointmentNotFound)
 	}
 
-	if appointment.Status != "scheduled" && appointment.Status != "confirmed" && appointment.Status != "cancelled" && appointment.Status != "completed" {
+	if appointment.Status != "scheduled" && appointment.Status != "confirmed" && !clinical_models.IsClosedStatus(appointment.Status) {
 		return envelope.ErrorResponse(http.StatusBadRequest, "clinical.appointment.delete.invalid_status", core_errors.ErrClinicalInvalidRequest)
 	}
 

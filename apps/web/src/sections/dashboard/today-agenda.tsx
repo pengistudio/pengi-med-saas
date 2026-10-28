@@ -34,6 +34,7 @@ const DOT_STYLES: Record<string, string> = {
 	arrived: "border-amber-500 bg-amber-500",
 	scheduled: "border-primary bg-background",
 	confirmed: "border-teal-500 bg-background",
+	no_show: "border-rose-500 bg-rose-500",
 };
 
 function NowMarker({ minutes }: { minutes: number }) {
@@ -85,7 +86,10 @@ export function TodayAgenda({
 		(a) => timeToMinutes(a.start_time) > now,
 	);
 	const nextId = appointments.find(
-		(a) => a.status !== "completed" && timeToMinutes(a.end_time) > now,
+		(a) =>
+			a.status !== "completed" &&
+			a.status !== "no_show" &&
+			timeToMinutes(a.end_time) > now,
 	)?.id;
 
 	const summary = textGet("dashboard.agenda.summary", {

@@ -34,3 +34,11 @@ type UpdateAppointmentDTO struct {
 type UpdateAppointmentStatusDTO struct {
 	Status string `json:"status" binding:"required"`
 }
+
+// PatientNoShowsDTO is a patient's no-show history: appointments marked
+// no_show in the last NoShowWindowMonths months and the date of the latest.
+type PatientNoShowsDTO struct {
+	Count    int64      `json:"count"`
+	LastDate *time.Time `json:"last_date"`
+	Months   int        `json:"months"`
+}

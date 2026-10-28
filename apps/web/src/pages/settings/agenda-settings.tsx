@@ -10,19 +10,30 @@ import {
 	deleteAppointmentType,
 	updateAppointmentType,
 } from "@/api/agenda-service";
+import { DEFAULT_AGENDA_SETTINGS } from "@/api/settings-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import { ScheduleBlocksList } from "@/components/features/agenda/schedule-blocks-list";
 import { ConfirmActionDialog } from "@/components/features/exam-orders/confirm-action-dialog";
 import { FormDialog } from "@/components/features/exam-orders/exam-catalog-parts";
+import usePermission from "@/hooks/use-permission";
+import useTenantSettings from "@/hooks/use-tenant-settings";
+import { PERMISSIONS } from "@/lib/constants";
 import { getAppointmentTypeColumns } from "@/sections/columns/agenda/appointment-type-columns";
 import { AppointmentTypeForm } from "@/sections/forms/agenda/appointment-type-form";
+import {
+	NoShowSettingsForm,
+	type NoShowSettingsValues,
+} from "@/sections/forms/settings/no-show-settings-form";
 import { useAgendaStore, useAppointmentTypes } from "@/store/agenda-store";
 import { useDoctors } from "@/store/doctors-store";
 
 type Editing = { mode: "create" } | { mode: "edit"; row: AppointmentType };
 
-/** `/settings/agenda`: appointment types and clinic-wide days/hours off. */
+/**
+ * `/settings/agenda`: appointment types, clinic-wide days/hours off and, for
+ * whoever manages the clinic settings, automatic no-show marking.
+ */
 export default function AgendaSettingsPage() {
 	const { textGet } = useText();
 	const navigate = useNavigate();
@@ -32,6 +43,13 @@ export default function AgendaSettingsPage() {
 	const [editing, setEditing] = React.useState<Editing | null>(null);
 	const [saving, setSaving] = React.useState(false);
 	const [toDelete, setToDelete] = React.useState<AppointmentType | null>(null);
+	const { checkPermission } = usePermission();
+	const canManageClinic = checkPermission([
+		PERMISSIONS.SETTINGS.PERMISSION_MANAGE_CLINIC_SETTINGS,
+	]);
+	const { settings, saveSettings } = useTenantSettings();
+	const agenda = { ...DEFAULT_AGENDA_SETTINGS, ...settings.agenda };
+	const [savingNoShow, setSavingNoShow] = React.useState(false);
 
 	const columns = React.useMemo(
 		() =>
@@ -63,6 +81,13 @@ export default function AgendaSettingsPage() {
 		}
 	}
 
+	async function handleSaveNoShow(values: NoShowSettingsValues) {
+		setSavingNoShow(true);
+		// auto_no_show_since is set by the server.
+		await saveSettings({ ...settings, agenda: { ...agenda, ...values } });
+		setSavingNoShow(false);
+	}
+
 	async function handleDelete() {
 		if (!toDelete) return;
 		const res = await deleteAppointmentType(toDelete.ID);
@@ -91,6 +116,11 @@ export default function AgendaSettingsPage() {
 					<TabsTrigger value="blocks">
 						{textGet("agenda.settings.tab.blocks")}
 					</TabsTrigger>
+					{canManageClinic && (
+						<TabsTrigger value="no_show">
+							{textGet("agenda.settings.tab.no_show")}
+						</TabsTrigger>
+					)}
 				</TabsList>
 
 				<TabsContent value="types" className="space-y-2">
@@ -112,6 +142,18 @@ export default function AgendaSettingsPage() {
 					</p>
 					<ScheduleBlocksList scope="clinic" />
 				</TabsContent>
+
+				{canManageClinic && (
+					<TabsContent value="no_show" className="pt-2">
+						<NoShowSettingsForm
+							// Remount when the stored values arrive or change.
+							key={`${agenda.auto_no_show}-${agenda.no_show_after_minutes}`}
+							initialData={agenda}
+							loading={savingNoShow}
+							onSubmit={handleSaveNoShow}
+						/>
+					</TabsContent>
+				)}
 			</Tabs>
 
 			<FormDialog

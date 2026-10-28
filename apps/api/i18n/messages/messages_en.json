@@ -12306,5 +12306,85 @@
     {
         "key": "waiting_room.video.remove",
         "value": "Remove video"
+    },
+    {
+        "key": "appointments.no_shows.fetch.success",
+        "value": "No-show history retrieved"
+    },
+    {
+        "key": "tenant.settings.agenda.invalid_no_show_minutes",
+        "value": "The minutes before marking a no-show must be between 5 and 240"
+    },
+    {
+        "key": "appointments.status.no_show",
+        "value": "No-show"
+    },
+    {
+        "key": "appointments.action.no_show",
+        "value": "Mark as no-show"
+    },
+    {
+        "key": "appointments.action.mark_scheduled",
+        "value": "Back to scheduled"
+    },
+    {
+        "key": "appointments.action.mark_arrived",
+        "value": "Mark as arrived"
+    },
+    {
+        "key": "appointments.no_shows.warning.one",
+        "value": "Missed {count} appointment in the last 12 months"
+    },
+    {
+        "key": "appointments.no_shows.warning.other",
+        "value": "Missed {count} appointments in the last 12 months"
+    },
+    {
+        "key": "appointments.no_shows.badge.one",
+        "value": "{count} no-show (12 months)"
+    },
+    {
+        "key": "appointments.no_shows.badge.other",
+        "value": "{count} no-shows (12 months)"
+    },
+    {
+        "key": "appointments.no_shows.last",
+        "value": "Last no-show: {date}"
+    },
+    {
+        "key": "agenda.settings.tab.no_show",
+        "value": "No-shows"
+    },
+    {
+        "key": "agenda.no_show.title",
+        "value": "Automatic no-shows"
+    },
+    {
+        "key": "agenda.no_show.description",
+        "value": "Marks as no-show the appointments still scheduled or confirmed some time after their end time, when the patient has no consultation recorded that day."
+    },
+    {
+        "key": "agenda.no_show.auto",
+        "value": "Mark no-shows automatically"
+    },
+    {
+        "key": "agenda.no_show.auto.description",
+        "value": "Only appointments ending after you turn it on are marked; past ones are left as they are."
+    },
+    {
+        "key": "agenda.no_show.minutes",
+        "value": "Minutes after the end time"
+    },
+    {
+        "key": "agenda.no_show.minutes.description",
+        "value": "Between 5 and 240 minutes."
+    },
+    {
+        "key": "agenda.no_show.error.minutes",
+        "value": "Enter a whole number between 5 and 240"
+    },
+    {
+        "key": "agenda.no_show.warning",
+        "value": "Use it only if reception records arrivals or the doctor records the consultation: otherwise, patients who did come will be marked as no-shows. You can always correct the status from the appointment."
     }
 ]

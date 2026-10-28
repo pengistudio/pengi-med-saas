@@ -187,13 +187,13 @@ type DoctorRef struct {
 	Active bool
 }
 
-// AffectedAppointments lists the appointments (not cancelled or completed)
+// AffectedAppointments lists the appointments (not cancelled, completed or no_show)
 // that fall inside block: the block's doctor, or every doctor for a clinic
 // block.
 func AffectedAppointments(db *gorm.DB, block agenda_models.ScheduleBlock) ([]agenda_dto.AffectedAppointment, error) {
 	q := db.Model(&clinical_models.Appointment{}).Preload("Patient").
 		Where("DATE(date) >= DATE(?) AND DATE(date) <= DATE(?)", block.StartDate, block.EndDate).
-		Where("status NOT IN ?", []string{"cancelled", "completed"})
+		Where("status NOT IN ?", []string{"cancelled", "completed", "no_show"})
 	if block.DoctorID != nil {
 		q = q.Where("doctor_id = ?", *block.DoctorID)
 	}
