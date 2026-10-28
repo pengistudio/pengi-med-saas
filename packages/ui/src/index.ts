@@ -31,6 +31,7 @@ export * from "./components/input";
 export * from "./components/input-group";
 export * from "./components/label";
 export * from "./components/navigation-menu";
+export * from "./components/otp-input";
 export * from "./components/popover";
 export * from "./components/radio-group";
 export * from "./components/scroll-area";

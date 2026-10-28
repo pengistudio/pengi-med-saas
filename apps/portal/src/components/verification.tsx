@@ -1,5 +1,5 @@
 import { useMessageStore, useText } from "@pengi/shared";
-import { Input, Label } from "@pengi/ui";
+import { Label, OtpInput } from "@pengi/ui";
 import React from "react";
 import { Turnstile, type TurnstileHandle } from "@/components/turnstile";
 import { env } from "@/lib/env";
@@ -89,7 +89,7 @@ export function Honeypot({
 	);
 }
 
-/** The 6-digit code, digits only, with its error under it. */
+/** The 6-digit code, one slot per digit, with its error under it. */
 export function CodeInput({
 	id,
 	value,
@@ -105,16 +105,14 @@ export function CodeInput({
 	return (
 		<div className="space-y-2">
 			<Label htmlFor={id}>{textGet("portal.signin.code")}</Label>
-			<Input
+			<OtpInput
 				id={id}
 				name="code"
-				inputMode="numeric"
-				autoComplete="one-time-code"
-				maxLength={6}
+				length={6}
 				value={value}
-				onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+				onValueChange={onChange}
 				aria-invalid={error ? true : undefined}
-				className="h-11 text-center text-xl tracking-widest"
+				className="[&>input]:flex-1"
 			/>
 			{error && (
 				<p role="alert" className="text-destructive text-sm">
