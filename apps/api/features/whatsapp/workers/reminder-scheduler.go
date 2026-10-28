@@ -30,15 +30,19 @@ type ReminderScheduler struct {
 	publisher whatsapp_services.Publisher
 	loc       *time.Location
 	now       func() time.Time
+	// noShows publishes the no-show messages that waited for the send hours.
+	noShows *whatsapp_services.NoShowMessages
 }
 
 func NewReminderScheduler(db *gorm.DB, logger *zap.Logger, publisher whatsapp_services.Publisher) *ReminderScheduler {
-	return &ReminderScheduler{db: db, logger: logger, publisher: publisher, loc: whatsapp_services.ClinicLocation(), now: time.Now}
+	return &ReminderScheduler{db: db, logger: logger, publisher: publisher, loc: whatsapp_services.ClinicLocation(), now: time.Now,
+		noShows: whatsapp_services.NewNoShowMessages(db, logger, publisher)}
 }
 
 // WithClock overrides the clock and time zone (tests).
 func (s *ReminderScheduler) WithClock(now func() time.Time, loc *time.Location) *ReminderScheduler {
 	s.now, s.loc = now, loc
+	s.noShows.WithClock(now, loc)
 	return s
 }
 
@@ -51,7 +55,8 @@ func (s *ReminderScheduler) Start() {
 	}
 }
 
-// Tick queues every due reminder and re-publishes stale queued messages.
+// Tick queues every due reminder, re-publishes stale queued messages and
+// publishes the no-show messages that are due.
 func (s *ReminderScheduler) Tick() {
 	var accounts []whatsapp_models.WhatsAppAccount
 	err := tenantdb.System(s.db).
@@ -69,6 +74,7 @@ func (s *ReminderScheduler) Tick() {
 	}
 	s.recoverStuckSending()
 	s.republishStale()
+	s.noShows.PublishDue()
 }
 
 func (s *ReminderScheduler) queueTenant(account whatsapp_models.WhatsAppAccount) {
@@ -139,7 +145,7 @@ func QueueReminder(db *gorm.DB, appt clinical_models.Appointment, offset int) (i
 	return msg.ID, res.RowsAffected == 1, nil
 }
 
-// recoverStuckSending puts reminders left in "sending" (the consumer died
+// recoverStuckSending puts reminders and no-show messages left in "sending" (the consumer died
 // between claiming and recording the result) back to queued so they are
 // retried. A send takes seconds (the client times out at 20 s), so after
 // staleQueuedAfter the claim is certainly dead; the rare cost is a duplicate
@@ -148,7 +154,7 @@ func QueueReminder(db *gorm.DB, appt clinical_models.Appointment, offset int) (i
 func (s *ReminderScheduler) recoverStuckSending() {
 	cutoff := s.now().Add(-staleQueuedAfter)
 	db := tenantdb.System(s.db).Model(&whatsapp_models.WhatsAppMessage{})
-	if err := db.Where("status = ? AND kind = ? AND updated_at < ?", whatsapp_models.MessageStatusSending, whatsapp_models.KindReminder, cutoff).
+	if err := db.Where("status = ? AND kind IN ? AND updated_at < ?", whatsapp_models.MessageStatusSending, []string{whatsapp_models.KindReminder, whatsapp_models.KindNoShow}, cutoff).
 		Updates(map[string]any{"status": whatsapp_models.MessageStatusQueued, "updated_at": cutoff.Add(-time.Second)}).Error; err != nil { // updated_at before cutoff: republished below, this tick
 		s.logger.Error("whatsapp reminders: failed to recover stuck messages", zap.Error(err))
 	}

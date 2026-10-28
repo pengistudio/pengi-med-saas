@@ -150,6 +150,8 @@ func (h *WebhookHandler) processMessages(v whatsapp.WebhookValue) {
 			whatsapp_services.NotifyInbound(h.db, h.logger, account.TenantID, *conv, msg)
 		}
 		switch {
+		case isReschedule(m.ButtonPayload()):
+			h.applyReschedule(db, account, conv, m)
 		case m.ButtonPayload() != "":
 			h.applyReply(db, account.TenantID, m)
 		case m.OptOutRequested():
@@ -209,11 +211,12 @@ func inboundPhone(from string) string {
 }
 
 // inboundContent maps an incoming message to its content type, the text the
-// thread shows and, for a reminder button, the action (confirm / cancel).
+// thread shows and, for a template button, the action (confirm / cancel /
+// reschedule).
 func inboundContent(m whatsapp.WebhookMessage) (contentType, body, reply string) {
 	if payload := m.ButtonPayload(); payload != "" {
 		action, _, _ := strings.Cut(payload, ":")
-		if action != whatsapp_models.ReplyConfirm && action != whatsapp_models.ReplyCancel {
+		if action != whatsapp_models.ReplyConfirm && action != whatsapp_models.ReplyCancel && action != whatsapp_models.ReplyReschedule {
 			action = ""
 		}
 		return whatsapp_models.ContentButton, m.ButtonText(), action
@@ -278,37 +281,57 @@ func (h *WebhookHandler) applyStatus(db *gorm.DB, st whatsapp.WebhookStatus) {
 // message was answered, quote that message).
 func (h *WebhookHandler) applyReply(db *gorm.DB, tenantID uint, m whatsapp.WebhookMessage) {
 	action, rawID, ok := strings.Cut(m.ButtonPayload(), ":")
-	id, err := strconv.ParseUint(rawID, 10, 64)
-	if !ok || err != nil || (action != whatsapp_models.ReplyConfirm && action != whatsapp_models.ReplyCancel) {
+	if !ok || (action != whatsapp_models.ReplyConfirm && action != whatsapp_models.ReplyCancel) {
 		return
 	}
-	var msg whatsapp_models.WhatsAppMessage
-	if err := db.Where("id = ?", id).Limit(1).Find(&msg).Error; err != nil || msg.ID == 0 {
-		h.logger.Info("whatsapp webhook: reply to unknown message", zap.Uint("tenant_id", tenantID), zap.Uint64("message_id", id))
-		return
-	}
-	if msg.Status == whatsapp_models.MessageStatusReplied {
-		return // Meta may deliver the same event twice
-	}
-	if from, err := whatsapp_services.NormalizePhone("+" + m.From); err != nil || from != msg.ToPhone {
-		h.logger.Warn("whatsapp webhook: reply from a number the message was not sent to",
-			zap.Uint("tenant_id", tenantID), zap.Uint("message_id", msg.ID))
-		return
-	}
-	if m.Context != nil && m.Context.ID != "" && m.Context.ID != msg.WamID {
-		h.logger.Warn("whatsapp webhook: reply quotes another message",
-			zap.Uint("tenant_id", tenantID), zap.Uint("message_id", msg.ID))
-		return
-	}
-	now := h.now()
-	if err := db.Model(&msg).Updates(map[string]any{"status": whatsapp_models.MessageStatusReplied, "reply": action, "replied_at": now}).Error; err != nil {
-		h.logger.Error("whatsapp webhook: failed to mark reply", zap.Uint("message_id", msg.ID), zap.Error(err))
+	msg, ok := h.answer(db, tenantID, m, rawID, action, "")
+	if !ok {
 		return
 	}
 	if msg.AppointmentID == nil {
 		return // test message
 	}
 	h.applyToAppointment(db, tenantID, *msg.AppointmentID, action)
+}
+
+// answer marks the message a button reply (payload id rawID) answered with
+// action, and returns it; kind, when set, is the only kind accepted. The message is looked up in the receiving number's
+// tenant only, the reply must come from the number it was sent to and quote
+// it (when Meta says which message was answered); false when any check fails
+// or it was answered already (Meta may deliver the same event twice).
+func (h *WebhookHandler) answer(db *gorm.DB, tenantID uint, m whatsapp.WebhookMessage, rawID, action, kind string) (whatsapp_models.WhatsAppMessage, bool) {
+	var msg whatsapp_models.WhatsAppMessage
+	id, err := strconv.ParseUint(rawID, 10, 64)
+	if err != nil {
+		return msg, false
+	}
+	if err := db.Where("id = ?", id).Limit(1).Find(&msg).Error; err != nil || msg.ID == 0 {
+		h.logger.Info("whatsapp webhook: reply to unknown message", zap.Uint("tenant_id", tenantID), zap.Uint64("message_id", id))
+		return msg, false
+	}
+	if msg.Status == whatsapp_models.MessageStatusReplied || (kind != "" && msg.Kind != kind) {
+		return msg, false
+	}
+	if from, err := whatsapp_services.NormalizePhone("+" + m.From); err != nil || from != msg.ToPhone {
+		h.logger.Warn("whatsapp webhook: reply from a number the message was not sent to",
+			zap.Uint("tenant_id", tenantID), zap.Uint("message_id", msg.ID))
+		return msg, false
+	}
+	if m.Context != nil && m.Context.ID != "" && m.Context.ID != msg.WamID {
+		h.logger.Warn("whatsapp webhook: reply quotes another message",
+			zap.Uint("tenant_id", tenantID), zap.Uint("message_id", msg.ID))
+		return msg, false
+	}
+	// Claimed with the status in the WHERE: of two concurrent deliveries of
+	// the same event, only one goes on.
+	res := db.Model(&whatsapp_models.WhatsAppMessage{}).
+		Where("id = ? AND status <> ?", msg.ID, whatsapp_models.MessageStatusReplied).
+		Updates(map[string]any{"status": whatsapp_models.MessageStatusReplied, "reply": action, "replied_at": h.now()})
+	if res.Error != nil {
+		h.logger.Error("whatsapp webhook: failed to mark reply", zap.Uint("message_id", msg.ID), zap.Error(res.Error))
+		return msg, false
+	}
+	return msg, res.RowsAffected == 1
 }
 
 // applyOptOut withdraws WhatsApp consent from every patient of the tenant

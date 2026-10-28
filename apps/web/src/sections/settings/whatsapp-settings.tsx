@@ -57,10 +57,12 @@ export function WhatsAppSettings() {
 	// Reminder settings being edited; reset whenever the account changes.
 	const [enabled, setEnabled] = React.useState(false);
 	const [offsets, setOffsets] = React.useState<number[]>([]);
+	const [noShowMessage, setNoShowMessage] = React.useState(false);
 
 	const applyAccount = React.useCallback((next: WhatsAppAccount) => {
 		setAccount(next);
 		setEnabled(next.reminders_enabled);
+		setNoShowMessage(!!next.no_show_message_enabled);
 		setOffsets([...(next.reminder_offsets ?? [])].sort((a, b) => b - a));
 	}, []);
 
@@ -88,6 +90,7 @@ export function WhatsAppSettings() {
 		const res = await updateWhatsAppSettings({
 			reminders_enabled: enabled,
 			reminder_offsets: offsets,
+			no_show_message_enabled: noShowMessage,
 		});
 		if (res.success && res.data) applyAccount(res.data);
 		setBusy(null);
@@ -114,6 +117,7 @@ export function WhatsAppSettings() {
 	);
 	const dirty =
 		enabled !== !!account?.reminders_enabled ||
+		noShowMessage !== !!account?.no_show_message_enabled ||
 		offsets.join(",") !== savedOffsets.join(",");
 	const offsetsMissing = enabled && offsets.length === 0;
 	const templateStatus = account?.template_status ?? "";
@@ -339,6 +343,24 @@ export function WhatsAppSettings() {
 									<Text uuid="settings.whatsapp.offsets.required" />
 								</p>
 							)}
+						</div>
+						<div className="grid gap-1 border-t pt-3">
+							<div className="flex items-center justify-between gap-4">
+								<label
+									htmlFor="whatsapp-no-show-message"
+									className="cursor-pointer text-sm font-medium"
+								>
+									<Text uuid="settings.whatsapp.no_show_message" />
+								</label>
+								<Switch
+									id="whatsapp-no-show-message"
+									checked={noShowMessage}
+									onCheckedChange={(checked) => setNoShowMessage(checked)}
+								/>
+							</div>
+							<p className="text-xs text-muted-foreground">
+								<Text uuid="settings.whatsapp.no_show_message.hint" />
+							</p>
 						</div>
 						<div className="flex flex-wrap justify-end gap-2">
 							<Button

@@ -12394,5 +12394,37 @@
     {
         "key": "agenda.no_show.warning",
         "value": "Use it only if reception records arrivals or the doctor records the consultation: otherwise, patients who did come will be marked as no-shows. You can always correct the status from the appointment."
+    },
+    {
+        "key": "settings.whatsapp.log.kind.no_show",
+        "value": "No-show (reschedule)"
+    },
+    {
+        "key": "settings.whatsapp.no_show_message",
+        "value": "Reschedule message after a no-show"
+    },
+    {
+        "key": "settings.whatsapp.no_show_message.hint",
+        "value": "When an appointment is marked as a no-show, the \"Missed appointment\" template with a \"Reagendar\" (reschedule) button is sent once, between 08:00 and 20:00. Only to patients who accepted WhatsApp; it counts toward the monthly limit. If the patient portal allows online booking, the patient gets the link; otherwise reception is notified."
+    },
+    {
+        "key": "notification.whatsapp.reschedule_requested",
+        "value": "{patient_name} wants to reschedule the appointment of {date} at {time}. Reply on WhatsApp."
+    },
+    {
+        "key": "whatsapp.patient.no_show.booking_link",
+        "value": "You can pick a new date for your appointment here: {url}"
+    },
+    {
+        "key": "whatsapp.message.error.no_show_corrected",
+        "value": "The no-show was corrected before sending."
+    },
+    {
+        "key": "whatsapp.message.error.no_show_disabled",
+        "value": "The no-show message was turned off before sending."
+    },
+    {
+        "key": "whatsapp.message.error.template_not_approved",
+        "value": "The template is not approved on WhatsApp."
     }
 ]

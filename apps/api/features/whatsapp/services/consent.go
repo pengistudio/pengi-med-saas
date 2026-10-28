@@ -15,6 +15,9 @@ import (
 const (
 	OptInRequestKey   = "whatsapp.patient.opt_in.request"
 	OptInConfirmedKey = "whatsapp.patient.opt_in.confirmed"
+	// NoShowBookingLinkKey answers a "Reagendar" tap with the clinic's
+	// portal link ({url}).
+	NoShowBookingLinkKey = "whatsapp.patient.no_show.booking_link"
 )
 
 // PatientLanguage is the language of the texts sent to patients.

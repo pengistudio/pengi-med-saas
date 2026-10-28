@@ -117,3 +117,41 @@ func truncateRunes(s string, max int) string {
 	}
 	return string(r[:max-1]) + "…"
 }
+
+// Reschedule requests: the patient tapped "Reagendar" on a no-show message
+// and the clinic has no online booking to send them to.
+const (
+	NotificationTypeRescheduleRequest = "whatsapp.reschedule.requested"
+	RescheduleRequestKey              = "notification.whatsapp.reschedule_requested"
+)
+
+// NotifyRescheduleRequest tells every user with USE_WHATSAPP_INBOX that the
+// patient of conv wants a new date for the appointment missed on date at
+// clock; it leads to the conversation. Params: patient_name, date
+// (YYYY-MM-DD), time. One per tap (a patient taps it once: the message is
+// then replied). Failures are logged.
+func NotifyRescheduleRequest(db *gorm.DB, logger *zap.Logger, tenantID uint, conv whatsapp_models.WhatsAppConversation, date, clock string) {
+	userIDs, err := UsersWithPermission(db, tenantID, inboxPermission)
+	if err != nil {
+		logger.Error("failed to resolve whatsapp inbox users", zap.Uint("tenant_id", tenantID), zap.Error(err))
+		return
+	}
+	if len(userIDs) == 0 {
+		return
+	}
+	tdb := tenantdb.ForTenant(db, tenantID)
+	params, _ := json.Marshal(map[string]any{
+		"patient_name": conversationName(tdb, conv), "date": date, "time": clock, notificationParamConversation: conv.ID,
+	})
+	rows := make([]notifications_models.Notification, 0, len(userIDs))
+	for _, uid := range userIDs {
+		rows = append(rows, notifications_models.Notification{
+			TenantID: tenantID, UserID: uid, Type: NotificationTypeRescheduleRequest, ResourceType: ConversationResourceType,
+			ResourceID: conv.ID, MessageKey: RescheduleRequestKey, Params: params,
+			ActionURL: MessageNotificationURL(conv.ID), Level: notifications_models.NotificationLevelInfo,
+		})
+	}
+	if err := tdb.Create(&rows).Error; err != nil {
+		logger.Error("failed to create whatsapp reschedule notifications", zap.Uint("tenant_id", tenantID), zap.Error(err))
+	}
+}

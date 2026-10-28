@@ -101,3 +101,25 @@ func MaxOffset(offsets []int) int {
 	}
 	return m
 }
+
+// Send hours: messages Pengi sends on its own without the patient waiting for
+// them (the no-show message) go out between SendHourStart and SendHourEnd,
+// clinic time; one queued outside waits for the next window.
+const (
+	SendHourStart = 8
+	SendHourEnd   = 20
+)
+
+// NextSendTime is the first instant at or after now inside the send hours
+// (in loc): now itself when inside, else the next SendHourStart.
+func NextSendTime(now time.Time, loc *time.Location) time.Time {
+	local := now.In(loc)
+	if local.Hour() >= SendHourStart && local.Hour() < SendHourEnd {
+		return now
+	}
+	start := time.Date(local.Year(), local.Month(), local.Day(), SendHourStart, 0, 0, 0, loc)
+	if local.Hour() >= SendHourEnd {
+		start = start.AddDate(0, 0, 1)
+	}
+	return start
+}

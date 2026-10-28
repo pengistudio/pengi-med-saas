@@ -105,7 +105,7 @@ func (s *Sender) HandleTask(body []byte) error {
 	return s.Send(task.MessageID)
 }
 
-// Send sends a queued reminder. A message that is not queued (already sent,
+// Send sends a queued reminder or no-show message (sendNoShow). A message that is not queued (already sent,
 // claimed by another consumer, failed) is left alone, so a duplicate task is
 // harmless. Retryable failures put the message back to queued and return an
 // error IsRetryable accepts; anything else ends as failed or skipped.
@@ -116,6 +116,9 @@ func (s *Sender) Send(id uint) error {
 	}
 	if msg.ID == 0 || msg.Status != whatsapp_models.MessageStatusQueued {
 		return nil
+	}
+	if msg.SendAfter != nil && msg.SendAfter.After(s.now()) {
+		return nil // not yet (send hours): published again when due
 	}
 	db := tenantdb.ForTenant(s.db, msg.TenantID)
 	claim := db.Model(&whatsapp_models.WhatsAppMessage{}).
@@ -132,6 +135,9 @@ func (s *Sender) Send(id uint) error {
 	account, token, code, err := s.account(msg.TenantID)
 	if err != nil {
 		return s.finish(db, &msg, whatsapp_models.MessageStatusFailed, code, err.Error())
+	}
+	if msg.Kind == whatsapp_models.KindNoShow {
+		return s.sendNoShow(db, &msg, account, token)
 	}
 
 	data, to, skip, code, detail := s.reminderData(db, msg)
@@ -211,7 +217,7 @@ func (s *Sender) thread(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage) {
 func (s *Sender) deliver(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, account whatsapp_models.WhatsAppAccount, send func() (string, error)) error {
 	wamID, err := send()
 	if err != nil {
-		if IsRetryable(err) && msg.Kind == whatsapp_models.KindReminder {
+		if IsRetryable(err) && queuedKind(msg.Kind) {
 			s.logger.Warn("whatsapp send failed, will retry", zap.Uint("message_id", msg.ID), zap.Error(err))
 			if uerr := db.Model(msg).Updates(map[string]any{"status": whatsapp_models.MessageStatusQueued, "error_detail": truncate(err.Error())}).Error; uerr != nil {
 				s.logger.Error("failed to re-queue whatsapp message", zap.Uint("message_id", msg.ID), zap.Error(uerr))
@@ -247,6 +253,12 @@ func (s *Sender) deliver(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, acco
 		notifyUsage(s.db, s.logger, msg.TenantID, now, s.loc)
 	}
 	return nil
+}
+
+// queuedKind reports whether messages of kind go through the send queue (so
+// a retryable failure puts them back to queued).
+func queuedKind(kind string) bool {
+	return kind == whatsapp_models.KindReminder || kind == whatsapp_models.KindNoShow
 }
 
 // counted reports whether messages of kind count toward the monthly cap.

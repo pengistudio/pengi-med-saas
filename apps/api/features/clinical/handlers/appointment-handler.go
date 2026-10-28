@@ -11,6 +11,7 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	doctor_services "pengi-med-saas/features/doctors/services"
 	integration_models "pengi-med-saas/features/integrations/models"
+	whatsapp_services "pengi-med-saas/features/whatsapp/services"
 	"strconv"
 	"time"
 
@@ -23,6 +24,11 @@ type AppointmentHandler struct {
 	db        *gorm.DB
 	logger    *zap.Logger
 	googleSvc *google_calendar.CalendarService
+	// noShows queues / withdraws the WhatsApp no-show message.
+	noShows *whatsapp_services.NoShowMessages
+	// runNoShow runs the no-show message side effects; in the background by
+	// default so a slow broker never delays the status response.
+	runNoShow func(func())
 }
 
 func NewAppointmentHandler(db *gorm.DB, logger *zap.Logger) *AppointmentHandler {
@@ -30,7 +36,17 @@ func NewAppointmentHandler(db *gorm.DB, logger *zap.Logger) *AppointmentHandler 
 		db:        db,
 		logger:    logger,
 		googleSvc: google_calendar.NewCalendarService(),
+		noShows:   whatsapp_services.NewNoShowMessages(db, logger, whatsapp_services.RabbitPublisher{}),
+		runNoShow: func(f func()) { go f() },
 	}
+}
+
+// WithNoShowMessages overrides the no-show messages and runs them inline, so
+// tests see their effect when the request returns.
+func (h *AppointmentHandler) WithNoShowMessages(m *whatsapp_services.NoShowMessages) *AppointmentHandler {
+	h.noShows = m
+	h.runNoShow = func(f func()) { f() }
+	return h
 }
 
 // syncCreate creates a Google Calendar event for the appointment and saves the event ID.
@@ -498,6 +514,17 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 	}
 
 	tenantdb.For(c, h.db).Preload("Patient").First(&appointment, id)
+
+	// The WhatsApp reschedule message follows the no_show mark. Out of order
+	// runs (a quick mark and correction) are safe: the sender re-checks the
+	// status before sending.
+	noShowTenant, noShowID := tenantdb.TenantID(c), appointment.ID
+	switch {
+	case dto.Status == clinical_models.AppointmentStatusNoShow && previousStatus != dto.Status:
+		h.runNoShow(func() { h.noShows.Marked(noShowTenant, noShowID) })
+	case previousStatus == clinical_models.AppointmentStatusNoShow && dto.Status != previousStatus:
+		h.runNoShow(func() { h.noShows.Corrected(noShowTenant, noShowID) })
+	}
 
 	tenantID, _ := c.Get("tenant_id")
 	if tenantID != nil {
