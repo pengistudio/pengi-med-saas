@@ -27,17 +27,11 @@ interface TaskFormDialogProps {
 }
 
 const taskSchema = z.object({
-	title: z.string().min(1, "Title is required"),
+	title: z.string().min(1),
 	description: z.string().optional(),
 	status: z.enum(["todo", "in_progress", "done"]),
 	due_date: z.string().optional(),
 });
-
-const statusOptions = [
-	{ label: "Por Hacer", value: "todo" },
-	{ label: "En Progreso", value: "in_progress" },
-	{ label: "Finalizado", value: "done" },
-];
 
 export default function TaskFormDialog({
 	open,
@@ -126,7 +120,14 @@ export default function TaskFormDialog({
 									field={field}
 									name="status"
 									label={textGet("tasks.task.status")}
-									options={statusOptions}
+									options={[
+										{ label: textGet("tasks.column.todo"), value: "todo" },
+										{
+											label: textGet("tasks.column.in_progress"),
+											value: "in_progress",
+										},
+										{ label: textGet("tasks.column.done"), value: "done" },
+									]}
 								/>
 
 								<FormInput

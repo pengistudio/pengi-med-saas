@@ -46,10 +46,6 @@ export function DashboardLayout() {
 								<DropdownMenuLabel>
 									{textGet("backoffice.dropdown.account")}
 								</DropdownMenuLabel>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem>
-									{textGet("backoffice.dropdown.settings")}
-								</DropdownMenuItem>
 							</DropdownMenuGroup>
 							<DropdownMenuSeparator />
 							{/* RequireSession sends the now-anonymous user to /login. */}

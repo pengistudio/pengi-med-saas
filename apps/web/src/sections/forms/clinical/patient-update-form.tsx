@@ -236,8 +236,14 @@ const EditPatientForm = () => {
 								field={field}
 								isRow
 								options={[
-									{ label: "Masculino", value: "M" },
-									{ label: "Femenino", value: "F" },
+									{
+										label: textGet("clinical.patient_card.gender.male"),
+										value: "M",
+									},
+									{
+										label: textGet("clinical.patient_card.gender.female"),
+										value: "F",
+									},
 								]}
 							/>
 							<FormSelect

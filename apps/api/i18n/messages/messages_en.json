@@ -2376,10 +2376,6 @@
         "value": "My Account"
     },
     {
-        "key": "backoffice.dropdown.settings",
-        "value": "Settings"
-    },
-    {
         "key": "backoffice.dropdown.logout",
         "value": "Log Out"
     },
@@ -12254,5 +12250,61 @@
     {
         "key": "appointment_requests.new_patient.will_create",
         "value": "A record will be created on approval."
+    },
+    {
+        "key": "register.brand.title",
+        "value": "Your practice, fully digital"
+    },
+    {
+        "key": "register.brand.subtitle",
+        "value": "Everything you need to run your medical practice in one place."
+    },
+    {
+        "key": "register.brand.trial",
+        "value": "14 days free · No credit card"
+    },
+    {
+        "key": "register.brand.feature.patients",
+        "value": "Patient management and ICD-11 records"
+    },
+    {
+        "key": "register.brand.feature.agenda",
+        "value": "Built-in appointment calendar"
+    },
+    {
+        "key": "register.brand.feature.prescriptions",
+        "value": "Prescriptions as PDF"
+    },
+    {
+        "key": "register.brand.feature.clinics",
+        "value": "Multiple practices and roles"
+    },
+    {
+        "key": "register.brand.feature.billing",
+        "value": "SRI electronic invoicing"
+    },
+    {
+        "key": "waiting_room.video.title",
+        "value": "Waiting room video"
+    },
+    {
+        "key": "waiting_room.video.configure",
+        "value": "Set up video"
+    },
+    {
+        "key": "waiting_room.video.url",
+        "value": "YouTube URL"
+    },
+    {
+        "key": "waiting_room.video.invalid_url",
+        "value": "Invalid YouTube URL"
+    },
+    {
+        "key": "waiting_room.video.id",
+        "value": "Video ID: {id}"
+    },
+    {
+        "key": "waiting_room.video.remove",
+        "value": "Remove video"
     }
 ]
