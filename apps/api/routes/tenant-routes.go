@@ -41,13 +41,15 @@ func RegisterTenantRoutes(router *gin.RouterGroup, db *gorm.DB) {
 // registerTenantSettingsRoutes mounts the clinic's SRI, logo and UI settings
 // on a group that already authenticated the user and bound the tenant.
 func registerTenantSettingsRoutes(tenantGroup *gin.RouterGroup, db *gorm.DB, tenantHandler *tenant_handlers.TenantHandler) {
-	// The SRI certificate, the issuer data and the logo printed on the RIDE
-	// are the clinic's billing identity: only who manages SRI settings
-	// (admin, contador) may replace them. Same check as the SRI settings page.
+	// The SRI certificate and the issuer data are the clinic's billing
+	// identity: only who manages SRI settings (admin, contador) may replace
+	// them. Same check as the SRI settings page.
 	manageSri := subscription_middleware.RequirePermission(db, "MANAGE_SRI_SETTINGS")
 	tenantGroup.PUT("/sri/signature", manageSri, envelope.Handle(tenantHandler.UploadSignature))
 	tenantGroup.GET("/sri/status", envelope.Handle(tenantHandler.GetSriStatus))
-	tenantGroup.PUT("/logo", manageSri, envelope.Handle(tenantHandler.UploadLogo))
+	// The logo (sidebar and RIDE) is the clinic's brand, not a billing
+	// feature: role check only, so a plan without billing can set it too.
+	tenantGroup.PUT("/logo", subscription_middleware.RequireRolePermission(db, "MANAGE_CLINIC_BRANDING"), envelope.Handle(tenantHandler.UploadLogo))
 	tenantGroup.GET("/logo", tenantHandler.DownloadLogo)
 	tenantGroup.PUT("/sri/info", manageSri, envelope.Handle(tenantHandler.UpdateSriInfo))
 	tenantGroup.GET("/settings", envelope.Handle(tenantHandler.GetUISettings))

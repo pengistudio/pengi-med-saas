@@ -247,6 +247,18 @@ var DocumentTemplatePermissions = []permission_models.Permission{
 	},
 }
 
+// ClinicPermissions guard the clinic's own identity in the app (its logo in
+// the sidebar and on the RIDE). Category SETTINGS maps to no nav flag and sits
+// in no Feature: the routes use RequireRolePermission, so every plan has it.
+var ClinicPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_CLINIC_BRANDING"},
+		Name:         "Manage clinic branding",
+		Category:     "SETTINGS",
+		Description:  "Upload or replace the clinic's logo",
+	},
+}
+
 var KanbanPermissions = []permission_models.Permission{
 	{
 		BaseStringID: database.BaseStringID{ID: "READ_KANBAN"},

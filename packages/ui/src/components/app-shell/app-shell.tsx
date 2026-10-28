@@ -56,10 +56,16 @@ export type NavEntry = NavLinkEntry | NavGroupEntry | NavMenuEntry;
 export type { NavMenuItem };
 
 interface AppShellProps {
-	brand: {
-		icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-		name: React.ReactNode;
-	};
+	/**
+	 * Top of the sidebar. `mark` replaces the whole default (icon tile + name),
+	 * for an app that draws its own brand, e.g. a clinic logo.
+	 */
+	brand:
+		| {
+				icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+				name: React.ReactNode;
+		  }
+		| { mark: React.ReactNode };
 	nav: NavEntry[];
 	/** Entries pinned to the bottom of the sidebar (settings, help). */
 	footerNav?: NavEntry[];
@@ -226,7 +232,6 @@ export function AppShell({
 		[expanded, isPhone, setRailOpen],
 	);
 
-	const BrandIcon = brand.icon;
 	const activeHref = useMemo(
 		() =>
 			matchNested || bottomNav
@@ -293,15 +298,21 @@ export function AppShell({
 					<div className="flex h-[calc(4rem+env(safe-area-inset-top))] shrink-0 items-center justify-center gap-2 overflow-hidden border-b border-sidebar-border px-4 pt-[env(safe-area-inset-top)]">
 						{expanded && (
 							<div className="flex min-w-0 flex-1 items-center gap-2">
-								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
-									<BrandIcon
-										className="h-5 w-5 text-primary-foreground"
-										strokeWidth={1.75}
-									/>
-								</div>
-								<span className="min-w-0 truncate text-lg font-semibold text-sidebar-foreground">
-									{brand.name}
-								</span>
+								{"mark" in brand ? (
+									brand.mark
+								) : (
+									<>
+										<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
+											<brand.icon
+												className="h-5 w-5 text-primary-foreground"
+												strokeWidth={1.75}
+											/>
+										</div>
+										<span className="min-w-0 truncate text-lg font-semibold text-sidebar-foreground">
+											{brand.name}
+										</span>
+									</>
+								)}
 							</div>
 						)}
 						{isPhone ? (

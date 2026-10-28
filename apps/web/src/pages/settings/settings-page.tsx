@@ -23,6 +23,7 @@ import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { DocumentTemplatesSettings } from "@/sections/settings/document-templates-settings";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
+import { LogoUploadForm } from "@/sections/settings/logo-upload-form";
 import { WhatsAppSettings } from "@/sections/settings/whatsapp-settings";
 
 /** A labelled group of rows inside a section. */
@@ -97,6 +98,9 @@ const SettingsPage = () => {
 	]);
 	const canManageAgenda = checkPermission([
 		PERMISSIONS.DOCTORS.PERMISSION_MANAGE_DOCTORS,
+	]);
+	const canManageLogo = checkPermission([
+		PERMISSIONS.SETTINGS.PERMISSION_MANAGE_CLINIC_BRANDING,
 	]);
 	const canManageWhatsApp = checkPermission([
 		PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP,
@@ -187,6 +191,15 @@ const SettingsPage = () => {
 	return (
 		<div className="grid max-w-5xl gap-8">
 			<PageHeader title={<Text uuid="settings.title" />} />
+
+			{canManageLogo && (
+				<SettingsSection
+					title={<Text uuid="settings.logo.title" />}
+					description={<Text uuid="settings.logo.description" />}
+				>
+					<LogoUploadForm />
+				</SettingsSection>
+			)}
 
 			<SettingsSection
 				title={<Text uuid="settings.clinical.title" />}
