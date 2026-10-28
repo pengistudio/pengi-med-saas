@@ -7,6 +7,7 @@ import (
 	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/tenantdb"
 	clinical_services "pengi-med-saas/features/clinical/services"
+	"strings"
 	"time"
 
 	"pengi-med-saas/core/auth"
@@ -46,10 +47,10 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
-	// 1) Buscar usuario
-	var foundUser user_models.User
-	if err := h.db.Omit("password").Where("user_name = ?", user.UserName).First(&foundUser).Error; err != nil {
-		h.logger.Error("Failed to find user", zap.Error(err))
+	// 1) Buscar usuario (por nombre de usuario o correo)
+	foundUser, err := findUserByLogin(h.db.Omit("password"), user.UserName)
+	if err != nil {
+		h.logger.Warn("Failed to find user", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
 	}
 
@@ -547,7 +548,7 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRequest)
 	}
 
-	userID, err := auth.ParsePasswordResetToken(req.Token)
+	userID, fingerprint, err := auth.ParsePasswordResetToken(req.Token)
 	if err != nil {
 		h.logger.Warn("Invalid password reset token", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.reset_password.invalid_token", core_errors.ErrAuthInvalidPasswordResetToken)
@@ -556,6 +557,12 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 	var user user_models.User
 	if err := h.db.First(&user, userID).Error; err != nil {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
+	}
+
+	// The link works once: after the password changes it no longer matches.
+	if !auth.MatchesPasswordResetToken(fingerprint, user.Password) {
+		h.logger.Warn("Password reset token already used or outdated", zap.Uint("user_id", userID))
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.reset_password.invalid_token", core_errors.ErrAuthInvalidPasswordResetToken)
 	}
 
 	hashed, err := auth.HashPassword(req.NewPassword)
@@ -569,6 +576,78 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
+	if err := RevokeUserSessions(h.db, user.ID); err != nil {
+		h.logger.Error("Failed to revoke sessions after password reset", zap.Uint("user_id", userID), zap.Error(err))
+	}
+
 	h.logger.Info("Password reset successfully", zap.Uint("user_id", userID))
 	return envelope.SuccessResponse(nil, "auth.reset_password.success")
+}
+
+// sendPasswordResetEmail is replaced in tests.
+var sendPasswordResetEmail = func(toEmail, userName, resetURL string) error {
+	return mailer.NewMailer().SendPasswordReset(toEmail, userName, resetURL)
+}
+
+// ForgotPassword emails a single-use reset link to the user identified by
+// username or email. The answer is the same whether the user exists or not,
+// so it can't be used to find out which accounts exist.
+func (h *UserHandler) ForgotPassword(c *gin.Context) envelope.Response {
+	var req struct {
+		Identifier string `json:"identifier" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRequest)
+	}
+
+	user, err := findUserByLogin(h.db, req.Identifier)
+	if err != nil || user.Email == "" {
+		h.logger.Info("Password reset requested for unknown user or user without email")
+		return envelope.SuccessResponse(nil, "auth.forgot_password.sent")
+	}
+
+	token, err := auth.GeneratePasswordResetToken(user.ID, user.Password, auth.PasswordResetTTL)
+	if err != nil {
+		h.logger.Error("Failed to generate password reset token", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+	}
+
+	resetURL := fmt.Sprintf("%s/reset-password?token=%s", config.Get().AppURL, token)
+	// Sent in the background so the response time doesn't reveal whether
+	// the user exists.
+	go func() {
+		if err := sendPasswordResetEmail(user.Email, user.UserName, resetURL); err != nil {
+			h.logger.Error("Failed to send password reset email", zap.Uint("user_id", user.ID), zap.Error(err))
+		}
+	}()
+
+	h.logger.Info("Password reset email requested", zap.Uint("user_id", user.ID))
+	return envelope.SuccessResponse(nil, "auth.forgot_password.sent")
+}
+
+// findUserByLogin finds the user someone signs in as: by username, or by
+// email when the identifier is one. An email shared by several users
+// identifies none of them.
+func findUserByLogin(db *gorm.DB, identifier string) (user_models.User, error) {
+	identifier = strings.TrimSpace(identifier)
+	// A fresh session per query: a chained handle (e.g. Omit) would keep the
+	// first Where in the second query.
+	db = db.Session(&gorm.Session{})
+	var user user_models.User
+	if identifier == "" {
+		return user, gorm.ErrRecordNotFound
+	}
+	err := db.Where("user_name = ?", identifier).First(&user).Error
+	if err == nil || !errors.Is(err, gorm.ErrRecordNotFound) || !strings.Contains(identifier, "@") {
+		return user, err
+	}
+
+	var matches []user_models.User
+	if err := db.Where("LOWER(email) = LOWER(?)", identifier).Limit(2).Find(&matches).Error; err != nil {
+		return user, err
+	}
+	if len(matches) != 1 {
+		return user, gorm.ErrRecordNotFound
+	}
+	return matches[0], nil
 }

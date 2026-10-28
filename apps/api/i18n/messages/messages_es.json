@@ -84,10 +84,6 @@
         "value": "Iniciar sesión"
     },
     {
-        "key": "login.subtitle",
-        "value": "Bienvenido de nuevo, por favor inicie sesión en su cuenta."
-    },
-    {
         "key": "login.new_company.title",
         "value": "Inicia sesión para crear otra empresa"
     },
@@ -96,16 +92,8 @@
         "value": "Usa tu cuenta Gentoo existente para crear una empresa independiente."
     },
     {
-        "key": "login.username.placeholder",
-        "value": "Ingrese su nombre de usuario"
-    },
-    {
         "key": "login.username",
-        "value": "Nombre de usuario"
-    },
-    {
-        "key": "login.password.placeholder",
-        "value": "Ingrese su contraseña"
+        "value": "Usuario o correo"
     },
     {
         "key": "login.password",
@@ -5658,6 +5646,90 @@
     {
         "key": "login.email_not_verified.description",
         "value": "Revisa tu bandeja de entrada y haz clic en el enlace de verificación."
+    },
+    {
+        "key": "login.forgot_password",
+        "value": "¿Olvidaste tu contraseña?"
+    },
+    {
+        "key": "login.caps_lock",
+        "value": "Bloq Mayús está activado."
+    },
+    {
+        "key": "login.no_account",
+        "value": "¿Aún no tienes cuenta?"
+    },
+    {
+        "key": "login.contact_us",
+        "value": "Contáctanos"
+    },
+    {
+        "key": "auth.forgot_password.sent",
+        "value": "Si los datos corresponden a una cuenta, te enviamos un correo para restablecer la contraseña."
+    },
+    {
+        "key": "forgot_password.title",
+        "value": "Recupera tu contraseña"
+    },
+    {
+        "key": "forgot_password.description",
+        "value": "Escribe tu usuario o correo y te enviaremos un enlace para elegir una nueva."
+    },
+    {
+        "key": "forgot_password.identifier",
+        "value": "Usuario o correo"
+    },
+    {
+        "key": "forgot_password.submit",
+        "value": "Enviar enlace"
+    },
+    {
+        "key": "forgot_password.sent.title",
+        "value": "Revisa tu correo"
+    },
+    {
+        "key": "forgot_password.sent.description",
+        "value": "Si {identifier} corresponde a una cuenta, te enviamos un enlace para elegir una nueva contraseña. Expira en 1 hora."
+    },
+    {
+        "key": "forgot_password.no_email",
+        "value": "¿Tu cuenta no tiene correo? Escríbenos"
+    },
+    {
+        "key": "forgot_password.no_email.message",
+        "value": "Hola, necesito restablecer mi contraseña de Gentoo y mi cuenta no tiene correo."
+    },
+    {
+        "key": "forgot_password.back_to_login",
+        "value": "Volver a iniciar sesión"
+    },
+    {
+        "key": "form.password.show",
+        "value": "Mostrar contraseña"
+    },
+    {
+        "key": "form.password.hide",
+        "value": "Ocultar contraseña"
+    },
+    {
+        "key": "auth.tagline",
+        "value": "Tu consultorio, en orden."
+    },
+    {
+        "key": "auth.footer.terms",
+        "value": "Términos"
+    },
+    {
+        "key": "auth.footer.privacy",
+        "value": "Privacidad"
+    },
+    {
+        "key": "auth.footer.help",
+        "value": "Ayuda"
+    },
+    {
+        "key": "auth.footer.help.message",
+        "value": "Hola, necesito ayuda para ingresar a Gentoo."
     },
     {
         "key": "privacy.section.contact.desc",

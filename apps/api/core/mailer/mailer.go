@@ -102,6 +102,28 @@ func (m *Mailer) SendEmailVerification(toEmail string, verificationURL string) e
 	return m.send(toEmail, "Verifica tu email - Gentoo", html)
 }
 
+// SendPasswordReset emails the link to choose a new password.
+func (m *Mailer) SendPasswordReset(toEmail, userName, resetURL string) error {
+	body := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color: #0d9488;">Restablece tu contraseña</h2>
+  <p>Recibimos una solicitud para restablecer la contraseña del usuario <strong>%s</strong> en Gentoo. Haz clic en el siguiente enlace para elegir una nueva:</p>
+  <p style="margin: 24px 0;">
+    <a href="%s" style="display: inline-block; padding: 12px 24px; background: #0d9488; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+      Elegir nueva contraseña
+    </a>
+  </p>
+  <p style="color: #666; font-size: 14px;">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+  <p style="color: #666; font-size: 13px; word-break: break-all;">%s</p>
+  <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+  <p style="color: #999; font-size: 12px;">Si no pediste este cambio, ignora este mensaje: tu contraseña sigue igual. El enlace expira en 1 hora y sirve una sola vez.</p>
+</body>
+</html>`, html.EscapeString(userName), resetURL, resetURL)
+
+	return m.send(toEmail, "Restablece tu contraseña - Gentoo", body)
+}
+
 func (m *Mailer) SendContactMessage(toEmail, name, fromEmail, message string) error {
 	html := fmt.Sprintf(`<!DOCTYPE html>
 <html>

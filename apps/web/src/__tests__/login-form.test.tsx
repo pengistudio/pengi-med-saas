@@ -7,6 +7,9 @@ vi.mock("@/api/auth-service", () => ({
 }));
 
 vi.mock("react-router", () => ({
+	Link: ({ children }: { children: React.ReactNode }) => (
+		<a href="/">{children}</a>
+	),
 	useNavigate: () => vi.fn(),
 	useSearchParams: () => [new URLSearchParams(), vi.fn()],
 }));

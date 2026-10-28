@@ -77,6 +77,9 @@ const Profile = lazy(() => import("@/pages/profile/profile"));
 const NotificationsPage = lazy(
 	() => import("@/pages/notifications/notifications-page"),
 );
+const ForgotPasswordPage = lazy(
+	() => import("@/pages/forgot-password/forgot-password-page"),
+);
 const ResetPasswordPage = lazy(
 	() => import("@/pages/reset-password/reset-password-page"),
 );
@@ -452,6 +455,10 @@ const router = createBrowserRouter([
 			{
 				path: "/verify-email",
 				element: <VerifyEmailPage />,
+			},
+			{
+				path: "/forgot-password",
+				element: <ForgotPasswordPage />,
 			},
 			{
 				path: "/reset-password",

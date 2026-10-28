@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"pengi-med-saas/core/config"
@@ -252,34 +254,58 @@ func ParseExchangeToken(token string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
-// GeneratePasswordResetToken creates a JWT for password reset. It expires in
-// 24 hours and encodes the user_id of the tenant user that needs to reset.
-func GeneratePasswordResetToken(userID uint) (string, error) {
+// PasswordResetTTL is how long a reset link sent by email stays valid.
+// Links generated from the backoffice, sent by hand, last longer.
+const (
+	PasswordResetTTL           = time.Hour
+	PasswordResetBackofficeTTL = 24 * time.Hour
+)
+
+// passwordFingerprint identifies the password hash a reset token was issued
+// for. Once the password changes the fingerprint no longer matches, so a
+// reset link works only once.
+func passwordFingerprint(passwordHash string) string {
+	sum := sha256.Sum256([]byte(passwordHash))
+	return hex.EncodeToString(sum[:8])
+}
+
+// GeneratePasswordResetToken creates a JWT for password reset, valid for ttl
+// and only while the user's password is still passwordHash.
+func GeneratePasswordResetToken(userID uint, passwordHash string, ttl time.Duration) (string, error) {
 	return signedWithAuthKey(jwt.MapClaims{
 		"type":    "password_reset",
 		"user_id": userID,
-		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+		"pwd":     passwordFingerprint(passwordHash),
+		"exp":     time.Now().Add(ttl).Unix(),
 	})
 }
 
 // ParsePasswordResetToken validates the token and returns the user_id.
-func ParsePasswordResetToken(tokenStr string) (uint, error) {
+// Callers must check MatchesPasswordResetToken against the current hash.
+func ParsePasswordResetToken(tokenStr string) (userID uint, fingerprint string, err error) {
 	claims, err := ParseToken(tokenStr)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	tokenType, ok := claims["type"].(string)
 	if !ok || tokenType != "password_reset" {
-		return 0, errors.New("invalid token type, expected password_reset")
+		return 0, "", errors.New("invalid token type, expected password_reset")
 	}
 
 	userIDFloat, ok := claims["user_id"].(float64)
 	if !ok {
-		return 0, errors.New("invalid user_id in token")
+		return 0, "", errors.New("invalid user_id in token")
 	}
 
-	return uint(userIDFloat), nil
+	fingerprint, _ = claims["pwd"].(string)
+	return uint(userIDFloat), fingerprint, nil
+}
+
+// MatchesPasswordResetToken reports whether a token fingerprint was issued
+// for the current password hash (false once the password was changed).
+func MatchesPasswordResetToken(fingerprint, passwordHash string) bool {
+	return fingerprint != "" && fingerprint == passwordFingerprint(passwordHash)
 }
 
 // GenerateEmailVerificationToken creates a JWT for email verification. Expires in 24h.

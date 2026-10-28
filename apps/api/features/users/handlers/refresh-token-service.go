@@ -75,6 +75,20 @@ func RevokeFamily(db *gorm.DB, familyID string) error {
 		Update("revoked_at", time.Now()).Error
 }
 
+// RevokeUserSessions kills every refresh-token family of a user (and the
+// legacy single token): after a password reset nobody stays signed in with
+// the old password.
+func RevokeUserSessions(db *gorm.DB, userID uint) error {
+	if err := db.Model(&user_models.RefreshToken{}).
+		Where("user_id = ? AND revoked_at IS NULL", userID).
+		Update("revoked_at", time.Now()).Error; err != nil {
+		return err
+	}
+	return db.Model(&user_models.User{}).
+		Where("id = ?", userID).
+		Update("refresh_token", "").Error
+}
+
 // RotateRefreshToken validates the presented refresh token and, on success,
 // rotates it: the old row is marked used, a new one is issued in the same
 // family with the sliding expiry reset, and a fresh access token is
