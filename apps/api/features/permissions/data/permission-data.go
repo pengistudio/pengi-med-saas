@@ -247,15 +247,22 @@ var DocumentTemplatePermissions = []permission_models.Permission{
 	},
 }
 
-// ClinicPermissions guard the clinic's own identity in the app (its logo in
-// the sidebar and on the RIDE). Category SETTINGS maps to no nav flag and sits
-// in no Feature: the routes use RequireRolePermission, so every plan has it.
+// ClinicPermissions guard the clinic's own identity and clinic-wide settings
+// in the app (its logo in the sidebar and on the RIDE, the UI settings every
+// user sees). Category SETTINGS maps to no nav flag and sits in no Feature:
+// the routes use RequireRolePermission, so every plan has them.
 var ClinicPermissions = []permission_models.Permission{
 	{
 		BaseStringID: database.BaseStringID{ID: "MANAGE_CLINIC_BRANDING"},
 		Name:         "Manage clinic branding",
 		Category:     "SETTINGS",
 		Description:  "Upload or replace the clinic's logo",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_CLINIC_SETTINGS"},
+		Name:         "Manage clinic settings",
+		Category:     "SETTINGS",
+		Description:  "Change the clinic-wide settings: patient table columns, consultation form sections, diagnosis system, task archiving",
 	},
 }
 
@@ -343,4 +350,52 @@ var DoctorPermissions = []permission_models.Permission{
 		Category:     "CLINICAL",
 		Description:  "Create, edit, link, deactivate and delete the clinic's doctor profiles",
 	},
+}
+
+// All returns every permission in the catalog, once each: what a fresh
+// database seeds (migrations baseline) and what the admin role holds.
+func All() []permission_models.Permission {
+	seen := map[string]bool{}
+	var all []permission_models.Permission
+	for _, catalog := range [][]permission_models.Permission{
+		ClinicalPermissions, BillingPermissions, TeamPermissions, AuditPermissions,
+		DocumentTemplatePermissions, ClinicPermissions, KanbanPermissions,
+		WhatsAppPermissions, PatientPortalPermissions, AppointmentRequestPermissions,
+		DoctorPermissions,
+	} {
+		for _, perm := range catalog {
+			if !seen[perm.ID] {
+				seen[perm.ID] = true
+				all = append(all, perm)
+			}
+		}
+	}
+	return all
+}
+
+// FeatureSeed is a plan module and the permissions it brings to a plan.
+type FeatureSeed struct {
+	Code        string
+	Name        string
+	Permissions []permission_models.Permission
+}
+
+// Features are the plan modules a fresh database starts with (migrations
+// baseline). Existing environments manage them from the backoffice; a code
+// migration that changes them must change this catalog too.
+var Features = []FeatureSeed{
+	{Code: "CLINICAL", Name: "Clínico", Permissions: concat(ClinicalPermissions, AuditPermissions, DocumentTemplatePermissions, DoctorPermissions)},
+	{Code: "BILLING", Name: "Facturación", Permissions: concat(BillingPermissions, DocumentTemplatePermissions)},
+	{Code: "TEAM", Name: "Equipo", Permissions: TeamPermissions},
+	{Code: "KANBAN", Name: "Kanban", Permissions: KanbanPermissions},
+	{Code: "WHATSAPP", Name: "WhatsApp", Permissions: WhatsAppPermissions},
+	{Code: "PATIENT_PORTAL", Name: "Portal de pacientes", Permissions: concat(PatientPortalPermissions, AppointmentRequestPermissions)},
+}
+
+func concat(catalogs ...[]permission_models.Permission) []permission_models.Permission {
+	var all []permission_models.Permission
+	for _, catalog := range catalogs {
+		all = append(all, catalog...)
+	}
+	return all
 }

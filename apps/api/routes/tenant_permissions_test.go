@@ -106,3 +106,25 @@ func TestTenantRoutes_LogoNotGatedOnPlan(t *testing.T) {
 		t.Errorf("PUT /tenants/logo = 403, want past the permission check: %s", w.Body.String())
 	}
 }
+
+// The UI settings apply to the whole clinic: admin only
+// (MANAGE_CLINIC_SETTINGS), no other canonical role may change them.
+func TestTenantRoutes_UISettingsNeedManageClinicSettings(t *testing.T) {
+	for _, roleName := range []string{role_data.RoleRecepcionista, role_data.RoleDoctor, role_data.RoleContador} {
+		router := tenantSettingsRouter(t, role_data.RolePermissionMatrix[roleName])
+		if w := serve(router, http.MethodPut, "/tenants/settings", "{}"); w.Code != http.StatusForbidden {
+			t.Errorf("%s PUT /tenants/settings = %d, want 403: %s", roleName, w.Code, w.Body.String())
+		}
+	}
+}
+
+// Reading them stays open: every user's screens follow the clinic settings.
+func TestTenantRoutes_UISettingsWritableWithPermission(t *testing.T) {
+	router := tenantSettingsRouter(t, []string{"MANAGE_CLINIC_SETTINGS"})
+	if w := serve(router, http.MethodPut, "/tenants/settings", "{}"); w.Code != http.StatusOK {
+		t.Errorf("PUT /tenants/settings = %d, want 200: %s", w.Code, w.Body.String())
+	}
+	if w := serve(router, http.MethodGet, "/tenants/settings", ""); w.Code != http.StatusOK {
+		t.Errorf("GET /tenants/settings = %d, want 200: %s", w.Code, w.Body.String())
+	}
+}

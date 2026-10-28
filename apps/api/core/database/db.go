@@ -21,26 +21,25 @@ type DBMap map[string]DBExecute
 
 var GlobalDBMap = make(DBMap)
 
+// Baseline seeds a fresh database (no code migration recorded yet) with the
+// reference data in its current shape. The code migrations were written
+// against the schema of their day, but AutoMigrate builds today's, so they
+// can't replay from scratch: on a fresh database ExecuteAll runs Baseline
+// instead and records every migration as executed. Set by the migrations
+// package; nil runs the migrations one by one.
+var Baseline func(db *gorm.DB) error
+
 func NewDBMap() DBMap {
 	return make(DBMap)
 }
 
+// ParseFileName splits a migration ID "DBYYYYMMDD_N" into its date
+// (YYYYMMDD) and sequence number, the order the migrations run in. A suffix
+// that isn't a number (DB20260304_BACKOFFICE_USERS) counts as 0.
 func ParseFileName(s string) (int, int) {
-	// Eliminar prefijo "DB"
 	parts := strings.Split(s[2:], "_")
-
-	// Extraer y convertir la fecha
-	dateStr := parts[0]
-	day := dateStr[0:2]
-	month := dateStr[2:4]
-	year := dateStr[4:8]
-
-	// Convertir la fecha a un formato cronológico (AAAAMMDD)
-	date, _ := strconv.Atoi(year + month + day)
-
-	// Convertir el ID
+	date, _ := strconv.Atoi(parts[0])
 	id, _ := strconv.Atoi(parts[1])
-
 	return date, id
 }
 
@@ -71,6 +70,10 @@ func ExecuteAll(db *gorm.DB) error {
 	var DBList []DBExecute
 	if err := db.Find(&DBList).Error; err != nil {
 		return fmt.Errorf("failed to retrieve Database list: %w", err)
+	}
+
+	if len(DBList) == 0 && Baseline != nil {
+		return executeBaseline(db)
 	}
 
 	localDBMap := NewDBMap()
@@ -127,4 +130,24 @@ func ExecuteAll(db *gorm.DB) error {
 	fmt.Println("✅ All Database migrations executed successfully.")
 
 	return nil
+}
+
+// executeBaseline seeds a fresh database and records every code migration as
+// executed, in one transaction.
+func executeBaseline(db *gorm.DB) error {
+	fmt.Println("🌱 Fresh database: seeding the baseline instead of replaying the migrations...")
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := Baseline(tx); err != nil {
+			return fmt.Errorf("❌ failed to seed the baseline: %w", err)
+		}
+		executed := make([]DBExecute, 0, len(GlobalDBMap))
+		for id := range GlobalDBMap {
+			executed = append(executed, DBExecute{ID: id})
+		}
+		if err := tx.CreateInBatches(executed, 100).Error; err != nil {
+			return fmt.Errorf("❌ failed to record the migrations as executed: %w", err)
+		}
+		fmt.Printf("✅ Baseline seeded; %d migrations recorded as executed.\n", len(executed))
+		return nil
+	})
 }
