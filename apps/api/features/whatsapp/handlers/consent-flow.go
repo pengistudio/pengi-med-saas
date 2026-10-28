@@ -96,12 +96,13 @@ func (h *WebhookHandler) acceptOptIn(db *gorm.DB, account whatsapp_models.WhatsA
 }
 
 // sendSystem records body in conv's thread as a KindSystem message and sends
-// it as free text. Failures are logged; the message stays failed.
-func (h *WebhookHandler) sendSystem(db *gorm.DB, account whatsapp_models.WhatsAppAccount, conv *whatsapp_models.WhatsAppConversation, body string) {
+// it as free text, and reports whether it went out. Failures are logged; the
+// message stays failed.
+func (h *WebhookHandler) sendSystem(db *gorm.DB, account whatsapp_models.WhatsAppAccount, conv *whatsapp_models.WhatsAppConversation, body string) bool {
 	token, err := account.OpenAccessToken()
 	if err != nil {
 		h.logger.Error("whatsapp webhook: token unusable for system message", zap.Uint("tenant_id", account.TenantID), zap.Error(err))
-		return
+		return false
 	}
 	msg := whatsapp_models.WhatsAppMessage{
 		TenantID:    account.TenantID,
@@ -114,9 +115,11 @@ func (h *WebhookHandler) sendSystem(db *gorm.DB, account whatsapp_models.WhatsAp
 	}
 	if err := whatsapp_services.RecordOutbound(db, conv, &msg, h.now()); err != nil {
 		h.logger.Error("whatsapp webhook: failed to record system message", zap.Uint("conversation_id", conv.ID), zap.Error(err))
-		return
+		return false
 	}
 	if err := h.sender.DeliverText(db, &msg, account, token); err != nil {
 		h.logger.Warn("whatsapp webhook: system message not sent", zap.Uint("message_id", msg.ID), zap.Error(err))
+		return false
 	}
+	return true
 }

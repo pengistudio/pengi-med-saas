@@ -17,19 +17,21 @@ type ConfigResponse struct {
 
 // AccountResponse describes the tenant's connection. The token is never sent.
 type AccountResponse struct {
-	Connected        bool       `json:"connected"`
-	Mode             string     `json:"mode,omitempty"`
-	Status           string     `json:"status,omitempty"`
-	WabaID           string     `json:"waba_id,omitempty"`
-	PhoneNumberID    string     `json:"phone_number_id,omitempty"`
-	DisplayPhone     string     `json:"display_phone,omitempty"`
-	VerifiedName     string     `json:"verified_name,omitempty"`
-	TemplateName     string     `json:"template_name,omitempty"`
-	TemplateStatus   string     `json:"template_status"`
-	TemplateReason   string     `json:"template_reason,omitempty"`
-	RemindersEnabled bool       `json:"reminders_enabled"`
-	ReminderOffsets  []int      `json:"reminder_offsets"`
-	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
+	Connected        bool   `json:"connected"`
+	Mode             string `json:"mode,omitempty"`
+	Status           string `json:"status,omitempty"`
+	WabaID           string `json:"waba_id,omitempty"`
+	PhoneNumberID    string `json:"phone_number_id,omitempty"`
+	DisplayPhone     string `json:"display_phone,omitempty"`
+	VerifiedName     string `json:"verified_name,omitempty"`
+	TemplateName     string `json:"template_name,omitempty"`
+	TemplateStatus   string `json:"template_status"`
+	TemplateReason   string `json:"template_reason,omitempty"`
+	RemindersEnabled bool   `json:"reminders_enabled"`
+	ReminderOffsets  []int  `json:"reminder_offsets"`
+	// NoShowMessageEnabled: the reschedule message on a no-show is on.
+	NoShowMessageEnabled bool       `json:"no_show_message_enabled"`
+	ConnectedAt          *time.Time `json:"connected_at,omitempty"`
 }
 
 // NotConnected is the AccountResponse of a tenant without an account.
@@ -44,19 +46,20 @@ func NewAccountResponse(a whatsapp_models.WhatsAppAccount) AccountResponse {
 		offsets = []int{}
 	}
 	return AccountResponse{
-		Connected:        true,
-		Mode:             a.Mode,
-		Status:           a.Status,
-		WabaID:           a.WabaID,
-		PhoneNumberID:    a.PhoneNumberID,
-		DisplayPhone:     a.DisplayPhone,
-		VerifiedName:     a.VerifiedName,
-		TemplateName:     whatsapp_models.ReminderTemplate,
-		TemplateStatus:   a.TemplateStatus,
-		TemplateReason:   a.TemplateReason,
-		RemindersEnabled: a.RemindersEnabled,
-		ReminderOffsets:  offsets,
-		ConnectedAt:      a.ConnectedAt,
+		Connected:            true,
+		Mode:                 a.Mode,
+		Status:               a.Status,
+		WabaID:               a.WabaID,
+		PhoneNumberID:        a.PhoneNumberID,
+		DisplayPhone:         a.DisplayPhone,
+		VerifiedName:         a.VerifiedName,
+		TemplateName:         whatsapp_models.ReminderTemplate,
+		TemplateStatus:       a.TemplateStatus,
+		TemplateReason:       a.TemplateReason,
+		RemindersEnabled:     a.RemindersEnabled,
+		ReminderOffsets:      offsets,
+		NoShowMessageEnabled: a.NoShowMessageEnabled,
+		ConnectedAt:          a.ConnectedAt,
 	}
 }
 
@@ -79,10 +82,12 @@ func (r *ConnectManualRequest) Trim() {
 	r.WabaID, r.PhoneNumberID, r.AccessToken = strings.TrimSpace(r.WabaID), strings.TrimSpace(r.PhoneNumberID), strings.TrimSpace(r.AccessToken)
 }
 
-// SettingsRequest updates the reminder settings.
+// SettingsRequest updates the reminder settings and, when sent, the no-show
+// message switch (absent: unchanged).
 type SettingsRequest struct {
-	RemindersEnabled *bool `json:"reminders_enabled" binding:"required"`
-	ReminderOffsets  []int `json:"reminder_offsets"`
+	RemindersEnabled     *bool `json:"reminders_enabled" binding:"required"`
+	ReminderOffsets      []int `json:"reminder_offsets"`
+	NoShowMessageEnabled *bool `json:"no_show_message_enabled"`
 }
 
 // TestRequest sends the reminder template with sample data to phone.

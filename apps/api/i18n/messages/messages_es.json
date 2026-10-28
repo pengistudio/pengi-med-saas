@@ -12394,5 +12394,37 @@
     {
         "key": "agenda.no_show.warning",
         "value": "Úsalo solo si la recepción registra las llegadas o el médico registra la consulta: de lo contrario, se marcará como inasistencia a pacientes que sí vinieron. Siempre puedes corregir el estado desde la cita."
+    },
+    {
+        "key": "settings.whatsapp.log.kind.no_show",
+        "value": "Inasistencia (reagendar)"
+    },
+    {
+        "key": "settings.whatsapp.no_show_message",
+        "value": "Mensaje para reagendar tras una inasistencia"
+    },
+    {
+        "key": "settings.whatsapp.no_show_message.hint",
+        "value": "Cuando una cita se marca como inasistencia, se envía una sola vez la plantilla «Cita no asistida» con el botón «Reagendar», entre las 08:00 y las 20:00. Solo a pacientes que aceptaron WhatsApp; cuenta para el límite mensual. Si el portal de pacientes permite agendar en línea, el paciente recibe el enlace; si no, se avisa a recepción."
+    },
+    {
+        "key": "notification.whatsapp.reschedule_requested",
+        "value": "{patient_name} quiere reagendar su cita del {date} a las {time}. Escríbele por WhatsApp."
+    },
+    {
+        "key": "whatsapp.patient.no_show.booking_link",
+        "value": "Puedes elegir una nueva fecha para tu cita aquí: {url}"
+    },
+    {
+        "key": "whatsapp.message.error.no_show_corrected",
+        "value": "Se corrigió la inasistencia antes del envío."
+    },
+    {
+        "key": "whatsapp.message.error.no_show_disabled",
+        "value": "El mensaje de inasistencia se desactivó antes del envío."
+    },
+    {
+        "key": "whatsapp.message.error.template_not_approved",
+        "value": "La plantilla no está aprobada en WhatsApp."
     }
 ]

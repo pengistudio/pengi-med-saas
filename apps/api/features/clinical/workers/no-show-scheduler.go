@@ -38,15 +38,26 @@ type NoShowScheduler struct {
 	calendar CalendarSync // nil: no calendar sync
 	loc      *time.Location
 	now      func() time.Time
+	// messages queues the WhatsApp no-show message of each marked appointment.
+	messages *whatsapp_services.NoShowMessages
 }
 
 func NewNoShowScheduler(db *gorm.DB, logger *zap.Logger, calendar CalendarSync) *NoShowScheduler {
-	return &NoShowScheduler{db: db, logger: logger, calendar: calendar, loc: whatsapp_services.ClinicLocation(), now: time.Now}
+	return &NoShowScheduler{db: db, logger: logger, calendar: calendar, loc: whatsapp_services.ClinicLocation(), now: time.Now,
+		messages: whatsapp_services.NewNoShowMessages(db, logger, whatsapp_services.RabbitPublisher{})}
 }
 
 // WithClock overrides the clock and time zone (tests).
 func (s *NoShowScheduler) WithClock(now func() time.Time, loc *time.Location) *NoShowScheduler {
 	s.now, s.loc = now, loc
+	s.messages.WithClock(now, loc)
+	return s
+}
+
+// WithMessages overrides the no-show messages (tests); its clock is set by
+// WithClock, so call this first.
+func (s *NoShowScheduler) WithMessages(m *whatsapp_services.NoShowMessages) *NoShowScheduler {
+	s.messages = m
 	return s
 }
 
@@ -130,6 +141,7 @@ func (s *NoShowScheduler) markTenant(tenantID uint, since time.Time, grace time.
 		if s.calendar != nil && appt.GoogleEventID != "" {
 			s.calendar.SyncStatusChange(tenantID, appt)
 		}
+		s.messages.Marked(tenantID, appt.ID)
 	}
 	return marked
 }

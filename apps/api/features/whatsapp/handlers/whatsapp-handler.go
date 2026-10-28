@@ -225,7 +225,8 @@ func (h *WhatsAppHandler) SyncTemplate(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(whatsapp_dto.NewAccountResponse(account), "whatsapp.template.sync.success")
 }
 
-// UpdateSettings switches reminders on/off and sets their offsets.
+// UpdateSettings switches reminders on/off, sets their offsets and switches
+// the no-show message on/off.
 func (h *WhatsAppHandler) UpdateSettings(c *gin.Context) envelope.Response {
 	var req whatsapp_dto.SettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -244,7 +245,10 @@ func (h *WhatsAppHandler) UpdateSettings(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusNotFound, "whatsapp.error.not_connected", core_errors.ErrWhatsAppNotConnected)
 	}
 	account.RemindersEnabled, account.ReminderOffsets = *req.RemindersEnabled, offsets
-	if err := tenantdb.For(c, h.db).Model(&account).Select("reminders_enabled", "reminder_offsets").Updates(&account).Error; err != nil {
+	if req.NoShowMessageEnabled != nil {
+		account.NoShowMessageEnabled = *req.NoShowMessageEnabled
+	}
+	if err := tenantdb.For(c, h.db).Model(&account).Select("reminders_enabled", "reminder_offsets", "no_show_message_enabled").Updates(&account).Error; err != nil {
 		h.logger.Error("failed to save whatsapp settings", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
 	}

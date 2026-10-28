@@ -18,7 +18,8 @@ const (
 	// a thread whose window is closed). Counts toward the monthly plan cap.
 	KindTemplate = "template"
 	// KindSystem: free text Pengi sends on its own inside the window (asking
-	// for WhatsApp consent and confirming it). Free, so it is not counted.
+	// for WhatsApp consent and confirming it, the portal link answering a
+	// "Reagendar" tap). Free, so it is not counted.
 	KindSystem = "system"
 	// KindPortalCode: a patient portal sign-in code (AUTHENTICATION template).
 	// Counts toward the monthly plan cap; never part of a conversation, and
@@ -28,11 +29,20 @@ const (
 	// portal appointment request (UTILITY templates). Counted toward the cap.
 	KindBookingConfirmed    = "booking_confirmed"
 	KindBookingNotConfirmed = "booking_not_confirmed"
+	// KindNoShow: the reschedule invitation (NoShowTemplate) queued when an
+	// appointment is marked no_show. One per appointment (NoShowOffsetHours in
+	// the unique index); counted toward the cap.
+	KindNoShow = "no_show"
 )
+
+// NoShowOffsetHours is the OffsetHours of a KindNoShow message: reminders use
+// positive offsets, so (appointment_id, NoShowOffsetHours) in the unique index
+// allows one no-show message per appointment, ever.
+const NoShowOffsetHours = -1
 
 // CountedKinds are the kinds Meta charges for (templates): the ones the
 // monthly plan cap (max_whatsapp_messages) counts once sent.
-var CountedKinds = []string{KindReminder, KindTest, KindTemplate, KindPortalCode, KindBookingConfirmed, KindBookingNotConfirmed}
+var CountedKinds = []string{KindReminder, KindTest, KindTemplate, KindPortalCode, KindBookingConfirmed, KindBookingNotConfirmed, KindNoShow}
 
 // Message directions.
 const (
@@ -80,12 +90,23 @@ const (
 	ErrorCodeNoOptIn         = "no_opt_in"
 	// ErrorCodeMonthlyLimit: the tenant reached its plan's monthly message cap.
 	ErrorCodeMonthlyLimit = "monthly_limit"
+	// ErrorCodeNoShowCorrected: the no-show mark was corrected before the
+	// reschedule message went out.
+	ErrorCodeNoShowCorrected = "no_show_corrected"
+	// ErrorCodeNoShowDisabled: the clinic turned the no-show message off
+	// before it went out.
+	ErrorCodeNoShowDisabled = "no_show_disabled"
+	// ErrorCodeTemplateNotApproved: the template is no longer approved on the
+	// clinic's WABA.
+	ErrorCodeTemplateNotApproved = "template_not_approved"
 )
 
 // Reply actions (payload "<action>:<message id>" of the template buttons).
+// ReplyReschedule is the "Reagendar" button of the no-show message.
 const (
-	ReplyConfirm = "confirm"
-	ReplyCancel  = "cancel"
+	ReplyConfirm    = "confirm"
+	ReplyCancel     = "cancel"
+	ReplyReschedule = "reschedule"
 )
 
 // ReminderTemplate is the template every reminder uses.
@@ -127,6 +148,9 @@ type WhatsAppMessage struct {
 	Body         string `json:"body" gorm:"type:text"`
 	ContentType  string `json:"content_type" gorm:"not null;default:text"`
 	SentByUserID *uint  `json:"sent_by_user_id"`
+	// SendAfter holds a queued message until then (UTC): a no-show message
+	// marked outside the send hours waits for the next window. nil: now.
+	SendAfter *time.Time `json:"send_after"`
 }
 
 func (WhatsAppMessage) TableName() string { return "whatsapp_messages" }

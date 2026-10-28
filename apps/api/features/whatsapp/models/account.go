@@ -44,19 +44,22 @@ var ErrNoToken = errors.New("whatsapp account has no access token")
 // tenant; the webhook finds the tenant by PhoneNumberID.
 type WhatsAppAccount struct {
 	gorm.Model
-	TenantID             uint       `json:"tenant_id" gorm:"uniqueIndex;not null"`
-	WabaID               string     `json:"waba_id" gorm:"index;not null"`
-	PhoneNumberID        string     `json:"phone_number_id" gorm:"uniqueIndex;not null"`
-	DisplayPhone         string     `json:"display_phone"`
-	VerifiedName         string     `json:"verified_name"`
-	AccessTokenEncrypted string     `json:"-" gorm:"type:text"`
-	PinEncrypted         string     `json:"-" gorm:"type:text"`
-	Mode                 string     `json:"mode"`
-	Status               string     `json:"status"`
-	TemplateStatus       string     `json:"template_status"`
-	TemplateReason       string     `json:"template_reason"`
-	RemindersEnabled     bool       `json:"reminders_enabled"`
-	ReminderOffsets      []int      `json:"reminder_offsets" gorm:"serializer:json;type:text"`
+	TenantID             uint   `json:"tenant_id" gorm:"uniqueIndex;not null"`
+	WabaID               string `json:"waba_id" gorm:"index;not null"`
+	PhoneNumberID        string `json:"phone_number_id" gorm:"uniqueIndex;not null"`
+	DisplayPhone         string `json:"display_phone"`
+	VerifiedName         string `json:"verified_name"`
+	AccessTokenEncrypted string `json:"-" gorm:"type:text"`
+	PinEncrypted         string `json:"-" gorm:"type:text"`
+	Mode                 string `json:"mode"`
+	Status               string `json:"status"`
+	TemplateStatus       string `json:"template_status"`
+	TemplateReason       string `json:"template_reason"`
+	RemindersEnabled     bool   `json:"reminders_enabled"`
+	ReminderOffsets      []int  `json:"reminder_offsets" gorm:"serializer:json;type:text"`
+	// NoShowMessageEnabled: send the reschedule message (NoShowTemplate) when
+	// an appointment is marked no_show. Off by default.
+	NoShowMessageEnabled bool       `json:"no_show_message_enabled" gorm:"not null;default:false"`
 	ConnectedAt          *time.Time `json:"connected_at"`
 }
 
@@ -102,6 +105,12 @@ func (a *WhatsAppAccount) OpenAccessToken() (string, error) {
 		return "", err
 	}
 	return box.Open(a.AccessTokenEncrypted)
+}
+
+// CanSendNoShowMessages reports whether no-show messages may be queued (the
+// template's own approval is checked on its WhatsAppTemplate row).
+func (a *WhatsAppAccount) CanSendNoShowMessages() bool {
+	return a.Status == AccountStatusConnected && a.NoShowMessageEnabled
 }
 
 // CanSendReminders reports whether the scheduler should consider the account.

@@ -34,6 +34,8 @@ export interface WhatsAppAccount {
 	template_reason?: string;
 	reminders_enabled: boolean;
 	reminder_offsets: number[];
+	/** Send the reschedule template when an appointment is marked no-show. */
+	no_show_message_enabled?: boolean;
 	connected_at?: string;
 }
 
@@ -52,6 +54,8 @@ export type ConnectEmbeddedPayload = {
 export type WhatsAppSettingsPayload = {
 	reminders_enabled: boolean;
 	reminder_offsets: number[];
+	/** Omitted: left as it is. */
+	no_show_message_enabled?: boolean;
 };
 
 export type WhatsAppMessageStatus =
@@ -68,7 +72,9 @@ export type WhatsAppMessageStatus =
 /**
  * reminder/test/reply/template/system are outbound; inbound is what the
  * patient wrote. template = a template sent from the inbox; system = an
- * automatic text (the consent question and its confirmation).
+ * automatic text (the consent question and its confirmation, the portal link
+ * answering "Reagendar"); no_show = the reschedule invitation sent when an
+ * appointment is marked no-show.
  */
 export type WhatsAppMessageKind =
 	| "reminder"
@@ -76,6 +82,7 @@ export type WhatsAppMessageKind =
 	| "reply"
 	| "template"
 	| "system"
+	| "no_show"
 	| "inbound";
 
 export type WhatsAppContentType =

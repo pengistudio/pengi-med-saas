@@ -73,6 +73,13 @@ func openSQLite(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("failed to open test DB: %v", err)
 	}
+	// Each connection to ":memory:" is a separate, empty database: keep one,
+	// so goroutines started by the code under test (go f()) see the same tables.
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("failed to get test DB pool: %v", err)
+	}
+	sqlDB.SetMaxOpenConns(1)
 	closeOnCleanup(t, db)
 	return db
 }
