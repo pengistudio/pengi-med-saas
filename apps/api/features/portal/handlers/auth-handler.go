@@ -218,15 +218,19 @@ func (h *AuthHandler) Verify(c *gin.Context) envelope.Response {
 	return h.openSession(c, clinic.Tenant.ID, patient.ID)
 }
 
+func client(c *gin.Context) portal_services.Client {
+	return portal_services.Client{UserAgent: c.Request.UserAgent(), IP: c.ClientIP()}
+}
+
 func (h *AuthHandler) openSession(c *gin.Context, tenantID, patientID uint) envelope.Response {
 	access, err := auth.GeneratePortalAccessToken(tenantID, patientID)
 	if err != nil {
 		h.logger.Error("portal: failed to sign access token", zap.Error(err))
 		return internalError()
 	}
-	refresh, err := auth.GeneratePortalRefreshToken(tenantID, patientID)
+	refresh, err := portal_services.OpenSession(h.db, tenantID, patientID, client(c), timeNow())
 	if err != nil {
-		h.logger.Error("portal: failed to sign refresh token", zap.Error(err))
+		h.logger.Error("portal: failed to open session", zap.Error(err))
 		return internalError()
 	}
 	auth.SetPortalRefreshCookie(c, refresh)
@@ -234,8 +238,9 @@ func (h *AuthHandler) openSession(c *gin.Context, tenantID, patientID uint) enve
 }
 
 // Refresh is POST /portal/refresh: a new access token from the
-// portal_refresh cookie, while the clinic's portal is open and the patient
-// exists.
+// portal_refresh cookie, while the session is live, the clinic's portal is
+// open and the patient exists. The cookie rotates on every refresh; a
+// rotated-out one presented again revokes the session.
 func (h *AuthHandler) Refresh(c *gin.Context) envelope.Response {
 	cookie, err := c.Cookie(auth.PortalRefreshCookie)
 	if err != nil || cookie == "" {
@@ -263,16 +268,40 @@ func (h *AuthHandler) Refresh(c *gin.Context) envelope.Response {
 		auth.ClearPortalRefreshCookie(c)
 		return envelope.ErrorResponse(http.StatusUnauthorized, "portal.error.unauthorized", core_errors.ErrPortalUnauthorized)
 	}
+	next, err := portal_services.RotateSession(h.db, claims, client(c), timeNow())
+	if err != nil {
+		if errors.Is(err, portal_services.ErrSessionReused) {
+			h.logger.Warn("portal: refresh token reused, session revoked",
+				zap.Uint("tenant_id", claims.TenantID), zap.Uint("patient_id", claims.PatientID),
+				zap.String("family_id", claims.FamilyID), zap.String("ip", c.ClientIP()))
+		} else if !errors.Is(err, portal_services.ErrSessionInvalid) {
+			h.logger.Error("portal: failed to rotate session", zap.Error(err))
+			return internalError()
+		}
+		auth.ClearPortalRefreshCookie(c)
+		return envelope.ErrorResponse(http.StatusUnauthorized, "portal.error.unauthorized", core_errors.ErrPortalUnauthorized)
+	}
 	access, err := auth.GeneratePortalAccessToken(claims.TenantID, claims.PatientID)
 	if err != nil {
 		h.logger.Error("portal: failed to sign access token", zap.Error(err))
 		return internalError()
 	}
+	if next != "" { // "" within the rotation grace: the browser has the new cookie
+		auth.SetPortalRefreshCookie(c, next)
+	}
 	return envelope.SuccessResponse(portal_dto.TokenResponse{AccessToken: access}, "portal.refresh.success")
 }
 
-// Logout is POST /portal/logout: clears the refresh cookie.
+// Logout is POST /portal/logout: revokes the session of the refresh cookie
+// (if any) and clears it.
 func (h *AuthHandler) Logout(c *gin.Context) envelope.Response {
+	if cookie, err := c.Cookie(auth.PortalRefreshCookie); err == nil && cookie != "" {
+		if claims, err := auth.ParsePortalRefreshToken(cookie); err == nil {
+			if err := portal_services.RevokeSession(h.db, claims.TenantID, claims.FamilyID, timeNow()); err != nil {
+				h.logger.Error("portal: failed to revoke session", zap.Error(err))
+			}
+		}
+	}
 	auth.ClearPortalRefreshCookie(c)
 	return envelope.SuccessResponse(nil, "portal.logout.success")
 }

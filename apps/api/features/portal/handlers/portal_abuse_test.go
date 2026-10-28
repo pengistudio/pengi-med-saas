@@ -222,3 +222,25 @@ func TestLogin_PerPatientDailyCap(t *testing.T) {
 		t.Fatalf("codes = %d, emails = %d", n, f.mail.calls)
 	}
 }
+
+// Parallel logins (as from several API instances: the lock lives in
+// Postgres, not in the process) never issue more codes than a budget allows.
+// Only Postgres serializes them; SQLite has a single writer anyway.
+func TestLogin_ParallelRequestsRespectTheBudget(t *testing.T) {
+	f := newFixture(t)
+	if f.db.Dialector.Name() != "postgres" {
+		t.Skip("advisory locks need Postgres")
+	}
+	var wg sync.WaitGroup
+	for i := 0; i < 4*portal_services.MaxCodesPerWindow; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, _, _ = portal_services.IssueCode(f.db, f.own.ID, f.ownPat.ID, portal_models.ChannelEmail, time.Now())
+		}()
+	}
+	wg.Wait()
+	if n := len(f.codes(f.ownPat.ID)); n != portal_services.MaxCodesPerWindow {
+		t.Fatalf("codes issued = %d, want %d", n, portal_services.MaxCodesPerWindow)
+	}
+}

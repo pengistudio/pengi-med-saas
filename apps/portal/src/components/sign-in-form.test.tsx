@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { requestCode, verifyCode } from "@/api/portal-service";
+import { findCodeField } from "@/test/code-field";
 import { SignInForm } from "./sign-in-form";
 
 vi.mock("@/api/portal-service", () => ({
@@ -92,7 +93,7 @@ describe("SignInForm", () => {
 		expect(screen.queryByText("solve")).toBeNull();
 		expect(await screen.findByText("*portal.signin.code_sent*")).toBeVisible();
 
-		await user.type(label("portal.signin.code"), "123456");
+		await user.type(await findCodeField(), "123456");
 		await user.click(button("portal.signin.verify"));
 
 		await waitFor(() => expect(onSignedIn).toHaveBeenCalledWith("token-1"));
@@ -117,10 +118,7 @@ describe("SignInForm", () => {
 
 		await user.type(label("portal.signin.document"), "1712345678");
 		await user.click(button("portal.signin.send_code"));
-		await user.type(
-			await screen.findByLabelText("*portal.signin.code*"),
-			"000000",
-		);
+		await user.type(await findCodeField(), "000000");
 		await user.click(button("portal.signin.verify"));
 
 		expect(await screen.findByRole("alert")).toHaveTextContent(

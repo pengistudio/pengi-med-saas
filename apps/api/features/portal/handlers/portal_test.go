@@ -148,7 +148,7 @@ func newFixture(t *testing.T) *fixture {
 		&clinical_models.MedicalRecord{}, &clinical_models.Prescription{}, &clinical_models.MedicalCertificate{}, &clinical_models.MedicalReport{},
 		&clinical_models.PatientAttachment{}, &clinical_models.ExamOrder{}, &clinical_models.ExamOrderItem{},
 		&billing_models.Invoice{}, &billing_models.InvoiceItem{},
-		&portal_models.PortalLoginCode{}, &portal_models.PortalContactCode{}, &audit.AuditLog{},
+		&portal_models.PortalLoginCode{}, &portal_models.PortalContactCode{}, &portal_models.PortalRefreshToken{}, &audit.AuditLog{},
 		&whatsapp_models.WhatsAppAccount{}, &whatsapp_models.WhatsAppTemplate{}, &whatsapp_models.WhatsAppMessage{},
 	)
 	f := &fixture{t: t, db: db, mail: &fakeMailer{}, graph: &fakeGraph{}, files: tenantfiles.Memory(), attach: tenantfiles.Memory()}
@@ -182,6 +182,7 @@ func newFixture(t *testing.T) *fixture {
 	g.POST("/clinics/:slug/login", envelope.Handle(a.Login))
 	g.POST("/clinics/:slug/verify", envelope.Handle(a.Verify))
 	g.POST("/refresh", envelope.Handle(a.Refresh))
+	g.POST("/logout", envelope.Handle(a.Logout))
 	authed := g.Group("", portal_middleware.RequirePortalSession(db))
 	section := portal_middleware.RequireSection
 	authed.GET("/me", envelope.Handle(p.Me))
@@ -434,7 +435,7 @@ func TestPortalRoutes_RejectNonPortalTokens(t *testing.T) {
 	f := newFixture(t)
 	staff, _ := auth.GenerateToken("admin", 1)
 	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
-	refresh, _ := auth.GeneratePortalRefreshToken(f.own.ID, f.ownPat.ID)
+	refresh, _, _ := auth.GeneratePortalRefreshToken(f.own.ID, f.ownPat.ID, "family")
 	for name, token := range map[string]string{"none": "", "staff": staff, "backoffice": backoffice, "portal refresh": refresh, "garbage": "x.y.z"} {
 		if r := f.do(http.MethodGet, "/portal/me", token, nil); r.Code != http.StatusUnauthorized || errorCode(r) != "E-PORTAL-003" {
 			t.Fatalf("%s token: %d %s", name, r.Code, r.Raw)
@@ -446,23 +447,136 @@ func TestPortalRoutes_RejectNonPortalTokens(t *testing.T) {
 	}
 }
 
-func TestRefresh_UsesTheCookie(t *testing.T) {
-	f := newFixture(t)
-	refresh, _ := auth.GeneratePortalRefreshToken(f.own.ID, f.ownPat.ID)
-	req := httptest.NewRequest(http.MethodPost, "/portal/refresh", nil)
-	req.AddCookie(&http.Cookie{Name: auth.PortalRefreshCookie, Value: refresh})
+// refreshCookie signs the patient in and returns the refresh cookie set.
+func (f *fixture) refreshCookie(tenant tenant_models.Tenant, p clinical_models.Patient) string {
+	f.t.Helper()
+	f.login(tenant, p.Document)
+	r := f.verify(tenant, p.Document, f.mail.last(p.Email))
+	return cookieValue(f.t, r.Headers, auth.PortalRefreshCookie)
+}
+
+func cookieValue(t *testing.T, h http.Header, name string) string {
+	t.Helper()
+	for _, c := range (&http.Response{Header: h}).Cookies() {
+		if c.Name == name {
+			return c.Value
+		}
+	}
+	return ""
+}
+
+// postWithCookie POSTs path with the refresh cookie set to value.
+func (f *fixture) postWithCookie(path, value string) result {
+	req := httptest.NewRequest(http.MethodPost, path, nil)
+	if value != "" {
+		req.AddCookie(&http.Cookie{Name: auth.PortalRefreshCookie, Value: value})
+	}
 	w := httptest.NewRecorder()
 	f.router.ServeHTTP(w, req)
-	if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), "access_token") {
-		t.Fatalf("refresh: %d %s", w.Code, w.Body.String())
+	return result{Code: w.Code, Raw: w.Body.Bytes(), Headers: w.Header()}
+}
+
+func TestRefresh_UsesTheCookie(t *testing.T) {
+	f := newFixture(t)
+	refresh := f.refreshCookie(f.own, f.ownPat)
+	if r := f.postWithCookie("/portal/refresh", refresh); r.Code != http.StatusOK || !strings.Contains(string(r.Raw), "access_token") {
+		t.Fatalf("refresh: %d %s", r.Code, r.Raw)
 	}
 	access, _ := auth.GeneratePortalAccessToken(f.own.ID, f.ownPat.ID)
-	req = httptest.NewRequest(http.MethodPost, "/portal/refresh", nil)
-	req.AddCookie(&http.Cookie{Name: auth.PortalRefreshCookie, Value: access}) // wrong type
-	w = httptest.NewRecorder()
-	f.router.ServeHTTP(w, req)
-	if w.Code != http.StatusUnauthorized {
-		t.Fatalf("access token as refresh: %d", w.Code)
+	if r := f.postWithCookie("/portal/refresh", access); r.Code != http.StatusUnauthorized { // wrong type
+		t.Fatalf("access token as refresh: %d", r.Code)
+	}
+	// Signed right but never stored (or issued before sessions were stored).
+	unknown, _, _ := auth.GeneratePortalRefreshToken(f.own.ID, f.ownPat.ID, "family")
+	if r := f.postWithCookie("/portal/refresh", unknown); r.Code != http.StatusUnauthorized {
+		t.Fatalf("unstored refresh token: %d", r.Code)
+	}
+}
+
+func TestRefresh_RotatesAndDetectsReuse(t *testing.T) {
+	f := newFixture(t)
+	now := time.Now()
+	prev := timeNow
+	timeNow = func() time.Time { return now }
+	t.Cleanup(func() { timeNow = prev })
+
+	first := f.refreshCookie(f.own, f.ownPat)
+	r := f.postWithCookie("/portal/refresh", first)
+	second := cookieValue(t, r.Headers, auth.PortalRefreshCookie)
+	if r.Code != http.StatusOK || second == "" || second == first {
+		t.Fatalf("refresh must rotate the cookie: %d %q", r.Code, second)
+	}
+
+	// Another tab presenting the old cookie right away: an access token, no
+	// new cookie, the session lives on.
+	now = now.Add(portal_services.RotationGrace / 2)
+	r = f.postWithCookie("/portal/refresh", first)
+	if r.Code != http.StatusOK || cookieValue(t, r.Headers, auth.PortalRefreshCookie) != "" {
+		t.Fatalf("old cookie within the grace: %d %s", r.Code, r.Headers.Get("Set-Cookie"))
+	}
+
+	// Later it is a replay: the whole session is revoked, new cookie included.
+	now = now.Add(portal_services.RotationGrace)
+	if r := f.postWithCookie("/portal/refresh", first); r.Code != http.StatusUnauthorized || !strings.Contains(r.Headers.Get("Set-Cookie"), "portal_refresh=;") {
+		t.Fatalf("replayed cookie: %d %s", r.Code, r.Raw)
+	}
+	if r := f.postWithCookie("/portal/refresh", second); r.Code != http.StatusUnauthorized {
+		t.Fatalf("session must be revoked after a replay: %d", r.Code)
+	}
+
+	// A new sign-in opens a new session.
+	if r := f.postWithCookie("/portal/refresh", f.refreshCookie(f.own, f.ownPat)); r.Code != http.StatusOK {
+		t.Fatalf("new session: %d %s", r.Code, r.Raw)
+	}
+}
+
+func TestLogout_RevokesTheSession(t *testing.T) {
+	f := newFixture(t)
+	refresh := f.refreshCookie(f.own, f.ownPat)
+	other := f.refreshCookie(f.own, f.ownPat) // another device
+	r := f.postWithCookie("/portal/logout", refresh)
+	if r.Code != http.StatusOK || !strings.Contains(r.Headers.Get("Set-Cookie"), "portal_refresh=;") {
+		t.Fatalf("logout: %d %s", r.Code, r.Headers.Get("Set-Cookie"))
+	}
+	if r := f.postWithCookie("/portal/refresh", refresh); r.Code != http.StatusUnauthorized {
+		t.Fatalf("refresh after logout: %d", r.Code)
+	}
+	if r := f.postWithCookie("/portal/refresh", other); r.Code != http.StatusOK {
+		t.Fatalf("other device's session must survive: %d %s", r.Code, r.Raw)
+	}
+	if r := f.postWithCookie("/portal/logout", ""); r.Code != http.StatusOK {
+		t.Fatalf("logout without cookie: %d", r.Code)
+	}
+}
+
+func TestRefresh_SessionOfAnotherClinicDoesNotCount(t *testing.T) {
+	f := newFixture(t)
+	refresh := f.refreshCookie(f.own, f.ownPat)
+	claims, err := auth.ParsePortalRefreshToken(refresh)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Same jti and family, but signed for the other clinic: its row is not there.
+	forged, _, _ := auth.GeneratePortalRefreshToken(f.other.ID, f.ownPat.ID, claims.FamilyID)
+	if r := f.postWithCookie("/portal/refresh", forged); r.Code != http.StatusUnauthorized && r.Code != http.StatusNotFound {
+		t.Fatalf("other clinic: %d", r.Code)
+	}
+}
+
+func TestPurgeSessions_DeletesExpired(t *testing.T) {
+	f := newFixture(t)
+	f.refreshCookie(f.own, f.ownPat)
+	sys := tenantdb.System(f.db)
+	if n, err := portal_services.PurgeSessions(f.db, time.Now()); err != nil || n != 0 {
+		t.Fatalf("live session purged: %d %v", n, err)
+	}
+	if n, err := portal_services.PurgeSessions(f.db, time.Now().Add(auth.PortalRefreshTTL+time.Minute)); err != nil || n != 1 {
+		t.Fatalf("expired sessions purged = %d, %v", n, err)
+	}
+	var left int64
+	sys.Model(&portal_models.PortalRefreshToken{}).Count(&left)
+	if left != 0 {
+		t.Fatalf("left = %d", left)
 	}
 }
 

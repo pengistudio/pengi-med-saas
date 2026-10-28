@@ -12,6 +12,7 @@ import {
 	requestNewPatientCode,
 	verifyNewPatientCode,
 } from "@/api/portal-service";
+import { findCodeField } from "@/test/code-field";
 import { NewPatientFlow } from "./new-patient-flow";
 
 vi.mock("@/api/portal-service", () => ({
@@ -98,10 +99,7 @@ async function verifyAndPickSlot(user: ReturnType<typeof userEvent.setup>) {
 		"0991234567",
 	);
 	await user.click(btn("portal.signin.send_code"));
-	await user.type(
-		await screen.findByLabelText("*portal.signin.code*"),
-		"123456",
-	);
+	await user.type(await findCodeField(), "123456");
 	await user.click(btn("portal.new_patient.verify"));
 	await user.click(await screen.findByRole("button", { name: "09:00" }));
 }
