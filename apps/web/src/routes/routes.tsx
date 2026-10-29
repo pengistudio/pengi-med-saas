@@ -63,6 +63,7 @@ const WaitingRoomPage = lazy(
 const WaitingRoomDisplayPage = lazy(
 	() => import("@/pages/clincal/waiting-room/waiting-room-display"),
 );
+const WaitlistPage = lazy(() => import("@/pages/clincal/waitlist/waitlist"));
 const PairDisplayPage = lazy(() => import("@/pages/display/pair"));
 const Home = lazy(() => import("@/pages/home/home"));
 const KanbanPage = lazy(() => import("@/pages/kanban/kanban-page"));
@@ -298,6 +299,16 @@ const clinicalRoutes: RouteObject = {
 					permissions={[PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT]}
 				>
 					<WaitingRoomPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "waitlist",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.APPOINTMENTS.PERMISSION_READ_APPOINTMENT]}
+				>
+					<WaitlistPage />
 				</CheckPermission>
 			),
 		},

@@ -304,6 +304,39 @@ export const cancelAppointment = (id: number) =>
 		{ notifySuccess: true, notifyError: true },
 	);
 
+// ─── Waitlist ────────────────────────────────────────────────────────────────
+
+/** The patient asked to be told when a slot frees (with a doctor, or any). */
+export interface WaitlistEntry {
+	id: number;
+	status: "waiting" | "offered" | "booked" | "removed" | "expired";
+	/** Null: any doctor (specialty mode). */
+	doctor_id: number | null;
+	doctor_name: string;
+	type_id: number | null;
+	type_name: string;
+	/** ISO timestamps. */
+	created_at: string;
+	expires_at: string;
+}
+
+/** The patient's entries still on the list. */
+export const getWaitlist = () =>
+	portalService.get<WaitlistEntry[]>("/waitlist");
+
+/** Joins the list for a type (and doctor); joining twice returns the same entry. */
+export const joinWaitlist = (typeId: number, doctorId?: number) =>
+	portalService.post<WaitlistEntry>(
+		"/waitlist",
+		{ type_id: typeId, ...(doctorId ? { doctor_id: doctorId } : {}) },
+		{ notifyError: true },
+	);
+
+export const leaveWaitlist = (id: number) =>
+	portalService.delete<WaitlistEntry>(`/waitlist/${id}`, {
+		notifyError: true,
+	});
+
 // ─── New patients (Entrega 3) ────────────────────────────────────────────────
 
 /** How a new patient proves a contact: WhatsApp only when the clinic has it. */

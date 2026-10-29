@@ -70,7 +70,8 @@ func RegisterPortalRoutes(router *gin.RouterGroup, db *gorm.DB) {
 // The code budgets (per patient, per clinic and global, counted in the DB)
 // live in portal_services.IssueCode; the captcha in the Login handler.
 // Booking requests: 5 a minute and 30 a day per IP (plus 3 pending per
-// patient, checked in the handler).
+// patient, checked in the handler). Joining the waitlist: 5 a minute (one
+// active entry per doctor and type, checked in the handler).
 // New patients (first appointment): contact codes and their verification
 // have their own per-IP limits with the login's rates (the DB budgets are
 // shared with sign-in codes, see portal_services.IssueContactCode); the
@@ -85,6 +86,7 @@ func registerPortalRoutes(group *gin.RouterGroup, db *gorm.DB, a *portal_handler
 	publicLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/60), 60)
 	bookingLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/5), 5)
 	bookingDailyLimiter := core_middleware.NewRateLimiter(rate.Every(24*time.Hour/30), 30)
+	waitlistLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/5), 5)
 	contactLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/5), 5)
 	contactDailyLimiter := core_middleware.NewRateLimiter(rate.Every(24*time.Hour/20), 20)
 	contactVerifyLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/10), 10)
@@ -125,4 +127,8 @@ func registerPortalRoutes(group *gin.RouterGroup, db *gorm.DB, a *portal_handler
 	booking.POST("/booking/requests", bookingLimiter.Middleware(), bookingDailyLimiter.Middleware(), envelope.Handle(b.CreateRequest))
 	booking.POST("/booking/requests/:id/cancel", envelope.Handle(b.CancelRequest))
 	booking.POST("/appointments/:id/cancel", envelope.Handle(b.CancelAppointment))
+	// The waitlist ("Avísame si se libera un turno"): patients with a record only.
+	booking.GET("/waitlist", envelope.Handle(b.ListWaitlist))
+	booking.POST("/waitlist", waitlistLimiter.Middleware(), envelope.Handle(b.JoinWaitlist))
+	booking.DELETE("/waitlist/:id", envelope.Handle(b.LeaveWaitlist))
 }

@@ -23,6 +23,7 @@ import (
 	portal_models "pengi-med-saas/features/portal/models"
 	portal_services "pengi-med-saas/features/portal/services"
 	tenant_models "pengi-med-saas/features/tenants/models"
+	waitlist_services "pengi-med-saas/features/waitlist/services"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -68,6 +69,18 @@ func (b *bookingSide) afterCommit(f func()) {
 		return
 	}
 	b.run(f)
+}
+
+// slots tells reception when a cancelled appointment or a released request
+// frees a slot the waitlist wants.
+func (b *bookingSide) slots() *waitlist_services.Slots {
+	return waitlist_services.NewSlots(b.db, b.logger).WithClock(func() time.Time { return timeNow() }, portal_services.Location())
+}
+
+// released runs the waitlist check of a request that stopped holding its
+// slot (rejected, cancelled), after commit.
+func (b *bookingSide) released(tenantID uint, req portal_models.AppointmentRequest) {
+	b.afterCommit(func() { b.slots().RequestReleased(tenantID, req) })
 }
 
 // approved runs the after-commit work of an approved request: the calendar
@@ -590,6 +603,7 @@ func (h *BookingHandler) CancelRequest(c *gin.Context) envelope.Response {
 	}
 	req.Status = portal_models.RequestCancelled
 	audit.RecordPortalChange(h.db, clinic.Tenant.ID, patient.ID, "UPDATE", auditRequests, req.ID)
+	h.released(clinic.Tenant.ID, req)
 	return envelope.SuccessResponse(h.requestItem(db, req, now), "portal.booking.request.cancel.success")
 }
 
@@ -637,6 +651,8 @@ func (h *BookingHandler) CancelAppointment(c *gin.Context) envelope.Response {
 		portal_services.NotifyStaff(h.db, h.logger, tenantID, portal_services.NotificationTypeBookingCancelled,
 			"notification.portal.booking.appointment_cancelled", portal_services.AppointmentResourceType, appt.ID,
 			portal_services.AppointmentsURL, patient, date, appt.StartTime)
+		// It was scheduled or confirmed: its slot is free for the waitlist.
+		h.slots().AppointmentFreed(tenantID, appt)
 	})
 	return envelope.SuccessResponse(portal_dto.Appointment{
 		ID: appt.ID, Date: date, StartTime: appt.StartTime, EndTime: appt.EndTime, Status: appt.Status, Location: appt.Location,

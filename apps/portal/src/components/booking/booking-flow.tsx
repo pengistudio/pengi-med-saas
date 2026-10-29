@@ -27,6 +27,7 @@ import {
 } from "@/api/portal-service";
 import { OptionButton, OptionList } from "@/components/booking/option-list";
 import { SlotPicker } from "@/components/booking/slot-picker";
+import { WaitlistButton } from "@/components/booking/waitlist-button";
 import {
 	type BookingErrorKind,
 	bookingErrorKind,
@@ -294,12 +295,15 @@ export function BookingPicker({
 	options,
 	booking,
 	loadSlots,
+	waitlist = false,
 	onPicked,
 }: {
 	options: BookingOptions;
 	booking: BookingSelection;
 	/** Where the times come from (default: the patient's session). */
 	loadSlots?: SlotsLoader;
+	/** Without free times, offer the waitlist (signed-in patients only). */
+	waitlist?: boolean;
 	/** A time was picked. */
 	onPicked?: () => void;
 }) {
@@ -359,6 +363,11 @@ export function BookingPicker({
 				maxDate={options.max_date}
 				initialDate={selection.date}
 				loadSlots={loadSlots}
+				emptyAction={
+					waitlist && (
+						<WaitlistButton typeId={type.id} target={targetOf(provider)} />
+					)
+				}
 				onPick={(date, time) => {
 					setSelection({ provider, type, date, time });
 					onPicked?.();
@@ -467,6 +476,7 @@ export function BookingSteps({
 					<BookingPicker
 						options={options}
 						booking={booking}
+						waitlist
 						onPicked={() => setError(undefined)}
 					/>
 				)}

@@ -7,6 +7,7 @@ import (
 	"pengi-med-saas/core/tenantdb"
 	portal_models "pengi-med-saas/features/portal/models"
 	portal_services "pengi-med-saas/features/portal/services"
+	waitlist_services "pengi-med-saas/features/waitlist/services"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -26,7 +27,9 @@ type RequestNotifier interface {
 // whose ExpiresAt passed becomes expired and its patient is told. The update
 // is conditional (status still pending), so a request decided meanwhile, or
 // expired by another API instance, is left alone and notified only once.
-// Each tick also deletes expired portal sessions (PurgeSessions).
+// The slot an expired request held is free again: the waitlist is checked
+// for it (waitlist_services.Slots). Each tick also deletes expired portal
+// sessions (PurgeSessions).
 type RequestExpiryScheduler struct {
 	db      *gorm.DB
 	logger  *zap.Logger
@@ -66,13 +69,14 @@ func (s *RequestExpiryScheduler) Tick() int {
 	now := s.now().UTC() // SQLite compares timestamps as text: one zone everywhere
 	db := tenantdb.System(s.db)
 	var due []portal_models.AppointmentRequest
-	if err := db.Select("id", "tenant_id").
+	if err := db.
 		Where("status = ? AND expires_at <= ?", portal_models.RequestPending, now).
 		Order("id").Limit(expiryBatch).Find(&due).Error; err != nil {
 		s.logger.Error("portal requests: failed to load expired requests", zap.Error(err))
 		return 0
 	}
 	expired := 0
+	slots := waitlist_services.NewSlots(s.db, s.logger).WithClock(s.now, portal_services.Location())
 	for _, r := range due {
 		res := db.Model(&portal_models.AppointmentRequest{}).
 			Where("id = ? AND status = ?", r.ID, portal_models.RequestPending).
@@ -88,6 +92,7 @@ func (s *RequestExpiryScheduler) Tick() int {
 		if s.notices != nil {
 			s.notices.SendRequestNotice(r.TenantID, r.ID)
 		}
+		slots.RequestReleased(r.TenantID, r)
 	}
 	return expired
 }

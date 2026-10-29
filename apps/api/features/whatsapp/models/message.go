@@ -33,6 +33,10 @@ const (
 	// appointment is marked no_show. One per appointment (NoShowOffsetHours in
 	// the unique index); counted toward the cap.
 	KindNoShow = "no_show"
+	// KindSlotOffer: a freed slot offered to a waitlist patient
+	// (SlotOfferTemplate), sent when reception clicks "Ofrecer por WhatsApp".
+	// Counted toward the cap.
+	KindSlotOffer = "slot_offer"
 )
 
 // NoShowOffsetHours is the OffsetHours of a KindNoShow message: reminders use
@@ -42,7 +46,7 @@ const NoShowOffsetHours = -1
 
 // CountedKinds are the kinds Meta charges for (templates): the ones the
 // monthly plan cap (max_whatsapp_messages) counts once sent.
-var CountedKinds = []string{KindReminder, KindTest, KindTemplate, KindPortalCode, KindBookingConfirmed, KindBookingNotConfirmed, KindNoShow}
+var CountedKinds = []string{KindReminder, KindTest, KindTemplate, KindPortalCode, KindBookingConfirmed, KindBookingNotConfirmed, KindNoShow, KindSlotOffer}
 
 // Message directions.
 const (
@@ -102,11 +106,13 @@ const (
 )
 
 // Reply actions (payload "<action>:<message id>" of the template buttons).
-// ReplyReschedule is the "Reagendar" button of the no-show message.
+// ReplyReschedule is the "Reagendar" button of the no-show message;
+// ReplySlotOffer the "Lo quiero" button of a waitlist slot offer.
 const (
 	ReplyConfirm    = "confirm"
 	ReplyCancel     = "cancel"
 	ReplyReschedule = "reschedule"
+	ReplySlotOffer  = "slot_offer"
 )
 
 // ReminderTemplate is the template every reminder uses.

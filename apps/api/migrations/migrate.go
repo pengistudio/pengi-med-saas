@@ -18,6 +18,7 @@ import (
 	signature_models "pengi-med-saas/features/signatures/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
+	waitlist_models "pengi-med-saas/features/waitlist/models"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
 
 	"gorm.io/gorm"
@@ -87,6 +88,8 @@ func RunMigrations(db *gorm.DB) error {
 		portal_models.PortalContactCode{},
 		portal_models.PortalRefreshToken{},
 		portal_models.AppointmentRequest{},
+		waitlist_models.WaitlistEntry{},
+		waitlist_models.WaitlistOffer{},
 	)
 	if err != nil {
 		return err

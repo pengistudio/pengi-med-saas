@@ -26,6 +26,7 @@ export function SlotPicker({
 	maxDate,
 	initialDate,
 	loadSlots = getBookingSlots,
+	emptyAction,
 	onPick,
 }: {
 	typeId: number;
@@ -36,6 +37,8 @@ export function SlotPicker({
 	initialDate?: string;
 	/** Where the times come from (default: the patient's session). */
 	loadSlots?: SlotsLoader;
+	/** Shown when no loaded day has free times (e.g. "Avísame si se libera un turno"). */
+	emptyAction?: React.ReactNode;
 	onPick: (date: string, time: string) => void;
 }) {
 	const { textGet, formatDate } = useText();
@@ -136,6 +139,7 @@ export function SlotPicker({
 					</p>
 				</div>
 				{moreButton}
+				{emptyAction}
 			</div>
 		);
 	}

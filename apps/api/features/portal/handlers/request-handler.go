@@ -359,5 +359,6 @@ func (h *RequestHandler) Reject(c *gin.Context) envelope.Response {
 	if h.notices != nil {
 		h.afterCommit(func() { h.notices.SendRequestNotice(tenantID, req.ID) })
 	}
+	h.released(tenantID, req)
 	return h.item(db, req, "appointment_requests.reject.success")
 }

@@ -6,7 +6,11 @@ import {
 	type BookingOptions,
 	createBookingRequest,
 	getBookingSlots,
+	getWaitlist,
+	joinWaitlist,
+	leaveWaitlist,
 	type PortalAppointmentRequest,
+	type WaitlistEntry,
 } from "@/api/portal-service";
 import { BookingSteps } from "./booking-flow";
 
@@ -19,6 +23,9 @@ vi.mock("@/api/portal-service", () => ({
 	getBookingOptions: vi.fn(),
 	getBookingSlots: vi.fn(),
 	createBookingRequest: vi.fn(),
+	getWaitlist: vi.fn(),
+	joinWaitlist: vi.fn(),
+	leaveWaitlist: vi.fn(),
 }));
 
 const consult = { id: 1, name: "Consulta", duration_minutes: 30 };
@@ -65,6 +72,18 @@ const request = (status: PortalAppointmentRequest["status"]) =>
 		reject_reason: "",
 		expires_at: "2026-10-28T09:00:00-05:00",
 	});
+
+const entry: WaitlistEntry = {
+	id: 3,
+	status: "waiting",
+	doctor_id: 10,
+	doctor_name: "ANA PAZ",
+	type_id: 1,
+	type_name: "Consulta",
+	created_at: "2026-10-27T10:00:00-05:00",
+	expires_at: "2026-11-26T10:00:00-05:00",
+};
+const noSlots = ok({ days: [] });
 
 const renderFlow = (o: BookingOptions = options) =>
 	render(
@@ -162,5 +181,60 @@ describe("BookingSteps", () => {
 				name: "*portal.booking.done.pending.title*",
 			}),
 		).toBeInTheDocument();
+	});
+});
+
+describe("BookingSteps waitlist", () => {
+	beforeEach(() => {
+		vi.mocked(getBookingSlots).mockReset();
+		vi.mocked(getWaitlist).mockReset();
+		vi.mocked(joinWaitlist).mockReset();
+		vi.mocked(leaveWaitlist).mockReset();
+	});
+
+	it("offers to join the waitlist when there are no times, and joins", async () => {
+		vi.mocked(getBookingSlots).mockResolvedValue(noSlots);
+		vi.mocked(getWaitlist).mockResolvedValue(ok<WaitlistEntry[]>([]));
+		vi.mocked(joinWaitlist).mockResolvedValue(ok(entry));
+		const user = userEvent.setup();
+		renderFlow();
+
+		await user.click(
+			await screen.findByRole("button", { name: "*portal.waitlist.join*" }),
+		);
+		expect(joinWaitlist).toHaveBeenCalledWith(1, 10);
+		expect(await screen.findByText("*portal.waitlist.joined*")).toBeVisible();
+		expect(
+			screen.getByRole("button", { name: "*portal.waitlist.leave*" }),
+		).toBeVisible();
+	});
+
+	it("shows the patient already waiting and lets them leave", async () => {
+		vi.mocked(getBookingSlots).mockResolvedValue(noSlots);
+		vi.mocked(getWaitlist).mockResolvedValue(ok([entry]));
+		vi.mocked(leaveWaitlist).mockResolvedValue(
+			ok({ ...entry, status: "removed" as const }),
+		);
+		const user = userEvent.setup();
+		renderFlow();
+
+		await user.click(
+			await screen.findByRole("button", { name: "*portal.waitlist.leave*" }),
+		);
+		expect(leaveWaitlist).toHaveBeenCalledWith(3);
+		expect(
+			await screen.findByRole("button", { name: "*portal.waitlist.join*" }),
+		).toBeVisible();
+	});
+
+	it("does not offer the waitlist while there are times", async () => {
+		vi.mocked(getBookingSlots).mockResolvedValue(slots(["09:00"]));
+		renderFlow();
+
+		expect(await screen.findByRole("button", { name: "09:00" })).toBeVisible();
+		expect(
+			screen.queryByRole("button", { name: "*portal.waitlist.join*" }),
+		).toBeNull();
+		expect(getWaitlist).not.toHaveBeenCalled();
 	});
 });

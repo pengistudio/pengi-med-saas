@@ -11,6 +11,7 @@ import (
 	clinical_models "pengi-med-saas/features/clinical/models"
 	doctor_services "pengi-med-saas/features/doctors/services"
 	integration_models "pengi-med-saas/features/integrations/models"
+	waitlist_services "pengi-med-saas/features/waitlist/services"
 	whatsapp_services "pengi-med-saas/features/whatsapp/services"
 	"strconv"
 	"time"
@@ -29,6 +30,9 @@ type AppointmentHandler struct {
 	// runNoShow runs the no-show message side effects; in the background by
 	// default so a slow broker never delays the status response.
 	runNoShow func(func())
+	// slots tells reception when a cancelled or deleted appointment frees a
+	// slot the waitlist wants.
+	slots *waitlist_services.Slots
 }
 
 func NewAppointmentHandler(db *gorm.DB, logger *zap.Logger) *AppointmentHandler {
@@ -38,7 +42,14 @@ func NewAppointmentHandler(db *gorm.DB, logger *zap.Logger) *AppointmentHandler 
 		googleSvc: google_calendar.NewCalendarService(),
 		noShows:   whatsapp_services.NewNoShowMessages(db, logger, whatsapp_services.RabbitPublisher{}),
 		runNoShow: func(f func()) { go f() },
+		slots:     waitlist_services.NewSlots(db, logger),
 	}
+}
+
+// WithSlots overrides how freed slots are handled (tests: a fixed clock).
+func (h *AppointmentHandler) WithSlots(s *waitlist_services.Slots) *AppointmentHandler {
+	h.slots = s
+	return h
 }
 
 // WithNoShowMessages overrides the no-show messages and runs them inline, so
@@ -526,6 +537,10 @@ func (h *AppointmentHandler) UpdateStatus(c *gin.Context) envelope.Response {
 		h.runNoShow(func() { h.noShows.Corrected(noShowTenant, noShowID) })
 	}
 
+	if dto.Status == clinical_models.AppointmentStatusCancelled && !clinical_models.IsClosedStatus(previousStatus) {
+		h.slots.AppointmentFreed(tenantdb.TenantID(c), appointment)
+	}
+
 	tenantID, _ := c.Get("tenant_id")
 	if tenantID != nil {
 		wasClosed, closed := clinical_models.IsClosedStatus(previousStatus), clinical_models.IsClosedStatus(dto.Status)
@@ -566,6 +581,10 @@ func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) envelope.Response
 	if err := tenantdb.For(c, h.db).Delete(&appointment).Error; err != nil {
 		h.logger.Error("Failed to delete appointment", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrClinicalInvalidRequest)
+	}
+
+	if !clinical_models.IsClosedStatus(appointment.Status) {
+		h.slots.AppointmentFreed(tenantdb.TenantID(c), appointment)
 	}
 
 	tenantID, _ := c.Get("tenant_id")

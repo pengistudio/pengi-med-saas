@@ -74,7 +74,8 @@ export type WhatsAppMessageStatus =
  * patient wrote. template = a template sent from the inbox; system = an
  * automatic text (the consent question and its confirmation, the portal link
  * answering "Reagendar"); no_show = the reschedule invitation sent when an
- * appointment is marked no-show.
+ * appointment is marked no-show; slot_offer = a freed slot offered to a
+ * waitlist patient.
  */
 export type WhatsAppMessageKind =
 	| "reminder"
@@ -83,6 +84,7 @@ export type WhatsAppMessageKind =
 	| "template"
 	| "system"
 	| "no_show"
+	| "slot_offer"
 	| "inbound";
 
 export type WhatsAppContentType =
