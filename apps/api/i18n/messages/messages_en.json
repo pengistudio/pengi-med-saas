@@ -12426,5 +12426,421 @@
     {
         "key": "whatsapp.message.error.template_not_approved",
         "value": "The template is not approved on WhatsApp."
+    },
+    {
+        "key": "waitlist.list.success",
+        "value": "Waitlist loaded."
+    },
+    {
+        "key": "waitlist.create.success",
+        "value": "Patient added to the waitlist."
+    },
+    {
+        "key": "waitlist.update.success",
+        "value": "Waitlist entry updated."
+    },
+    {
+        "key": "waitlist.remove.success",
+        "value": "Patient removed from the waitlist."
+    },
+    {
+        "key": "waitlist.candidates.success",
+        "value": "Candidates loaded."
+    },
+    {
+        "key": "waitlist.offer.whatsapp.success",
+        "value": "Slot offered on WhatsApp."
+    },
+    {
+        "key": "waitlist.offer.phone.success",
+        "value": "Slot marked as offered by phone."
+    },
+    {
+        "key": "waitlist.error.invalid_request",
+        "value": "Invalid waitlist data."
+    },
+    {
+        "key": "waitlist.error.not_found",
+        "value": "Waitlist entry not found."
+    },
+    {
+        "key": "waitlist.error.duplicate",
+        "value": "The patient is already on the waitlist for this doctor and appointment type."
+    },
+    {
+        "key": "waitlist.error.not_active",
+        "value": "The entry is no longer on the waitlist."
+    },
+    {
+        "key": "waitlist.error.already_offered",
+        "value": "This slot was already offered to the patient."
+    },
+    {
+        "key": "waitlist.error.slot_mismatch",
+        "value": "The slot does not match what the patient is waiting for."
+    },
+    {
+        "key": "waitlist.error.whatsapp_unavailable",
+        "value": "Your plan does not include WhatsApp: call the patient."
+    },
+    {
+        "key": "waitlist.error.internal",
+        "value": "Waitlist internal error."
+    },
+    {
+        "key": "E-WL-001",
+        "value": "Invalid waitlist data."
+    },
+    {
+        "key": "E-WL-002",
+        "value": "Waitlist entry not found."
+    },
+    {
+        "key": "E-WL-003",
+        "value": "The patient is already on the waitlist for this doctor and appointment type."
+    },
+    {
+        "key": "E-WL-004",
+        "value": "The entry is no longer on the waitlist."
+    },
+    {
+        "key": "E-WL-005",
+        "value": "This slot was already offered to the patient."
+    },
+    {
+        "key": "E-WL-006",
+        "value": "The slot does not match what the patient is waiting for."
+    },
+    {
+        "key": "E-WL-007",
+        "value": "Your plan does not include WhatsApp: call the patient."
+    },
+    {
+        "key": "E-WL-008",
+        "value": "Waitlist internal error."
+    },
+    {
+        "key": "portal.waitlist.list.success",
+        "value": "Waitlist loaded."
+    },
+    {
+        "key": "portal.waitlist.join.success",
+        "value": "We will let you know if a slot frees up."
+    },
+    {
+        "key": "portal.waitlist.leave.success",
+        "value": "You left the waitlist."
+    },
+    {
+        "key": "notification.waitlist.slot_freed",
+        "value": "A slot freed up on {date} at {time} with {doctor}: {count} on the waitlist."
+    },
+    {
+        "key": "notification.waitlist.slot_freed.one",
+        "value": "A slot freed up on {date} at {time} with {doctor}: 1 patient on the waitlist."
+    },
+    {
+        "key": "notification.waitlist.slot_freed.other",
+        "value": "A slot freed up on {date} at {time} with {doctor}: {count} patients on the waitlist."
+    },
+    {
+        "key": "notification.waitlist.slot_freed_no_doctor",
+        "value": "A slot freed up on {date} at {time}: {count} on the waitlist."
+    },
+    {
+        "key": "notification.waitlist.slot_freed_no_doctor.one",
+        "value": "A slot freed up on {date} at {time}: 1 patient on the waitlist."
+    },
+    {
+        "key": "notification.waitlist.slot_freed_no_doctor.other",
+        "value": "A slot freed up on {date} at {time}: {count} patients on the waitlist."
+    },
+    {
+        "key": "notification.waitlist.offer_accepted",
+        "value": "{patient_name} wants the slot you offered on {date} at {time}. Message them to book it."
+    },
+    {
+        "key": "notification.waitlist.offer_accepted_no_slot",
+        "value": "{patient_name} wants the slot you offered. Message them to book it."
+    },
+    {
+        "key": "whatsapp.patient.slot_offer.booking_link",
+        "value": "Thank you! You can book the slot here: {url}. If someone else already took it, pick another time with the same link."
+    },
+    {
+        "key": "settings.whatsapp.log.kind.slot_offer",
+        "value": "Slot available (waitlist)"
+    },
+    {
+        "key": "nav.item.waitlist",
+        "value": "Waitlist"
+    },
+    {
+        "key": "waitlist.title",
+        "value": "Waitlist"
+    },
+    {
+        "key": "waitlist.description",
+        "value": "Patients waiting for a slot. When one that suits them frees up, you get a notification to offer it."
+    },
+    {
+        "key": "waitlist.action.add",
+        "value": "Add to the list"
+    },
+    {
+        "key": "waitlist.action.edit",
+        "value": "Edit"
+    },
+    {
+        "key": "waitlist.action.remove",
+        "value": "Remove from the list"
+    },
+    {
+        "key": "waitlist.filter.active",
+        "value": "Waiting"
+    },
+    {
+        "key": "waitlist.filter.all",
+        "value": "All"
+    },
+    {
+        "key": "waitlist.filter.doctor",
+        "value": "Filter by doctor"
+    },
+    {
+        "key": "waitlist.filter.doctor.all",
+        "value": "All doctors"
+    },
+    {
+        "key": "waitlist.doctor.any",
+        "value": "Any doctor"
+    },
+    {
+        "key": "waitlist.type.any",
+        "value": "Any appointment type"
+    },
+    {
+        "key": "waitlist.empty.active",
+        "value": "No patients on the waitlist."
+    },
+    {
+        "key": "waitlist.empty.all",
+        "value": "The waitlist has no entries yet."
+    },
+    {
+        "key": "waitlist.column.patient",
+        "value": "Patient"
+    },
+    {
+        "key": "waitlist.column.doctor",
+        "value": "Doctor"
+    },
+    {
+        "key": "waitlist.column.preference",
+        "value": "Waiting for"
+    },
+    {
+        "key": "waitlist.column.status",
+        "value": "Status"
+    },
+    {
+        "key": "waitlist.column.added",
+        "value": "Added"
+    },
+    {
+        "key": "waitlist.status.waiting",
+        "value": "Waiting"
+    },
+    {
+        "key": "waitlist.status.offered",
+        "value": "Slot offered"
+    },
+    {
+        "key": "waitlist.status.booked",
+        "value": "Booked"
+    },
+    {
+        "key": "waitlist.status.removed",
+        "value": "Removed"
+    },
+    {
+        "key": "waitlist.status.expired",
+        "value": "Expired"
+    },
+    {
+        "key": "waitlist.source.staff",
+        "value": "By reception"
+    },
+    {
+        "key": "waitlist.source.portal",
+        "value": "From the portal"
+    },
+    {
+        "key": "waitlist.offer.channel.whatsapp",
+        "value": "on WhatsApp"
+    },
+    {
+        "key": "waitlist.offer.channel.phone",
+        "value": "by phone"
+    },
+    {
+        "key": "waitlist.offer.accepted",
+        "value": "Wants it"
+    },
+    {
+        "key": "waitlist.offer.offered",
+        "value": "Offered"
+    },
+    {
+        "key": "waitlist.offer.whatsapp",
+        "value": "Offer on WhatsApp"
+    },
+    {
+        "key": "waitlist.offer.call",
+        "value": "Call"
+    },
+    {
+        "key": "waitlist.offer.mark_called",
+        "value": "Mark as offered"
+    },
+    {
+        "key": "waitlist.offer.whatsapp_unavailable",
+        "value": "The patient has not agreed to WhatsApp or has no valid phone: call them."
+    },
+    {
+        "key": "waitlist.range.between",
+        "value": "from {from} to {to}"
+    },
+    {
+        "key": "waitlist.range.from",
+        "value": "from {from}"
+    },
+    {
+        "key": "waitlist.range.until",
+        "value": "until {to}"
+    },
+    {
+        "key": "waitlist.move_earlier",
+        "value": "move up their appointment on {date} {time}"
+    },
+    {
+        "key": "waitlist.slot.title",
+        "value": "Freed slot: {when}"
+    },
+    {
+        "key": "waitlist.slot.with_doctor",
+        "value": "With {doctor}. Offer it in signup order."
+    },
+    {
+        "key": "waitlist.slot.description",
+        "value": "Offer it in signup order."
+    },
+    {
+        "key": "waitlist.slot.close",
+        "value": "Close freed slot"
+    },
+    {
+        "key": "waitlist.slot.error",
+        "value": "The candidates could not be loaded."
+    },
+    {
+        "key": "waitlist.slot.empty",
+        "value": "Nobody on the waitlist matches this slot."
+    },
+    {
+        "key": "waitlist.slot.no_phone",
+        "value": "No phone on record."
+    },
+    {
+        "key": "waitlist.form.title.new",
+        "value": "Add to the waitlist"
+    },
+    {
+        "key": "waitlist.form.title.edit",
+        "value": "Edit waitlist entry"
+    },
+    {
+        "key": "waitlist.form.description",
+        "value": "You will be notified when a matching slot frees up."
+    },
+    {
+        "key": "waitlist.form.patient",
+        "value": "Patient"
+    },
+    {
+        "key": "waitlist.form.patient_search",
+        "value": "Search patient by name or ID"
+    },
+    {
+        "key": "waitlist.form.change_patient",
+        "value": "Change patient"
+    },
+    {
+        "key": "waitlist.form.doctor",
+        "value": "Doctor"
+    },
+    {
+        "key": "waitlist.form.type",
+        "value": "Appointment type"
+    },
+    {
+        "key": "waitlist.form.date_from",
+        "value": "From"
+    },
+    {
+        "key": "waitlist.form.date_to",
+        "value": "Until"
+    },
+    {
+        "key": "waitlist.form.date_to.description",
+        "value": "Without an end date, it leaves the list after 30 days."
+    },
+    {
+        "key": "waitlist.form.appointment",
+        "value": "Move an appointment earlier"
+    },
+    {
+        "key": "waitlist.form.appointment.description",
+        "value": "Only slots before that appointment will be offered."
+    },
+    {
+        "key": "waitlist.form.appointment.none",
+        "value": "None"
+    },
+    {
+        "key": "waitlist.form.notes",
+        "value": "Notes"
+    },
+    {
+        "key": "waitlist.form.notes.placeholder",
+        "value": "E.g. mornings only"
+    },
+    {
+        "key": "waitlist.form.save",
+        "value": "Save"
+    },
+    {
+        "key": "waitlist.form.error.patient",
+        "value": "Choose a patient."
+    },
+    {
+        "key": "waitlist.form.error.notes",
+        "value": "500 characters at most."
+    },
+    {
+        "key": "waitlist.form.error.date_order",
+        "value": "The end date must be on or after the start date."
+    },
+    {
+        "key": "portal.waitlist.join",
+        "value": "Let me know if a slot frees up"
+    },
+    {
+        "key": "portal.waitlist.joined",
+        "value": "You are on the waitlist. If a slot frees up, the clinic will contact you."
+    },
+    {
+        "key": "portal.waitlist.leave",
+        "value": "Leave the waitlist"
     }
 ]

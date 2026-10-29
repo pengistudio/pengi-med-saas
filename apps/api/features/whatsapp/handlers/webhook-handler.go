@@ -152,6 +152,8 @@ func (h *WebhookHandler) processMessages(v whatsapp.WebhookValue) {
 		switch {
 		case isReschedule(m.ButtonPayload()):
 			h.applyReschedule(db, account, conv, m)
+		case isSlotOffer(m.ButtonPayload()):
+			h.applySlotOffer(db, account, conv, m)
 		case m.ButtonPayload() != "":
 			h.applyReply(db, account.TenantID, m)
 		case m.OptOutRequested():
@@ -216,7 +218,8 @@ func inboundPhone(from string) string {
 func inboundContent(m whatsapp.WebhookMessage) (contentType, body, reply string) {
 	if payload := m.ButtonPayload(); payload != "" {
 		action, _, _ := strings.Cut(payload, ":")
-		if action != whatsapp_models.ReplyConfirm && action != whatsapp_models.ReplyCancel && action != whatsapp_models.ReplyReschedule {
+		if action != whatsapp_models.ReplyConfirm && action != whatsapp_models.ReplyCancel &&
+			action != whatsapp_models.ReplyReschedule && action != whatsapp_models.ReplySlotOffer {
 			action = ""
 		}
 		return whatsapp_models.ContentButton, m.ButtonText(), action
@@ -390,6 +393,10 @@ func (h *WebhookHandler) applyToAppointment(db *gorm.DB, tenantID uint, apptID u
 		go h.calendar.SyncStatusChange(tenantID, &appt)
 	}
 	h.notify(tenantID, appt, action)
+	if action == whatsapp_models.ReplyCancel {
+		// It was scheduled or confirmed: its slot is free for the waitlist.
+		h.slotsFreed().AppointmentFreed(tenantID, appt)
+	}
 }
 
 // notify tells every member of the clinic that the patient answered.

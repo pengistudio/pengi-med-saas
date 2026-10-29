@@ -2,6 +2,7 @@ import {
 	Calendar,
 	CalendarClock,
 	CalendarPlus,
+	ClockArrowUp,
 	FlaskConical,
 	Layers,
 	LayoutDashboard,
@@ -116,6 +117,13 @@ export const createNavItems = (
 				PERMISSIONS.PATIENT_PORTAL.PERMISSION_MANAGE_APPOINTMENT_REQUESTS,
 			feature: "patient_portal",
 			featureOptIn: true,
+		},
+		{
+			label: textGet("nav.item.waitlist"),
+			href: "/clinical/waitlist",
+			icon: ClockArrowUp,
+			section: care,
+			...appointments,
 		},
 		{
 			label: textGet("dashboard.clinical.waiting_room"),

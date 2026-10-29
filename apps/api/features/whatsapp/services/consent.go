@@ -18,6 +18,9 @@ const (
 	// NoShowBookingLinkKey answers a "Reagendar" tap with the clinic's
 	// portal link ({url}).
 	NoShowBookingLinkKey = "whatsapp.patient.no_show.booking_link"
+	// SlotOfferBookingLinkKey answers a "Lo quiero" tap on a waitlist slot
+	// offer with the clinic's portal link ({url}).
+	SlotOfferBookingLinkKey = "whatsapp.patient.slot_offer.booking_link"
 )
 
 // PatientLanguage is the language of the texts sent to patients.

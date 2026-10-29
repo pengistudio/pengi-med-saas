@@ -232,4 +232,14 @@ var (
 	ErrPortalInvalidPersonalData     AppError = NewAppError("E-PORTAL-016", "Check your personal data.")
 	ErrPortalRequestAlreadyPending   AppError = NewAppError("E-PORTAL-017", "You already have a pending appointment request.")
 	ErrPortalTooManyNewPatients      AppError = NewAppError("E-PORTAL-018", "The clinic has too many pending requests. Try again later or call the clinic.")
+
+	// Appointment waitlist Errors
+	ErrWaitlistInvalidRequest      AppError = NewAppError("E-WL-001", "Invalid waitlist data.")
+	ErrWaitlistNotFound            AppError = NewAppError("E-WL-002", "Waitlist entry not found.")
+	ErrWaitlistDuplicate           AppError = NewAppError("E-WL-003", "The patient is already on the waitlist for this doctor and appointment type.")
+	ErrWaitlistNotActive           AppError = NewAppError("E-WL-004", "The entry is no longer on the waitlist.")
+	ErrWaitlistAlreadyOffered      AppError = NewAppError("E-WL-005", "This slot was already offered to the patient.")
+	ErrWaitlistSlotMismatch        AppError = NewAppError("E-WL-006", "The slot does not match what the patient is waiting for.")
+	ErrWaitlistWhatsAppUnavailable AppError = NewAppError("E-WL-007", "The plan does not include WhatsApp: call the patient instead.")
+	ErrWaitlistInternal            AppError = NewAppError("E-WL-008", "Waitlist internal error.")
 )

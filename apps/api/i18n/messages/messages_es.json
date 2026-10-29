@@ -12426,5 +12426,421 @@
     {
         "key": "whatsapp.message.error.template_not_approved",
         "value": "La plantilla no está aprobada en WhatsApp."
+    },
+    {
+        "key": "waitlist.list.success",
+        "value": "Lista de espera obtenida."
+    },
+    {
+        "key": "waitlist.create.success",
+        "value": "Paciente agregado a la lista de espera."
+    },
+    {
+        "key": "waitlist.update.success",
+        "value": "Entrada de la lista de espera actualizada."
+    },
+    {
+        "key": "waitlist.remove.success",
+        "value": "Paciente quitado de la lista de espera."
+    },
+    {
+        "key": "waitlist.candidates.success",
+        "value": "Candidatos obtenidos."
+    },
+    {
+        "key": "waitlist.offer.whatsapp.success",
+        "value": "Turno ofrecido por WhatsApp."
+    },
+    {
+        "key": "waitlist.offer.phone.success",
+        "value": "Turno marcado como ofrecido por teléfono."
+    },
+    {
+        "key": "waitlist.error.invalid_request",
+        "value": "Datos de la lista de espera no válidos."
+    },
+    {
+        "key": "waitlist.error.not_found",
+        "value": "No se encontró la entrada de la lista de espera."
+    },
+    {
+        "key": "waitlist.error.duplicate",
+        "value": "El paciente ya está en la lista de espera para ese médico y tipo de cita."
+    },
+    {
+        "key": "waitlist.error.not_active",
+        "value": "La entrada ya no está en la lista de espera."
+    },
+    {
+        "key": "waitlist.error.already_offered",
+        "value": "Este turno ya se le ofreció al paciente."
+    },
+    {
+        "key": "waitlist.error.slot_mismatch",
+        "value": "El turno no coincide con lo que espera el paciente."
+    },
+    {
+        "key": "waitlist.error.whatsapp_unavailable",
+        "value": "Tu plan no incluye WhatsApp: llama al paciente."
+    },
+    {
+        "key": "waitlist.error.internal",
+        "value": "Error interno de la lista de espera."
+    },
+    {
+        "key": "E-WL-001",
+        "value": "Datos de la lista de espera no válidos."
+    },
+    {
+        "key": "E-WL-002",
+        "value": "No se encontró la entrada de la lista de espera."
+    },
+    {
+        "key": "E-WL-003",
+        "value": "El paciente ya está en la lista de espera para ese médico y tipo de cita."
+    },
+    {
+        "key": "E-WL-004",
+        "value": "La entrada ya no está en la lista de espera."
+    },
+    {
+        "key": "E-WL-005",
+        "value": "Este turno ya se le ofreció al paciente."
+    },
+    {
+        "key": "E-WL-006",
+        "value": "El turno no coincide con lo que espera el paciente."
+    },
+    {
+        "key": "E-WL-007",
+        "value": "Tu plan no incluye WhatsApp: llama al paciente."
+    },
+    {
+        "key": "E-WL-008",
+        "value": "Error interno de la lista de espera."
+    },
+    {
+        "key": "portal.waitlist.list.success",
+        "value": "Lista de espera obtenida."
+    },
+    {
+        "key": "portal.waitlist.join.success",
+        "value": "Te avisaremos si se libera un turno."
+    },
+    {
+        "key": "portal.waitlist.leave.success",
+        "value": "Saliste de la lista de espera."
+    },
+    {
+        "key": "notification.waitlist.slot_freed",
+        "value": "Se liberó un turno el {date} a las {time} con {doctor}: {count} en lista de espera."
+    },
+    {
+        "key": "notification.waitlist.slot_freed.one",
+        "value": "Se liberó un turno el {date} a las {time} con {doctor}: 1 paciente en lista de espera."
+    },
+    {
+        "key": "notification.waitlist.slot_freed.other",
+        "value": "Se liberó un turno el {date} a las {time} con {doctor}: {count} pacientes en lista de espera."
+    },
+    {
+        "key": "notification.waitlist.slot_freed_no_doctor",
+        "value": "Se liberó un turno el {date} a las {time}: {count} en lista de espera."
+    },
+    {
+        "key": "notification.waitlist.slot_freed_no_doctor.one",
+        "value": "Se liberó un turno el {date} a las {time}: 1 paciente en lista de espera."
+    },
+    {
+        "key": "notification.waitlist.slot_freed_no_doctor.other",
+        "value": "Se liberó un turno el {date} a las {time}: {count} pacientes en lista de espera."
+    },
+    {
+        "key": "notification.waitlist.offer_accepted",
+        "value": "{patient_name} quiere el turno que le ofreciste del {date} a las {time}. Escríbele para agendarlo."
+    },
+    {
+        "key": "notification.waitlist.offer_accepted_no_slot",
+        "value": "{patient_name} quiere el turno que le ofreciste. Escríbele para agendarlo."
+    },
+    {
+        "key": "whatsapp.patient.slot_offer.booking_link",
+        "value": "¡Gracias! Puedes reservar el turno aquí: {url}. Si ya lo tomó otra persona, elige otro horario en el mismo enlace."
+    },
+    {
+        "key": "settings.whatsapp.log.kind.slot_offer",
+        "value": "Turno disponible (lista de espera)"
+    },
+    {
+        "key": "nav.item.waitlist",
+        "value": "Lista de espera"
+    },
+    {
+        "key": "waitlist.title",
+        "value": "Lista de espera"
+    },
+    {
+        "key": "waitlist.description",
+        "value": "Pacientes que esperan un turno. Cuando se libera uno que les sirve, recibes una notificación para ofrecérselo."
+    },
+    {
+        "key": "waitlist.action.add",
+        "value": "Agregar a la lista"
+    },
+    {
+        "key": "waitlist.action.edit",
+        "value": "Editar"
+    },
+    {
+        "key": "waitlist.action.remove",
+        "value": "Quitar de la lista"
+    },
+    {
+        "key": "waitlist.filter.active",
+        "value": "En espera"
+    },
+    {
+        "key": "waitlist.filter.all",
+        "value": "Todas"
+    },
+    {
+        "key": "waitlist.filter.doctor",
+        "value": "Filtrar por médico"
+    },
+    {
+        "key": "waitlist.filter.doctor.all",
+        "value": "Todos los médicos"
+    },
+    {
+        "key": "waitlist.doctor.any",
+        "value": "Cualquier médico"
+    },
+    {
+        "key": "waitlist.type.any",
+        "value": "Cualquier tipo de cita"
+    },
+    {
+        "key": "waitlist.empty.active",
+        "value": "No hay pacientes en lista de espera."
+    },
+    {
+        "key": "waitlist.empty.all",
+        "value": "Todavía no hay entradas en la lista de espera."
+    },
+    {
+        "key": "waitlist.column.patient",
+        "value": "Paciente"
+    },
+    {
+        "key": "waitlist.column.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "waitlist.column.preference",
+        "value": "Espera"
+    },
+    {
+        "key": "waitlist.column.status",
+        "value": "Estado"
+    },
+    {
+        "key": "waitlist.column.added",
+        "value": "Agregado"
+    },
+    {
+        "key": "waitlist.status.waiting",
+        "value": "En espera"
+    },
+    {
+        "key": "waitlist.status.offered",
+        "value": "Turno ofrecido"
+    },
+    {
+        "key": "waitlist.status.booked",
+        "value": "Agendado"
+    },
+    {
+        "key": "waitlist.status.removed",
+        "value": "Quitado"
+    },
+    {
+        "key": "waitlist.status.expired",
+        "value": "Vencido"
+    },
+    {
+        "key": "waitlist.source.staff",
+        "value": "Por recepción"
+    },
+    {
+        "key": "waitlist.source.portal",
+        "value": "Desde el portal"
+    },
+    {
+        "key": "waitlist.offer.channel.whatsapp",
+        "value": "por WhatsApp"
+    },
+    {
+        "key": "waitlist.offer.channel.phone",
+        "value": "por teléfono"
+    },
+    {
+        "key": "waitlist.offer.accepted",
+        "value": "Lo quiere"
+    },
+    {
+        "key": "waitlist.offer.offered",
+        "value": "Ofrecido"
+    },
+    {
+        "key": "waitlist.offer.whatsapp",
+        "value": "Ofrecer por WhatsApp"
+    },
+    {
+        "key": "waitlist.offer.call",
+        "value": "Llamar"
+    },
+    {
+        "key": "waitlist.offer.mark_called",
+        "value": "Marcar como ofrecido"
+    },
+    {
+        "key": "waitlist.offer.whatsapp_unavailable",
+        "value": "El paciente no aceptó WhatsApp o no tiene un teléfono válido: llámalo."
+    },
+    {
+        "key": "waitlist.range.between",
+        "value": "del {from} al {to}"
+    },
+    {
+        "key": "waitlist.range.from",
+        "value": "desde el {from}"
+    },
+    {
+        "key": "waitlist.range.until",
+        "value": "hasta el {to}"
+    },
+    {
+        "key": "waitlist.move_earlier",
+        "value": "adelantar su cita del {date} {time}"
+    },
+    {
+        "key": "waitlist.slot.title",
+        "value": "Turno liberado: {when}"
+    },
+    {
+        "key": "waitlist.slot.with_doctor",
+        "value": "Con {doctor}. Ofrécelo en orden de inscripción."
+    },
+    {
+        "key": "waitlist.slot.description",
+        "value": "Ofrécelo en orden de inscripción."
+    },
+    {
+        "key": "waitlist.slot.close",
+        "value": "Cerrar turno liberado"
+    },
+    {
+        "key": "waitlist.slot.error",
+        "value": "No se pudieron cargar los candidatos."
+    },
+    {
+        "key": "waitlist.slot.empty",
+        "value": "Nadie en la lista de espera coincide con este turno."
+    },
+    {
+        "key": "waitlist.slot.no_phone",
+        "value": "Sin teléfono registrado."
+    },
+    {
+        "key": "waitlist.form.title.new",
+        "value": "Agregar a la lista de espera"
+    },
+    {
+        "key": "waitlist.form.title.edit",
+        "value": "Editar entrada de la lista de espera"
+    },
+    {
+        "key": "waitlist.form.description",
+        "value": "Se te avisará cuando se libere un turno que coincida."
+    },
+    {
+        "key": "waitlist.form.patient",
+        "value": "Paciente"
+    },
+    {
+        "key": "waitlist.form.patient_search",
+        "value": "Buscar paciente por nombre o cédula"
+    },
+    {
+        "key": "waitlist.form.change_patient",
+        "value": "Cambiar paciente"
+    },
+    {
+        "key": "waitlist.form.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "waitlist.form.type",
+        "value": "Tipo de cita"
+    },
+    {
+        "key": "waitlist.form.date_from",
+        "value": "Desde"
+    },
+    {
+        "key": "waitlist.form.date_to",
+        "value": "Hasta"
+    },
+    {
+        "key": "waitlist.form.date_to.description",
+        "value": "Sin fecha final, sale de la lista a los 30 días."
+    },
+    {
+        "key": "waitlist.form.appointment",
+        "value": "Adelantar una cita"
+    },
+    {
+        "key": "waitlist.form.appointment.description",
+        "value": "Solo se le ofrecerán turnos anteriores a esa cita."
+    },
+    {
+        "key": "waitlist.form.appointment.none",
+        "value": "Ninguna"
+    },
+    {
+        "key": "waitlist.form.notes",
+        "value": "Notas"
+    },
+    {
+        "key": "waitlist.form.notes.placeholder",
+        "value": "Ej.: solo por la mañana"
+    },
+    {
+        "key": "waitlist.form.save",
+        "value": "Guardar"
+    },
+    {
+        "key": "waitlist.form.error.patient",
+        "value": "Elige un paciente."
+    },
+    {
+        "key": "waitlist.form.error.notes",
+        "value": "Máximo 500 caracteres."
+    },
+    {
+        "key": "waitlist.form.error.date_order",
+        "value": "La fecha final debe ser igual o posterior a la inicial."
+    },
+    {
+        "key": "portal.waitlist.join",
+        "value": "Avísame si se libera un turno"
+    },
+    {
+        "key": "portal.waitlist.joined",
+        "value": "Estás en la lista de espera. Si se libera un turno, la clínica te contactará."
+    },
+    {
+        "key": "portal.waitlist.leave",
+        "value": "Salir de la lista de espera"
     }
 ]
