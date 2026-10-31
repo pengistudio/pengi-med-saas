@@ -135,3 +135,12 @@
 		@apply font-sans;
 	}
 }
+
+/* Installed PWA: content runs edge to edge (viewport-fit=cover), keep it clear of the home indicator and landscape notch. */
+@media (display-mode: standalone) {
+	body {
+		padding-bottom: env(safe-area-inset-bottom);
+		padding-left: env(safe-area-inset-left);
+		padding-right: env(safe-area-inset-right);
+	}
+}

@@ -12842,5 +12842,21 @@
     {
         "key": "portal.waitlist.leave",
         "value": "Leave the waitlist"
+    },
+    {
+        "key": "pwa.install.title",
+        "value": "Install the app on your device"
+    },
+    {
+        "key": "pwa.install.ios_steps",
+        "value": "Tap Share, then \"Add to Home Screen\"."
+    },
+    {
+        "key": "pwa.install.action",
+        "value": "Install"
+    },
+    {
+        "key": "pwa.install.dismiss",
+        "value": "Not now"
     }
 ]
