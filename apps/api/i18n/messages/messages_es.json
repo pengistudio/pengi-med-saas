@@ -12842,5 +12842,21 @@
     {
         "key": "portal.waitlist.leave",
         "value": "Salir de la lista de espera"
+    },
+    {
+        "key": "pwa.install.title",
+        "value": "Instala la app en tu dispositivo"
+    },
+    {
+        "key": "pwa.install.ios_steps",
+        "value": "Toca Compartir y luego \"Agregar a pantalla de inicio\"."
+    },
+    {
+        "key": "pwa.install.action",
+        "value": "Instalar"
+    },
+    {
+        "key": "pwa.install.dismiss",
+        "value": "Ahora no"
     }
 ]
