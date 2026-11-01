@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router";
 import { RequireSession, session } from "@/lib/session";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
+const AIPage = lazy(() => import("@/pages/ai/ai-page"));
 const AnnouncementList = lazy(
 	() => import("@/pages/announcements/announcement-list"),
 );
@@ -71,6 +72,7 @@ const router = createBrowserRouter([
 			{ path: "/users/edit/:id", element: <EditUser /> },
 			{ path: "/announcements", element: <AnnouncementList /> },
 			{ path: "/announcements/create", element: <CreateAnnouncement /> },
+			{ path: "/ai", element: <AIPage /> },
 		],
 	},
 ]);

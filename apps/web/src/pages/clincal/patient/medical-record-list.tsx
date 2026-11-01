@@ -49,6 +49,7 @@ import {
 import { PageHeader } from "@/components/custom/page-header";
 import PatientCard, { formatAge } from "@/components/custom/patient-card";
 import { DataTable } from "@/components/custom/table/data-table";
+import { AISummaryPanel } from "@/components/features/ai/ai-summary-panel";
 import { NoShowBadge } from "@/components/features/appointments/no-show-history";
 import EditPrescriptionDialog from "@/components/features/patient/edit-prescription-dialog";
 import PrescriptionDialog from "@/components/features/patient/prescription-dialog";
@@ -294,6 +295,7 @@ const MedicalRecords = () => {
 					/>
 				</div>
 			)}
+			{patient && <AISummaryPanel key={patient.ID} patientId={patient.ID} />}
 			<div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
 				{patient && (
 					<PatientCard patient={patient} onEditPatient={handleEditPatient} />

@@ -4,6 +4,7 @@ import (
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/tenantdb"
 	agenda_models "pengi-med-saas/features/agenda/models"
+	ai_models "pengi-med-saas/features/ai/models"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	billing_models "pengi-med-saas/features/billing/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
@@ -90,6 +91,8 @@ func RunMigrations(db *gorm.DB) error {
 		portal_models.AppointmentRequest{},
 		waitlist_models.WaitlistEntry{},
 		waitlist_models.WaitlistOffer{},
+		ai_models.AIUsageLog{},
+		ai_models.AISummary{},
 	)
 	if err != nil {
 		return err

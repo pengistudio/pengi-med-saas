@@ -5,6 +5,7 @@ import {
 	Megaphone,
 	Puzzle,
 	ShieldCheck,
+	Sparkles,
 	Users,
 } from "lucide-react";
 import type React from "react";
@@ -69,5 +70,10 @@ export const createNavItems = (
 		icon: Megaphone,
 		label: textGet("backoffice.nav.announcements"),
 		href: "/announcements",
+	},
+	{
+		icon: Sparkles,
+		label: textGet("backoffice.nav.ai"),
+		href: "/ai",
 	},
 ];

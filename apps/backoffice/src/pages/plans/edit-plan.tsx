@@ -24,6 +24,7 @@ import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 import { FormSection, type Tier, TierSelect } from "./form-section";
 import {
+	DEFAULT_AI_LIMITS,
 	PLAN_LIMIT_KEYS,
 	type PlanLimits,
 	PlanLimitsEditor,
@@ -53,6 +54,7 @@ const EditPlan = () => {
 		max_patients: -1,
 		max_offices: -1,
 		max_whatsapp_messages: -1,
+		...DEFAULT_AI_LIMITS,
 	});
 	const [tier, setTier] = React.useState<Tier>(1);
 	const [storageQuotaMb, setStorageQuotaMb] = React.useState(0);
@@ -77,7 +79,12 @@ const EditPlan = () => {
 			const loaded: PlanLimits = {};
 			for (const key of PLAN_LIMIT_KEYS) {
 				const val = props[key];
-				loaded[key] = val === undefined || val === null ? -1 : Number(val);
+				// Absent AI quotas mean the API default, not unlimited.
+				const absent =
+					key in DEFAULT_AI_LIMITS
+						? DEFAULT_AI_LIMITS[key as keyof typeof DEFAULT_AI_LIMITS]
+						: -1;
+				loaded[key] = val === undefined || val === null ? absent : Number(val);
 			}
 			setLimits(loaded);
 			setStorageQuotaMb(plan.storage_quota_mb ?? 0);

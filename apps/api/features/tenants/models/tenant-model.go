@@ -13,6 +13,14 @@ type UISettings struct {
 	Clinical ClinicalSettings `json:"clinical"`
 	Kanban   KanbanSettings   `json:"kanban"`
 	Agenda   AgendaSettings   `json:"agenda"`
+	AI       AISettings       `json:"ai"`
+}
+
+// AISettings is the clinic's opt-in to AI functions (features/ai). Off by
+// default: an admin must turn it on explicitly, and the plan must include
+// the AI Feature too.
+type AISettings struct {
+	Enabled bool `json:"enabled"`
 }
 
 type ClinicalSettings struct {
@@ -100,11 +108,14 @@ type EnabledFeatures struct {
 	// PatientPortal: the plan includes the patient portal (category
 	// PATIENT_PORTAL). Off by default, like WhatsApp.
 	PatientPortal bool `json:"patient_portal"`
+	// AI: the plan includes the AI functions (category AI). Off by default,
+	// like WhatsApp: every use has a provider cost.
+	AI bool `json:"ai"`
 }
 
 // DefaultEnabledFeatures returns the flags of a tenant without a subscription:
-// the core modules on, WhatsApp (a paid add-on with Meta costs) and the
-// patient portal off.
+// the core modules on, WhatsApp (a paid add-on with Meta costs), the
+// patient portal and AI off.
 func DefaultEnabledFeatures() EnabledFeatures {
 	return EnabledFeatures{
 		Clinical: true,

@@ -4,6 +4,7 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { getPatientById, type Patient } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { AISummaryPanel } from "@/components/features/ai/ai-summary-panel";
 import { RegisterDoctorNotice } from "@/components/features/doctors/doctor-notices";
 import { PatientSearch } from "@/components/features/patients/patient-search";
 import { patientDisplayName } from "@/lib/exam-orders";
@@ -59,7 +60,11 @@ const CreateMedicalRecordPage = () => {
 					/>
 				</div>
 			) : visitType ? (
-				<CreateMedicalRecordForm visitType={visitType} />
+				<>
+					<AISummaryPanel key={patientId} patientId={patientId} compact />
+
+					<CreateMedicalRecordForm visitType={visitType} />
+				</>
 			) : (
 				<VisitTypeChooser
 					onSelect={(v) => setParam("visit_type", v)}

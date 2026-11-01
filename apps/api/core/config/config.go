@@ -46,6 +46,7 @@ type Config struct {
 	SignatureEncryptionKey  string `env:"SIGNATURE_ENCRYPTION_KEY"`
 	AttachmentEncryptionKey string `env:"ATTACHMENT_ENCRYPTION_KEY"` // unset: attachments disabled
 	WhatsAppEncryptionKey   string `env:"WHATSAPP_ENCRYPTION_KEY"`   // unset: SIGNATURE_ENCRYPTION_KEY
+	AIEncryptionKey         string `env:"AI_ENCRYPTION_KEY"`         // unset: AI keys can't be saved in backoffice (env key still works)
 
 	// RabbitMQ
 	RabbitMQUser     string `env:"RABBITMQ_USER" envDefault:"guest"`
@@ -105,6 +106,18 @@ type Config struct {
 	MetaESConfigID             string `env:"META_ES_CONFIG_ID"`
 	WhatsAppGraphVersion       string `env:"WHATSAPP_GRAPH_VERSION"`
 	WhatsAppWebhookVerifyToken string `env:"WHATSAPP_WEBHOOK_VERIFY_TOKEN"`
+
+	// AI (core/ai): OpenAI-compatible inference API, DigitalOcean by default.
+	// These are the defaults: backoffice can override base URL, key, model
+	// and reasoning effort per function (features/ai/services settings), so
+	// the provider changes without touching the env. With no key in either
+	// place a function answers "not configured".
+	AIAPIKey              string `env:"AI_API_KEY"`
+	AIBaseURL             string `env:"AI_BASE_URL" envDefault:"https://inference.do-ai.run/v1"`
+	AIDefaultSummaryModel string `env:"AI_DEFAULT_SUMMARY_MODEL" envDefault:"openai-gpt-oss-120b"`
+	// Optional reasoning_effort sent with every request (e.g. "none" for local
+	// Qwen3.5 on Ollama); empty = not sent.
+	AIReasoningEffort string `env:"AI_REASONING_EFFORT"`
 
 	// Read only by committed code migrations, which can't be edited
 	// (docs/backend/api-code-migration.md): they still call os.Getenv.

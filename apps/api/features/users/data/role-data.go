@@ -30,6 +30,7 @@ var RolePermissionMatrix = map[string][]string{
 		"USE_WHATSAPP_INBOX",
 		"MANAGE_APPOINTMENT_REQUESTS", // approves the appointments patients ask for in the portal
 		"READ_KANBAN", "CREATE_KANBAN", "UPDATE_KANBAN",
+		"USE_AI_SUMMARY", "USE_AI_SCRIBE", // AI drafts the doctor reviews (plan + clinic opt-in)
 	},
 	RoleRecepcionista: {
 		"READ_PATIENT", "CREATE_PATIENT", "UPDATE_PATIENT",

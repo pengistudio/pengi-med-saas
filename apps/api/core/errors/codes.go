@@ -242,4 +242,15 @@ var (
 	ErrWaitlistSlotMismatch        AppError = NewAppError("E-WL-006", "The slot does not match what the patient is waiting for.")
 	ErrWaitlistWhatsAppUnavailable AppError = NewAppError("E-WL-007", "The plan does not include WhatsApp: call the patient instead.")
 	ErrWaitlistInternal            AppError = NewAppError("E-WL-008", "Waitlist internal error.")
+
+	// AI Errors (features/ai)
+	ErrAINotConfigured  AppError = NewAppError("E-AI-001", "AI is not configured on this server.")
+	ErrAINotEnabled     AppError = NewAppError("E-AI-002", "The clinic has not enabled AI functions.")
+	ErrAIQuotaExceeded  AppError = NewAppError("E-AI-003", "The monthly AI quota of the plan has been reached.")
+	ErrAIProviderFailed AppError = NewAppError("E-AI-004", "The AI service did not answer. Try again later.")
+	ErrAINoHistory      AppError = NewAppError("E-AI-005", "The patient has no clinical history to summarize yet.")
+	ErrAIInvalidRequest AppError = NewAppError("E-AI-006", "Invalid AI settings.")
+	ErrAIInternal       AppError = NewAppError("E-AI-007", "AI internal error.")
+	// AI_ENCRYPTION_KEY unset: API keys can't be stored in backoffice.
+	ErrAIEncryptionUnavailable AppError = NewAppError("E-AI-008", "AI_ENCRYPTION_KEY is not set on the server: the API key can't be stored.")
 )

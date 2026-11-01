@@ -1,6 +1,11 @@
 import { useText } from "@pengi/shared";
 import { Button, Text, useToast } from "@pengi/ui";
-import { AlertTriangle, CalendarCog, FlaskConical } from "lucide-react";
+import {
+	AlertTriangle,
+	CalendarCog,
+	FlaskConical,
+	Sparkles,
+} from "lucide-react";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
@@ -17,6 +22,7 @@ import { PageHeader } from "@/components/custom/page-header";
 import { SettingsSection } from "@/components/custom/settings-section";
 import { AdminLinks } from "@/components/features/settings/admin-links";
 import { Switch } from "@/components/ui/switch";
+import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import usePermission from "@/hooks/use-permission";
 import useTenantSettings from "@/hooks/use-tenant-settings";
 import { PERMISSIONS } from "@/lib/constants";
@@ -109,6 +115,8 @@ const SettingsPage = () => {
 	const canManageWhatsApp = checkPermission([
 		PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP,
 	]);
+	// AI opt-in: only when the plan includes AI (opt-in feature flag).
+	const planHasAI = useEnabledFeatures().ai === true;
 	const [searchParams, setSearchParams] = useSearchParams();
 	// Returning from the OAuth flow (?google=connected, a fresh page load) shows
 	// the integration as connected until the real status arrives.
@@ -273,6 +281,29 @@ const SettingsPage = () => {
 							</div>
 						)}
 					</SettingsGroup>
+				</SettingsSection>
+			)}
+
+			{canManageSettings && planHasAI && (
+				<SettingsSection
+					title={<Text uuid="settings.ai.title" />}
+					description={<Text uuid="settings.ai.description" />}
+				>
+					<SwitchRow
+						id="setting-ai-enabled"
+						label={<Text uuid="settings.ai.enabled" />}
+						checked={settings.ai?.enabled === true}
+						onToggle={() =>
+							saveSettings({
+								...settings,
+								ai: { enabled: settings.ai?.enabled !== true },
+							})
+						}
+					/>
+					<p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+						<Sparkles className="mt-px size-3.5 shrink-0" />
+						<Text uuid="settings.ai.privacy" />
+					</p>
 				</SettingsSection>
 			)}
 
