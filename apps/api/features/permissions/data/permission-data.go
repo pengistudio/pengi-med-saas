@@ -352,6 +352,25 @@ var DoctorPermissions = []permission_models.Permission{
 	},
 }
 
+// AIPermissions guard the AI functions (features/ai): the patient history
+// summary now, the consultation scribe next (declared, no route yet).
+// Category AI maps to the EnabledFeatures.AI flag; backoffice assigns them to
+// plans through the AI Feature (top plan). The clinic must also opt in.
+var AIPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "USE_AI_SUMMARY"},
+		Name:         "Use AI history summary",
+		Category:     "AI",
+		Description:  "Generate an AI draft summary of a patient's clinical history",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "USE_AI_SCRIBE"},
+		Name:         "Use AI scribe",
+		Category:     "AI",
+		Description:  "Turn quick consultation notes into a SOAP draft with AI",
+	},
+}
+
 // All returns every permission in the catalog, once each: what a fresh
 // database seeds (migrations baseline) and what the admin role holds.
 func All() []permission_models.Permission {
@@ -361,7 +380,7 @@ func All() []permission_models.Permission {
 		ClinicalPermissions, BillingPermissions, TeamPermissions, AuditPermissions,
 		DocumentTemplatePermissions, ClinicPermissions, KanbanPermissions,
 		WhatsAppPermissions, PatientPortalPermissions, AppointmentRequestPermissions,
-		DoctorPermissions,
+		DoctorPermissions, AIPermissions,
 	} {
 		for _, perm := range catalog {
 			if !seen[perm.ID] {
@@ -390,6 +409,7 @@ var Features = []FeatureSeed{
 	{Code: "KANBAN", Name: "Kanban", Permissions: KanbanPermissions},
 	{Code: "WHATSAPP", Name: "WhatsApp", Permissions: WhatsAppPermissions},
 	{Code: "PATIENT_PORTAL", Name: "Portal de pacientes", Permissions: concat(PatientPortalPermissions, AppointmentRequestPermissions)},
+	{Code: "AI", Name: "Inteligencia artificial", Permissions: AIPermissions},
 }
 
 func concat(catalogs ...[]permission_models.Permission) []permission_models.Permission {

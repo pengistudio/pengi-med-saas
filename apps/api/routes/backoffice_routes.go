@@ -6,6 +6,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
 	core_middleware "pengi-med-saas/core/middleware"
+	ai_handlers "pengi-med-saas/features/ai/handlers"
 	backoffice_handlers "pengi-med-saas/features/backoffice/handlers"
 	backoffice_middleware "pengi-med-saas/features/backoffice/middleware"
 
@@ -69,6 +70,15 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeAnnouncementRoutes.GET("", envelope.Handle(backofficeAnnouncementHandler.GetAnnouncements))
 		backofficeAnnouncementRoutes.POST("", envelope.Handle(backofficeAnnouncementHandler.CreateAnnouncement))
 		backofficeAnnouncementRoutes.POST("/:id/cancel", envelope.Handle(backofficeAnnouncementHandler.CancelAnnouncement))
+	}
+
+	// AI: model and prices per function, usage with tokens and cost.
+	backofficeAIHandler := ai_handlers.NewBackofficeAIHandler(db, logger.Log)
+	backofficeAIRoutes := router.Group("/backoffice/ai", backofficeAuth)
+	{
+		backofficeAIRoutes.GET("/settings", envelope.Handle(backofficeAIHandler.GetSettings))
+		backofficeAIRoutes.PUT("/settings", envelope.Handle(backofficeAIHandler.UpdateSettings))
+		backofficeAIRoutes.GET("/usage", envelope.Handle(backofficeAIHandler.GetUsage))
 	}
 
 	backofficeRoleRoutes := router.Group("/backoffice/roles", backofficeAuth)

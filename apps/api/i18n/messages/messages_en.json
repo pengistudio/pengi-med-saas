@@ -12858,5 +12858,369 @@
     {
         "key": "pwa.install.dismiss",
         "value": "Not now"
+    },
+    {
+        "key": "E-AI-001",
+        "value": "AI is not configured on this server."
+    },
+    {
+        "key": "E-AI-002",
+        "value": "The clinic has not enabled AI functions."
+    },
+    {
+        "key": "E-AI-003",
+        "value": "The plan's monthly AI quota has been reached."
+    },
+    {
+        "key": "E-AI-004",
+        "value": "The AI service did not answer. Try again later."
+    },
+    {
+        "key": "E-AI-005",
+        "value": "The patient has no clinical history to summarize yet."
+    },
+    {
+        "key": "E-AI-006",
+        "value": "Invalid AI settings."
+    },
+    {
+        "key": "E-AI-007",
+        "value": "AI internal error."
+    },
+    {
+        "key": "ai.status.fetch.success",
+        "value": "AI status fetched."
+    },
+    {
+        "key": "ai.status.error",
+        "value": "Could not fetch the AI status."
+    },
+    {
+        "key": "ai.summary.fetch.success",
+        "value": "Summary fetched."
+    },
+    {
+        "key": "ai.summary.generate.success",
+        "value": "Summary generated."
+    },
+    {
+        "key": "ai.summary.error",
+        "value": "Could not generate the summary."
+    },
+    {
+        "key": "ai.error.not_enabled",
+        "value": "The clinic has not enabled AI functions."
+    },
+    {
+        "key": "ai.error.not_configured",
+        "value": "AI is not configured yet."
+    },
+    {
+        "key": "ai.error.quota_exceeded",
+        "value": "The monthly AI summary quota has been reached."
+    },
+    {
+        "key": "ai.error.no_history",
+        "value": "There is no clinical history to summarize."
+    },
+    {
+        "key": "ai.error.provider",
+        "value": "The AI service did not answer."
+    },
+    {
+        "key": "ai.summary.title",
+        "value": "AI history summary"
+    },
+    {
+        "key": "ai.summary.draft_badge",
+        "value": "AI draft"
+    },
+    {
+        "key": "ai.summary.quota",
+        "value": "{used} of {limit} this month"
+    },
+    {
+        "key": "ai.summary.show",
+        "value": "Show"
+    },
+    {
+        "key": "ai.summary.hide",
+        "value": "Hide"
+    },
+    {
+        "key": "ai.summary.generate",
+        "value": "Generate summary"
+    },
+    {
+        "key": "ai.summary.refresh",
+        "value": "Refresh"
+    },
+    {
+        "key": "ai.summary.generating",
+        "value": "Generating…"
+    },
+    {
+        "key": "ai.summary.disclaimer",
+        "value": "AI-generated draft from the structured history data (no attachments). It may contain errors: check it against the source consultations. It is not part of the medical record and is never printed or signed."
+    },
+    {
+        "key": "ai.summary.section.alerts",
+        "value": "Alerts"
+    },
+    {
+        "key": "ai.summary.section.active_problems",
+        "value": "Active problems"
+    },
+    {
+        "key": "ai.summary.section.current_medications",
+        "value": "Current medication"
+    },
+    {
+        "key": "ai.summary.section.relevant_exams",
+        "value": "Exams"
+    },
+    {
+        "key": "ai.summary.section.background",
+        "value": "Background"
+    },
+    {
+        "key": "ai.summary.section.allergies",
+        "value": "Allergies"
+    },
+    {
+        "key": "ai.summary.section.recent_evolution",
+        "value": "Recent evolution"
+    },
+    {
+        "key": "ai.summary.generated_at",
+        "value": "Generated on {date}"
+    },
+    {
+        "key": "ai.summary.omitted.one",
+        "value": "{count} older consultation not included"
+    },
+    {
+        "key": "ai.summary.omitted.other",
+        "value": "{count} older consultations not included"
+    },
+    {
+        "key": "ai.summary.source",
+        "value": "visit {date}"
+    },
+    {
+        "key": "settings.ai.title",
+        "value": "Artificial intelligence"
+    },
+    {
+        "key": "settings.ai.description",
+        "value": "AI functions that write drafts for the doctor to review."
+    },
+    {
+        "key": "settings.ai.enabled",
+        "value": "Enable AI functions in the clinic"
+    },
+    {
+        "key": "settings.ai.privacy",
+        "value": "When enabled, the clinical content of the history (no names, ID numbers, phones, emails or addresses; only age and sex) is sent to the AI provider to write the draft. Nothing is saved to the record without the doctor's review."
+    },
+    {
+        "key": "backoffice.ai.settings.fetch.success",
+        "value": "AI settings fetched."
+    },
+    {
+        "key": "backoffice.ai.settings.update.success",
+        "value": "AI settings saved."
+    },
+    {
+        "key": "backoffice.ai.settings.invalid",
+        "value": "Invalid AI settings."
+    },
+    {
+        "key": "backoffice.ai.usage.fetch.success",
+        "value": "AI usage fetched."
+    },
+    {
+        "key": "backoffice.ai.usage.invalid_month",
+        "value": "Invalid month (use YYYY-MM)."
+    },
+    {
+        "key": "backoffice.nav.ai",
+        "value": "AI"
+    },
+    {
+        "key": "backoffice.ai.settings.title",
+        "value": "Models and prices"
+    },
+    {
+        "key": "backoffice.ai.settings.description",
+        "value": "Provider of each function: OpenAI-compatible base URL, key, model and reasoning effort. An empty field uses the server value. The price (USD per million tokens) computes the cost of each use. Changes apply from the next use, no restart."
+    },
+    {
+        "key": "E-AI-008",
+        "value": "AI_ENCRYPTION_KEY is not set on the server: the AI key can't be stored."
+    },
+    {
+        "key": "backoffice.ai.settings.invalid_base_url",
+        "value": "The base URL must be an http(s) URL without credentials or parameters."
+    },
+    {
+        "key": "backoffice.ai.settings.encryption_key_missing",
+        "value": "The key can't be saved: AI_ENCRYPTION_KEY is not set on the server."
+    },
+    {
+        "key": "backoffice.ai.encryption_missing",
+        "value": "AI_ENCRYPTION_KEY is not set on the server: keys can't be saved here. The server key (AI_API_KEY) still works."
+    },
+    {
+        "key": "backoffice.ai.base_url",
+        "value": "Base URL"
+    },
+    {
+        "key": "backoffice.ai.api_key",
+        "value": "API key"
+    },
+    {
+        "key": "backoffice.ai.reasoning_effort",
+        "value": "Reasoning effort"
+    },
+    {
+        "key": "backoffice.ai.reasoning_effort.hint",
+        "value": "Empty = not sent. E.g. none, low, high."
+    },
+    {
+        "key": "backoffice.ai.default_hint",
+        "value": "Empty = {value}"
+    },
+    {
+        "key": "backoffice.ai.api_key.placeholder_keep",
+        "value": "Saved: leave empty to keep it"
+    },
+    {
+        "key": "backoffice.ai.api_key.placeholder_new",
+        "value": "Paste the provider's key"
+    },
+    {
+        "key": "backoffice.ai.api_key.source.db",
+        "value": "Configured: the key saved here is used."
+    },
+    {
+        "key": "backoffice.ai.api_key.source.env",
+        "value": "From the server: AI_API_KEY is used."
+    },
+    {
+        "key": "backoffice.ai.api_key.source.env_other_host",
+        "value": "No key: AI_API_KEY is never sent to a base URL other than the server's. Save this provider's key."
+    },
+    {
+        "key": "backoffice.ai.api_key.source.none",
+        "value": "No key: the function is not configured."
+    },
+    {
+        "key": "backoffice.ai.api_key.clear",
+        "value": "Clear"
+    },
+    {
+        "key": "backoffice.ai.api_key.undo",
+        "value": "Undo"
+    },
+    {
+        "key": "backoffice.ai.api_key.will_clear",
+        "value": "The saved key will be cleared on save."
+    },
+    {
+        "key": "backoffice.ai.settings.save",
+        "value": "Save"
+    },
+    {
+        "key": "backoffice.ai.function",
+        "value": "Function"
+    },
+    {
+        "key": "backoffice.ai.function.summary",
+        "value": "History summary"
+    },
+    {
+        "key": "backoffice.ai.function.scribe",
+        "value": "Consultation scribe"
+    },
+    {
+        "key": "backoffice.ai.function.bot",
+        "value": "WhatsApp bot"
+    },
+    {
+        "key": "backoffice.ai.model",
+        "value": "Model"
+    },
+    {
+        "key": "backoffice.ai.price_input",
+        "value": "Input (USD/M)"
+    },
+    {
+        "key": "backoffice.ai.price_output",
+        "value": "Output (USD/M)"
+    },
+    {
+        "key": "backoffice.ai.usage.title",
+        "value": "Usage this month"
+    },
+    {
+        "key": "backoffice.ai.usage.description",
+        "value": "Uses, tokens and cost per clinic. Clinics only see their number of uses."
+    },
+    {
+        "key": "backoffice.ai.usage.month",
+        "value": "Month"
+    },
+    {
+        "key": "backoffice.ai.usage.empty",
+        "value": "No AI use this month."
+    },
+    {
+        "key": "backoffice.ai.usage.clinic",
+        "value": "Clinic"
+    },
+    {
+        "key": "backoffice.ai.usage.uses",
+        "value": "Uses"
+    },
+    {
+        "key": "backoffice.ai.usage.prompt_tokens",
+        "value": "Input tokens"
+    },
+    {
+        "key": "backoffice.ai.usage.completion_tokens",
+        "value": "Output tokens"
+    },
+    {
+        "key": "backoffice.ai.usage.cost",
+        "value": "Cost"
+    },
+    {
+        "key": "backoffice.ai.usage.total",
+        "value": "Total"
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_summaries",
+        "value": "AI summaries per month"
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_summaries.desc",
+        "value": "History summaries generated per month (needs the AI feature). Empty = 300."
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_scribes",
+        "value": "AI scribes per month"
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_scribes.desc",
+        "value": "Notes organized with AI per month (needs the AI feature). Empty = 300."
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_bot_conversations",
+        "value": "Bot conversations per month"
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_bot_conversations.desc",
+        "value": "Conversations handled by the WhatsApp bot per month (needs the AI feature). Empty = 500."
     }
 ]

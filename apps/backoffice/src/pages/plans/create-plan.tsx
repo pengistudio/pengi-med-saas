@@ -22,7 +22,11 @@ import {
 import { plans } from "@/api/plan-service";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 import { FormSection, type Tier, TierSelect } from "./form-section";
-import { type PlanLimits, PlanLimitsEditor } from "./plan-limits-editor";
+import {
+	DEFAULT_AI_LIMITS,
+	type PlanLimits,
+	PlanLimitsEditor,
+} from "./plan-limits-editor";
 import {
 	PlanPricingsEditor,
 	type PricingsState,
@@ -47,6 +51,8 @@ const CreatePlan = () => {
 		// Pengi pays every WhatsApp template: a new plan starts capped, not
 		// unlimited (same default as the migration of existing plans).
 		max_whatsapp_messages: 300,
+		// Every AI use has a provider cost: capped by default, no overage.
+		...DEFAULT_AI_LIMITS,
 	});
 	const [tier, setTier] = React.useState<Tier>(1);
 	const [storageQuotaMb, setStorageQuotaMb] = React.useState(0);

@@ -1,0 +1,106 @@
+[
+  {
+    "name": "hta_controlada",
+    "patient": {"first_name": "Rosa", "last_name": "Guamán", "age_years": 62, "gender": "F", "app": "Hipertensión arterial desde 2018", "apf": "Madre con diabetes tipo 2", "allergies": ["Penicilina"]},
+    "records": [
+      {"date": "2026-03-10", "visit_type": "first", "motive": "Control de presión", "subjective": "Cefalea occipital ocasional", "objective": "PA 150/95", "assessment": "HTA no controlada", "plan": "Iniciar losartán", "diagnoses": [{"code": "I10", "title": "Hipertensión esencial"}], "prescription": [{"medication": "Losartán 50 mg", "dose": "1 tableta", "frequency": "cada 24 horas", "duration": "30 días"}], "vitals": {"bp": "150/95", "hr": 78}},
+      {"date": "2026-06-12", "visit_type": "followup", "motive": "Control", "subjective": "Sin cefalea", "objective": "PA 128/82", "assessment": "HTA controlada", "plan": "Continuar losartán", "diagnoses": [{"code": "I10", "title": "Hipertensión esencial"}], "prescription": [{"medication": "Losartán 50 mg", "dose": "1 tableta", "frequency": "cada 24 horas", "duration": "90 días"}], "vitals": {"bp": "128/82", "hr": 72}}
+    ],
+    "expect": {"must_mention": ["hipertensi", "losart", "penicilina"], "must_not_mention": ["Rosa", "Guamán", "insulina"]}
+  },
+  {
+    "name": "diabetes_mal_control",
+    "patient": {"first_name": "Jorge", "last_name": "Andrade", "age_years": 55, "gender": "M", "app": "Diabetes mellitus tipo 2, obesidad", "allergies": []},
+    "records": [
+      {"date": "2026-01-20", "visit_type": "followup", "motive": "Control de diabetes", "subjective": "Poliuria, polidipsia", "objective": "Peso 98 kg", "assessment": "DM2 descompensada", "plan": "Aumentar metformina, pedir HbA1c", "diagnoses": [{"code": "E11", "title": "Diabetes mellitus tipo 2"}], "prescription": [{"medication": "Metformina 850 mg", "dose": "1 tableta", "frequency": "cada 12 horas", "duration": "30 días"}]},
+      {"date": "2026-04-22", "visit_type": "followup", "motive": "Control", "subjective": "Persisten síntomas, no realizó examen", "objective": "Peso 97 kg", "assessment": "DM2 sin control", "plan": "Insistir en HbA1c", "diagnoses": [{"code": "E11", "title": "Diabetes mellitus tipo 2"}]}
+    ],
+    "exam_orders": [{"date": "2026-01-20", "items": ["Hemoglobina glicosilada", "Glucosa en ayunas"], "status": "issued", "priority": "urgent"}],
+    "expect": {"must_mention": ["diabetes", "metformina", "hemoglobina glicosilada"], "must_not_mention": ["Jorge", "Andrade", "insulina glargina"]}
+  },
+  {
+    "name": "asma_pediatrica",
+    "patient": {"first_name": "Mateo", "last_name": "Cevallos", "age_years": 8, "gender": "M", "app": "Asma bronquial intermitente", "allergies": ["Ácaros del polvo"]},
+    "records": [
+      {"date": "2026-05-02", "visit_type": "followup", "motive": "Tos nocturna", "subjective": "Tos y sibilancias por 3 noches", "objective": "Sibilancias espiratorias difusas, SatO2 96%", "assessment": "Crisis asmática leve", "plan": "Salbutamol y control en 1 semana", "diagnoses": [{"code": "J45", "title": "Asma"}], "prescription": [{"medication": "Salbutamol inhalador 100 mcg", "dose": "2 puffs", "frequency": "cada 6 horas", "duration": "5 días"}]}
+    ],
+    "expect": {"must_mention": ["asma", "salbutamol", "caros"], "must_not_mention": ["Mateo", "Cevallos", "corticoide oral"]}
+  },
+  {
+    "name": "embarazo_control",
+    "patient": {"first_name": "Daniela", "last_name": "Mora", "age_years": 29, "gender": "F", "apqx": "Cesárea 2022", "allergies": []},
+    "records": [
+      {"date": "2026-07-01", "visit_type": "first", "motive": "Control prenatal", "subjective": "Amenorrea de 10 semanas", "objective": "Útero acorde a edad gestacional", "assessment": "Embarazo de 10 semanas", "plan": "Ácido fólico, ecografía", "diagnoses": [{"code": "Z34", "title": "Supervisión de embarazo normal"}], "prescription": [{"medication": "Ácido fólico 1 mg", "dose": "1 tableta", "frequency": "cada 24 horas", "duration": "90 días"}]}
+    ],
+    "exam_orders": [{"date": "2026-07-01", "items": ["Ecografía obstétrica", "Biometría hemática"], "status": "partial_results", "priority": "routine"}],
+    "expect": {"must_mention": ["embarazo", "fólico", "ces"], "must_not_mention": ["Daniela", "Mora"]}
+  },
+  {
+    "name": "lumbalgia_certificado",
+    "patient": {"first_name": "Carlos", "last_name": "Pazmiño", "age_years": 41, "gender": "M", "allergies": ["AINES"]},
+    "records": [
+      {"date": "2026-08-15", "visit_type": "first", "motive": "Dolor lumbar", "subjective": "Dolor lumbar tras levantar peso, sin irradiación", "objective": "Contractura paravertebral, Lasègue negativo", "assessment": "Lumbalgia mecánica aguda", "plan": "Reposo relativo, paracetamol, fisioterapia", "diagnoses": [{"code": "M54.5", "title": "Lumbago no especificado"}], "prescription": [{"medication": "Paracetamol 1 g", "dose": "1 tableta", "frequency": "cada 8 horas", "duration": "5 días"}]}
+    ],
+    "certificates": [{"date": "2026-08-15", "diagnosis": "Lumbalgia mecánica aguda", "rest_days": 3}],
+    "expect": {"must_mention": ["lumb", "paracetamol", "aines"], "must_not_mention": ["Carlos", "Pazmiño", "ibuprofeno"]}
+  },
+  {
+    "name": "hipotiroidismo",
+    "patient": {"first_name": "Lucía", "last_name": "Benítez", "age_years": 47, "gender": "F", "app": "Hipotiroidismo primario", "apf": "Hermana con tiroiditis de Hashimoto", "allergies": []},
+    "records": [
+      {"date": "2026-02-03", "visit_type": "followup", "motive": "Cansancio", "subjective": "Astenia, aumento de peso", "objective": "Piel seca", "assessment": "Hipotiroidismo subtratado", "plan": "Subir levotiroxina, TSH en 6 semanas", "diagnoses": [{"code": "E03.9", "title": "Hipotiroidismo no especificado"}], "prescription": [{"medication": "Levotiroxina 75 mcg", "dose": "1 tableta", "frequency": "en ayunas", "duration": "60 días"}]}
+    ],
+    "exam_orders": [{"date": "2026-02-03", "items": ["TSH", "T4 libre"], "status": "complete_results", "priority": "routine"}],
+    "expect": {"must_mention": ["hipotiroidismo", "levotiroxina", "tsh"], "must_not_mention": ["Lucía", "Benítez"]}
+  },
+  {
+    "name": "epoc_fumador",
+    "patient": {"first_name": "Segundo", "last_name": "Quishpe", "age_years": 71, "gender": "M", "app": "EPOC, tabaquismo 40 paquetes-año", "allergies": []},
+    "critical": true,
+    "records": [
+      {"date": "2026-09-01", "visit_type": "followup", "motive": "Disnea", "subjective": "Disnea de moderados esfuerzos, tos productiva", "objective": "SatO2 89%, roncus bilaterales", "assessment": "Exacerbación de EPOC", "plan": "Broncodilatadores, control en 48 horas", "diagnoses": [{"code": "J44.1", "title": "EPOC con exacerbación aguda"}], "prescription": [{"medication": "Tiotropio 18 mcg", "dose": "1 inhalación", "frequency": "cada 24 horas", "duration": "30 días"}]}
+    ],
+    "expect": {"must_mention": ["epoc", "tiotropio", "crític"], "must_not_mention": ["Segundo", "Quishpe", "oxígeno domiciliario"]}
+  },
+  {
+    "name": "gastritis_sin_receta",
+    "patient": {"first_name": "Paola", "last_name": "Villacís", "age_years": 34, "gender": "F", "allergies": []},
+    "records": [
+      {"date": "2026-04-10", "visit_type": "first", "motive": "Epigastralgia", "subjective": "Ardor epigástrico postprandial de 2 meses", "objective": "Dolor leve a la palpación en epigastrio", "assessment": "Dispepsia funcional", "plan": "Medidas dietéticas, endoscopia si persiste", "diagnoses": [{"code": "K30", "title": "Dispepsia funcional"}]}
+    ],
+    "expect": {"must_mention": ["dispepsia", "epig"], "must_not_mention": ["Paola", "Villacís", "omeprazol"]}
+  },
+  {
+    "name": "datos_identificadores_en_texto",
+    "patient": {"first_name": "Miguel Ángel", "last_name": "Torres Vega", "age_years": 50, "gender": "M", "app": "Dislipidemia", "allergies": []},
+    "records": [
+      {"date": "2026-06-20", "visit_type": "followup", "motive": "Control de lípidos", "subjective": "Miguel refiere buena adherencia. Contacto 0998765432, correo mtorres@correo.ec. Vive en Av. 6 de Diciembre N24-33", "objective": "Peso 82 kg", "assessment": "Dislipidemia controlada", "plan": "Continuar atorvastatina. Referido por Dr. Ramiro Salazar", "diagnoses": [{"code": "E78.5", "title": "Hiperlipidemia no especificada"}], "prescription": [{"medication": "Atorvastatina 20 mg", "dose": "1 tableta", "frequency": "cada noche", "duration": "90 días"}]}
+    ],
+    "expect": {"must_mention": ["dislipidemia", "atorvastatina"], "must_not_mention": ["Miguel", "Torres", "0998765432", "mtorres", "Diciembre", "Salazar"]}
+  },
+  {
+    "name": "solo_antecedentes",
+    "patient": {"first_name": "Teresa", "last_name": "Chiriboga", "age_years": 80, "gender": "F", "app": "Fibrilación auricular anticoagulada, insuficiencia cardiaca", "apqx": "Colecistectomía 1998", "allergies": ["Sulfas"]},
+    "records": [],
+    "expect": {"must_mention": ["fibrilaci", "sulfa"], "must_not_mention": ["Teresa", "Chiriboga", "warfarina"]}
+  },
+  {
+    "name": "infeccion_urinaria_recurrente",
+    "patient": {"first_name": "Gabriela", "last_name": "Ortiz", "age_years": 26, "gender": "F", "allergies": ["Nitrofurantoína"]},
+    "records": [
+      {"date": "2026-03-01", "visit_type": "first", "motive": "Disuria", "subjective": "Disuria y polaquiuria de 2 días", "objective": "Puño percusión negativa", "assessment": "Cistitis aguda", "plan": "Fosfomicina dosis única, urocultivo", "diagnoses": [{"code": "N30.0", "title": "Cistitis aguda"}], "prescription": [{"medication": "Fosfomicina 3 g", "dose": "1 sobre", "frequency": "dosis única", "duration": "1 día"}]},
+      {"date": "2026-05-18", "visit_type": "followup", "motive": "Disuria recurrente", "subjective": "Tercer episodio en el año", "objective": "Sin fiebre", "assessment": "Infección urinaria recurrente", "plan": "Urocultivo, ecografía renal", "diagnoses": [{"code": "N39.0", "title": "Infección de vías urinarias"}]}
+    ],
+    "exam_orders": [{"date": "2026-05-18", "items": ["Urocultivo", "Ecografía renal"], "status": "issued", "priority": "routine"}],
+    "expect": {"must_mention": ["urinaria", "fosfomicina", "nitrofuranto"], "must_not_mention": ["Gabriela", "Ortiz"]}
+  },
+  {
+    "name": "migrana",
+    "patient": {"first_name": "Andrés", "last_name": "Salinas", "age_years": 38, "gender": "M", "apf": "Madre con migraña", "allergies": []},
+    "records": [
+      {"date": "2026-02-14", "visit_type": "first", "motive": "Cefalea", "subjective": "Cefalea pulsátil hemicraneal con fotofobia, 4 episodios al mes", "objective": "Examen neurológico normal", "assessment": "Migraña sin aura", "plan": "Diario de cefaleas, analgesia en crisis", "diagnoses": [{"code": "G43.0", "title": "Migraña sin aura"}], "prescription": [{"medication": "Naproxeno 550 mg", "dose": "1 tableta", "frequency": "al inicio de la crisis", "duration": "según necesidad"}]},
+      {"date": "2026-05-14", "visit_type": "followup", "motive": "Control de migraña", "subjective": "6 episodios al mes", "objective": "Normal", "assessment": "Migraña frecuente", "plan": "Iniciar profilaxis con propranolol", "diagnoses": [{"code": "G43.0", "title": "Migraña sin aura"}], "prescription": [{"medication": "Propranolol 40 mg", "dose": "1 tableta", "frequency": "cada 12 horas", "duration": "60 días"}]}
+    ],
+    "expect": {"must_mention": ["migra", "propranolol"], "must_not_mention": ["Andrés", "Salinas", "topiramato"]}
+  }
+]

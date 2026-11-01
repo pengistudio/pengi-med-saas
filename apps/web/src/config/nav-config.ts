@@ -53,6 +53,8 @@ export interface EnabledFeatures {
 	kanban?: boolean;
 	whatsapp?: boolean;
 	patient_portal?: boolean;
+	/** AI functions (history summary). Opt-in: check `=== true`. */
+	ai?: boolean;
 }
 
 // Factory to create navigation items with localized labels

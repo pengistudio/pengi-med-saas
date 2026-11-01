@@ -41,12 +41,19 @@ export const DEFAULT_AGENDA_SETTINGS: AgendaSettings = {
 	auto_no_show_since: null,
 };
 
+/** The clinic's opt-in to AI functions. Off until an admin turns it on. */
+export interface AISettings {
+	enabled: boolean;
+}
+
 export interface TenantUISettings {
 	[key: string]: unknown;
 	clinical: ClinicalSettings;
 	kanban?: KanbanSettings;
 	/** Absent in answers from an API without it (and in old local copies). */
 	agenda?: AgendaSettings;
+	/** Absent in answers from an API without it: read as off. */
+	ai?: AISettings;
 }
 
 export const DEFAULT_UI_SETTINGS: TenantUISettings = {
@@ -64,6 +71,7 @@ export const DEFAULT_UI_SETTINGS: TenantUISettings = {
 		auto_archive_delay: "never",
 	},
 	agenda: DEFAULT_AGENDA_SETTINGS,
+	ai: { enabled: false },
 };
 
 export const getUISettings = async (): Promise<

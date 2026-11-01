@@ -7,7 +7,20 @@ export const PLAN_LIMIT_KEYS = [
 	"max_patients",
 	"max_offices",
 	"max_whatsapp_messages",
+	"max_ai_summaries",
+	"max_ai_scribes",
+	"max_ai_bot_conversations",
 ] as const;
+
+/**
+ * Monthly AI quotas the API applies when the plan doesn't set them (absent is
+ * NOT unlimited for AI: every use has a provider cost).
+ */
+export const DEFAULT_AI_LIMITS = {
+	max_ai_summaries: 300,
+	max_ai_scribes: 300,
+	max_ai_bot_conversations: 500,
+} as const;
 export type PlanLimitKey = (typeof PLAN_LIMIT_KEYS)[number];
 export type PlanLimits = Partial<Record<PlanLimitKey, number | null>>;
 
@@ -35,6 +48,21 @@ const LIMIT_CONFIGS: {
 		key: "max_whatsapp_messages",
 		labelKey: "backoffice.plans.limits.max_whatsapp_messages",
 		descKey: "backoffice.plans.limits.max_whatsapp_messages.desc",
+	},
+	{
+		key: "max_ai_summaries",
+		labelKey: "backoffice.plans.limits.max_ai_summaries",
+		descKey: "backoffice.plans.limits.max_ai_summaries.desc",
+	},
+	{
+		key: "max_ai_scribes",
+		labelKey: "backoffice.plans.limits.max_ai_scribes",
+		descKey: "backoffice.plans.limits.max_ai_scribes.desc",
+	},
+	{
+		key: "max_ai_bot_conversations",
+		labelKey: "backoffice.plans.limits.max_ai_bot_conversations",
+		descKey: "backoffice.plans.limits.max_ai_bot_conversations.desc",
 	},
 ];
 
