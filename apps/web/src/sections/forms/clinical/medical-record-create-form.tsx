@@ -139,7 +139,7 @@ const formSchema = z
 		observation: z.string().optional(),
 		next_appointment_status: z
 			.enum(["scheduled", "pending", "not_required"])
-			.default("scheduled"),
+			.default("pending"),
 		next_appointment_date: z.date().optional(),
 		soap_record: z.object({
 			subjective: z
@@ -493,7 +493,8 @@ function FormWithDraft({
 function emptyConsultation() {
 	return {
 		date: new Date(),
-		next_appointment_status: "scheduled" as const,
+		// The card is optional: "scheduled" would make the date required.
+		next_appointment_status: "pending" as const,
 		prescription: { mode: "text" as const, items: [] },
 	};
 }
