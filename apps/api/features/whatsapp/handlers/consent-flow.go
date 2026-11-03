@@ -15,42 +15,44 @@ import (
 // ACEPTO / OK grants consent to the patients of that number. Both texts are
 // KindSystem: in the thread, not counted toward the monthly cap.
 
-// handleConsent runs the consent flow for a text the patient sent in conv.
-func (h *WebhookHandler) handleConsent(db *gorm.DB, account whatsapp_models.WhatsAppAccount, conv *whatsapp_models.WhatsAppConversation, body string) {
+// handleConsent runs the consent flow for a text the patient sent in conv
+// and reports whether it sent the consent question (then that message gets
+// no other automatic answer).
+func (h *WebhookHandler) handleConsent(db *gorm.DB, account whatsapp_models.WhatsAppAccount, conv *whatsapp_models.WhatsAppConversation, body string) bool {
 	if h.sender == nil {
-		return
+		return false
 	}
 	// A loose "sí" in a chat is not consent: only after we asked.
 	if conv.OptInRequestedAt != nil && whatsapp_services.IsOptInYes(body) {
 		h.acceptOptIn(db, account, conv)
-		return
+		return false
 	}
-	h.askOptIn(db, account, conv)
+	return h.askOptIn(db, account, conv)
 }
 
 // askOptIn asks for consent unless already asked in conv, reminders can't be
 // sent, the number matches no patient, a patient of the number opted out with
 // STOP, or they all consented already.
-func (h *WebhookHandler) askOptIn(db *gorm.DB, account whatsapp_models.WhatsAppAccount, conv *whatsapp_models.WhatsAppConversation) {
+func (h *WebhookHandler) askOptIn(db *gorm.DB, account whatsapp_models.WhatsAppAccount, conv *whatsapp_models.WhatsAppConversation) bool {
 	if conv.OptInRequestedAt != nil || !account.CanSendReminders() {
-		return
+		return false
 	}
 	patients, err := whatsapp_services.PatientsByPhone(db, conv.Phone)
 	if err != nil {
 		h.logger.Error("whatsapp webhook: failed to load patients for consent", zap.Uint("tenant_id", account.TenantID), zap.Error(err))
-		return
+		return false
 	}
 	missing := false
 	for _, p := range patients {
 		if p.WhatsAppOptInSource == clinical_models.WhatsAppOptInSourceStop {
-			return
+			return false
 		}
 		if !p.WhatsAppOptIn {
 			missing = true
 		}
 	}
 	if !missing {
-		return
+		return false
 	}
 	// Claim the one ask of this conversation (a concurrent webhook loses).
 	now := h.now()
@@ -59,13 +61,13 @@ func (h *WebhookHandler) askOptIn(db *gorm.DB, account whatsapp_models.WhatsAppA
 		Update("opt_in_requested_at", now)
 	if res.Error != nil {
 		h.logger.Error("whatsapp webhook: failed to mark consent asked", zap.Uint("conversation_id", conv.ID), zap.Error(res.Error))
-		return
+		return false
 	}
 	if res.RowsAffected == 0 {
-		return
+		return false
 	}
 	conv.OptInRequestedAt = &now
-	h.sendSystem(db, account, conv, whatsapp_services.PatientText(whatsapp_services.OptInRequestKey))
+	return h.sendSystem(db, account, conv, whatsapp_services.PatientText(whatsapp_services.OptInRequestKey))
 }
 
 // acceptOptIn grants consent to the patients of conv's number that lack it

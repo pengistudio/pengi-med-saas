@@ -13,6 +13,7 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
 	"pengi-med-saas/core/whatsapp"
+	ai_services "pengi-med-saas/features/ai/services"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
@@ -49,8 +50,11 @@ type WebhookHandler struct {
 	appSecret   string
 	verifyToken string
 	now         func() time.Time
-	// sender sends the system texts of the consent flow; nil disables it.
+	// sender sends the system texts of the consent flow and the assistant's
+	// messages; nil disables both.
 	sender *whatsapp_services.Sender
+	// botRun runs the WhatsApp assistant on inbound messages (bot-reply.go).
+	botRun botRunner
 }
 
 func NewWebhookHandler(db *gorm.DB, logger *zap.Logger, calendar CalendarSync) *WebhookHandler {
@@ -59,6 +63,7 @@ func NewWebhookHandler(db *gorm.DB, logger *zap.Logger, calendar CalendarSync) *
 		appSecret:   config.Get().MetaAppSecret,
 		verifyToken: config.Get().WhatsAppWebhookVerifyToken,
 		now:         time.Now,
+		botRun:      newBotRunner(),
 	}
 }
 
@@ -159,9 +164,28 @@ func (h *WebhookHandler) processMessages(v whatsapp.WebhookValue) {
 		case m.OptOutRequested():
 			h.applyOptOut(db, account.TenantID, m.From)
 		case m.Type == "text" && m.Text != nil && conv != nil:
-			h.handleConsent(db, account, conv, m.Text.Body)
+			// A SÍ answering the consent question is not for the assistant.
+			consentAnswer := conv.OptInRequestedAt != nil && whatsapp_services.IsOptInYes(m.Text.Body)
+			asked := h.handleConsent(db, account, conv, m.Text.Body)
+			// One automatic message per inbound text: the consent question
+			// wins, except over an emergency, which always gets its text.
+			if !consentAnswer && (!asked || ai_services.BotIsEmergency(m.Text.Body)) {
+				h.queueBot(account, *conv, msg)
+			}
+		case conv != nil && botHandlesType(m.Type):
+			h.queueBot(account, *conv, msg) // audio, image...: handed to reception
 		}
 	}
+}
+
+// botHandlesType reports whether the assistant reacts to a non-text
+// message of type t (with a handoff): not to reactions nor system events.
+func botHandlesType(t string) bool {
+	switch t {
+	case "", "text", "button", "reaction", "system", "request_welcome":
+		return false
+	}
+	return true
 }
 
 // recordInbound stores m in the conversation with its sender, creating it,

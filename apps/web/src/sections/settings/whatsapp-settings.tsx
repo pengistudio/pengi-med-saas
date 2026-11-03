@@ -30,6 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { useEmbeddedSignup } from "@/hooks/use-embedded-signup";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
+import { WhatsAppBotSettings } from "./whatsapp-bot-settings";
 import {
 	StatusPill,
 	WhatsAppTemplateList,
@@ -384,6 +385,8 @@ export function WhatsAppSettings() {
 							</Button>
 						</div>
 					</div>
+
+					<WhatsAppBotSettings />
 
 					{canUseInbox && (
 						<Link

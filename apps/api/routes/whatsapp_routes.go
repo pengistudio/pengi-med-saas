@@ -47,6 +47,10 @@ func registerWhatsAppTenantRoutes(group *gin.RouterGroup, db *gorm.DB, h *whatsa
 	group.POST("/template/sync", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.SyncTemplate))
 	group.PUT("/settings", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.UpdateSettings))
 	group.POST("/test", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.SendTest))
+	// The WhatsApp assistant (AI): settings, FAQ and the "Probar" panel.
+	group.GET("/bot", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.GetBotSettings))
+	group.PUT("/bot", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.UpdateBotSettings))
+	group.POST("/bot/test", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.TestBot))
 	group.GET("/usage", subscription_middleware.RequireAnyPermission(db, "MANAGE_WHATSAPP", "USE_WHATSAPP_INBOX"), envelope.Handle(h.GetUsage))
 	// The sent-messages log is the inbox's "Envíos" tab, and still readable
 	// from the settings card.

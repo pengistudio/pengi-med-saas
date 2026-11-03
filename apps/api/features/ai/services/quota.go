@@ -109,6 +109,12 @@ type UsageEntry struct {
 
 // LogUsage records one charged use (tokens and cost, never the prompt).
 func LogUsage(db *gorm.DB, e UsageEntry, now time.Time) error {
+	_, err := logUsage(db, e, now)
+	return err
+}
+
+// logUsage is LogUsage returning the row's id.
+func logUsage(db *gorm.DB, e UsageEntry, now time.Time) (uint, error) {
 	row := ai_models.AIUsageLog{
 		TenantID:         e.TenantID,
 		UserID:           e.UserID,
@@ -120,5 +126,21 @@ func LogUsage(db *gorm.DB, e UsageEntry, now time.Time) error {
 		CostUSD:          Cost(tenantdb.System(db), e.Function, e.PromptTokens, e.CompletionTokens),
 		CreatedAt:        now.UTC(),
 	}
-	return tenantdb.ForTenant(db, e.TenantID).Create(&row).Error
+	err := tenantdb.ForTenant(db, e.TenantID).Create(&row).Error
+	return row.ID, err
+}
+
+// addUsage adds the tokens and cost of one more model call to the use
+// usageID of the tenant (an assistant conversation already counted). False
+// when the row is gone.
+func addUsage(db *gorm.DB, tenantID, usageID uint, e UsageEntry) (bool, error) {
+	cost := Cost(tenantdb.System(db), e.Function, e.PromptTokens, e.CompletionTokens)
+	res := tenantdb.ForTenant(db, tenantID).Model(&ai_models.AIUsageLog{}).
+		Where("id = ? AND function = ?", usageID, e.Function).
+		Updates(map[string]any{
+			"prompt_tokens":     gorm.Expr("prompt_tokens + ?", e.PromptTokens),
+			"completion_tokens": gorm.Expr("completion_tokens + ?", e.CompletionTokens),
+			"cost_usd":          gorm.Expr("cost_usd + ?", cost),
+		})
+	return res.RowsAffected == 1, res.Error
 }

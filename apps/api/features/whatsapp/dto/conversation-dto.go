@@ -27,6 +27,11 @@ type ConversationResponse struct {
 	UnreadCount          int        `json:"unread_count"`
 	WindowOpen           bool       `json:"window_open"`
 	WindowExpiresAt      *time.Time `json:"window_expires_at"`
+	// NeedsHuman: the WhatsApp assistant handed the chat to reception and no
+	// person answered yet (NeedsHumanReason is a BotReason* code).
+	NeedsHuman       bool       `json:"needs_human"`
+	NeedsHumanAt     *time.Time `json:"needs_human_at"`
+	NeedsHumanReason string     `json:"needs_human_reason"`
 }
 
 // NewConversationResponse maps a conversation (with Patient preloaded when
@@ -37,6 +42,7 @@ func NewConversationResponse(c whatsapp_models.WhatsAppConversation, now time.Ti
 		LastMessageAt: c.LastMessageAt, LastMessagePreview: c.LastMessagePreview, LastDirection: c.LastDirection,
 		LastContentType: c.LastContentType, LastInboundAt: c.LastInboundAt, UnreadCount: c.UnreadCount,
 		WindowOpen: c.WindowOpen(now), WindowExpiresAt: c.WindowExpiresAt(),
+		NeedsHuman: c.NeedsHuman(), NeedsHumanAt: c.NeedsHumanAt, NeedsHumanReason: c.NeedsHumanReason,
 	}
 	if c.Patient != nil && c.Patient.ID != 0 {
 		r.PatientName = strings.TrimSpace(c.Patient.FirstName + " " + c.Patient.LastName)

@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
 import { Button, cn, Input, Skeleton, Text } from "@pengi/ui";
-import { MessagesSquare, Search } from "lucide-react";
+import { MessagesSquare, Search, UserRound } from "lucide-react";
 import React from "react";
 import {
 	getWhatsAppConversations,
@@ -189,6 +189,12 @@ export function ConversationList({
 												<span className="truncate text-xs text-muted-foreground">
 													{preview(c)}
 												</span>
+												{c.needs_human && (
+													<span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
+														<UserRound className="h-3 w-3" aria-hidden="true" />
+														<Text uuid="whatsapp.inbox.needs_human" />
+													</span>
+												)}
 												{c.unread_count > 0 && (
 													<span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[11px] font-semibold text-white">
 														{c.unread_count}

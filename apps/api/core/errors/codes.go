@@ -182,6 +182,9 @@ var (
 	ErrWhatsAppTemplateUnavailable   AppError = NewAppError("E-WA-021", "This WhatsApp template is not approved yet.")
 	ErrWhatsAppAppointmentInvalid    AppError = NewAppError("E-WA-022", "Pick an appointment of this patient.")
 	ErrWhatsAppMonthlyLimit          AppError = NewAppError("E-WA-023", "The plan's monthly WhatsApp message limit was reached.")
+	ErrWhatsAppBotNotReady           AppError = NewAppError("E-WA-024", "The WhatsApp assistant can't be enabled yet.")
+	ErrWhatsAppBotInvalidFAQ         AppError = NewAppError("E-WA-025", "Invalid frequently asked questions.")
+	ErrWhatsAppBotRateLimited        AppError = NewAppError("E-WA-026", "Too many tests: wait a minute.")
 
 	// Doctor Errors (professional profiles of the clinic's doctors)
 	ErrDoctorNotFound          AppError = NewAppError("E-DR-001", "Doctor not found.")

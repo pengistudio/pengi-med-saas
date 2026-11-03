@@ -85,6 +85,7 @@ export type WhatsAppMessageKind =
 	| "system"
 	| "no_show"
 	| "slot_offer"
+	| "bot"
 	| "inbound";
 
 export type WhatsAppContentType =
@@ -149,6 +150,11 @@ export interface WhatsAppConversation {
 	window_open: boolean;
 	/** End of the 24 h reply window; null if the patient never wrote. */
 	window_expires_at: string | null;
+	/** The AI assistant handed the chat to reception; no person answered yet. */
+	needs_human?: boolean;
+	needs_human_at?: string | null;
+	/** Why (`whatsapp.bot.reason.<code>`). */
+	needs_human_reason?: string;
 }
 
 export interface WhatsAppConversationPatient {
@@ -485,5 +491,84 @@ export const sendWhatsAppTemplate = async (
 	whatsappService.post<WhatsAppTemplateSent>(
 		`/whatsapp/conversations/${conversationId}/template`,
 		payload,
+		{ notifyError: true },
+	);
+
+// ─── AI assistant ────────────────────────────────────────────────────────────
+
+/** One question/answer pair the assistant may answer from. */
+export interface WhatsAppBotFAQEntry {
+	question: string;
+	answer: string;
+}
+
+/** What enabling the assistant needs: one checklist item each. */
+export interface WhatsAppBotReadiness {
+	plan_whatsapp: boolean;
+	plan_ai: boolean;
+	ai_opt_in: boolean;
+	provider_configured: boolean;
+	whatsapp_connected: boolean;
+	office_hours: boolean;
+	address: boolean;
+	faq: boolean;
+}
+
+export interface WhatsAppBotSettings {
+	enabled: boolean;
+	during_office_hours: boolean;
+	faq: WhatsAppBotFAQEntry[];
+	readiness: WhatsAppBotReadiness;
+	ready: boolean;
+	missing_key: string;
+	/** Fixed material: weekly hours (from the doctors' schedules), address, phone. */
+	office_hours: string;
+	address: string;
+	clinic_phone: string;
+	/** The patient portal takes bookings: answers about appointments get its link. */
+	booking_link: boolean;
+	in_office_hours: boolean;
+	quota: { used: number; limit: number };
+	limits: { max_entries: number; max_question: number; max_answer: number };
+}
+
+export type WhatsAppBotSettingsPayload = {
+	enabled: boolean;
+	during_office_hours: boolean;
+	faq: WhatsAppBotFAQEntry[];
+};
+
+/** What the assistant would send for a sample message (nothing is sent). */
+export interface WhatsAppBotPreview {
+	action: "answer" | "handoff";
+	reason: string;
+	guard: string;
+	message: string;
+	model_called: boolean;
+	in_office_hours: boolean;
+	would_reply_now: boolean;
+}
+
+export const getWhatsAppBotSettings = async (): Promise<
+	ServiceResponse<WhatsAppBotSettings>
+> =>
+	whatsappService.get<WhatsAppBotSettings>("/whatsapp/bot", {
+		notifyError: true,
+	});
+
+export const updateWhatsAppBotSettings = async (
+	payload: WhatsAppBotSettingsPayload,
+): Promise<ServiceResponse<WhatsAppBotSettings>> =>
+	whatsappService.put<WhatsAppBotSettings>("/whatsapp/bot", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+
+export const testWhatsAppBot = async (
+	message: string,
+): Promise<ServiceResponse<WhatsAppBotPreview>> =>
+	whatsappService.post<WhatsAppBotPreview>(
+		"/whatsapp/bot/test",
+		{ message },
 		{ notifyError: true },
 	);
