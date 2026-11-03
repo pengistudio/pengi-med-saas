@@ -27,6 +27,12 @@ import {
 	type MedicalRecord,
 	updateMedicalRecord,
 } from "@/api/clinical-service";
+import {
+	AIScribeCard,
+	SoapDraftTag,
+	type SoapKey,
+	useAIDraftSoap,
+} from "@/components/features/ai/ai-scribe-card";
 import { FormDoctorSelect } from "@/components/features/doctors/doctor-select";
 import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import { FormCalendar } from "@/components/forms/form-calendar";
@@ -142,6 +148,7 @@ const UpdateMedicalRecordForm = () => {
 	const [patientId, setPatientId] = React.useState<number | null>(null);
 	const { textGet } = useText();
 	const navigate = useNavigate();
+	const aiDraft = useAIDraftSoap();
 
 	React.useEffect(() => {
 		if (!id) return;
@@ -236,6 +243,23 @@ const UpdateMedicalRecordForm = () => {
 					{/* Próxima Cita Sugerida */}
 					<NextAppointmentCard field={field} textGet={textGet} />
 
+					{patientId && (
+						<AIScribeCard
+							patientId={patientId}
+							onApplied={aiDraft.record}
+							getSoap={() => field.getValues("soap_record") ?? {}}
+							applySoap={(values) => {
+								for (const [key, value] of Object.entries(values)) {
+									field.setValue(`soap_record.${key as SoapKey}`, value ?? "", {
+										shouldDirty: true,
+										shouldValidate: true,
+									});
+								}
+							}}
+							getContext={() => ({ motive: field.getValues("motive") })}
+						/>
+					)}
+
 					{/* SOAP: Subjective */}
 					<Card className="border-l-4 border-l-primary">
 						<CardHeader>
@@ -244,8 +268,13 @@ const UpdateMedicalRecordForm = () => {
 									<FileText className="h-4 w-4" />
 								</div>
 								<div>
-									<CardTitle className="text-lg">
+									<CardTitle className="flex items-center gap-2 text-lg">
 										<Text uuid="form.create_medical_record.soap.subjective.title" />
+										<SoapDraftTag
+											control={field.control}
+											name="subjective"
+											applied={aiDraft.applied}
+										/>
 									</CardTitle>
 									<p className="text-sm text-muted-foreground">
 										<Text uuid="form.create_medical_record.soap.subjective.description" />
@@ -272,8 +301,13 @@ const UpdateMedicalRecordForm = () => {
 									<Stethoscope className="h-4 w-4" />
 								</div>
 								<div>
-									<CardTitle className="text-lg">
+									<CardTitle className="flex items-center gap-2 text-lg">
 										<Text uuid="form.create_medical_record.soap.objective.title" />
+										<SoapDraftTag
+											control={field.control}
+											name="objective"
+											applied={aiDraft.applied}
+										/>
 									</CardTitle>
 									<p className="text-sm text-muted-foreground">
 										<Text uuid="form.create_medical_record.soap.objective.description" />
@@ -300,8 +334,13 @@ const UpdateMedicalRecordForm = () => {
 									<ClipboardList className="h-4 w-4" />
 								</div>
 								<div>
-									<CardTitle className="text-lg">
+									<CardTitle className="flex items-center gap-2 text-lg">
 										<Text uuid="form.create_medical_record.soap.assessment.title" />
+										<SoapDraftTag
+											control={field.control}
+											name="assessment"
+											applied={aiDraft.applied}
+										/>
 									</CardTitle>
 									<p className="text-sm text-muted-foreground">
 										<Text uuid="form.create_medical_record.soap.assessment.description" />
@@ -328,8 +367,13 @@ const UpdateMedicalRecordForm = () => {
 									<Calendar className="h-4 w-4" />
 								</div>
 								<div>
-									<CardTitle className="text-lg">
+									<CardTitle className="flex items-center gap-2 text-lg">
 										<Text uuid="form.create_medical_record.soap.plan.title" />
+										<SoapDraftTag
+											control={field.control}
+											name="plan"
+											applied={aiDraft.applied}
+										/>
 									</CardTitle>
 									<p className="text-sm text-muted-foreground">
 										<Text uuid="form.create_medical_record.soap.plan.description" />

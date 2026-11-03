@@ -61,7 +61,9 @@ const CreateMedicalRecordPage = () => {
 				</div>
 			) : visitType ? (
 				<>
-					<AISummaryPanel key={patientId} patientId={patientId} compact />
+					<div className="mx-auto mb-4 w-full max-w-5xl">
+						<AISummaryPanel key={patientId} patientId={patientId} compact />
+					</div>
 
 					<CreateMedicalRecordForm visitType={visitType} />
 				</>

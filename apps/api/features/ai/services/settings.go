@@ -104,11 +104,15 @@ func (p Provider) Host() string {
 	return u.Host
 }
 
-// DefaultModel is the configured model (AI_DEFAULT_SUMMARY_MODEL) used when
-// backoffice set none. Only the summary exists today, so every function
-// shares it until scribe and bot get their own variables.
-func DefaultModel(string) string {
-	return config.Get().AIDefaultSummaryModel
+// DefaultModel is the configured model used when backoffice set none:
+// AI_DEFAULT_SCRIBE_MODEL for the scribe when set, else
+// AI_DEFAULT_SUMMARY_MODEL (the bot shares it until it has its own).
+func DefaultModel(fn string) string {
+	cfg := config.Get()
+	if fn == ai_models.FunctionScribe && strings.TrimSpace(cfg.AIDefaultScribeModel) != "" {
+		return strings.TrimSpace(cfg.AIDefaultScribeModel)
+	}
+	return cfg.AIDefaultSummaryModel
 }
 
 // ModelFor returns the model of fn: the backoffice setting, else DefaultModel.

@@ -12917,7 +12917,7 @@
     },
     {
         "key": "ai.error.quota_exceeded",
-        "value": "The monthly AI summary quota has been reached."
+        "value": "The plan's monthly quota for this AI function has been reached."
     },
     {
         "key": "ai.error.no_history",
@@ -12961,7 +12961,11 @@
     },
     {
         "key": "ai.summary.disclaimer",
-        "value": "AI-generated draft from the structured history data (no attachments). It may contain errors: check it against the source consultations. It is not part of the medical record and is never printed or signed."
+        "value": "AI draft: it may contain errors, check it against the source consultations. It is not part of the medical record and is never printed or signed."
+    },
+    {
+        "key": "ai.summary.subtitle",
+        "value": "Summarizes consultations, exams and background, with links to their source."
     },
     {
         "key": "ai.summary.section.alerts",
@@ -13058,6 +13062,82 @@
     {
         "key": "E-AI-008",
         "value": "AI_ENCRYPTION_KEY is not set on the server: the AI key can't be stored."
+    },
+    {
+        "key": "E-AI-009",
+        "value": "Write the consultation notes first (up to 6000 characters)."
+    },
+    {
+        "key": "ai.scribe.success",
+        "value": "SOAP draft generated."
+    },
+    {
+        "key": "ai.scribe.error.invalid_notes",
+        "value": "Write the consultation notes (up to 6000 characters)."
+    },
+    {
+        "key": "ai.scribe.title",
+        "value": "Organize notes with AI"
+    },
+    {
+        "key": "ai.scribe.subtitle",
+        "value": "Write your notes and the AI turns them into Subjective, Objective, Assessment and Plan."
+    },
+    {
+        "key": "ai.scribe.notes",
+        "value": "Quick notes"
+    },
+    {
+        "key": "ai.scribe.notes.placeholder",
+        "value": "Write as in your notebook: symptoms, exam, impression, instructions…"
+    },
+    {
+        "key": "ai.scribe.disclaimer",
+        "value": "AI draft: review before saving. The notes are not saved."
+    },
+    {
+        "key": "ai.scribe.organize",
+        "value": "Organize with AI"
+    },
+    {
+        "key": "ai.scribe.organizing",
+        "value": "Organizing…"
+    },
+    {
+        "key": "ai.scribe.error",
+        "value": "Could not organize the notes."
+    },
+    {
+        "key": "ai.scribe.error.empty",
+        "value": "The AI found nothing for the SOAP in the notes."
+    },
+    {
+        "key": "ai.scribe.applied",
+        "value": "AI draft applied to the SOAP: review it before saving."
+    },
+    {
+        "key": "ai.scribe.suggested_diagnoses",
+        "value": "Suggested diagnoses (click to add)"
+    },
+    {
+        "key": "ai.scribe.diagnosis_added",
+        "value": "Added"
+    },
+    {
+        "key": "ai.scribe.confirm.title",
+        "value": "Replace what you already wrote?"
+    },
+    {
+        "key": "ai.scribe.confirm.description",
+        "value": "The AI draft would replace these fields that already have text: {fields}."
+    },
+    {
+        "key": "ai.scribe.confirm.keep",
+        "value": "Keep mine"
+    },
+    {
+        "key": "ai.scribe.confirm.replace",
+        "value": "Replace"
     },
     {
         "key": "backoffice.ai.settings.invalid_base_url",

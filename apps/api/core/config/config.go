@@ -115,6 +115,8 @@ type Config struct {
 	AIAPIKey              string `env:"AI_API_KEY"`
 	AIBaseURL             string `env:"AI_BASE_URL" envDefault:"https://inference.do-ai.run/v1"`
 	AIDefaultSummaryModel string `env:"AI_DEFAULT_SUMMARY_MODEL" envDefault:"openai-gpt-oss-120b"`
+	// Default model of the consultation scribe; empty = the summary's.
+	AIDefaultScribeModel string `env:"AI_DEFAULT_SCRIBE_MODEL"`
 	// Optional reasoning_effort sent with every request (e.g. "none" for local
 	// Qwen3.5 on Ollama); empty = not sent.
 	AIReasoningEffort string `env:"AI_REASONING_EFFORT"`

@@ -12917,7 +12917,7 @@
     },
     {
         "key": "ai.error.quota_exceeded",
-        "value": "Se alcanzó el límite mensual de resúmenes con IA."
+        "value": "Se alcanzó el límite mensual de esta función de IA en el plan."
     },
     {
         "key": "ai.error.no_history",
@@ -12961,7 +12961,11 @@
     },
     {
         "key": "ai.summary.disclaimer",
-        "value": "Borrador generado con IA a partir de los datos estructurados de la historia (sin adjuntos). Puede contener errores: verifícalo en las consultas de origen. No forma parte de la historia clínica, no se imprime ni se firma."
+        "value": "Borrador de IA: puede contener errores, verifícalo en las consultas de origen. No forma parte de la historia clínica ni se imprime o firma."
+    },
+    {
+        "key": "ai.summary.subtitle",
+        "value": "Resume consultas, exámenes y antecedentes, con enlaces a su origen."
     },
     {
         "key": "ai.summary.section.alerts",
@@ -13058,6 +13062,82 @@
     {
         "key": "E-AI-008",
         "value": "Falta AI_ENCRYPTION_KEY en el servidor: no se puede guardar la clave de IA."
+    },
+    {
+        "key": "E-AI-009",
+        "value": "Escribe primero las notas de la consulta (hasta 6000 caracteres)."
+    },
+    {
+        "key": "ai.scribe.success",
+        "value": "Borrador SOAP generado."
+    },
+    {
+        "key": "ai.scribe.error.invalid_notes",
+        "value": "Escribe las notas de la consulta (hasta 6000 caracteres)."
+    },
+    {
+        "key": "ai.scribe.title",
+        "value": "Ordenar notas con IA"
+    },
+    {
+        "key": "ai.scribe.subtitle",
+        "value": "Escribe tus notas y la IA las pasa a Subjetivo, Objetivo, Evaluación y Plan."
+    },
+    {
+        "key": "ai.scribe.notes",
+        "value": "Notas rápidas"
+    },
+    {
+        "key": "ai.scribe.notes.placeholder",
+        "value": "Escribe como en tu libreta: síntomas, examen, impresión, indicaciones…"
+    },
+    {
+        "key": "ai.scribe.disclaimer",
+        "value": "Borrador de IA: revisa antes de guardar. Las notas no se guardan."
+    },
+    {
+        "key": "ai.scribe.organize",
+        "value": "Ordenar con IA"
+    },
+    {
+        "key": "ai.scribe.organizing",
+        "value": "Ordenando…"
+    },
+    {
+        "key": "ai.scribe.error",
+        "value": "No se pudo ordenar las notas."
+    },
+    {
+        "key": "ai.scribe.error.empty",
+        "value": "La IA no encontró información para el SOAP en las notas."
+    },
+    {
+        "key": "ai.scribe.applied",
+        "value": "Borrador de IA aplicado al SOAP: revísalo antes de guardar."
+    },
+    {
+        "key": "ai.scribe.suggested_diagnoses",
+        "value": "Diagnósticos sugeridos (clic para agregar)"
+    },
+    {
+        "key": "ai.scribe.diagnosis_added",
+        "value": "Agregado"
+    },
+    {
+        "key": "ai.scribe.confirm.title",
+        "value": "¿Reemplazar lo que ya escribiste?"
+    },
+    {
+        "key": "ai.scribe.confirm.description",
+        "value": "El borrador de IA reemplazaría estos campos que ya tienen texto: {fields}."
+    },
+    {
+        "key": "ai.scribe.confirm.keep",
+        "value": "Conservar los míos"
+    },
+    {
+        "key": "ai.scribe.confirm.replace",
+        "value": "Reemplazar"
     },
     {
         "key": "backoffice.ai.settings.invalid_base_url",
