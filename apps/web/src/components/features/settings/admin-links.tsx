@@ -82,6 +82,19 @@ const GROUPS: HubGroup[] = [
 		],
 	},
 	{
+		key: "whatsapp",
+		titleKey: "settings.whatsapp.title",
+		descriptionKey: "settings.whatsapp.hub.description",
+		links: [
+			{
+				titleKey: "settings.whatsapp.title",
+				href: "/settings/whatsapp",
+				permission: PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP,
+				feature: "whatsapp",
+			},
+		],
+	},
+	{
 		key: "plan",
 		titleKey: "settings.hub.plan.title",
 		descriptionKey: "settings.hub.plan.description",

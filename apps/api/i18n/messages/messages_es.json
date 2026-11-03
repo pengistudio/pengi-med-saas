@@ -8840,6 +8840,38 @@
         "value": "WhatsApp"
     },
     {
+        "key": "settings.whatsapp.back",
+        "value": "Volver a ajustes"
+    },
+    {
+        "key": "settings.whatsapp.section.number.title",
+        "value": "Tu número"
+    },
+    {
+        "key": "settings.whatsapp.section.number.description",
+        "value": "El número conectado y los mensajes que ya enviaste este mes."
+    },
+    {
+        "key": "settings.whatsapp.section.reminders.title",
+        "value": "Recordatorios"
+    },
+    {
+        "key": "settings.whatsapp.section.reminders.description",
+        "value": "Avisa a tus pacientes antes de su cita. Confirman o cancelan respondiendo al mensaje."
+    },
+    {
+        "key": "settings.whatsapp.section.templates.title",
+        "value": "Plantillas"
+    },
+    {
+        "key": "settings.whatsapp.section.templates.description",
+        "value": "Los mensajes que WhatsApp aprobó para tu clínica."
+    },
+    {
+        "key": "settings.whatsapp.hub.description",
+        "value": "Recordatorios, plantillas, asistente con IA y conexión de tu número."
+    },
+    {
         "key": "settings.whatsapp.description",
         "value": "Envía recordatorios de citas por WhatsApp; el paciente confirma o cancela respondiendo al mensaje."
     },

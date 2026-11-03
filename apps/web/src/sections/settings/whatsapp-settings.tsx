@@ -23,6 +23,7 @@ import {
 	type WhatsAppAccount,
 	type WhatsAppConfig,
 } from "@/api/whatsapp-service";
+import { SettingsSection } from "@/components/custom/settings-section";
 import { ConfirmActionDialog } from "@/components/features/exam-orders/confirm-action-dialog";
 import { ConnectManualDialog } from "@/components/features/whatsapp/connect-manual-dialog";
 import { SendTestDialog } from "@/components/features/whatsapp/send-test-dialog";
@@ -145,165 +146,138 @@ export function WhatsAppSettings() {
 		</div>
 	);
 
-	return (
-		<div className="grid gap-4 border-t pt-6">
-			<div className="flex flex-wrap items-start justify-between gap-4">
-				<div className="grid gap-1">
-					<p className="text-sm font-medium">
-						<Text uuid="settings.whatsapp.title" />
-					</p>
-					<p className="text-sm text-muted-foreground">
-						<Text uuid="settings.whatsapp.description" />
-					</p>
-					{account && (
-						<span className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-muted-foreground">
-							<span
-								className={cn(
-									"size-1.5 rounded-full",
-									connected && !tokenInvalid
-										? "bg-primary"
-										: connected
-											? "bg-amber-500"
-											: "bg-muted-foreground/50",
-								)}
-							/>
-							<Text
-								uuid={
-									!connected
-										? "settings.whatsapp.status.disconnected"
-										: tokenInvalid
-											? "settings.whatsapp.status.token_invalid"
-											: "settings.whatsapp.status.connected"
-								}
-							/>
-						</span>
-					)}
-				</div>
-				{connected ? (
-					<Button
-						variant="outline"
-						size="sm"
-						disabled={busy === "disconnect"}
-						onClick={() => setDisconnectOpen(true)}
-					>
-						<Unplug className="mr-2 h-4 w-4" />
-						<Text uuid="settings.whatsapp.disconnect" />
-					</Button>
-				) : (
-					account && connectActions
-				)}
-			</div>
+	const statusLabel = !connected
+		? "settings.whatsapp.status.disconnected"
+		: tokenInvalid
+			? "settings.whatsapp.status.token_invalid"
+			: "settings.whatsapp.status.connected";
 
-			{!connected && account && (
-				<p className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-					<Text
-						uuid={
-							config?.embedded_signup_available
-								? "settings.whatsapp.hint.embedded"
-								: "settings.whatsapp.hint.manual"
-						}
-					/>
-				</p>
-			)}
+	return (
+		<div className="grid gap-8">
+			<SettingsSection
+				title={<Text uuid="settings.whatsapp.section.number.title" />}
+				description={
+					<Text uuid="settings.whatsapp.section.number.description" />
+				}
+			>
+				{account && (
+					<div className="flex flex-wrap items-start justify-between gap-4">
+						<div className="grid gap-1">
+							{connected ? (
+								<>
+									<p className="text-xl font-semibold tabular-nums">
+										{account.display_phone || account.phone_number_id}
+									</p>
+									{account.verified_name && (
+										<p className="text-sm text-muted-foreground">
+											{account.verified_name}
+										</p>
+									)}
+								</>
+							) : (
+								<p className="text-xl font-semibold">
+									<Text uuid="settings.whatsapp.title" />
+								</p>
+							)}
+							<span className="mt-1 inline-flex w-fit items-center gap-1.5 text-xs font-medium text-muted-foreground">
+								<span
+									className={cn(
+										"size-1.5 rounded-full",
+										connected && !tokenInvalid
+											? "bg-primary"
+											: connected
+												? "bg-amber-500"
+												: "bg-muted-foreground/50",
+									)}
+								/>
+								<Text uuid={statusLabel} />
+								{connected && (
+									<span className="ml-2 font-normal">
+										<Text uuid={`settings.whatsapp.mode.${account.mode}`} />
+									</span>
+								)}
+							</span>
+						</div>
+						{connected ? (
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={busy === "disconnect"}
+								onClick={() => setDisconnectOpen(true)}
+							>
+								<Unplug className="mr-2 h-4 w-4" />
+								<Text uuid="settings.whatsapp.disconnect" />
+							</Button>
+						) : (
+							connectActions
+						)}
+					</div>
+				)}
+
+				{!connected && account && (
+					<p className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
+						<Text
+							uuid={
+								config?.embedded_signup_available
+									? "settings.whatsapp.hint.embedded"
+									: "settings.whatsapp.hint.manual"
+							}
+						/>
+					</p>
+				)}
+
+				{connected && tokenInvalid && (
+					<div className="grid gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+						<p className="flex items-start gap-1.5 text-sm text-amber-700 dark:text-amber-400">
+							<AlertTriangle className="mt-0.5 size-4 shrink-0" />
+							<Text uuid="settings.whatsapp.token_invalid.hint" />
+						</p>
+						{connectActions}
+					</div>
+				)}
+
+				{connected && (
+					<div className="grid gap-4 border-t pt-5">
+						<WhatsAppUsageBar reloadKey={reloadKey} />
+						{canUseInbox && (
+							<Link
+								to="/whatsapp"
+								className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary hover:underline"
+							>
+								<Text uuid="settings.whatsapp.inbox_link" />
+								<ArrowRight className="h-4 w-4" />
+							</Link>
+						)}
+					</div>
+				)}
+			</SettingsSection>
 
 			{connected && account && (
 				<>
-					{tokenInvalid && (
-						<div className="grid gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-							<p className="flex items-start gap-1.5 text-sm text-amber-700 dark:text-amber-400">
-								<AlertTriangle className="mt-0.5 size-4 shrink-0" />
-								<Text uuid="settings.whatsapp.token_invalid.hint" />
-							</p>
-							{connectActions}
-						</div>
-					)}
-
-					<dl className="grid gap-3 text-sm sm:grid-cols-2">
-						<div className="grid gap-0.5">
-							<dt className="text-xs text-muted-foreground">
-								<Text uuid="settings.whatsapp.number" />
-							</dt>
-							<dd className="font-medium tabular-nums">
-								{account.display_phone || account.phone_number_id}
-							</dd>
-							{account.verified_name && (
-								<dd className="text-muted-foreground">
-									{account.verified_name}
-								</dd>
-							)}
-						</div>
-						<div className="grid gap-0.5">
-							<dt className="text-xs text-muted-foreground">
-								<Text uuid="settings.whatsapp.mode" />
-							</dt>
-							<dd>
-								<Text uuid={`settings.whatsapp.mode.${account.mode}`} />
-							</dd>
-						</div>
-						{/* The catalog needs the inbox permission; without it, the reminder's status. */}
-						{canUseInbox ? (
-							<WhatsAppTemplateList
-								reloadKey={reloadKey}
-								syncing={busy === "sync"}
-								onSync={handleSync}
-							/>
-						) : (
-							<div className="grid gap-1 sm:col-span-2">
-								<dt className="text-xs text-muted-foreground">
-									<Text uuid="settings.whatsapp.template" />
-								</dt>
-								<dd className="flex flex-wrap items-center gap-2">
-									<span className="font-mono text-xs">
-										{account.template_name}
-									</span>
-									<StatusPill status={templateStatus} />
-									<Button
-										variant="ghost"
-										size="sm"
-										disabled={busy === "sync"}
-										onClick={handleSync}
-									>
-										<RefreshCw
-											className={cn(
-												"mr-2 h-4 w-4",
-												busy === "sync" && "animate-spin",
-											)}
-										/>
-										<Text uuid="settings.whatsapp.template.sync" />
-									</Button>
-								</dd>
-								{account.template_reason && (
-									<dd className="text-xs text-muted-foreground">
-										{account.template_reason}
-									</dd>
-								)}
-								{templateStatus !== "APPROVED" && (
-									<dd className="text-xs text-muted-foreground">
-										<Text uuid="settings.whatsapp.template.not_approved_hint" />
-									</dd>
-								)}
+					<SettingsSection
+						title={<Text uuid="settings.whatsapp.section.reminders.title" />}
+						description={
+							<Text uuid="settings.whatsapp.section.reminders.description" />
+						}
+					>
+						<div className="grid gap-2">
+							<div className="flex items-center justify-between gap-4">
+								<label
+									htmlFor="whatsapp-reminders"
+									className="cursor-pointer text-sm font-medium"
+								>
+									<Text uuid="settings.whatsapp.reminders" />
+								</label>
+								<Switch
+									id="whatsapp-reminders"
+									checked={enabled}
+									onCheckedChange={(checked) => setEnabled(checked)}
+								/>
 							</div>
-						)}
-						<WhatsAppUsageBar reloadKey={reloadKey} />
-					</dl>
-
-					<div className="grid gap-3 rounded-lg bg-muted/50 p-4">
-						<div className="flex items-center justify-between gap-4">
-							<label
-								htmlFor="whatsapp-reminders"
-								className="cursor-pointer text-sm font-medium"
-							>
-								<Text uuid="settings.whatsapp.reminders" />
-							</label>
-							<Switch
-								id="whatsapp-reminders"
-								checked={enabled}
-								onCheckedChange={(checked) => setEnabled(checked)}
-							/>
+							<p className="text-xs text-muted-foreground">
+								<Text uuid="settings.whatsapp.reminders.opt_in_hint" />
+							</p>
 						</div>
-						<p className="text-xs text-muted-foreground">
-							<Text uuid="settings.whatsapp.reminders.opt_in_hint" />
-						</p>
 						<div className="grid gap-2">
 							<p className="text-xs text-muted-foreground">
 								<Text
@@ -345,7 +319,7 @@ export function WhatsAppSettings() {
 								</p>
 							)}
 						</div>
-						<div className="grid gap-1 border-t pt-3">
+						<div className="grid gap-1 border-t pt-5">
 							<div className="flex items-center justify-between gap-4">
 								<label
 									htmlFor="whatsapp-no-show-message"
@@ -363,7 +337,7 @@ export function WhatsAppSettings() {
 								<Text uuid="settings.whatsapp.no_show_message.hint" />
 							</p>
 						</div>
-						<div className="flex flex-wrap justify-end gap-2">
+						<div className="flex flex-wrap justify-end gap-2 border-t pt-5">
 							<Button
 								variant="outline"
 								size="sm"
@@ -384,19 +358,63 @@ export function WhatsAppSettings() {
 								<Text uuid="form.save" />
 							</Button>
 						</div>
-					</div>
+					</SettingsSection>
 
 					<WhatsAppBotSettings />
 
-					{canUseInbox && (
-						<Link
-							to="/whatsapp"
-							className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary hover:underline"
-						>
-							<Text uuid="settings.whatsapp.inbox_link" />
-							<ArrowRight className="h-4 w-4" />
-						</Link>
-					)}
+					<SettingsSection
+						title={<Text uuid="settings.whatsapp.section.templates.title" />}
+						description={
+							<Text uuid="settings.whatsapp.section.templates.description" />
+						}
+					>
+						{/* The catalog needs the inbox permission; without it, the reminder's status. */}
+						{canUseInbox ? (
+							<WhatsAppTemplateList
+								reloadKey={reloadKey}
+								syncing={busy === "sync"}
+								onSync={handleSync}
+							/>
+						) : (
+							<dl className="grid gap-3 text-sm">
+								<div className="grid gap-1">
+									<dt className="text-xs text-muted-foreground">
+										<Text uuid="settings.whatsapp.template" />
+									</dt>
+									<dd className="flex flex-wrap items-center gap-2">
+										<span className="font-mono text-xs">
+											{account.template_name}
+										</span>
+										<StatusPill status={templateStatus} />
+										<Button
+											variant="ghost"
+											size="sm"
+											disabled={busy === "sync"}
+											onClick={handleSync}
+										>
+											<RefreshCw
+												className={cn(
+													"mr-2 h-4 w-4",
+													busy === "sync" && "animate-spin",
+												)}
+											/>
+											<Text uuid="settings.whatsapp.template.sync" />
+										</Button>
+									</dd>
+									{account.template_reason && (
+										<dd className="text-xs text-muted-foreground">
+											{account.template_reason}
+										</dd>
+									)}
+									{templateStatus !== "APPROVED" && (
+										<dd className="text-xs text-muted-foreground">
+											<Text uuid="settings.whatsapp.template.not_approved_hint" />
+										</dd>
+									)}
+								</div>
+							</dl>
+						)}
+					</SettingsSection>
 				</>
 			)}
 

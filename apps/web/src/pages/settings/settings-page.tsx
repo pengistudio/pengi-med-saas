@@ -1,13 +1,5 @@
 import { useText } from "@pengi/shared";
-import {
-	Button,
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-	Text,
-	useToast,
-} from "@pengi/ui";
+import { Button, Text, useToast } from "@pengi/ui";
 import {
 	AlertTriangle,
 	CalendarCog,
@@ -38,7 +30,6 @@ import { cn } from "@/lib/utils";
 import { DocumentTemplatesSettings } from "@/sections/settings/document-templates-settings";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
 import { LogoUploadForm } from "@/sections/settings/logo-upload-form";
-import { WhatsAppSettings } from "@/sections/settings/whatsapp-settings";
 
 /** A labelled group of rows inside a section. */
 function SettingsGroup({
@@ -119,9 +110,6 @@ const SettingsPage = () => {
 	// Clinic-wide UI settings (table columns, consultation form, tasks).
 	const canManageSettings = checkPermission([
 		PERMISSIONS.SETTINGS.PERMISSION_MANAGE_CLINIC_SETTINGS,
-	]);
-	const canManageWhatsApp = checkPermission([
-		PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP,
 	]);
 	// AI opt-in: only when the plan includes AI (opt-in feature flag).
 	const planHasAI = useEnabledFeatures().ai === true;
@@ -369,84 +357,67 @@ const SettingsPage = () => {
 			<AdminLinks />
 
 			<SettingsSection title={<Text uuid="settings.integrations.title" />}>
-				<Tabs defaultValue="google" className="grid gap-4">
-					{canManageWhatsApp && (
-						<TabsList>
-							<TabsTrigger value="google">
+				<div className="grid gap-4">
+					<div className="flex flex-wrap items-start justify-between gap-4">
+						<div className="grid gap-1">
+							<p className="text-sm font-medium">
 								<Text uuid="settings.integrations.google.title" />
-							</TabsTrigger>
-							<TabsTrigger value="whatsapp">
-								<Text uuid="settings.whatsapp.title" />
-							</TabsTrigger>
-						</TabsList>
-					)}
-					<TabsContent value="google" className="grid gap-4">
-						<div className="flex flex-wrap items-start justify-between gap-4">
-							<div className="grid gap-1">
-								<p className="text-sm font-medium">
-									<Text uuid="settings.integrations.google.title" />
-								</p>
-								<p className="text-sm text-muted-foreground">
-									<Text uuid="settings.integrations.google.description" />
-								</p>
-								<StatusPill active={!!googleStatus?.connected}>
-									{googleStatus?.connected ? (
-										<Text uuid="settings.integrations.google.connected" />
-									) : (
-										<Text uuid="settings.integrations.google.disconnected" />
-									)}
-								</StatusPill>
-							</div>
-
-							{googleStatus?.connected ? (
-								<Button
-									variant="outline"
-									size="sm"
-									disabled={googleLoading}
-									onClick={handleDisconnectGoogle}
-								>
-									<Text uuid="settings.integrations.google.disconnect" />
-								</Button>
-							) : (
-								<Button
-									size="sm"
-									disabled={googleLoading}
-									onClick={handleConnectGoogle}
-								>
-									<Text uuid="settings.integrations.google.connect" />
-								</Button>
-							)}
+							</p>
+							<p className="text-sm text-muted-foreground">
+								<Text uuid="settings.integrations.google.description" />
+							</p>
+							<StatusPill active={!!googleStatus?.connected}>
+								{googleStatus?.connected ? (
+									<Text uuid="settings.integrations.google.connected" />
+								) : (
+									<Text uuid="settings.integrations.google.disconnected" />
+								)}
+							</StatusPill>
 						</div>
 
-						{/* Steps: only while not connected */}
-						{!googleStatus?.connected && (
-							<div className="grid gap-3 rounded-lg bg-muted/50 p-4">
-								<p className="text-sm font-medium">
-									<Text uuid="settings.integrations.google.tutorial.title" />
-								</p>
-								<ol className="grid gap-2">
-									{[1, 2, 3].map((step) => (
-										<li key={step} className="flex gap-3 text-sm">
-											<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-												{step}
-											</span>
-											<span className="text-muted-foreground">
-												<Text
-													uuid={`settings.integrations.google.tutorial.step${step}`}
-												/>
-											</span>
-										</li>
-									))}
-								</ol>
-							</div>
+						{googleStatus?.connected ? (
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={googleLoading}
+								onClick={handleDisconnectGoogle}
+							>
+								<Text uuid="settings.integrations.google.disconnect" />
+							</Button>
+						) : (
+							<Button
+								size="sm"
+								disabled={googleLoading}
+								onClick={handleConnectGoogle}
+							>
+								<Text uuid="settings.integrations.google.connect" />
+							</Button>
 						)}
-					</TabsContent>
-					{canManageWhatsApp && (
-						<TabsContent value="whatsapp">
-							<WhatsAppSettings />
-						</TabsContent>
+					</div>
+
+					{/* Steps: only while not connected */}
+					{!googleStatus?.connected && (
+						<div className="grid gap-3 rounded-lg bg-muted/50 p-4">
+							<p className="text-sm font-medium">
+								<Text uuid="settings.integrations.google.tutorial.title" />
+							</p>
+							<ol className="grid gap-2">
+								{[1, 2, 3].map((step) => (
+									<li key={step} className="flex gap-3 text-sm">
+										<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+											{step}
+										</span>
+										<span className="text-muted-foreground">
+											<Text
+												uuid={`settings.integrations.google.tutorial.step${step}`}
+											/>
+										</span>
+									</li>
+								))}
+							</ol>
+						</div>
 					)}
-				</Tabs>
+				</div>
 			</SettingsSection>
 
 			{canManageSettings && (
