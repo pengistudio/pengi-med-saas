@@ -155,3 +155,44 @@ func NotifyRescheduleRequest(db *gorm.DB, logger *zap.Logger, tenantID uint, con
 		logger.Error("failed to create whatsapp reschedule notifications", zap.Uint("tenant_id", tenantID), zap.Error(err))
 	}
 }
+
+// Assistant handoffs: the WhatsApp assistant passed a chat to reception.
+// Emergencies get their own text so they stand out.
+const (
+	NotificationTypeBotHandoff  = "whatsapp.bot.handoff"
+	BotHandoffNotificationKey   = "notification.whatsapp.bot_handoff"
+	BotEmergencyNotificationKey = "notification.whatsapp.bot_emergency"
+)
+
+// NotifyBotHandoff tells every user with USE_WHATSAPP_INBOX that the
+// assistant handed conv to reception (emergency: the patient wrote
+// emergency words and was told to call 911). Params: name, conversation_id.
+// One per handoff: the assistant then stays silent in the chat. Failures
+// are logged.
+func NotifyBotHandoff(db *gorm.DB, logger *zap.Logger, tenantID uint, conv whatsapp_models.WhatsAppConversation, emergency bool) {
+	userIDs, err := UsersWithPermission(db, tenantID, inboxPermission)
+	if err != nil {
+		logger.Error("failed to resolve whatsapp inbox users", zap.Uint("tenant_id", tenantID), zap.Error(err))
+		return
+	}
+	if len(userIDs) == 0 {
+		return
+	}
+	tdb := tenantdb.ForTenant(db, tenantID)
+	key := BotHandoffNotificationKey
+	if emergency {
+		key = BotEmergencyNotificationKey
+	}
+	params, _ := json.Marshal(map[string]any{notificationParamName: conversationName(tdb, conv), notificationParamConversation: conv.ID})
+	rows := make([]notifications_models.Notification, 0, len(userIDs))
+	for _, uid := range userIDs {
+		rows = append(rows, notifications_models.Notification{
+			TenantID: tenantID, UserID: uid, Type: NotificationTypeBotHandoff, ResourceType: ConversationResourceType,
+			ResourceID: conv.ID, MessageKey: key, Params: params,
+			ActionURL: MessageNotificationURL(conv.ID), Level: notifications_models.NotificationLevelInfo,
+		})
+	}
+	if err := tdb.Create(&rows).Error; err != nil {
+		logger.Error("failed to create whatsapp bot handoff notifications", zap.Uint("tenant_id", tenantID), zap.Error(err))
+	}
+}

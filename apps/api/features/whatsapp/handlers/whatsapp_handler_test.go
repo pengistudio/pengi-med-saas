@@ -15,12 +15,17 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	"pengi-med-saas/core/audit"
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/whatsapp"
+	agenda_models "pengi-med-saas/features/agenda/models"
+	ai_models "pengi-med-saas/features/ai/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
 	permission_models "pengi-med-saas/features/permissions/models"
+	settings_models "pengi-med-saas/features/settings/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	user_models "pengi-med-saas/features/users/models"
 	whatsapp_dto "pengi-med-saas/features/whatsapp/dto"
@@ -145,12 +150,18 @@ func newFixture(t *testing.T) *fixture {
 		&whatsapp_models.WhatsAppAccount{}, &whatsapp_models.WhatsAppMessage{}, &notifications_models.Notification{},
 		&company_models.Company{}, &user_models.Environment{}, &whatsapp_models.WhatsAppConversation{},
 		&permission_models.Permission{}, &user_models.Role{}, &company_models.Feature{}, &company_models.Plan{},
-		&company_models.Subscription{}, &whatsapp_models.WhatsAppTemplate{})
+		&company_models.Subscription{}, &whatsapp_models.WhatsAppTemplate{},
+		// The WhatsApp assistant (bot-reply.go) and what it reads.
+		&whatsapp_models.WhatsAppBotSettings{}, &whatsapp_models.WhatsAppBotEvent{}, &ai_models.AIUsageLog{},
+		&settings_models.SystemSetting{}, &doctor_models.Doctor{}, &agenda_models.DoctorSchedule{},
+		&agenda_models.ScheduleBlock{}, &audit.AuditLog{})
 	g := newFakeGraph()
 	client := whatsapp.New(g.server(t).URL, "v23.0", "app-id", testAppSecret)
 	f := &fixture{t: t, db: db, graph: g, calendar: &fakeCalendar{}}
 	f.h = NewWhatsAppHandler(db, zap.NewNop(), client)
 	f.webhook = NewWebhookHandler(db, zap.NewNop(), f.calendar).WithSecrets(testAppSecret, "verify-me").WithClient(client)
+	// The assistant runs inline, so tests see its effects right away.
+	f.webhook.botRun.async = func(fn func()) { fn() }
 
 	now := time.Now().UnixNano()
 	for i, id := range []*uint{&f.own, &f.other} {

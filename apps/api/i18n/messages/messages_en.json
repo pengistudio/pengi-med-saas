@@ -13302,5 +13302,365 @@
     {
         "key": "backoffice.plans.limits.max_ai_bot_conversations.desc",
         "value": "Conversations handled by the WhatsApp bot per month (needs the AI feature). Empty = 500."
+    },
+    {
+        "key": "E-WA-024",
+        "value": "The WhatsApp assistant can't be enabled yet."
+    },
+    {
+        "key": "E-WA-025",
+        "value": "Invalid frequently asked questions."
+    },
+    {
+        "key": "E-WA-026",
+        "value": "Too many tests: wait a minute."
+    },
+    {
+        "key": "whatsapp.bot.fetch.success",
+        "value": "WhatsApp assistant loaded."
+    },
+    {
+        "key": "whatsapp.bot.update.success",
+        "value": "WhatsApp assistant saved."
+    },
+    {
+        "key": "whatsapp.bot.test.success",
+        "value": "Test ready: nothing was sent."
+    },
+    {
+        "key": "whatsapp.bot.error.plan",
+        "value": "Your plan does not include WhatsApp with AI."
+    },
+    {
+        "key": "whatsapp.bot.error.not_connected",
+        "value": "Connect a WhatsApp number first."
+    },
+    {
+        "key": "whatsapp.bot.error.ai_opt_in",
+        "value": "Turn on the clinic's AI functions in Settings first."
+    },
+    {
+        "key": "whatsapp.bot.error.provider",
+        "value": "The AI service is not configured for the assistant. Contact support."
+    },
+    {
+        "key": "whatsapp.bot.error.office_hours",
+        "value": "Load the office hours (doctors' schedules in Agenda) before turning on the assistant."
+    },
+    {
+        "key": "whatsapp.bot.error.address",
+        "value": "Add the clinic's address before turning on the assistant."
+    },
+    {
+        "key": "whatsapp.bot.error.faq",
+        "value": "Add at least one frequently asked question before turning on the assistant."
+    },
+    {
+        "key": "whatsapp.bot.error.invalid_faq",
+        "value": "Check the FAQ: each entry needs a question (up to 200 characters) and an answer (up to 500), 30 at most."
+    },
+    {
+        "key": "whatsapp.bot.error.rate_limited",
+        "value": "Too many tests in a row: wait a minute."
+    },
+    {
+        "key": "whatsapp.bot.error.test_message",
+        "value": "Write a test message (up to 1000 characters)."
+    },
+    {
+        "key": "whatsapp.patient.bot.disclosure",
+        "value": "Hi, I'm the automated assistant of {clinic}. To talk to a person, reply \"persona\"."
+    },
+    {
+        "key": "whatsapp.patient.bot.handoff",
+        "value": "I'm the clinic's automated assistant: I passed your message to reception and a person will get back to you as soon as possible. To talk to a person, reply \"persona\"."
+    },
+    {
+        "key": "whatsapp.patient.bot.emergency",
+        "value": "If this is an emergency, call 911 now or go to the nearest emergency room. This chat is an automated assistant and does not handle emergencies. I've told reception; to talk to a person, reply \"persona\"."
+    },
+    {
+        "key": "whatsapp.patient.bot.non_text",
+        "value": "I'm the clinic's automated assistant and for now I can only read text messages. I passed your message to reception; to talk to a person, reply \"persona\"."
+    },
+    {
+        "key": "whatsapp.patient.bot.booking_link",
+        "value": "You can book your appointment here: {url}"
+    },
+    {
+        "key": "notification.whatsapp.bot_handoff",
+        "value": "The AI assistant handed {name}'s chat to reception."
+    },
+    {
+        "key": "notification.whatsapp.bot_emergency",
+        "value": "Possible emergency in {name}'s chat: the assistant told them to call 911. Check the conversation."
+    },
+    {
+        "key": "whatsapp.bot.reason.asked_person",
+        "value": "The patient asked to talk to a person."
+    },
+    {
+        "key": "whatsapp.bot.reason.emergency",
+        "value": "Possible emergency: told to call 911."
+    },
+    {
+        "key": "whatsapp.bot.reason.symptoms",
+        "value": "Health question: the assistant gives no medical advice."
+    },
+    {
+        "key": "whatsapp.bot.reason.non_text",
+        "value": "Not a text message (audio, image...)."
+    },
+    {
+        "key": "whatsapp.bot.reason.too_long",
+        "value": "Message too long."
+    },
+    {
+        "key": "whatsapp.bot.reason.not_in_faq",
+        "value": "The answer is not in the FAQ."
+    },
+    {
+        "key": "whatsapp.bot.reason.guard",
+        "value": "The answer had data that is not in the FAQ."
+    },
+    {
+        "key": "whatsapp.bot.reason.unparseable",
+        "value": "The AI service gave no usable answer."
+    },
+    {
+        "key": "whatsapp.bot.reason.quota",
+        "value": "This month's AI conversations are used up."
+    },
+    {
+        "key": "whatsapp.bot.reason.not_configured",
+        "value": "The AI service is not configured."
+    },
+    {
+        "key": "whatsapp.bot.reason.provider_error",
+        "value": "The AI service did not answer."
+    },
+    {
+        "key": "whatsapp.bot.reason.daily_limit",
+        "value": "Daily limit of automatic replies in this chat."
+    },
+    {
+        "key": "whatsapp.bot.reason.send_failed",
+        "value": "The automatic reply could not be sent."
+    },
+    {
+        "key": "whatsapp.bot.reason.human_active",
+        "value": "A person answered recently."
+    },
+    {
+        "key": "whatsapp.bot.reason.awaiting_human",
+        "value": "The chat is already waiting for reception."
+    },
+    {
+        "key": "whatsapp.bot.reason.opted_out",
+        "value": "The number asked not to receive messages."
+    },
+    {
+        "key": "whatsapp.bot.reason.outside_window",
+        "value": "More than 24 hours passed since the patient's message."
+    },
+    {
+        "key": "whatsapp.bot.reason.consent_answer",
+        "value": "Answer to the consent request."
+    },
+    {
+        "key": "whatsapp.bot.reason.internal",
+        "value": "Internal error."
+    },
+    {
+        "key": "whatsapp.inbox.bot_label",
+        "value": "AI assistant"
+    },
+    {
+        "key": "whatsapp.inbox.needs_human",
+        "value": "Needs a person"
+    },
+    {
+        "key": "whatsapp.inbox.needs_human.banner",
+        "value": "The AI assistant handed this chat to reception; reply to take it over."
+    },
+    {
+        "key": "settings.whatsapp.log.kind.bot",
+        "value": "AI assistant"
+    },
+    {
+        "key": "settings.whatsapp.bot.title",
+        "value": "WhatsApp AI assistant"
+    },
+    {
+        "key": "settings.whatsapp.bot.description",
+        "value": "Automatically answers the frequently asked questions of patients who write, only with the information you load here. It never gives medical advice: when it doesn't know, it hands the chat to reception."
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.title",
+        "value": "To turn it on you need:"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.whatsapp_connected",
+        "value": "A connected WhatsApp number"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.ai_opt_in",
+        "value": "AI functions turned on for the clinic (Settings)"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.provider_configured",
+        "value": "AI service configured for the assistant (support)"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.office_hours",
+        "value": "Office hours: the doctors' weekly schedules"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.address",
+        "value": "Clinic address (billing details)"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.faq",
+        "value": "At least one frequently asked question"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.fix",
+        "value": "Set up"
+    },
+    {
+        "key": "settings.whatsapp.bot.enabled",
+        "value": "Answer automatically"
+    },
+    {
+        "key": "settings.whatsapp.bot.enabled.hint",
+        "value": "It only answers text messages within the 24 hours. Its first message says it is an automated assistant and that writing \"persona\" reaches reception."
+    },
+    {
+        "key": "settings.whatsapp.bot.during_hours",
+        "value": "Also during office hours"
+    },
+    {
+        "key": "settings.whatsapp.bot.during_hours.hint",
+        "value": "When off, it only answers outside office hours."
+    },
+    {
+        "key": "settings.whatsapp.bot.quota",
+        "value": "Conversations this month: {used} of {limit}"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.address",
+        "value": "Address"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.phone",
+        "value": "Clinic phone"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.hours",
+        "value": "Office hours"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.empty",
+        "value": "Not loaded"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.booking_on",
+        "value": "When asked about appointments, it adds the portal booking link."
+    },
+    {
+        "key": "settings.whatsapp.bot.material.booking_off",
+        "value": "No booking link: turn on patient portal booking to include it."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.title",
+        "value": "Frequently asked questions"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.hint",
+        "value": "The assistant can only answer with this, the address, the hours and the phone. Don't include patient data."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.empty",
+        "value": "No questions yet. Add the ones you get most (prices, payment methods, parking, insurance...)."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.add",
+        "value": "Add question"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.count",
+        "value": "{total} of {max}"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.invalid",
+        "value": "Each question needs its answer, within the character limit."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.question",
+        "value": "Question"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.question.placeholder",
+        "value": "How much is a general consultation?"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.answer",
+        "value": "Answer"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.answer.placeholder",
+        "value": "A general consultation costs $30."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.remove",
+        "value": "Remove"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.title",
+        "value": "Try it"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.hint",
+        "value": "Write a message as if you were a patient and see what it would answer. Nothing is sent or counted in your plan."
+    },
+    {
+        "key": "settings.whatsapp.bot.test.placeholder",
+        "value": "Are you open on Saturdays?"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.run",
+        "value": "Try"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.answer",
+        "value": "Would answer"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.handoff",
+        "value": "Would hand off to reception"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.in_hours",
+        "value": "It is office hours now: with \"Also during office hours\" off, it would not answer."
+    },
+    {
+        "key": "settings.whatsapp.bot.test.nothing_sent",
+        "value": "Preview: nothing was sent."
+    },
+    {
+        "key": "whatsapp.patient.bot.handoff_symptoms",
+        "value": "I'm the clinic's automated assistant and I can't give medical advice. If this is an emergency, call 911 now or go to the nearest emergency room. I passed your message to reception and a person will get back to you as soon as possible; to talk to a person, reply \"persona\"."
+    },
+    {
+        "key": "whatsapp.bot.reason.clinic_daily_limit",
+        "value": "The clinic's daily limit of automatic replies."
+    },
+    {
+        "key": "whatsapp.bot.reason.overloaded",
+        "value": "Too many messages at once: the assistant couldn't answer."
+    },
+    {
+        "key": "whatsapp.bot.reason.suspicious_text",
+        "value": "Message mixing look-alike letters from other alphabets."
     }
 ]

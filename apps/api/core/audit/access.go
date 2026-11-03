@@ -7,6 +7,7 @@ import (
 	auth_middleware "pengi-med-saas/features/users/middleware"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -81,6 +82,24 @@ func RecordPortalGuestChange(db *gorm.DB, tenantID uint, action, entityType stri
 		Action:     action,
 		EntityType: entityType,
 		EntityID:   entityID,
+		CreatedAt:  time.Now(),
+	}
+	_ = tenantdb.ForTenant(db, tenantID).Session(&gorm.Session{NewDB: true}).Create(&log).Error
+}
+
+// RecordBotAction logs what the WhatsApp assistant did in a conversation
+// (action BOT_ANSWER / BOT_HANDOFF / BOT_SILENT): ActorBot, no user, and in
+// NewValues only the action and its reason code, never the patient's text,
+// the prompt or the reply. Failures are swallowed like RecordAccess.
+func RecordBotAction(db *gorm.DB, tenantID uint, action, entityType string, entityID uint, patientID *uint, values datatypes.JSON) {
+	log := AuditLog{
+		TenantID:   tenantID,
+		ActorType:  ActorBot,
+		Action:     action,
+		EntityType: entityType,
+		EntityID:   entityID,
+		PatientID:  patientID,
+		NewValues:  values,
 		CreatedAt:  time.Now(),
 	}
 	_ = tenantdb.ForTenant(db, tenantID).Session(&gorm.Session{NewDB: true}).Create(&log).Error

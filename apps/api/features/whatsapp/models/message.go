@@ -37,6 +37,13 @@ const (
 	// (SlotOfferTemplate), sent when reception clicks "Ofrecer por WhatsApp".
 	// Counted toward the cap.
 	KindSlotOffer = "slot_offer"
+	// KindBot: free text the WhatsApp assistant (features/ai bot) sent on
+	// its own inside the window: an answer from the clinic's FAQ or a fixed
+	// handoff text. The inbox labels it "Asistente IA". Not counted toward
+	// the monthly cap (service-window replies, not billed template traffic):
+	// the assistant is bounded by its AI conversation quota and its per-chat
+	// and per-clinic daily limits instead.
+	KindBot = "bot"
 )
 
 // NoShowOffsetHours is the OffsetHours of a KindNoShow message: reminders use

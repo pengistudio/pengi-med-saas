@@ -13302,5 +13302,365 @@
     {
         "key": "backoffice.plans.limits.max_ai_bot_conversations.desc",
         "value": "Conversaciones atendidas por el bot de WhatsApp por mes (requiere la funcionalidad IA). Sin valor = 500."
+    },
+    {
+        "key": "E-WA-024",
+        "value": "El asistente de WhatsApp aún no se puede activar."
+    },
+    {
+        "key": "E-WA-025",
+        "value": "Preguntas frecuentes no válidas."
+    },
+    {
+        "key": "E-WA-026",
+        "value": "Demasiadas pruebas: espera un minuto."
+    },
+    {
+        "key": "whatsapp.bot.fetch.success",
+        "value": "Asistente de WhatsApp cargado."
+    },
+    {
+        "key": "whatsapp.bot.update.success",
+        "value": "Asistente de WhatsApp guardado."
+    },
+    {
+        "key": "whatsapp.bot.test.success",
+        "value": "Prueba lista: no se envió nada."
+    },
+    {
+        "key": "whatsapp.bot.error.plan",
+        "value": "Tu plan no incluye WhatsApp con IA."
+    },
+    {
+        "key": "whatsapp.bot.error.not_connected",
+        "value": "Conecta primero un número de WhatsApp."
+    },
+    {
+        "key": "whatsapp.bot.error.ai_opt_in",
+        "value": "Activa primero las funciones de IA de la clínica en Configuración."
+    },
+    {
+        "key": "whatsapp.bot.error.provider",
+        "value": "El servicio de IA no está configurado para el asistente. Contacta a soporte."
+    },
+    {
+        "key": "whatsapp.bot.error.office_hours",
+        "value": "Carga el horario de atención (horarios de los médicos en Agenda) antes de activar el asistente."
+    },
+    {
+        "key": "whatsapp.bot.error.address",
+        "value": "Carga la dirección de la clínica antes de activar el asistente."
+    },
+    {
+        "key": "whatsapp.bot.error.faq",
+        "value": "Agrega al menos una pregunta frecuente antes de activar el asistente."
+    },
+    {
+        "key": "whatsapp.bot.error.invalid_faq",
+        "value": "Revisa las preguntas frecuentes: cada una necesita pregunta (hasta 200 caracteres) y respuesta (hasta 500), máximo 30."
+    },
+    {
+        "key": "whatsapp.bot.error.rate_limited",
+        "value": "Demasiadas pruebas seguidas: espera un minuto."
+    },
+    {
+        "key": "whatsapp.bot.error.test_message",
+        "value": "Escribe un mensaje de prueba (hasta 1000 caracteres)."
+    },
+    {
+        "key": "whatsapp.patient.bot.disclosure",
+        "value": "Hola, soy el asistente automático de {clinic}. Si quieres hablar con una persona, responde «persona»."
+    },
+    {
+        "key": "whatsapp.patient.bot.handoff",
+        "value": "Soy el asistente automático de la clínica: ya pasé tu mensaje a recepción y una persona te atenderá lo antes posible. Si quieres hablar con una persona, responde «persona»."
+    },
+    {
+        "key": "whatsapp.patient.bot.emergency",
+        "value": "Si es una emergencia, llama ahora al 911 o acude a la sala de emergencias más cercana. Este chat es un asistente automático y no atiende emergencias. Ya avisé a recepción; para hablar con una persona, responde «persona»."
+    },
+    {
+        "key": "whatsapp.patient.bot.non_text",
+        "value": "Soy el asistente automático de la clínica y por ahora solo puedo leer mensajes de texto. Ya pasé tu mensaje a recepción; si quieres hablar con una persona, responde «persona»."
+    },
+    {
+        "key": "whatsapp.patient.bot.booking_link",
+        "value": "Puedes agendar tu cita aquí: {url}"
+    },
+    {
+        "key": "notification.whatsapp.bot_handoff",
+        "value": "El asistente IA pasó a recepción el chat de {name}."
+    },
+    {
+        "key": "notification.whatsapp.bot_emergency",
+        "value": "Posible emergencia en el chat de {name}: el asistente le indicó llamar al 911. Revisa la conversación."
+    },
+    {
+        "key": "whatsapp.bot.reason.asked_person",
+        "value": "El paciente pidió hablar con una persona."
+    },
+    {
+        "key": "whatsapp.bot.reason.emergency",
+        "value": "Posible emergencia: se le indicó llamar al 911."
+    },
+    {
+        "key": "whatsapp.bot.reason.symptoms",
+        "value": "Pregunta de salud: el asistente no da consejos médicos."
+    },
+    {
+        "key": "whatsapp.bot.reason.non_text",
+        "value": "Mensaje que no es texto (audio, imagen...)."
+    },
+    {
+        "key": "whatsapp.bot.reason.too_long",
+        "value": "Mensaje demasiado largo."
+    },
+    {
+        "key": "whatsapp.bot.reason.not_in_faq",
+        "value": "La respuesta no está en las preguntas frecuentes."
+    },
+    {
+        "key": "whatsapp.bot.reason.guard",
+        "value": "La respuesta tenía datos que no están en las preguntas frecuentes."
+    },
+    {
+        "key": "whatsapp.bot.reason.unparseable",
+        "value": "El servicio de IA no dio una respuesta usable."
+    },
+    {
+        "key": "whatsapp.bot.reason.quota",
+        "value": "Se acabaron las conversaciones de IA del mes."
+    },
+    {
+        "key": "whatsapp.bot.reason.not_configured",
+        "value": "El servicio de IA no está configurado."
+    },
+    {
+        "key": "whatsapp.bot.reason.provider_error",
+        "value": "El servicio de IA no respondió."
+    },
+    {
+        "key": "whatsapp.bot.reason.daily_limit",
+        "value": "Límite diario de respuestas automáticas en este chat."
+    },
+    {
+        "key": "whatsapp.bot.reason.send_failed",
+        "value": "No se pudo enviar la respuesta automática."
+    },
+    {
+        "key": "whatsapp.bot.reason.human_active",
+        "value": "Una persona respondió hace poco."
+    },
+    {
+        "key": "whatsapp.bot.reason.awaiting_human",
+        "value": "El chat ya espera a recepción."
+    },
+    {
+        "key": "whatsapp.bot.reason.opted_out",
+        "value": "El número pidió no recibir mensajes."
+    },
+    {
+        "key": "whatsapp.bot.reason.outside_window",
+        "value": "Pasaron más de 24 horas desde el mensaje del paciente."
+    },
+    {
+        "key": "whatsapp.bot.reason.consent_answer",
+        "value": "Respuesta al pedido de consentimiento."
+    },
+    {
+        "key": "whatsapp.bot.reason.internal",
+        "value": "Error interno."
+    },
+    {
+        "key": "whatsapp.inbox.bot_label",
+        "value": "Asistente IA"
+    },
+    {
+        "key": "whatsapp.inbox.needs_human",
+        "value": "Necesita persona"
+    },
+    {
+        "key": "whatsapp.inbox.needs_human.banner",
+        "value": "El asistente IA pasó este chat a recepción; responde para retomarlo."
+    },
+    {
+        "key": "settings.whatsapp.log.kind.bot",
+        "value": "Asistente IA"
+    },
+    {
+        "key": "settings.whatsapp.bot.title",
+        "value": "Asistente IA de WhatsApp"
+    },
+    {
+        "key": "settings.whatsapp.bot.description",
+        "value": "Responde automáticamente las preguntas frecuentes de los pacientes que escriben, solo con la información que cargues aquí. Nunca da consejos médicos: si no sabe, pasa el chat a recepción."
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.title",
+        "value": "Para activarlo falta:"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.whatsapp_connected",
+        "value": "Un número de WhatsApp conectado"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.ai_opt_in",
+        "value": "Funciones de IA activadas para la clínica (Configuración)"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.provider_configured",
+        "value": "Servicio de IA configurado para el asistente (soporte)"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.office_hours",
+        "value": "Horario de atención: los horarios semanales de los médicos"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.address",
+        "value": "Dirección de la clínica (datos de facturación)"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.faq",
+        "value": "Al menos una pregunta frecuente"
+    },
+    {
+        "key": "settings.whatsapp.bot.readiness.fix",
+        "value": "Configurar"
+    },
+    {
+        "key": "settings.whatsapp.bot.enabled",
+        "value": "Responder automáticamente"
+    },
+    {
+        "key": "settings.whatsapp.bot.enabled.hint",
+        "value": "Solo responde mensajes de texto dentro de las 24 horas. Su primer mensaje avisa que es un asistente automático y que escribiendo «persona» atiende recepción."
+    },
+    {
+        "key": "settings.whatsapp.bot.during_hours",
+        "value": "También en horario de atención"
+    },
+    {
+        "key": "settings.whatsapp.bot.during_hours.hint",
+        "value": "Apagado, responde solo fuera del horario de atención."
+    },
+    {
+        "key": "settings.whatsapp.bot.quota",
+        "value": "Conversaciones este mes: {used} de {limit}"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.address",
+        "value": "Dirección"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.phone",
+        "value": "Teléfono de la clínica"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.hours",
+        "value": "Horario de atención"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.empty",
+        "value": "Sin cargar"
+    },
+    {
+        "key": "settings.whatsapp.bot.material.booking_on",
+        "value": "Si preguntan por citas, agrega el enlace del portal para agendar."
+    },
+    {
+        "key": "settings.whatsapp.bot.material.booking_off",
+        "value": "Sin enlace para agendar: activa las reservas del portal del paciente para incluirlo."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.title",
+        "value": "Preguntas frecuentes"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.hint",
+        "value": "El asistente solo puede contestar con esto, la dirección, el horario y el teléfono. No incluyas datos de pacientes."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.empty",
+        "value": "Aún no hay preguntas. Agrega las que más te hacen (precios, formas de pago, parqueadero, seguros...)."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.add",
+        "value": "Agregar pregunta"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.count",
+        "value": "{total} de {max}"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.invalid",
+        "value": "Cada pregunta necesita su respuesta, dentro del límite de caracteres."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.question",
+        "value": "Pregunta"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.question.placeholder",
+        "value": "¿Cuánto cuesta la consulta general?"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.answer",
+        "value": "Respuesta"
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.answer.placeholder",
+        "value": "La consulta general cuesta $30."
+    },
+    {
+        "key": "settings.whatsapp.bot.faq.remove",
+        "value": "Quitar"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.title",
+        "value": "Probar"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.hint",
+        "value": "Escribe un mensaje como si fueras un paciente y mira qué respondería. No se envía nada ni se cuenta en tu plan."
+    },
+    {
+        "key": "settings.whatsapp.bot.test.placeholder",
+        "value": "¿Atienden los sábados?"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.run",
+        "value": "Probar"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.answer",
+        "value": "Respondería"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.handoff",
+        "value": "Pasaría a recepción"
+    },
+    {
+        "key": "settings.whatsapp.bot.test.in_hours",
+        "value": "Ahora es horario de atención: con «También en horario de atención» apagado, no respondería."
+    },
+    {
+        "key": "settings.whatsapp.bot.test.nothing_sent",
+        "value": "Vista previa: no se envió nada."
+    },
+    {
+        "key": "whatsapp.patient.bot.handoff_symptoms",
+        "value": "Soy el asistente automático de la clínica y no puedo dar indicaciones médicas. Si es una emergencia, llama ahora al 911 o acude a la sala de emergencias más cercana. Ya pasé tu mensaje a recepción y una persona te atenderá lo antes posible; si quieres hablar con una persona, responde «persona»."
+    },
+    {
+        "key": "whatsapp.bot.reason.clinic_daily_limit",
+        "value": "Límite diario de respuestas automáticas de la clínica."
+    },
+    {
+        "key": "whatsapp.bot.reason.overloaded",
+        "value": "Demasiados mensajes a la vez: el asistente no alcanzó a responder."
+    },
+    {
+        "key": "whatsapp.bot.reason.suspicious_text",
+        "value": "Mensaje con letras parecidas de otros alfabetos mezcladas."
     }
 ]

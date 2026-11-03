@@ -9,6 +9,7 @@ import {
 	Clock,
 	FileText,
 	FlaskConical,
+	Sparkles,
 	X,
 } from "lucide-react";
 import {
@@ -109,6 +110,12 @@ export function MessageBubble({ message }: { message: WhatsAppMessage }) {
 					<span className="inline-flex w-fit items-center gap-1 rounded-full bg-background/70 px-2 py-0.5 text-xs font-medium">
 						<Bot className="h-3 w-3" />
 						<Text uuid="whatsapp.inbox.system_label" />
+					</span>
+				)}
+				{message.kind === "bot" && (
+					<span className="inline-flex w-fit items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-950 dark:text-violet-300">
+						<Sparkles className="h-3 w-3" aria-hidden="true" />
+						<Text uuid="whatsapp.inbox.bot_label" />
 					</span>
 				)}
 				{inbound && message.reply && (

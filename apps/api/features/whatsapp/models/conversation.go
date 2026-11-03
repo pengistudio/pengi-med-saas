@@ -38,7 +38,36 @@ type WhatsAppConversation struct {
 	// reminders. It is asked at most once per conversation, and a SÍ only
 	// counts as consent once it is set.
 	OptInRequestedAt *time.Time `json:"opt_in_requested_at"`
+
+	// NeedsHumanAt is when the WhatsApp assistant handed the chat to
+	// reception (NeedsHumanReason says why, a BotReason* code); nil once a
+	// person answers from the inbox. While set and younger than BotSilence
+	// the assistant stays silent in this chat.
+	NeedsHumanAt     *time.Time `json:"needs_human_at"`
+	NeedsHumanReason string     `json:"needs_human_reason" gorm:"type:varchar(40);not null;default:''"`
+	// BotSessionAt / BotSessionUsageID track the assistant's current
+	// conversation (the unit of its AI quota): the last model call and the
+	// ai_usage_logs row the conversation is counted in. A model call more
+	// than BotSilence after BotSessionAt starts a new conversation.
+	BotSessionAt      *time.Time `json:"-"`
+	BotSessionUsageID *uint      `json:"-"`
+	// BotEmergencyTextAt / BotEmergencyNotifiedAt throttle emergencies: the
+	// fixed 911 text and the reception notification go out at most once per
+	// BotEmergencyThrottle per chat (claimed with a conditional UPDATE).
+	BotEmergencyTextAt     *time.Time `json:"-"`
+	BotEmergencyNotifiedAt *time.Time `json:"-"`
 }
+
+// BotEmergencyThrottle: a chat gets the 911 text (and reception its
+// notification) at most once in this window; repeats only re-flag it.
+const BotEmergencyThrottle = 10 * time.Minute
+
+// BotSilence is how long the assistant stays silent in a chat it handed to
+// reception, and the bot silence that ends one assistant conversation.
+const BotSilence = 24 * time.Hour
+
+// NeedsHuman reports whether reception still has to answer the chat.
+func (c WhatsAppConversation) NeedsHuman() bool { return c.NeedsHumanAt != nil }
 
 func (WhatsAppConversation) TableName() string { return "whatsapp_conversations" }
 

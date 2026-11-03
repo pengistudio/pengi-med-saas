@@ -8,10 +8,15 @@ import (
 
 	"pengi-med-saas/core/database"
 	"pengi-med-saas/core/whatsapp"
+	agenda_models "pengi-med-saas/features/agenda/models"
+	ai_models "pengi-med-saas/features/ai/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	subscription_middleware "pengi-med-saas/features/companies/middleware"
+	company_models "pengi-med-saas/features/companies/models"
+	doctor_models "pengi-med-saas/features/doctors/models"
 	permission_data "pengi-med-saas/features/permissions/data"
 	permission_models "pengi-med-saas/features/permissions/models"
+	settings_models "pengi-med-saas/features/settings/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	role_data "pengi-med-saas/features/users/data"
 	user_models "pengi-med-saas/features/users/models"
@@ -30,7 +35,10 @@ func whatsappRouter(t *testing.T, permissionIDs []string) (*gin.Engine, whatsapp
 	gin.SetMode(gin.TestMode)
 	db := testutils.SetupTestDB(t, &permission_models.Permission{}, &user_models.Role{}, &user_models.Environment{},
 		&tenant_models.Tenant{}, &clinical_models.Patient{}, &whatsapp_models.WhatsAppAccount{},
-		&whatsapp_models.WhatsAppMessage{}, &whatsapp_models.WhatsAppConversation{}, &whatsapp_models.WhatsAppTemplate{})
+		&whatsapp_models.WhatsAppMessage{}, &whatsapp_models.WhatsAppConversation{}, &whatsapp_models.WhatsAppTemplate{},
+		&whatsapp_models.WhatsAppBotSettings{}, &whatsapp_models.WhatsAppBotEvent{}, &agenda_models.DoctorSchedule{},
+		&agenda_models.ScheduleBlock{}, &doctor_models.Doctor{}, &company_models.Company{}, &company_models.Plan{},
+		&company_models.Feature{}, &company_models.Subscription{}, &settings_models.SystemSetting{}, &ai_models.AIUsageLog{})
 	now := time.Now().UnixNano()
 	tenant := tenant_models.Tenant{Name: "Clinic", Slug: fmt.Sprintf("wa-perm-%d", now), DisplayToken: fmt.Sprintf("tok-wa-perm-%d", now)}
 	mustCreate(t, db, &tenant)
@@ -102,5 +110,27 @@ func TestWhatsAppRoutes_RecepcionistaUsesInboxNotSettings(t *testing.T) {
 		if w := serve(router, http.MethodGet, path, ""); w.Code != http.StatusForbidden {
 			t.Errorf("recepcionista GET %s = %d, want 403", path, w.Code)
 		}
+	}
+}
+
+// The WhatsApp assistant's settings and test panel are MANAGE_WHATSAPP only.
+func TestWhatsAppRoutes_BotNeedsManage(t *testing.T) {
+	router, _ := whatsappRouter(t, role_data.RolePermissionMatrix[role_data.RoleRecepcionista])
+	for _, tc := range []struct{ method, path, body string }{
+		{http.MethodGet, "/whatsapp/bot", ""},
+		{http.MethodPut, "/whatsapp/bot", `{"enabled":false,"faq":[]}`},
+		{http.MethodPost, "/whatsapp/bot/test", `{"message":"hola"}`},
+	} {
+		if w := serve(router, tc.method, tc.path, tc.body); w.Code != http.StatusForbidden {
+			t.Errorf("recepcionista %s %s = %d, want 403", tc.method, tc.path, w.Code)
+		}
+	}
+	router, _ = whatsappRouter(t, []string{"MANAGE_WHATSAPP"})
+	if w := serve(router, http.MethodGet, "/whatsapp/bot", ""); w.Code != http.StatusOK {
+		t.Errorf("MANAGE_WHATSAPP GET /whatsapp/bot = %d: %s", w.Code, w.Body.String())
+	}
+	// Without the AI feature on the plan, enabling is refused.
+	if w := serve(router, http.MethodPut, "/whatsapp/bot", `{"enabled":true,"faq":[{"question":"q","answer":"a"}]}`); w.Code != http.StatusUnprocessableEntity {
+		t.Errorf("enable without AI plan = %d, want 422: %s", w.Code, w.Body.String())
 	}
 }

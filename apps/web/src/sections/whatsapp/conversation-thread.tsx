@@ -6,6 +6,7 @@ import {
 	CalendarClock,
 	Loader2,
 	UserPlus,
+	UserRound,
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router";
@@ -16,6 +17,7 @@ import {
 	type WhatsAppConversationDetail,
 	type WhatsAppMessage,
 } from "@/api/whatsapp-service";
+import { BotReason } from "@/components/features/whatsapp/bot-reason";
 import { usePolling } from "@/hooks/use-polling";
 import {
 	conversationTitle,
@@ -247,6 +249,24 @@ export function ConversationThread({
 					</Button>
 				)}
 			</div>
+
+			{detail?.needs_human && (
+				<div className="flex items-start gap-2 border-b border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
+					<UserRound
+						className="mt-0.5 h-3.5 w-3.5 shrink-0"
+						aria-hidden="true"
+					/>
+					<span>
+						<Text uuid="whatsapp.inbox.needs_human.banner" />
+						{detail.needs_human_reason && (
+							<>
+								{" "}
+								<BotReason reason={detail.needs_human_reason} />
+							</>
+						)}
+					</span>
+				</div>
+			)}
 
 			<div
 				ref={scrollRef}

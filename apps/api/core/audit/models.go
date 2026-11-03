@@ -30,6 +30,8 @@ type AuditLog struct {
 const (
 	ActorUser          = "user"
 	ActorPortalPatient = "portal_patient"
+	// ActorBot: the clinic's WhatsApp assistant (features/ai bot), no user.
+	ActorBot = "ai_bot"
 )
 
 // Auditable is an interface that models must implement to be tracked by the audit trail

@@ -34,10 +34,13 @@ type WhatsAppHandler struct {
 	logger *zap.Logger
 	client *whatsapp.Client
 	sender *whatsapp_services.Sender
+	// assistant serves the WhatsApp assistant's settings and test panel
+	// (bot-settings-handler.go).
+	assistant botSettings
 }
 
 func NewWhatsAppHandler(db *gorm.DB, logger *zap.Logger, client *whatsapp.Client) *WhatsAppHandler {
-	return &WhatsAppHandler{db: db, logger: logger, client: client, sender: whatsapp_services.NewSender(db, logger, client)}
+	return &WhatsAppHandler{db: db, logger: logger, client: client, sender: whatsapp_services.NewSender(db, logger, client), assistant: newBotSettings(nil)}
 }
 
 // GetConfig returns the public values the frontend needs for Embedded Signup.

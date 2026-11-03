@@ -85,6 +85,8 @@ func RunMigrations(db *gorm.DB) error {
 		whatsapp_models.WhatsAppMessage{},
 		whatsapp_models.WhatsAppConversation{},
 		whatsapp_models.WhatsAppTemplate{},
+		whatsapp_models.WhatsAppBotSettings{},
+		whatsapp_models.WhatsAppBotEvent{},
 		portal_models.PortalLoginCode{},
 		portal_models.PortalContactCode{},
 		portal_models.PortalRefreshToken{},
