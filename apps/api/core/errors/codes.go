@@ -253,4 +253,5 @@ var (
 	ErrAIInternal       AppError = NewAppError("E-AI-007", "AI internal error.")
 	// AI_ENCRYPTION_KEY unset: API keys can't be stored in backoffice.
 	ErrAIEncryptionUnavailable AppError = NewAppError("E-AI-008", "AI_ENCRYPTION_KEY is not set on the server: the API key can't be stored.")
+	ErrAIInvalidNotes          AppError = NewAppError("E-AI-009", "Write the consultation notes first (up to 6000 characters).")
 )

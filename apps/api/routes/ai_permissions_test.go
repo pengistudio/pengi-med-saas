@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -74,7 +75,7 @@ func aiRouter(t *testing.T, rolePerms, planPerms []string, optIn bool) (*gin.Eng
 	return router, patient, otherPatient
 }
 
-var aiPlan = []string{"USE_AI_SUMMARY", "USE_AI_SCRIBE", "READ_MEDICAL_RECORD"}
+var aiPlan = []string{"USE_AI_SUMMARY", "USE_AI_SCRIBE", "READ_MEDICAL_RECORD", "CREATE_MEDICAL_RECORD"}
 
 func TestAIRoutes_SummaryNeedsAIAndRecordPermissions(t *testing.T) {
 	cases := []struct {
@@ -127,5 +128,45 @@ func TestAIRoutes_OtherTenantsPatientIsNotFound(t *testing.T) {
 		if w := serve(router, method, fmt.Sprintf("/ai/patients/%d/summary", otherPatient.ID), ""); w.Code != http.StatusNotFound {
 			t.Errorf("%s other tenant's patient = %d, want 404", method, w.Code)
 		}
+	}
+}
+
+func TestAIRoutes_ScribeGating(t *testing.T) {
+	body := func(patientID uint) string {
+		return fmt.Sprintf(`{"patient_id":%d,"notes":"Tos de 3 días"}`, patientID)
+	}
+	for _, tc := range []struct {
+		name       string
+		role, plan []string
+	}{
+		{"plan without AI", []string{"USE_AI_SCRIBE", "CREATE_MEDICAL_RECORD"}, []string{"CREATE_MEDICAL_RECORD"}},
+		{"role without USE_AI_SCRIBE", []string{"CREATE_MEDICAL_RECORD"}, aiPlan},
+		{"role without CREATE_MEDICAL_RECORD", []string{"USE_AI_SCRIBE"}, aiPlan},
+		{"recepcionista", role_data.RolePermissionMatrix[role_data.RoleRecepcionista], aiPlan},
+	} {
+		router, patient, _ := aiRouter(t, tc.role, tc.plan, true)
+		if w := serve(router, http.MethodPost, "/ai/scribe", body(patient.ID)); w.Code != http.StatusForbidden {
+			t.Errorf("%s: POST /ai/scribe = %d, want 403", tc.name, w.Code)
+		}
+	}
+
+	doctor := role_data.RolePermissionMatrix[role_data.RoleDoctor]
+	router, patient, otherPatient := aiRouter(t, doctor, aiPlan, true)
+	if w := serve(router, http.MethodPost, "/ai/scribe", body(patient.ID)); w.Code != http.StatusServiceUnavailable {
+		t.Errorf("doctor without AI key = %d %s, want 503", w.Code, w.Body.String())
+	}
+	if w := serve(router, http.MethodPost, "/ai/scribe", `{"patient_id":1,"notes":""}`); w.Code != http.StatusBadRequest {
+		t.Errorf("empty notes = %d, want 400", w.Code)
+	}
+	if w := serve(router, http.MethodPost, "/ai/scribe", body(otherPatient.ID)); w.Code != http.StatusNotFound {
+		t.Errorf("other tenant's patient = %d, want 404", w.Code)
+	}
+	if w := serve(router, http.MethodGet, "/ai/status", ""); w.Code != http.StatusOK || !strings.Contains(w.Body.String(), `"scribe":false`) {
+		t.Errorf("status = %d %s", w.Code, w.Body.String())
+	}
+
+	optOut, patient2, _ := aiRouter(t, doctor, aiPlan, false)
+	if w := serve(optOut, http.MethodPost, "/ai/scribe", body(patient2.ID)); w.Code != http.StatusForbidden {
+		t.Errorf("opt-out = %d, want 403", w.Code)
 	}
 }

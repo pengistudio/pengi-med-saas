@@ -1,5 +1,5 @@
 import { useText } from "@pengi/shared";
-import { Badge, Button } from "@pengi/ui";
+import { Button } from "@pengi/ui";
 import { CircleAlert, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import React from "react";
 import { Link } from "react-router";
@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
+import { AI_CARD_CLASS, AIDraftTag, AIMark } from "./ai-mark";
 
 /**
  * Whether the AI summary may be offered: the plan includes AI, and the user
@@ -104,35 +105,36 @@ export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 		}
 	}
 
+	const showBody = Boolean(summary && open);
+	const quotaText =
+		quota && quota.limit >= 0
+			? textGet("ai.summary.quota", { used: quota.used, limit: quota.limit })
+			: null;
+
 	return (
-		<section
-			aria-label={textGet("ai.summary.title")}
-			className="rounded-lg border border-violet-200 bg-violet-50/40 p-4 dark:border-violet-900 dark:bg-violet-950/20"
-		>
-			<div className="flex flex-wrap items-center justify-between gap-2">
-				<div className="flex flex-wrap items-center gap-2">
-					<Sparkles className="size-4 text-violet-600 dark:text-violet-400" />
-					<h2 className="text-sm font-semibold">
-						{textGet("ai.summary.title")}
-					</h2>
-					<Badge variant="outline" className="font-medium">
-						{textGet("ai.summary.draft_badge")}
-					</Badge>
+		<section aria-label={textGet("ai.summary.title")} className={AI_CARD_CLASS}>
+			<div className="flex flex-wrap items-center gap-3 p-3">
+				<AIMark />
+				<div className="min-w-0 flex-1">
+					<div className="flex flex-wrap items-center gap-2">
+						<h2 className="text-sm font-semibold">
+							{textGet("ai.summary.title")}
+						</h2>
+						{summary && <AIDraftTag />}
+					</div>
+					{!compact && !summary && (
+						<p className="text-xs text-muted-foreground">
+							{textGet("ai.summary.subtitle")}
+						</p>
+					)}
 				</div>
 				<div className="flex items-center gap-2">
-					{quota && quota.limit >= 0 && (
-						<span className="text-xs tabular-nums text-muted-foreground">
-							{textGet("ai.summary.quota", {
-								used: quota.used,
-								limit: quota.limit,
-							})}
-						</span>
-					)}
 					{summary && compact && (
 						<Button
 							type="button"
 							size="sm"
 							variant="ghost"
+							aria-expanded={open}
 							onClick={() => setOpen((v) => !v)}
 						>
 							{open ? textGet("ai.summary.hide") : textGet("ai.summary.show")}
@@ -162,22 +164,28 @@ export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 			</div>
 
 			{error && (
-				<Alert variant="destructive" className="mt-3">
+				<Alert variant="destructive" className="mx-3 mb-3">
 					<CircleAlert />
 					<AlertDescription>{error}</AlertDescription>
 				</Alert>
 			)}
 
-			{summary && open && <SummaryBody summary={summary} />}
-
-			<p className="mt-3 text-xs text-muted-foreground">
-				{textGet("ai.summary.disclaimer")}
-			</p>
+			{summary && showBody && (
+				<div className="border-t px-4 pb-3 pt-3">
+					<SummaryBody summary={summary} quota={quotaText} />
+				</div>
+			)}
 		</section>
 	);
 }
 
-function SummaryBody({ summary }: { summary: AISummary }) {
+function SummaryBody({
+	summary,
+	quota,
+}: {
+	summary: AISummary;
+	quota: string | null;
+}) {
 	const { textGet, formatDateTime } = useText();
 	const sourcesById = React.useMemo(() => {
 		const map = new Map<number, AISummarySource>();
@@ -187,7 +195,7 @@ function SummaryBody({ summary }: { summary: AISummary }) {
 	const c = summary.content;
 
 	return (
-		<div className="mt-3 grid gap-3 text-sm">
+		<div className="grid gap-3 text-sm">
 			{c.overview && <p>{c.overview}</p>}
 			<ItemList
 				title={textGet("ai.summary.section.alerts")}
@@ -222,15 +230,19 @@ function SummaryBody({ summary }: { summary: AISummary }) {
 				title={textGet("ai.summary.section.recent_evolution")}
 				text={c.recent_evolution}
 			/>
-			<p className="text-xs text-muted-foreground">
-				{textGet("ai.summary.generated_at", {
-					date: formatDateTime(summary.generated_at),
-				})}
-				{summary.omitted_consultations > 0 &&
-					` · ${textGet("ai.summary.omitted", {
-						count: summary.omitted_consultations,
-					})}`}
-			</p>
+			<div className="grid gap-1 border-t pt-2 text-xs text-muted-foreground">
+				<p>{textGet("ai.summary.disclaimer")}</p>
+				<p>
+					{textGet("ai.summary.generated_at", {
+						date: formatDateTime(summary.generated_at),
+					})}
+					{summary.omitted_consultations > 0 &&
+						` · ${textGet("ai.summary.omitted", {
+							count: summary.omitted_consultations,
+						})}`}
+					{quota && ` · ${quota}`}
+				</p>
+			</div>
 		</div>
 	);
 }
@@ -239,9 +251,7 @@ function TextBlock({ title, text }: { title: string; text: string }) {
 	if (!text) return null;
 	return (
 		<div>
-			<h3 className="text-xs font-medium uppercase text-muted-foreground">
-				{title}
-			</h3>
+			<h3 className="text-xs font-medium text-muted-foreground">{title}</h3>
 			<p>{text}</p>
 		</div>
 	);
@@ -262,9 +272,7 @@ function ItemList({
 	if (!items || items.length === 0) return null;
 	return (
 		<div>
-			<h3 className="text-xs font-medium uppercase text-muted-foreground">
-				{title}
-			</h3>
+			<h3 className="text-xs font-medium text-muted-foreground">{title}</h3>
 			<ul className="grid gap-1">
 				{items.map((item) => (
 					<li

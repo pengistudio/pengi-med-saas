@@ -37,4 +37,7 @@ func registerAITenantRoutes(group *gin.RouterGroup, db *gorm.DB, h *ai_handlers.
 	summary := []gin.HandlerFunc{rp(db, "USE_AI_SUMMARY"), rp(db, "READ_MEDICAL_RECORD")}
 	group.GET("/patients/:id/summary", append(summary, envelope.Handle(h.GetPatientSummary))...)
 	group.POST("/patients/:id/summary", append(summary, envelope.Handle(h.GenerateSummary))...)
+
+	// The scribe drafts the SOAP of a consultation being written.
+	group.POST("/scribe", rp(db, "USE_AI_SCRIBE"), rp(db, "CREATE_MEDICAL_RECORD"), envelope.Handle(h.Scribe))
 }

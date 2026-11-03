@@ -13,11 +13,13 @@ export interface AIQuota {
 }
 
 export interface AIStatus {
-	/** The server has an AI key; false until AI_API_KEY is set. */
+	/** The summary has a provider key (backoffice or AI_API_KEY). */
 	configured: boolean;
 	/** The clinic opted in (clinic settings). */
 	enabled: boolean;
 	quotas: AIQuota[];
+	/** Whether each function has a provider key. Absent in older APIs. */
+	functions?: Partial<Record<AIQuota["function"], boolean>>;
 }
 
 /** One statement of the summary and the consultations (record ids) it cites. */
@@ -76,3 +78,53 @@ export const generatePatientAISummary = async (
 	aiService.post<AISummary>(`/ai/patients/${patientId}/summary`, undefined, {
 		notifyError: false,
 	});
+
+/** Vital signs already typed in the consultation form (context only). */
+export interface AIScribeVitals {
+	weight?: number | null;
+	height?: number | null;
+	blood_pressure?: string;
+	temperature?: number | null;
+	heart_rate?: number | null;
+	o2_saturation?: number | null;
+}
+
+/** One "Ordenar con IA": the notes are sent once and never stored. */
+export interface AIScribeRequest {
+	patient_id: number;
+	notes: string;
+	motive?: string;
+	vitals?: AIScribeVitals;
+}
+
+/** A diagnosis code that exists in the clinic's catalog (picker shape). */
+export interface AIDiagnosisSuggestion {
+	term: string;
+	code: string;
+	title: string;
+}
+
+/** AI draft of the SOAP fields: the doctor reviews it before saving. */
+export interface AIScribeDraft {
+	subjective: string;
+	objective: string;
+	assessment: string;
+	plan: string;
+	suggested_diagnoses: AIDiagnosisSuggestion[];
+	diagnosis_system: "cie10" | "cie11";
+	model: string;
+	ai_draft: true;
+}
+
+/**
+ * Orders the notes into a SOAP draft (one "scribe" use of the monthly
+ * quota). Errors (not configured, quota, provider) are shown inline.
+ */
+export const organizeNotesWithAI = async (
+	payload: AIScribeRequest,
+): Promise<ServiceResponse<AIScribeDraft>> =>
+	aiService.post<AIScribeDraft>(
+		"/ai/scribe",
+		payload as unknown as Record<string, unknown>,
+		{ notifyError: false },
+	);

@@ -159,24 +159,10 @@ func (s *Summarizer) Generate(ctx context.Context, db, tdb *gorm.DB, tenantID, u
 	if cached, err := cachedFor(tdb, patientID, fp); err != nil || cached != nil {
 		return cached, err
 	}
-	provider, err := ResolveProvider(db, ai_models.FunctionSummary)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrNotConfigured, err)
-	}
-	if !provider.Configured() {
-		return nil, ErrNotConfigured
-	}
-	client := s.Dial(provider)
-	if client == nil || !client.Configured() {
-		return nil, ErrNotConfigured
-	}
 	now := s.Now()
-	quota, err := MonthlyQuota(db, tenantID, ai_models.FunctionSummary, now)
+	provider, client, err := openFunction(s.Dial, db, tenantID, ai_models.FunctionSummary, now)
 	if err != nil {
 		return nil, err
-	}
-	if quota.Reached() {
-		return nil, ErrQuotaExceeded
 	}
 	history, err := LoadHistory(tdb, patientID)
 	if err != nil {
@@ -188,21 +174,9 @@ func (s *Summarizer) Generate(ctx context.Context, db, tdb *gorm.DB, tenantID, u
 	}
 
 	model := provider.Model
-	req := SummaryRequest(model, input.Prompt)
-	req.ReasoningEffort = provider.ReasoningEffort
-	res, err := client.Chat(ctx, req)
+	res, err := callAndLog(ctx, db, client, provider, SummaryRequest(model, input.Prompt),
+		UsageEntry{TenantID: tenantID, UserID: userID, Function: ai_models.FunctionSummary}, now)
 	if err != nil {
-		if errors.Is(err, ai.ErrNotConfigured) {
-			return nil, ErrNotConfigured
-		}
-		return nil, fmt.Errorf("%w: %v", ErrProvider, err)
-	}
-	// The provider answered and billed the tokens: the use counts even if the
-	// answer turns out unusable.
-	if err := LogUsage(db, UsageEntry{
-		TenantID: tenantID, UserID: userID, Function: ai_models.FunctionSummary, Model: model, Host: provider.Host(),
-		PromptTokens: res.Usage.PromptTokens, CompletionTokens: res.Usage.CompletionTokens,
-	}, now); err != nil {
 		return nil, err
 	}
 	content, ok := ParseSummary(res, input.Sources)

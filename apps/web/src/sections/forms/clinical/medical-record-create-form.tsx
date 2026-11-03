@@ -61,6 +61,13 @@ import {
 	linkPatientAttachment,
 	type PatientAttachment,
 } from "@/api/patient-attachment-service";
+import {
+	AIScribeCard,
+	SoapDraftTag,
+	type SoapKey,
+	toScribeVitals,
+	useAIDraftSoap,
+} from "@/components/features/ai/ai-scribe-card";
 import { DoctorSelect } from "@/components/features/doctors/doctor-select";
 import { MedicalRecordAttachments } from "@/components/features/patient-attachments/medical-record-attachments";
 import { FormCalendar } from "@/components/forms/form-calendar";
@@ -470,6 +477,7 @@ function FormWithDraft({
 			</AlertDialog>
 			<FormInner
 				field={field}
+				patientId={patientId ? Number(patientId) : undefined}
 				visitType={visitType}
 				loading={loading}
 				textGet={textGet}
@@ -501,6 +509,7 @@ function emptyConsultation() {
 
 function FormInner({
 	field,
+	patientId,
 	visitType,
 	loading,
 	textGet,
@@ -518,6 +527,8 @@ function FormInner({
 		unknown,
 		z.infer<typeof formSchema>
 	>;
+	/** For the AI scribe; absent before a patient is picked. */
+	patientId?: number;
 	visitType: VisitType;
 	loading: boolean;
 	textGet: AppText["textGet"];
@@ -563,6 +574,7 @@ function FormInner({
 		control: field.control,
 		name: "soap_record",
 	});
+	const aiDraft = useAIDraftSoap();
 
 	const watchedPrescription = useWatch({
 		control: field.control,
@@ -940,6 +952,40 @@ function FormInner({
 					</div>
 
 					<div className="space-y-4">
+						{patientId && (
+							<AIScribeCard
+								patientId={patientId}
+								onApplied={aiDraft.record}
+								getSoap={() => field.getValues("soap_record") ?? {}}
+								applySoap={(values) => {
+									for (const [key, value] of Object.entries(values)) {
+										field.setValue(
+											`soap_record.${key as SoapKey}`,
+											value ?? "",
+											{ shouldDirty: true, shouldValidate: true },
+										);
+									}
+								}}
+								getContext={() => ({
+									motive: field.getValues("motive"),
+									vitals: toScribeVitals(field.getValues("vital_signs")),
+								})}
+								diagnoses={
+									show_diagnoses ? (watchedDiagnoses ?? []) : undefined
+								}
+								onAddDiagnosis={
+									show_diagnoses
+										? (d) => {
+												const current = field.getValues("diagnoses") ?? [];
+												if (current.some((x) => x.code === d.code)) return;
+												field.setValue("diagnoses", [...current, d], {
+													shouldDirty: true,
+												});
+											}
+										: undefined
+								}
+							/>
+						)}
 						{/* S — Subjective */}
 						<Card className="border-l-4 border-l-primary">
 							<CardHeader className="pb-3">
@@ -948,8 +994,13 @@ function FormInner({
 										S
 									</div>
 									<div>
-										<CardTitle className="text-base">
+										<CardTitle className="flex items-center gap-2 text-base">
 											<Text uuid="form.create_medical_record.soap.subjective.title" />
+											<SoapDraftTag
+												control={field.control}
+												name="subjective"
+												applied={aiDraft.applied}
+											/>
 										</CardTitle>
 										<p className="text-xs text-muted-foreground">
 											<Text uuid="form.create_medical_record.soap.subjective.description" />
@@ -980,8 +1031,13 @@ function FormInner({
 										O
 									</div>
 									<div>
-										<CardTitle className="text-base">
+										<CardTitle className="flex items-center gap-2 text-base">
 											<Text uuid="form.create_medical_record.soap.objective.title" />
+											<SoapDraftTag
+												control={field.control}
+												name="objective"
+												applied={aiDraft.applied}
+											/>
 										</CardTitle>
 										<p className="text-xs text-muted-foreground">
 											<Text uuid="form.create_medical_record.soap.objective.description" />
@@ -1012,8 +1068,13 @@ function FormInner({
 										A
 									</div>
 									<div>
-										<CardTitle className="text-base">
+										<CardTitle className="flex items-center gap-2 text-base">
 											<Text uuid="form.create_medical_record.soap.assessment.title" />
+											<SoapDraftTag
+												control={field.control}
+												name="assessment"
+												applied={aiDraft.applied}
+											/>
 										</CardTitle>
 										<p className="text-xs text-muted-foreground">
 											<Text uuid="form.create_medical_record.soap.assessment.description" />
@@ -1044,8 +1105,13 @@ function FormInner({
 										P
 									</div>
 									<div>
-										<CardTitle className="text-base">
+										<CardTitle className="flex items-center gap-2 text-base">
 											<Text uuid="form.create_medical_record.soap.plan.title" />
+											<SoapDraftTag
+												control={field.control}
+												name="plan"
+												applied={aiDraft.applied}
+											/>
 										</CardTitle>
 										<p className="text-xs text-muted-foreground">
 											<Text uuid="form.create_medical_record.soap.plan.description" />

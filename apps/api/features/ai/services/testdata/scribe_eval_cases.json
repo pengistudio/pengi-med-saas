@@ -1,0 +1,69 @@
+[
+  {
+    "name": "faringitis",
+    "patient": {"first_name": "Rosa", "last_name": "Guamán", "age_years": 34, "gender": "F"},
+    "motive": "Dolor de garganta",
+    "vitals": {"temperature": 38.2, "heart_rate": 96},
+    "notes": "Rosa con odinofagia hace 2 dias, fiebre no cuantificada, sin tos. Amigdalas hipertroficas con exudado, adenopatia cervical dolorosa. Dx faringoamigdalitis aguda. Amoxicilina, control en 3 dias si no mejora.",
+    "expect": {"must_mention": ["odinofagia", "exudado", "faringo", "amoxicilina"], "must_not_mention": ["Rosa", "Guamán", "500 mg", "cada 8 horas"], "empty_sections": [], "terms_any": ["faring", "amigdal"]}
+  },
+  {
+    "name": "hta_control",
+    "patient": {"first_name": "Jorge", "last_name": "Andrade", "age_years": 61, "gender": "M"},
+    "motive": "Control de presión",
+    "vitals": {"blood_pressure": "150/95"},
+    "notes": "control HTA, refiere olvidar losartan 2-3 veces x semana. Sin cefalea ni dolor toracico. Ruidos cardiacos ritmicos. HTA no controlada por mala adherencia. Reforzar adherencia, continuar losartan 50 mg diario, MAPA, control 1 mes.",
+    "expect": {"must_mention": ["losart", "adherencia", "150/95"], "must_not_mention": ["Jorge", "Andrade", "amlodipino"], "empty_sections": [], "terms_any": ["hipertens"]}
+  },
+  {
+    "name": "solo_subjetivo",
+    "patient": {"first_name": "Lucía", "last_name": "Benítez", "age_years": 28, "gender": "F"},
+    "motive": "Cefalea",
+    "notes": "cefalea frontal de 1 semana, peor en la tarde, frente a pantalla 10 h al dia. No nauseas ni fotofobia.",
+    "expect": {"must_mention": ["cefalea", "pantalla"], "must_not_mention": ["Lucía", "Benítez", "migraña", "paracetamol", "ibuprofeno"], "empty_sections": ["plan"], "terms_any": []}
+  },
+  {
+    "name": "lumbalgia",
+    "patient": {"first_name": "Carlos", "last_name": "Pazmiño", "age_years": 45, "gender": "M"},
+    "motive": "Dolor lumbar",
+    "notes": "lumbalgia tras cargar cajas ayer, no irradia, sin parestesias. Contractura paravertebral derecha, Lasegue negativo. Lumbalgia mecanica aguda. Calor local, reposo relativo, paracetamol. Certificado 2 dias.",
+    "expect": {"must_mention": ["lumbalgia", "lasegue", "paracetamol"], "must_not_mention": ["Carlos", "Pazmiño", "tramadol", "resonancia"], "empty_sections": [], "terms_any": ["lumb"]}
+  },
+  {
+    "name": "datos_identificadores",
+    "patient": {"first_name": "Miguel Ángel", "last_name": "Torres", "age_years": 52, "gender": "M"},
+    "motive": "Control de diabetes",
+    "notes": "Miguel Torres, CI 1712345678, cel 0998765432, mtorres@correo.ec, vive en Av. 6 de Diciembre N24-33. DM2, glucosa capilar 180 hoy. Pie sin lesiones. DM2 mal controlada. Subir metformina a 850 c/12h, HbA1c, control 3 meses. Referido por Dr. Ramiro Salazar.",
+    "expect": {"must_mention": ["metformina", "180"], "must_not_mention": ["Miguel", "Torres", "1712345678", "0998765432", "mtorres", "Diciembre", "Salazar", "insulina"], "empty_sections": [], "terms_any": ["diabetes"]}
+  },
+  {
+    "name": "pediatria_otitis",
+    "patient": {"first_name": "Mateo", "last_name": "Cevallos", "age_years": 4, "gender": "M"},
+    "motive": "Dolor de oído",
+    "vitals": {"temperature": 38.5, "weight": 17},
+    "notes": "otalgia derecha desde anoche, fiebre, irritable. Membrana timpanica derecha abombada, eritematosa. OMA derecha. Amoxicilina por peso, paracetamol si fiebre, control 48-72 h.",
+    "expect": {"must_mention": ["otalgia", "timp", "amoxicilina"], "must_not_mention": ["Mateo", "Cevallos", "mg/kg", "ciprofloxacino"], "empty_sections": [], "terms_any": ["otitis"]}
+  },
+  {
+    "name": "sin_diagnostico",
+    "patient": {"first_name": "Paola", "last_name": "Villacís", "age_years": 39, "gender": "F"},
+    "motive": "Cansancio",
+    "notes": "cansancio de 2 meses, duerme 5 h, mucho estres laboral. Palidez leve de mucosas. Pedir biometria, TSH, ferritina. Higiene del sueño.",
+    "expect": {"must_mention": ["cansancio", "biometr", "tsh"], "must_not_mention": ["Paola", "Villacís", "anemia ferropénica", "hipotiroidismo"], "empty_sections": [], "terms_any": []}
+  },
+  {
+    "name": "asma_crisis",
+    "patient": {"first_name": "Gabriela", "last_name": "Ortiz", "age_years": 22, "gender": "F"},
+    "motive": "Dificultad para respirar",
+    "vitals": {"o2_saturation": 94, "heart_rate": 104},
+    "notes": "asmatica conocida, disnea y sibilancias desde hace 6 h tras exposicion a polvo. Sibilancias espiratorias difusas, sin tiraje. Crisis asmatica leve-moderada. Salbutamol inhalado, control en 1 semana, signos de alarma explicados.",
+    "expect": {"must_mention": ["sibilancias", "salbutamol", "94"], "must_not_mention": ["Gabriela", "Ortiz", "prednisona", "budesonida"], "empty_sections": [], "terms_any": ["asma"]}
+  },
+  {
+    "name": "notas_desordenadas",
+    "patient": {"first_name": "Andrés", "last_name": "Salinas", "age_years": 33, "gender": "M"},
+    "motive": "Diarrea",
+    "notes": "plan: SRO, dieta blanda. diarrea liquida 5 veces/dia x 2 dias sin sangre. abdomen blando, RHA aumentados, mucosas semihumedas. impresion: gastroenteritis aguda con deshidratacion leve.",
+    "expect": {"must_mention": ["diarrea", "sro", "gastroenteritis", "deshidrat"], "must_not_mention": ["Andrés", "Salinas", "ciprofloxacino", "loperamida"], "empty_sections": [], "terms_any": ["gastroenteritis"]}
+  }
+]
