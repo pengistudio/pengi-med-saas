@@ -192,11 +192,9 @@ export function WhatsAppSettings() {
 								/>
 								<Text uuid={statusLabel} />
 								{connected && (
-									<>
-										<span className="ml-2 font-normal">
-											<Text uuid={`settings.whatsapp.mode.${account.mode}`} />
-										</span>
-									</>
+									<span className="ml-2 font-normal">
+										<Text uuid={`settings.whatsapp.mode.${account.mode}`} />
+									</span>
 								)}
 							</span>
 						</div>
