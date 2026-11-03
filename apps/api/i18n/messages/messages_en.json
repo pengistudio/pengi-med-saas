@@ -8840,6 +8840,38 @@
         "value": "WhatsApp"
     },
     {
+        "key": "settings.whatsapp.back",
+        "value": "Back to settings"
+    },
+    {
+        "key": "settings.whatsapp.section.number.title",
+        "value": "Your number"
+    },
+    {
+        "key": "settings.whatsapp.section.number.description",
+        "value": "The connected number and the messages you've sent this month."
+    },
+    {
+        "key": "settings.whatsapp.section.reminders.title",
+        "value": "Reminders"
+    },
+    {
+        "key": "settings.whatsapp.section.reminders.description",
+        "value": "Notify patients before their appointment. They confirm or cancel by replying to the message."
+    },
+    {
+        "key": "settings.whatsapp.section.templates.title",
+        "value": "Templates"
+    },
+    {
+        "key": "settings.whatsapp.section.templates.description",
+        "value": "The messages WhatsApp approved for your clinic."
+    },
+    {
+        "key": "settings.whatsapp.hub.description",
+        "value": "Reminders, templates, AI assistant and your number connection."
+    },
+    {
         "key": "settings.whatsapp.description",
         "value": "Send appointment reminders over WhatsApp; patients confirm or cancel by replying to the message."
     },

@@ -61,12 +61,18 @@ export function WhatsAppTemplateList({
 	}, [reloadKey]);
 
 	return (
-		<div className="grid gap-2 sm:col-span-2">
+		<div className="grid gap-2">
 			<div className="flex flex-wrap items-center justify-between gap-2">
-				<span className="text-xs text-muted-foreground">
+				<span className="sr-only">
 					<Text uuid="settings.whatsapp.templates" />
 				</span>
-				<Button variant="ghost" size="sm" disabled={syncing} onClick={onSync}>
+				<Button
+					variant="ghost"
+					size="sm"
+					className="ml-auto"
+					disabled={syncing}
+					onClick={onSync}
+				>
 					<RefreshCw
 						className={cn("mr-2 h-4 w-4", syncing && "animate-spin")}
 					/>
@@ -142,12 +148,12 @@ export function WhatsAppUsageBar({ reloadKey }: { reloadKey: number }) {
 	};
 
 	return (
-		<div className="grid gap-1.5 sm:col-span-2">
+		<div className="grid gap-2">
 			<div className="flex items-baseline justify-between gap-2">
-				<span className="text-xs text-muted-foreground">
+				<span className="text-sm font-medium">
 					<Text uuid="settings.whatsapp.usage" />
 				</span>
-				<span className="text-sm font-medium tabular-nums">
+				<span className="text-2xl font-semibold tabular-nums">
 					<Text
 						uuid={
 							summary.unlimited

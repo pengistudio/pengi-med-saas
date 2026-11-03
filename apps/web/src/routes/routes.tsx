@@ -121,6 +121,9 @@ const ExamCatalogSettingsPage = lazy(
 const PortalSettingsPage = lazy(
 	() => import("@/pages/settings/portal-settings"),
 );
+const WhatsAppSettingsPage = lazy(
+	() => import("@/pages/settings/whatsapp-settings-page"),
+);
 const WhatsAppPage = lazy(() => import("@/pages/whatsapp/whatsapp-page"));
 
 // Its own group (not under /clinical, which requires READ_PATIENT): whoever
@@ -519,6 +522,16 @@ const router = createBrowserRouter([
 					{
 						path: "/notifications",
 						element: <NotificationsPage />,
+					},
+					{
+						path: "/settings/whatsapp",
+						element: (
+							<CheckPermission
+								permissions={[PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP]}
+							>
+								<WhatsAppSettingsPage />
+							</CheckPermission>
+						),
 					},
 					{
 						path: "/settings/portal",
