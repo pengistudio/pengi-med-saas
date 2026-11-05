@@ -7,19 +7,16 @@ export const PLAN_LIMIT_KEYS = [
 	"max_patients",
 	"max_offices",
 	"max_whatsapp_messages",
-	"max_ai_summaries",
-	"max_ai_scribes",
-	"max_ai_bot_conversations",
+	"max_ai_budget_usd",
 ] as const;
 
 /**
- * Monthly AI quotas the API applies when the plan doesn't set them (absent is
- * NOT unlimited for AI: every use has a provider cost).
+ * Monthly AI budget in USD the API applies when the plan doesn't set it
+ * (absent is NOT unlimited for AI: every use has a provider cost). Shared by
+ * summary, scribe and bot; clinics only see the percentage used.
  */
 export const DEFAULT_AI_LIMITS = {
-	max_ai_summaries: 300,
-	max_ai_scribes: 300,
-	max_ai_bot_conversations: 500,
+	max_ai_budget_usd: 10,
 } as const;
 export type PlanLimitKey = (typeof PLAN_LIMIT_KEYS)[number];
 export type PlanLimits = Partial<Record<PlanLimitKey, number | null>>;
@@ -50,19 +47,9 @@ const LIMIT_CONFIGS: {
 		descKey: "backoffice.plans.limits.max_whatsapp_messages.desc",
 	},
 	{
-		key: "max_ai_summaries",
-		labelKey: "backoffice.plans.limits.max_ai_summaries",
-		descKey: "backoffice.plans.limits.max_ai_summaries.desc",
-	},
-	{
-		key: "max_ai_scribes",
-		labelKey: "backoffice.plans.limits.max_ai_scribes",
-		descKey: "backoffice.plans.limits.max_ai_scribes.desc",
-	},
-	{
-		key: "max_ai_bot_conversations",
-		labelKey: "backoffice.plans.limits.max_ai_bot_conversations",
-		descKey: "backoffice.plans.limits.max_ai_bot_conversations.desc",
+		key: "max_ai_budget_usd",
+		labelKey: "backoffice.plans.limits.max_ai_budget_usd",
+		descKey: "backoffice.plans.limits.max_ai_budget_usd.desc",
 	},
 ];
 
@@ -99,7 +86,13 @@ export function PlanLimitsEditor({
 	};
 
 	const handleValueChange = (key: PlanLimitKey, raw: string) => {
-		const num = raw === "" ? null : Math.max(1, Number.parseInt(raw, 10));
+		// The AI budget is in dollars (cents allowed); the rest are whole counts.
+		const parsed =
+			key === "max_ai_budget_usd"
+				? Number.parseFloat(raw)
+				: Number.parseInt(raw, 10);
+		const num =
+			raw === "" || Number.isNaN(parsed) ? null : Math.max(0.01, parsed);
 		onChange({ ...limits, [key]: num });
 	};
 
@@ -118,7 +111,8 @@ export function PlanLimitsEditor({
 					<div className="flex items-center gap-3 shrink-0">
 						<Input
 							type="number"
-							min={1}
+							min={key === "max_ai_budget_usd" ? 0.01 : 1}
+							step={key === "max_ai_budget_usd" ? "any" : 1}
 							className="w-24 text-center"
 							disabled={isUnlimited(key)}
 							value={isUnlimited(key) ? "" : (limits[key] ?? "")}

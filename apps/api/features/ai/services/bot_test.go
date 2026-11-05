@@ -333,11 +333,15 @@ func (f *fixture) botUses() int64 {
 }
 
 // One conversation counts once however many messages it has; a call 24 h
-// after the last one starts (and counts) a new one; at the quota, a new
-// conversation is a handoff while an ongoing one goes on.
-func TestBotDecide_QuotaPerConversation(t *testing.T) {
+// after the last one starts (and counts) a new one; once the month's budget
+// is spent, a new conversation is a handoff while an ongoing one goes on.
+func TestBotDecide_BudgetPerConversation(t *testing.T) {
 	f := newFixture(t, true)
-	f.botPlan(2)
+	// $1,000 per M input tokens and free output: each call (700 tokens) costs
+	// $0.70, so the first conversation (4 calls, $2.80) leaves room for a
+	// second one under the $3 budget, and no more.
+	f.price(ai_models.FunctionBot, 1000)
+	f.botPlan(3)
 	c := &botCompleter{args: `{"action":"answer","reply":"Sí, tenemos parqueadero gratuito.","reason":"faq"}`}
 	bot := NewBot(fakeDial(c))
 	now := time.Now()
@@ -367,26 +371,26 @@ func TestBotDecide_QuotaPerConversation(t *testing.T) {
 		t.Fatalf("tokens of every call add up: %d", row.PromptTokens)
 	}
 
-	// 24 h of silence: a new conversation (second of the quota of 2).
+	// 24 h of silence: a new conversation (still under the budget).
 	now = now.Add(25 * time.Hour)
 	second := bot.Decide(context.Background(), f.db, req)
 	if second.UsageID == nil || *second.UsageID == *first.UsageID || f.botUses() != 2 {
 		t.Fatalf("new conversation: %+v uses=%d", second, f.botUses())
 	}
-	// Quota reached: a third conversation is handed off without a call.
+	// Budget spent: a third conversation is handed off without a call.
 	calls := c.calls.Load()
 	third := bot.Decide(context.Background(), f.db, BotRequest{TenantID: f.tenant.ID, Knowledge: testKnowledge(), Text: "¿Tienen parqueadero?"})
 	if third.Reason != whatsapp_models.BotReasonQuota || c.calls.Load() != calls {
-		t.Fatalf("over quota: %+v", third)
+		t.Fatalf("over budget: %+v", third)
 	}
 	// ...while the ongoing one still answers.
 	at2 := now
 	ongoing := bot.Decide(context.Background(), f.db, BotRequest{TenantID: f.tenant.ID, Knowledge: testKnowledge(), Text: "¿Aceptan tarjeta?",
 		Session: BotSession{UsageID: second.UsageID, LastAt: &at2}})
 	if ongoing.Action != whatsapp_models.BotActionAnswer {
-		t.Fatalf("ongoing conversation over quota: %+v", ongoing)
+		t.Fatalf("ongoing conversation over budget: %+v", ongoing)
 	}
-	// The test panel neither counts nor checks the quota.
+	// The test panel neither counts nor checks the budget.
 	dry := bot.Decide(context.Background(), f.db, BotRequest{TenantID: f.tenant.ID, Knowledge: testKnowledge(), Text: "¿Tienen parqueadero?", DryRun: true})
 	if dry.Action != whatsapp_models.BotActionAnswer || dry.UsageID != nil || f.botUses() != 2 {
 		t.Fatalf("dry run: %+v uses=%d", dry, f.botUses())
@@ -415,10 +419,10 @@ func TestComposeBotMessage(t *testing.T) {
 	}
 }
 
-// botPlan gives f's tenant an active plan with botQuota conversations.
-func (f *fixture) botPlan(botQuota int) {
+// botPlan gives f's tenant an active plan with a budget in USD.
+func (f *fixture) botPlan(budget float64) {
 	code := fmt.Sprintf("BOT%d", time.Now().UnixNano())
-	plan := company_models.Plan{Name: code, Code: code, Price: 10, Properties: datatypes.JSONMap{PlanQuotaKey(ai_models.FunctionBot): botQuota}}
+	plan := company_models.Plan{Name: code, Code: code, Price: 10, Properties: datatypes.JSONMap{PlanBudgetKey: budget}}
 	f.must(f.db.Create(&plan).Error)
 	company := company_models.Company{LegalName: "C", TradeName: "C", PlanCode: code, TenantID: f.tenant.ID}
 	f.must(f.db.Create(&company).Error)

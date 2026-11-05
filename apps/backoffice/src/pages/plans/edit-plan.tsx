@@ -79,7 +79,7 @@ const EditPlan = () => {
 			const loaded: PlanLimits = {};
 			for (const key of PLAN_LIMIT_KEYS) {
 				const val = props[key];
-				// Absent AI quotas mean the API default, not unlimited.
+				// Absent AI budget means the API default, not unlimited.
 				const absent =
 					key in DEFAULT_AI_LIMITS
 						? DEFAULT_AI_LIMITS[key as keyof typeof DEFAULT_AI_LIMITS]

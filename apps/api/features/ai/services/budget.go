@@ -12,87 +12,90 @@ import (
 	"gorm.io/gorm"
 )
 
-// Plan properties (Plan.Properties, edited in backoffice) with the monthly
-// number of uses of each function. -1 is unlimited; an absent key means the
-// default below, never unlimited: every use costs money and there is no
-// overage.
-var planQuotaKeys = map[string]string{
-	ai_models.FunctionSummary: "max_ai_summaries",
-	ai_models.FunctionScribe:  "max_ai_scribes",
-	ai_models.FunctionBot:     "max_ai_bot_conversations",
-}
+// PlanBudgetKey is the plan property (Plan.Properties, edited in backoffice)
+// with the AI budget of the month in USD, shared by every function (summary,
+// scribe, bot). -1 is unlimited; an absent key means DefaultBudgetUSD, never
+// unlimited: every use costs money and there is no overage. Clinics only see
+// the percentage used, never dollars or tokens.
+const PlanBudgetKey = "max_ai_budget_usd"
 
-// DefaultQuotas are the monthly uses of a plan that doesn't set them (and of
-// a tenant without an active subscription).
-var DefaultQuotas = map[string]int64{
-	ai_models.FunctionSummary: 300,
-	ai_models.FunctionScribe:  300,
-	ai_models.FunctionBot:     500,
-}
+// DefaultBudgetUSD is the monthly AI budget of a plan that doesn't set one
+// (and of a tenant without an active subscription).
+const DefaultBudgetUSD = 10.0
 
-// PlanQuotaKey is the plan property holding fn's monthly quota.
-func PlanQuotaKey(fn string) string { return planQuotaKeys[fn] }
-
-// Quota is a tenant's uses of one function this month against its plan.
-// Limit is -1 when unlimited. PeriodEnd is exclusive.
-type Quota struct {
-	Function    string    `json:"function"`
-	Used        int64     `json:"used"`
-	Limit       int64     `json:"limit"`
+// Budget is a tenant's AI spend this month against its plan. The dollar
+// amounts stay server side; the clinic gets Percent. PeriodEnd is exclusive.
+type Budget struct {
+	UsedUSD     float64   `json:"-"`
+	LimitUSD    float64   `json:"-"`       // -1 when unlimited
+	Percent     int       `json:"percent"` // 0..100, rounded down; 100 once Exhausted
+	Unlimited   bool      `json:"unlimited"`
+	Exhausted   bool      `json:"reached"`
 	PeriodStart time.Time `json:"period_start"`
 	PeriodEnd   time.Time `json:"period_end"`
 }
 
 // Reached reports whether no more uses are allowed this month.
-func (q Quota) Reached() bool { return q.Limit >= 0 && q.Used >= q.Limit }
+func (b Budget) Reached() bool { return b.Exhausted }
 
-// MonthlyQuota returns the tenant's quota of fn in the calendar month (clinic
-// time zone) containing now. Concurrent uses may overshoot the limit by a
-// few; accepted, as with the WhatsApp cap.
-func MonthlyQuota(db *gorm.DB, tenantID uint, fn string, now time.Time) (Quota, error) {
-	start, end := whatsapp_services.Period(now, whatsapp_services.ClinicLocation())
-	q := Quota{Function: fn, Limit: PlanQuota(db, tenantID, fn), PeriodStart: start, PeriodEnd: end}
-	var used int64
-	// Bounds in UTC: SQLite (CI tests) compares timestamps as text.
-	err := tenantdb.ForTenant(db, tenantID).Model(&ai_models.AIUsageLog{}).
-		Where("function = ? AND created_at >= ? AND created_at < ?", fn, start.UTC(), end.UTC()).
-		Count(&used).Error
-	q.Used = used
-	return q, err
+func newBudget(used, limit float64, start, end time.Time) Budget {
+	b := Budget{UsedUSD: used, LimitUSD: limit, PeriodStart: start, PeriodEnd: end, Unlimited: limit < 0}
+	if b.Unlimited {
+		return b
+	}
+	b.Exhausted = used >= limit
+	switch {
+	case b.Exhausted:
+		b.Percent = 100
+	case limit > 0:
+		b.Percent = int(used / limit * 100)
+	}
+	return b
 }
 
-// PlanQuota is the monthly limit of fn in the tenant's active plan.
-func PlanQuota(db *gorm.DB, tenantID uint, fn string) int64 {
-	def := DefaultQuotas[fn]
+// MonthlyBudget returns the tenant's AI spend, all functions together, in the
+// calendar month (clinic time zone) containing now. Concurrent uses may
+// overshoot the limit by a few; accepted, as with the WhatsApp cap. A use is
+// priced when it is logged, so a model without prices set in backoffice costs
+// 0 and never exhausts the budget.
+func MonthlyBudget(db *gorm.DB, tenantID uint, now time.Time) (Budget, error) {
+	start, end := whatsapp_services.Period(now, whatsapp_services.ClinicLocation())
+	var used float64
+	// Bounds in UTC: SQLite (CI tests) compares timestamps as text.
+	err := tenantdb.ForTenant(db, tenantID).Model(&ai_models.AIUsageLog{}).
+		Where("created_at >= ? AND created_at < ?", start.UTC(), end.UTC()).
+		Select("COALESCE(SUM(cost_usd), 0)").Scan(&used).Error
+	return newBudget(used, PlanBudget(db, tenantID), start, end), err
+}
+
+// PlanBudget is the monthly AI budget in USD of the tenant's active plan.
+func PlanBudget(db *gorm.DB, tenantID uint) float64 {
 	var company company_models.Company
 	if err := tenantdb.ForTenant(db, tenantID).Select("id").Limit(1).Find(&company).Error; err != nil || company.ID == 0 {
-		return def
+		return DefaultBudgetUSD
 	}
 	var sub company_models.Subscription
 	if err := tenantdb.System(db).Where("company_id = ? AND status = ? AND expires_at > ?", company.ID, "active", time.Now()).
 		Preload("Plan").Limit(1).Find(&sub).Error; err != nil || sub.ID == 0 {
-		return def
+		return DefaultBudgetUSD
 	}
-	raw, ok := sub.Plan.Properties[PlanQuotaKey(fn)]
+	raw, ok := sub.Plan.Properties[PlanBudgetKey]
 	if !ok || raw == nil {
-		return def
+		return DefaultBudgetUSD
 	}
 	switch v := raw.(type) {
 	case json.Number:
-		if n, err := v.Int64(); err == nil {
-			return n
-		}
 		if f, err := v.Float64(); err == nil {
-			return int64(f)
+			return f
 		}
 	case float64:
-		return int64(v)
-	case int64:
 		return v
+	case int64:
+		return float64(v)
 	case int:
-		return int64(v)
+		return float64(v)
 	}
-	return def
+	return DefaultBudgetUSD
 }
 
 // UsageEntry is one charged use to log. Host is the provider's host, never

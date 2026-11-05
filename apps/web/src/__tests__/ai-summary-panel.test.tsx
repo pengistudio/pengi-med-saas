@@ -37,15 +37,13 @@ const status = (enabled: boolean, configured = true) => ({
 	data: {
 		configured,
 		enabled,
-		quotas: [
-			{
-				function: "summary",
-				used: 3,
-				limit: 300,
-				period_start: "",
-				period_end: "",
-			},
-		],
+		budget: {
+			percent: 1,
+			unlimited: false,
+			reached: false,
+			period_start: "",
+			period_end: "",
+		},
 	},
 });
 

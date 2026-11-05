@@ -1,5 +1,6 @@
 import { createHttpService, type ServiceResponse } from "@pengi/shared";
 import { apiWithTenant } from ".";
+import type { AIBudget } from "./ai-service";
 import type { PaginatedResponse } from "./clinical-service";
 
 const whatsappService = createHttpService(apiWithTenant);
@@ -528,7 +529,7 @@ export interface WhatsAppBotSettings {
 	/** The patient portal takes bookings: answers about appointments get its link. */
 	booking_link: boolean;
 	in_office_hours: boolean;
-	quota: { used: number; limit: number };
+	budget: AIBudget;
 	limits: { max_entries: number; max_question: number; max_answer: number };
 }
 

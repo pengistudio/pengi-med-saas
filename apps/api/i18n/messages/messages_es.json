@@ -12949,7 +12949,31 @@
     },
     {
         "key": "ai.error.quota_exceeded",
-        "value": "Se alcanzó el límite mensual de esta función de IA en el plan."
+        "value": "Se acabó el presupuesto de IA de este mes en tu plan."
+    },
+    {
+        "key": "ai.budget.title",
+        "value": "Uso de IA este mes"
+    },
+    {
+        "key": "ai.budget.hint",
+        "value": "Se comparte entre el resumen, el scribe y el asistente de WhatsApp. Se renueva el {date}."
+    },
+    {
+        "key": "ai.budget.low",
+        "value": "Queda poco uso de IA este mes: {percent}% usado."
+    },
+    {
+        "key": "ai.budget.reached",
+        "value": "Se acabó el uso de IA de este mes. Se renueva el {date}."
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_budget_usd",
+        "value": "Presupuesto de IA al mes (USD)"
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_budget_usd.desc",
+        "value": "Gasto máximo en IA por mes, compartido entre resumen, scribe y bot (requiere la funcionalidad IA). Sin valor = $10. La clínica solo ve el porcentaje usado."
     },
     {
         "key": "ai.error.no_history",
@@ -12966,10 +12990,6 @@
     {
         "key": "ai.summary.draft_badge",
         "value": "Borrador IA"
-    },
-    {
-        "key": "ai.summary.quota",
-        "value": "{used} de {limit} este mes"
     },
     {
         "key": "ai.summary.show",
@@ -13312,30 +13332,6 @@
         "value": "Total"
     },
     {
-        "key": "backoffice.plans.limits.max_ai_summaries",
-        "value": "Resúmenes con IA al mes"
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_summaries.desc",
-        "value": "Resúmenes de historia generados por mes (requiere la funcionalidad IA). Sin valor = 300."
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_scribes",
-        "value": "Escrituras con IA al mes"
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_scribes.desc",
-        "value": "Notas ordenadas con IA por mes (requiere la funcionalidad IA). Sin valor = 300."
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_bot_conversations",
-        "value": "Conversaciones del bot al mes"
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_bot_conversations.desc",
-        "value": "Conversaciones atendidas por el bot de WhatsApp por mes (requiere la funcionalidad IA). Sin valor = 500."
-    },
-    {
         "key": "E-WA-024",
         "value": "El asistente de WhatsApp aún no se puede activar."
     },
@@ -13461,7 +13457,7 @@
     },
     {
         "key": "whatsapp.bot.reason.quota",
-        "value": "Se acabaron las conversaciones de IA del mes."
+        "value": "Se acabó el uso de IA del mes."
     },
     {
         "key": "whatsapp.bot.reason.not_configured",
@@ -13574,10 +13570,6 @@
     {
         "key": "settings.whatsapp.bot.during_hours.hint",
         "value": "Apagado, responde solo fuera del horario de atención."
-    },
-    {
-        "key": "settings.whatsapp.bot.quota",
-        "value": "Conversaciones este mes: {used} de {limit}"
     },
     {
         "key": "settings.whatsapp.bot.material.address",
