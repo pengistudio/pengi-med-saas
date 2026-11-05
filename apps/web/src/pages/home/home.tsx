@@ -5,6 +5,8 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { type DashboardStats, getDashboardStats } from "@/api/clinical-service";
 import { PageHeader } from "@/components/custom/page-header";
+import { AIBudgetBar } from "@/components/features/ai/ai-budget-bar";
+import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { AttentionStrip } from "@/sections/dashboard/attention-strip";
@@ -46,6 +48,11 @@ const Home = () => {
 	const { textGet, formatDate } = useText();
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
+	// AI usage of the month: only where the plan has AI and the user can use it.
+	const canSeeAIBudget =
+		useEnabledFeatures().ai === true &&
+		(checkPermission([PERMISSIONS.AI.PERMISSION_USE_AI_SUMMARY]) ||
+			checkPermission([PERMISSIONS.AI.PERMISSION_USE_AI_SCRIBE]));
 	const environment = useSessionStore(selectEnvironment);
 
 	React.useEffect(() => {
@@ -146,6 +153,7 @@ const Home = () => {
 					{stats.subscription && (
 						<SubscriptionSummary subscription={stats.subscription} />
 					)}
+					{canSeeAIBudget && <AIBudgetBar variant="card" />}
 				</div>
 			</div>
 

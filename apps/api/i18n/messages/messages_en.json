@@ -12949,7 +12949,31 @@
     },
     {
         "key": "ai.error.quota_exceeded",
-        "value": "The plan's monthly quota for this AI function has been reached."
+        "value": "This month's AI budget of your plan has run out."
+    },
+    {
+        "key": "ai.budget.title",
+        "value": "AI usage this month"
+    },
+    {
+        "key": "ai.budget.hint",
+        "value": "Shared by the summary, the scribe and the WhatsApp assistant. Renews on {date}."
+    },
+    {
+        "key": "ai.budget.low",
+        "value": "Running low on AI usage this month: {percent}% used."
+    },
+    {
+        "key": "ai.budget.reached",
+        "value": "This month's AI usage has run out. It renews on {date}."
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_budget_usd",
+        "value": "AI budget per month (USD)"
+    },
+    {
+        "key": "backoffice.plans.limits.max_ai_budget_usd.desc",
+        "value": "Maximum monthly AI spend, shared by summary, scribe and bot (requires the AI feature). No value = $10. Clinics only see the percentage used."
     },
     {
         "key": "ai.error.no_history",
@@ -12966,10 +12990,6 @@
     {
         "key": "ai.summary.draft_badge",
         "value": "AI draft"
-    },
-    {
-        "key": "ai.summary.quota",
-        "value": "{used} of {limit} this month"
     },
     {
         "key": "ai.summary.show",
@@ -13312,30 +13332,6 @@
         "value": "Total"
     },
     {
-        "key": "backoffice.plans.limits.max_ai_summaries",
-        "value": "AI summaries per month"
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_summaries.desc",
-        "value": "History summaries generated per month (needs the AI feature). Empty = 300."
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_scribes",
-        "value": "AI scribes per month"
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_scribes.desc",
-        "value": "Notes organized with AI per month (needs the AI feature). Empty = 300."
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_bot_conversations",
-        "value": "Bot conversations per month"
-    },
-    {
-        "key": "backoffice.plans.limits.max_ai_bot_conversations.desc",
-        "value": "Conversations handled by the WhatsApp bot per month (needs the AI feature). Empty = 500."
-    },
-    {
         "key": "E-WA-024",
         "value": "The WhatsApp assistant can't be enabled yet."
     },
@@ -13461,7 +13457,7 @@
     },
     {
         "key": "whatsapp.bot.reason.quota",
-        "value": "This month's AI conversations are used up."
+        "value": "This month's AI usage has run out."
     },
     {
         "key": "whatsapp.bot.reason.not_configured",
@@ -13574,10 +13570,6 @@
     {
         "key": "settings.whatsapp.bot.during_hours.hint",
         "value": "When off, it only answers outside office hours."
-    },
-    {
-        "key": "settings.whatsapp.bot.quota",
-        "value": "Conversations this month: {used} of {limit}"
     },
     {
         "key": "settings.whatsapp.bot.material.address",

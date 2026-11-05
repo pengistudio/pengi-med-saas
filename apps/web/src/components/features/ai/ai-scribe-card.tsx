@@ -37,6 +37,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import usePermission from "@/hooks/use-permission";
+import { aiBudgetNotice } from "@/lib/ai-budget";
 import { PERMISSIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { AI_CARD_CLASS, AIDraftTag, AIMark } from "./ai-mark";
@@ -170,7 +171,7 @@ export function AIScribeCard({
 	onApplied,
 }: AIScribeCardProps) {
 	const allowed = useCanUseAIScribe();
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const [status, setStatus] = React.useState<AIStatus | null>(null);
 	const [notes, setNotes] = React.useState("");
 	const [loading, setLoading] = React.useState(false);
@@ -200,7 +201,11 @@ export function AIScribeCard({
 		return null;
 	}
 
-	const quota = status.quotas.find((q) => q.function === "scribe");
+	const notice = aiBudgetNotice(status.budget);
+	const budgetValues = {
+		percent: status.budget.percent,
+		date: formatDate(status.budget.period_end, "day-month"),
+	};
 
 	// Literal keys, so the message-keys test checks them.
 	const fieldLabel = (key: SoapKey) =>
@@ -235,18 +240,10 @@ export function AIScribeCard({
 			return;
 		}
 		const draft: AIScribeDraft = res.data;
-		if (quota) {
-			setStatus((s) =>
-				s
-					? {
-							...s,
-							quotas: s.quotas.map((q) =>
-								q.function === "scribe" ? { ...q, used: q.used + 1 } : q,
-							),
-						}
-					: s,
-			);
-		}
+		// The spend is only known server side: re-read the percentage.
+		getAIStatus().then((next) => {
+			if (next.success) setStatus(next.data);
+		});
 		setSuggestions(draft.suggested_diagnoses ?? []);
 		// Only sections the draft fills; empty ones never clear the form.
 		const values: SoapValues = {};
@@ -320,12 +317,18 @@ export function AIScribeCard({
 							</p>
 						)}
 						<div className="flex items-center gap-3">
-							{quota && quota.limit >= 0 && (
-								<span className="text-xs tabular-nums text-muted-foreground">
-									{textGet("ai.summary.quota", {
-										used: quota.used,
-										limit: quota.limit,
-									})}
+							{notice && (
+								<span
+									className={cn(
+										"text-xs",
+										status.budget.reached
+											? "text-destructive"
+											: "text-muted-foreground",
+									)}
+								>
+									{notice === "reached"
+										? textGet("ai.budget.reached", budgetValues)
+										: textGet("ai.budget.low", budgetValues)}
 								</span>
 							)}
 							<Button

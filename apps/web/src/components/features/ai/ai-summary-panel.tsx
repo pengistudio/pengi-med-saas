@@ -15,6 +15,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import usePermission from "@/hooks/use-permission";
+import { aiBudgetNotice } from "@/lib/ai-budget";
 import { PERMISSIONS } from "@/lib/constants";
 import { AI_CARD_CLASS, AIDraftTag, AIMark } from "./ai-mark";
 
@@ -49,7 +50,7 @@ interface AISummaryPanelProps {
  */
 export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 	const allowed = useCanUseAISummary();
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const [status, setStatus] = React.useState<AIStatus | null>(null);
 	const [summary, setSummary] = React.useState<AISummary | null>(null);
 	const [loading, setLoading] = React.useState(false);
@@ -78,8 +79,6 @@ export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 	// summary from before still shows).
 	if (!status.configured && !summary) return null;
 
-	const quota = status.quotas.find((q) => q.function === "summary");
-
 	async function handleGenerate() {
 		setLoading(true);
 		setError(null);
@@ -88,17 +87,11 @@ export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 		if (res.success) {
 			setSummary(res.data);
 			setOpen(true);
-			if (!res.data.cached && quota) {
-				setStatus((s) =>
-					s
-						? {
-								...s,
-								quotas: s.quotas.map((q) =>
-									q.function === "summary" ? { ...q, used: q.used + 1 } : q,
-								),
-							}
-						: s,
-				);
+			if (!res.data.cached) {
+				// The spend is only known server side: re-read the percentage.
+				getAIStatus().then((next) => {
+					if (next.success) setStatus(next.data);
+				});
 			}
 		} else {
 			setError(res.data?.error_message || textGet("ai.summary.error"));
@@ -106,10 +99,17 @@ export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 	}
 
 	const showBody = Boolean(summary && open);
-	const quotaText =
-		quota && quota.limit >= 0
-			? textGet("ai.summary.quota", { used: quota.used, limit: quota.limit })
-			: null;
+	const notice = aiBudgetNotice(status.budget);
+	const budgetValues = {
+		percent: status.budget.percent,
+		date: formatDate(status.budget.period_end, "day-month"),
+	};
+	const budgetText =
+		notice === "reached"
+			? textGet("ai.budget.reached", budgetValues)
+			: notice === "low"
+				? textGet("ai.budget.low", budgetValues)
+				: null;
 
 	return (
 		<section aria-label={textGet("ai.summary.title")} className={AI_CARD_CLASS}>
@@ -172,7 +172,7 @@ export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 
 			{summary && showBody && (
 				<div className="border-t px-4 pb-3 pt-3">
-					<SummaryBody summary={summary} quota={quotaText} />
+					<SummaryBody summary={summary} budget={budgetText} />
 				</div>
 			)}
 		</section>
@@ -181,10 +181,10 @@ export function AISummaryPanel({ patientId, compact }: AISummaryPanelProps) {
 
 function SummaryBody({
 	summary,
-	quota,
+	budget,
 }: {
 	summary: AISummary;
-	quota: string | null;
+	budget: string | null;
 }) {
 	const { textGet, formatDateTime } = useText();
 	const sourcesById = React.useMemo(() => {
@@ -240,7 +240,7 @@ function SummaryBody({
 						` · ${textGet("ai.summary.omitted", {
 							count: summary.omitted_consultations,
 						})}`}
-					{quota && ` · ${quota}`}
+					{budget && ` · ${budget}`}
 				</p>
 			</div>
 		</div>

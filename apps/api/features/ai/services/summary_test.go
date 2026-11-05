@@ -2,6 +2,7 @@ package ai_services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -107,16 +108,22 @@ func (f *fixture) addRecord(motive string) clinical_models.MedicalRecord {
 	return rec
 }
 
-func (f *fixture) planWithQuota(limit any) {
+func (f *fixture) planWithBudget(limit any) {
 	code := fmt.Sprintf("P%d", time.Now().UnixNano())
 	plan := company_models.Plan{Name: code, Code: code, Price: 10}
 	if limit != nil {
-		plan.Properties = datatypes.JSONMap{"max_ai_summaries": limit}
+		plan.Properties = datatypes.JSONMap{PlanBudgetKey: limit}
 	}
 	f.must(f.db.Create(&plan).Error)
 	company := company_models.Company{LegalName: "C", TradeName: "C", PlanCode: code, TenantID: f.tenant.ID}
 	f.must(f.db.Create(&company).Error)
 	f.must(f.db.Create(&company_models.Subscription{Status: "active", PlanCode: code, ExpiresAt: time.Now().Add(720 * time.Hour), CompanyID: company.ID}).Error)
+}
+
+// price sets fn's input price in USD per million tokens (output stays free),
+// so a call of N prompt tokens costs N*perMillion/1e6 dollars.
+func (f *fixture) price(fn string, perMillion float64) {
+	f.must(SaveSettings(tenantdb.System(f.db), SettingsUpdate{Function: fn, PriceInput: perMillion}))
 }
 
 func (f *fixture) generate(s *Summarizer) (*Summary, error) {
@@ -299,21 +306,27 @@ func TestGenerate_ChildEditsAndDeletesInvalidate(t *testing.T) {
 	}
 }
 
-func TestGenerate_QuotaFromPlanAndDefault(t *testing.T) {
+func TestGenerate_BudgetFromPlanAndDefault(t *testing.T) {
 	f := newFixture(t, true)
 	f.addRecord("Control")
-	f.planWithQuota(1)
+	// $1,000 per M input tokens: each summary (1000 prompt tokens) costs $1.
+	f.price(ai_models.FunctionSummary, 1000)
+	f.planWithBudget(1)
 	fake := &fakeCompleter{configured: true}
 	s := NewSummarizer(fakeDial(fake))
 	if _, err := f.generate(s); err != nil {
 		t.Fatal(err)
+	}
+	b, err := MonthlyBudget(f.db, f.tenant.ID, time.Now())
+	if err != nil || b.Percent != 100 || !b.Reached() {
+		t.Fatalf("budget after spending it all: %+v (%v)", b, err)
 	}
 	f.addRecord("Otro control") // invalidates the cache
 	if _, err := f.generate(s); !errors.Is(err, ErrQuotaExceeded) {
 		t.Fatalf("err = %v, want ErrQuotaExceeded", err)
 	}
 	if fake.calls.Load() != 1 {
-		t.Fatalf("calls = %d: the model must not be called over quota", fake.calls.Load())
+		t.Fatalf("calls = %d: the model must not be called over budget", fake.calls.Load())
 	}
 
 	// Usage from last month doesn't count.
@@ -323,21 +336,37 @@ func TestGenerate_QuotaFromPlanAndDefault(t *testing.T) {
 	}
 
 	noPlan := newFixture(t, true)
-	if got := PlanQuota(noPlan.db, noPlan.tenant.ID, ai_models.FunctionSummary); got != 300 {
-		t.Fatalf("default quota = %d, want 300", got)
+	if got := PlanBudget(noPlan.db, noPlan.tenant.ID); got != DefaultBudgetUSD {
+		t.Fatalf("default budget = %v, want %v", got, DefaultBudgetUSD)
 	}
 	unlimited := newFixture(t, true)
-	unlimited.planWithQuota(-1)
-	if got := PlanQuota(unlimited.db, unlimited.tenant.ID, ai_models.FunctionSummary); got != -1 {
-		t.Fatalf("unlimited quota = %d", got)
+	unlimited.planWithBudget(-1)
+	if b, _ := MonthlyBudget(unlimited.db, unlimited.tenant.ID, time.Now()); !b.Unlimited || b.Reached() {
+		t.Fatalf("unlimited budget: %+v", b)
 	}
 	absent := newFixture(t, true)
-	absent.planWithQuota(nil)
-	if got := PlanQuota(absent.db, absent.tenant.ID, ai_models.FunctionSummary); got != 300 {
-		t.Fatalf("absent key quota = %d, want default 300", got)
+	absent.planWithBudget(nil)
+	if got := PlanBudget(absent.db, absent.tenant.ID); got != DefaultBudgetUSD {
+		t.Fatalf("absent key budget = %v, want default", got)
 	}
-	if got := PlanQuota(absent.db, absent.tenant.ID, ai_models.FunctionBot); got != 500 {
-		t.Fatalf("bot default = %d, want 500", got)
+	fractional := newFixture(t, true)
+	fractional.planWithBudget(2.5)
+	if got := PlanBudget(fractional.db, fractional.tenant.ID); got != 2.5 {
+		t.Fatalf("fractional budget = %v", got)
+	}
+}
+
+func TestBudget_PercentRoundsDownAndNeverShowsDollars(t *testing.T) {
+	now := time.Now()
+	b := newBudget(6.29, 10, now, now)
+	if b.Percent != 62 || b.Reached() {
+		t.Fatalf("62.9%%: %+v", b)
+	}
+	if raw, _ := json.Marshal(newBudget(6.29, 10, now, now)); strings.Contains(string(raw), "6.29") || strings.Contains(string(raw), "used_usd") {
+		t.Fatalf("dollar amounts leaked to the clinic: %s", raw)
+	}
+	if b := newBudget(0, 0, now, now); !b.Reached() {
+		t.Fatal("a $0 budget blocks AI")
 	}
 }
 

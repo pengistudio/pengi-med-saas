@@ -24,6 +24,7 @@ import { AI_CARD_CLASS, AIMark } from "@/components/features/ai/ai-mark";
 import { BotReason } from "@/components/features/whatsapp/bot-reason";
 import { Switch } from "@/components/ui/switch";
 import { useEnabledFeatures } from "@/hooks/use-enabled-features";
+import { aiBudgetNotice } from "@/lib/ai-budget";
 import {
 	BOT_READINESS_ITEMS,
 	botReady,
@@ -64,7 +65,7 @@ export function WhatsAppBotSettings() {
 }
 
 function BotSettingsCard() {
-	const { textGet } = useText();
+	const { textGet, formatDate } = useText();
 	const [settings, setSettings] = React.useState<BotSettings | null>(null);
 	const [enabled, setEnabled] = React.useState(false);
 	const [duringHours, setDuringHours] = React.useState(false);
@@ -208,15 +209,29 @@ function BotSettingsCard() {
 				<p className="text-xs text-muted-foreground">
 					<Text uuid="settings.whatsapp.bot.during_hours.hint" />
 				</p>
-				{settings.quota.limit >= 0 && (
-					<p className="text-xs text-muted-foreground">
-						<Text
-							uuid="settings.whatsapp.bot.quota"
-							values={{
-								used: settings.quota.used,
-								limit: settings.quota.limit,
-							}}
-						/>
+				{aiBudgetNotice(settings.budget) && (
+					<p
+						className={cn(
+							"text-xs",
+							settings.budget.reached
+								? "text-destructive"
+								: "text-muted-foreground",
+						)}
+					>
+						{settings.budget.reached ? (
+							<Text
+								uuid="ai.budget.reached"
+								values={{
+									percent: settings.budget.percent,
+									date: formatDate(settings.budget.period_end, "day-month"),
+								}}
+							/>
+						) : (
+							<Text
+								uuid="ai.budget.low"
+								values={{ percent: settings.budget.percent }}
+							/>
+						)}
 					</p>
 				)}
 			</div>

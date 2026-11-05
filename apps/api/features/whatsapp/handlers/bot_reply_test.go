@@ -98,7 +98,7 @@ type botOptions struct {
 	faq         []whatsapp_models.BotFAQEntry
 	duringHours bool
 	openNow     bool // the clinic is attending right now
-	botQuota    *int
+	botBudget   *float64
 	waLimit     *int
 }
 
@@ -120,8 +120,8 @@ func (f *fixture) enableBot(tenantID uint, phoneID string, o botOptions) whatsap
 		f.t.Fatal(err)
 	}
 	props := datatypes.JSONMap{}
-	if o.botQuota != nil {
-		props[ai_services.PlanQuotaKey(ai_models.FunctionBot)] = *o.botQuota
+	if o.botBudget != nil {
+		props[ai_services.PlanBudgetKey] = *o.botBudget
 	}
 	if o.waLimit != nil {
 		props[whatsapp_services.PlanLimitKey] = *o.waLimit
@@ -459,8 +459,8 @@ func TestBot_QuotaExceededHandsOff(t *testing.T) {
 	f := newFixture(t)
 	ai := startFakeAI(t)
 	ai.set(answerParking)
-	zero := 0
-	f.enableBot(f.own, "PHONE-BOT", botOptions{botQuota: &zero})
+	zero := 0.0
+	f.enableBot(f.own, "PHONE-BOT", botOptions{botBudget: &zero})
 	f.writes("PHONE-BOT", "593991234567", nextWamID(), "¿Tienen parqueadero?")
 	conv := f.convByPhone(f.own, "593991234567")
 	msgs := f.botMessages(conv.ID)

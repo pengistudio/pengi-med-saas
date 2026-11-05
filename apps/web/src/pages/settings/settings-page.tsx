@@ -20,6 +20,7 @@ import type {
 } from "@/api/settings-service";
 import { PageHeader } from "@/components/custom/page-header";
 import { SettingsSection } from "@/components/custom/settings-section";
+import { AIBudgetBar } from "@/components/features/ai/ai-budget-bar";
 import { AdminLinks } from "@/components/features/settings/admin-links";
 import { Switch } from "@/components/ui/switch";
 import { useEnabledFeatures } from "@/hooks/use-enabled-features";
@@ -296,6 +297,7 @@ const SettingsPage = () => {
 							})
 						}
 					/>
+					{settings.ai?.enabled === true && <AIBudgetBar />}
 					<p className="flex items-start gap-1.5 text-xs text-muted-foreground">
 						<Sparkles className="mt-px size-3.5 shrink-0" />
 						<Text uuid="settings.ai.privacy" />

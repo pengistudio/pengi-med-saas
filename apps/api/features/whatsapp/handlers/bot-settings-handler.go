@@ -10,7 +10,6 @@ import (
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
-	ai_models "pengi-med-saas/features/ai/models"
 	ai_services "pengi-med-saas/features/ai/services"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
 	whatsapp_services "pengi-med-saas/features/whatsapp/services"
@@ -63,13 +62,13 @@ type BotSettingsResponse struct {
 	// MissingKey: the i18n key of the first requirement not met.
 	MissingKey string `json:"missing_key"`
 	// The fixed material the assistant also answers from.
-	OfficeHours   string            `json:"office_hours"`
-	Address       string            `json:"address"`
-	ClinicPhone   string            `json:"clinic_phone"`
-	BookingLink   bool              `json:"booking_link"`
-	InOfficeHours bool              `json:"in_office_hours"`
-	Quota         ai_services.Quota `json:"quota"`
-	Limits        BotFAQLimits      `json:"limits"`
+	OfficeHours   string             `json:"office_hours"`
+	Address       string             `json:"address"`
+	ClinicPhone   string             `json:"clinic_phone"`
+	BookingLink   bool               `json:"booking_link"`
+	InOfficeHours bool               `json:"in_office_hours"`
+	Budget        ai_services.Budget `json:"budget"`
+	Limits        BotFAQLimits       `json:"limits"`
 }
 
 // BotSettingsRequest saves the assistant's settings.
@@ -181,9 +180,9 @@ func (h *WhatsAppHandler) botState(tenantID uint, faq []whatsapp_models.BotFAQEn
 }
 
 func (h *WhatsAppHandler) botResponse(tenantID uint, bc ai_services.BotContext, readiness ai_services.BotReadiness, key string) envelope.Response {
-	quota, err := ai_services.MonthlyQuota(h.db, tenantID, ai_models.FunctionBot, time.Now())
+	budget, err := ai_services.MonthlyBudget(h.db, tenantID, time.Now())
 	if err != nil {
-		h.logger.Error("failed to compute whatsapp bot quota", zap.Error(err))
+		h.logger.Error("failed to compute whatsapp bot AI budget", zap.Error(err))
 		return h.internalError()
 	}
 	faq := bc.Settings.FAQ
@@ -196,7 +195,7 @@ func (h *WhatsAppHandler) botResponse(tenantID uint, bc ai_services.BotContext, 
 		OfficeHours: bc.Knowledge.Hours, Address: bc.Knowledge.Address, ClinicPhone: bc.Knowledge.Phone,
 		BookingLink:   bc.Knowledge.BookingLink != "",
 		InOfficeHours: bc.Hours.Open(time.Now(), whatsapp_services.ClinicLocation()),
-		Quota:         quota,
+		Budget:        budget,
 		Limits: BotFAQLimits{
 			MaxEntries: whatsapp_models.MaxBotFAQEntries, MaxQuestion: whatsapp_models.MaxBotFAQQuestion, MaxAnswer: whatsapp_models.MaxBotFAQAnswer,
 		},

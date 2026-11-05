@@ -48,9 +48,9 @@ func NewAIHandler(db *gorm.DB, logger *zap.Logger, dial ai_services.Dialer, reso
 
 // Status is what the UI needs to show or hide AI actions.
 type Status struct {
-	Configured bool                `json:"configured"` // the summary has a provider key (backoffice or env)
-	Enabled    bool                `json:"enabled"`    // the clinic opted in
-	Quotas     []ai_services.Quota `json:"quotas"`
+	Configured bool               `json:"configured"` // the summary has a provider key (backoffice or env)
+	Enabled    bool               `json:"enabled"`    // the clinic opted in
+	Budget     ai_services.Budget `json:"budget"`
 	// Functions: whether each function has a provider key (backoffice or env).
 	Functions map[string]bool `json:"functions"`
 }
@@ -63,14 +63,14 @@ func (h *AIHandler) GetStatus(c *gin.Context) envelope.Response {
 		h.logger.Error("failed to read AI opt-in", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "ai.status.error", core_errors.ErrAIInternal)
 	}
-	status := Status{Enabled: enabled, Quotas: []ai_services.Quota{}, Functions: map[string]bool{}}
+	status := Status{Enabled: enabled, Functions: map[string]bool{}}
+	budget, err := ai_services.MonthlyBudget(h.db, tenantID, time.Now())
+	if err != nil {
+		h.logger.Error("failed to compute AI budget", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "ai.status.error", core_errors.ErrAIInternal)
+	}
+	status.Budget = budget
 	for _, fn := range []string{ai_models.FunctionSummary, ai_models.FunctionScribe} {
-		quota, err := ai_services.MonthlyQuota(h.db, tenantID, fn, time.Now())
-		if err != nil {
-			h.logger.Error("failed to compute AI quota", zap.Error(err))
-			return envelope.ErrorResponse(http.StatusInternalServerError, "ai.status.error", core_errors.ErrAIInternal)
-		}
-		status.Quotas = append(status.Quotas, quota)
 		provider, err := ai_services.ResolveProvider(h.db, fn)
 		if err != nil {
 			// A stored key that can't be opened: report not configured.

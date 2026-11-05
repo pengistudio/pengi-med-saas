@@ -3,11 +3,16 @@ import { apiWithTenant } from ".";
 
 const aiService = createHttpService(apiWithTenant);
 
-/** A tenant's uses of one AI function this month (`limit` -1 = unlimited). */
-export interface AIQuota {
-	function: "summary" | "scribe" | "bot";
-	used: number;
-	limit: number;
+/**
+ * The month's AI budget of the plan, shared by every AI function. The clinic
+ * sees a percentage only (`percent` is 0-100, rounded down); dollars and
+ * tokens stay in the backoffice.
+ */
+export interface AIBudget {
+	percent: number;
+	unlimited: boolean;
+	/** No more AI uses until `period_end` (exclusive: the day it renews). */
+	reached: boolean;
 	period_start: string;
 	period_end: string;
 }
@@ -17,9 +22,9 @@ export interface AIStatus {
 	configured: boolean;
 	/** The clinic opted in (clinic settings). */
 	enabled: boolean;
-	quotas: AIQuota[];
+	budget: AIBudget;
 	/** Whether each function has a provider key. Absent in older APIs. */
-	functions?: Partial<Record<AIQuota["function"], boolean>>;
+	functions?: Partial<Record<"summary" | "scribe" | "bot", boolean>>;
 }
 
 /** One statement of the summary and the consultations (record ids) it cites. */

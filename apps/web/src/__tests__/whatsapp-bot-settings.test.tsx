@@ -58,7 +58,13 @@ function readySettings(overrides: Partial<BotSettings> = {}): BotSettings {
 		clinic_phone: "+593 99 123 4567",
 		booking_link: false,
 		in_office_hours: false,
-		quota: { used: 3, limit: 500 },
+		budget: {
+			percent: 3,
+			unlimited: false,
+			reached: false,
+			period_start: "",
+			period_end: "",
+		},
 		limits: { max_entries: 30, max_question: 200, max_answer: 500 },
 		...overrides,
 	};

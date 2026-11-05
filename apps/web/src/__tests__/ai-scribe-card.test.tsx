@@ -40,15 +40,13 @@ const status = (enabled: boolean, scribe: boolean) => ({
 	data: {
 		configured: true,
 		enabled,
-		quotas: [
-			{
-				function: "scribe",
-				used: 1,
-				limit: 300,
-				period_start: "",
-				period_end: "",
-			},
-		],
+		budget: {
+			percent: 1,
+			unlimited: false,
+			reached: false,
+			period_start: "",
+			period_end: "",
+		},
 		functions: { summary: true, scribe },
 	},
 });

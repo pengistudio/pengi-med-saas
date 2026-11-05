@@ -164,16 +164,18 @@ func TestScribe_GatesAndFailures(t *testing.T) {
 	}
 }
 
-func TestScribe_QuotaIsPerFunction(t *testing.T) {
+func TestScribe_BudgetIsSharedAcrossFunctions(t *testing.T) {
 	f := newFixture(t, true)
-	f.planWithQuota(nil)
-	// The plan caps scribes at 1 (summaries default).
-	f.must(f.db.Exec("UPDATE plans SET properties = ?", `{"max_ai_scribes":1}`).Error)
+	f.planWithBudget(2)
+	// A summary already spent $1.5 of the $2 budget: the scribe still has room
+	// for one more use, and then none.
 	f.must(LogUsage(f.db, UsageEntry{TenantID: f.tenant.ID, UserID: 7, Function: ai_models.FunctionSummary, Model: "m"}, time.Now()))
+	f.must(f.tdb().Model(&ai_models.AIUsageLog{}).Where("1 = 1").Update("cost_usd", 1.5).Error)
+	f.price(ai_models.FunctionScribe, 2000) // scribeFake bills 300 prompt tokens: $0.60 a use
 	fake := &scribeFake{args: scribeArgs}
 	s := NewScribe(fakeDial(fake), fakeResolvers(knownDiagnoses))
 	if _, err := f.organize(s, scribeReq(f, "notas")); err != nil {
-		t.Fatalf("first scribe (a summary use must not count): %v", err)
+		t.Fatalf("first scribe (budget left): %v", err)
 	}
 	if _, err := f.organize(s, scribeReq(f, "notas")); !errors.Is(err, ErrQuotaExceeded) {
 		t.Fatalf("second scribe: %v", err)

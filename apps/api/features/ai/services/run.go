@@ -13,18 +13,18 @@ import (
 
 // openFunction prepares one charged use of fn for the tenant: resolves the
 // provider (backoffice settings, else env), dials it and checks the monthly
-// quota. ErrNotConfigured when there is no usable key, ErrQuotaExceeded when
-// the month is used up; the model is not called in either case.
+// budget. ErrNotConfigured when there is no usable key, ErrQuotaExceeded when
+// the month's budget is used up; the model is not called in either case.
 func openFunction(dial Dialer, db *gorm.DB, tenantID uint, fn string, now time.Time) (Provider, Completer, error) {
 	provider, client, err := dialFunction(dial, db, fn)
 	if err != nil {
 		return provider, nil, err
 	}
-	quota, err := MonthlyQuota(db, tenantID, fn, now)
+	budget, err := MonthlyBudget(db, tenantID, now)
 	if err != nil {
 		return provider, nil, err
 	}
-	if quota.Reached() {
+	if budget.Reached() {
 		return provider, nil, ErrQuotaExceeded
 	}
 	return provider, client, nil
