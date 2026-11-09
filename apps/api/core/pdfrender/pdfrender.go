@@ -46,7 +46,7 @@ type Document struct {
 	// Paper is the PDF format; fixed per document.
 	Paper utils.PDFOptions
 	// Feature is the plan module the document belongs to, an EnabledFeatures
-	// key ("clinical", "billing").
+	// key ("clinical", "billing", "cash").
 	Feature string
 	// Sample is a realistic value of the document's data type, used to validate
 	// and preview templates.

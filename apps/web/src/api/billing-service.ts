@@ -53,6 +53,9 @@ export interface Invoice extends BaseModel {
 	total_tax: number;
 	total: number;
 	items: InvoiceItem[];
+	/** Collected through the cash desk; null for invoices before the first cash session. */
+	paid_amount?: number | null;
+	payment_status?: "unpaid" | "partial" | "paid" | null;
 }
 
 export interface CreditNoteItem {

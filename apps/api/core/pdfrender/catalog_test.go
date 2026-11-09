@@ -9,6 +9,7 @@ import (
 	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/tenantfiles"
 	billing_templates "pengi-med-saas/features/billing/templates"
+	cash_templates "pengi-med-saas/features/cash/templates"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 )
 
@@ -18,6 +19,7 @@ var catalog = []pdfrender.Document{
 	clinical_templates.Report,
 	clinical_templates.Certificate,
 	billing_templates.InvoiceRide,
+	cash_templates.SessionReport,
 }
 
 // Every printable document's default template must be embedded, pass the same
@@ -58,7 +60,7 @@ func TestCatalog_IDsAndFilesAreUnique(t *testing.T) {
 			t.Fatalf("duplicate document %s / %s", doc.ID, doc.File)
 		}
 		ids[doc.ID], files[doc.File] = true, true
-		if doc.Feature != "clinical" && doc.Feature != "billing" {
+		if doc.Feature != "clinical" && doc.Feature != "billing" && doc.Feature != "cash" {
 			t.Fatalf("%s: feature %q is not an EnabledFeatures key", doc.ID, doc.Feature)
 		}
 	}

@@ -118,7 +118,7 @@ function PrivacyModal() {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const PERIOD_ORDER = [1, 3, 6, 9, 12];
-const FEATURE_KEYS = ["clinical", "billing", "team", "kanban"] as const;
+const FEATURE_KEYS = ["clinical", "billing", "team", "kanban", "cash"] as const;
 
 /** Renewal opens this many days before the subscription expires. */
 const RENEW_WINDOW_DAYS = 30;

@@ -299,6 +299,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 					"billing":  ef.Billing,
 					"team":     ef.Team,
 					"kanban":   ef.Kanban,
+					"cash":     ef.Cash,
 				}
 			}
 		}

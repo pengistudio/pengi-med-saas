@@ -111,6 +111,9 @@ type EnabledFeatures struct {
 	// AI: the plan includes the AI functions (category AI). Off by default,
 	// like WhatsApp: every use has a provider cost.
 	AI bool `json:"ai"`
+	// Cash: the plan includes the cash desk (category CASH). On by default,
+	// like the core modules.
+	Cash bool `json:"cash"`
 }
 
 // DefaultEnabledFeatures returns the flags of a tenant without a subscription:
@@ -122,6 +125,7 @@ func DefaultEnabledFeatures() EnabledFeatures {
 		Billing:  true,
 		Team:     true,
 		Kanban:   true,
+		Cash:     true,
 	}
 }
 

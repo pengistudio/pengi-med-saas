@@ -371,6 +371,37 @@ var AIPermissions = []permission_models.Permission{
 	},
 }
 
+// CashPermissions guard the cash desk (features/cash): sessions, payments
+// against invoices and cash movements. Category CASH maps to the
+// EnabledFeatures.Cash flag; backoffice assigns them to plans through the
+// CASH Feature (top plan). VOID_PAYMENT also covers refunds and cash out.
+var CashPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_CASH"},
+		Name:         "Read cash",
+		Category:     "CASH",
+		Description:  "View cash sessions, payments, movements and closing reports",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "CREATE_PAYMENT"},
+		Name:         "Create payment",
+		Category:     "CASH",
+		Description:  "Charge invoices in the open cash session",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "MANAGE_CASH_SESSION"},
+		Name:         "Manage cash session",
+		Category:     "CASH",
+		Description:  "Open and close cash sessions and record cash put into the drawer",
+	},
+	{
+		BaseStringID: database.BaseStringID{ID: "VOID_PAYMENT"},
+		Name:         "Void payment",
+		Category:     "CASH",
+		Description:  "Void and refund payments and take cash out of the drawer",
+	},
+}
+
 // All returns every permission in the catalog, once each: what a fresh
 // database seeds (migrations baseline) and what the admin role holds.
 func All() []permission_models.Permission {
@@ -380,7 +411,7 @@ func All() []permission_models.Permission {
 		ClinicalPermissions, BillingPermissions, TeamPermissions, AuditPermissions,
 		DocumentTemplatePermissions, ClinicPermissions, KanbanPermissions,
 		WhatsAppPermissions, PatientPortalPermissions, AppointmentRequestPermissions,
-		DoctorPermissions, AIPermissions,
+		DoctorPermissions, AIPermissions, CashPermissions,
 	} {
 		for _, perm := range catalog {
 			if !seen[perm.ID] {
@@ -410,6 +441,7 @@ var Features = []FeatureSeed{
 	{Code: "WHATSAPP", Name: "WhatsApp", Permissions: WhatsAppPermissions},
 	{Code: "PATIENT_PORTAL", Name: "Portal de pacientes", Permissions: concat(PatientPortalPermissions, AppointmentRequestPermissions)},
 	{Code: "AI", Name: "Inteligencia artificial", Permissions: AIPermissions},
+	{Code: "CASH", Name: "Caja", Permissions: CashPermissions},
 }
 
 func concat(catalogs ...[]permission_models.Permission) []permission_models.Permission {

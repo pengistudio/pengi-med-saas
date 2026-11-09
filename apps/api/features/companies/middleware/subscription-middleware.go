@@ -137,6 +137,18 @@ func RequireAnyPermission(db *gorm.DB, permissionIDs ...string) gin.HandlerFunc 
 	}
 }
 
+// HasPermission is the RequirePermission check as a value, for handlers whose
+// required permission depends on the payload (e.g. a cash movement's
+// direction): the plan includes permissionID and the caller's role holds it.
+// Must run after AuthMiddleware, TenantMiddleware, and SubscriptionMiddleware.
+func HasPermission(c *gin.Context, db *gorm.DB, permissionID string) bool {
+	if !IsPermissionAllowed(c, permissionID) {
+		return false
+	}
+	rolePerms, ok := callerRolePermissions(c, db)
+	return ok && rolePerms[permissionID]
+}
+
 // callerRolePermissions returns the permission IDs of the caller's role in the
 // tenant's company. TenantMiddleware already verified the caller holds this
 // Environment; false means it is missing.
