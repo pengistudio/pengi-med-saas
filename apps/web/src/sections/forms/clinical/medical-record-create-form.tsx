@@ -1185,6 +1185,7 @@ function FormInner({
 											"form.create_medical_record.next_appointment",
 										)}
 										showMonthYearDropdowns
+										futureYears={30}
 									/>
 								</div>
 							)}

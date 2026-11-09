@@ -49,6 +49,8 @@ type FormCalendarProps<
 	enableTime?: boolean;
 	className?: string;
 	showMonthYearDropdowns?: boolean;
+	/** Future-only picker: the month/year dropdowns run from this month to this many years ahead (default: react-day-picker's range). */
+	futureYears?: number;
 };
 
 // Represents the value object when time is enabled
@@ -70,10 +72,19 @@ function FormCalendar<
 	enableTime = false,
 	className,
 	showMonthYearDropdowns = false,
+	futureYears,
 }: FormCalendarProps<T, Input>) {
 	const { textGet, formatDate } = useText();
 	const lang = useMessageStore((state) => state.lang);
 	const locale = lang === "es" ? es : enUS;
+	const thisYear = new Date().getFullYear();
+	const yearRange =
+		futureYears === undefined
+			? {}
+			: {
+					startMonth: new Date(thisYear, new Date().getMonth()),
+					endMonth: new Date(thisYear + futureYears, 11),
+				};
 
 	return (
 		<Controller
@@ -169,6 +180,7 @@ function FormCalendar<
 									autoFocus
 									locale={locale}
 									captionLayout={showMonthYearDropdowns ? "dropdown" : "label"}
+									{...yearRange}
 								/>
 								{enableTime && (
 									<div className="p-3 border-t border-border bg-muted/30">
