@@ -27,6 +27,11 @@ import {
 import { PageHeader } from "@/components/custom/page-header";
 import { DataTable } from "@/components/custom/table/data-table";
 import { BillingDocumentsTabs } from "@/components/features/billing/billing-documents-tabs";
+import {
+	type ChargeTarget,
+	PaymentDialog,
+} from "@/components/features/cash/payment-dialog";
+import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS, ZERO } from "@/lib/constants";
 import { getInvoiceColumns } from "@/sections/columns/billing/invoice-columns";
@@ -51,6 +56,9 @@ const STATUS_FILTERS = [
 	{ value: "authorized", labelKey: "billing.filter.authorized" },
 ] as const;
 
+const invoiceNumber = (invoice: Invoice) =>
+	`${invoice.establishment_code}-${invoice.emission_point_code}-${invoice.sequential}`;
+
 const InvoiceListPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [processing, setProcessing] = useState(false);
@@ -71,6 +79,11 @@ const InvoiceListPage = () => {
 	const navigate = useNavigate();
 	const { checkPermission } = usePermission();
 	const { textGet } = useText();
+	const cashEnabled = useEnabledFeatures().cash !== false;
+	const canCharge =
+		cashEnabled &&
+		checkPermission([PERMISSIONS.CASH.PERMISSION_CREATE_PAYMENT]);
+	const [charging, setCharging] = useState<ChargeTarget | null>(null);
 
 	// Requests the page; a non-silent load clears the spinner the caller set.
 	const loadInvoices = useCallback(
@@ -158,7 +171,24 @@ const InvoiceListPage = () => {
 		[page, search, statusFilter, fetchInvoices],
 	);
 
-	const columns = useMemo(() => getInvoiceColumns(handleRetry), [handleRetry]);
+	const columns = useMemo(
+		() =>
+			getInvoiceColumns(
+				handleRetry,
+				cashEnabled
+					? {
+							onCharge: canCharge
+								? (invoice: Invoice) =>
+										setCharging({
+											id: invoice.ID,
+											number: invoiceNumber(invoice),
+										})
+								: undefined,
+						}
+					: undefined,
+			),
+		[handleRetry, cashEnabled, canCharge],
+	);
 
 	return (
 		<main className="grid grid-cols-1 items-start gap-4">
@@ -260,6 +290,11 @@ const InvoiceListPage = () => {
 					}
 				/>
 			</div>
+			<PaymentDialog
+				invoice={charging}
+				onOpenChange={(open) => !open && setCharging(null)}
+				onPaid={() => fetchInvoices(page, search, statusFilter, true)}
+			/>
 		</main>
 	);
 

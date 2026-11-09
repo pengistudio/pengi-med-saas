@@ -13686,5 +13686,833 @@
     {
         "key": "whatsapp.bot.reason.suspicious_text",
         "value": "Message mixing look-alike letters from other alphabets."
+    },
+    {
+        "key": "E-CASH-001",
+        "value": "The cash desk is closed: open a cash session first."
+    },
+    {
+        "key": "E-CASH-002",
+        "value": "A cash session is already open."
+    },
+    {
+        "key": "E-CASH-003",
+        "value": "Cash session not found."
+    },
+    {
+        "key": "E-CASH-004",
+        "value": "The cash session is closed and can no longer change."
+    },
+    {
+        "key": "E-CASH-005",
+        "value": "The count does not match: add a note to close the session."
+    },
+    {
+        "key": "E-CASH-006",
+        "value": "The payments exceed the invoice total."
+    },
+    {
+        "key": "E-CASH-007",
+        "value": "Payment not found."
+    },
+    {
+        "key": "E-CASH-008",
+        "value": "The payment is already voided."
+    },
+    {
+        "key": "E-CASH-009",
+        "value": "Only payments of the open session can be voided: refund it instead."
+    },
+    {
+        "key": "E-CASH-010",
+        "value": "The payment belongs to the open session: void it instead."
+    },
+    {
+        "key": "E-CASH-011",
+        "value": "The refund exceeds what is left of the payment."
+    },
+    {
+        "key": "E-CASH-012",
+        "value": "Invalid cash data."
+    },
+    {
+        "key": "E-CASH-013",
+        "value": "Invoice not found."
+    },
+    {
+        "key": "E-CASH-014",
+        "value": "The closing report is available once the session is closed."
+    },
+    {
+        "key": "E-CASH-015",
+        "value": "Cash internal error."
+    },
+    {
+        "key": "E-CASH-016",
+        "value": "Only valid payments can be refunded."
+    },
+    {
+        "key": "cash.error.internal",
+        "value": "The cash operation could not be completed."
+    },
+    {
+        "key": "cash.session.current.fetch.success",
+        "value": "Current cash session fetched."
+    },
+    {
+        "key": "cash.session.open.success",
+        "value": "Cash desk opened."
+    },
+    {
+        "key": "cash.session.close.success",
+        "value": "Cash desk closed."
+    },
+    {
+        "key": "cash.session.fetch.success",
+        "value": "Cash session fetched."
+    },
+    {
+        "key": "cash.sessions.fetch.success",
+        "value": "Cash sessions fetched."
+    },
+    {
+        "key": "cash.session.error.invalid_payload",
+        "value": "Invalid cash session data."
+    },
+    {
+        "key": "cash.session.error.invalid_id",
+        "value": "Invalid cash session ID."
+    },
+    {
+        "key": "cash.session.error.invalid_float",
+        "value": "The opening float can't be negative."
+    },
+    {
+        "key": "cash.session.error.invalid_counted",
+        "value": "The counted cash can't be negative."
+    },
+    {
+        "key": "cash.session.error.already_open",
+        "value": "A cash session is already open."
+    },
+    {
+        "key": "cash.session.error.no_open",
+        "value": "The cash desk is closed: open it to record payments or movements."
+    },
+    {
+        "key": "cash.session.error.not_found",
+        "value": "Cash session not found."
+    },
+    {
+        "key": "cash.session.error.closed",
+        "value": "The cash session is already closed."
+    },
+    {
+        "key": "cash.session.error.note_required",
+        "value": "The count does not match: add a note to close the session."
+    },
+    {
+        "key": "cash.session.error.not_closed",
+        "value": "The closing report is available once the session is closed."
+    },
+    {
+        "key": "cash.session.error.report_failed",
+        "value": "The closing report could not be generated."
+    },
+    {
+        "key": "cash.payment.create.success",
+        "value": "Payment recorded."
+    },
+    {
+        "key": "cash.payments.fetch.success",
+        "value": "Payments fetched."
+    },
+    {
+        "key": "cash.payment.void.success",
+        "value": "Payment voided."
+    },
+    {
+        "key": "cash.payment.refund.success",
+        "value": "Refund recorded."
+    },
+    {
+        "key": "cash.payment.error.invalid_payload",
+        "value": "Invalid payment data."
+    },
+    {
+        "key": "cash.payment.error.invalid_id",
+        "value": "Invalid payment ID."
+    },
+    {
+        "key": "cash.payment.error.invalid_method",
+        "value": "Invalid payment method."
+    },
+    {
+        "key": "cash.payment.error.invalid_amount",
+        "value": "The amount must be greater than zero."
+    },
+    {
+        "key": "cash.payment.error.invoice_required",
+        "value": "Choose the invoice."
+    },
+    {
+        "key": "cash.payment.error.invoice_not_found",
+        "value": "Invoice not found."
+    },
+    {
+        "key": "cash.payment.error.not_found",
+        "value": "Payment not found."
+    },
+    {
+        "key": "cash.payment.error.overpayment",
+        "value": "The payments exceed the invoice balance."
+    },
+    {
+        "key": "cash.payment.error.reason_required",
+        "value": "Give the reason."
+    },
+    {
+        "key": "cash.payment.error.already_voided",
+        "value": "The payment is already voided."
+    },
+    {
+        "key": "cash.payment.error.void_outside_session",
+        "value": "The payment belongs to a closed cash session: record a refund."
+    },
+    {
+        "key": "cash.payment.error.not_refundable",
+        "value": "Only valid payments can be refunded."
+    },
+    {
+        "key": "cash.payment.error.refund_use_void",
+        "value": "The payment belongs to the open cash session: void it instead."
+    },
+    {
+        "key": "cash.payment.error.refund_exceeds",
+        "value": "The refund exceeds what is left of the payment."
+    },
+    {
+        "key": "cash.movement.create.success",
+        "value": "Cash movement recorded."
+    },
+    {
+        "key": "cash.movement.error.invalid_payload",
+        "value": "Invalid cash movement data."
+    },
+    {
+        "key": "cash.movement.error.reason_required",
+        "value": "Give the reason for the movement."
+    },
+    {
+        "key": "cash.movement.error.invalid_type",
+        "value": "The type does not match the movement category."
+    },
+    {
+        "key": "cash.movement.error.invalid_amount",
+        "value": "The amount must be greater than zero."
+    },
+    {
+        "key": "document_templates.doc.cash_session_report",
+        "value": "Cash closing report"
+    },
+    {
+        "key": "subscription.plans.feature.cash",
+        "value": "Cash desk"
+    },
+    {
+        "key": "cash.nav.title",
+        "value": "Cash desk"
+    },
+    {
+        "key": "cash.page.title",
+        "value": "Cash desk"
+    },
+    {
+        "key": "cash.page.description",
+        "value": "Opening, payments, movements and closing of the cash desk."
+    },
+    {
+        "key": "cash.open.title",
+        "value": "Open the cash desk"
+    },
+    {
+        "key": "cash.open.description",
+        "value": "The cash desk is closed. Open it with the cash already in the drawer to start charging."
+    },
+    {
+        "key": "cash.open.float",
+        "value": "Opening float"
+    },
+    {
+        "key": "cash.open.float.description",
+        "value": "Cash the desk opens with (change)."
+    },
+    {
+        "key": "cash.open.submit",
+        "value": "Open cash desk"
+    },
+    {
+        "key": "cash.closed.title",
+        "value": "Cash desk closed"
+    },
+    {
+        "key": "cash.closed.no_permission",
+        "value": "The cash desk is closed. Ask a user with permission to open it."
+    },
+    {
+        "key": "cash.session.open.title",
+        "value": "Cash desk open"
+    },
+    {
+        "key": "cash.session.open.since",
+        "value": "Opened by {name} on {date}"
+    },
+    {
+        "key": "cash.session.stale",
+        "value": "This cash desk has been open for more than 24 hours. Close it and open a new one for the next shift."
+    },
+    {
+        "key": "cash.session.payments",
+        "value": "Payments"
+    },
+    {
+        "key": "cash.session.payments.empty",
+        "value": "No payments in this session yet."
+    },
+    {
+        "key": "cash.session.movements",
+        "value": "Movements"
+    },
+    {
+        "key": "cash.session.movements.empty",
+        "value": "No cash movements."
+    },
+    {
+        "key": "cash.session.report.download",
+        "value": "Download closing PDF"
+    },
+    {
+        "key": "cash.close.button",
+        "value": "Close cash desk"
+    },
+    {
+        "key": "cash.close.title",
+        "value": "Close cash desk"
+    },
+    {
+        "key": "cash.close.description",
+        "value": "Count the cash in the drawer and enter the total. The expected amount is shown after closing."
+    },
+    {
+        "key": "cash.close.counted",
+        "value": "Counted cash"
+    },
+    {
+        "key": "cash.close.counted.description",
+        "value": "All the cash in the drawer, opening float included."
+    },
+    {
+        "key": "cash.close.note",
+        "value": "Note"
+    },
+    {
+        "key": "cash.close.note.placeholder",
+        "value": "Explain the difference (shortage, surplus, counting error...)"
+    },
+    {
+        "key": "cash.close.note_required",
+        "value": "The count does not match the expected amount. Add a note to close the cash desk."
+    },
+    {
+        "key": "cash.close.error.note_required",
+        "value": "A note is required when the count does not match."
+    },
+    {
+        "key": "cash.close.submit",
+        "value": "Close cash desk"
+    },
+    {
+        "key": "cash.summary.title",
+        "value": "Cash desk closing"
+    },
+    {
+        "key": "cash.summary.period",
+        "value": "From {opened} to {closed}"
+    },
+    {
+        "key": "cash.summary.people",
+        "value": "Opened by {opened_by} · closed by {closed_by}"
+    },
+    {
+        "key": "cash.summary.cash",
+        "value": "Cash"
+    },
+    {
+        "key": "cash.summary.opening_float",
+        "value": "Opening float"
+    },
+    {
+        "key": "cash.summary.cash_in",
+        "value": "Cash payments"
+    },
+    {
+        "key": "cash.summary.cash_refunded",
+        "value": "Cash refunds"
+    },
+    {
+        "key": "cash.summary.movements_in",
+        "value": "Cash in"
+    },
+    {
+        "key": "cash.summary.movements_out",
+        "value": "Cash out"
+    },
+    {
+        "key": "cash.summary.expected",
+        "value": "Expected"
+    },
+    {
+        "key": "cash.summary.counted",
+        "value": "Counted"
+    },
+    {
+        "key": "cash.summary.difference",
+        "value": "Difference"
+    },
+    {
+        "key": "cash.summary.note",
+        "value": "Note"
+    },
+    {
+        "key": "cash.summary.by_method",
+        "value": "Totals by method"
+    },
+    {
+        "key": "cash.summary.no_payments",
+        "value": "No payments in this session."
+    },
+    {
+        "key": "cash.summary.method_count.one",
+        "value": "{method} ({count} payment)"
+    },
+    {
+        "key": "cash.summary.method_count.other",
+        "value": "{method} ({count} payments)"
+    },
+    {
+        "key": "cash.history.title",
+        "value": "Cash desk history"
+    },
+    {
+        "key": "cash.history.description",
+        "value": "Closed sessions, newest first."
+    },
+    {
+        "key": "cash.history.empty",
+        "value": "No closed sessions yet."
+    },
+    {
+        "key": "cash.history.view",
+        "value": "View"
+    },
+    {
+        "key": "cash.history.column.opened_at",
+        "value": "Opened"
+    },
+    {
+        "key": "cash.history.column.closed_at",
+        "value": "Closed"
+    },
+    {
+        "key": "cash.history.column.closed_by",
+        "value": "Closed by"
+    },
+    {
+        "key": "cash.history.column.expected",
+        "value": "Expected"
+    },
+    {
+        "key": "cash.history.column.counted",
+        "value": "Counted"
+    },
+    {
+        "key": "cash.history.column.difference",
+        "value": "Difference"
+    },
+    {
+        "key": "cash.detail.title",
+        "value": "Cash desk of {date}"
+    },
+    {
+        "key": "cash.detail.not_found",
+        "value": "Cash session not found."
+    },
+    {
+        "key": "cash.movement.button",
+        "value": "Movement"
+    },
+    {
+        "key": "cash.movement.title",
+        "value": "Cash movement"
+    },
+    {
+        "key": "cash.movement.description",
+        "value": "Cash put into or taken out of the drawer that is not a payment."
+    },
+    {
+        "key": "cash.movement.type",
+        "value": "Type"
+    },
+    {
+        "key": "cash.movement.type.in",
+        "value": "Cash in"
+    },
+    {
+        "key": "cash.movement.type.out",
+        "value": "Cash out"
+    },
+    {
+        "key": "cash.movement.category",
+        "value": "Category"
+    },
+    {
+        "key": "cash.movement.category.expense",
+        "value": "Expense"
+    },
+    {
+        "key": "cash.movement.category.withdrawal",
+        "value": "Withdrawal"
+    },
+    {
+        "key": "cash.movement.category.deposit",
+        "value": "Deposit"
+    },
+    {
+        "key": "cash.movement.category.adjustment",
+        "value": "Adjustment"
+    },
+    {
+        "key": "cash.movement.amount",
+        "value": "Amount"
+    },
+    {
+        "key": "cash.movement.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "cash.movement.reason.placeholder",
+        "value": "E.g. supplies purchase, withdrawal for a bank deposit..."
+    },
+    {
+        "key": "cash.movement.submit",
+        "value": "Record"
+    },
+    {
+        "key": "cash.movement.column.time",
+        "value": "Time"
+    },
+    {
+        "key": "cash.movement.column.category",
+        "value": "Category"
+    },
+    {
+        "key": "cash.movement.column.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "cash.movement.column.amount",
+        "value": "Amount"
+    },
+    {
+        "key": "cash.payment_status.column",
+        "value": "Payment"
+    },
+    {
+        "key": "cash.payment_status.unpaid",
+        "value": "Unpaid"
+    },
+    {
+        "key": "cash.payment_status.partial",
+        "value": "Partial"
+    },
+    {
+        "key": "cash.payment_status.paid",
+        "value": "Paid"
+    },
+    {
+        "key": "cash.payment.charge",
+        "value": "Charge"
+    },
+    {
+        "key": "cash.payment.title",
+        "value": "Charge invoice"
+    },
+    {
+        "key": "cash.payment.description",
+        "value": "Invoice {invoice}"
+    },
+    {
+        "key": "cash.payment.desk_closed",
+        "value": "The cash desk is closed. Open it to charge."
+    },
+    {
+        "key": "cash.payment.go_to_cash",
+        "value": "Go to cash desk"
+    },
+    {
+        "key": "cash.payment.fully_paid",
+        "value": "This invoice is already paid."
+    },
+    {
+        "key": "cash.payment.later",
+        "value": "Charge later"
+    },
+    {
+        "key": "cash.payment.method",
+        "value": "Method"
+    },
+    {
+        "key": "cash.payment.amount",
+        "value": "Amount"
+    },
+    {
+        "key": "cash.payment.reference",
+        "value": "Reference"
+    },
+    {
+        "key": "cash.payment.reference.placeholder",
+        "value": "Transfer no., voucher..."
+    },
+    {
+        "key": "cash.payment.add_line",
+        "value": "Add method"
+    },
+    {
+        "key": "cash.payment.remove_line",
+        "value": "Remove line"
+    },
+    {
+        "key": "cash.payment.balance",
+        "value": "Balance due"
+    },
+    {
+        "key": "cash.payment.entered",
+        "value": "Charging"
+    },
+    {
+        "key": "cash.payment.remaining",
+        "value": "Left to charge"
+    },
+    {
+        "key": "cash.payment.submit",
+        "value": "Charge"
+    },
+    {
+        "key": "cash.payment.error.exceeds_balance",
+        "value": "The payment exceeds the invoice's balance due."
+    },
+    {
+        "key": "cash.payment.error.no_lines",
+        "value": "Add at least one payment method."
+    },
+    {
+        "key": "cash.payment.column.time",
+        "value": "Time"
+    },
+    {
+        "key": "cash.payment.column.invoice",
+        "value": "Invoice"
+    },
+    {
+        "key": "cash.payment.column.method",
+        "value": "Method"
+    },
+    {
+        "key": "cash.payment.column.reference",
+        "value": "Reference"
+    },
+    {
+        "key": "cash.payment.column.amount",
+        "value": "Amount"
+    },
+    {
+        "key": "cash.payment.column.status",
+        "value": "Status"
+    },
+    {
+        "key": "cash.payment.state.valid",
+        "value": "Valid"
+    },
+    {
+        "key": "cash.payment.state.voided",
+        "value": "Voided"
+    },
+    {
+        "key": "cash.payment.state.refund",
+        "value": "Refund"
+    },
+    {
+        "key": "cash.method.cash",
+        "value": "Cash"
+    },
+    {
+        "key": "cash.method.transfer",
+        "value": "Bank transfer"
+    },
+    {
+        "key": "cash.method.credit_card",
+        "value": "Credit card"
+    },
+    {
+        "key": "cash.method.debit_card",
+        "value": "Debit card"
+    },
+    {
+        "key": "cash.method.check",
+        "value": "Check"
+    },
+    {
+        "key": "cash.method.other",
+        "value": "Other"
+    },
+    {
+        "key": "cash.void.action",
+        "value": "Void"
+    },
+    {
+        "key": "cash.void.title",
+        "value": "Void payment"
+    },
+    {
+        "key": "cash.void.description",
+        "value": "The {amount} payment on invoice {invoice} will be voided. This action is logged."
+    },
+    {
+        "key": "cash.void.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "cash.void.reason.placeholder",
+        "value": "E.g. wrong amount, duplicate payment..."
+    },
+    {
+        "key": "cash.void.submit",
+        "value": "Void payment"
+    },
+    {
+        "key": "cash.refund.action",
+        "value": "Refund"
+    },
+    {
+        "key": "cash.refund.title",
+        "value": "Refund payment"
+    },
+    {
+        "key": "cash.refund.description",
+        "value": "{amount} payment on invoice {invoice}. The refund is recorded in the open cash desk."
+    },
+    {
+        "key": "cash.refund.amount",
+        "value": "Amount to refund"
+    },
+    {
+        "key": "cash.refund.reason",
+        "value": "Reason"
+    },
+    {
+        "key": "cash.refund.reason.placeholder",
+        "value": "E.g. service not provided..."
+    },
+    {
+        "key": "cash.refund.submit",
+        "value": "Refund"
+    },
+    {
+        "key": "cash.refund.error.exceeds",
+        "value": "The refund cannot exceed the payment amount."
+    },
+    {
+        "key": "cash.form.error.amount",
+        "value": "Enter a valid amount."
+    },
+    {
+        "key": "cash.form.error.required",
+        "value": "This field is required."
+    },
+    {
+        "key": "cash.form.error.reason_required",
+        "value": "A reason is required."
+    },
+    {
+        "key": "cash.form.error.too_long",
+        "value": "The text is too long."
+    },
+    {
+        "key": "cash.desk.closed.title",
+        "value": "The cash desk is closed"
+    },
+    {
+        "key": "cash.last_close.title",
+        "value": "Last close"
+    },
+    {
+        "key": "cash.last_close.view",
+        "value": "View details"
+    },
+    {
+        "key": "cash.last_close.closed_by",
+        "value": "Closed by {name}"
+    },
+    {
+        "key": "cash.range.same_day",
+        "value": "{date}, {start} to {end}"
+    },
+    {
+        "key": "cash.range.days",
+        "value": "From {start} to {end}"
+    },
+    {
+        "key": "cash.difference.balanced",
+        "value": "Balanced"
+    },
+    {
+        "key": "cash.difference.over",
+        "value": "{amount} over"
+    },
+    {
+        "key": "cash.difference.short",
+        "value": "{amount} short"
+    },
+    {
+        "key": "cash.session.stale.badge",
+        "value": "Over 24 h"
+    },
+    {
+        "key": "cash.session.payments.empty.hint",
+        "value": "Payments are recorded from each invoice with the Charge button."
+    },
+    {
+        "key": "cash.session.movements.empty.hint",
+        "value": "Record cash expenses, withdrawals or deposits here with the Movement button."
+    },
+    {
+        "key": "cash.history.empty.hint",
+        "value": "Each cash session shows up here once it is closed."
+    },
+    {
+        "key": "cash.error.load",
+        "value": "The cash desk couldn't be loaded. Check your connection and try again."
+    },
+    {
+        "key": "cash.error.retry",
+        "value": "Retry"
+    },
+    {
+        "key": "cash.payment.covered",
+        "value": "Balance covered"
+    },
+    {
+        "key": "cash.payment.progress",
+        "value": "Payment progress"
     }
 ]

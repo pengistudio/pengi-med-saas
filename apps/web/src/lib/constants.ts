@@ -153,6 +153,13 @@ export const PERMISSIONS = {
 		PERMISSION_REVIEW_EXAM_RESULTS: "REVIEW_EXAM_RESULTS",
 		PERMISSION_MANAGE_EXAM_CATALOG: "MANAGE_EXAM_CATALOG",
 	},
+	CASH: {
+		PERMISSION_READ_CASH: "READ_CASH",
+		PERMISSION_CREATE_PAYMENT: "CREATE_PAYMENT",
+		PERMISSION_MANAGE_CASH_SESSION: "MANAGE_CASH_SESSION",
+		/** Also covers refunds and taking cash out of the drawer. */
+		PERMISSION_VOID_PAYMENT: "VOID_PAYMENT",
+	},
 };
 
 /** Gentoo support contact (help menu in the sidebar). */

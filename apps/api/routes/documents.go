@@ -4,6 +4,7 @@ import (
 	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/tenantfiles"
 	billing_templates "pengi-med-saas/features/billing/templates"
+	cash_templates "pengi-med-saas/features/cash/templates"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
 )
 
@@ -18,6 +19,7 @@ var printableDocuments = []pdfrender.Document{
 	clinical_templates.Report,
 	clinical_templates.Certificate,
 	billing_templates.InvoiceRide,
+	cash_templates.SessionReport,
 }
 
 // documentRenderer renders tenant documents to PDF with the tenant's own

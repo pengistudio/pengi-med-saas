@@ -131,6 +131,8 @@ function NextAppointmentCard({
 							field={field}
 							name="next_appointment_date"
 							label={textGet("form.update_medical_record.next_appointment")}
+							showMonthYearDropdowns
+							futureYears={30}
 						/>
 					</div>
 				)}

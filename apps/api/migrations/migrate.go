@@ -7,6 +7,7 @@ import (
 	ai_models "pengi-med-saas/features/ai/models"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 	billing_models "pengi-med-saas/features/billing/models"
+	cash_models "pengi-med-saas/features/cash/models"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
 	doctor_models "pengi-med-saas/features/doctors/models"
@@ -77,6 +78,9 @@ func RunMigrations(db *gorm.DB) error {
 		billing_models.CreditNoteItem{},
 		billing_models.DebitNote{},
 		billing_models.DebitNoteMotive{},
+		cash_models.CashSession{},
+		cash_models.Payment{},
+		cash_models.CashMovement{},
 		kanban_models.Task{},
 		settings_models.SystemSetting{},
 		notifications_models.Notification{},

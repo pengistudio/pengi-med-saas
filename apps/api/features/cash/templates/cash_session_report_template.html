@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cierre de caja {{.SessionID}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            line-height: 1.4;
+            color: #334155;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 14mm;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #0ea5e9;
+            padding-bottom: 6mm;
+            margin-bottom: 6mm;
+        }
+
+        h1 {
+            font-size: 15pt;
+            color: #0f172a;
+        }
+
+        h2 {
+            font-size: 10.5pt;
+            color: #0ea5e9;
+            margin: 6mm 0 2mm;
+        }
+
+        .muted {
+            color: #64748b;
+        }
+
+        .grid {
+            display: flex;
+            gap: 8mm;
+        }
+
+        .grid>div {
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5mm 2mm;
+            text-align: left;
+        }
+
+        th {
+            background: #e0f2fe;
+            font-weight: bold;
+        }
+
+        .num {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .total td {
+            font-weight: bold;
+            border-top: 2px solid #94a3b8;
+        }
+
+        .voided td {
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        .note {
+            margin-top: 3mm;
+            padding: 2mm 3mm;
+            background: #f8fafc;
+            border-left: 3px solid #0ea5e9;
+        }
+
+        .signatures {
+            display: flex;
+            gap: 20mm;
+            margin-top: 22mm;
+        }
+
+        .signatures div {
+            flex: 1;
+            border-top: 1px solid #334155;
+            padding-top: 2mm;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <div>
+                <h1>{{.ClinicName}}</h1>
+                {{if .TaxID}}<div class="muted">RUC {{.TaxID}}</div>{{end}}
+            </div>
+            <div style="text-align: right;">
+                <h1>Cierre de caja</h1>
+                <div>Sesión N.º {{.SessionID}}</div>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div>
+                <strong>Apertura</strong><br>
+                {{.OpenedAt}}<br>
+                <span class="muted">{{.OpenedBy}}</span>
+            </div>
+            <div>
+                <strong>Cierre</strong><br>
+                {{.ClosedAt}}<br>
+                <span class="muted">{{.ClosedBy}}</span>
+            </div>
+        </div>
+
+        <h2>Arqueo de efectivo</h2>
+        <table>
+            <tr>
+                <td>Fondo inicial</td>
+                <td class="num">{{.OpeningFloat}}</td>
+            </tr>
+            <tr>
+                <td>(+) Cobros en efectivo</td>
+                <td class="num">{{.CashIn}}</td>
+            </tr>
+            <tr>
+                <td>(−) Devoluciones en efectivo</td>
+                <td class="num">{{.CashRefunded}}</td>
+            </tr>
+            <tr>
+                <td>(+) Ingresos de caja</td>
+                <td class="num">{{.MovementsIn}}</td>
+            </tr>
+            <tr>
+                <td>(−) Egresos de caja</td>
+                <td class="num">{{.MovementsOut}}</td>
+            </tr>
+            <tr class="total">
+                <td>Efectivo esperado</td>
+                <td class="num">{{.ExpectedCash}}</td>
+            </tr>
+            <tr>
+                <td>Efectivo contado</td>
+                <td class="num">{{.CountedCash}}</td>
+            </tr>
+            <tr class="total">
+                <td>Diferencia</td>
+                <td class="num">{{.Difference}}</td>
+            </tr>
+        </table>
+        {{if .CloseNote}}<div class="note"><strong>Nota:</strong> {{.CloseNote}}</div>{{end}}
+
+        <h2>Totales por forma de pago</h2>
+        <table>
+            <tr>
+                <th>Forma de pago</th>
+                <th class="num">Transacciones</th>
+                <th class="num">Total</th>
+            </tr>
+            {{range .Methods}}
+            <tr>
+                <td>{{.Method}}</td>
+                <td class="num">{{.Count}}</td>
+                <td class="num">{{.Total}}</td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="3" class="muted">Sin cobros</td>
+            </tr>
+            {{end}}
+        </table>
+
+        <h2>Cobros y devoluciones</h2>
+        <table>
+            <tr>
+                <th>Hora</th>
+                <th>Factura</th>
+                <th>Tipo</th>
+                <th>Forma de pago</th>
+                <th>Referencia</th>
+                <th class="num">Monto</th>
+            </tr>
+            {{range .Payments}}
+            <tr{{if .Voided}} class="voided"{{end}}>
+                <td>{{.Time}}</td>
+                <td>{{.Invoice}}</td>
+                <td>{{.Kind}}{{if .Voided}} (anulado){{end}}</td>
+                <td>{{.Method}}</td>
+                <td>{{.Reference}}</td>
+                <td class="num">{{.Amount}}</td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="6" class="muted">Sin cobros</td>
+            </tr>
+            {{end}}
+        </table>
+
+        <h2>Movimientos de caja</h2>
+        <table>
+            <tr>
+                <th>Hora</th>
+                <th>Tipo</th>
+                <th>Categoría</th>
+                <th>Motivo</th>
+                <th class="num">Monto</th>
+            </tr>
+            {{range .Movements}}
+            <tr>
+                <td>{{.Time}}</td>
+                <td>{{.Type}}</td>
+                <td>{{.Category}}</td>
+                <td>{{.Reason}}</td>
+                <td class="num">{{.Amount}}</td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="5" class="muted">Sin movimientos</td>
+            </tr>
+            {{end}}
+        </table>
+
+        <div class="signatures">
+            <div>Entregado por</div>
+            <div>Recibido por</div>
+        </div>
+
+        <p class="muted" style="margin-top: 8mm;">Generado el {{.GeneratedAt}}</p>
+    </div>
+</body>
+
+</html>

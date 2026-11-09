@@ -1,12 +1,13 @@
 import { useText } from "@pengi/shared";
 import type { DataTableColumnDef } from "@pengi/ui";
 import { Button, DataTableColumnHeader, Text } from "@pengi/ui";
-import { Download } from "lucide-react";
+import { Download, Wallet } from "lucide-react";
 import { downloadInvoiceRide, type Invoice } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 import { selectColumn } from "@/components/custom/table/select-column";
+import { PaymentStatusBadge } from "@/components/features/cash/payment-status-badge";
 
 function DownloadRideButton({ invoice }: { invoice: Invoice }) {
 	const { textGet } = useText();
@@ -35,9 +36,51 @@ function DownloadRideButton({ invoice }: { invoice: Invoice }) {
 	);
 }
 
+function ChargeButton({
+	invoice,
+	onCharge,
+}: {
+	invoice: Invoice;
+	onCharge: (invoice: Invoice) => void;
+}) {
+	const { textGet } = useText();
+	// Null: issued before the first cash session, never charged at the desk.
+	if (
+		invoice.payment_status !== "unpaid" &&
+		invoice.payment_status !== "partial"
+	)
+		return null;
+	return (
+		<Button variant="ghost" size="sm" onClick={() => onCharge(invoice)}>
+			<Wallet className="mr-2 h-4 w-4" />
+			{textGet("cash.payment.charge")}
+		</Button>
+	);
+}
+
+/**
+ * Invoice list columns. `cash` is set when the plan includes the cash desk
+ * (adds the collection status); `cash.onCharge` (the Cobrar action) only when
+ * the user may charge too.
+ */
 export function getInvoiceColumns(
 	onRetry: (id: number) => void | Promise<void>,
+	cash?: { onCharge?: (invoice: Invoice) => void },
 ): DataTableColumnDef<Invoice>[] {
+	const onCharge = cash?.onCharge;
+	const paymentStatusColumn: DataTableColumnDef<Invoice> = {
+		accessorKey: "payment_status",
+		meta: { title: "cash.payment_status.column" },
+		header: ({ column }) => (
+			<DataTableColumnHeader
+				column={column}
+				title={<Text uuid="cash.payment_status.column" />}
+			/>
+		),
+		cell: ({ row }) => (
+			<PaymentStatusBadge status={row.original.payment_status} />
+		),
+	};
 	return [
 		selectColumn<Invoice>(),
 		{
@@ -145,6 +188,7 @@ export function getInvoiceColumns(
 				return value.includes(row.getValue(id));
 			},
 		},
+		...(cash ? [paymentStatusColumn] : []),
 		{
 			accessorKey: "createdAt",
 			meta: { title: "billing.invoice.column.date" },
@@ -161,7 +205,14 @@ export function getInvoiceColumns(
 		{
 			id: "actions",
 			header: () => null,
-			cell: ({ row }) => <DownloadRideButton invoice={row.original} />,
+			cell: ({ row }) => (
+				<div className="flex justify-end gap-1">
+					{onCharge && (
+						<ChargeButton invoice={row.original} onCharge={onCharge} />
+					)}
+					<DownloadRideButton invoice={row.original} />
+				</div>
+			),
 			enableSorting: false,
 			enableHiding: false,
 		},

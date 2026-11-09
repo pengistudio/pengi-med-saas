@@ -15,6 +15,7 @@ import {
 	Stethoscope,
 	UserPlus,
 	UsersRound,
+	Wallet,
 } from "lucide-react";
 import type React from "react";
 import { PERMISSIONS } from "@/lib/constants";
@@ -51,6 +52,8 @@ export interface EnabledFeatures {
 	billing?: boolean;
 	team?: boolean;
 	kanban?: boolean;
+	/** Cash desk (caja): payments, cash sessions. */
+	cash?: boolean;
 	whatsapp?: boolean;
 	patient_portal?: boolean;
 	/** AI functions (history summary). Opt-in: check `=== true`. */
@@ -178,6 +181,14 @@ export const createNavItems = (
 			icon: Package,
 			section: finance,
 			...billing,
+		},
+		{
+			label: textGet("cash.nav.title"),
+			href: "/cash",
+			icon: Wallet,
+			section: finance,
+			permission: PERMISSIONS.CASH.PERMISSION_READ_CASH,
+			feature: "cash",
 		},
 		{
 			icon: Settings,

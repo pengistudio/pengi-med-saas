@@ -41,7 +41,20 @@ type Invoice struct {
 	CompanyID         uint                     `json:"company_id"` // Optional if you need it, or can be replaced by Tenant logic
 	EstablishmentCode string                   `json:"establishment_code"`
 	EmissionPointCode string                   `json:"emission_point_code"`
+
+	// Collection status, computed from the cash payments (cash_services.
+	// ApplyPaymentStatus), not stored. Null for invoices issued before the
+	// clinic's first cash session, which were never charged through the desk.
+	PaidAmount    *float64 `gorm:"-" json:"paid_amount"`
+	PaymentStatus *string  `gorm:"-" json:"payment_status"` // unpaid | partial | paid
 }
+
+// Invoice collection status (Invoice.PaymentStatus), independent of the SRI status.
+const (
+	PaymentStatusUnpaid  = "unpaid"
+	PaymentStatusPartial = "partial"
+	PaymentStatusPaid    = "paid"
+)
 
 type InvoiceItem struct {
 	gorm.Model

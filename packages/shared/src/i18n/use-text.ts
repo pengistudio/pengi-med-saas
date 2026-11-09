@@ -84,6 +84,9 @@ function createText(lang: SupportedLocale, messages: Record<string, string>) {
 		timeStyle: "short",
 	});
 	const timeFormat = new Intl.DateTimeFormat(locale, { timeStyle: "medium" });
+	const shortTimeFormat = new Intl.DateTimeFormat(locale, {
+		timeStyle: "short",
+	});
 	const moneyFormat = new Intl.NumberFormat(locale, {
 		style: "currency",
 		currency: "USD",
@@ -144,15 +147,21 @@ function createText(lang: SupportedLocale, messages: Record<string, string>) {
 		return date ? dateTimeFormat.format(date) : "";
 	};
 
-	/** "2:05:09 p. m." / "2:05:09 PM". */
-	const formatTime = (value: DateInput) => {
+	/**
+	 * "2:05:09 p. m." / "2:05:09 PM"; with `seconds: false`, "2:05 p. m." /
+	 * "2:05 PM".
+	 */
+	const formatTime = (value: DateInput, { seconds = true } = {}) => {
 		const date = toDate(value);
-		return date ? timeFormat.format(date) : "";
+		if (!date) return "";
+		return (seconds ? timeFormat : shortTimeFormat).format(date);
 	};
 
+	// An amount that rounds to zero cents (including -0, e.g. a negated zero
+	// total) reads "$0,00", never "-$0,00".
 	const formatMoney = (amount: number | null | undefined) =>
 		typeof amount === "number" && Number.isFinite(amount)
-			? moneyFormat.format(amount)
+			? moneyFormat.format(Math.abs(amount) < 0.005 ? 0 : amount)
 			: "";
 
 	/**
