@@ -123,6 +123,8 @@ func (h *WebhookHandler) Process(payload whatsapp.WebhookPayload) {
 				h.processMessages(change.Value)
 			case "smb_message_echoes":
 				h.processEchoes(change.Value)
+			case "history":
+				h.processHistory(change.Value)
 			case "account_update":
 				h.processAccountUpdate(entry.ID, change.Value)
 			case "message_template_status_update":
@@ -233,6 +235,108 @@ func (h *WebhookHandler) processEchoes(v whatsapp.WebhookValue) {
 			h.logger.Error("whatsapp webhook: failed to record echo", zap.Uint("tenant_id", account.TenantID), zap.Error(err))
 		}
 	}
+}
+
+// processHistory imports the chats the clinic had in the WhatsApp Business
+// app (Coexistence), shared in chunks after onboarding. They only fill the
+// threads: nothing is counted as unread, the assistant never answers them, no
+// STOP / button inside them is acted on, and nobody is notified.
+func (h *WebhookHandler) processHistory(v whatsapp.WebhookValue) {
+	phoneID := v.Metadata.PhoneNumberID
+	if phoneID == "" || len(v.History) == 0 {
+		return
+	}
+	var account whatsapp_models.WhatsAppAccount
+	if err := tenantdb.System(h.db).Where("phone_number_id = ?", phoneID).Limit(1).Find(&account).Error; err != nil {
+		h.logger.Error("whatsapp webhook: failed to find account", zap.Error(err))
+		return
+	}
+	if account.ID == 0 {
+		h.logger.Info("whatsapp webhook: history for unknown number", zap.String("phone_number_id", phoneID))
+		return
+	}
+	db := tenantdb.ForTenant(h.db, account.TenantID)
+	business := digitsOnly(v.Metadata.DisplayPhoneNumber)
+	for _, chunk := range v.History {
+		if len(chunk.Errors) > 0 {
+			// The clinic chose not to share it (code 2593109).
+			h.logger.Info("whatsapp webhook: history not shared", zap.Uint("tenant_id", account.TenantID), zap.Int("code", chunk.Errors[0].Code))
+			continue
+		}
+		imported := 0
+		for _, thread := range chunk.Threads {
+			n, err := h.importThread(db, account.TenantID, business, thread)
+			if err != nil {
+				h.logger.Error("whatsapp webhook: failed to import history thread", zap.Uint("tenant_id", account.TenantID), zap.Error(err))
+				continue
+			}
+			imported += n
+		}
+		h.logger.Info("whatsapp webhook: history chunk", zap.Uint("tenant_id", account.TenantID),
+			zap.Int("phase", chunk.Metadata.Phase), zap.Int("chunk", chunk.Metadata.ChunkOrder),
+			zap.Int("progress", chunk.Metadata.Progress), zap.Int("imported", imported))
+	}
+}
+
+// importThread stores one chat of the history. A message is the clinic's when
+// it comes from the business number, the patient's otherwise.
+func (h *WebhookHandler) importThread(db *gorm.DB, tenantID uint, business string, thread whatsapp.WebhookThread) (int, error) {
+	phone := inboundPhone(thread.ID)
+	if phone == "" || len(thread.Messages) == 0 {
+		return 0, nil
+	}
+	items := make([]whatsapp_services.HistoryMessage, 0, len(thread.Messages))
+	for _, m := range thread.Messages {
+		if m.ID == "" {
+			continue
+		}
+		at := h.now()
+		if ts, err := strconv.ParseInt(m.Timestamp, 10, 64); err == nil {
+			at = time.Unix(ts, 0)
+		}
+		contentType, body, _ := inboundContent(m)
+		msg := whatsapp_models.WhatsAppMessage{TenantID: tenantID, WamID: m.ID, ContentType: contentType, Body: body}
+		inbound := business == "" || digitsOnly(m.From) != business
+		if !inbound {
+			msg.Status = historyStatus(m)
+		}
+		items = append(items, whatsapp_services.HistoryMessage{Msg: msg, At: at, Inbound: inbound})
+	}
+	if len(items) == 0 {
+		return 0, nil
+	}
+	conv, err := whatsapp_services.EnsureConversation(db, tenantID, phone, nil)
+	if err != nil {
+		return 0, err
+	}
+	return whatsapp_services.ImportHistory(db, &conv, items)
+}
+
+// historyStatus maps the delivery state Meta reports for a history message the
+// clinic sent.
+func historyStatus(m whatsapp.WebhookMessage) string {
+	if m.HistoryContext == nil {
+		return whatsapp_models.MessageStatusSent
+	}
+	switch m.HistoryContext.Status {
+	case "read", "played":
+		return whatsapp_models.MessageStatusRead
+	case "delivered":
+		return whatsapp_models.MessageStatusDelivered
+	case "error":
+		return whatsapp_models.MessageStatusFailed
+	}
+	return whatsapp_models.MessageStatusSent
+}
+
+func digitsOnly(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if r >= '0' && r <= '9' {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 // processAccountUpdate follows the link between our app and the number:

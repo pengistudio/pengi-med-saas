@@ -68,6 +68,11 @@ type WebhookValue struct {
 	// app on its phone (Coexistence). Each has To, the patient's number.
 	MessageEchoes []WebhookMessage `json:"message_echoes"`
 
+	// history: the chats the clinic had in the WhatsApp Business app, sent once
+	// after a Coexistence onboarding, in chunks (phase 0: last day, 1: up to 90
+	// days, 2: up to 180 days).
+	History []WebhookHistory `json:"history"`
+
 	// account_update (Event: PARTNER_REMOVED, ACCOUNT_RECONNECTED, ...)
 	WabaInfo struct {
 		WabaID string `json:"waba_id"`
@@ -83,6 +88,24 @@ type WebhookValue struct {
 	MessageTemplateName     string `json:"message_template_name"`
 	MessageTemplateLanguage string `json:"message_template_language"`
 	Reason                  string `json:"reason"`
+}
+
+// WebhookHistory is one chunk of the history sync, or (Errors set) the notice
+// that the clinic declined to share it.
+type WebhookHistory struct {
+	Metadata struct {
+		Phase      int `json:"phase"`
+		ChunkOrder int `json:"chunk_order"`
+		Progress   int `json:"progress"` // 100: the sync is complete
+	} `json:"metadata"`
+	Threads []WebhookThread `json:"threads"`
+	Errors  []WebhookError  `json:"errors"`
+}
+
+// WebhookThread is the history of one chat; ID is the patient's number.
+type WebhookThread struct {
+	ID       string           `json:"id"`
+	Messages []WebhookMessage `json:"messages"`
 }
 
 // WebhookMetadata identifies the business number that received the event.
@@ -113,6 +136,10 @@ type WebhookError struct {
 // WebhookMessage is an incoming message from a user.
 type WebhookMessage struct {
 	From string `json:"from"`
+	// HistoryContext is only present in a history message.
+	HistoryContext *struct {
+		Status string `json:"status"` // delivered, error, pending, played, read, sent
+	} `json:"history_context,omitempty"`
 	// To is the recipient of an echo (smb_message_echoes); empty otherwise.
 	To        string `json:"to"`
 	ID        string `json:"id"`

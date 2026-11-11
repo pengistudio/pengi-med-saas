@@ -15,6 +15,7 @@ import (
 	"pengi-med-saas/core/whatsapp"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
+	whatsapp_dto "pengi-med-saas/features/whatsapp/dto"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
 )
 
@@ -450,5 +451,97 @@ func TestWebhook_AccountUpdateTogglesStatus(t *testing.T) {
 	f.signed(accountUpdateEvent("WABA-OWN", "ACCOUNT_RECONNECTED", "", ""))
 	if s := f.account(f.own).Status; s != whatsapp_models.AccountStatusTokenInvalid {
 		t.Fatalf("status = %s", s)
+	}
+}
+
+func historyEvent(phoneID string, threads ...map[string]any) map[string]any {
+	return map[string]any{"object": "whatsapp_business_account", "entry": []any{map[string]any{
+		"id": "WABA", "changes": []any{map[string]any{"field": "history", "value": map[string]any{
+			"messaging_product": "whatsapp",
+			"metadata":          map[string]string{"phone_number_id": phoneID, "display_phone_number": "+1 555-0100"},
+			"history": []any{map[string]any{
+				"metadata": map[string]int{"phase": 1, "chunk_order": 1, "progress": 55},
+				"threads":  threads,
+			}},
+		}}},
+	}}}
+}
+
+func historyMsg(id, from, ts, body, status string) map[string]any {
+	return map[string]any{"from": from, "id": id, "timestamp": ts, "type": "text",
+		"text": map[string]string{"body": body}, "history_context": map[string]string{"status": status}}
+}
+
+// History fills the thread in the order things happened (a later chunk holds
+// older messages), never counts as unread, never wakes the assistant, and a
+// resent chunk adds nothing.
+func TestWebhook_HistoryImport(t *testing.T) {
+	f := newFixture(t)
+	f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")
+	// A live message that arrived before the (older) history chunk.
+	f.signed(textEvent("PHONE-OWN", "593992223333", "hoy"))
+
+	ev := historyEvent("PHONE-OWN", map[string]any{"id": "593992223333", "messages": []any{
+		historyMsg("wamid.h2", "15550100", "1700000100", "le atendemos mañana", "read"),
+		historyMsg("wamid.h1", "593992223333", "1700000000", "hola, quiero una cita", "read"),
+	}})
+	for i := 0; i < 2; i++ {
+		if code := f.signed(ev); code != http.StatusOK {
+			t.Fatalf("code = %d", code)
+		}
+	}
+	var conv whatsapp_models.WhatsAppConversation
+	f.db.Where("phone = ?", "593992223333").First(&conv)
+	var msgs []whatsapp_models.WhatsAppMessage
+	f.db.Where("conversation_id = ?", conv.ID).Order("created_at ASC, id ASC").Find(&msgs)
+	if len(msgs) != 3 {
+		t.Fatalf("messages = %d, want 3 (resent chunk must add nothing)", len(msgs))
+	}
+	if msgs[0].WamID != "wamid.h1" || msgs[0].Direction != whatsapp_models.DirectionInbound || msgs[0].Status != whatsapp_models.MessageStatusReceived {
+		t.Fatalf("first = %+v", msgs[0])
+	}
+	if msgs[1].WamID != "wamid.h2" || msgs[1].Kind != whatsapp_models.KindApp || msgs[1].Direction != whatsapp_models.DirectionOutbound || msgs[1].Status != whatsapp_models.MessageStatusRead {
+		t.Fatalf("second = %+v", msgs[1])
+	}
+	if msgs[2].Body != "hoy" {
+		t.Fatalf("third = %+v", msgs[2])
+	}
+	// The history did not move the conversation back nor count as unread.
+	var after whatsapp_models.WhatsAppConversation
+	f.db.First(&after, conv.ID)
+	if after.UnreadCount != 1 || after.LastMessagePreview != "hoy" {
+		t.Fatalf("conversation = %+v", after)
+	}
+	// The thread endpoint shows them in that order too, and pages by it.
+	page := f.callID(f.h.ListConversationMessages, f.own, http.MethodGet, conv.ID, nil, "limit=2").Data.(whatsapp_dto.ThreadResponse)
+	if !page.HasMore || len(page.Items) != 2 || page.Items[0].Body != "le atendemos mañana" || page.Items[1].Body != "hoy" {
+		t.Fatalf("page 1 = %+v", page)
+	}
+	older := f.callID(f.h.ListConversationMessages, f.own, http.MethodGet, conv.ID, nil, fmt.Sprintf("limit=2&before=%d", page.Items[0].ID)).Data.(whatsapp_dto.ThreadResponse)
+	if older.HasMore || len(older.Items) != 1 || older.Items[0].Body != "hola, quiero una cita" {
+		t.Fatalf("page 2 = %+v", older)
+	}
+	// The assistant never saw it.
+	var events int64
+	f.db.Model(&whatsapp_models.WhatsAppBotEvent{}).Where("conversation_id = ?", conv.ID).Count(&events)
+	if events > 1 {
+		t.Fatalf("bot events = %d", events)
+	}
+}
+
+// Declining to share the history is only logged.
+func TestWebhook_HistoryDeclined(t *testing.T) {
+	f := newFixture(t)
+	f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")
+	ev := historyEvent("PHONE-OWN")
+	hist := ev["entry"].([]any)[0].(map[string]any)["changes"].([]any)[0].(map[string]any)["value"].(map[string]any)
+	hist["history"] = []any{map[string]any{"errors": []any{map[string]any{"code": 2593109, "title": "History sync is turned off"}}}}
+	if code := f.signed(ev); code != http.StatusOK {
+		t.Fatalf("code = %d", code)
+	}
+	var n int64
+	f.db.Model(&whatsapp_models.WhatsAppConversation{}).Count(&n)
+	if n != 0 {
+		t.Fatalf("conversations = %d", n)
 	}
 }
