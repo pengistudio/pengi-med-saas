@@ -51,6 +51,8 @@ export function WhatsAppSettings() {
 	const [config, setConfig] = React.useState<WhatsAppConfig | null>(null);
 	const [account, setAccount] = React.useState<WhatsAppAccount | null>(null);
 	const [manualOpen, setManualOpen] = React.useState(false);
+	// Which connect button started the running flow (spinner goes on that one).
+	const [startedWith, setStartedWith] = React.useState<"app" | "api">("app");
 	const [testOpen, setTestOpen] = React.useState(false);
 	const [disconnectOpen, setDisconnectOpen] = React.useState(false);
 	const [busy, setBusy] = React.useState<"sync" | "save" | "disconnect" | null>(
@@ -146,9 +148,12 @@ export function WhatsAppSettings() {
 							size="sm"
 							className="w-fit"
 							disabled={embedded.running}
-							onClick={() => embedded.start({ coexistence: true })}
+							onClick={() => {
+								setStartedWith("app");
+								void embedded.start({ coexistence: true });
+							}}
 						>
-							{embedded.running ? (
+							{embedded.running && startedWith === "app" ? (
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							) : (
 								<MessageCircle className="mr-2 h-4 w-4" />
@@ -171,8 +176,14 @@ export function WhatsAppSettings() {
 							variant="outline"
 							className="w-fit"
 							disabled={embedded.running}
-							onClick={() => embedded.start()}
+							onClick={() => {
+								setStartedWith("api");
+								void embedded.start();
+							}}
 						>
+							{embedded.running && startedWith === "api" && (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							)}
 							<Text uuid="settings.whatsapp.connect" />
 						</Button>
 					</div>
