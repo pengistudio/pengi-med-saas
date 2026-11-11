@@ -27,6 +27,7 @@ func CalculateEnabledFeaturesFromFeatures(features []company_models.Feature) ten
 		PatientPortal: categoriesFound["PATIENT_PORTAL"],
 		AI:            categoriesFound["AI"],
 		Cash:          categoriesFound["CASH"],
+		Reports:       categoriesFound["REPORTS"],
 	}
 }
 

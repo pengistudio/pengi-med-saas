@@ -125,6 +125,7 @@ const WhatsAppSettingsPage = lazy(
 	() => import("@/pages/settings/whatsapp-settings-page"),
 );
 const WhatsAppPage = lazy(() => import("@/pages/whatsapp/whatsapp-page"));
+const ReportsPage = lazy(() => import("@/pages/reports/reports-page"));
 const CashPage = lazy(() => import("@/pages/cash/cash-page"));
 const CashHistoryPage = lazy(() => import("@/pages/cash/cash-history"));
 const CashSessionDetailPage = lazy(
@@ -471,12 +472,29 @@ const cashRoutes: RouteObject = {
 	],
 };
 
+const readReports = [PERMISSIONS.REPORTS.PERMISSION_READ_REPORTS];
+const reportsRoutes: RouteObject = {
+	path: "/reports",
+	element: <CheckPermission permissions={readReports} />,
+	children: [
+		{
+			index: true,
+			element: (
+				<CheckPermission permissions={readReports}>
+					<ReportsPage />
+				</CheckPermission>
+			),
+		},
+	],
+};
+
 const routes: RouteObject[] = [
 	clinicalRoutes,
 	examOrderRoutes,
 	billingRoutes,
 	doctorRoutes,
 	cashRoutes,
+	reportsRoutes,
 ];
 
 const router = createBrowserRouter([

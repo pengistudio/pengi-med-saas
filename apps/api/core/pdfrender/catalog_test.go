@@ -60,7 +60,7 @@ func TestCatalog_IDsAndFilesAreUnique(t *testing.T) {
 			t.Fatalf("duplicate document %s / %s", doc.ID, doc.File)
 		}
 		ids[doc.ID], files[doc.File] = true, true
-		if doc.Feature != "clinical" && doc.Feature != "billing" && doc.Feature != "cash" {
+		if doc.Feature != "clinical" && doc.Feature != "billing" && doc.Feature != "cash" && doc.Feature != "reports" {
 			t.Fatalf("%s: feature %q is not an EnabledFeatures key", doc.ID, doc.Feature)
 		}
 	}

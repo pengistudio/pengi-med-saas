@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Actividad clínica</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @page { size: A4 portrait; margin: 0; }
+        body { font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.4; color: #334155; }
+        .page { width: 210mm; min-height: 297mm; padding: 14mm; }
+        header { display: flex; justify-content: space-between; border-bottom: 2px solid #0ea5e9; padding-bottom: 6mm; margin-bottom: 6mm; }
+        h1 { font-size: 15pt; color: #0f172a; }
+        h2 { font-size: 10.5pt; color: #0ea5e9; margin: 6mm 0 2mm; }
+        .muted { color: #64748b; }
+        .kpis { display: flex; gap: 4mm; }
+        .kpis > div { flex: 1; padding: 2mm 3mm; background: #f8fafc; border-left: 3px solid #0ea5e9; }
+        .kpis strong { display: block; font-size: 13pt; color: #0f172a; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 1.5mm 2mm; text-align: left; }
+        th { background: #e0f2fe; font-weight: bold; }
+        .num { text-align: right; white-space: nowrap; }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <div>
+                <h1>{{.ClinicName}}</h1>
+                {{if .TaxID}}<div class="muted">RUC {{.TaxID}}</div>{{end}}
+            </div>
+            <div style="text-align: right;">
+                <h1>Actividad clínica</h1>
+                <div>{{.From}} - {{.To}}</div>
+                <div class="muted">{{if .Doctor}}{{.Doctor}}{{else}}Todos los médicos{{end}}</div>
+            </div>
+        </header>
+
+        <div class="kpis">
+            <div>Consultas<strong>{{.Consultations}}</strong></div>
+            <div>Recetas<strong>{{.Prescriptions}}</strong></div>
+            <div>Órdenes de examen<strong>{{.ExamOrders}}</strong></div>
+        </div>
+
+        <h2>Diagnósticos más frecuentes (CIE-10)</h2>
+        <table>
+            <tr><th>Código</th><th>Diagnóstico</th><th class="num">Consultas</th></tr>
+            {{range .Diagnoses}}<tr><td>{{.Code}}</td><td>{{.Title}}</td><td class="num">{{.Count}}</td></tr>
+            {{else}}<tr><td colspan="3" class="muted">Sin diagnósticos</td></tr>{{end}}
+        </table>
+
+        <h2>Por médico</h2>
+        <table>
+            <tr><th>Médico</th><th class="num">Consultas</th><th class="num">Recetas</th><th class="num">Órdenes de examen</th></tr>
+            {{range .Doctors}}<tr><td>{{.Doctor}}</td><td class="num">{{.Consultations}}</td><td class="num">{{.Prescriptions}}</td><td class="num">{{.ExamOrders}}</td></tr>
+            {{else}}<tr><td colspan="4" class="muted">Sin datos</td></tr>{{end}}
+        </table>
+
+        <p class="muted" style="margin-top: 8mm;">Generado el {{.GeneratedAt}}</p>
+    </div>
+</body>
+
+</html>

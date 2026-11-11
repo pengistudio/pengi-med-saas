@@ -14514,5 +14514,469 @@
     {
         "key": "cash.payment.progress",
         "value": "Avance del cobro"
+    },
+    {
+        "key": "E-REPORTS-001",
+        "value": "Filtros de reporte inválidos: usa from/to como AAAA-MM-DD y un doctor_id numérico."
+    },
+    {
+        "key": "E-REPORTS-002",
+        "value": "El rango de fechas no puede superar 366 días."
+    },
+    {
+        "key": "E-REPORTS-003",
+        "value": "Formato inválido: usa csv o pdf."
+    },
+    {
+        "key": "E-REPORTS-004",
+        "value": "Error interno de reportes."
+    },
+    {
+        "key": "E-REPORTS-005",
+        "value": "No se pudo generar el PDF del reporte."
+    },
+    {
+        "key": "reports.error.invalid_filters",
+        "value": "Los filtros del reporte no son válidos."
+    },
+    {
+        "key": "reports.error.range_too_long",
+        "value": "El rango de fechas no puede superar 366 días."
+    },
+    {
+        "key": "reports.error.invalid_format",
+        "value": "El formato solicitado no es válido."
+    },
+    {
+        "key": "reports.error.internal",
+        "value": "No se pudo generar el reporte."
+    },
+    {
+        "key": "reports.error.render_failed",
+        "value": "No se pudo generar el PDF del reporte."
+    },
+    {
+        "key": "reports.revenue.fetch.success",
+        "value": "Reporte de ingresos obtenido correctamente."
+    },
+    {
+        "key": "reports.receivables.fetch.success",
+        "value": "Reporte de cuentas por cobrar obtenido correctamente."
+    },
+    {
+        "key": "reports.appointments.fetch.success",
+        "value": "Reporte de citas obtenido correctamente."
+    },
+    {
+        "key": "reports.clinical.fetch.success",
+        "value": "Reporte clínico obtenido correctamente."
+    },
+    {
+        "key": "reports.section.summary",
+        "value": "Resumen"
+    },
+    {
+        "key": "reports.section.series",
+        "value": "Evolución"
+    },
+    {
+        "key": "reports.section.by_method",
+        "value": "Por forma de pago"
+    },
+    {
+        "key": "reports.section.by_doctor",
+        "value": "Por médico"
+    },
+    {
+        "key": "reports.section.buckets",
+        "value": "Antigüedad de la cartera"
+    },
+    {
+        "key": "reports.section.items",
+        "value": "Detalle"
+    },
+    {
+        "key": "reports.section.by_status",
+        "value": "Por estado"
+    },
+    {
+        "key": "reports.section.by_type",
+        "value": "Por tipo de cita"
+    },
+    {
+        "key": "reports.section.top_diagnoses",
+        "value": "Diagnósticos más frecuentes"
+    },
+    {
+        "key": "reports.col.invoiced",
+        "value": "Facturado"
+    },
+    {
+        "key": "reports.col.collected",
+        "value": "Cobrado"
+    },
+    {
+        "key": "reports.col.receivable",
+        "value": "Por cobrar"
+    },
+    {
+        "key": "reports.col.period",
+        "value": "Período"
+    },
+    {
+        "key": "reports.col.method",
+        "value": "Forma de pago"
+    },
+    {
+        "key": "reports.col.count",
+        "value": "Cantidad"
+    },
+    {
+        "key": "reports.col.total",
+        "value": "Total"
+    },
+    {
+        "key": "reports.col.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "reports.col.balance",
+        "value": "Saldo"
+    },
+    {
+        "key": "reports.col.bucket",
+        "value": "Rango"
+    },
+    {
+        "key": "reports.col.invoice",
+        "value": "Factura"
+    },
+    {
+        "key": "reports.col.patient",
+        "value": "Paciente"
+    },
+    {
+        "key": "reports.col.date",
+        "value": "Fecha"
+    },
+    {
+        "key": "reports.col.paid",
+        "value": "Cobrado"
+    },
+    {
+        "key": "reports.col.age_days",
+        "value": "Días de antigüedad"
+    },
+    {
+        "key": "reports.col.completed",
+        "value": "Completadas"
+    },
+    {
+        "key": "reports.col.cancelled",
+        "value": "Canceladas"
+    },
+    {
+        "key": "reports.col.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "reports.col.no_show_rate",
+        "value": "Tasa de no asistencia"
+    },
+    {
+        "key": "reports.col.new_patients",
+        "value": "Pacientes nuevos"
+    },
+    {
+        "key": "reports.col.recurring_patients",
+        "value": "Pacientes recurrentes"
+    },
+    {
+        "key": "reports.col.status",
+        "value": "Estado"
+    },
+    {
+        "key": "reports.col.type",
+        "value": "Tipo de cita"
+    },
+    {
+        "key": "reports.col.consultations",
+        "value": "Consultas"
+    },
+    {
+        "key": "reports.col.prescriptions",
+        "value": "Recetas"
+    },
+    {
+        "key": "reports.col.exam_orders",
+        "value": "Órdenes de examen"
+    },
+    {
+        "key": "reports.col.code",
+        "value": "Código CIE-10"
+    },
+    {
+        "key": "reports.col.diagnosis",
+        "value": "Diagnóstico"
+    },
+    {
+        "key": "reports.method.cash",
+        "value": "Efectivo"
+    },
+    {
+        "key": "reports.method.transfer",
+        "value": "Transferencia"
+    },
+    {
+        "key": "reports.method.credit_card",
+        "value": "Tarjeta de crédito"
+    },
+    {
+        "key": "reports.method.debit_card",
+        "value": "Tarjeta de débito"
+    },
+    {
+        "key": "reports.method.check",
+        "value": "Cheque"
+    },
+    {
+        "key": "reports.method.other",
+        "value": "Otros"
+    },
+    {
+        "key": "reports.appt_status.scheduled",
+        "value": "Programada"
+    },
+    {
+        "key": "reports.appt_status.confirmed",
+        "value": "Confirmada"
+    },
+    {
+        "key": "reports.appt_status.completed",
+        "value": "Completada"
+    },
+    {
+        "key": "reports.appt_status.cancelled",
+        "value": "Cancelada"
+    },
+    {
+        "key": "reports.appt_status.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "reports.bucket.0_30",
+        "value": "0 a 30 días"
+    },
+    {
+        "key": "reports.bucket.31_60",
+        "value": "31 a 60 días"
+    },
+    {
+        "key": "reports.bucket.61_plus",
+        "value": "61 días o más"
+    },
+    {
+        "key": "reports.no_doctor",
+        "value": "Sin médico"
+    },
+    {
+        "key": "reports.no_type",
+        "value": "Sin tipo"
+    },
+    {
+        "key": "reports.final_consumer",
+        "value": "Consumidor final"
+    },
+    {
+        "key": "reports.nav.title",
+        "value": "Reportes"
+    },
+    {
+        "key": "reports.page.title",
+        "value": "Reportes y estadísticas"
+    },
+    {
+        "key": "reports.page.description",
+        "value": "Ingresos, cuentas por cobrar, citas y actividad clínica de tu consultorio."
+    },
+    {
+        "key": "reports.tab.revenue",
+        "value": "Ingresos"
+    },
+    {
+        "key": "reports.tab.receivables",
+        "value": "Por cobrar"
+    },
+    {
+        "key": "reports.tab.appointments",
+        "value": "Citas"
+    },
+    {
+        "key": "reports.tab.clinical",
+        "value": "Clínico"
+    },
+    {
+        "key": "reports.filter.from",
+        "value": "Desde"
+    },
+    {
+        "key": "reports.filter.to",
+        "value": "Hasta"
+    },
+    {
+        "key": "reports.filter.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "reports.filter.all_doctors",
+        "value": "Todos los médicos"
+    },
+    {
+        "key": "reports.filter.error.invalid",
+        "value": "Elige una fecha de inicio y una de fin válidas."
+    },
+    {
+        "key": "reports.filter.error.order",
+        "value": "La fecha de inicio no puede ser posterior a la de fin."
+    },
+    {
+        "key": "reports.filter.error.too_long",
+        "value": "El rango no puede superar 366 días."
+    },
+    {
+        "key": "reports.download.csv",
+        "value": "Descargar CSV"
+    },
+    {
+        "key": "reports.download.pdf",
+        "value": "Descargar PDF"
+    },
+    {
+        "key": "reports.empty",
+        "value": "No hay datos en este período."
+    },
+    {
+        "key": "reports.error",
+        "value": "No se pudo cargar el reporte. Intenta de nuevo."
+    },
+    {
+        "key": "reports.revenue.invoiced",
+        "value": "Facturado"
+    },
+    {
+        "key": "reports.revenue.collected",
+        "value": "Cobrado"
+    },
+    {
+        "key": "reports.revenue.receivable",
+        "value": "Por cobrar"
+    },
+    {
+        "key": "reports.revenue.series",
+        "value": "Facturado y cobrado en el tiempo"
+    },
+    {
+        "key": "reports.revenue.by_method",
+        "value": "Cobros por método de pago"
+    },
+    {
+        "key": "reports.revenue.by_doctor",
+        "value": "Ingresos por médico"
+    },
+    {
+        "key": "reports.receivables.total",
+        "value": "Total por cobrar"
+    },
+    {
+        "key": "reports.receivables.bucket.0_30",
+        "value": "0 a 30 días"
+    },
+    {
+        "key": "reports.receivables.bucket.31_60",
+        "value": "31 a 60 días"
+    },
+    {
+        "key": "reports.receivables.bucket.61_plus",
+        "value": "Más de 60 días"
+    },
+    {
+        "key": "reports.receivables.invoices",
+        "value": "Facturas pendientes de cobro"
+    },
+    {
+        "key": "reports.appointments.total",
+        "value": "Citas"
+    },
+    {
+        "key": "reports.appointments.no_show_rate",
+        "value": "Tasa de inasistencia"
+    },
+    {
+        "key": "reports.appointments.new_patients",
+        "value": "Pacientes nuevos"
+    },
+    {
+        "key": "reports.appointments.returning_patients",
+        "value": "Pacientes recurrentes"
+    },
+    {
+        "key": "reports.appointments.series",
+        "value": "Citas por día"
+    },
+    {
+        "key": "reports.appointments.by_status",
+        "value": "Citas por estado"
+    },
+    {
+        "key": "reports.appointments.by_type",
+        "value": "Citas por tipo"
+    },
+    {
+        "key": "reports.appointments.by_doctor",
+        "value": "Citas por médico"
+    },
+    {
+        "key": "reports.appointments.status.scheduled",
+        "value": "Agendada"
+    },
+    {
+        "key": "reports.appointments.status.confirmed",
+        "value": "Confirmada"
+    },
+    {
+        "key": "reports.appointments.status.completed",
+        "value": "Completada"
+    },
+    {
+        "key": "reports.appointments.status.cancelled",
+        "value": "Cancelada"
+    },
+    {
+        "key": "reports.appointments.status.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "reports.clinical.top_diagnoses",
+        "value": "Diagnósticos más frecuentes (CIE-10)"
+    },
+    {
+        "key": "reports.clinical.diagnoses_table",
+        "value": "Detalle de diagnósticos"
+    },
+    {
+        "key": "reports.clinical.by_doctor",
+        "value": "Actividad clínica por médico"
+    },
+    {
+        "key": "reports.col.appointments",
+        "value": "Citas"
+    },
+    {
+        "key": "reports.col.description",
+        "value": "Descripción"
+    },
+    {
+        "key": "reports.col.no_doctor",
+        "value": "Sin médico"
     }
 ]

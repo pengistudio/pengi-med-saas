@@ -14514,5 +14514,469 @@
     {
         "key": "cash.payment.progress",
         "value": "Payment progress"
+    },
+    {
+        "key": "E-REPORTS-001",
+        "value": "Invalid report filters: use from/to as YYYY-MM-DD and a numeric doctor_id."
+    },
+    {
+        "key": "E-REPORTS-002",
+        "value": "The date range cannot exceed 366 days."
+    },
+    {
+        "key": "E-REPORTS-003",
+        "value": "Invalid format: use csv or pdf."
+    },
+    {
+        "key": "E-REPORTS-004",
+        "value": "Reports internal error."
+    },
+    {
+        "key": "E-REPORTS-005",
+        "value": "The report PDF could not be generated."
+    },
+    {
+        "key": "reports.error.invalid_filters",
+        "value": "The report filters are not valid."
+    },
+    {
+        "key": "reports.error.range_too_long",
+        "value": "The date range cannot exceed 366 days."
+    },
+    {
+        "key": "reports.error.invalid_format",
+        "value": "The requested format is not valid."
+    },
+    {
+        "key": "reports.error.internal",
+        "value": "The report could not be generated."
+    },
+    {
+        "key": "reports.error.render_failed",
+        "value": "The report PDF could not be generated."
+    },
+    {
+        "key": "reports.revenue.fetch.success",
+        "value": "Revenue report fetched successfully."
+    },
+    {
+        "key": "reports.receivables.fetch.success",
+        "value": "Receivables report fetched successfully."
+    },
+    {
+        "key": "reports.appointments.fetch.success",
+        "value": "Appointments report fetched successfully."
+    },
+    {
+        "key": "reports.clinical.fetch.success",
+        "value": "Clinical report fetched successfully."
+    },
+    {
+        "key": "reports.section.summary",
+        "value": "Summary"
+    },
+    {
+        "key": "reports.section.series",
+        "value": "Trend"
+    },
+    {
+        "key": "reports.section.by_method",
+        "value": "By payment method"
+    },
+    {
+        "key": "reports.section.by_doctor",
+        "value": "By doctor"
+    },
+    {
+        "key": "reports.section.buckets",
+        "value": "Receivables aging"
+    },
+    {
+        "key": "reports.section.items",
+        "value": "Detail"
+    },
+    {
+        "key": "reports.section.by_status",
+        "value": "By status"
+    },
+    {
+        "key": "reports.section.by_type",
+        "value": "By appointment type"
+    },
+    {
+        "key": "reports.section.top_diagnoses",
+        "value": "Most frequent diagnoses"
+    },
+    {
+        "key": "reports.col.invoiced",
+        "value": "Invoiced"
+    },
+    {
+        "key": "reports.col.collected",
+        "value": "Collected"
+    },
+    {
+        "key": "reports.col.receivable",
+        "value": "Receivable"
+    },
+    {
+        "key": "reports.col.period",
+        "value": "Period"
+    },
+    {
+        "key": "reports.col.method",
+        "value": "Payment method"
+    },
+    {
+        "key": "reports.col.count",
+        "value": "Count"
+    },
+    {
+        "key": "reports.col.total",
+        "value": "Total"
+    },
+    {
+        "key": "reports.col.doctor",
+        "value": "Doctor"
+    },
+    {
+        "key": "reports.col.balance",
+        "value": "Balance"
+    },
+    {
+        "key": "reports.col.bucket",
+        "value": "Range"
+    },
+    {
+        "key": "reports.col.invoice",
+        "value": "Invoice"
+    },
+    {
+        "key": "reports.col.patient",
+        "value": "Patient"
+    },
+    {
+        "key": "reports.col.date",
+        "value": "Date"
+    },
+    {
+        "key": "reports.col.paid",
+        "value": "Paid"
+    },
+    {
+        "key": "reports.col.age_days",
+        "value": "Age (days)"
+    },
+    {
+        "key": "reports.col.completed",
+        "value": "Completed"
+    },
+    {
+        "key": "reports.col.cancelled",
+        "value": "Cancelled"
+    },
+    {
+        "key": "reports.col.no_show",
+        "value": "No-show"
+    },
+    {
+        "key": "reports.col.no_show_rate",
+        "value": "No-show rate"
+    },
+    {
+        "key": "reports.col.new_patients",
+        "value": "New patients"
+    },
+    {
+        "key": "reports.col.recurring_patients",
+        "value": "Recurring patients"
+    },
+    {
+        "key": "reports.col.status",
+        "value": "Status"
+    },
+    {
+        "key": "reports.col.type",
+        "value": "Appointment type"
+    },
+    {
+        "key": "reports.col.consultations",
+        "value": "Consultations"
+    },
+    {
+        "key": "reports.col.prescriptions",
+        "value": "Prescriptions"
+    },
+    {
+        "key": "reports.col.exam_orders",
+        "value": "Exam orders"
+    },
+    {
+        "key": "reports.col.code",
+        "value": "ICD-10 code"
+    },
+    {
+        "key": "reports.col.diagnosis",
+        "value": "Diagnosis"
+    },
+    {
+        "key": "reports.method.cash",
+        "value": "Cash"
+    },
+    {
+        "key": "reports.method.transfer",
+        "value": "Transfer"
+    },
+    {
+        "key": "reports.method.credit_card",
+        "value": "Credit card"
+    },
+    {
+        "key": "reports.method.debit_card",
+        "value": "Debit card"
+    },
+    {
+        "key": "reports.method.check",
+        "value": "Check"
+    },
+    {
+        "key": "reports.method.other",
+        "value": "Other"
+    },
+    {
+        "key": "reports.appt_status.scheduled",
+        "value": "Scheduled"
+    },
+    {
+        "key": "reports.appt_status.confirmed",
+        "value": "Confirmed"
+    },
+    {
+        "key": "reports.appt_status.completed",
+        "value": "Completed"
+    },
+    {
+        "key": "reports.appt_status.cancelled",
+        "value": "Cancelled"
+    },
+    {
+        "key": "reports.appt_status.no_show",
+        "value": "No-show"
+    },
+    {
+        "key": "reports.bucket.0_30",
+        "value": "0 to 30 days"
+    },
+    {
+        "key": "reports.bucket.31_60",
+        "value": "31 to 60 days"
+    },
+    {
+        "key": "reports.bucket.61_plus",
+        "value": "61 days or more"
+    },
+    {
+        "key": "reports.no_doctor",
+        "value": "No doctor"
+    },
+    {
+        "key": "reports.no_type",
+        "value": "No type"
+    },
+    {
+        "key": "reports.final_consumer",
+        "value": "Final consumer"
+    },
+    {
+        "key": "reports.nav.title",
+        "value": "Reports"
+    },
+    {
+        "key": "reports.page.title",
+        "value": "Reports and statistics"
+    },
+    {
+        "key": "reports.page.description",
+        "value": "Revenue, receivables, appointments and clinical activity of your practice."
+    },
+    {
+        "key": "reports.tab.revenue",
+        "value": "Revenue"
+    },
+    {
+        "key": "reports.tab.receivables",
+        "value": "Receivables"
+    },
+    {
+        "key": "reports.tab.appointments",
+        "value": "Appointments"
+    },
+    {
+        "key": "reports.tab.clinical",
+        "value": "Clinical"
+    },
+    {
+        "key": "reports.filter.from",
+        "value": "From"
+    },
+    {
+        "key": "reports.filter.to",
+        "value": "To"
+    },
+    {
+        "key": "reports.filter.doctor",
+        "value": "Doctor"
+    },
+    {
+        "key": "reports.filter.all_doctors",
+        "value": "All doctors"
+    },
+    {
+        "key": "reports.filter.error.invalid",
+        "value": "Choose a valid start and end date."
+    },
+    {
+        "key": "reports.filter.error.order",
+        "value": "The start date cannot be after the end date."
+    },
+    {
+        "key": "reports.filter.error.too_long",
+        "value": "The range cannot exceed 366 days."
+    },
+    {
+        "key": "reports.download.csv",
+        "value": "Download CSV"
+    },
+    {
+        "key": "reports.download.pdf",
+        "value": "Download PDF"
+    },
+    {
+        "key": "reports.empty",
+        "value": "No data in this period."
+    },
+    {
+        "key": "reports.error",
+        "value": "The report could not be loaded. Try again."
+    },
+    {
+        "key": "reports.revenue.invoiced",
+        "value": "Invoiced"
+    },
+    {
+        "key": "reports.revenue.collected",
+        "value": "Collected"
+    },
+    {
+        "key": "reports.revenue.receivable",
+        "value": "Receivable"
+    },
+    {
+        "key": "reports.revenue.series",
+        "value": "Invoiced and collected over time"
+    },
+    {
+        "key": "reports.revenue.by_method",
+        "value": "Collections by payment method"
+    },
+    {
+        "key": "reports.revenue.by_doctor",
+        "value": "Revenue by doctor"
+    },
+    {
+        "key": "reports.receivables.total",
+        "value": "Total receivable"
+    },
+    {
+        "key": "reports.receivables.bucket.0_30",
+        "value": "0 to 30 days"
+    },
+    {
+        "key": "reports.receivables.bucket.31_60",
+        "value": "31 to 60 days"
+    },
+    {
+        "key": "reports.receivables.bucket.61_plus",
+        "value": "Over 60 days"
+    },
+    {
+        "key": "reports.receivables.invoices",
+        "value": "Invoices pending collection"
+    },
+    {
+        "key": "reports.appointments.total",
+        "value": "Appointments"
+    },
+    {
+        "key": "reports.appointments.no_show_rate",
+        "value": "No-show rate"
+    },
+    {
+        "key": "reports.appointments.new_patients",
+        "value": "New patients"
+    },
+    {
+        "key": "reports.appointments.returning_patients",
+        "value": "Returning patients"
+    },
+    {
+        "key": "reports.appointments.series",
+        "value": "Appointments per day"
+    },
+    {
+        "key": "reports.appointments.by_status",
+        "value": "Appointments by status"
+    },
+    {
+        "key": "reports.appointments.by_type",
+        "value": "Appointments by type"
+    },
+    {
+        "key": "reports.appointments.by_doctor",
+        "value": "Appointments by doctor"
+    },
+    {
+        "key": "reports.appointments.status.scheduled",
+        "value": "Scheduled"
+    },
+    {
+        "key": "reports.appointments.status.confirmed",
+        "value": "Confirmed"
+    },
+    {
+        "key": "reports.appointments.status.completed",
+        "value": "Completed"
+    },
+    {
+        "key": "reports.appointments.status.cancelled",
+        "value": "Cancelled"
+    },
+    {
+        "key": "reports.appointments.status.no_show",
+        "value": "No-show"
+    },
+    {
+        "key": "reports.clinical.top_diagnoses",
+        "value": "Most frequent diagnoses (ICD-10)"
+    },
+    {
+        "key": "reports.clinical.diagnoses_table",
+        "value": "Diagnosis detail"
+    },
+    {
+        "key": "reports.clinical.by_doctor",
+        "value": "Clinical activity by doctor"
+    },
+    {
+        "key": "reports.col.appointments",
+        "value": "Appointments"
+    },
+    {
+        "key": "reports.col.description",
+        "value": "Description"
+    },
+    {
+        "key": "reports.col.no_doctor",
+        "value": "No doctor"
     }
 ]
