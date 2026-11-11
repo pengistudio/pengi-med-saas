@@ -102,11 +102,12 @@ func RecordOutbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg
 			return err
 		}
 		updates := lastMessageUpdates(conv, msg, at)
-		if msg.Kind == whatsapp_models.KindReply {
+		if msg.Kind == whatsapp_models.KindReply || msg.Kind == whatsapp_models.KindApp {
 			updates["unread_count"] = 0
 		}
-		// A person answered from the inbox: the assistant's handoff is done.
-		if msg.SentByUserID != nil && conv.NeedsHumanAt != nil {
+		// A person answered (from the inbox or the phone app): the assistant's
+		// handoff is done.
+		if (msg.SentByUserID != nil || msg.Kind == whatsapp_models.KindApp) && conv.NeedsHumanAt != nil {
 			updates["needs_human_at"] = nil
 			updates["needs_human_reason"] = ""
 		}

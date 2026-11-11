@@ -121,6 +121,10 @@ func (h *WebhookHandler) Process(payload whatsapp.WebhookPayload) {
 			switch change.Field {
 			case "messages":
 				h.processMessages(change.Value)
+			case "smb_message_echoes":
+				h.processEchoes(change.Value)
+			case "account_update":
+				h.processAccountUpdate(entry.ID, change.Value)
 			case "message_template_status_update":
 				h.processTemplateStatus(entry.ID, change.Value)
 			}
@@ -176,6 +180,88 @@ func (h *WebhookHandler) processMessages(v whatsapp.WebhookValue) {
 			h.queueBot(account, *conv, msg) // audio, image...: handed to reception
 		}
 	}
+}
+
+// processEchoes stores the messages the clinic typed in the WhatsApp Business
+// app (Coexistence) in the patient's thread, so the inbox shows the whole
+// conversation. They are not sent by us: no status, no billing, and the
+// assistant stays quiet afterwards (a person is answering).
+func (h *WebhookHandler) processEchoes(v whatsapp.WebhookValue) {
+	phoneID := v.Metadata.PhoneNumberID
+	if phoneID == "" || len(v.MessageEchoes) == 0 {
+		return
+	}
+	var account whatsapp_models.WhatsAppAccount
+	if err := tenantdb.System(h.db).Where("phone_number_id = ?", phoneID).Limit(1).Find(&account).Error; err != nil {
+		h.logger.Error("whatsapp webhook: failed to find account", zap.Error(err))
+		return
+	}
+	if account.ID == 0 {
+		h.logger.Info("whatsapp webhook: echo for unknown number", zap.String("phone_number_id", phoneID))
+		return
+	}
+	db := tenantdb.ForTenant(h.db, account.TenantID)
+	for _, m := range v.MessageEchoes {
+		phone := inboundPhone(m.To)
+		if phone == "" || m.ID == "" {
+			continue // the patient's number is not available: nothing to attach it to
+		}
+		var count int64
+		if err := db.Model(&whatsapp_models.WhatsAppMessage{}).Where("wam_id = ?", m.ID).Count(&count).Error; err != nil {
+			h.logger.Error("whatsapp webhook: failed to check echo", zap.Error(err))
+			continue
+		}
+		if count > 0 {
+			continue // Meta retried, or it is a message we sent ourselves
+		}
+		at := h.now()
+		if ts, err := strconv.ParseInt(m.Timestamp, 10, 64); err == nil {
+			at = time.Unix(ts, 0)
+		}
+		conv, err := whatsapp_services.EnsureConversation(db, account.TenantID, phone, nil)
+		if err != nil {
+			h.logger.Error("whatsapp webhook: failed to ensure conversation", zap.Uint("tenant_id", account.TenantID), zap.Error(err))
+			continue
+		}
+		contentType, body, _ := inboundContent(m)
+		msg := whatsapp_models.WhatsAppMessage{
+			TenantID: account.TenantID, Kind: whatsapp_models.KindApp, WamID: m.ID, ToPhone: phone,
+			PatientID: conv.PatientID, Status: whatsapp_models.MessageStatusSent, SentAt: &at,
+			ContentType: contentType, Body: body,
+		}
+		if err := whatsapp_services.RecordOutbound(db, &conv, &msg, at); err != nil {
+			h.logger.Error("whatsapp webhook: failed to record echo", zap.Uint("tenant_id", account.TenantID), zap.Error(err))
+		}
+	}
+}
+
+// processAccountUpdate follows the link between our app and the number:
+// PARTNER_REMOVED (inactivity or the clinic unlinked it) stops sending until
+// the clinic connects again; ACCOUNT_RECONNECTED resumes it.
+func (h *WebhookHandler) processAccountUpdate(entryID string, v whatsapp.WebhookValue) {
+	wabaID := v.WabaInfo.WabaID
+	if wabaID == "" {
+		wabaID = entryID // ACCOUNT_RECONNECTED carries the WABA id as the entry id
+	}
+	var status string
+	switch v.Event {
+	case "PARTNER_REMOVED":
+		status = whatsapp_models.AccountStatusAppDisconnected
+	case "ACCOUNT_RECONNECTED":
+		status = whatsapp_models.AccountStatusConnected
+	default:
+		return
+	}
+	query := tenantdb.System(h.db).Model(&whatsapp_models.WhatsAppAccount{}).Where("waba_id = ?", wabaID)
+	if status == whatsapp_models.AccountStatusConnected {
+		// Only a link Meta itself cut comes back; a rejected token does not.
+		query = query.Where("status = ?", whatsapp_models.AccountStatusAppDisconnected)
+	}
+	if err := query.Update("status", status).Error; err != nil {
+		h.logger.Error("whatsapp webhook: failed to update account status", zap.String("event", v.Event), zap.Error(err))
+		return
+	}
+	h.logger.Info("whatsapp webhook: account update", zap.String("event", v.Event), zap.String("reason", v.DisconnectionInfo.Reason), zap.String("initiated_by", v.DisconnectionInfo.InitiatedBy))
 }
 
 // botHandlesType reports whether the assistant reacts to a non-text

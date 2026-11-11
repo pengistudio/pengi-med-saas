@@ -27,7 +27,7 @@ export interface WhatsAppAccount {
 	mode?: "manual" | "embedded";
 	/** The number is shared with the WhatsApp Business app on the phone. */
 	coexistence?: boolean;
-	status?: "connected" | "token_invalid";
+	status?: "connected" | "token_invalid" | "app_disconnected";
 	waba_id?: string;
 	phone_number_id?: string;
 	display_phone?: string;
@@ -91,6 +91,8 @@ export type WhatsAppMessageKind =
 	| "no_show"
 	| "slot_offer"
 	| "bot"
+	/** Typed by the clinic in the WhatsApp Business app on its phone. */
+	| "app"
 	| "inbound";
 
 export type WhatsAppContentType =

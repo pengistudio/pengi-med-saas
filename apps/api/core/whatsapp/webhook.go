@@ -64,6 +64,18 @@ type WebhookValue struct {
 	Metadata         WebhookMetadata  `json:"metadata"`
 	Statuses         []WebhookStatus  `json:"statuses"`
 	Messages         []WebhookMessage `json:"messages"`
+	// smb_message_echoes: messages the clinic sent from the WhatsApp Business
+	// app on its phone (Coexistence). Each has To, the patient's number.
+	MessageEchoes []WebhookMessage `json:"message_echoes"`
+
+	// account_update (Event: PARTNER_REMOVED, ACCOUNT_RECONNECTED, ...)
+	WabaInfo struct {
+		WabaID string `json:"waba_id"`
+	} `json:"waba_info"`
+	DisconnectionInfo struct {
+		Reason      string `json:"reason"` // PRIMARY_INACTIVITY, COMPANION_INACTIVITY, ...
+		InitiatedBy string `json:"initiated_by"`
+	} `json:"disconnection_info"`
 
 	// message_template_status_update
 	Event                   string `json:"event"`
@@ -100,7 +112,9 @@ type WebhookError struct {
 
 // WebhookMessage is an incoming message from a user.
 type WebhookMessage struct {
-	From      string `json:"from"`
+	From string `json:"from"`
+	// To is the recipient of an echo (smb_message_echoes); empty otherwise.
+	To        string `json:"to"`
 	ID        string `json:"id"`
 	Timestamp string `json:"timestamp"`
 	Type      string `json:"type"` // "button" for template quick replies, "interactive", "text", ...

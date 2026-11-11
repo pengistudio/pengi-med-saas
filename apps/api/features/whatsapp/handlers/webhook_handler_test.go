@@ -362,3 +362,93 @@ func TestWebhook_StopWithdrawsConsent(t *testing.T) {
 		t.Fatal("opt-out leaked to another tenant")
 	}
 }
+
+func echoEvent(phoneID, to, body string) map[string]any {
+	return map[string]any{"object": "whatsapp_business_account", "entry": []any{map[string]any{
+		"id": "WABA", "changes": []any{map[string]any{"field": "smb_message_echoes", "value": map[string]any{
+			"messaging_product": "whatsapp",
+			"metadata":          map[string]string{"phone_number_id": phoneID, "display_phone_number": "15550100"},
+			"message_echoes": []any{map[string]any{
+				"from": "15550100", "to": to, "id": "wamid.echo." + body, "timestamp": "1760000000", "type": "text",
+				"text": map[string]string{"body": body},
+			}},
+		}}},
+	}}}
+}
+
+func accountUpdateEvent(entryID, event, wabaID, reason string) map[string]any {
+	value := map[string]any{"event": event}
+	if wabaID != "" {
+		value["waba_info"] = map[string]string{"waba_id": wabaID}
+		value["disconnection_info"] = map[string]string{"reason": reason, "initiated_by": "SYSTEM"}
+	}
+	return map[string]any{"object": "whatsapp_business_account", "entry": []any{map[string]any{
+		"id": entryID, "changes": []any{map[string]any{"field": "account_update", "value": value}},
+	}}}
+}
+
+// A message typed in the phone app lands in the patient's thread as an
+// outbound "app" message, once, and counts as a person answering.
+func TestWebhook_EchoStoredInThread(t *testing.T) {
+	f := newFixture(t)
+	f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")
+	f.signed(textEvent("PHONE-OWN", "593991111111", "hola"))
+	var conv whatsapp_models.WhatsAppConversation
+	f.db.Where("phone = ?", "593991111111").First(&conv)
+	if conv.UnreadCount != 1 {
+		t.Fatalf("unread = %d", conv.UnreadCount)
+	}
+	if err := f.db.Model(&conv).Updates(map[string]any{"needs_human_at": time.Now(), "needs_human_reason": "not_in_faq"}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	ev := echoEvent("PHONE-OWN", "593991111111", "buenas, le atiendo")
+	for i := 0; i < 2; i++ { // Meta may retry
+		if code := f.signed(ev); code != http.StatusOK {
+			t.Fatalf("code = %d", code)
+		}
+	}
+	var msgs []whatsapp_models.WhatsAppMessage
+	f.db.Where("kind = ?", whatsapp_models.KindApp).Find(&msgs)
+	if len(msgs) != 1 {
+		t.Fatalf("app messages = %d", len(msgs))
+	}
+	m := msgs[0]
+	if m.Direction != whatsapp_models.DirectionOutbound || m.Body != "buenas, le atiendo" || m.ConversationID == nil || *m.ConversationID != conv.ID || m.TenantID != f.own {
+		t.Fatalf("message = %+v", m)
+	}
+	var after whatsapp_models.WhatsAppConversation // fresh: Find into a used struct keeps its non-nil pointers
+	f.db.First(&after, conv.ID)
+	if after.UnreadCount != 0 || after.NeedsHumanAt != nil || after.LastDirection != whatsapp_models.DirectionOutbound {
+		t.Fatalf("conversation = %+v", after)
+	}
+	// An echo for an unknown number is ignored.
+	if code := f.signed(echoEvent("PHONE-NOBODY", "593991111111", "x")); code != http.StatusOK {
+		t.Fatalf("code = %d", code)
+	}
+}
+
+// Meta cutting the link stops sending until it is reconnected.
+func TestWebhook_AccountUpdateTogglesStatus(t *testing.T) {
+	f := newFixture(t)
+	f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")
+	f.seedReminder(f.other, "PHONE-OTHER", "WABA-OTHER")
+
+	f.signed(accountUpdateEvent("PARTNER-BIZ", "PARTNER_REMOVED", "WABA-OWN", "PRIMARY_INACTIVITY"))
+	if s := f.account(f.own).Status; s != whatsapp_models.AccountStatusAppDisconnected {
+		t.Fatalf("status = %s", s)
+	}
+	if s := f.account(f.other).Status; s != whatsapp_models.AccountStatusConnected {
+		t.Fatalf("other clinic status = %s", s)
+	}
+	f.signed(accountUpdateEvent("WABA-OWN", "ACCOUNT_RECONNECTED", "", ""))
+	if s := f.account(f.own).Status; s != whatsapp_models.AccountStatusConnected {
+		t.Fatalf("status = %s", s)
+	}
+	// A reconnect never revives rejected credentials.
+	f.db.Model(&whatsapp_models.WhatsAppAccount{}).Where("tenant_id = ?", f.own).Update("status", whatsapp_models.AccountStatusTokenInvalid)
+	f.signed(accountUpdateEvent("WABA-OWN", "ACCOUNT_RECONNECTED", "", ""))
+	if s := f.account(f.own).Status; s != whatsapp_models.AccountStatusTokenInvalid {
+		t.Fatalf("status = %s", s)
+	}
+}

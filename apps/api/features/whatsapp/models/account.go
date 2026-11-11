@@ -23,6 +23,10 @@ const (
 	// AccountStatusTokenInvalid: Meta rejected the token (expired / revoked);
 	// reminders stop until the clinic connects again.
 	AccountStatusTokenInvalid = "token_invalid"
+	// AccountStatusAppDisconnected: Meta removed our app from the number (the
+	// WhatsApp Business app was inactive for too long, or the clinic
+	// unlinked it); nothing can be sent until the clinic connects again.
+	AccountStatusAppDisconnected = "app_disconnected"
 )
 
 // Template statuses are Meta's own values (APPROVED, PENDING, REJECTED,
