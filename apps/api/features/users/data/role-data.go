@@ -41,10 +41,12 @@ var RolePermissionMatrix = map[string][]string{
 		"MANAGE_APPOINTMENT_REQUESTS", // approves the appointments patients ask for in the portal
 		"READ_BILLING", "CREATE_BILLING", "UPDATE_BILLING",
 		"READ_KANBAN", "CREATE_KANBAN", "UPDATE_KANBAN",
+		"READ_CASH", "CREATE_PAYMENT", "MANAGE_CASH_SESSION", // runs the cash desk; voids and cash out stay with admin
 	},
 	RoleContador: {
 		"READ_BILLING", "CREATE_BILLING", "UPDATE_BILLING", "DELETE_BILLING", "MANAGE_SRI_SETTINGS",
 		"READ_PATIENT",
+		"READ_CASH", // reviews sessions and closing reports
 	},
 }
 

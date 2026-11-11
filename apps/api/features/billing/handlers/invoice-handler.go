@@ -16,6 +16,7 @@ import (
 	billing_models "pengi-med-saas/features/billing/models"
 	sri_document "pengi-med-saas/features/billing/sri-document"
 	sri_services "pengi-med-saas/features/billing/sri/services"
+	cash_services "pengi-med-saas/features/cash/services"
 	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
@@ -144,6 +145,12 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.create_failed", core_errors.ErrBillingInvoiceCreateError)
 	}
 
+	created := []billing_models.Invoice{*invoice}
+	if err := cash_services.ApplyPaymentStatus(db, created); err != nil {
+		h.logger.Warn("Failed to compute invoice payment status", zap.Error(err))
+	}
+	invoice.PaidAmount, invoice.PaymentStatus = created[0].PaidAmount, created[0].PaymentStatus
+
 	return envelope.SuccessResponse(invoice, "billing.invoice.create.success")
 }
 
@@ -180,6 +187,11 @@ func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 	if err := baseQuery.Preload("Patient").Order("created_at DESC").Limit(limit).Offset(offset).Find(&invoices).Error; err != nil {
 		h.logger.Error("Failed to fetch invoices", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoices.error.fetch_failed", core_errors.ErrInternal)
+	}
+
+	// Collection status from the cash desk; a failure only leaves it null.
+	if err := cash_services.ApplyPaymentStatus(db, invoices); err != nil {
+		h.logger.Warn("Failed to compute invoice payment status", zap.Error(err))
 	}
 
 	return envelope.PagedSuccessResponse(invoices, int(total), page, limit, "billing.invoices.fetch.success")

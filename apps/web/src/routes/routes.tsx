@@ -125,6 +125,12 @@ const WhatsAppSettingsPage = lazy(
 	() => import("@/pages/settings/whatsapp-settings-page"),
 );
 const WhatsAppPage = lazy(() => import("@/pages/whatsapp/whatsapp-page"));
+const ReportsPage = lazy(() => import("@/pages/reports/reports-page"));
+const CashPage = lazy(() => import("@/pages/cash/cash-page"));
+const CashHistoryPage = lazy(() => import("@/pages/cash/cash-history"));
+const CashSessionDetailPage = lazy(
+	() => import("@/pages/cash/cash-session-detail"),
+);
 
 // Its own group (not under /clinical, which requires READ_PATIENT): whoever
 // uploads results may only have the exam order permissions. The results
@@ -434,11 +440,61 @@ const doctorRoutes: RouteObject = {
 	],
 };
 
+const readCash = [PERMISSIONS.CASH.PERMISSION_READ_CASH];
+const cashRoutes: RouteObject = {
+	path: "/cash",
+	element: <CheckPermission permissions={readCash} />,
+	children: [
+		{
+			index: true,
+			element: (
+				<CheckPermission permissions={readCash}>
+					<CashPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "history",
+			element: (
+				<CheckPermission permissions={readCash}>
+					<CashHistoryPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "sessions/:id",
+			element: (
+				<CheckPermission permissions={readCash}>
+					<CashSessionDetailPage />
+				</CheckPermission>
+			),
+		},
+	],
+};
+
+const readReports = [PERMISSIONS.REPORTS.PERMISSION_READ_REPORTS];
+const reportsRoutes: RouteObject = {
+	path: "/reports",
+	element: <CheckPermission permissions={readReports} />,
+	children: [
+		{
+			index: true,
+			element: (
+				<CheckPermission permissions={readReports}>
+					<ReportsPage />
+				</CheckPermission>
+			),
+		},
+	],
+};
+
 const routes: RouteObject[] = [
 	clinicalRoutes,
 	examOrderRoutes,
 	billingRoutes,
 	doctorRoutes,
+	cashRoutes,
+	reportsRoutes,
 ];
 
 const router = createBrowserRouter([

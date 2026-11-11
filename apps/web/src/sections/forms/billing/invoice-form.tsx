@@ -33,10 +33,17 @@ import {
 	getAllPatientsWithLastFollowUp,
 	type Patient,
 } from "@/api/clinical-service";
+import {
+	type ChargeTarget,
+	PaymentDialog,
+} from "@/components/features/cash/payment-dialog";
 import { Switch } from "@/components/ui/switch";
+import { useEnabledFeatures } from "@/hooks/use-enabled-features";
+import usePermission from "@/hooks/use-permission";
 import {
 	IVA_PERCENTAGE_CODES_AS_NUMBER,
 	PAYMENT_LABELS,
+	PERMISSIONS,
 	type TaxPercentageCode,
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -148,6 +155,13 @@ export function InvoiceForm() {
 	const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
+	const { textGet } = useText();
+	const { checkPermission } = usePermission();
+	// Right after creating it, offer to charge the invoice at the cash desk.
+	const canCharge =
+		useEnabledFeatures().cash !== false &&
+		checkPermission([PERMISSIONS.CASH.PERMISSION_CREATE_PAYMENT]);
+	const [charging, setCharging] = useState<ChargeTarget | null>(null);
 
 	useEffect(() => {
 		getAllCatalogItems({ limit: 100 }).then((res) => {
@@ -176,7 +190,15 @@ export function InvoiceForm() {
 		try {
 			const res = await createInvoice(payload);
 			if (res.success) {
-				navigate("/billing");
+				if (canCharge && res.data) {
+					const inv = res.data;
+					setCharging({
+						id: inv.ID,
+						number: `${inv.establishment_code}-${inv.emission_point_code}-${inv.sequential}`,
+					});
+				} else {
+					navigate("/billing");
+				}
 			}
 		} finally {
 			setLoading(false);
@@ -184,34 +206,43 @@ export function InvoiceForm() {
 	}
 
 	return (
-		<Form
-			schema={formSchema}
-			onSubmit={onSubmit}
-			defaultValues={{
-				patient_id: "",
-				items: [
-					{
-						product_id: undefined,
-						description: undefined,
-						quantity: 1,
-						unit_price: 0,
-						discount: 0,
-						tax_rate: "0",
-						ice_tax: 0,
-					},
-				],
-				establishment_code: "001",
-				emission_point_code: "001",
-			}}
-		>
-			{(form) => (
-				<InvoiceFormInner
-					form={form}
-					catalogItems={catalogItems}
-					loading={loading}
-				/>
-			)}
-		</Form>
+		<>
+			<PaymentDialog
+				invoice={charging}
+				cancelLabel={textGet("cash.payment.later")}
+				onOpenChange={(open) => {
+					if (!open) navigate("/billing");
+				}}
+			/>
+			<Form
+				schema={formSchema}
+				onSubmit={onSubmit}
+				defaultValues={{
+					patient_id: "",
+					items: [
+						{
+							product_id: undefined,
+							description: undefined,
+							quantity: 1,
+							unit_price: 0,
+							discount: 0,
+							tax_rate: "0",
+							ice_tax: 0,
+						},
+					],
+					establishment_code: "001",
+					emission_point_code: "001",
+				}}
+			>
+				{(form) => (
+					<InvoiceFormInner
+						form={form}
+						catalogItems={catalogItems}
+						loading={loading}
+					/>
+				)}
+			</Form>
+		</>
 	);
 }
 

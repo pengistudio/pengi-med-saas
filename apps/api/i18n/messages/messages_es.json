@@ -8892,10 +8892,6 @@
         "value": "Conectar WhatsApp"
     },
     {
-        "key": "settings.whatsapp.connect_business_app",
-        "value": "Conectar mi app WhatsApp Business"
-    },
-    {
         "key": "settings.whatsapp.connect_manual",
         "value": "Conectar manualmente"
     },
@@ -13690,6 +13686,1302 @@
     {
         "key": "whatsapp.bot.reason.suspicious_text",
         "value": "Mensaje con letras parecidas de otros alfabetos mezcladas."
+    },
+    {
+        "key": "E-CASH-001",
+        "value": "La caja está cerrada: abre una sesión de caja primero."
+    },
+    {
+        "key": "E-CASH-002",
+        "value": "Ya hay una sesión de caja abierta."
+    },
+    {
+        "key": "E-CASH-003",
+        "value": "Sesión de caja no encontrada."
+    },
+    {
+        "key": "E-CASH-004",
+        "value": "La sesión de caja está cerrada y ya no se puede modificar."
+    },
+    {
+        "key": "E-CASH-005",
+        "value": "El conteo no cuadra: agrega una nota para cerrar la caja."
+    },
+    {
+        "key": "E-CASH-006",
+        "value": "Los cobros superan el total de la factura."
+    },
+    {
+        "key": "E-CASH-007",
+        "value": "Cobro no encontrado."
+    },
+    {
+        "key": "E-CASH-008",
+        "value": "El cobro ya está anulado."
+    },
+    {
+        "key": "E-CASH-009",
+        "value": "Solo se pueden anular cobros de la sesión abierta: registra una devolución."
+    },
+    {
+        "key": "E-CASH-010",
+        "value": "El cobro es de la sesión abierta: anúlalo en lugar de devolverlo."
+    },
+    {
+        "key": "E-CASH-011",
+        "value": "La devolución supera lo que queda del cobro."
+    },
+    {
+        "key": "E-CASH-012",
+        "value": "Datos de caja inválidos."
+    },
+    {
+        "key": "E-CASH-013",
+        "value": "Factura no encontrada."
+    },
+    {
+        "key": "E-CASH-014",
+        "value": "El reporte de cierre está disponible cuando la sesión se cierra."
+    },
+    {
+        "key": "E-CASH-015",
+        "value": "Error interno de caja."
+    },
+    {
+        "key": "E-CASH-016",
+        "value": "Solo se pueden devolver cobros válidos."
+    },
+    {
+        "key": "cash.error.internal",
+        "value": "No se pudo completar la operación de caja."
+    },
+    {
+        "key": "cash.session.current.fetch.success",
+        "value": "Caja actual obtenida."
+    },
+    {
+        "key": "cash.session.open.success",
+        "value": "Caja abierta."
+    },
+    {
+        "key": "cash.session.close.success",
+        "value": "Caja cerrada."
+    },
+    {
+        "key": "cash.session.fetch.success",
+        "value": "Sesión de caja obtenida."
+    },
+    {
+        "key": "cash.sessions.fetch.success",
+        "value": "Sesiones de caja obtenidas."
+    },
+    {
+        "key": "cash.session.error.invalid_payload",
+        "value": "Datos de la sesión de caja inválidos."
+    },
+    {
+        "key": "cash.session.error.invalid_id",
+        "value": "Identificador de sesión de caja inválido."
+    },
+    {
+        "key": "cash.session.error.invalid_float",
+        "value": "El fondo inicial no puede ser negativo."
+    },
+    {
+        "key": "cash.session.error.invalid_counted",
+        "value": "El efectivo contado no puede ser negativo."
+    },
+    {
+        "key": "cash.session.error.already_open",
+        "value": "Ya hay una sesión de caja abierta."
+    },
+    {
+        "key": "cash.session.error.no_open",
+        "value": "La caja está cerrada: ábrela para registrar cobros o movimientos."
+    },
+    {
+        "key": "cash.session.error.not_found",
+        "value": "Sesión de caja no encontrada."
+    },
+    {
+        "key": "cash.session.error.closed",
+        "value": "La sesión de caja ya está cerrada."
+    },
+    {
+        "key": "cash.session.error.note_required",
+        "value": "El conteo no cuadra: agrega una nota para cerrar la caja."
+    },
+    {
+        "key": "cash.session.error.not_closed",
+        "value": "El reporte de cierre está disponible cuando la sesión se cierra."
+    },
+    {
+        "key": "cash.session.error.report_failed",
+        "value": "No se pudo generar el reporte de cierre."
+    },
+    {
+        "key": "cash.payment.create.success",
+        "value": "Cobro registrado."
+    },
+    {
+        "key": "cash.payments.fetch.success",
+        "value": "Cobros obtenidos."
+    },
+    {
+        "key": "cash.payment.void.success",
+        "value": "Cobro anulado."
+    },
+    {
+        "key": "cash.payment.refund.success",
+        "value": "Devolución registrada."
+    },
+    {
+        "key": "cash.payment.error.invalid_payload",
+        "value": "Datos del cobro inválidos."
+    },
+    {
+        "key": "cash.payment.error.invalid_id",
+        "value": "Identificador de cobro inválido."
+    },
+    {
+        "key": "cash.payment.error.invalid_method",
+        "value": "Forma de pago inválida."
+    },
+    {
+        "key": "cash.payment.error.invalid_amount",
+        "value": "El monto debe ser mayor a cero."
+    },
+    {
+        "key": "cash.payment.error.invoice_required",
+        "value": "Indica la factura."
+    },
+    {
+        "key": "cash.payment.error.invoice_not_found",
+        "value": "Factura no encontrada."
+    },
+    {
+        "key": "cash.payment.error.not_found",
+        "value": "Cobro no encontrado."
+    },
+    {
+        "key": "cash.payment.error.overpayment",
+        "value": "Los cobros superan el saldo de la factura."
+    },
+    {
+        "key": "cash.payment.error.reason_required",
+        "value": "Indica el motivo."
+    },
+    {
+        "key": "cash.payment.error.already_voided",
+        "value": "El cobro ya está anulado."
+    },
+    {
+        "key": "cash.payment.error.void_outside_session",
+        "value": "El cobro es de una caja ya cerrada: registra una devolución."
+    },
+    {
+        "key": "cash.payment.error.not_refundable",
+        "value": "Solo se pueden devolver cobros válidos."
+    },
+    {
+        "key": "cash.payment.error.refund_use_void",
+        "value": "El cobro es de la caja abierta: anúlalo en lugar de devolverlo."
+    },
+    {
+        "key": "cash.payment.error.refund_exceeds",
+        "value": "La devolución supera lo que queda del cobro."
+    },
+    {
+        "key": "cash.movement.create.success",
+        "value": "Movimiento de caja registrado."
+    },
+    {
+        "key": "cash.movement.error.invalid_payload",
+        "value": "Datos del movimiento inválidos."
+    },
+    {
+        "key": "cash.movement.error.reason_required",
+        "value": "Indica el motivo del movimiento."
+    },
+    {
+        "key": "cash.movement.error.invalid_type",
+        "value": "El tipo no corresponde a la categoría del movimiento."
+    },
+    {
+        "key": "cash.movement.error.invalid_amount",
+        "value": "El monto debe ser mayor a cero."
+    },
+    {
+        "key": "document_templates.doc.cash_session_report",
+        "value": "Reporte de cierre de caja"
+    },
+    {
+        "key": "subscription.plans.feature.cash",
+        "value": "Caja"
+    },
+    {
+        "key": "cash.nav.title",
+        "value": "Caja"
+    },
+    {
+        "key": "cash.page.title",
+        "value": "Caja"
+    },
+    {
+        "key": "cash.page.description",
+        "value": "Apertura, cobros, movimientos y cierre de caja."
+    },
+    {
+        "key": "cash.open.title",
+        "value": "Abrir caja"
+    },
+    {
+        "key": "cash.open.description",
+        "value": "La caja está cerrada. Ábrela con el efectivo que ya hay en el cajón para empezar a cobrar."
+    },
+    {
+        "key": "cash.open.float",
+        "value": "Fondo inicial"
+    },
+    {
+        "key": "cash.open.float.description",
+        "value": "Efectivo con el que abre la caja (cambio)."
+    },
+    {
+        "key": "cash.open.submit",
+        "value": "Abrir caja"
+    },
+    {
+        "key": "cash.closed.title",
+        "value": "Caja cerrada"
+    },
+    {
+        "key": "cash.closed.no_permission",
+        "value": "La caja está cerrada. Pide a un usuario con permiso para abrirla."
+    },
+    {
+        "key": "cash.session.open.title",
+        "value": "Caja abierta"
+    },
+    {
+        "key": "cash.session.open.since",
+        "value": "Abierta por {name} el {date}"
+    },
+    {
+        "key": "cash.session.stale",
+        "value": "Esta caja lleva abierta más de 24 horas. Ciérrala y abre una nueva para el siguiente turno."
+    },
+    {
+        "key": "cash.session.payments",
+        "value": "Cobros"
+    },
+    {
+        "key": "cash.session.payments.empty",
+        "value": "Aún no hay cobros en esta caja."
+    },
+    {
+        "key": "cash.session.movements",
+        "value": "Movimientos"
+    },
+    {
+        "key": "cash.session.movements.empty",
+        "value": "No hay movimientos de efectivo."
+    },
+    {
+        "key": "cash.session.report.download",
+        "value": "Descargar PDF de cierre"
+    },
+    {
+        "key": "cash.close.button",
+        "value": "Cerrar caja"
+    },
+    {
+        "key": "cash.close.title",
+        "value": "Cerrar caja"
+    },
+    {
+        "key": "cash.close.description",
+        "value": "Cuenta el efectivo del cajón e ingresa el total. El esperado se muestra después de cerrar."
+    },
+    {
+        "key": "cash.close.counted",
+        "value": "Efectivo contado"
+    },
+    {
+        "key": "cash.close.counted.description",
+        "value": "Todo el efectivo del cajón, incluido el fondo inicial."
+    },
+    {
+        "key": "cash.close.note",
+        "value": "Nota"
+    },
+    {
+        "key": "cash.close.note.placeholder",
+        "value": "Explica la diferencia (faltante, sobrante, error de conteo...)"
+    },
+    {
+        "key": "cash.close.note_required",
+        "value": "El conteo no coincide con el esperado. Agrega una nota para cerrar la caja."
+    },
+    {
+        "key": "cash.close.error.note_required",
+        "value": "La nota es obligatoria cuando el conteo no coincide."
+    },
+    {
+        "key": "cash.close.submit",
+        "value": "Cerrar caja"
+    },
+    {
+        "key": "cash.summary.title",
+        "value": "Cierre de caja"
+    },
+    {
+        "key": "cash.summary.period",
+        "value": "Del {opened} al {closed}"
+    },
+    {
+        "key": "cash.summary.people",
+        "value": "Abierta por {opened_by} · cerrada por {closed_by}"
+    },
+    {
+        "key": "cash.summary.cash",
+        "value": "Efectivo"
+    },
+    {
+        "key": "cash.summary.opening_float",
+        "value": "Fondo inicial"
+    },
+    {
+        "key": "cash.summary.cash_in",
+        "value": "Cobros en efectivo"
+    },
+    {
+        "key": "cash.summary.cash_refunded",
+        "value": "Devoluciones en efectivo"
+    },
+    {
+        "key": "cash.summary.movements_in",
+        "value": "Ingresos"
+    },
+    {
+        "key": "cash.summary.movements_out",
+        "value": "Egresos"
+    },
+    {
+        "key": "cash.summary.expected",
+        "value": "Esperado"
+    },
+    {
+        "key": "cash.summary.counted",
+        "value": "Contado"
+    },
+    {
+        "key": "cash.summary.difference",
+        "value": "Diferencia"
+    },
+    {
+        "key": "cash.summary.note",
+        "value": "Nota"
+    },
+    {
+        "key": "cash.summary.by_method",
+        "value": "Totales por método"
+    },
+    {
+        "key": "cash.summary.no_payments",
+        "value": "Sin cobros en esta caja."
+    },
+    {
+        "key": "cash.summary.method_count.one",
+        "value": "{method} ({count} cobro)"
+    },
+    {
+        "key": "cash.summary.method_count.other",
+        "value": "{method} ({count} cobros)"
+    },
+    {
+        "key": "cash.history.title",
+        "value": "Historial de caja"
+    },
+    {
+        "key": "cash.history.description",
+        "value": "Cajas cerradas, de la más reciente a la más antigua."
+    },
+    {
+        "key": "cash.history.empty",
+        "value": "Todavía no hay cajas cerradas."
+    },
+    {
+        "key": "cash.history.view",
+        "value": "Ver"
+    },
+    {
+        "key": "cash.history.column.opened_at",
+        "value": "Apertura"
+    },
+    {
+        "key": "cash.history.column.closed_at",
+        "value": "Cierre"
+    },
+    {
+        "key": "cash.history.column.closed_by",
+        "value": "Cerrada por"
+    },
+    {
+        "key": "cash.history.column.expected",
+        "value": "Esperado"
+    },
+    {
+        "key": "cash.history.column.counted",
+        "value": "Contado"
+    },
+    {
+        "key": "cash.history.column.difference",
+        "value": "Diferencia"
+    },
+    {
+        "key": "cash.detail.title",
+        "value": "Caja del {date}"
+    },
+    {
+        "key": "cash.detail.not_found",
+        "value": "No se encontró la caja."
+    },
+    {
+        "key": "cash.movement.button",
+        "value": "Movimiento"
+    },
+    {
+        "key": "cash.movement.title",
+        "value": "Movimiento de efectivo"
+    },
+    {
+        "key": "cash.movement.description",
+        "value": "Efectivo que entra o sale del cajón y no es un cobro."
+    },
+    {
+        "key": "cash.movement.type",
+        "value": "Tipo"
+    },
+    {
+        "key": "cash.movement.type.in",
+        "value": "Ingreso"
+    },
+    {
+        "key": "cash.movement.type.out",
+        "value": "Egreso"
+    },
+    {
+        "key": "cash.movement.category",
+        "value": "Categoría"
+    },
+    {
+        "key": "cash.movement.category.expense",
+        "value": "Gasto"
+    },
+    {
+        "key": "cash.movement.category.withdrawal",
+        "value": "Retiro"
+    },
+    {
+        "key": "cash.movement.category.deposit",
+        "value": "Depósito"
+    },
+    {
+        "key": "cash.movement.category.adjustment",
+        "value": "Ajuste"
+    },
+    {
+        "key": "cash.movement.amount",
+        "value": "Monto"
+    },
+    {
+        "key": "cash.movement.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "cash.movement.reason.placeholder",
+        "value": "Ej.: compra de insumos, retiro para depósito bancario..."
+    },
+    {
+        "key": "cash.movement.submit",
+        "value": "Registrar"
+    },
+    {
+        "key": "cash.movement.column.time",
+        "value": "Hora"
+    },
+    {
+        "key": "cash.movement.column.category",
+        "value": "Categoría"
+    },
+    {
+        "key": "cash.movement.column.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "cash.movement.column.amount",
+        "value": "Monto"
+    },
+    {
+        "key": "cash.payment_status.column",
+        "value": "Cobro"
+    },
+    {
+        "key": "cash.payment_status.unpaid",
+        "value": "Sin pagar"
+    },
+    {
+        "key": "cash.payment_status.partial",
+        "value": "Parcial"
+    },
+    {
+        "key": "cash.payment_status.paid",
+        "value": "Pagada"
+    },
+    {
+        "key": "cash.payment.charge",
+        "value": "Cobrar"
+    },
+    {
+        "key": "cash.payment.title",
+        "value": "Cobrar factura"
+    },
+    {
+        "key": "cash.payment.description",
+        "value": "Factura {invoice}"
+    },
+    {
+        "key": "cash.payment.desk_closed",
+        "value": "La caja está cerrada. Abre la caja para poder cobrar."
+    },
+    {
+        "key": "cash.payment.go_to_cash",
+        "value": "Ir a Caja"
+    },
+    {
+        "key": "cash.payment.fully_paid",
+        "value": "Esta factura ya está pagada."
+    },
+    {
+        "key": "cash.payment.later",
+        "value": "Cobrar después"
+    },
+    {
+        "key": "cash.payment.method",
+        "value": "Método"
+    },
+    {
+        "key": "cash.payment.amount",
+        "value": "Monto"
+    },
+    {
+        "key": "cash.payment.reference",
+        "value": "Referencia"
+    },
+    {
+        "key": "cash.payment.reference.placeholder",
+        "value": "N.º de transferencia, voucher..."
+    },
+    {
+        "key": "cash.payment.add_line",
+        "value": "Agregar método"
+    },
+    {
+        "key": "cash.payment.remove_line",
+        "value": "Quitar línea"
+    },
+    {
+        "key": "cash.payment.balance",
+        "value": "Saldo pendiente"
+    },
+    {
+        "key": "cash.payment.entered",
+        "value": "A cobrar"
+    },
+    {
+        "key": "cash.payment.remaining",
+        "value": "Queda por cobrar"
+    },
+    {
+        "key": "cash.payment.submit",
+        "value": "Cobrar"
+    },
+    {
+        "key": "cash.payment.error.exceeds_balance",
+        "value": "El cobro supera el saldo pendiente de la factura."
+    },
+    {
+        "key": "cash.payment.error.no_lines",
+        "value": "Agrega al menos un método de pago."
+    },
+    {
+        "key": "cash.payment.column.time",
+        "value": "Hora"
+    },
+    {
+        "key": "cash.payment.column.invoice",
+        "value": "Factura"
+    },
+    {
+        "key": "cash.payment.column.method",
+        "value": "Método"
+    },
+    {
+        "key": "cash.payment.column.reference",
+        "value": "Referencia"
+    },
+    {
+        "key": "cash.payment.column.amount",
+        "value": "Monto"
+    },
+    {
+        "key": "cash.payment.column.status",
+        "value": "Estado"
+    },
+    {
+        "key": "cash.payment.state.valid",
+        "value": "Válido"
+    },
+    {
+        "key": "cash.payment.state.voided",
+        "value": "Anulado"
+    },
+    {
+        "key": "cash.payment.state.refund",
+        "value": "Devolución"
+    },
+    {
+        "key": "cash.method.cash",
+        "value": "Efectivo"
+    },
+    {
+        "key": "cash.method.transfer",
+        "value": "Transferencia"
+    },
+    {
+        "key": "cash.method.credit_card",
+        "value": "Tarjeta de crédito"
+    },
+    {
+        "key": "cash.method.debit_card",
+        "value": "Tarjeta de débito"
+    },
+    {
+        "key": "cash.method.check",
+        "value": "Cheque"
+    },
+    {
+        "key": "cash.method.other",
+        "value": "Otros"
+    },
+    {
+        "key": "cash.void.action",
+        "value": "Anular"
+    },
+    {
+        "key": "cash.void.title",
+        "value": "Anular cobro"
+    },
+    {
+        "key": "cash.void.description",
+        "value": "Se anulará el cobro de {amount} de la factura {invoice}. Esta acción queda registrada."
+    },
+    {
+        "key": "cash.void.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "cash.void.reason.placeholder",
+        "value": "Ej.: monto equivocado, cobro duplicado..."
+    },
+    {
+        "key": "cash.void.submit",
+        "value": "Anular cobro"
+    },
+    {
+        "key": "cash.refund.action",
+        "value": "Devolver"
+    },
+    {
+        "key": "cash.refund.title",
+        "value": "Devolver cobro"
+    },
+    {
+        "key": "cash.refund.description",
+        "value": "Cobro de {amount} de la factura {invoice}. La devolución se registra en la caja abierta."
+    },
+    {
+        "key": "cash.refund.amount",
+        "value": "Monto a devolver"
+    },
+    {
+        "key": "cash.refund.reason",
+        "value": "Motivo"
+    },
+    {
+        "key": "cash.refund.reason.placeholder",
+        "value": "Ej.: servicio no prestado..."
+    },
+    {
+        "key": "cash.refund.submit",
+        "value": "Devolver"
+    },
+    {
+        "key": "cash.refund.error.exceeds",
+        "value": "La devolución no puede superar el monto del cobro."
+    },
+    {
+        "key": "cash.form.error.amount",
+        "value": "Ingresa un monto válido."
+    },
+    {
+        "key": "cash.form.error.required",
+        "value": "Este campo es obligatorio."
+    },
+    {
+        "key": "cash.form.error.reason_required",
+        "value": "El motivo es obligatorio."
+    },
+    {
+        "key": "cash.form.error.too_long",
+        "value": "El texto es demasiado largo."
+    },
+    {
+        "key": "cash.desk.closed.title",
+        "value": "La caja está cerrada"
+    },
+    {
+        "key": "cash.last_close.title",
+        "value": "Último cierre"
+    },
+    {
+        "key": "cash.last_close.view",
+        "value": "Ver detalle"
+    },
+    {
+        "key": "cash.last_close.closed_by",
+        "value": "Cerrada por {name}"
+    },
+    {
+        "key": "cash.range.same_day",
+        "value": "{date}, de {start} a {end}"
+    },
+    {
+        "key": "cash.range.days",
+        "value": "Del {start} al {end}"
+    },
+    {
+        "key": "cash.difference.balanced",
+        "value": "Cuadra"
+    },
+    {
+        "key": "cash.difference.over",
+        "value": "Sobrante de {amount}"
+    },
+    {
+        "key": "cash.difference.short",
+        "value": "Faltante de {amount}"
+    },
+    {
+        "key": "cash.session.stale.badge",
+        "value": "Más de 24 h"
+    },
+    {
+        "key": "cash.session.payments.empty.hint",
+        "value": "Los cobros se registran desde cada factura con el botón Cobrar."
+    },
+    {
+        "key": "cash.session.movements.empty.hint",
+        "value": "Registra aquí gastos, retiros o depósitos de efectivo con el botón Movimiento."
+    },
+    {
+        "key": "cash.history.empty.hint",
+        "value": "Cada caja aparece aquí cuando se cierra."
+    },
+    {
+        "key": "cash.error.load",
+        "value": "No se pudo cargar la caja. Revisa tu conexión e inténtalo de nuevo."
+    },
+    {
+        "key": "cash.error.retry",
+        "value": "Reintentar"
+    },
+    {
+        "key": "cash.payment.covered",
+        "value": "Saldo cubierto"
+    },
+    {
+        "key": "cash.payment.progress",
+        "value": "Avance del cobro"
+    },
+    {
+        "key": "E-REPORTS-001",
+        "value": "Filtros de reporte inválidos: usa from/to como AAAA-MM-DD y un doctor_id numérico."
+    },
+    {
+        "key": "E-REPORTS-002",
+        "value": "El rango de fechas no puede superar 366 días."
+    },
+    {
+        "key": "E-REPORTS-003",
+        "value": "Formato inválido: usa csv o pdf."
+    },
+    {
+        "key": "E-REPORTS-004",
+        "value": "Error interno de reportes."
+    },
+    {
+        "key": "E-REPORTS-005",
+        "value": "No se pudo generar el PDF del reporte."
+    },
+    {
+        "key": "reports.error.invalid_filters",
+        "value": "Los filtros del reporte no son válidos."
+    },
+    {
+        "key": "reports.error.range_too_long",
+        "value": "El rango de fechas no puede superar 366 días."
+    },
+    {
+        "key": "reports.error.invalid_format",
+        "value": "El formato solicitado no es válido."
+    },
+    {
+        "key": "reports.error.internal",
+        "value": "No se pudo generar el reporte."
+    },
+    {
+        "key": "reports.error.render_failed",
+        "value": "No se pudo generar el PDF del reporte."
+    },
+    {
+        "key": "reports.revenue.fetch.success",
+        "value": "Reporte de ingresos obtenido correctamente."
+    },
+    {
+        "key": "reports.receivables.fetch.success",
+        "value": "Reporte de cuentas por cobrar obtenido correctamente."
+    },
+    {
+        "key": "reports.appointments.fetch.success",
+        "value": "Reporte de citas obtenido correctamente."
+    },
+    {
+        "key": "reports.clinical.fetch.success",
+        "value": "Reporte clínico obtenido correctamente."
+    },
+    {
+        "key": "reports.section.summary",
+        "value": "Resumen"
+    },
+    {
+        "key": "reports.section.series",
+        "value": "Evolución"
+    },
+    {
+        "key": "reports.section.by_method",
+        "value": "Por forma de pago"
+    },
+    {
+        "key": "reports.section.by_doctor",
+        "value": "Por médico"
+    },
+    {
+        "key": "reports.section.buckets",
+        "value": "Antigüedad de la cartera"
+    },
+    {
+        "key": "reports.section.items",
+        "value": "Detalle"
+    },
+    {
+        "key": "reports.section.by_status",
+        "value": "Por estado"
+    },
+    {
+        "key": "reports.section.by_type",
+        "value": "Por tipo de cita"
+    },
+    {
+        "key": "reports.section.top_diagnoses",
+        "value": "Diagnósticos más frecuentes"
+    },
+    {
+        "key": "reports.col.invoiced",
+        "value": "Facturado"
+    },
+    {
+        "key": "reports.col.collected",
+        "value": "Cobrado"
+    },
+    {
+        "key": "reports.col.receivable",
+        "value": "Por cobrar"
+    },
+    {
+        "key": "reports.col.period",
+        "value": "Período"
+    },
+    {
+        "key": "reports.col.method",
+        "value": "Forma de pago"
+    },
+    {
+        "key": "reports.col.count",
+        "value": "Cantidad"
+    },
+    {
+        "key": "reports.col.total",
+        "value": "Total"
+    },
+    {
+        "key": "reports.col.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "reports.col.balance",
+        "value": "Saldo"
+    },
+    {
+        "key": "reports.col.bucket",
+        "value": "Rango"
+    },
+    {
+        "key": "reports.col.invoice",
+        "value": "Factura"
+    },
+    {
+        "key": "reports.col.patient",
+        "value": "Paciente"
+    },
+    {
+        "key": "reports.col.date",
+        "value": "Fecha"
+    },
+    {
+        "key": "reports.col.paid",
+        "value": "Cobrado"
+    },
+    {
+        "key": "reports.col.age_days",
+        "value": "Días de antigüedad"
+    },
+    {
+        "key": "reports.col.completed",
+        "value": "Completadas"
+    },
+    {
+        "key": "reports.col.cancelled",
+        "value": "Canceladas"
+    },
+    {
+        "key": "reports.col.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "reports.col.no_show_rate",
+        "value": "Tasa de no asistencia"
+    },
+    {
+        "key": "reports.col.new_patients",
+        "value": "Pacientes nuevos"
+    },
+    {
+        "key": "reports.col.recurring_patients",
+        "value": "Pacientes recurrentes"
+    },
+    {
+        "key": "reports.col.status",
+        "value": "Estado"
+    },
+    {
+        "key": "reports.col.type",
+        "value": "Tipo de cita"
+    },
+    {
+        "key": "reports.col.consultations",
+        "value": "Consultas"
+    },
+    {
+        "key": "reports.col.prescriptions",
+        "value": "Recetas"
+    },
+    {
+        "key": "reports.col.exam_orders",
+        "value": "Órdenes de examen"
+    },
+    {
+        "key": "reports.col.code",
+        "value": "Código CIE-10"
+    },
+    {
+        "key": "reports.col.diagnosis",
+        "value": "Diagnóstico"
+    },
+    {
+        "key": "reports.method.cash",
+        "value": "Efectivo"
+    },
+    {
+        "key": "reports.method.transfer",
+        "value": "Transferencia"
+    },
+    {
+        "key": "reports.method.credit_card",
+        "value": "Tarjeta de crédito"
+    },
+    {
+        "key": "reports.method.debit_card",
+        "value": "Tarjeta de débito"
+    },
+    {
+        "key": "reports.method.check",
+        "value": "Cheque"
+    },
+    {
+        "key": "reports.method.other",
+        "value": "Otros"
+    },
+    {
+        "key": "reports.appt_status.scheduled",
+        "value": "Programada"
+    },
+    {
+        "key": "reports.appt_status.confirmed",
+        "value": "Confirmada"
+    },
+    {
+        "key": "reports.appt_status.completed",
+        "value": "Completada"
+    },
+    {
+        "key": "reports.appt_status.cancelled",
+        "value": "Cancelada"
+    },
+    {
+        "key": "reports.appt_status.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "reports.bucket.0_30",
+        "value": "0 a 30 días"
+    },
+    {
+        "key": "reports.bucket.31_60",
+        "value": "31 a 60 días"
+    },
+    {
+        "key": "reports.bucket.61_plus",
+        "value": "61 días o más"
+    },
+    {
+        "key": "reports.no_doctor",
+        "value": "Sin médico"
+    },
+    {
+        "key": "reports.no_type",
+        "value": "Sin tipo"
+    },
+    {
+        "key": "reports.final_consumer",
+        "value": "Consumidor final"
+    },
+    {
+        "key": "reports.nav.title",
+        "value": "Reportes"
+    },
+    {
+        "key": "reports.page.title",
+        "value": "Reportes y estadísticas"
+    },
+    {
+        "key": "reports.page.description",
+        "value": "Ingresos, cuentas por cobrar, citas y actividad clínica de tu consultorio."
+    },
+    {
+        "key": "reports.tab.revenue",
+        "value": "Ingresos"
+    },
+    {
+        "key": "reports.tab.receivables",
+        "value": "Por cobrar"
+    },
+    {
+        "key": "reports.tab.appointments",
+        "value": "Citas"
+    },
+    {
+        "key": "reports.tab.clinical",
+        "value": "Clínico"
+    },
+    {
+        "key": "reports.filter.from",
+        "value": "Desde"
+    },
+    {
+        "key": "reports.filter.to",
+        "value": "Hasta"
+    },
+    {
+        "key": "reports.filter.doctor",
+        "value": "Médico"
+    },
+    {
+        "key": "reports.filter.all_doctors",
+        "value": "Todos los médicos"
+    },
+    {
+        "key": "reports.filter.error.invalid",
+        "value": "Elige una fecha de inicio y una de fin válidas."
+    },
+    {
+        "key": "reports.filter.error.order",
+        "value": "La fecha de inicio no puede ser posterior a la de fin."
+    },
+    {
+        "key": "reports.filter.error.too_long",
+        "value": "El rango no puede superar 366 días."
+    },
+    {
+        "key": "reports.download.csv",
+        "value": "Descargar CSV"
+    },
+    {
+        "key": "reports.download.pdf",
+        "value": "Descargar PDF"
+    },
+    {
+        "key": "reports.empty",
+        "value": "No hay datos en este período."
+    },
+    {
+        "key": "reports.error",
+        "value": "No se pudo cargar el reporte. Intenta de nuevo."
+    },
+    {
+        "key": "reports.revenue.invoiced",
+        "value": "Facturado"
+    },
+    {
+        "key": "reports.revenue.collected",
+        "value": "Cobrado"
+    },
+    {
+        "key": "reports.revenue.receivable",
+        "value": "Por cobrar"
+    },
+    {
+        "key": "reports.revenue.series",
+        "value": "Facturado y cobrado en el tiempo"
+    },
+    {
+        "key": "reports.revenue.by_method",
+        "value": "Cobros por método de pago"
+    },
+    {
+        "key": "reports.revenue.by_doctor",
+        "value": "Ingresos por médico"
+    },
+    {
+        "key": "reports.receivables.total",
+        "value": "Total por cobrar"
+    },
+    {
+        "key": "reports.receivables.bucket.0_30",
+        "value": "0 a 30 días"
+    },
+    {
+        "key": "reports.receivables.bucket.31_60",
+        "value": "31 a 60 días"
+    },
+    {
+        "key": "reports.receivables.bucket.61_plus",
+        "value": "Más de 60 días"
+    },
+    {
+        "key": "reports.receivables.invoices",
+        "value": "Facturas pendientes de cobro"
+    },
+    {
+        "key": "reports.appointments.total",
+        "value": "Citas"
+    },
+    {
+        "key": "reports.appointments.no_show_rate",
+        "value": "Tasa de inasistencia"
+    },
+    {
+        "key": "reports.appointments.new_patients",
+        "value": "Pacientes nuevos"
+    },
+    {
+        "key": "reports.appointments.returning_patients",
+        "value": "Pacientes recurrentes"
+    },
+    {
+        "key": "reports.appointments.series",
+        "value": "Citas por día"
+    },
+    {
+        "key": "reports.appointments.by_status",
+        "value": "Citas por estado"
+    },
+    {
+        "key": "reports.appointments.by_type",
+        "value": "Citas por tipo"
+    },
+    {
+        "key": "reports.appointments.by_doctor",
+        "value": "Citas por médico"
+    },
+    {
+        "key": "reports.appointments.status.scheduled",
+        "value": "Agendada"
+    },
+    {
+        "key": "reports.appointments.status.confirmed",
+        "value": "Confirmada"
+    },
+    {
+        "key": "reports.appointments.status.completed",
+        "value": "Completada"
+    },
+    {
+        "key": "reports.appointments.status.cancelled",
+        "value": "Cancelada"
+    },
+    {
+        "key": "reports.appointments.status.no_show",
+        "value": "No asistió"
+    },
+    {
+        "key": "reports.clinical.top_diagnoses",
+        "value": "Diagnósticos más frecuentes (CIE-10)"
+    },
+    {
+        "key": "reports.clinical.diagnoses_table",
+        "value": "Detalle de diagnósticos"
+    },
+    {
+        "key": "reports.clinical.by_doctor",
+        "value": "Actividad clínica por médico"
+    },
+    {
+        "key": "reports.col.appointments",
+        "value": "Citas"
+    },
+    {
+        "key": "reports.col.description",
+        "value": "Descripción"
+    },
+    {
+        "key": "reports.col.no_doctor",
+        "value": "Sin médico"
+    },
+    {
+        "key": "settings.whatsapp.connect_business_app",
+        "value": "Conectar mi app WhatsApp Business"
     },
     {
         "key": "whatsapp.inbox.app_label",

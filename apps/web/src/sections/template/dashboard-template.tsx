@@ -117,12 +117,12 @@ export function DashboardLayout() {
 	const rawEnabledFeatures = environment?.enabled_features;
 	const enabledFeatures: EnabledFeatures = useMemo(() => {
 		if (!rawEnabledFeatures) {
-			return { clinical: true, billing: true, team: true };
+			return { clinical: true, billing: true, team: true, cash: true };
 		}
 		try {
 			return JSON.parse(rawEnabledFeatures);
 		} catch {
-			return { clinical: true, billing: true, team: true };
+			return { clinical: true, billing: true, team: true, cash: true };
 		}
 	}, [rawEnabledFeatures]);
 

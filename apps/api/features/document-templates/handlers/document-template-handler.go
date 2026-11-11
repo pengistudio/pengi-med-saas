@@ -266,6 +266,10 @@ func featureEnabled(f tenant_models.EnabledFeatures, feature string) bool {
 		return f.Team
 	case "kanban":
 		return f.Kanban
+	case "cash":
+		return f.Cash
+	case "reports":
+		return f.Reports
 	}
 	return false
 }

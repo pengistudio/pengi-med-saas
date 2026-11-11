@@ -61,6 +61,7 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 			"billing":  false,
 			"team":     false,
 			"kanban":   false,
+			"cash":     false,
 		}, nil
 	}
 
@@ -76,6 +77,8 @@ func (h *BackofficePlanHandler) calculateEnabledFeatures(featureCodes []string) 
 		"billing":  enabledFeatures.Billing,
 		"team":     enabledFeatures.Team,
 		"kanban":   enabledFeatures.Kanban,
+		"cash":     enabledFeatures.Cash,
+		"reports":  enabledFeatures.Reports,
 	}, nil
 }
 

@@ -14,6 +14,13 @@ import {
 } from "react-day-picker";
 import { cn } from "../lib/utils";
 import { Button, buttonVariants } from "./button";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "./select";
 
 function Calendar({
 	className,
@@ -54,17 +61,17 @@ function Calendar({
 				),
 				month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
 				nav: cn(
-					"absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1",
+					"pointer-events-none absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1",
 					defaultClassNames.nav,
 				),
 				button_previous: cn(
 					buttonVariants({ variant: buttonVariant }),
-					"size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
+					"pointer-events-auto size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
 					defaultClassNames.button_previous,
 				),
 				button_next: cn(
 					buttonVariants({ variant: buttonVariant }),
-					"size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
+					"pointer-events-auto size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
 					defaultClassNames.button_next,
 				),
 				month_caption: cn(
@@ -139,6 +146,7 @@ function Calendar({
 				Root: CalendarRoot,
 				Chevron: CalendarChevron,
 				DayButton: CalendarDayButton,
+				Dropdown: CalendarDropdown,
 				WeekNumber: CalendarWeekNumber,
 				...components,
 			}}
@@ -178,6 +186,54 @@ function CalendarChevron({
 	}
 
 	return <ChevronDownIcon className={cn("size-4", className)} {...props} />;
+}
+
+// The month/year dropdowns used to be the browser's native <select>, whose
+// popup is drawn by the OS: as tall as the screen for a long year list and not
+// styleable. This one has a fixed max height with its own scroll.
+function CalendarDropdown({
+	options,
+	value,
+	onChange,
+	disabled,
+	"aria-label": ariaLabel,
+}: React.ComponentProps<CustomComponents["Dropdown"]>) {
+	const selected = options?.find((option) => option.value === value);
+
+	return (
+		<Select
+			value={String(value)}
+			disabled={disabled}
+			onValueChange={(next) => {
+				onChange?.({
+					target: { value: next },
+				} as React.ChangeEvent<HTMLSelectElement>);
+			}}
+		>
+			<SelectTrigger
+				size="sm"
+				aria-label={ariaLabel}
+				className="h-7 gap-1 border-0 bg-transparent px-2 font-medium shadow-none hover:bg-muted dark:bg-transparent"
+			>
+				<SelectValue>{selected?.label}</SelectValue>
+			</SelectTrigger>
+			<SelectContent
+				alignItemWithTrigger={false}
+				align="start"
+				className="max-h-56 w-auto min-w-24"
+			>
+				{options?.map((option) => (
+					<SelectItem
+						key={option.value}
+						value={String(option.value)}
+						disabled={option.disabled}
+					>
+						{option.label}
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
+	);
 }
 
 function CalendarWeekNumber({
