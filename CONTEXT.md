@@ -86,6 +86,29 @@ Representación impresa (PDF) de un comprobante autorizado; tiene validez tribut
 **Consumidor Final**:
 Comprador genérico declarado cuando la factura no tiene paciente asociado.
 
+### Caja
+
+**Caja**:
+Control del efectivo y los cobros de la clínica. Hay una sola por tenant; no es un punto de emisión del SRI.
+_Avoid_: caja registradora, POS
+
+**Sesión de caja**:
+Período entre la apertura (con fondo inicial) y el cierre de la caja. Un tenant tiene a lo sumo una abierta y no se puede cobrar con la caja cerrada. Una sesión cerrada es inmutable. En código: `CashSession`.
+_Avoid_: turno, arqueo (a secas)
+
+**Cobro**:
+Pago recibido contra una factura (abono), en un método fijo (efectivo, transferencia, tarjeta de crédito o débito, cheque, otros); una factura admite varios cobros con métodos mixtos y sin sobrepago. Su estado derivado (sin cobrar, parcial, cobrada) es independiente del estado SRI, y registrarlo nunca toca el comprobante electrónico. En código: `Payment`.
+_Avoid_: pago (se confunde con movimiento), abono (solo si es parcial)
+
+**Movimiento de caja**:
+Entrada o salida manual de efectivo con motivo obligatorio: gasto, retiro, depósito o ajuste. En código: `CashMovement`.
+
+**Cierre ciego**:
+Cierre en que el cajero cuenta el efectivo antes de ver el esperado (fondo + cobros en efectivo + entradas − salidas). La diferencia se guarda; si no es cero exige una nota, pero no bloquea.
+
+**Anulación / reembolso**:
+Un cobro nunca se borra. Dentro de la misma sesión abierta se anula; después del cierre se reembolsa con un cobro negativo en la sesión vigente, vinculado al original. No genera nota de crédito automática.
+
 ### Clínico
 
 **Adjunto**:
