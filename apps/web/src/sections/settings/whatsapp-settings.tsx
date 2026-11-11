@@ -135,30 +135,6 @@ export function WhatsAppSettings() {
 					<div className="grid content-between gap-3 rounded-lg border p-4">
 						<div className="grid gap-1">
 							<p className="flex items-center gap-2 text-sm font-semibold">
-								<Cloud className="size-4" aria-hidden="true" />
-								<Text uuid="settings.whatsapp.option.api.title" />
-							</p>
-							<p className="text-sm text-muted-foreground">
-								<Text uuid="settings.whatsapp.option.api.description" />
-							</p>
-						</div>
-						<Button
-							size="sm"
-							className="w-fit"
-							disabled={embedded.running}
-							onClick={() => embedded.start()}
-						>
-							{embedded.running ? (
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							) : (
-								<MessageCircle className="mr-2 h-4 w-4" />
-							)}
-							<Text uuid="settings.whatsapp.connect" />
-						</Button>
-					</div>
-					<div className="grid content-between gap-3 rounded-lg border p-4">
-						<div className="grid gap-1">
-							<p className="flex items-center gap-2 text-sm font-semibold">
 								<Smartphone className="size-4" aria-hidden="true" />
 								<Text uuid="settings.whatsapp.option.app.title" />
 							</p>
@@ -168,12 +144,36 @@ export function WhatsAppSettings() {
 						</div>
 						<Button
 							size="sm"
-							variant="outline"
 							className="w-fit"
 							disabled={embedded.running}
 							onClick={() => embedded.start({ coexistence: true })}
 						>
+							{embedded.running ? (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							) : (
+								<MessageCircle className="mr-2 h-4 w-4" />
+							)}
 							<Text uuid="settings.whatsapp.connect_business_app" />
+						</Button>
+					</div>
+					<div className="grid content-between gap-3 rounded-lg border p-4">
+						<div className="grid gap-1">
+							<p className="flex items-center gap-2 text-sm font-semibold">
+								<Cloud className="size-4" aria-hidden="true" />
+								<Text uuid="settings.whatsapp.option.api.title" />
+							</p>
+							<p className="text-sm text-muted-foreground">
+								<Text uuid="settings.whatsapp.option.api.description" />
+							</p>
+						</div>
+						<Button
+							size="sm"
+							variant="outline"
+							className="w-fit"
+							disabled={embedded.running}
+							onClick={() => embedded.start()}
+						>
+							<Text uuid="settings.whatsapp.connect" />
 						</Button>
 					</div>
 				</div>
