@@ -13916,6 +13916,22 @@
         "value": "Cash closing report"
     },
     {
+        "key": "document_templates.doc.reports_revenue",
+        "value": "Revenue report"
+    },
+    {
+        "key": "document_templates.doc.reports_receivables",
+        "value": "Receivables report"
+    },
+    {
+        "key": "document_templates.doc.reports_appointments",
+        "value": "Appointments report"
+    },
+    {
+        "key": "document_templates.doc.reports_clinical",
+        "value": "Clinical report"
+    },
+    {
         "key": "subscription.plans.feature.cash",
         "value": "Cash desk"
     },
