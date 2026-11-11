@@ -3,10 +3,12 @@ import { Button, cn, Text } from "@pengi/ui";
 import {
 	AlertTriangle,
 	ArrowRight,
+	Cloud,
 	Loader2,
 	MessageCircle,
 	RefreshCw,
 	Send,
+	Smartphone,
 	Unplug,
 } from "lucide-react";
 import React from "react";
@@ -125,35 +127,61 @@ export function WhatsAppSettings() {
 	const offsetsMissing = enabled && offsets.length === 0;
 	const templateStatus = account?.template_status ?? "";
 
+	const embeddedAvailable = !!config?.embedded_signup_available;
 	const connectActions = (
-		<div className="flex flex-wrap items-center gap-2">
-			{config?.embedded_signup_available && (
-				<>
-					<Button
-						size="sm"
-						disabled={embedded.running}
-						onClick={() => embedded.start()}
-					>
-						{embedded.running ? (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-						) : (
-							<MessageCircle className="mr-2 h-4 w-4" />
-						)}
-						<Text uuid="settings.whatsapp.connect" />
-					</Button>
-					<Button
-						size="sm"
-						variant="outline"
-						disabled={embedded.running}
-						onClick={() => embedded.start({ coexistence: true })}
-					>
-						<Text uuid="settings.whatsapp.connect_business_app" />
-					</Button>
-				</>
+		<div className="grid w-full gap-3">
+			{embeddedAvailable && (
+				<div className="grid gap-3 sm:grid-cols-2">
+					<div className="grid content-between gap-3 rounded-lg border p-4">
+						<div className="grid gap-1">
+							<p className="flex items-center gap-2 text-sm font-semibold">
+								<Smartphone className="size-4" aria-hidden="true" />
+								<Text uuid="settings.whatsapp.option.app.title" />
+							</p>
+							<p className="text-sm text-muted-foreground">
+								<Text uuid="settings.whatsapp.option.app.description" />
+							</p>
+						</div>
+						<Button
+							size="sm"
+							className="w-fit"
+							disabled={embedded.running}
+							onClick={() => embedded.start({ coexistence: true })}
+						>
+							{embedded.running ? (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							) : (
+								<MessageCircle className="mr-2 h-4 w-4" />
+							)}
+							<Text uuid="settings.whatsapp.connect_business_app" />
+						</Button>
+					</div>
+					<div className="grid content-between gap-3 rounded-lg border p-4">
+						<div className="grid gap-1">
+							<p className="flex items-center gap-2 text-sm font-semibold">
+								<Cloud className="size-4" aria-hidden="true" />
+								<Text uuid="settings.whatsapp.option.api.title" />
+							</p>
+							<p className="text-sm text-muted-foreground">
+								<Text uuid="settings.whatsapp.option.api.description" />
+							</p>
+						</div>
+						<Button
+							size="sm"
+							variant="outline"
+							className="w-fit"
+							disabled={embedded.running}
+							onClick={() => embedded.start()}
+						>
+							<Text uuid="settings.whatsapp.connect" />
+						</Button>
+					</div>
+				</div>
 			)}
 			<Button
 				size="sm"
-				variant={config?.embedded_signup_available ? "ghost" : "outline"}
+				className="w-fit"
+				variant={embeddedAvailable ? "ghost" : "outline"}
 				onClick={() => setManualOpen(true)}
 			>
 				<Text uuid="settings.whatsapp.connect_manual" />
@@ -210,7 +238,11 @@ export function WhatsAppSettings() {
 								<Text uuid={statusLabel} />
 								{connected && (
 									<span className="ml-2 font-normal">
-										<Text uuid={`settings.whatsapp.mode.${account.mode}`} />
+										{account.coexistence ? (
+											<Text uuid="settings.whatsapp.mode.coexistence" />
+										) : (
+											<Text uuid={`settings.whatsapp.mode.${account.mode}`} />
+										)}
 									</span>
 								)}
 							</span>

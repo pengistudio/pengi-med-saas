@@ -8889,7 +8889,7 @@
     },
     {
         "key": "settings.whatsapp.connect",
-        "value": "Connect WhatsApp"
+        "value": "Connect with a Meta account"
     },
     {
         "key": "settings.whatsapp.connect_manual",
@@ -8909,7 +8909,7 @@
     },
     {
         "key": "settings.whatsapp.hint.embedded",
-        "value": "Connect your clinic's WhatsApp Business number with your Meta account. If you already have the IDs and a permanent token, use the manual connection."
+        "value": "Choose how to connect your clinic's number. If you already have the IDs and a permanent token, use the manual connection."
     },
     {
         "key": "settings.whatsapp.hint.manual",
@@ -8933,7 +8933,7 @@
     },
     {
         "key": "settings.whatsapp.mode.embedded",
-        "value": "Through Meta"
+        "value": "API (Meta account)"
     },
     {
         "key": "settings.whatsapp.template",
@@ -14998,5 +14998,25 @@
     {
         "key": "settings.whatsapp.app_disconnected.hint",
         "value": "Meta unlinked your WhatsApp Business app (it went unused for too long or was unlinked from the phone) and reminders are not being sent. Open the app and connect the account again."
+    },
+    {
+        "key": "settings.whatsapp.option.api.title",
+        "value": "WhatsApp API"
+    },
+    {
+        "key": "settings.whatsapp.option.api.description",
+        "value": "For a number dedicated to Pengi. You connect with your Meta account and the number stops working in the phone app."
+    },
+    {
+        "key": "settings.whatsapp.option.app.title",
+        "value": "WhatsApp Business app"
+    },
+    {
+        "key": "settings.whatsapp.option.app.description",
+        "value": "The app you download from the app store. You keep your number on the phone and also use it in Pengi: Meta will ask you to scan a QR code with the app."
+    },
+    {
+        "key": "settings.whatsapp.mode.coexistence",
+        "value": "WhatsApp Business app"
     }
 ]
