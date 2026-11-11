@@ -32,6 +32,7 @@ export function useEmbeddedSignup(
 	const pending = React.useRef<{
 		code?: string;
 		ids?: EmbeddedSignupResult;
+		coexistence?: boolean;
 	} | null>(null);
 	const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 	const mounted = React.useRef(false);
@@ -63,6 +64,7 @@ export function useEmbeddedSignup(
 		const res = await connectWhatsAppEmbedded({
 			code: state.code,
 			...state.ids,
+			coexistence: state.coexistence,
 		});
 		if (!mounted.current) return;
 		setRunning(false);
@@ -93,50 +95,64 @@ export function useEmbeddedSignup(
 		return () => window.removeEventListener("message", onMessage);
 	}, [finish, stop]);
 
-	const start = React.useCallback(async () => {
-		if (!config?.embedded_signup_available) return;
-		clearWait();
-		setRunning(true);
-		pending.current = {};
-		let fb: Awaited<ReturnType<typeof loadFacebookSdk>>;
-		try {
-			fb = await loadFacebookSdk(config.app_id, config.graph_version);
-		} catch {
-			stop();
-			if (mounted.current)
-				errorToast(null, textGet("settings.whatsapp.embedded.sdk_error"));
-			return;
-		}
-		fb.login(
-			(response) => {
-				const code = response.authResponse?.code;
-				if (!code || !pending.current) {
-					// Closed before finishing.
-					stop();
-					return;
-				}
-				pending.current.code = code;
-				if (pending.current.ids) {
-					void finish();
-					return;
-				}
-				// The ids should follow right away; don't wait forever.
-				timeout.current = setTimeout(() => {
-					timeout.current = null;
-					if (!pending.current) return;
-					stop();
-					if (mounted.current)
-						errorToast(null, textGet("settings.whatsapp.embedded.timeout"));
-				}, EMBEDDED_SIGNUP_TIMEOUT_MS);
-			},
-			{
-				config_id: config.config_id,
-				response_type: "code",
-				override_default_response_type: true,
-				extras: { setup: {}, sessionInfoVersion: "3" },
-			},
-		);
-	}, [clearWait, config, errorToast, finish, stop, textGet]);
+	/**
+	 * coexistence: the number is already in use in the WhatsApp Business app;
+	 * Meta links it (QR) so the app and the API share it, instead of moving it.
+	 */
+	const start = React.useCallback(
+		async (options?: { coexistence?: boolean }) => {
+			if (!config?.embedded_signup_available) return;
+			const coexistence = options?.coexistence === true;
+			clearWait();
+			setRunning(true);
+			pending.current = { coexistence };
+			let fb: Awaited<ReturnType<typeof loadFacebookSdk>>;
+			try {
+				fb = await loadFacebookSdk(config.app_id, config.graph_version);
+			} catch {
+				stop();
+				if (mounted.current)
+					errorToast(null, textGet("settings.whatsapp.embedded.sdk_error"));
+				return;
+			}
+			fb.login(
+				(response) => {
+					const code = response.authResponse?.code;
+					if (!code || !pending.current) {
+						// Closed before finishing.
+						stop();
+						return;
+					}
+					pending.current.code = code;
+					if (pending.current.ids) {
+						void finish();
+						return;
+					}
+					// The ids should follow right away; don't wait forever.
+					timeout.current = setTimeout(() => {
+						timeout.current = null;
+						if (!pending.current) return;
+						stop();
+						if (mounted.current)
+							errorToast(null, textGet("settings.whatsapp.embedded.timeout"));
+					}, EMBEDDED_SIGNUP_TIMEOUT_MS);
+				},
+				{
+					config_id: config.config_id,
+					response_type: "code",
+					override_default_response_type: true,
+					extras: coexistence
+						? {
+								setup: {},
+								featureType: "whatsapp_business_app_onboarding",
+								sessionInfoVersion: "3",
+							}
+						: { setup: {}, sessionInfoVersion: "3" },
+				},
+			);
+		},
+		[clearWait, config, errorToast, finish, stop, textGet],
+	);
 
 	return { start, running };
 }

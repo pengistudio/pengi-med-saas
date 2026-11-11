@@ -17,8 +17,10 @@ type ConfigResponse struct {
 
 // AccountResponse describes the tenant's connection. The token is never sent.
 type AccountResponse struct {
-	Connected        bool   `json:"connected"`
-	Mode             string `json:"mode,omitempty"`
+	Connected bool   `json:"connected"`
+	Mode      string `json:"mode,omitempty"`
+	// Coexistence: the number is also active in the WhatsApp Business app.
+	Coexistence      bool   `json:"coexistence"`
 	Status           string `json:"status,omitempty"`
 	WabaID           string `json:"waba_id,omitempty"`
 	PhoneNumberID    string `json:"phone_number_id,omitempty"`
@@ -48,6 +50,7 @@ func NewAccountResponse(a whatsapp_models.WhatsAppAccount) AccountResponse {
 	return AccountResponse{
 		Connected:            true,
 		Mode:                 a.Mode,
+		Coexistence:          a.Coexistence,
 		Status:               a.Status,
 		WabaID:               a.WabaID,
 		PhoneNumberID:        a.PhoneNumberID,
@@ -68,6 +71,9 @@ type ConnectEmbeddedRequest struct {
 	Code          string `json:"code" binding:"required"`
 	WabaID        string `json:"waba_id" binding:"required"`
 	PhoneNumberID string `json:"phone_number_id" binding:"required"`
+	// Coexistence: the number was linked from the WhatsApp Business app, so
+	// Meta already registered it (no /register, no pin).
+	Coexistence bool `json:"coexistence"`
 }
 
 // ConnectManualRequest connects with credentials copied from Meta's dashboard.

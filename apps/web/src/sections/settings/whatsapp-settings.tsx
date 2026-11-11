@@ -127,14 +127,28 @@ export function WhatsAppSettings() {
 	const connectActions = (
 		<div className="flex flex-wrap items-center gap-2">
 			{config?.embedded_signup_available && (
-				<Button size="sm" disabled={embedded.running} onClick={embedded.start}>
-					{embedded.running ? (
-						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-					) : (
-						<MessageCircle className="mr-2 h-4 w-4" />
-					)}
-					<Text uuid="settings.whatsapp.connect" />
-				</Button>
+				<>
+					<Button
+						size="sm"
+						disabled={embedded.running}
+						onClick={() => embedded.start()}
+					>
+						{embedded.running ? (
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						) : (
+							<MessageCircle className="mr-2 h-4 w-4" />
+						)}
+						<Text uuid="settings.whatsapp.connect" />
+					</Button>
+					<Button
+						size="sm"
+						variant="outline"
+						disabled={embedded.running}
+						onClick={() => embedded.start({ coexistence: true })}
+					>
+						<Text uuid="settings.whatsapp.connect_business_app" />
+					</Button>
+				</>
 			)}
 			<Button
 				size="sm"

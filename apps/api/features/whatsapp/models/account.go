@@ -52,11 +52,15 @@ type WhatsAppAccount struct {
 	AccessTokenEncrypted string `json:"-" gorm:"type:text"`
 	PinEncrypted         string `json:"-" gorm:"type:text"`
 	Mode                 string `json:"mode"`
-	Status               string `json:"status"`
-	TemplateStatus       string `json:"template_status"`
-	TemplateReason       string `json:"template_reason"`
-	RemindersEnabled     bool   `json:"reminders_enabled"`
-	ReminderOffsets      []int  `json:"reminder_offsets" gorm:"serializer:json;type:text"`
+	// Coexistence: the number is shared with the WhatsApp Business app on the
+	// clinic's phone (Meta's Coexistence). It was registered by Meta, so it has
+	// no pin.
+	Coexistence      bool   `json:"coexistence"`
+	Status           string `json:"status"`
+	TemplateStatus   string `json:"template_status"`
+	TemplateReason   string `json:"template_reason"`
+	RemindersEnabled bool   `json:"reminders_enabled"`
+	ReminderOffsets  []int  `json:"reminder_offsets" gorm:"serializer:json;type:text"`
 	// NoShowMessageEnabled: send the reschedule message (NoShowTemplate) when
 	// an appointment is marked no_show. Off by default.
 	NoShowMessageEnabled bool       `json:"no_show_message_enabled" gorm:"not null;default:false"`

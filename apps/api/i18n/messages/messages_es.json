@@ -8892,6 +8892,10 @@
         "value": "Conectar WhatsApp"
     },
     {
+        "key": "settings.whatsapp.connect_business_app",
+        "value": "Conectar mi app WhatsApp Business"
+    },
+    {
         "key": "settings.whatsapp.connect_manual",
         "value": "Conectar manualmente"
     },

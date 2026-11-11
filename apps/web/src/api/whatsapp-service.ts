@@ -25,6 +25,8 @@ export type WhatsAppTemplateStatus =
 export interface WhatsAppAccount {
 	connected: boolean;
 	mode?: "manual" | "embedded";
+	/** The number is shared with the WhatsApp Business app on the phone. */
+	coexistence?: boolean;
 	status?: "connected" | "token_invalid";
 	waba_id?: string;
 	phone_number_id?: string;
@@ -50,6 +52,8 @@ export type ConnectEmbeddedPayload = {
 	code: string;
 	waba_id: string;
 	phone_number_id: string;
+	/** The number stays active in the WhatsApp Business app (Coexistence). */
+	coexistence?: boolean;
 };
 
 export type WhatsAppSettingsPayload = {

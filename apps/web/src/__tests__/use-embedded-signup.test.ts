@@ -78,12 +78,39 @@ describe("useEmbeddedSignup", () => {
 			code: "C",
 			waba_id: "W",
 			phone_number_id: "P",
+			coexistence: false,
 		});
 		expect(onConnected).toHaveBeenCalledWith(account);
 		expect(result.current.running).toBe(false);
 		// The wait was cleared: no late timeout toast.
 		act(() => vi.advanceTimersByTime(EMBEDDED_SIGNUP_TIMEOUT_MS));
 		expect(mocks.errorToast).not.toHaveBeenCalled();
+	});
+
+	it("asks for the Business app onboarding and flags coexistence", async () => {
+		loginReturns("C");
+		mocks.connect.mockResolvedValue({ success: true, data: {} });
+		const { result } = renderHook(() => useEmbeddedSignup(config, vi.fn()));
+
+		await act(() => result.current.start({ coexistence: true }));
+		expect(mocks.login.mock.calls[0][1].extras).toMatchObject({
+			featureType: "whatsapp_business_app_onboarding",
+		});
+		await act(async () => postFinish());
+
+		expect(mocks.connect).toHaveBeenCalledWith(
+			expect.objectContaining({ coexistence: true }),
+		);
+	});
+
+	it("does not ask for the Business app onboarding by default", async () => {
+		loginReturns("C");
+		const { result } = renderHook(() => useEmbeddedSignup(config, vi.fn()));
+
+		await act(() => result.current.start());
+		expect(mocks.login.mock.calls[0][1].extras).not.toHaveProperty(
+			"featureType",
+		);
 	});
 
 	it("gives up when the ids never arrive", async () => {
