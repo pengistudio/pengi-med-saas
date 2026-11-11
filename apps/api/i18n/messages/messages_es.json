@@ -13916,6 +13916,22 @@
         "value": "Reporte de cierre de caja"
     },
     {
+        "key": "document_templates.doc.reports_revenue",
+        "value": "Reporte de ingresos"
+    },
+    {
+        "key": "document_templates.doc.reports_receivables",
+        "value": "Reporte de cuentas por cobrar"
+    },
+    {
+        "key": "document_templates.doc.reports_appointments",
+        "value": "Reporte de citas"
+    },
+    {
+        "key": "document_templates.doc.reports_clinical",
+        "value": "Reporte clínico"
+    },
+    {
         "key": "subscription.plans.feature.cash",
         "value": "Caja"
     },
