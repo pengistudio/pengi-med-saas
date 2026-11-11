@@ -99,17 +99,20 @@ func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) envelope.Response {
 	if err := h.client.SubscribeApp(token, req.WabaID); err != nil {
 		return h.graphFailure("subscribe app", err)
 	}
-	pin, err := randomPin()
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
-	}
-	if err := h.client.RegisterPhone(token, req.PhoneNumberID, pin); err != nil {
-		return h.graphFailure("register phone", err)
-	}
-
-	account := whatsapp_models.WhatsAppAccount{WabaID: req.WabaID, PhoneNumberID: req.PhoneNumberID, Mode: whatsapp_models.ModeEmbedded}
-	if err := account.SealPin(box, pin); err != nil {
-		return h.encryptionUnavailable(err)
+	account := whatsapp_models.WhatsAppAccount{WabaID: req.WabaID, PhoneNumberID: req.PhoneNumberID, Mode: whatsapp_models.ModeEmbedded, Coexistence: req.Coexistence}
+	// A number linked from the WhatsApp Business app (Coexistence) is already
+	// registered by Meta: registering it again would fail or break the link.
+	if !req.Coexistence {
+		pin, err := randomPin()
+		if err != nil {
+			return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
+		}
+		if err := h.client.RegisterPhone(token, req.PhoneNumberID, pin); err != nil {
+			return h.graphFailure("register phone", err)
+		}
+		if err := account.SealPin(box, pin); err != nil {
+			return h.encryptionUnavailable(err)
+		}
 	}
 	return h.saveConnection(c, box, account, token, phone)
 }
@@ -173,6 +176,7 @@ func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(str
 	if found {
 		account = existing
 		account.WabaID, account.PhoneNumberID, account.Mode = conn.WabaID, conn.PhoneNumberID, conn.Mode
+		account.Coexistence = conn.Coexistence
 		account.PinEncrypted = conn.PinEncrypted
 	} else {
 		account.TenantID = tenantdb.TenantID(c)

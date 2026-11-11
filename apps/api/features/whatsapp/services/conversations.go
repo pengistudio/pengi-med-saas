@@ -2,6 +2,7 @@ package whatsapp_services
 
 import (
 	"errors"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -102,11 +103,12 @@ func RecordOutbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg
 			return err
 		}
 		updates := lastMessageUpdates(conv, msg, at)
-		if msg.Kind == whatsapp_models.KindReply {
+		if msg.Kind == whatsapp_models.KindReply || msg.Kind == whatsapp_models.KindApp {
 			updates["unread_count"] = 0
 		}
-		// A person answered from the inbox: the assistant's handoff is done.
-		if msg.SentByUserID != nil && conv.NeedsHumanAt != nil {
+		// A person answered (from the inbox or the phone app): the assistant's
+		// handoff is done.
+		if (msg.SentByUserID != nil || msg.Kind == whatsapp_models.KindApp) && conv.NeedsHumanAt != nil {
 			updates["needs_human_at"] = nil
 			updates["needs_human_reason"] = ""
 		}
@@ -155,6 +157,97 @@ func RecordInbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg 
 		return false, err
 	}
 	return true, nil
+}
+
+// HistoryMessage is one message of the history the WhatsApp Business app
+// shared (Coexistence). Msg carries the content (WamID, Body, ContentType,
+// Status for a sent one); ToPhone and the conversation are set by ImportHistory.
+type HistoryMessage struct {
+	Msg     whatsapp_models.WhatsAppMessage
+	At      time.Time
+	Inbound bool // the patient wrote it; otherwise the clinic did, from the app
+}
+
+// ImportHistory stores items in conv's thread, dated when they were written,
+// skipping the ones already stored (Meta may resend a chunk). Unlike live
+// messages it never counts as unread, and it only moves the conversation's
+// last message / reply window forward, never back. It returns how many
+// messages were added.
+func ImportHistory(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, items []HistoryMessage) (int, error) {
+	if len(items) == 0 {
+		return 0, nil
+	}
+	wamIDs := make([]string, 0, len(items))
+	for _, it := range items {
+		if it.Msg.WamID != "" {
+			wamIDs = append(wamIDs, it.Msg.WamID)
+		}
+	}
+	known := map[string]bool{}
+	for start := 0; start < len(wamIDs); start += 500 {
+		end := min(start+500, len(wamIDs))
+		var ids []string
+		if err := db.Model(&whatsapp_models.WhatsAppMessage{}).Where("wam_id IN ?", wamIDs[start:end]).Pluck("wam_id", &ids).Error; err != nil {
+			return 0, err
+		}
+		for _, id := range ids {
+			known[id] = true
+		}
+	}
+	fresh := make([]HistoryMessage, 0, len(items))
+	for _, it := range items {
+		if it.Msg.WamID != "" {
+			if known[it.Msg.WamID] {
+				continue
+			}
+			known[it.Msg.WamID] = true // a repeat inside the same chunk
+		}
+		fresh = append(fresh, it)
+	}
+	if len(fresh) == 0 {
+		return 0, nil
+	}
+	sort.SliceStable(fresh, func(i, j int) bool { return fresh[i].At.Before(fresh[j].At) })
+
+	rows := make([]whatsapp_models.WhatsAppMessage, len(fresh))
+	var lastInbound *time.Time
+	for i, it := range fresh {
+		m := it.Msg
+		m.ConversationID = &conv.ID
+		m.ToPhone = conv.Phone
+		m.PatientID = conv.PatientID
+		m.CreatedAt = it.At // the thread is ordered by it
+		if it.Inbound {
+			m.Direction, m.Kind, m.Status = whatsapp_models.DirectionInbound, whatsapp_models.KindInbound, whatsapp_models.MessageStatusReceived
+			at := it.At
+			lastInbound = &at
+		} else {
+			at := it.At
+			m.Direction, m.Kind, m.SentAt = whatsapp_models.DirectionOutbound, whatsapp_models.KindApp, &at
+			if m.Status == "" {
+				m.Status = whatsapp_models.MessageStatusSent
+			}
+		}
+		if m.ContentType == "" {
+			m.ContentType = whatsapp_models.ContentText
+		}
+		rows[i] = m
+	}
+	last := rows[len(rows)-1]
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.CreateInBatches(&rows, 100).Error; err != nil {
+			return err
+		}
+		updates := lastMessageUpdates(conv, &last, fresh[len(fresh)-1].At)
+		if lastInbound != nil && (conv.LastInboundAt == nil || lastInbound.After(*conv.LastInboundAt)) {
+			updates["last_inbound_at"] = *lastInbound
+		}
+		return applyConversationUpdates(tx, conv, updates)
+	})
+	if err != nil {
+		return 0, err
+	}
+	return len(rows), nil
 }
 
 // lastMessageUpdates moves the conversation's last message to msg, unless a

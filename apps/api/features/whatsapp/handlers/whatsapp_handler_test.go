@@ -322,6 +322,28 @@ func TestConnectEmbedded(t *testing.T) {
 	}
 }
 
+// A number linked from the WhatsApp Business app (Coexistence) is already
+// registered by Meta: the API must not register it again nor store a pin.
+func TestConnectEmbeddedCoexistence(t *testing.T) {
+	f := newFixture(t)
+	t.Setenv("META_ES_CONFIG_ID", "cfg")
+	body := map[string]any{"code": "the-code", "waba_id": "WABA-1", "phone_number_id": "PHONE-1", "coexistence": true}
+	resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, "")
+	if resp.Code != http.StatusOK {
+		t.Fatalf("code = %d (%v)", resp.Code, resp.Data)
+	}
+	if f.graph.called("POST /v23.0/PHONE-1/register") {
+		t.Fatalf("coexistence number was registered: %v", f.graph.calls)
+	}
+	if !f.graph.called("POST /v23.0/WABA-1/subscribed_apps") {
+		t.Fatalf("app was not subscribed: %v", f.graph.calls)
+	}
+	a := f.account(f.own)
+	if !a.Coexistence || a.PinEncrypted != "" {
+		t.Fatalf("account = %+v", a)
+	}
+}
+
 func TestUpdateSettings(t *testing.T) {
 	f := newFixture(t)
 	settings := func(enabled bool, offsets []int) envelope.Response {

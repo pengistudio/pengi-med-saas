@@ -225,8 +225,8 @@ func (h *WebhookHandler) decideBot(db *gorm.DB, account whatsapp_models.WhatsApp
 
 	var humanReplies int64
 	if err := db.Model(&whatsapp_models.WhatsAppMessage{}).
-		Where("conversation_id = ? AND direction = ? AND sent_by_user_id IS NOT NULL AND created_at >= ?",
-			conv.ID, whatsapp_models.DirectionOutbound, now.Add(-BotHumanQuiet).UTC()).
+		Where("conversation_id = ? AND direction = ? AND (sent_by_user_id IS NOT NULL OR kind = ?) AND created_at >= ?",
+			conv.ID, whatsapp_models.DirectionOutbound, whatsapp_models.KindApp, now.Add(-BotHumanQuiet).UTC()).
 		Count(&humanReplies).Error; err != nil {
 		return silent(whatsapp_models.BotReasonInternal)
 	}

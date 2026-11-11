@@ -14978,5 +14978,25 @@
     {
         "key": "reports.col.no_doctor",
         "value": "No doctor"
+    },
+    {
+        "key": "settings.whatsapp.connect_business_app",
+        "value": "Connect my WhatsApp Business app"
+    },
+    {
+        "key": "whatsapp.inbox.app_label",
+        "value": "From the phone"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.app",
+        "value": "From the phone"
+    },
+    {
+        "key": "settings.whatsapp.status.app_disconnected",
+        "value": "App unlinked"
+    },
+    {
+        "key": "settings.whatsapp.app_disconnected.hint",
+        "value": "Meta unlinked your WhatsApp Business app (it went unused for too long or was unlinked from the phone) and reminders are not being sent. Open the app and connect the account again."
     }
 ]

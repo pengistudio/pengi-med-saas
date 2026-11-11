@@ -14978,5 +14978,25 @@
     {
         "key": "reports.col.no_doctor",
         "value": "Sin médico"
+    },
+    {
+        "key": "settings.whatsapp.connect_business_app",
+        "value": "Conectar mi app WhatsApp Business"
+    },
+    {
+        "key": "whatsapp.inbox.app_label",
+        "value": "Desde el celular"
+    },
+    {
+        "key": "settings.whatsapp.log.kind.app",
+        "value": "Desde el celular"
+    },
+    {
+        "key": "settings.whatsapp.status.app_disconnected",
+        "value": "App desvinculada"
+    },
+    {
+        "key": "settings.whatsapp.app_disconnected.hint",
+        "value": "Meta desvinculó tu app de WhatsApp Business (pasó mucho tiempo sin abrirla o se desvinculó desde el celular) y no se están enviando recordatorios. Abre la app y vuelve a conectar la cuenta."
     }
 ]

@@ -114,6 +114,7 @@ export function WhatsAppSettings() {
 
 	const connected = !!account?.connected;
 	const tokenInvalid = account?.status === "token_invalid";
+	const appDisconnected = account?.status === "app_disconnected";
 	const savedOffsets = [...(account?.reminder_offsets ?? [])].sort(
 		(a, b) => b - a,
 	);
@@ -127,14 +128,28 @@ export function WhatsAppSettings() {
 	const connectActions = (
 		<div className="flex flex-wrap items-center gap-2">
 			{config?.embedded_signup_available && (
-				<Button size="sm" disabled={embedded.running} onClick={embedded.start}>
-					{embedded.running ? (
-						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-					) : (
-						<MessageCircle className="mr-2 h-4 w-4" />
-					)}
-					<Text uuid="settings.whatsapp.connect" />
-				</Button>
+				<>
+					<Button
+						size="sm"
+						disabled={embedded.running}
+						onClick={() => embedded.start()}
+					>
+						{embedded.running ? (
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						) : (
+							<MessageCircle className="mr-2 h-4 w-4" />
+						)}
+						<Text uuid="settings.whatsapp.connect" />
+					</Button>
+					<Button
+						size="sm"
+						variant="outline"
+						disabled={embedded.running}
+						onClick={() => embedded.start({ coexistence: true })}
+					>
+						<Text uuid="settings.whatsapp.connect_business_app" />
+					</Button>
+				</>
 			)}
 			<Button
 				size="sm"
@@ -148,9 +163,11 @@ export function WhatsAppSettings() {
 
 	const statusLabel = !connected
 		? "settings.whatsapp.status.disconnected"
-		: tokenInvalid
-			? "settings.whatsapp.status.token_invalid"
-			: "settings.whatsapp.status.connected";
+		: appDisconnected
+			? "settings.whatsapp.status.app_disconnected"
+			: tokenInvalid
+				? "settings.whatsapp.status.token_invalid"
+				: "settings.whatsapp.status.connected";
 
 	return (
 		<div className="grid gap-8">
@@ -226,11 +243,15 @@ export function WhatsAppSettings() {
 					</p>
 				)}
 
-				{connected && tokenInvalid && (
+				{connected && (tokenInvalid || appDisconnected) && (
 					<div className="grid gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
 						<p className="flex items-start gap-1.5 text-sm text-amber-700 dark:text-amber-400">
 							<AlertTriangle className="mt-0.5 size-4 shrink-0" />
-							<Text uuid="settings.whatsapp.token_invalid.hint" />
+							{appDisconnected ? (
+								<Text uuid="settings.whatsapp.app_disconnected.hint" />
+							) : (
+								<Text uuid="settings.whatsapp.token_invalid.hint" />
+							)}
 						</p>
 						{connectActions}
 					</div>

@@ -111,11 +111,21 @@ func (h *WhatsAppHandler) ListConversationMessages(c *gin.Context) envelope.Resp
 		limit = defaultThreadLimit
 	}
 	query := tenantdb.For(c, h.db).Where("conversation_id = ?", conv.ID)
+	// Ordered by when the message happened (an imported history message is
+	// dated when it was written, not when it arrived), the id breaking ties.
+	// The cursor is the id of the oldest message the client has.
 	if before, err := strconv.ParseUint(c.Query("before"), 10, 64); err == nil && before > 0 {
-		query = query.Where("id < ?", before)
+		var ref whatsapp_models.WhatsAppMessage
+		if err := tenantdb.For(c, h.db).Select("id", "created_at").Where("id = ? AND conversation_id = ?", before, conv.ID).Limit(1).Find(&ref).Error; err != nil {
+			h.logger.Error("failed to read whatsapp thread cursor", zap.Error(err))
+			return h.internalError()
+		}
+		if ref.ID != 0 {
+			query = query.Where("(created_at < ? OR (created_at = ? AND id < ?))", ref.CreatedAt, ref.CreatedAt, ref.ID)
+		}
 	}
 	var messages []whatsapp_models.WhatsAppMessage
-	if err := query.Order("id DESC").Limit(limit + 1).Find(&messages).Error; err != nil {
+	if err := query.Order("created_at DESC").Order("id DESC").Limit(limit + 1).Find(&messages).Error; err != nil {
 		h.logger.Error("failed to list whatsapp conversation messages", zap.Error(err))
 		return h.internalError()
 	}

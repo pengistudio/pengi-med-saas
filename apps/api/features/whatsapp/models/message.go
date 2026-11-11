@@ -44,6 +44,10 @@ const (
 	// the assistant is bounded by its AI conversation quota and its per-chat
 	// and per-clinic daily limits instead.
 	KindBot = "bot"
+	// KindApp: a message the clinic sent from the WhatsApp Business app on its
+	// phone (Coexistence), received as an echo. Not billed by us, so not
+	// counted; it counts as a person answering (the assistant stays quiet).
+	KindApp = "app"
 )
 
 // NoShowOffsetHours is the OffsetHours of a KindNoShow message: reminders use

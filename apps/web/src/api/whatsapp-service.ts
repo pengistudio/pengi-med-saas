@@ -25,7 +25,9 @@ export type WhatsAppTemplateStatus =
 export interface WhatsAppAccount {
 	connected: boolean;
 	mode?: "manual" | "embedded";
-	status?: "connected" | "token_invalid";
+	/** The number is shared with the WhatsApp Business app on the phone. */
+	coexistence?: boolean;
+	status?: "connected" | "token_invalid" | "app_disconnected";
 	waba_id?: string;
 	phone_number_id?: string;
 	display_phone?: string;
@@ -50,6 +52,8 @@ export type ConnectEmbeddedPayload = {
 	code: string;
 	waba_id: string;
 	phone_number_id: string;
+	/** The number stays active in the WhatsApp Business app (Coexistence). */
+	coexistence?: boolean;
 };
 
 export type WhatsAppSettingsPayload = {
@@ -87,6 +91,8 @@ export type WhatsAppMessageKind =
 	| "no_show"
 	| "slot_offer"
 	| "bot"
+	/** Typed by the clinic in the WhatsApp Business app on its phone. */
+	| "app"
 	| "inbound";
 
 export type WhatsAppContentType =
