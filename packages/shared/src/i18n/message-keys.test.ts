@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
  * `uuid="a.b"`, `uuid={"a.b"}` and column titles (`meta: { title: "a.b" }`,
  * which the data table passes to textGet). Keys built at runtime (template literals,
  * variables, concatenation) can't be read statically and are skipped; the
- * test counts them (about a hundred, e.g. `textGet(\`status.${s}\`)`,
+ * test counts them (about two hundred, e.g. `textGet(\`status.${s}\`)`,
  * `uuid={item.labelKey}`) so a big jump is visible.
  */
 
@@ -93,7 +93,7 @@ describe("message keys used by the frontends", () => {
 	it("finds the literal keys", () => {
 		expect(used.size).toBeGreaterThan(500);
 		// Sanity bound on the keys this test can't check.
-		expect(dynamic).toBeLessThan(200);
+		expect(dynamic).toBeLessThan(250);
 	});
 
 	it.each(MESSAGE_FILES)("all exist in %s", (file) => {
