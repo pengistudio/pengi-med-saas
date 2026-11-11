@@ -160,6 +160,9 @@ export const PERMISSIONS = {
 		/** Also covers refunds and taking cash out of the drawer. */
 		PERMISSION_VOID_PAYMENT: "VOID_PAYMENT",
 	},
+	REPORTS: {
+		PERMISSION_READ_REPORTS: "READ_REPORTS",
+	},
 };
 
 /** Gentoo support contact (help menu in the sidebar). */

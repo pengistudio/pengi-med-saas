@@ -402,6 +402,19 @@ var CashPermissions = []permission_models.Permission{
 	},
 }
 
+// ReportsPermissions guard the reports (features/reports): revenue,
+// receivables, appointments and clinical statistics. Category REPORTS maps to
+// the EnabledFeatures.Reports flag; backoffice assigns it to plans through the
+// REPORTS Feature (top plan).
+var ReportsPermissions = []permission_models.Permission{
+	{
+		BaseStringID: database.BaseStringID{ID: "READ_REPORTS"},
+		Name:         "Read reports",
+		Category:     "REPORTS",
+		Description:  "View and export revenue, receivables, appointments and clinical reports",
+	},
+}
+
 // All returns every permission in the catalog, once each: what a fresh
 // database seeds (migrations baseline) and what the admin role holds.
 func All() []permission_models.Permission {
@@ -411,7 +424,7 @@ func All() []permission_models.Permission {
 		ClinicalPermissions, BillingPermissions, TeamPermissions, AuditPermissions,
 		DocumentTemplatePermissions, ClinicPermissions, KanbanPermissions,
 		WhatsAppPermissions, PatientPortalPermissions, AppointmentRequestPermissions,
-		DoctorPermissions, AIPermissions, CashPermissions,
+		DoctorPermissions, AIPermissions, CashPermissions, ReportsPermissions,
 	} {
 		for _, perm := range catalog {
 			if !seen[perm.ID] {
@@ -442,6 +455,7 @@ var Features = []FeatureSeed{
 	{Code: "PATIENT_PORTAL", Name: "Portal de pacientes", Permissions: concat(PatientPortalPermissions, AppointmentRequestPermissions)},
 	{Code: "AI", Name: "Inteligencia artificial", Permissions: AIPermissions},
 	{Code: "CASH", Name: "Caja", Permissions: CashPermissions},
+	{Code: "REPORTS", Name: "Reportes", Permissions: ReportsPermissions},
 }
 
 func concat(catalogs ...[]permission_models.Permission) []permission_models.Permission {

@@ -114,6 +114,9 @@ type EnabledFeatures struct {
 	// Cash: the plan includes the cash desk (category CASH). On by default,
 	// like the core modules.
 	Cash bool `json:"cash"`
+	// Reports: the plan includes the reports (category REPORTS). Off by
+	// default, like WhatsApp: top plan only.
+	Reports bool `json:"reports"`
 }
 
 // DefaultEnabledFeatures returns the flags of a tenant without a subscription:

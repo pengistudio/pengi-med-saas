@@ -2,6 +2,7 @@ import {
 	Calendar,
 	CalendarClock,
 	CalendarPlus,
+	ChartColumn,
 	ClockArrowUp,
 	FlaskConical,
 	Layers,
@@ -54,6 +55,8 @@ export interface EnabledFeatures {
 	kanban?: boolean;
 	/** Cash desk (caja): payments, cash sessions. */
 	cash?: boolean;
+	/** Reports and statistics (top plan). */
+	reports?: boolean;
 	whatsapp?: boolean;
 	patient_portal?: boolean;
 	/** AI functions (history summary). Opt-in: check `=== true`. */
@@ -106,9 +109,29 @@ export const createNavItems = (
 			feature: "kanban",
 		},
 		{
+			label: textGet("dashboard.clinical.patients"),
+			href: "/clinical",
+			icon: UsersRound,
+			section: care,
+			// Front desk and doctors register patients; contador only looks them
+			// up while invoicing, so READ_PATIENT alone doesn't earn the item.
+			permission: [
+				PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_PATIENT,
+				PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
+			],
+			feature: "clinical",
+		},
+		{
 			label: textGet("nav.item.agenda"),
 			href: "/clinical/appointments",
 			icon: Calendar,
+			section: care,
+			...appointments,
+		},
+		{
+			label: textGet("dashboard.clinical.waiting_room"),
+			href: "/clinical/waiting-room",
+			icon: SquareActivity,
 			section: care,
 			...appointments,
 		},
@@ -129,26 +152,6 @@ export const createNavItems = (
 			icon: ClockArrowUp,
 			section: care,
 			...appointments,
-		},
-		{
-			label: textGet("dashboard.clinical.waiting_room"),
-			href: "/clinical/waiting-room",
-			icon: SquareActivity,
-			section: care,
-			...appointments,
-		},
-		{
-			label: textGet("dashboard.clinical.patients"),
-			href: "/clinical",
-			icon: UsersRound,
-			section: care,
-			// Front desk and doctors register patients; contador only looks them
-			// up while invoicing, so READ_PATIENT alone doesn't earn the item.
-			permission: [
-				PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_PATIENT,
-				PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
-			],
-			feature: "clinical",
 		},
 		{
 			icon: FlaskConical,
@@ -176,6 +179,14 @@ export const createNavItems = (
 			...billing,
 		},
 		{
+			label: textGet("cash.nav.title"),
+			href: "/cash",
+			icon: Wallet,
+			section: finance,
+			permission: PERMISSIONS.CASH.PERMISSION_READ_CASH,
+			feature: "cash",
+		},
+		{
 			label: textGet("dashboard.billing.catalog-items"),
 			href: "/billing/catalog-items",
 			icon: Package,
@@ -183,12 +194,12 @@ export const createNavItems = (
 			...billing,
 		},
 		{
-			label: textGet("cash.nav.title"),
-			href: "/cash",
-			icon: Wallet,
+			label: textGet("reports.nav.title"),
+			href: "/reports",
+			icon: ChartColumn,
 			section: finance,
-			permission: PERMISSIONS.CASH.PERMISSION_READ_CASH,
-			feature: "cash",
+			permission: PERMISSIONS.REPORTS.PERMISSION_READ_REPORTS,
+			feature: "reports",
 		},
 		{
 			icon: Settings,

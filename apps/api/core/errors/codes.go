@@ -275,4 +275,11 @@ var (
 	ErrCashSessionNotClosed    AppError = NewAppError("E-CASH-014", "The closing report is available once the session is closed.")
 	ErrCashInternal            AppError = NewAppError("E-CASH-015", "Cash internal error.")
 	ErrCashRefundNotRefundable AppError = NewAppError("E-CASH-016", "Only valid payments can be refunded.")
+
+	// Reports Errors (features/reports: revenue, receivables, appointments, clinical)
+	ErrReportsInvalidFilters AppError = NewAppError("E-REPORTS-001", "Invalid report filters: use from/to as YYYY-MM-DD and a numeric doctor_id.")
+	ErrReportsRangeTooLong   AppError = NewAppError("E-REPORTS-002", "The date range cannot exceed 366 days.")
+	ErrReportsInvalidFormat  AppError = NewAppError("E-REPORTS-003", "Invalid format: use csv or pdf.")
+	ErrReportsInternal       AppError = NewAppError("E-REPORTS-004", "Reports internal error.")
+	ErrReportsRenderFailed   AppError = NewAppError("E-REPORTS-005", "The report PDF could not be generated.")
 )

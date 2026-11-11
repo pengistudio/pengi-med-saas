@@ -109,6 +109,12 @@ Cierre en que el cajero cuenta el efectivo antes de ver el esperado (fondo + cob
 **Anulación / reembolso**:
 Un cobro nunca se borra. Dentro de la misma sesión abierta se anula; después del cierre se reembolsa con un cobro negativo en la sesión vigente, vinculado al original. No genera nota de crédito automática.
 
+### Reportes
+
+**Reporte**:
+Agregación de solo lectura sobre datos existentes (facturas, cobros, citas, historia clínica) en un rango de fechas, con salida en pantalla, CSV y PDF. No tiene tablas propias. Cuatro en v1: ingresos, por cobrar, citas y clínico. Solo en el plan top (Feature `REPORTS`, permiso `READ_REPORTS`). El médico de una factura es el médico tratante del paciente.
+_Avoid_: informe (se confunde con el informe médico)
+
 ### Clínico
 
 **Adjunto**:

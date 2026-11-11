@@ -6,6 +6,7 @@ import (
 	billing_templates "pengi-med-saas/features/billing/templates"
 	cash_templates "pengi-med-saas/features/cash/templates"
 	clinical_templates "pengi-med-saas/features/clinical/templates"
+	reports_templates "pengi-med-saas/features/reports/templates"
 )
 
 // tenantFiles is where every tenant's files live (the api_storage volume).
@@ -20,6 +21,10 @@ var printableDocuments = []pdfrender.Document{
 	clinical_templates.Certificate,
 	billing_templates.InvoiceRide,
 	cash_templates.SessionReport,
+	reports_templates.Revenue,
+	reports_templates.Receivables,
+	reports_templates.Appointments,
+	reports_templates.Clinical,
 }
 
 // documentRenderer renders tenant documents to PDF with the tenant's own

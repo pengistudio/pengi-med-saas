@@ -300,6 +300,7 @@ func (h *DashboardHandler) GetDashboardStats(c *gin.Context) envelope.Response {
 					"team":     ef.Team,
 					"kanban":   ef.Kanban,
 					"cash":     ef.Cash,
+					"reports":  ef.Reports,
 				}
 			}
 		}

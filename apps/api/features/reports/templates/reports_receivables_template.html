@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cuentas por cobrar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @page { size: A4 portrait; margin: 0; }
+        body { font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.4; color: #334155; }
+        .page { width: 210mm; min-height: 297mm; padding: 14mm; }
+        header { display: flex; justify-content: space-between; border-bottom: 2px solid #0ea5e9; padding-bottom: 6mm; margin-bottom: 6mm; }
+        h1 { font-size: 15pt; color: #0f172a; }
+        h2 { font-size: 10.5pt; color: #0ea5e9; margin: 6mm 0 2mm; }
+        .muted { color: #64748b; }
+        .kpis { display: flex; gap: 4mm; }
+        .kpis > div { flex: 1; padding: 2mm 3mm; background: #f8fafc; border-left: 3px solid #0ea5e9; }
+        .kpis strong { display: block; font-size: 13pt; color: #0f172a; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 1.5mm 2mm; text-align: left; }
+        th { background: #e0f2fe; font-weight: bold; }
+        .num { text-align: right; white-space: nowrap; }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <div>
+                <h1>{{.ClinicName}}</h1>
+                {{if .TaxID}}<div class="muted">RUC {{.TaxID}}</div>{{end}}
+            </div>
+            <div style="text-align: right;">
+                <h1>Cuentas por cobrar</h1>
+                <div>{{.From}} - {{.To}}</div>
+                <div class="muted">{{if .Doctor}}{{.Doctor}}{{else}}Todos los médicos{{end}}</div>
+            </div>
+        </header>
+
+        <div class="kpis">
+            <div>Facturas abiertas<strong>{{.Count}}</strong></div>
+            <div>Facturado<strong>{{.Total}}</strong></div>
+            <div>Cobrado<strong>{{.Paid}}</strong></div>
+            <div>Saldo<strong>{{.Balance}}</strong></div>
+        </div>
+
+        <h2>Antigüedad</h2>
+        <table>
+            <tr><th>Rango</th><th class="num">Facturas</th><th class="num">Saldo</th></tr>
+            {{range .Buckets}}<tr><td>{{.Label}}</td><td class="num">{{.Count}}</td><td class="num">{{.Balance}}</td></tr>{{end}}
+        </table>
+
+        <h2>Detalle</h2>
+        <table>
+            <tr><th>Factura</th><th>Paciente</th><th>Fecha</th><th class="num">Total</th><th class="num">Cobrado</th><th class="num">Saldo</th><th class="num">Días</th></tr>
+            {{range .Items}}<tr><td>{{.Invoice}}</td><td>{{.Patient}}</td><td>{{.Date}}</td><td class="num">{{.Total}}</td><td class="num">{{.Paid}}</td><td class="num">{{.Balance}}</td><td class="num">{{.AgeDays}}</td></tr>
+            {{else}}<tr><td colspan="7" class="muted">Sin cuentas por cobrar</td></tr>{{end}}
+        </table>
+
+        <p class="muted" style="margin-top: 8mm;">Generado el {{.GeneratedAt}}</p>
+    </div>
+</body>
+
+</html>
