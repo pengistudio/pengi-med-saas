@@ -141,13 +141,22 @@ export function useEmbeddedSignup(
 					config_id: config.config_id,
 					response_type: "code",
 					override_default_response_type: true,
-					extras: coexistence
-						? {
-								setup: {},
-								featureType: "whatsapp_business_app_onboarding",
-								sessionInfoVersion: "3",
-							}
-						: { setup: {}, sessionInfoVersion: "3" },
+					// v5: the Business app onboarding (coexistence) is on by default,
+					// so the dedicated-number flow has to opt out of it.
+					extras: {
+						setup: {},
+						version: "v5",
+						...(coexistence
+							? {}
+							: {
+									features: [
+										{
+											name: "whatsapp_business_app_onboarding",
+											enabled: false,
+										},
+									],
+								}),
+					},
 				},
 			);
 		},

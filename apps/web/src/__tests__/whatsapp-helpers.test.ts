@@ -63,6 +63,22 @@ describe("parseEmbeddedSignupMessage", () => {
 		).toEqual(expected);
 	});
 
+	it("reads a v5 Business app finish (messaging_account_ids)", () => {
+		const v5 = {
+			type: "WA_EMBEDDED_SIGNUP",
+			event: "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
+			data: {
+				phone_number_id: "111",
+				messaging_account_ids: ["222"],
+				is_on_biz_app: true,
+			},
+		};
+		expect(parseEmbeddedSignupMessage("https://www.facebook.com", v5)).toEqual({
+			type: "finish",
+			result: { waba_id: "222", phone_number_id: "111" },
+		});
+	});
+
 	it("reports a cancelled flow", () => {
 		expect(
 			parseEmbeddedSignupMessage("https://www.facebook.com", {
