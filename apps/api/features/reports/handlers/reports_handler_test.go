@@ -285,7 +285,8 @@ func TestAppointments_Counts(t *testing.T) {
 	doc, pat, _ := f.seedTenant(tenantA)
 	other := clinical_models.Patient{TenantID: tenantA, FirstName: "Luis", LastName: "Old"}
 	f.create(&other)
-	now := time.Now().UTC()
+	// Appointments hold a plain calendar date: today's date in the tenants' clock.
+	now := utcDay(time.Now().In(location))
 	appt := func(p uint, d *uint, date time.Time, status string) {
 		f.create(&clinical_models.Appointment{TenantID: tenantA, PatientID: p, DoctorID: d, Date: date, Status: status})
 	}
