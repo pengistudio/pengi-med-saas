@@ -108,8 +108,9 @@ func parseFilter(c *gin.Context, now time.Time) (filter, *envelope.Response) {
 		d := uint(id)
 		f.doctorID = &d
 	}
-	f.start = f.from
-	f.end = f.to.AddDate(0, 0, 1)
+	// UTC, like the stored timestamps: SQLite (tests) compares them as text.
+	f.start = f.from.UTC()
+	f.end = f.to.AddDate(0, 0, 1).UTC()
 	return f, nil
 }
 
