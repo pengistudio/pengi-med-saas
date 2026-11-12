@@ -93,9 +93,9 @@ describe("useEmbeddedSignup", () => {
 		const { result } = renderHook(() => useEmbeddedSignup(config, vi.fn()));
 
 		await act(() => result.current.start({ coexistence: true }));
-		expect(mocks.login.mock.calls[0][1].extras).toMatchObject({
-			featureType: "whatsapp_business_app_onboarding",
-		});
+		const extras = mocks.login.mock.calls[0][1].extras;
+		expect(extras).toMatchObject({ version: "v5" });
+		expect(extras).not.toHaveProperty("features");
 		await act(async () => postFinish());
 
 		expect(mocks.connect).toHaveBeenCalledWith(
@@ -103,14 +103,15 @@ describe("useEmbeddedSignup", () => {
 		);
 	});
 
-	it("does not ask for the Business app onboarding by default", async () => {
+	it("opts out of the Business app onboarding by default", async () => {
 		loginReturns("C");
 		const { result } = renderHook(() => useEmbeddedSignup(config, vi.fn()));
 
 		await act(() => result.current.start());
-		expect(mocks.login.mock.calls[0][1].extras).not.toHaveProperty(
-			"featureType",
-		);
+		expect(mocks.login.mock.calls[0][1].extras).toMatchObject({
+			version: "v5",
+			features: [{ name: "whatsapp_business_app_onboarding", enabled: false }],
+		});
 	});
 
 	it("gives up when the ids never arrive", async () => {

@@ -110,11 +110,22 @@ export function parseEmbeddedSignupMessage(
 	const msg = payload as {
 		type?: string;
 		event?: string;
-		data?: { waba_id?: string; phone_number_id?: string };
+		data?: {
+			waba_id?: string;
+			messaging_account_ids?: string | string[];
+			phone_number_id?: string;
+		};
 	};
 	if (msg.type !== "WA_EMBEDDED_SIGNUP") return null;
-	if (msg.event === "FINISH") {
-		const waba = msg.data?.waba_id;
+	// v5 reports a Business app number as FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING
+	// and names the account messaging_account_ids (v3/v4: waba_id).
+	if (
+		msg.event === "FINISH" ||
+		msg.event === "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING"
+	) {
+		const accounts = msg.data?.messaging_account_ids;
+		const waba =
+			msg.data?.waba_id ?? (Array.isArray(accounts) ? accounts[0] : accounts);
 		const phone = msg.data?.phone_number_id;
 		if (!waba || !phone) return null;
 		return {
