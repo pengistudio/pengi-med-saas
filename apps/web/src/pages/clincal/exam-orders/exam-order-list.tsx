@@ -1,5 +1,5 @@
 import { useText } from "@pengi/shared";
-import { Button, Tabs, TabsList, TabsTrigger } from "@pengi/ui";
+import { Button, EmptyState, Tabs, TabsList, TabsTrigger } from "@pengi/ui";
 import { Plus } from "lucide-react";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
@@ -149,9 +149,11 @@ export default function ExamOrderListPage() {
 				page={page}
 				onPageChange={changePage}
 				emptyState={
-					<p className="py-6 text-center text-sm text-muted-foreground">
-						{textGet("clinical.exam_orders.empty")}
-					</p>
+					<EmptyState
+						size="sm"
+						illustration="empty"
+						title={textGet("clinical.exam_orders.empty")}
+					/>
 				}
 			/>
 		</main>

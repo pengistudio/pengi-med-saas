@@ -12,6 +12,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
+	EmptyState,
 	Text,
 	useToast,
 } from "@pengi/ui";
@@ -342,9 +343,11 @@ const MedicalRecords = () => {
 							data={deletedRecords}
 							loading={deletedLoading}
 							emptyState={
-								<p className="py-4 text-sm text-muted-foreground">
-									{textGet("clinical.medical_record.deleted.empty")}
-								</p>
+								<EmptyState
+									size="sm"
+									illustration="empty"
+									title={textGet("clinical.medical_record.deleted.empty")}
+								/>
 							}
 						/>
 					) : (
@@ -386,9 +389,11 @@ const MedicalRecords = () => {
 							onPageChange={setPage}
 							emptyState={
 								<div className="flex flex-col items-center gap-3 py-4">
-									<p className="text-sm text-muted-foreground">
-										{textGet("clinical.medical_record.empty")}
-									</p>
+									<EmptyState
+										size="sm"
+										illustration="empty"
+										title={textGet("clinical.medical_record.empty")}
+									/>
 									{checkPermission([
 										PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_MEDICAL_RECORD,
 									]) && (

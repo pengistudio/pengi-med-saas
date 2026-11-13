@@ -64,6 +64,18 @@ export interface EnabledFeatures {
 }
 
 // Factory to create navigation items with localized labels
+/** Whether the plan includes `feature`: opt-in features need an explicit true. */
+export const isFeatureEnabled = (
+	enabledFeatures: EnabledFeatures,
+	feature: string,
+	optIn = false,
+): boolean => {
+	const value = (enabledFeatures as Record<string, boolean | undefined>)[
+		feature
+	];
+	return optIn ? value === true : value !== false;
+};
+
 /** Items the user may see: role permission and tenant feature flag both hold. */
 export const filterNavItems = <T extends BaseNavItem>(
 	items: T[],
@@ -74,10 +86,7 @@ export const filterNavItems = <T extends BaseNavItem>(
 		(item) =>
 			(!item.permission || checkPermission([item.permission].flat())) &&
 			(!item.feature ||
-				(item.featureOptIn
-					? (enabledFeatures as Record<string, boolean>)[item.feature] === true
-					: (enabledFeatures as Record<string, boolean>)[item.feature] !==
-						false)),
+				isFeatureEnabled(enabledFeatures, item.feature, item.featureOptIn)),
 	);
 
 // Factory to create navigation items with localized labels. Items of a section

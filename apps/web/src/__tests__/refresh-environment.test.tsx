@@ -5,10 +5,13 @@ import type { EnvironmentWithCompany } from "@/types/user-type";
 
 const getMyEnvironments = vi.hoisted(() => vi.fn());
 vi.mock("@/api/user-service", () => ({ getMyEnvironments }));
-const infoToast = vi.hoisted(() => vi.fn());
 vi.mock("@pengi/ui", () => ({
-	useToast: () => ({ infoToast }),
 	Skeleton: () => <div />,
+	useToast: () => ({ infoToast: vi.fn() }),
+	Button: ({ children }: { children?: React.ReactNode }) => (
+		<button type="button">{children}</button>
+	),
+	EmptyState: ({ title }: { title?: React.ReactNode }) => <div>{title}</div>,
 }));
 
 import CheckPermission from "@/components/custom/check-permission";
@@ -37,7 +40,6 @@ const env = (permissions: string[]): EnvironmentWithCompany =>
 
 beforeEach(() => {
 	getMyEnvironments.mockReset();
-	infoToast.mockReset();
 	useTokenStore.getState().setToken("tok");
 	useSessionStore.getState().clean();
 	useSessionStore.getState().setEnvironment(env(["OLD"]));
@@ -122,17 +124,17 @@ describe("CheckPermission", () => {
 
 	it("waits for the refresh before denying, then allows", async () => {
 		renderGuard();
-		expect(infoToast).not.toHaveBeenCalled();
 		expect(screen.queryByText("home")).toBeNull();
 		useSessionStore.getState().setEnvironment(env(["READ_APPOINTMENT"]));
 		await waitFor(() => expect(screen.getByText("secret")).toBeDefined());
-		expect(infoToast).not.toHaveBeenCalled();
 	});
 
 	it("denies once the refresh finished without the permission", async () => {
 		renderGuard();
 		useSessionStore.getState().setPermissionsFresh(true);
-		await waitFor(() => expect(screen.getByText("home")).toBeDefined());
-		expect(infoToast).toHaveBeenCalled();
+		await waitFor(() =>
+			expect(screen.getByText(/error\.permission\.title/)).toBeDefined(),
+		);
+		expect(screen.queryByText("secret")).toBeNull();
 	});
 });

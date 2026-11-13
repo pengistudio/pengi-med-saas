@@ -6,6 +6,7 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
+	EmptyState,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -193,11 +194,15 @@ export default function WaitlistPage() {
 					</div>
 				}
 				emptyState={
-					<p className="py-8 text-center text-sm text-muted-foreground">
-						{status === "active"
-							? textGet("waitlist.empty.active")
-							: textGet("waitlist.empty.all")}
-					</p>
+					<EmptyState
+						size="sm"
+						illustration={status === "active" ? "all-clear" : "empty"}
+						title={
+							status === "active"
+								? textGet("waitlist.empty.active")
+								: textGet("waitlist.empty.all")
+						}
+					/>
 				}
 			/>
 			<Dialog

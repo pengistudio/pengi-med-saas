@@ -1,5 +1,5 @@
 import { useText } from "@pengi/shared";
-import { Skeleton } from "@pengi/ui";
+import { EmptyState, Skeleton } from "@pengi/ui";
 import type React from "react";
 import type { LoadState } from "@/lib/use-load";
 
@@ -27,13 +27,17 @@ export function SectionState<T>({
 	}
 	if (state.status === "error") {
 		return (
-			<p className="text-muted-foreground text-sm">
-				{textGet("portal.section.error")}
-			</p>
+			<EmptyState
+				size="sm"
+				illustration="no-connection"
+				title={textGet("portal.section.error")}
+			/>
 		);
 	}
 	if (isEmpty(state.data)) {
-		return <p className="text-muted-foreground text-sm">{textGet(emptyKey)}</p>;
+		return (
+			<EmptyState size="sm" illustration="empty" title={textGet(emptyKey)} />
+		);
 	}
 	return <>{children(state.data)}</>;
 }

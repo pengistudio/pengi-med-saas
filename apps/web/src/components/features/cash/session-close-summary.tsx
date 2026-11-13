@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
 import { Card, CardContent } from "@pengi/ui";
-import { MessageSquareText, ReceiptText } from "lucide-react";
+import { MessageSquareText } from "lucide-react";
 import type React from "react";
 import type { CashSessionDetail } from "@/api/cash-service";
 import { cn } from "@/lib/utils";
@@ -133,7 +133,7 @@ export function SessionCloseSummary({
 						{session.totals.by_method.length === 0 ? (
 							<div className="rounded-lg border border-dashed">
 								<CashEmptyState
-									icon={ReceiptText}
+									illustration="empty"
 									title={textGet("cash.summary.no_payments")}
 								/>
 							</div>

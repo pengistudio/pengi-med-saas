@@ -916,6 +916,22 @@
         "value": "No tienes los permisos suficientes para acceder a esta ruta"
     },
     {
+        "key": "error.permission.back_home",
+        "value": "Volver al inicio"
+    },
+    {
+        "key": "error.plan.title",
+        "value": "Esta función no está en tu plan"
+    },
+    {
+        "key": "error.plan.description",
+        "value": "Tu plan actual no incluye esta sección. Mejora tu plan para usarla."
+    },
+    {
+        "key": "error.plan.see_plans",
+        "value": "Ver planes"
+    },
+    {
         "key": "table.pagination.of",
         "value": " de "
     },
@@ -6102,6 +6118,14 @@
     {
         "key": "error_page.description",
         "value": "Ocurrió un error inesperado. Intenta de nuevo o vuelve al inicio."
+    },
+    {
+        "key": "error_page.network.title",
+        "value": "Sin conexión"
+    },
+    {
+        "key": "error_page.network.description",
+        "value": "No pudimos cargar la página. Revisa tu conexión e intenta de nuevo."
     },
     {
         "key": "error_page.not_found.title",

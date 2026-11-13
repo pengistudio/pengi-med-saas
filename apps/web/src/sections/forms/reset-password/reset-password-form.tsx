@@ -9,6 +9,7 @@ import {
 	CardTitle,
 	Form,
 	FormPasswordInput,
+	Illustration,
 	Spinner,
 	Text,
 } from "@pengi/ui";
@@ -43,7 +44,8 @@ const ResetPasswordForm = () => {
 	if (!token) {
 		return (
 			<Card className="max-w-md w-full min-w-xs">
-				<CardHeader>
+				<CardHeader className="items-center text-center">
+					<Illustration name="link-expired" className="w-40" />
 					<CardTitle>
 						<Text uuid="reset_password.invalid_link.title" />
 					</CardTitle>

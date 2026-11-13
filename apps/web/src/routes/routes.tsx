@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { createElement, lazy } from "react";
 import { createBrowserRouter, Outlet, type RouteObject } from "react-router";
 import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
@@ -139,6 +139,7 @@ const examOrderRoutes: RouteObject = {
 	path: "/clinical/exam-orders",
 	element: (
 		<CheckPermission
+			feature="clinical"
 			permissions={[PERMISSIONS.EXAM_ORDERS.PERMISSION_READ_EXAM_ORDER]}
 		/>
 	),
@@ -190,6 +191,7 @@ const clinicalRoutes: RouteObject = {
 	path: "/clinical",
 	element: (
 		<CheckPermission
+			feature="clinical"
 			permissions={[PERMISSIONS.MEDICAL_RECORD.PERMISSION_READ_PATIENT]}
 		/>
 	),
@@ -328,6 +330,7 @@ const billingRoutes: RouteObject = {
 	path: "/billing",
 	element: (
 		<CheckPermission
+			feature="billing"
 			permissions={[PERMISSIONS.BILLING.PERMISSION_READ_BILLING]}
 		/>
 	),
@@ -443,7 +446,7 @@ const doctorRoutes: RouteObject = {
 const readCash = [PERMISSIONS.CASH.PERMISSION_READ_CASH];
 const cashRoutes: RouteObject = {
 	path: "/cash",
-	element: <CheckPermission permissions={readCash} />,
+	element: <CheckPermission feature="cash" permissions={readCash} />,
 	children: [
 		{
 			index: true,
@@ -475,7 +478,7 @@ const cashRoutes: RouteObject = {
 const readReports = [PERMISSIONS.REPORTS.PERMISSION_READ_REPORTS];
 const reportsRoutes: RouteObject = {
 	path: "/reports",
-	element: <CheckPermission permissions={readReports} />,
+	element: <CheckPermission feature="reports" permissions={readReports} />,
 	children: [
 		{
 			index: true,
@@ -497,11 +500,25 @@ const routes: RouteObject[] = [
 	reportsRoutes,
 ];
 
+// Dev-only routes. The lazy import sits inside the DEV branch so production
+// builds drop the route and the chunk entirely (verified: no gallery chunk).
+const devRoutes: RouteObject[] = import.meta.env.DEV
+	? [
+			{
+				path: "/dev/illustrations",
+				element: createElement(
+					lazy(() => import("@/pages/dev/illustration-gallery")),
+				),
+			},
+		]
+	: [];
+
 const router = createBrowserRouter([
 	{
 		element: <Outlet />,
 		errorElement: <ErrorPage />,
 		children: [
+			...devRoutes,
 			{
 				path: "/login",
 				element: <Login />,
@@ -583,6 +600,7 @@ const router = createBrowserRouter([
 						path: "/settings/whatsapp",
 						element: (
 							<CheckPermission
+								feature="whatsapp"
 								permissions={[PERMISSIONS.WHATSAPP.PERMISSION_MANAGE_WHATSAPP]}
 							>
 								<WhatsAppSettingsPage />
@@ -593,6 +611,8 @@ const router = createBrowserRouter([
 						path: "/settings/portal",
 						element: (
 							<CheckPermission
+								feature="patient_portal"
+								featureOptIn
 								permissions={[
 									PERMISSIONS.PATIENT_PORTAL.PERMISSION_MANAGE_PATIENT_PORTAL,
 								]}
@@ -605,6 +625,7 @@ const router = createBrowserRouter([
 						path: "/whatsapp",
 						element: (
 							<CheckPermission
+								feature="whatsapp"
 								permissions={[
 									PERMISSIONS.WHATSAPP.PERMISSION_USE_WHATSAPP_INBOX,
 								]}
@@ -650,6 +671,7 @@ const router = createBrowserRouter([
 						path: "/tasks",
 						element: (
 							<CheckPermission
+								feature="kanban"
 								permissions={[PERMISSIONS.KANBAN.PERMISSION_READ_KANBAN]}
 							>
 								<KanbanPage />

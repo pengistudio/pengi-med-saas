@@ -7,6 +7,7 @@ import {
 	type DataTableRow,
 	DataTableViewOptions,
 	dataTableFeatures,
+	EmptyState,
 	Input,
 	Skeleton,
 	Table,
@@ -248,11 +249,14 @@ export function DataTable<TData extends RowData>({
 								))
 							) : (
 								<TableRow>
-									<TableCell
-										colSpan={columns.length}
-										className="h-32 text-center"
-									>
-										{emptyState ?? textGet("table.no_results")}
+									<TableCell colSpan={columns.length} className="text-center">
+										{emptyState ?? (
+											<EmptyState
+												size="sm"
+												illustration="no-results"
+												title={textGet("table.no_results")}
+											/>
+										)}
 									</TableCell>
 								</TableRow>
 							)}

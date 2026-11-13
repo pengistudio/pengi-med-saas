@@ -5,6 +5,7 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	Illustration,
 	Spinner,
 	Text,
 } from "@pengi/ui";
@@ -42,7 +43,8 @@ const VerifyEmailPage = () => {
 				)}
 				{state === "success" && (
 					<>
-						<CardHeader>
+						<CardHeader className="items-center text-center">
+							<Illustration name="success" className="w-40" />
 							<CardTitle>
 								<Text uuid="verify_email.success.title" />
 							</CardTitle>
@@ -59,7 +61,8 @@ const VerifyEmailPage = () => {
 				)}
 				{state === "error" && (
 					<>
-						<CardHeader>
+						<CardHeader className="items-center text-center">
+							<Illustration name="link-expired" className="w-40" />
 							<CardTitle>
 								<Text uuid="verify_email.error.title" />
 							</CardTitle>

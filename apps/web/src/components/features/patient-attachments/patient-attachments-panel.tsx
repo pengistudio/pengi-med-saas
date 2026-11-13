@@ -7,6 +7,7 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
+	EmptyState,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -384,19 +385,17 @@ export function PatientAttachmentsPanel({
 				</div>
 			) : attachments.length === 0 ? (
 				category === "all" ? (
-					<div className="flex flex-col items-center gap-2 py-10 text-center">
-						<Files className="h-10 w-10 text-muted-foreground" />
-						<p className="font-medium">
-							{textGet("clinical.attachment.empty.title")}
-						</p>
-						<p className="max-w-md text-sm text-muted-foreground">
-							{textGet("clinical.attachment.empty.description")}
-						</p>
-					</div>
+					<EmptyState
+						illustration="empty"
+						title={textGet("clinical.attachment.empty.title")}
+						description={textGet("clinical.attachment.empty.description")}
+					/>
 				) : (
-					<p className="py-8 text-center text-sm text-muted-foreground">
-						{textGet("clinical.attachment.empty.filtered")}
-					</p>
+					<EmptyState
+						size="sm"
+						illustration="no-results"
+						title={textGet("clinical.attachment.empty.filtered")}
+					/>
 				)
 			) : (
 				<Table>
