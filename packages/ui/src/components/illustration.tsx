@@ -493,6 +493,154 @@ function LinkExpiredArt() {
 	);
 }
 
+/** Two-unit server, one idle, with a wrench badge: down for maintenance, back soon. */
+function MaintenanceArt() {
+	return (
+		<>
+			<Backdrop />
+			{/* top unit: running */}
+			<rect
+				x="64"
+				y="42"
+				width="84"
+				height="38"
+				rx="7"
+				fill="var(--background)"
+				stroke={INK}
+				{...stroke}
+			/>
+			<circle cx="78" cy="61" r="4" fill={ACCENT} />
+			<path d="M92 61h22M128 55v12M136 55v12" stroke={INK} {...stroke} />
+			{/* bottom unit: idle */}
+			<rect
+				x="64"
+				y="88"
+				width="84"
+				height="38"
+				rx="7"
+				fill={SOFT}
+				stroke={INK}
+				{...stroke}
+			/>
+			<circle cx="78" cy="107" r="4" fill={SOFT_STRONG} />
+			<path d="M92 107h22" stroke={INK} {...stroke} />
+			{/* wrench badge */}
+			<circle cx="160" cy="120" r="24" fill="var(--background)" />
+			<circle
+				cx="160"
+				cy="120"
+				r="24"
+				fill={TINT}
+				stroke={ACCENT}
+				{...stroke}
+			/>
+			<g transform="translate(160 121) rotate(45)">
+				<circle cx="0" cy="-8" r="8" fill={ACCENT} />
+				<rect x="-3" y="-4" width="6" height="18" rx="3" fill={ACCENT} />
+				{/* open jaw: notch in the head, painted like the badge */}
+				<rect
+					x="-3"
+					y="-17"
+					width="6"
+					height="9"
+					rx="1"
+					fill="var(--background)"
+				/>
+				<rect x="-3" y="-17" width="6" height="9" rx="1" fill={TINT} />
+			</g>
+			{/* accents */}
+			<path d="M46 48v12M40 54h12" stroke={ACCENT} {...stroke} />
+			<circle cx="190" cy="58" r="3.5" fill={ACCENT} />
+			<circle cx="50" cy="118" r="2.5" fill={INK} />
+		</>
+	);
+}
+
+/** Calendar with a circled due day, a payment card and a renew badge: plan expired, renew. */
+function PlanExpiredArt() {
+	return (
+		<>
+			<Backdrop />
+			{/* calendar: paper body, tinted header, ink outline */}
+			<rect
+				x="64"
+				y="46"
+				width="88"
+				height="82"
+				rx="8"
+				fill="var(--background)"
+			/>
+			<path d="M64 54a8 8 0 0 1 8-8h72a8 8 0 0 1 8 8v12H64z" fill={TINT} />
+			<rect
+				x="64"
+				y="46"
+				width="88"
+				height="82"
+				rx="8"
+				stroke={INK}
+				{...stroke}
+			/>
+			<path d="M64 66h88" stroke={INK} {...stroke} />
+			<path d="M86 40v12M130 40v12" stroke={ACCENT} {...stroke} />
+			{/* day grid */}
+			<g fill={SOFT_STRONG}>
+				<rect x="76" y="76" width="8" height="8" rx="2" />
+				<rect x="94" y="76" width="8" height="8" rx="2" />
+				<rect x="112" y="76" width="8" height="8" rx="2" />
+				<rect x="130" y="76" width="8" height="8" rx="2" />
+				<rect x="76" y="94" width="8" height="8" rx="2" />
+				<rect x="94" y="94" width="8" height="8" rx="2" />
+				<rect x="130" y="94" width="8" height="8" rx="2" />
+				<rect x="76" y="112" width="8" height="8" rx="2" />
+				<rect x="94" y="112" width="8" height="8" rx="2" />
+				<rect x="112" y="112" width="8" height="8" rx="2" />
+			</g>
+			{/* due day, circled */}
+			<rect x="112" y="94" width="8" height="8" rx="2" fill={ACCENT} />
+			<circle cx="116" cy="98" r="9" stroke={ACCENT} {...stroke} />
+			{/* payment card */}
+			<rect
+				x="128"
+				y="102"
+				width="60"
+				height="38"
+				rx="6"
+				fill="var(--background)"
+			/>
+			<rect
+				x="128"
+				y="102"
+				width="60"
+				height="38"
+				rx="6"
+				fill={TINT_STRONG}
+				stroke={ACCENT}
+				{...stroke}
+			/>
+			<path d="M128 114h60" stroke={ACCENT} {...stroke} />
+			<rect x="138" y="122" width="12" height="9" rx="2" fill={ACCENT} />
+			{/* renew badge */}
+			<circle
+				cx="186"
+				cy="104"
+				r="11"
+				fill="var(--background)"
+				stroke={INK}
+				{...stroke}
+			/>
+			<path
+				d="M192 104a6 6 0 1 1-6-6M183 95l3 3-3 3"
+				stroke={INK}
+				{...stroke}
+			/>
+			{/* accents */}
+			<path d="M46 54v12M40 60h12" stroke={ACCENT} {...stroke} />
+			<circle cx="52" cy="112" r="3.5" fill={ACCENT} />
+			<circle cx="202" cy="64" r="2.5" fill={INK} />
+		</>
+	);
+}
+
 const ARTS = {
 	error: ErrorArt,
 	empty: EmptyArt,
@@ -504,6 +652,8 @@ const ARTS = {
 	"all-clear": AllClearArt,
 	success: SuccessArt,
 	"link-expired": LinkExpiredArt,
+	maintenance: MaintenanceArt,
+	"plan-expired": PlanExpiredArt,
 } satisfies Record<string, () => ReactElement>;
 
 export type IllustrationName = keyof typeof ARTS;

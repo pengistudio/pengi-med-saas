@@ -17,6 +17,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
+	Illustration,
 } from "@pengi/ui";
 import {
 	AlertTriangle,
@@ -326,7 +327,7 @@ export function DashboardLayout() {
 					<Card className="w-full max-w-md border-destructive/50">
 						<CardHeader className="text-center">
 							<div className="mb-2 flex justify-center">
-								<AlertTriangle className="h-12 w-12 text-destructive" />
+								<Illustration name="plan-expired" className="w-40" />
 							</div>
 							<CardTitle className="text-destructive">
 								{textGet("subscription.expired.title")}

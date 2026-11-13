@@ -6128,6 +6128,14 @@
         "value": "Conexión restablecida."
     },
     {
+        "key": "error_page.maintenance.title",
+        "value": "Estamos en mantenimiento"
+    },
+    {
+        "key": "error_page.maintenance.description",
+        "value": "El servicio no está disponible por un momento. Intenta de nuevo en unos minutos."
+    },
+    {
         "key": "error_page.network.title",
         "value": "Sin conexión"
     },
