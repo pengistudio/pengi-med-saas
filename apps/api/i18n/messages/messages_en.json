@@ -6128,6 +6128,14 @@
         "value": "Connection restored."
     },
     {
+        "key": "error_page.maintenance.title",
+        "value": "Under maintenance"
+    },
+    {
+        "key": "error_page.maintenance.description",
+        "value": "The service is unavailable for a moment. Please try again in a few minutes."
+    },
+    {
         "key": "error_page.network.title",
         "value": "No connection"
     },

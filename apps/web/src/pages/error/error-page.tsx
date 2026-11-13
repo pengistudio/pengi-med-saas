@@ -40,20 +40,26 @@ export default function ErrorPage() {
 	const error = useRouteError();
 	const { textGet } = useText();
 	const isNotFound = isRouteErrorResponse(error) && error.status === 404;
-	const isNetwork = !isNotFound && isNetworkError(error);
+	const isMaintenance =
+		isRouteErrorResponse(error) && [502, 503, 504].includes(error.status);
+	const isNetwork = !isNotFound && !isMaintenance && isNetworkError(error);
 
 	console.error("Unhandled route error:", error);
 
 	const title = isNotFound
 		? textGet("error_page.not_found.title")
-		: isNetwork
-			? textGet("error_page.network.title")
-			: textGet("error_page.title");
+		: isMaintenance
+			? textGet("error_page.maintenance.title")
+			: isNetwork
+				? textGet("error_page.network.title")
+				: textGet("error_page.title");
 	const description = isNotFound
 		? textGet("error_page.not_found.description")
-		: isNetwork
-			? textGet("error_page.network.description")
-			: textGet("error_page.description");
+		: isMaintenance
+			? textGet("error_page.maintenance.description")
+			: isNetwork
+				? textGet("error_page.network.description")
+				: textGet("error_page.description");
 
 	return (
 		<div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
@@ -62,7 +68,13 @@ export default function ErrorPage() {
 					<div className="flex justify-center mb-2">
 						<Illustration
 							name={
-								isNotFound ? "not-found" : isNetwork ? "no-connection" : "error"
+								isNotFound
+									? "not-found"
+									: isMaintenance
+										? "maintenance"
+										: isNetwork
+											? "no-connection"
+											: "error"
 							}
 						/>
 					</div>
