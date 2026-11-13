@@ -6120,6 +6120,14 @@
         "value": "An unexpected error occurred. Try again or go back to the home page."
     },
     {
+        "key": "offline.banner.title",
+        "value": "You're offline. Check your internet; some changes may not be saved."
+    },
+    {
+        "key": "offline.banner.restored",
+        "value": "Connection restored."
+    },
+    {
         "key": "error_page.network.title",
         "value": "No connection"
     },

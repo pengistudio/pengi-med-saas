@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { AppTextBridge, initShared, LanguageProvider } from "@pengi/shared";
-import { Toaster, TooltipProvider } from "@pengi/ui";
+import { OfflineBanner, Toaster, TooltipProvider } from "@pengi/ui";
 import App from "./App.tsx";
 import { rootApi } from "./api/http-clients";
 
@@ -19,6 +19,7 @@ createRoot(root).render(
 		<TooltipProvider>
 			<LanguageProvider>
 				<AppTextBridge>
+					<OfflineBanner />
 					<Toaster position="top-center" />
 					<App />
 				</AppTextBridge>

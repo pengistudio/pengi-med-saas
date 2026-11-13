@@ -6120,6 +6120,14 @@
         "value": "Ocurrió un error inesperado. Intenta de nuevo o vuelve al inicio."
     },
     {
+        "key": "offline.banner.title",
+        "value": "Sin conexión. Revisa tu internet; algunos cambios podrían no guardarse."
+    },
+    {
+        "key": "offline.banner.restored",
+        "value": "Conexión restablecida."
+    },
+    {
         "key": "error_page.network.title",
         "value": "Sin conexión"
     },

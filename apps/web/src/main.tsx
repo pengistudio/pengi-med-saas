@@ -12,7 +12,7 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 import { AppTextBridge, initShared, LanguageProvider } from "@pengi/shared";
-import { Toaster, TooltipProvider } from "@pengi/ui";
+import { OfflineBanner, Toaster, TooltipProvider } from "@pengi/ui";
 import App from "./App.tsx";
 import { noAuthApi } from "./api";
 
@@ -24,6 +24,7 @@ createRoot(document.getElementById("root")!).render(
 		<TooltipProvider>
 			<LanguageProvider>
 				<AppTextBridge>
+					<OfflineBanner />
 					<Toaster position="top-center" />
 					<App />
 				</AppTextBridge>
