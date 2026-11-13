@@ -35,7 +35,9 @@ export function SectionState<T>({
 		);
 	}
 	if (isEmpty(state.data)) {
-		return <EmptyState size="sm" illustration="empty" title={textGet(emptyKey)} />;
+		return (
+			<EmptyState size="sm" illustration="empty" title={textGet(emptyKey)} />
+		);
 	}
 	return <>{children(state.data)}</>;
 }
