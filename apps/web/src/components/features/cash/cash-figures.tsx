@@ -1,4 +1,5 @@
 import { useText } from "@pengi/shared";
+import { EmptyState, type IllustrationName } from "@pengi/ui";
 import {
 	Banknote,
 	CircleCheck,
@@ -140,23 +141,20 @@ export function DifferenceBadge({
 
 /** An empty list with a direction: what's missing and how it gets filled. */
 export function CashEmptyState({
-	icon: Icon,
+	illustration,
 	title,
 	hint,
 }: {
-	icon: LucideIcon;
+	illustration: IllustrationName;
 	title: string;
 	hint?: string;
 }) {
 	return (
-		<div className="mx-auto flex max-w-sm flex-col items-center gap-2 py-6 text-center">
-			<span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-				<Icon aria-hidden className="h-5 w-5" />
-			</span>
-			<p className="text-sm font-medium">{title}</p>
-			{hint && (
-				<p className="text-pretty text-sm text-muted-foreground">{hint}</p>
-			)}
-		</div>
+		<EmptyState
+			size="sm"
+			illustration={illustration}
+			title={title}
+			description={hint}
+		/>
 	);
 }

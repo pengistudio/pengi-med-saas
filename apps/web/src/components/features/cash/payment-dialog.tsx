@@ -8,13 +8,7 @@ import {
 	DialogTitle,
 	Skeleton,
 } from "@pengi/ui";
-import {
-	CircleAlert,
-	CircleCheck,
-	Lock,
-	ReceiptText,
-	Wallet,
-} from "lucide-react";
+import { CircleAlert, Lock, ReceiptText, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -163,7 +157,7 @@ export function PaymentDialog({
 					</p>
 				) : balanceCents <= 0 ? (
 					<CashEmptyState
-						icon={CircleCheck}
+						illustration="all-clear"
 						title={textGet("cash.payment.fully_paid")}
 					/>
 				) : (

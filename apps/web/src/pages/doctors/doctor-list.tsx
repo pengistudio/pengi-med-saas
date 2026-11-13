@@ -9,6 +9,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	Button,
+	EmptyState,
 	Text,
 } from "@pengi/ui";
 import { CheckCheck, Plus } from "lucide-react";
@@ -120,9 +121,11 @@ export default function DoctorListPage() {
 				searchKey="full_name"
 				searchPlaceholder={textGet("doctors.search.placeholder")}
 				emptyState={
-					<p className="py-6 text-center text-sm text-muted-foreground">
-						<Text uuid="doctors.empty" />
-					</p>
+					<EmptyState
+						size="sm"
+						illustration="empty"
+						title={textGet("doctors.empty")}
+					/>
 				}
 			/>
 

@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
 import { Button } from "@pengi/ui";
-import { ArrowLeft, History } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { type CashSession, getSessions } from "@/api/cash-service";
@@ -65,7 +65,7 @@ const CashHistoryPage = () => {
 				onPageChange={setPage}
 				emptyState={
 					<CashEmptyState
-						icon={History}
+						illustration="empty"
 						title={textGet("cash.history.empty")}
 						hint={textGet("cash.history.empty.hint")}
 					/>

@@ -1,6 +1,7 @@
 import { useText } from "@pengi/shared";
 import {
 	Button,
+	EmptyState,
 	Input,
 	Label,
 	Select,
@@ -228,9 +229,11 @@ export default function AuditLogPage() {
 				page={page}
 				onPageChange={changePage}
 				emptyState={
-					<p className="py-6 text-center text-sm text-muted-foreground">
-						{textGet(hasFilters ? "audit.empty.filtered" : "audit.empty")}
-					</p>
+					<EmptyState
+						size="sm"
+						illustration={hasFilters ? "no-results" : "empty"}
+						title={textGet(hasFilters ? "audit.empty.filtered" : "audit.empty")}
+					/>
 				}
 			/>
 

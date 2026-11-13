@@ -1,17 +1,9 @@
 import { useText } from "@pengi/shared";
-import {
-	Button,
-	buttonVariants,
-	cn,
-	Skeleton,
-	Spinner,
-	Textarea,
-} from "@pengi/ui";
+import { Button, buttonVariants, cn, Illustration, Skeleton, Spinner, Textarea } from "@pengi/ui";
 import {
 	ArrowLeft,
 	CalendarCheck,
 	Clock,
-	Hourglass,
 	Stethoscope,
 } from "lucide-react";
 import React from "react";
@@ -604,16 +596,12 @@ export function ResultPanel({
 	headingRef: React.RefObject<HTMLHeadingElement | null>;
 }) {
 	const { formatDate } = useText();
-	const Icon = confirmed ? CalendarCheck : Hourglass;
-
 	return (
 		<div className="space-y-6 pt-4">
-			<span
-				aria-hidden="true"
-				className="flex size-14 items-center justify-center rounded-full bg-secondary text-primary"
-			>
-				<Icon className="size-7" />
-			</span>
+			<Illustration
+				name={confirmed ? "success" : "all-clear"}
+				className="w-44"
+			/>
 			<div className="space-y-2">
 				<h1
 					ref={headingRef}

@@ -916,6 +916,22 @@
         "value": "You don't have sufficient permissions to access this route"
     },
     {
+        "key": "error.permission.back_home",
+        "value": "Back to home"
+    },
+    {
+        "key": "error.plan.title",
+        "value": "This feature isn't in your plan"
+    },
+    {
+        "key": "error.plan.description",
+        "value": "Your current plan doesn't include this section. Upgrade your plan to use it."
+    },
+    {
+        "key": "error.plan.see_plans",
+        "value": "See plans"
+    },
+    {
         "key": "table.pagination.of",
         "value": " of "
     },
@@ -6102,6 +6118,14 @@
     {
         "key": "error_page.description",
         "value": "An unexpected error occurred. Try again or go back to the home page."
+    },
+    {
+        "key": "error_page.network.title",
+        "value": "No connection"
+    },
+    {
+        "key": "error_page.network.description",
+        "value": "We couldn't load the page. Check your connection and try again."
     },
     {
         "key": "error_page.not_found.title",

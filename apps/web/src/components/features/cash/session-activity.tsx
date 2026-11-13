@@ -62,7 +62,7 @@ export function SessionActivity({
 					data={payments}
 					emptyState={
 						<CashEmptyState
-							icon={ReceiptText}
+							illustration="empty"
 							title={textGet("cash.session.payments.empty")}
 							hint={
 								paymentsHint
@@ -79,7 +79,7 @@ export function SessionActivity({
 					data={movements}
 					emptyState={
 						<CashEmptyState
-							icon={ArrowLeftRight}
+							illustration="empty"
 							title={textGet("cash.session.movements.empty")}
 							hint={
 								movementsHint

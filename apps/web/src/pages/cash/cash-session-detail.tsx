@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
 import { Button, Skeleton } from "@pengi/ui";
-import { ArrowLeft, CircleAlert, RotateCw, SearchX } from "lucide-react";
+import { ArrowLeft, CircleAlert, RotateCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router";
 import {
@@ -93,7 +93,7 @@ const CashSessionDetailPage = () => {
 			) : state === "not_found" || (state === "ready" && !detail) ? (
 				<div className="rounded-xl border border-dashed">
 					<CashEmptyState
-						icon={SearchX}
+						illustration="not-found"
 						title={textGet("cash.detail.not_found")}
 					/>
 				</div>

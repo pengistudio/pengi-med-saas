@@ -1,6 +1,6 @@
 import { useText } from "@pengi/shared";
 import type { DataTableCell, DataTableInstance, DataTableRow } from "@pengi/ui";
-import { cn, Skeleton } from "@pengi/ui";
+import { cn, EmptyState, Skeleton } from "@pengi/ui";
 import type { RowData } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
 import type * as React from "react";
@@ -174,8 +174,14 @@ export function DataTablePhoneList<TData extends RowData>({
 						);
 					})
 				) : (
-					<li className="flex h-32 items-center justify-center px-3 text-center text-sm">
-						{emptyState ?? textGet("table.no_results")}
+					<li className="flex items-center justify-center px-3 text-center text-sm">
+						{emptyState ?? (
+							<EmptyState
+								size="sm"
+								illustration="no-results"
+								title={textGet("table.no_results")}
+							/>
+						)}
 					</li>
 				)}
 			</ul>

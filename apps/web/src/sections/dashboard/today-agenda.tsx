@@ -1,5 +1,12 @@
 import { useText } from "@pengi/shared";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "@pengi/ui";
+import {
+	Button,
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	EmptyState,
+} from "@pengi/ui";
 import { CalendarPlus, Check, Stethoscope } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -118,24 +125,24 @@ export function TodayAgenda({
 			</CardHeader>
 			<CardContent>
 				{appointments.length === 0 ? (
-					<div className="flex flex-col items-start gap-3 rounded-lg border border-dashed p-6">
-						<p className="text-sm font-medium">
-							{textGet("dashboard.agenda.empty")}
-						</p>
-						<p className="text-sm text-muted-foreground">
-							{textGet("dashboard.agenda.empty_hint")}
-						</p>
-						{canSchedule && (
-							<Button
-								size="sm"
-								variant="outline"
-								onClick={() => navigate("/clinical/appointments")}
-							>
-								<CalendarPlus className="mr-2 h-4 w-4" />
-								{textGet("dashboard.upcoming.schedule_btn")}
-							</Button>
-						)}
-					</div>
+					<EmptyState
+						size="sm"
+						illustration="empty"
+						title={textGet("dashboard.agenda.empty")}
+						description={textGet("dashboard.agenda.empty_hint")}
+						action={
+							canSchedule && (
+								<Button
+									size="sm"
+									variant="outline"
+									onClick={() => navigate("/clinical/appointments")}
+								>
+									<CalendarPlus className="mr-2 h-4 w-4" />
+									{textGet("dashboard.upcoming.schedule_btn")}
+								</Button>
+							)
+						}
+					/>
 				) : (
 					<ol className="relative space-y-1">
 						{/* The rail runs behind the dots of every row. */}

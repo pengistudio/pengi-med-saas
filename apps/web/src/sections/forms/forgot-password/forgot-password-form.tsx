@@ -1,5 +1,12 @@
 import { useText } from "@pengi/shared";
-import { Button, Form, FormInput, Spinner, Text } from "@pengi/ui";
+import {
+	Button,
+	Form,
+	FormInput,
+	Illustration,
+	Spinner,
+	Text,
+} from "@pengi/ui";
 import React from "react";
 import { Link } from "react-router";
 import z from "zod";
@@ -22,6 +29,7 @@ const ForgotPasswordForm = () => {
 	if (sentTo) {
 		return (
 			<div className="space-y-6">
+				<Illustration name="success" className="w-40" />
 				<div className="space-y-2">
 					<h1 className="text-3xl font-semibold tracking-tight">
 						<Text uuid="forgot_password.sent.title" />

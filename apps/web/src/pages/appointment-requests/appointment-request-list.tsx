@@ -1,5 +1,5 @@
 import { useText } from "@pengi/shared";
-import { Text, ToggleGroup, ToggleGroupItem } from "@pengi/ui";
+import { EmptyState, Text, ToggleGroup, ToggleGroupItem } from "@pengi/ui";
 import React from "react";
 import {
 	type AppointmentRequest,
@@ -98,13 +98,15 @@ export default function AppointmentRequestListPage() {
 					</ToggleGroup>
 				}
 				emptyState={
-					<p className="py-8 text-center text-sm text-muted-foreground">
-						{textGet(
+					<EmptyState
+						size="sm"
+						illustration={filter === "pending" ? "all-clear" : "empty"}
+						title={textGet(
 							filter === "pending"
 								? "appointment_requests.empty.pending"
 								: "appointment_requests.empty.all",
 						)}
-					</p>
+					/>
 				}
 			/>
 			<RejectRequestDialog

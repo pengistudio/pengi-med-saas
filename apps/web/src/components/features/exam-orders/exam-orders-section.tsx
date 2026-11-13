@@ -6,6 +6,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	EmptyState,
 	Spinner,
 } from "@pengi/ui";
 import { ChevronRight, FlaskConical, Plus } from "lucide-react";
@@ -94,9 +95,11 @@ export function ExamOrdersSection({
 						<Spinner />
 					</div>
 				) : orders.length === 0 ? (
-					<p className="py-4 text-center text-sm text-muted-foreground">
-						{textGet("clinical.exam_orders.empty")}
-					</p>
+					<EmptyState
+						size="sm"
+						illustration="empty"
+						title={textGet("clinical.exam_orders.empty")}
+					/>
 				) : (
 					<ul className="divide-y rounded-md border">
 						{orders.map((order) => (

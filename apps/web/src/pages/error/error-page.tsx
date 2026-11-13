@@ -6,8 +6,8 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
+	Illustration,
 } from "@pengi/ui";
-import { AlertTriangle } from "lucide-react";
 import { isRouteErrorResponse, useRouteError } from "react-router";
 
 // `String(error)` gives "[object Object]" for anything that isn't an Error
@@ -27,28 +27,44 @@ function formatErrorDetail(error: unknown): string {
 	}
 }
 
+// A lazy chunk that fails to load (flaky network, or a deploy replaced it) or
+// a failed fetch: reloading is the fix, so say "connection" rather than "bug".
+const NETWORK_ERROR =
+	/dynamically imported module|Failed to fetch|NetworkError|Load failed|importing a module script/i;
+
+function isNetworkError(error: unknown): boolean {
+	return error instanceof Error && NETWORK_ERROR.test(error.message);
+}
+
 export default function ErrorPage() {
 	const error = useRouteError();
 	const { textGet } = useText();
 	const isNotFound = isRouteErrorResponse(error) && error.status === 404;
+	const isNetwork = !isNotFound && isNetworkError(error);
 
 	console.error("Unhandled route error:", error);
 
 	const title = isNotFound
 		? textGet("error_page.not_found.title")
-		: textGet("error_page.title");
+		: isNetwork
+			? textGet("error_page.network.title")
+			: textGet("error_page.title");
 	const description = isNotFound
 		? textGet("error_page.not_found.description")
-		: textGet("error_page.description");
+		: isNetwork
+			? textGet("error_page.network.description")
+			: textGet("error_page.description");
 
 	return (
 		<div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
 			<Card className="w-full max-w-md shadow-lg">
 				<CardHeader className="text-center space-y-2">
 					<div className="flex justify-center mb-2">
-						<div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
-							<AlertTriangle className="h-6 w-6 text-destructive" />
-						</div>
+						<Illustration
+							name={
+								isNotFound ? "not-found" : isNetwork ? "no-connection" : "error"
+							}
+						/>
 					</div>
 					<CardTitle className="text-2xl font-bold">{title}</CardTitle>
 					<CardDescription>{description}</CardDescription>
