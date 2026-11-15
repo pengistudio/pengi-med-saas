@@ -48,6 +48,8 @@ export interface ProfileData {
 export type UpdateProfilePayload = {
 	email?: string;
 	environment_name?: string;
+	/** Required by the API only when `email` changes. */
+	current_password?: string;
 };
 
 export const getProfile = async (

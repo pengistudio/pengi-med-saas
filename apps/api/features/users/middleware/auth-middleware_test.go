@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/testutils"
@@ -17,7 +18,8 @@ import (
 // package can't import user_models: import cycle through core/audit).
 type testUser struct {
 	gorm.Model
-	UserName string
+	UserName          string
+	PasswordChangedAt *time.Time
 }
 
 func (testUser) TableName() string { return "users" }

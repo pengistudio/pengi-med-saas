@@ -20,6 +20,7 @@ import (
 	tenant_models "pengi-med-saas/features/tenants/models"
 	role_data "pengi-med-saas/features/users/data"
 	user_dto "pengi-med-saas/features/users/dto"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 	user_models "pengi-med-saas/features/users/models"
 
 	"github.com/gin-gonic/gin"
@@ -587,7 +588,7 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
-	if err := h.db.Model(&user).Update("password", hashed).Error; err != nil {
+	if err := storeNewPassword(h.db, user.ID, hashed); err != nil {
 		h.logger.Error("Failed to update password", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
@@ -630,7 +631,7 @@ func (h *UserHandler) ChangePassword(c *gin.Context) envelope.Response {
 		h.logger.Error("Failed to hash password", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
-	if err := h.db.Model(&user).Update("password", hashed).Error; err != nil {
+	if err := storeNewPassword(h.db, user.ID, hashed); err != nil {
 		h.logger.Error("Failed to update password", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
@@ -640,6 +641,21 @@ func (h *UserHandler) ChangePassword(c *gin.Context) envelope.Response {
 
 	h.logger.Info("Password changed", zap.Uint("user_id", user.ID))
 	return envelope.SuccessResponse(nil, "auth.change_password.success")
+}
+
+// storeNewPassword saves an already hashed password and stamps
+// password_changed_at, which makes AuthMiddleware reject every access token
+// issued before now. The cached user check is dropped so this instance
+// applies it on the next request.
+func storeNewPassword(db *gorm.DB, userID uint, hashed string) error {
+	err := db.Model(&user_models.User{}).Where("id = ?", userID).Updates(map[string]any{
+		"password":            hashed,
+		"password_changed_at": time.Now(),
+	}).Error
+	if err == nil {
+		auth_middleware.ForgetUser(userID)
+	}
+	return err
 }
 
 // sendPasswordResetEmail is replaced in tests.

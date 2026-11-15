@@ -151,6 +151,11 @@ func TestResetPassword_RevokesSessions(t *testing.T) {
 	if session.RevokedAt == nil {
 		t.Fatal("expected the session to be revoked after the reset")
 	}
+	var got user_models.User
+	db.First(&got, user.ID)
+	if got.PasswordChangedAt == nil {
+		t.Fatal("expected password_changed_at to be stamped (revokes access tokens)")
+	}
 }
 
 func TestLogin_WithEmail(t *testing.T) {

@@ -15138,5 +15138,9 @@
     {
         "key": "profile.security.submit",
         "value": "Cambiar contraseña"
+    },
+    {
+        "key": "profile.email_change.hint",
+        "value": "Para cambiar tu correo, confirma tu contraseña actual."
     }
 ]

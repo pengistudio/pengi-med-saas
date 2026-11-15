@@ -20,6 +20,9 @@ type User struct {
 	EmailVerified     bool          `gorm:"not null;default:false" json:"email_verified"`
 	EmailVerifiedAt   *time.Time    `json:"email_verified_at"`
 	MaxOwnedCompanies int           `gorm:"not null;default:3" json:"max_owned_companies"`
+	// PasswordChangedAt is set on every password change or reset; access
+	// tokens issued before it are rejected by AuthMiddleware.
+	PasswordChangedAt *time.Time `json:"-"`
 }
 
 type Environment struct {

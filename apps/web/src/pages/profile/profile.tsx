@@ -8,6 +8,7 @@ import {
 	CardTitle,
 	Form,
 	FormInput,
+	FormPasswordInput,
 	Tabs,
 	TabsContent,
 	TabsList,
@@ -43,10 +44,26 @@ import { PERMISSIONS } from "@/lib/constants";
 import { useDoctorStatus } from "@/store/doctors-store";
 import { selectEnvironment, useSessionStore } from "@/store/session-store";
 
-const profileSchema = z.object({
-	email: z.email(),
-	environment_name: z.string().min(1),
-});
+/** Same comparison as the API: case and surrounding spaces don't count. */
+function sameEmail(a: string, b: string) {
+	return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+/** The current password is asked only when the email changes. */
+function profileSchema(currentEmail: string) {
+	return z
+		.object({
+			email: z.email(),
+			environment_name: z.string().min(1),
+			current_password: z.string().optional(),
+		})
+		.refine((d) => sameEmail(d.email, currentEmail) || !!d.current_password, {
+			message: "form.validation.required",
+			path: ["current_password"],
+		});
+}
+
+type ProfileValues = z.infer<ReturnType<typeof profileSchema>>;
 
 type Section = "account" | "doctor" | "schedule" | "signature" | "security";
 
@@ -98,12 +115,21 @@ const Profile = () => {
 		});
 	}, [environment?.id]);
 
-	async function onSubmit(values: z.infer<typeof profileSchema>) {
+	const currentEmail = profile?.email ?? "";
+	const schema = React.useMemo(
+		() => profileSchema(currentEmail),
+		[currentEmail],
+	);
+
+	async function onSubmit(values: ProfileValues) {
 		if (!environment?.id) return;
 		setLoading(true);
+		const emailChanged = !sameEmail(values.email, currentEmail);
 		const res = await updateProfile(environment.id, {
-			email: values.email,
 			environment_name: values.environment_name,
+			...(emailChanged
+				? { email: values.email, current_password: values.current_password }
+				: {}),
 		});
 		if (res.success && res.data) {
 			setProfile(res.data as ProfileData);
@@ -198,10 +224,13 @@ const Profile = () => {
 				</CardHeader>
 				<CardContent className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
 					<Form
-						schema={profileSchema}
+						// Remount after the email changes: drops the typed password.
+						key={profile.email}
+						schema={schema}
 						defaultValues={{
 							email: profile.email,
 							environment_name: profile.environment_name,
+							current_password: "",
 						}}
 						onSubmit={onSubmit}
 					>
@@ -214,6 +243,18 @@ const Profile = () => {
 									type="email"
 									startAddon={<Mail className="h-4 w-4" />}
 								/>
+								{!sameEmail(field.watch("email") ?? "", currentEmail) && (
+									<div className="space-y-1">
+										<FormPasswordInput
+											field={field}
+											name="current_password"
+											label={textGet("profile.security.current_password")}
+										/>
+										<p className="text-xs text-muted-foreground">
+											{textGet("profile.email_change.hint")}
+										</p>
+									</div>
+								)}
 								<FormInput
 									field={field}
 									name="environment_name"
