@@ -220,8 +220,11 @@ Esto es lo que más tarda, así que conviene empezarlo pronto.
 - [ ] Agrega el dominio de producción a los dominios permitidos de la app (SDK de
       JS de Facebook).
 - [ ] Pon la app en modo **Live**.
-- [ ] **Pago:** Pengi Studio paga los mensajes de plantilla. Configura el método de
-      pago o la línea de crédito de Tech Provider en Meta.
+- [ ] **Pago:** como Tech Provider, cada clínica tiene su propia WABA y **paga
+      sus mensajes de plantilla con su propio método de pago en Meta**. La línea
+      de crédito compartida es solo para Solution Partner. Ver el checklist de
+      onboarding de clínica abajo. *(Pendiente de confirmar en Meta Business que
+      Pengi Studio no paga estos mensajes.)*
 - [ ] En el servidor de producción:
   - [ ] agrega las variables del paso 3.2 (`deploy/.env.prod.example`) con
         valores reales. El verify token y el `WHATSAPP_ENCRYPTION_KEY` deben ser
@@ -239,6 +242,25 @@ Esto es lo que más tarda, así que conviene empezarlo pronto.
 - [ ] Prueba con una clínica real: **Conectar WhatsApp** → popup de Meta → elige o
       crea el número → la tarjeta debe quedar conectada con las plantillas en
       `PENDING`.
+
+### Onboarding de una clínica nueva (paso manual de pago)
+
+La app **no detecta** si la clínica tiene método de pago en Meta. Si falta, las
+plantillas (recordatorios, no-show, lista de espera) fallan fuera de la ventana de
+24 h y el error llega como genérico. Acompaña a cada clínica en estos pasos:
+
+- [ ] La clínica conecta su número con **Conectar WhatsApp** (Embedded Signup).
+- [ ] En **Meta Business Suite → Configuración → Facturación y pagos** (o el
+      Administrador de WhatsApp de su WABA), la clínica agrega **su tarjeta**.
+- [ ] En Ajustes → Integraciones → WhatsApp, pulsa **Sincronizar plantillas** y
+      espera que pasen de `PENDING` a `APPROVED`.
+- [ ] Envía un recordatorio de prueba a un número fuera de la ventana de 24 h y
+      confirma que llega. Si falla, revisa primero el pago en Meta.
+- [ ] Revisa el tope mensual del plan (`/usage`) en el backoffice.
+
+Mejora pendiente: mapear el error de pago de Meta a un estado "requiere pago en
+Meta" en la tarjeta de WhatsApp. Hacerla antes de pasar de 2 o 3 clínicas, y
+confirmar antes los códigos exactos en la documentación de Meta.
 
 ---
 

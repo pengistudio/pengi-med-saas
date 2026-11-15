@@ -237,6 +237,55 @@ func TestWebhook_StatusUpdates(t *testing.T) {
 	}
 }
 
+func TestWebhook_PaymentIssueFlagsAccountUntilDelivery(t *testing.T) {
+	f := newFixture(t)
+	payment := func(tenantID uint) string {
+		var a whatsapp_models.WhatsAppAccount
+		f.db.Where("tenant_id = ?", tenantID).Limit(1).Find(&a)
+		return a.PaymentStatus
+	}
+	send := func(wamID, s string, errs ...map[string]any) {
+		st := map[string]any{"id": wamID, "status": s, "timestamp": "1760000000", "recipient_id": "593991234567"}
+		if len(errs) > 0 {
+			st["errors"] = errs
+		}
+		f.signed(messagesEvent("PHONE-OWN", map[string]any{"statuses": []any{st}}))
+	}
+	_, failed := f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")
+	_, other := f.seedReminder(f.other, "PHONE-OTHER", "WABA-OTHER")
+	if got := payment(f.own); got != whatsapp_models.PaymentStatusUnknown {
+		t.Fatalf("new account payment_status = %q, want unknown", got)
+	}
+
+	// A different failure does not flag the account.
+	send(failed.WamID, "failed", map[string]any{"code": 131026, "title": "Message undeliverable"})
+	if got := payment(f.own); got != whatsapp_models.PaymentStatusUnknown {
+		t.Fatalf("after 131026: %q", got)
+	}
+
+	// The payment error flags only this tenant.
+	_, paid := f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")
+	send(paid.WamID, "failed", map[string]any{"code": 131042, "title": "Business eligibility payment issue"})
+	if got := payment(f.own); got != whatsapp_models.PaymentStatusNeedsPayment {
+		t.Fatalf("after 131042: %q", got)
+	}
+	if got := payment(f.other); got != whatsapp_models.PaymentStatusUnknown {
+		t.Fatalf("other tenant payment_status = %q", got)
+	}
+
+	// "sent" proves nothing; a delivery clears the flag.
+	send(other.WamID, "sent")
+	_, ok := f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")
+	send(ok.WamID, "sent")
+	if got := payment(f.own); got != whatsapp_models.PaymentStatusNeedsPayment {
+		t.Fatalf("after sent: %q", got)
+	}
+	send(ok.WamID, "delivered")
+	if got := payment(f.own); got != whatsapp_models.PaymentStatusOK {
+		t.Fatalf("after delivered: %q", got)
+	}
+}
+
 func TestWebhook_TemplateStatusUpdate(t *testing.T) {
 	f := newFixture(t)
 	f.seedReminder(f.own, "PHONE-OWN", "WABA-OWN")

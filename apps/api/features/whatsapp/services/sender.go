@@ -231,6 +231,11 @@ func (s *Sender) deliver(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, acco
 			if apiErr.IsAuthError() {
 				s.markTokenInvalid(account)
 			}
+			if apiErr.Code == whatsapp_models.ErrorCodePayment {
+				if perr := SetPaymentStatus(db, whatsapp_models.PaymentStatusNeedsPayment); perr != nil {
+					s.logger.Error("failed to flag whatsapp payment issue", zap.Uint("tenant_id", msg.TenantID), zap.Error(perr))
+				}
+			}
 		}
 		s.logger.Warn("whatsapp send failed", zap.Uint("message_id", msg.ID), zap.String("code", code), zap.Error(err))
 		if ferr := s.finish(db, msg, whatsapp_models.MessageStatusFailed, code, err.Error()); ferr != nil {

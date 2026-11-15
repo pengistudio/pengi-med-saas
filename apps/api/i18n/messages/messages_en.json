@@ -15082,5 +15082,13 @@
     {
         "key": "settings.whatsapp.mode.coexistence",
         "value": "WhatsApp Business app"
+    },
+    {
+        "key": "settings.whatsapp.payment_needed.hint",
+        "value": "Meta rejected a message because of a payment issue. Check the payment method of your WhatsApp Business account in Meta; until then reminders may not be delivered."
+    },
+    {
+        "key": "settings.whatsapp.payment_needed.link",
+        "value": "Open Meta billing"
     }
 ]

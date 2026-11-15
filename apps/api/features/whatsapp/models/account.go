@@ -29,6 +29,24 @@ const (
 	AccountStatusAppDisconnected = "app_disconnected"
 )
 
+// Payment statuses: whether Meta lets the WABA send billable messages. Kept
+// apart from Status because a payment problem is not a disconnection (the
+// account stays connected and the webhook transitions guard on Status).
+const (
+	// PaymentStatusUnknown: no signal yet (the default for every account).
+	PaymentStatusUnknown = "unknown"
+	// PaymentStatusOK: a message was delivered after the last payment failure,
+	// or none has failed.
+	PaymentStatusOK = "ok"
+	// PaymentStatusNeedsPayment: Meta rejected a send for a payment issue
+	// (ErrorCodePayment); the WABA's payment method must be fixed in Meta.
+	PaymentStatusNeedsPayment = "needs_payment"
+)
+
+// ErrorCodePayment is Meta's "business eligibility payment issue" error. It
+// has several causes (not only a missing balance), so never read its details.
+const ErrorCodePayment = 131042
+
 // Template statuses are Meta's own values (APPROVED, PENDING, REJECTED,
 // PAUSED, DISABLED, ...); TemplateStatusNone means the template could not be
 // created or looked up yet.
@@ -61,6 +79,7 @@ type WhatsAppAccount struct {
 	// no pin.
 	Coexistence      bool   `json:"coexistence"`
 	Status           string `json:"status"`
+	PaymentStatus    string `json:"payment_status" gorm:"not null;default:unknown"`
 	TemplateStatus   string `json:"template_status"`
 	TemplateReason   string `json:"template_reason"`
 	RemindersEnabled bool   `json:"reminders_enabled"`

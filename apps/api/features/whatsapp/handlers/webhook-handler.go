@@ -526,6 +526,28 @@ func (h *WebhookHandler) applyStatus(db *gorm.DB, st whatsapp.WebhookStatus) {
 	if err := db.Model(&msg).Updates(updates).Error; err != nil {
 		h.logger.Error("whatsapp webhook: failed to update status", zap.Uint("message_id", msg.ID), zap.Error(err))
 	}
+	h.trackPayment(db, msg, st)
+}
+
+// trackPayment keeps the account's payment state in step with what Meta says
+// about this message: a payment-issue failure flags it, a delivery clears it
+// (a send that is merely "accepted" proves nothing about the payment).
+func (h *WebhookHandler) trackPayment(db *gorm.DB, msg whatsapp_models.WhatsAppMessage, st whatsapp.WebhookStatus) {
+	var next string
+	switch st.Status {
+	case whatsapp_models.MessageStatusFailed:
+		if len(st.Errors) == 0 || st.Errors[0].Code != whatsapp_models.ErrorCodePayment {
+			return
+		}
+		next = whatsapp_models.PaymentStatusNeedsPayment
+	case whatsapp_models.MessageStatusDelivered, whatsapp_models.MessageStatusRead:
+		next = whatsapp_models.PaymentStatusOK
+	default:
+		return
+	}
+	if err := whatsapp_services.SetPaymentStatus(db, next); err != nil {
+		h.logger.Error("whatsapp webhook: failed to update payment status", zap.Uint("message_id", msg.ID), zap.Error(err))
+	}
 }
 
 // applyReply handles a Confirmar/Cancelar tap ("confirm:<id>" / "cancel:<id>").

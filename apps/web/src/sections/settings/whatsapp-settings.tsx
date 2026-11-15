@@ -119,6 +119,7 @@ export function WhatsAppSettings() {
 	const connected = !!account?.connected;
 	const tokenInvalid = account?.status === "token_invalid";
 	const appDisconnected = account?.status === "app_disconnected";
+	const needsPayment = account?.payment_status === "needs_payment";
 	const savedOffsets = [...(account?.reminder_offsets ?? [])].sort(
 		(a, b) => b - a,
 	);
@@ -297,6 +298,23 @@ export function WhatsAppSettings() {
 							)}
 						</p>
 						{connectActions}
+					</div>
+				)}
+
+				{connected && needsPayment && !tokenInvalid && !appDisconnected && (
+					<div className="grid gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+						<p className="flex items-start gap-1.5 text-sm text-amber-700 dark:text-amber-400">
+							<AlertTriangle className="mt-0.5 size-4 shrink-0" />
+							<Text uuid="settings.whatsapp.payment_needed.hint" />
+						</p>
+						<a
+							href="https://business.facebook.com/billing_hub"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="w-fit text-sm font-medium underline underline-offset-4"
+						>
+							<Text uuid="settings.whatsapp.payment_needed.link" />
+						</a>
 					</div>
 				)}
 
