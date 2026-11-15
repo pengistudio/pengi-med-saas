@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -62,9 +63,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// A token outlives a deleted user by up to AUTH_EXP minutes otherwise.
-		if !users.exists(uint(userID)) {
-			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
+		// A token outlives a deleted user, or a password change, by up to
+		// AUTH_EXP minutes otherwise.
+		if !abortOnUserCheck(c, uint(userID), claims) {
 			return
 		}
 
@@ -77,6 +78,21 @@ func AuthMiddleware() gin.HandlerFunc {
 		// 7) Continuar con el siguiente middleware/handler
 		c.Next()
 	}
+}
+
+// abortOnUserCheck rejects a verified token whose user was deleted, or that
+// was issued before the user's last password change (answered like a revoked
+// refresh session, so the client signs out). It reports whether to go on.
+func abortOnUserCheck(c *gin.Context, userID uint, claims jwt.MapClaims) bool {
+	switch users.check(userID, claims) {
+	case tokenNoUser:
+		envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
+		return false
+	case tokenRevoked:
+		envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "auth.refresh.revoked", core_errors.ErrAuthSessionRevoked))
+		return false
+	}
+	return true
 }
 
 func ExchangeAuthMiddleware() gin.HandlerFunc {
@@ -120,8 +136,7 @@ func ExchangeAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if !users.exists(uint(userID)) {
-			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
+		if !abortOnUserCheck(c, uint(userID), claims) {
 			return
 		}
 
@@ -168,7 +183,7 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 		userID, ok1 := claims["userId"].(float64)
 		username, ok2 := claims["username"].(string)
 
-		if ok1 && ok2 && users.exists(uint(userID)) {
+		if ok1 && ok2 && users.check(uint(userID), claims) == tokenOK {
 			c.Set("user_id", int64(userID))
 			c.Set("username", username)
 			c.Set("auth_token", token)

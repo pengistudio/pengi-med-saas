@@ -58,23 +58,41 @@ func GenerateToken(username string, userId int64) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	now := time.Now()
 	return signedWithAuthKey(jwt.MapClaims{
 		"type":     "access_token",
 		"username": username,
 		"userId":   userId,
-		"exp":      time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
+		// iat lets AuthMiddleware reject tokens issued before a password change.
+		"iat": now.Unix(),
+		"exp": now.Add(time.Duration(exp) * time.Minute).Unix(),
 	})
 
 }
 
 func GenerateExchangeToken(username string, userId int64) (string, error) {
+	now := time.Now()
 	return signedWithAuthKey(jwt.MapClaims{
 		"type":     "exchange_token",
 		"username": username,
 		"userId":   userId,
+		"iat":      now.Unix(),
 		// Short expiration, e.g., 5 minutes
-		"exp": time.Now().Add(5 * time.Minute).Unix(),
+		"exp": now.Add(5 * time.Minute).Unix(),
 	})
+}
+
+// IssuedBefore reports whether a token was issued before t, at the second
+// granularity of the iat claim: a token issued in the same second as t counts
+// as issued after it, so the token of a login right after a password change
+// is accepted. A token without iat (issued before the claim existed) counts
+// as issued before.
+func IssuedBefore(claims jwt.MapClaims, t time.Time) bool {
+	iat, ok := claims["iat"].(float64)
+	if !ok {
+		return true
+	}
+	return int64(iat) < t.Unix()
 }
 
 const refreshTokenCookieName = "refresh_token"
