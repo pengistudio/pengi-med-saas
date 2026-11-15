@@ -67,10 +67,6 @@ type Config struct {
 	// Public URL of the web app (links in emails, redirects, TV display).
 	// Required in release; in dev it defaults to the compose web port.
 	AppURL string `env:"APP_URL"`
-	// Old names of APP_URL, read only when APP_URL is unset. Remove once no
-	// environment sets them.
-	LegacyFrontendURL  string `env:"FRONTEND_URL"`
-	LegacyPublicAppURL string `env:"PUBLIC_APP_URL"`
 
 	// Public URL of the patient portal (apps/portal); the clinic's link is
 	// PORTAL_URL/<slug>. Also a CORS origin. In dev it defaults to the compose
@@ -150,12 +146,7 @@ func Get() Config {
 
 func parse() (Config, error) {
 	cfg, err := env.ParseAs[Config]()
-	for _, v := range []string{cfg.AppURL, cfg.LegacyFrontendURL, cfg.LegacyPublicAppURL} {
-		if v = strings.TrimSpace(v); v != "" {
-			cfg.AppURL = v
-			break
-		}
-	}
+	cfg.AppURL = strings.TrimSpace(cfg.AppURL)
 	if cfg.AppURL == "" && !cfg.IsRelease() {
 		cfg.AppURL = devAppURL
 	}

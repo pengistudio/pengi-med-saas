@@ -93,24 +93,16 @@ func TestLoadRequiresLongAuthKeyInRelease(t *testing.T) {
 	}
 }
 
-func TestAppURLFallsBackToOldNames(t *testing.T) {
+func TestAppURLDefaultsInDevAndHonorsAPPURL(t *testing.T) {
 	t.Setenv("GIN_MODE", "debug")
 	t.Setenv("APP_URL", "")
-	t.Setenv("FRONTEND_URL", "")
-	t.Setenv("PUBLIC_APP_URL", "")
 	if got := Get().AppURL; got != devAppURL {
 		t.Fatalf("AppURL = %q, want the dev default", got)
 	}
 
-	t.Setenv("PUBLIC_APP_URL", "https://public.example.com")
-	t.Setenv("FRONTEND_URL", "https://frontend.example.com")
-	if got := Get().AppURL; got != "https://frontend.example.com" {
-		t.Fatalf("AppURL = %q, want FRONTEND_URL", got)
-	}
-
-	t.Setenv("APP_URL", "https://app.example.com")
+	t.Setenv("APP_URL", " https://app.example.com ")
 	if got := Get().AppURL; got != "https://app.example.com" {
-		t.Fatalf("AppURL = %q, want APP_URL", got)
+		t.Fatalf("AppURL = %q, want APP_URL trimmed", got)
 	}
 }
 
@@ -119,8 +111,6 @@ func TestLoadRequiresAppURLInRelease(t *testing.T) {
 	t.Setenv("GIN_MODE", "release")
 	t.Setenv("SIGNATURE_ENCRYPTION_KEY", "c2VjcmV0")
 	t.Setenv("APP_URL", "")
-	t.Setenv("FRONTEND_URL", "")
-	t.Setenv("PUBLIC_APP_URL", "")
 	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "APP_URL") {
 		t.Fatalf("Load() error = %v, want an APP_URL error", err)
 	}
