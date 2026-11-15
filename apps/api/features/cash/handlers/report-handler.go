@@ -70,6 +70,9 @@ func (h *CashHandler) DownloadSessionReport(c *gin.Context) {
 	c.Data(http.StatusOK, "application/pdf", pdf)
 }
 
+// money prints an amount the way the other PDF/CSV reports do (features/reports
+// export.go): fixed two decimals with a dot, no currency symbol or grouping, so
+// the figures are unambiguous in the printed closing report whatever the locale.
 func money(v float64) string { return fmt.Sprintf("%.2f", cash_models.Round2(v)) }
 
 func moneyPtr(v *float64) string {

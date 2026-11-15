@@ -434,3 +434,65 @@ func TestVoidRefund_AllowedWhenWithinTotal(t *testing.T) {
 		t.Fatalf("after voiding the refund = %+v", p)
 	}
 }
+
+func TestGetSession_NotFoundAndInvalid(t *testing.T) {
+	f := setup(t)
+	mustFail(t, f.h.GetSession(ctx(tenantA, nil, 999, "")), http.StatusNotFound, core_errors.ErrCashSessionNotFound)
+	c := ctx(tenantA, nil, 0, "")
+	c.Params = gin.Params{{Key: "id", Value: "abc"}}
+	mustFail(t, f.h.GetSession(c), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+}
+
+func TestGetCurrentSession_NoneOpenAndAfterClose(t *testing.T) {
+	f := setup(t)
+	if cur := f.h.GetCurrentSession(ctx(tenantA, nil, 0, "")); cur.Code != http.StatusOK || cur.Data != nil {
+		t.Fatalf("no session: %d %+v", cur.Code, cur.Data)
+	}
+	s := f.open(tenantA, 0)
+	mustOK(t, f.close(tenantA, s.ID, 0, ""))
+	if cur := f.h.GetCurrentSession(ctx(tenantA, nil, 0, "")); cur.Data != nil {
+		t.Fatalf("closed session still current: %+v", cur.Data)
+	}
+}
+
+func TestGetSessions_EmptyHistory(t *testing.T) {
+	f := setup(t)
+	resp := f.h.GetSessions(ctx(tenantA, nil, 0, ""))
+	mustOK(t, resp)
+	if list := resp.Data.(envelope.PagedData); list.Total != 0 {
+		t.Fatalf("history = %d, want 0", list.Total)
+	}
+}
+
+func TestGetPayments_Validation(t *testing.T) {
+	f := setup(t)
+	mustFail(t, f.h.GetPayments(ctx(tenantA, nil, 0, "")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+	mustFail(t, f.h.GetPayments(ctx(tenantA, nil, 0, "invoice_id=abc")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+	mustFail(t, f.h.GetPayments(ctx(tenantA, nil, 0, "invoice_id=0")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+	mustFail(t, f.h.GetPayments(ctx(tenantA, nil, 0, "invoice_id=999")), http.StatusNotFound, core_errors.ErrCashInvoiceNotFound)
+}
+
+func TestCreateMovement_NoOpenSessionAndBadAmount(t *testing.T) {
+	f := setup(t)
+	in := map[string]any{"type": "in", "category": "deposit", "amount": 5, "reason": "cambio"}
+	mustFail(t, f.h.CreateMovement(ctx(tenantA, in, 0, "")), http.StatusConflict, core_errors.ErrCashNoOpenSession)
+	f.open(tenantA, 0)
+	for _, amount := range []float64{0, -3} {
+		bad := map[string]any{"type": "in", "category": "deposit", "amount": amount, "reason": "x"}
+		mustFail(t, f.h.CreateMovement(ctx(tenantA, bad, 0, "")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+	}
+	mustFail(t, f.h.CreateMovement(ctx(tenantA, map[string]any{"type": "sideways", "category": "deposit", "amount": 5, "reason": "x"}, 0, "")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+}
+
+func TestVoidRefund_Validation(t *testing.T) {
+	f := setup(t)
+	mustFail(t, f.h.VoidPayment(ctx(tenantA, map[string]any{"reason": "x"}, 999, "")), http.StatusNotFound, core_errors.ErrCashPaymentNotFound)
+	mustFail(t, f.h.RefundPayment(ctx(tenantA, map[string]any{"amount": 1, "reason": "x"}, 999, "")), http.StatusNotFound, core_errors.ErrCashPaymentNotFound)
+
+	f.open(tenantA, 0)
+	inv := f.invoice(tenantA, 40, billing_models.InvoiceStatusDraft)
+	pay := f.pay(tenantA, inv.ID, line("cash", 40)).Data.(InvoicePayments).Payments[0]
+	mustFail(t, f.h.VoidPayment(ctx(tenantA, map[string]any{}, pay.ID, "")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+	mustFail(t, f.h.RefundPayment(ctx(tenantA, map[string]any{"amount": 0, "reason": "x"}, pay.ID, "")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+	mustFail(t, f.h.RefundPayment(ctx(tenantA, map[string]any{"amount": 5, "reason": " "}, pay.ID, "")), http.StatusBadRequest, core_errors.ErrCashInvalidRequest)
+}
