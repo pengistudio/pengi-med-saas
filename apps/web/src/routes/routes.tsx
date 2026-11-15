@@ -3,6 +3,7 @@ import { createBrowserRouter, Outlet, type RouteObject } from "react-router";
 import CheckPermission from "@/components/custom/check-permission";
 import CheckAuth from "@/contexts/check-auth";
 import { PERMISSIONS } from "@/lib/constants";
+import { isDev } from "@/lib/env";
 import ErrorPage from "@/pages/error/error-page";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
@@ -502,7 +503,7 @@ const routes: RouteObject[] = [
 
 // Dev-only routes. The lazy import sits inside the DEV branch so production
 // builds drop the route and the chunk entirely (verified: no gallery chunk).
-const devRoutes: RouteObject[] = import.meta.env.DEV
+const devRoutes: RouteObject[] = isDev
 	? [
 			{
 				path: "/dev/illustrations",

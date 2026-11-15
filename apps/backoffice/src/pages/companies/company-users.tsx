@@ -44,10 +44,10 @@ import {
 	getPasswordResetLink,
 	getRoles,
 	type PasswordResetLinkResponse,
-	type Role,
 	type UpdateCompanyUserRequest,
 	updateCompanyUser,
 } from "@/api/company-service";
+import type { Role } from "@/api/role-service";
 
 const editUserSchema = z.object({
 	user_name: z.string().min(2).regex(/^\S+$/, {

@@ -9,11 +9,11 @@ tunnel:
 
 # Check formatting and lint for all TS/JS apps
 check:
-	npx @biomejs/biome@2.6.3 check ./apps/web ./apps/backoffice ./packages/ui ./packages/shared
+	npx @biomejs/biome@2.6.3 check ./apps/web ./apps/backoffice ./apps/portal ./packages/ui ./packages/shared
 
 
 lint:
-	npx @biomejs/biome@2.6.3 check --write ./apps/web ./apps/backoffice ./packages/ui ./packages/shared
+	npx @biomejs/biome@2.6.3 check --write ./apps/web ./apps/backoffice ./apps/portal ./packages/ui ./packages/shared
 
 # Check that the env vars the apps read match .env.example and deploy/.env.prod.example
 check-env:
@@ -39,6 +39,14 @@ tests-api:
 # Run frontend tests only
 tests-web:
 	docker compose -f docker-compose.dev.yaml exec web pnpm test:run
+
+# Run backoffice tests only
+tests-backoffice:
+	docker compose -f docker-compose.dev.yaml exec backoffice pnpm test:run
+
+# Run patient portal tests only
+tests-portal:
+	docker compose -f docker-compose.dev.yaml exec portal pnpm test:run
 
 # Run SRI XML signer tests only
 tests-signer:

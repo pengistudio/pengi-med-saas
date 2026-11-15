@@ -28,4 +28,6 @@ export interface DashboardStats {
 }
 
 export const getDashboardStats = (): Promise<ServiceResponse<DashboardStats>> =>
-	httpService.get<DashboardStats>("/backoffice/dashboard");
+	httpService.get<DashboardStats>("/backoffice/dashboard", {
+		notifyError: true,
+	});

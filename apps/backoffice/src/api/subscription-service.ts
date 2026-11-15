@@ -1,9 +1,7 @@
+import type { BaseModel } from "@pengi/shared";
 import { resource } from "@/lib/resource/http-resource";
 
-export interface Subscription {
-	ID: number;
-	CreatedAt: string;
-	UpdatedAt: string;
+export interface Subscription extends BaseModel {
 	status: string;
 	plan_code: string;
 	expires_at: string;

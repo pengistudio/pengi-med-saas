@@ -1,8 +1,6 @@
+import type { BaseModel } from "@pengi/shared";
 import { resource } from "@/lib/resource/http-resource";
-export interface BackofficeUser {
-	ID: number;
-	CreatedAt: string;
-	UpdatedAt: string;
+export interface BackofficeUser extends BaseModel {
 	name: string;
 	user_name: string;
 }

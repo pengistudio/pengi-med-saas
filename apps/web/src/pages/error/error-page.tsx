@@ -9,6 +9,7 @@ import {
 	Illustration,
 } from "@pengi/ui";
 import { isRouteErrorResponse, useRouteError } from "react-router";
+import { isDev } from "@/lib/env";
 
 // `String(error)` gives "[object Object]" for anything that isn't an Error
 // instance (e.g. React Router's ErrorResponse for loader/route errors, or a
@@ -96,7 +97,7 @@ export default function ErrorPage() {
 							{textGet("error_page.home_button")}
 						</Button>
 					</div>
-					{import.meta.env.DEV && (
+					{isDev && (
 						<details className="rounded-md border bg-muted/50 p-3 text-xs">
 							<summary className="cursor-pointer font-medium text-muted-foreground">
 								Detalle técnico (solo dev)

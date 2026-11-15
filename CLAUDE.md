@@ -30,6 +30,8 @@ pnpm run test:run                 # Vitest
 ```bash
 just tests-api                     # go test ./... inside the api container (stack must be up)
 just tests-web                     # Vitest for apps/web
+just tests-backoffice              # Vitest for apps/backoffice
+just tests-portal                  # Vitest for apps/portal
 just tests-e2e                     # Playwright (apps/web/e2e), stack must be up
 ```
 
