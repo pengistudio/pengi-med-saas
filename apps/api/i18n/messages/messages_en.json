@@ -15090,5 +15090,53 @@
     {
         "key": "settings.whatsapp.payment_needed.link",
         "value": "Open Meta billing"
+    },
+    {
+        "key": "auth.change_password.success",
+        "value": "Password updated. Please sign in again."
+    },
+    {
+        "key": "auth.change_password.wrong_current",
+        "value": "The current password is incorrect"
+    },
+    {
+        "key": "auth.change_password.same_password",
+        "value": "The new password must differ from the current one"
+    },
+    {
+        "key": "E-AUTH-016",
+        "value": "The current password is incorrect."
+    },
+    {
+        "key": "E-AUTH-017",
+        "value": "The new password must differ from the current one."
+    },
+    {
+        "key": "profile.section.security",
+        "value": "Security"
+    },
+    {
+        "key": "profile.security.title",
+        "value": "Change password"
+    },
+    {
+        "key": "profile.security.description",
+        "value": "Changing it signs you out of all devices."
+    },
+    {
+        "key": "profile.security.current_password",
+        "value": "Current password"
+    },
+    {
+        "key": "profile.security.new_password",
+        "value": "New password"
+    },
+    {
+        "key": "profile.security.confirm_password",
+        "value": "Confirm new password"
+    },
+    {
+        "key": "profile.security.submit",
+        "value": "Change password"
     }
 ]

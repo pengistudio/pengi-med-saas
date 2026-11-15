@@ -18,6 +18,7 @@ import {
 import {
 	Building2,
 	CalendarClock,
+	KeyRound,
 	Mail,
 	PenLine,
 	Save,
@@ -35,6 +36,7 @@ import {
 import { DoctorScheduleSection } from "@/components/features/agenda/doctor-schedule-section";
 import { specialtyLabel } from "@/components/features/doctors/doctor-utils";
 import { MyDoctorProfileCard } from "@/components/features/doctors/my-doctor-profile-card";
+import { ChangePasswordCard } from "@/components/features/profile/change-password-card";
 import { ElectronicSignatureCard } from "@/components/features/profile/electronic-signature-card";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
@@ -46,7 +48,7 @@ const profileSchema = z.object({
 	environment_name: z.string().min(1),
 });
 
-type Section = "account" | "doctor" | "schedule" | "signature";
+type Section = "account" | "doctor" | "schedule" | "signature" | "security";
 
 function initials(name: string) {
 	const words = name.trim().split(/\s+/).filter(Boolean);
@@ -143,6 +145,11 @@ const Profile = () => {
 					},
 				]
 			: []),
+		{
+			value: "security" as const,
+			label: textGet("profile.section.security"),
+			icon: <KeyRound />,
+		},
 		...(canSign
 			? [
 					{
@@ -241,6 +248,7 @@ const Profile = () => {
 		doctor: <MyDoctorProfileCard />,
 		schedule: <DoctorScheduleSection scope="me" />,
 		signature: <ElectronicSignatureCard />,
+		security: <ChangePasswordCard />,
 	};
 
 	return (

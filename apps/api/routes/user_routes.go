@@ -31,6 +31,7 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		// Same list, for an already-signed-in session: the web app re-reads its
 		// environment (permissions, enabled features) from here on bootstrap.
 		userRoutes.GET("/me/environments", auth_middleware.AuthMiddleware(), envelope.Handle(environmentHandler.GetEnvironmentsFromUser))
+		userRoutes.POST("/change-password", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.ChangePassword))
 		userRoutes.GET("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.GetProfile))
 		userRoutes.PUT("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.UpdateProfile))
 	}

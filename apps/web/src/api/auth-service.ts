@@ -1,6 +1,6 @@
 import { createHttpService, type ServiceResponse } from "@pengi/shared";
 import type { LoginRequest, LoginResponse } from "@/types/user-type";
-import { noAuthApi } from ".";
+import { apiWithTenant, noAuthApi } from ".";
 
 const loginService = createHttpService(noAuthApi);
 
@@ -22,6 +22,18 @@ export const logoutRequest = async (): Promise<ServiceResponse<null>> => {
 		},
 	);
 };
+
+const authedService = createHttpService(apiWithTenant);
+
+export const changePassword = async (
+	currentPassword: string,
+	newPassword: string,
+): Promise<ServiceResponse<null>> =>
+	authedService.post<null>(
+		"/users/change-password",
+		{ current_password: currentPassword, new_password: newPassword },
+		{ notifySuccess: true, notifyError: true },
+	);
 
 export interface RefreshTokenResponse {
 	token: string;

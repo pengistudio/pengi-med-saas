@@ -15090,5 +15090,53 @@
     {
         "key": "settings.whatsapp.payment_needed.link",
         "value": "Abrir facturación de Meta"
+    },
+    {
+        "key": "auth.change_password.success",
+        "value": "Contraseña actualizada. Inicia sesión de nuevo."
+    },
+    {
+        "key": "auth.change_password.wrong_current",
+        "value": "La contraseña actual es incorrecta"
+    },
+    {
+        "key": "auth.change_password.same_password",
+        "value": "La nueva contraseña debe ser distinta a la actual"
+    },
+    {
+        "key": "E-AUTH-016",
+        "value": "La contraseña actual es incorrecta."
+    },
+    {
+        "key": "E-AUTH-017",
+        "value": "La nueva contraseña debe ser distinta a la actual."
+    },
+    {
+        "key": "profile.section.security",
+        "value": "Seguridad"
+    },
+    {
+        "key": "profile.security.title",
+        "value": "Cambiar contraseña"
+    },
+    {
+        "key": "profile.security.description",
+        "value": "Al cambiarla se cerrará tu sesión en todos los dispositivos."
+    },
+    {
+        "key": "profile.security.current_password",
+        "value": "Contraseña actual"
+    },
+    {
+        "key": "profile.security.new_password",
+        "value": "Nueva contraseña"
+    },
+    {
+        "key": "profile.security.confirm_password",
+        "value": "Confirmar nueva contraseña"
+    },
+    {
+        "key": "profile.security.submit",
+        "value": "Cambiar contraseña"
     }
 ]
