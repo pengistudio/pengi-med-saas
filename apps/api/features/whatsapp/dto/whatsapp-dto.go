@@ -20,8 +20,10 @@ type AccountResponse struct {
 	Connected bool   `json:"connected"`
 	Mode      string `json:"mode,omitempty"`
 	// Coexistence: the number is also active in the WhatsApp Business app.
-	Coexistence      bool   `json:"coexistence"`
-	Status           string `json:"status,omitempty"`
+	Coexistence bool   `json:"coexistence"`
+	Status      string `json:"status,omitempty"`
+	// PaymentStatus: "unknown", "ok" or "needs_payment" (Meta rejected a send for a payment issue).
+	PaymentStatus    string `json:"payment_status,omitempty"`
 	WabaID           string `json:"waba_id,omitempty"`
 	PhoneNumberID    string `json:"phone_number_id,omitempty"`
 	DisplayPhone     string `json:"display_phone,omitempty"`
@@ -52,6 +54,7 @@ func NewAccountResponse(a whatsapp_models.WhatsAppAccount) AccountResponse {
 		Mode:                 a.Mode,
 		Coexistence:          a.Coexistence,
 		Status:               a.Status,
+		PaymentStatus:        a.PaymentStatus,
 		WabaID:               a.WabaID,
 		PhoneNumberID:        a.PhoneNumberID,
 		DisplayPhone:         a.DisplayPhone,

@@ -15082,5 +15082,13 @@
     {
         "key": "settings.whatsapp.mode.coexistence",
         "value": "App WhatsApp Business"
+    },
+    {
+        "key": "settings.whatsapp.payment_needed.hint",
+        "value": "Meta rechazó un envío por un problema de pago. Revisa el método de pago de tu cuenta de WhatsApp Business en Meta; mientras tanto los recordatorios pueden no llegar."
+    },
+    {
+        "key": "settings.whatsapp.payment_needed.link",
+        "value": "Abrir facturación de Meta"
     }
 ]

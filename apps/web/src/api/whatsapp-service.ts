@@ -28,6 +28,8 @@ export interface WhatsAppAccount {
 	/** The number is shared with the WhatsApp Business app on the phone. */
 	coexistence?: boolean;
 	status?: "connected" | "token_invalid" | "app_disconnected";
+	/** Meta rejected a send for a payment issue ("needs_payment"); the clinic fixes it in Meta. */
+	payment_status?: "unknown" | "ok" | "needs_payment";
 	waba_id?: string;
 	phone_number_id?: string;
 	display_phone?: string;
