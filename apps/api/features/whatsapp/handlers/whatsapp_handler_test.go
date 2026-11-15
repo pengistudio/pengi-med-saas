@@ -155,6 +155,11 @@ func newFixture(t *testing.T) *fixture {
 		&whatsapp_models.WhatsAppBotSettings{}, &whatsapp_models.WhatsAppBotEvent{}, &ai_models.AIUsageLog{},
 		&settings_models.SystemSetting{}, &doctor_models.Doctor{}, &agenda_models.DoctorSchedule{},
 		&agenda_models.ScheduleBlock{}, &audit.AuditLog{})
+	// Production gets it from code migration DB20261114_1, not AutoMigrate.
+	if err := db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS ` + whatsapp_models.WamIDUniqueIndex +
+		` ON whatsapp_messages (tenant_id, wam_id) WHERE wam_id <> ''`).Error; err != nil {
+		t.Fatal(err)
+	}
 	g := newFakeGraph()
 	client := whatsapp.New(g.server(t).URL, "v23.0", "app-id", testAppSecret)
 	f := &fixture{t: t, db: db, graph: g, calendar: &fakeCalendar{}}

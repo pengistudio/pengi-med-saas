@@ -2,6 +2,7 @@ package whatsapp_handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"pengi-med-saas/core/config"
@@ -231,7 +232,10 @@ func (h *WebhookHandler) processEchoes(v whatsapp.WebhookValue) {
 			PatientID: conv.PatientID, Status: whatsapp_models.MessageStatusSent, SentAt: &at,
 			ContentType: contentType, Body: body,
 		}
-		if err := whatsapp_services.RecordOutbound(db, &conv, &msg, at); err != nil {
+		// The check above is only an early exit: of two concurrent deliveries
+		// the unique (tenant_id, wam_id) index lets one insert.
+		err = whatsapp_services.RecordOutbound(db, &conv, &msg, at)
+		if err != nil && !errors.Is(err, whatsapp_services.ErrMessageExists) {
 			h.logger.Error("whatsapp webhook: failed to record echo", zap.Uint("tenant_id", account.TenantID), zap.Error(err))
 		}
 	}
@@ -341,31 +345,64 @@ func digitsOnly(s string) string {
 
 // processAccountUpdate follows the link between our app and the number:
 // PARTNER_REMOVED (inactivity or the clinic unlinked it) stops sending until
-// the clinic connects again; ACCOUNT_RECONNECTED resumes it.
+// the clinic connects again; ACCOUNT_RECONNECTED resumes it. Several clinics
+// may share a WABA (one number each), so when Meta names the number only
+// that clinic's account changes; otherwise every account of the WABA in the
+// expected state does. Only a connected account is cut, and only a cut one
+// comes back: a rejected token is never revived by a reconnect.
 func (h *WebhookHandler) processAccountUpdate(entryID string, v whatsapp.WebhookValue) {
 	wabaID := v.WabaInfo.WabaID
 	if wabaID == "" {
 		wabaID = entryID // ACCOUNT_RECONNECTED carries the WABA id as the entry id
 	}
-	var status string
+	var from, to string
 	switch v.Event {
 	case "PARTNER_REMOVED":
-		status = whatsapp_models.AccountStatusAppDisconnected
+		from, to = whatsapp_models.AccountStatusConnected, whatsapp_models.AccountStatusAppDisconnected
 	case "ACCOUNT_RECONNECTED":
-		status = whatsapp_models.AccountStatusConnected
+		from, to = whatsapp_models.AccountStatusAppDisconnected, whatsapp_models.AccountStatusConnected
 	default:
 		return
 	}
-	query := tenantdb.System(h.db).Model(&whatsapp_models.WhatsAppAccount{}).Where("waba_id = ?", wabaID)
-	if status == whatsapp_models.AccountStatusConnected {
-		// Only a link Meta itself cut comes back; a rejected token does not.
-		query = query.Where("status = ?", whatsapp_models.AccountStatusAppDisconnected)
+	phoneID := v.PhoneNumberID
+	if phoneID == "" {
+		phoneID = v.Metadata.PhoneNumberID
 	}
-	if err := query.Update("status", status).Error; err != nil {
-		h.logger.Error("whatsapp webhook: failed to update account status", zap.String("event", v.Event), zap.Error(err))
+	if wabaID == "" && phoneID == "" {
 		return
 	}
-	h.logger.Info("whatsapp webhook: account update", zap.String("event", v.Event), zap.String("reason", v.DisconnectionInfo.Reason), zap.String("initiated_by", v.DisconnectionInfo.InitiatedBy))
+	db := tenantdb.System(h.db)
+	query := db.Select("id", "display_phone").Where("status = ?", from)
+	if wabaID != "" {
+		query = query.Where("waba_id = ?", wabaID)
+	}
+	if phoneID != "" {
+		query = query.Where("phone_number_id = ?", phoneID)
+	}
+	var accounts []whatsapp_models.WhatsAppAccount
+	if err := query.Find(&accounts).Error; err != nil {
+		h.logger.Error("whatsapp webhook: failed to find accounts for update", zap.String("event", v.Event), zap.Error(err))
+		return
+	}
+	display := digitsOnly(v.PhoneNumber)
+	ids := make([]uint, 0, len(accounts))
+	for _, acc := range accounts {
+		if phoneID == "" && display != "" && digitsOnly(acc.DisplayPhone) != display {
+			continue // another clinic's number on the same WABA
+		}
+		ids = append(ids, acc.ID)
+	}
+	if len(ids) == 0 {
+		return
+	}
+	// The expected status stays in the WHERE: a token rejected meanwhile wins.
+	res := db.Model(&whatsapp_models.WhatsAppAccount{}).Where("id IN ? AND status = ?", ids, from).Update("status", to)
+	if res.Error != nil {
+		h.logger.Error("whatsapp webhook: failed to update account status", zap.String("event", v.Event), zap.Error(res.Error))
+		return
+	}
+	h.logger.Info("whatsapp webhook: account update", zap.String("event", v.Event), zap.Int64("accounts", res.RowsAffected),
+		zap.String("reason", v.DisconnectionInfo.Reason), zap.String("initiated_by", v.DisconnectionInfo.InitiatedBy))
 }
 
 // botHandlesType reports whether the assistant reacts to a non-text
