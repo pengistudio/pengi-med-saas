@@ -40,13 +40,13 @@ const signupSchema = z
 		email: z.email(),
 		password: z
 			.string()
-			.min(6)
+			.min(10)
 			.regex(/^\S+$/, { message: "form.validation.no_spaces" })
 			.regex(/[A-Z]/, { message: "form.validation.password_uppercase" })
 			.regex(/[0-9]/, { message: "form.validation.password_number" }),
 		confirm_password: z
 			.string()
-			.min(6)
+			.min(10)
 			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 	})
 	.refine((data) => data.password === data.confirm_password, {

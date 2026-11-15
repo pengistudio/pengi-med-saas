@@ -21,7 +21,7 @@ func init() {
 // (idempotent, written against data the baseline has by then), reused instead
 // of copying their data. In order: audit log indexes, trial plan, storage
 // quota of the clinical plans, CIE-10 codes, allowed origins, backoffice
-// admins and their production password.
+// admins and their production password, the unique WhatsApp message id index.
 var baselineMigrations = []string{
 	"DB20260705_1",
 	"DB20260518_1",
@@ -30,6 +30,7 @@ var baselineMigrations = []string{
 	"DB20260529_1",
 	"DB20260304_BACKOFFICE_USERS",
 	"DB20260926_1",
+	"DB20261114_1",
 }
 
 // trialPlanFeatures are the modules of the plan every signup starts on.

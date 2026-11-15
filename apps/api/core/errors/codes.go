@@ -120,6 +120,7 @@ var (
 	ErrAuthInvalidVerificationToken  AppError = NewAppError("E-AUTH-012", "Invalid or expired verification token.")
 	ErrAuthRefreshTokenReused        AppError = NewAppError("E-AUTH-013", "Refresh token reuse detected; session revoked.")
 	ErrAuthSessionRevoked            AppError = NewAppError("E-AUTH-014", "Session has been revoked. Please log in again.")
+	ErrAuthPasswordTooShort          AppError = NewAppError("E-AUTH-015", "Password is too short.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

@@ -21,7 +21,7 @@ const formSchema = z.object({
 	user_name: z.string().min(2),
 	password: z
 		.string()
-		.min(6)
+		.min(10)
 		.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 });
 

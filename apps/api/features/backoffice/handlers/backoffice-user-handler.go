@@ -3,6 +3,7 @@ package backoffice_handlers
 import (
 	"net/http"
 	"pengi-med-saas/core/auth"
+	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
@@ -17,13 +18,36 @@ import (
 type BackofficeUserHandler struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	// logins caps failed sign-ins per admin (the route limits per IP).
+	logins *auth.LoginLimiter
+	// rotated lets a refresh token replaced moments ago still resolve to its
+	// successor, so two tabs refreshing at once don't sign the admin out.
+	rotated *rotationGrace
 }
 
 func NewBackofficeUserHandler(db *gorm.DB, logger *zap.Logger) *BackofficeUserHandler {
 	return &BackofficeUserHandler{
-		db:     tenantdb.System(db),
-		logger: logger,
+		db:      tenantdb.System(db),
+		logger:  logger,
+		logins:  auth.NewDefaultLoginLimiter(),
+		rotated: newRotationGrace(),
 	}
+}
+
+// seedPassword is the password the committed seed gave admin/admin2. The
+// migration that replaces it runs only in release, so any other environment
+// may still have it: such an account can sign in only in local development.
+const seedPassword = "password"
+
+// localDevelopment is GIN_MODE=development (.env.example) or debug (the dev
+// compose file).
+func localDevelopment() bool {
+	mode := config.Get().GinMode
+	return mode == "development" || mode == "debug"
+}
+
+func passwordTooShort() envelope.Response {
+	return envelope.ErrorResponse(http.StatusBadRequest, "auth.password.too_short", core_errors.ErrAuthPasswordTooShort)
 }
 
 func (h *BackofficeUserHandler) GetUsers(c *gin.Context) envelope.Response {
@@ -53,7 +77,7 @@ func (h *BackofficeUserHandler) GetUserByID(c *gin.Context) envelope.Response {
 type CreateBackofficeUserRequest struct {
 	Name     string `json:"name"`
 	UserName string `json:"user_name" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
+	Password string `json:"password" binding:"required"`
 }
 
 type UpdateBackofficeUserRequest struct {
@@ -82,6 +106,9 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 		updates["user_name"] = req.UserName
 	}
 	if req.Password != "" {
+		if len(req.Password) < auth.MinPasswordLength {
+			return passwordTooShort()
+		}
 		hashed, err := auth.HashPassword(req.Password)
 		if err != nil {
 			h.logger.Error("Failed to hash password", zap.Error(err))
@@ -125,6 +152,9 @@ func (h *BackofficeUserHandler) CreateUser(c *gin.Context) envelope.Response {
 		h.logger.Error("Invalid create backoffice user request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
+	if len(req.Password) < auth.MinPasswordLength {
+		return passwordTooShort()
+	}
 	user := backoffice_models.BackofficeUser{Name: req.Name, UserName: req.UserName, Password: req.Password}
 	if err := user.Save(h.db); err != nil {
 		h.logger.Error("Failed to create backoffice user", zap.Error(err))
@@ -140,18 +170,35 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
 
+	invalid := envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidCredentials)
+	if h.logins.Blocked(user.UserName) {
+		h.logger.Warn("Backoffice login blocked: too many failed attempts", zap.String("username", user.UserName))
+		return envelope.ErrorResponse(http.StatusTooManyRequests, "error.rate_limit_exceeded", core_errors.ErrRateLimitExceeded)
+	}
+
 	var foundUser backoffice_models.BackofficeUser
 	if err := h.db.Omit("password").Where("user_name = ?", user.UserName).First(&foundUser).Error; err != nil {
+		h.logins.Failed(user.UserName)
 		h.logger.Error("Failed to find backoffice user", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidCredentials)
+		return invalid
 	}
 
 	foundUser.Password = user.Password
 
 	if err := foundUser.ValidateCredentials(h.db); err != nil {
+		h.logins.Failed(user.UserName)
 		h.logger.Warn("Failed login attempt", zap.String("username", user.UserName), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidCredentials)
+		return invalid
 	}
+
+	// The credentials matched, so the stored hash is the seed's "password".
+	if user.Password == seedPassword && !localDevelopment() {
+		h.logins.Failed(user.UserName)
+		h.logger.Warn("Backoffice login refused: account still has the seed default password; set a new one",
+			zap.String("username", foundUser.UserName))
+		return invalid
+	}
+	h.logins.Succeeded(user.UserName)
 
 	token, err := auth.GenerateBackofficeToken(foundUser.UserName, int64(foundUser.ID))
 	if err != nil {
@@ -178,8 +225,10 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 }
 
 // RefreshAuthToken issues a new access token for the backoffice refresh
-// cookie. The refresh token must be a backoffice one and still be the one
-// stored for that admin (a newer login replaces it).
+// cookie and rotates the refresh token. The refresh token must be a backoffice
+// one and still be the one stored for that admin (a newer login replaces it).
+// A token rotated out in the last few seconds resolves to its successor
+// (concurrent refreshes from two tabs); later it is rejected as stale.
 func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
 	invalid := envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRefreshToken)
 	refreshToken, err := c.Cookie(auth.BackofficeRefreshCookie)
@@ -194,16 +243,53 @@ func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Respon
 	if err := h.db.Where("id = ? AND user_name = ?", claims.UserID, claims.Username).First(&user).Error; err != nil {
 		return invalid
 	}
-	if user.RefreshToken != refreshToken {
-		h.logger.Warn("Backoffice refresh token is not the current one", zap.String("username", user.UserName))
-		return invalid
+
+	var next string
+	if user.RefreshToken == refreshToken {
+		rotated, err := auth.GenerateBackofficeRefreshToken(user.UserName, int64(user.ID))
+		if err != nil {
+			h.logger.Error("Failed to generate refresh token during refresh", zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+		}
+		// Only if it is still the stored token: a concurrent refresh that got
+		// here first wins, and this one falls back to the grace lookup below.
+		res := h.db.Model(&backoffice_models.BackofficeUser{}).
+			Where("id = ? AND refresh_token = ?", user.ID, refreshToken).
+			Update("refresh_token", rotated)
+		if res.Error != nil {
+			h.logger.Error("Failed to rotate backoffice refresh token", zap.Error(res.Error))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+		}
+		if res.RowsAffected == 1 {
+			h.rotated.remember(refreshToken, rotated)
+			next = rotated
+		}
 	}
+	if next == "" {
+		// Replaced moments ago by a concurrent refresh, and that successor is
+		// still the current token: hand it out again.
+		successor, ok := h.rotated.successor(refreshToken)
+		if !ok || !h.isCurrentRefreshToken(user.ID, successor) {
+			h.logger.Warn("Backoffice refresh token is not the current one", zap.String("username", user.UserName))
+			return invalid
+		}
+		next = successor
+	}
+
 	token, err := auth.GenerateBackofficeToken(user.UserName, int64(user.ID))
 	if err != nil {
 		h.logger.Error("Failed to generate token during refresh", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
+	auth.SetBackofficeRefreshCookie(c, next)
 	return envelope.SuccessResponse(gin.H{"token": token, "user_id": user.ID}, "auth.token.refresh.success")
+}
+
+func (h *BackofficeUserHandler) isCurrentRefreshToken(userID uint, token string) bool {
+	var n int64
+	h.db.Model(&backoffice_models.BackofficeUser{}).
+		Where("id = ? AND refresh_token = ?", userID, token).Count(&n)
+	return n == 1
 }
 
 // Logout ends the admin's session: the stored refresh token is cleared, so the

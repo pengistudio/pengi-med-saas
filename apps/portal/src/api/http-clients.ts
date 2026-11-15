@@ -35,8 +35,14 @@ function sendInterfaceLanguage(client: AxiosInstance) {
 sendInterfaceLanguage(rootApi);
 sendInterfaceLanguage(portalApi);
 
-// Endpoints where a 401 is an answer, not an expired session.
+// Endpoints where a 401 is an answer, not an expired session. Matched on the
+// path's end: sign-in lives under /clinics/:slug (…/login, …/new-patient/verify).
 const NO_REFRESH = ["/login", "/verify", "/refresh", "/logout"];
+
+const isNoRefresh = (url: string | undefined) => {
+	const path = url?.split("?")[0] ?? "";
+	return NO_REFRESH.some((suffix) => path.endsWith(suffix));
+};
 
 let refreshing: Promise<string | undefined> | undefined;
 
@@ -93,7 +99,7 @@ portalApi.interceptors.response.use(undefined, async (error: AxiosError) => {
 		!config ||
 		config._retried ||
 		config.portalGuest ||
-		NO_REFRESH.some((path) => config.url?.startsWith(path))
+		isNoRefresh(config.url)
 	) {
 		return Promise.reject(error);
 	}

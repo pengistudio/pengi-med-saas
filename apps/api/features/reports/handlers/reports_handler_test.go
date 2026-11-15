@@ -388,3 +388,79 @@ func TestReports_PDFRendersEveryDocument(t *testing.T) {
 		}
 	}
 }
+
+// Day boundaries follow the tenants' clock (UTC-5): 23:30 local is already the
+// next day in UTC and must stay in the local day; local midnight starts a day.
+func TestRevenue_RangeFollowsLocalDayBoundaries(t *testing.T) {
+	f := setup(t)
+	_, pat, _ := f.seedTenant(tenantA)
+	at := func(day, clock string) time.Time {
+		ts, err := time.ParseInLocation("2006-01-02 15:04", day+" "+clock, location)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return ts
+	}
+	issue := func(ts time.Time, total float64) {
+		f.create(&billing_models.Invoice{TenantID: tenantA, PatientID: &pat.ID, Total: total, Status: "authorized", IssueDate: ts.UTC(),
+			Sequential: "000000001", EstablishmentCode: "001", EmissionPointCode: "001"})
+	}
+	issue(at("2026-03-09", "23:59"), 1)    // previous local day
+	issue(at("2026-03-10", "00:00"), 10)   // first instant of the day
+	issue(at("2026-03-10", "23:30"), 100)  // UTC date is already 03-11
+	issue(at("2026-03-11", "00:00"), 1000) // next local day
+
+	r := decode[reports_dto.RevenueReport](t, get(tenantA, f.h.Revenue, "from=2026-03-10&to=2026-03-10"))
+	if r.Totals.Invoiced != 110 || r.Totals.InvoiceCount != 2 {
+		t.Fatalf("totals = %+v, want 110 over 2 invoices", r.Totals)
+	}
+	if len(r.Series) != 1 || r.Series[0].Period != "2026-03-10" {
+		t.Errorf("series = %+v, want one point on 2026-03-10", r.Series)
+	}
+}
+
+// Appointments hold a plain date stored as UTC midnight: it belongs to exactly
+// the local day with that date, never to its neighbours.
+func TestAppointments_PlainDateBelongsToItsDay(t *testing.T) {
+	f := setup(t)
+	_, pat, _ := f.seedTenant(tenantA)
+	day := func(s string) time.Time {
+		ts, err := time.Parse("2006-01-02", s)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return ts
+	}
+	for _, d := range []string{"2026-03-09", "2026-03-10", "2026-03-10", "2026-03-11"} {
+		f.create(&clinical_models.Appointment{TenantID: tenantA, PatientID: pat.ID, Date: day(d), Status: "completed"})
+	}
+	r := decode[reports_dto.AppointmentsReport](t, get(tenantA, f.h.Appointments, "from=2026-03-10&to=2026-03-10"))
+	if r.Totals.Total != 2 || len(r.Series) != 1 || r.Series[0].Day != "2026-03-10" {
+		t.Errorf("totals %+v series %+v, want 2 on 2026-03-10", r.Totals, r.Series)
+	}
+}
+
+func TestReports_InvertedRangeRejectedOnEveryReport(t *testing.T) {
+	f := setup(t)
+	q := "from=2026-03-10&to=2026-03-09"
+	for name, h := range map[string]func(*gin.Context){
+		"revenue": f.h.Revenue, "receivables": f.h.Receivables, "appointments": f.h.Appointments, "clinical": f.h.Clinical,
+	} {
+		t.Run(name, func(t *testing.T) {
+			wantError(t, get(tenantA, h, q), http.StatusBadRequest, core_errors.ErrReportsInvalidFilters)
+			wantError(t, get(tenantA, h, q+"&format=csv"), http.StatusBadRequest, core_errors.ErrReportsInvalidFilters)
+		})
+	}
+}
+
+func TestReports_ExportIsTenantScoped(t *testing.T) {
+	f := setup(t)
+	_, patB, sessB := f.seedTenant(tenantB)
+	f.seedTenant(tenantA)
+	invB := f.invoice(tenantB, &patB.ID, 7777, "authorized")
+	f.pay(tenantB, sessB.ID, invB.ID, "cash", 7777, cash_models.PaymentValid)
+	w := get(tenantA, f.h.Revenue, rangeQuery("&format=csv"))
+	if w.Code != http.StatusOK || strings.Contains(w.Body.String(), "7777") || strings.Contains(w.Body.String(), "T2") {
+		t.Errorf("tenant A CSV leaked tenant B: %d %s", w.Code, w.Body.String())
+	}
+}

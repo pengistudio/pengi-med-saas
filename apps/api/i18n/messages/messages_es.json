@@ -3101,7 +3101,7 @@
     },
     {
         "key": "reset_password.new_password.placeholder",
-        "value": "Mínimo 6 caracteres"
+        "value": "Mínimo 10 caracteres"
     },
     {
         "key": "reset_password.confirm_password",
@@ -5528,6 +5528,14 @@
         "value": "La sesión ha sido revocada. Por favor inicia sesión nuevamente."
     },
     {
+        "key": "E-AUTH-015",
+        "value": "La contraseña es demasiado corta."
+    },
+    {
+        "key": "auth.password.too_short",
+        "value": "La contraseña debe tener al menos 10 caracteres."
+    },
+    {
         "key": "auth.refresh.reused",
         "value": "Se detectó reutilización del token de refresco; la sesión fue revocada."
     },
@@ -5577,7 +5585,7 @@
     },
     {
         "key": "register.password.placeholder",
-        "value": "Mínimo 6 caracteres"
+        "value": "Mínimo 10 caracteres"
     },
     {
         "key": "register.confirm_password",

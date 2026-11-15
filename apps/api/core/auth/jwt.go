@@ -32,6 +32,10 @@ func authKey() ([]byte, error) {
 	return []byte(key), nil
 }
 
+// hs256Only pins the algorithm every parser accepts to the one tokens are
+// signed with, so a token can't pick another HMAC variant or "none".
+var hs256Only = jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()})
+
 func signedWithAuthKey(claims jwt.MapClaims) (string, error) {
 	key, err := authKey()
 	if err != nil {
@@ -152,7 +156,7 @@ func ValidateRefreshToken(refreshToken string) (RefreshTokenClaims, error) {
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return authKey()
-	})
+	}, hs256Only)
 	if err != nil || !token.Valid {
 		return RefreshTokenClaims{}, errors.New("invalid refresh token")
 	}
@@ -217,12 +221,8 @@ func DecryptToken(c *gin.Context) (jwt.MapClaims, error) {
 
 func ParseToken(token string) (jwt.MapClaims, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		_, ok := token.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
-			return nil, ErrInvalidToken
-		}
 		return authKey()
-	})
+	}, hs256Only)
 	if err != nil || parsedToken == nil || !parsedToken.Valid {
 		return nil, ErrInvalidToken
 	}

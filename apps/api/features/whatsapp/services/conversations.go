@@ -82,10 +82,40 @@ func MatchPatientByPhone(db *gorm.DB, phone string) (*uint, error) {
 	return match, nil
 }
 
+// ErrMessageExists: RecordOutbound was given a new message whose WamID the
+// tenant already stored (a retried echo, or a message we sent ourselves);
+// nothing changed.
+var ErrMessageExists = errors.New("whatsapp message already stored")
+
+// createOnce inserts msg unless the tenant already stored its WamID: the
+// partial unique index on (tenant_id, wam_id) (code migration DB20261114_1)
+// turns a concurrent duplicate into a no-op instead of a second row. It
+// reports whether msg was inserted.
+func createOnce(tx *gorm.DB, msg *whatsapp_models.WhatsAppMessage) (bool, error) {
+	if msg.WamID == "" {
+		return true, tx.Create(msg).Error
+	}
+	res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(msg)
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected > 0 && msg.ID != 0, nil
+}
+
+// wamIDStored reports whether the tenant (db is bound to it) already stored a
+// message with wamID: a cheap early exit before the insert, which is the real
+// guard (createOnce).
+func wamIDStored(db *gorm.DB, wamID string) (bool, error) {
+	var count int64
+	err := db.Model(&whatsapp_models.WhatsAppMessage{}).Where("wam_id = ?", wamID).Count(&count).Error
+	return count > 0, err
+}
+
 // RecordOutbound puts msg in conv's thread: it creates msg (ID 0) or attaches
 // an existing one, and moves the conversation's last message, in one
 // transaction. A reply (sent by a user) also clears the unread count: whoever
-// answered has read the thread.
+// answered has read the thread. A new msg whose WamID is already stored is
+// not inserted: it returns ErrMessageExists.
 func RecordOutbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg *whatsapp_models.WhatsAppMessage, at time.Time) error {
 	msg.ConversationID = &conv.ID
 	msg.Direction = whatsapp_models.DirectionOutbound
@@ -94,8 +124,12 @@ func RecordOutbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg
 	}
 	return db.Transaction(func(tx *gorm.DB) error {
 		if msg.ID == 0 {
-			if err := tx.Create(msg).Error; err != nil {
+			inserted, err := createOnce(tx, msg)
+			if err != nil {
 				return err
+			}
+			if !inserted {
+				return ErrMessageExists
 			}
 		} else if err := tx.Model(msg).Updates(map[string]any{
 			"conversation_id": conv.ID, "direction": msg.Direction, "body": msg.Body, "content_type": msg.ContentType,
@@ -118,17 +152,14 @@ func RecordOutbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg
 
 // RecordInbound stores the patient's message msg in conv's thread, moves the
 // conversation's last message and reply window and counts it as unread, in
-// one transaction. Meta retries webhooks, so a message whose WamID is already
-// stored is skipped: recorded is false and nothing changes.
+// one transaction. Meta retries webhooks (sometimes concurrently), so a
+// message whose WamID is already stored is skipped: recorded is false and
+// nothing changes.
 func RecordInbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg *whatsapp_models.WhatsAppMessage, at time.Time) (recorded bool, err error) {
 	if msg.WamID != "" {
-		var count int64
-		if err := db.Model(&whatsapp_models.WhatsAppMessage{}).
-			Where("wam_id = ? AND direction = ?", msg.WamID, whatsapp_models.DirectionInbound).Count(&count).Error; err != nil {
+		stored, err := wamIDStored(db, msg.WamID)
+		if err != nil || stored {
 			return false, err
-		}
-		if count > 0 {
-			return false, nil
 		}
 	}
 	msg.ConversationID = &conv.ID
@@ -143,8 +174,12 @@ func RecordInbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg 
 		msg.ContentType = whatsapp_models.ContentText
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(msg).Error; err != nil {
+		inserted, err := createOnce(tx, msg)
+		if err != nil {
 			return err
+		}
+		if !inserted {
+			return ErrMessageExists // a concurrent delivery stored it first
 		}
 		updates := lastMessageUpdates(conv, msg, at)
 		updates["unread_count"] = gorm.Expr("unread_count + 1")
@@ -153,6 +188,9 @@ func RecordInbound(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, msg 
 		}
 		return applyConversationUpdates(tx, conv, updates)
 	})
+	if errors.Is(err, ErrMessageExists) {
+		return false, nil
+	}
 	if err != nil {
 		return false, err
 	}
@@ -234,9 +272,17 @@ func ImportHistory(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, item
 		rows[i] = m
 	}
 	last := rows[len(rows)-1]
+	added := 0
 	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.CreateInBatches(&rows, 100).Error; err != nil {
-			return err
+		// A chunk delivered twice at once: the unique (tenant_id, wam_id)
+		// index skips what the other delivery stored first.
+		res := tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&rows, 100)
+		if res.Error != nil {
+			return res.Error
+		}
+		added = int(res.RowsAffected)
+		if added == 0 {
+			return nil
 		}
 		updates := lastMessageUpdates(conv, &last, fresh[len(fresh)-1].At)
 		if lastInbound != nil && (conv.LastInboundAt == nil || lastInbound.After(*conv.LastInboundAt)) {
@@ -247,7 +293,7 @@ func ImportHistory(db *gorm.DB, conv *whatsapp_models.WhatsAppConversation, item
 	if err != nil {
 		return 0, err
 	}
-	return len(rows), nil
+	return added, nil
 }
 
 // lastMessageUpdates moves the conversation's last message to msg, unless a

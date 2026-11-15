@@ -264,6 +264,8 @@ func TestRotateRefreshToken_LegacyTokenMigrates(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to sign legacy token: %v", err)
 	}
+	// Pre-rotation logins stored the issued refresh token on the user.
+	db.Model(&testUser).Update("refresh_token", legacyRaw)
 
 	c, _ := ginContextWithRefreshCookie(legacyRaw)
 	accessToken, err := RotateRefreshToken(db, legacyRaw, c, logger)
@@ -278,6 +280,32 @@ func TestRotateRefreshToken_LegacyTokenMigrates(t *testing.T) {
 	db.Where("user_id = ?", testUser.ID).Find(&rows)
 	if len(rows) != 1 {
 		t.Fatalf("expected exactly 1 new refresh token row created for the legacy upgrade, got %d", len(rows))
+	}
+
+	// Spent: the same legacy token can't start another family.
+	c2, _ := ginContextWithRefreshCookie(legacyRaw)
+	if _, err := RotateRefreshToken(db, legacyRaw, c2, logger); err != ErrRefreshTokenRevoked {
+		t.Fatalf("legacy token replay: got %v, want ErrRefreshTokenRevoked", err)
+	}
+}
+
+// A deleted user's refresh token stops working even if no one revoked its
+// family (e.g. a path that deletes the user without RevokeUserSessions).
+func TestRotateRefreshToken_DeletedUserRejected(t *testing.T) {
+	db := testutils.SetupTestDB(t, &user_models.User{}, &user_models.RefreshToken{})
+	logger := zap.NewNop()
+
+	hashedPassword, _ := auth.HashPassword("password123")
+	testUser := user_models.User{UserName: "goneuser", Email: "gone@example.com", Password: hashedPassword, EmailVerified: true}
+	db.Create(&testUser)
+	token := loginAndGetCookie(t, NewUserHandler(db, logger), "goneuser")
+
+	if err := db.Delete(&testUser).Error; err != nil {
+		t.Fatal(err)
+	}
+	c, _ := ginContextWithRefreshCookie(token)
+	if _, err := RotateRefreshToken(db, token, c, logger); err != ErrRefreshTokenRevoked {
+		t.Fatalf("deleted user refresh: got %v, want ErrRefreshTokenRevoked", err)
 	}
 }
 

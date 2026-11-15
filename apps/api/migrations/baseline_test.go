@@ -8,6 +8,7 @@ import (
 	permission_data "pengi-med-saas/features/permissions/data"
 	role_data "pengi-med-saas/features/users/data"
 	user_models "pengi-med-saas/features/users/models"
+	whatsapp_models "pengi-med-saas/features/whatsapp/models"
 	"pengi-med-saas/testutils"
 )
 
@@ -28,6 +29,10 @@ func TestRunMigrations_FreshDatabaseGetsBaseline(t *testing.T) {
 	}
 	if int(executed) != len(database.GlobalDBMap) {
 		t.Errorf("recorded %d migrations, want %d", executed, len(database.GlobalDBMap))
+	}
+	// Created by a code migration (not a struct tag), so the baseline runs it.
+	if !db.Migrator().HasIndex(&whatsapp_models.WhatsAppMessage{}, whatsapp_models.WamIDUniqueIndex) {
+		t.Error("fresh database lacks the unique WhatsApp message id index")
 	}
 
 	rolePerms := func(name string) map[string]bool {
@@ -68,5 +73,23 @@ func TestRunMigrations_FreshDatabaseGetsBaseline(t *testing.T) {
 	}
 	if len(trial.Features) != len(trialPlanFeatures) || trial.StorageQuotaMB == 0 {
 		t.Errorf("trial plan: %d features, quota %d MB; want %v and a quota", len(trial.Features), trial.StorageQuotaMB, trialPlanFeatures)
+	}
+
+	// Caja is top-plan only: the trial plan must not reach it by feature or permission.
+	for _, f := range trial.Features {
+		if f.Code == "CASH" {
+			t.Errorf("trial plan includes the CASH feature")
+		}
+	}
+	var withPerms company_models.Plan
+	if err := db.Preload("Features.Permissions").First(&withPerms, trial.ID).Error; err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range withPerms.Features {
+		for _, p := range f.Permissions {
+			if p.Category == "CASH" {
+				t.Errorf("trial plan feature %s grants cash permission %s", f.Code, p.ID)
+			}
+		}
 	}
 }

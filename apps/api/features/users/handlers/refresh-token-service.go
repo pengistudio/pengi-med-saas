@@ -106,7 +106,7 @@ func RotateRefreshToken(db *gorm.DB, presentedToken string, c *gin.Context, logg
 	}
 
 	if claims.FamilyID == "" || claims.JTI == "" {
-		return rotateLegacyToken(db, claims, c, logger)
+		return rotateLegacyToken(db, claims, presentedToken, c, logger)
 	}
 
 	tokenHash := hashJTI(claims.JTI)
@@ -121,6 +121,11 @@ func RotateRefreshToken(db *gorm.DB, presentedToken string, c *gin.Context, logg
 
 	if row.ExpiresAt.Before(time.Now()) {
 		return "", ErrRefreshTokenInvalid
+	}
+
+	// A deleted user's sessions end even if a family was left unrevoked.
+	if _, ok := liveUser(db, row.UserID); !ok {
+		return "", ErrRefreshTokenRevoked
 	}
 
 	if row.UsedAt != nil {
@@ -159,7 +164,26 @@ func RotateRefreshToken(db *gorm.DB, presentedToken string, c *gin.Context, logg
 	return accessToken, nil
 }
 
-func rotateLegacyToken(db *gorm.DB, claims auth.RefreshTokenClaims, c *gin.Context, logger *zap.Logger) (string, error) {
+// liveUser loads a user that still exists (soft-deleted rows are skipped).
+func liveUser(db *gorm.DB, userID uint) (user_models.User, bool) {
+	var user user_models.User
+	err := db.Select("id", "user_name", "refresh_token").Take(&user, userID).Error
+	return user, err == nil
+}
+
+// rotateLegacyToken upgrades a pre-rotation token only while it is still the
+// one stored on the user: RevokeUserSessions clears that column, and a
+// deleted user has no row.
+func rotateLegacyToken(db *gorm.DB, claims auth.RefreshTokenClaims, presentedToken string, c *gin.Context, logger *zap.Logger) (string, error) {
+	user, ok := liveUser(db, claims.UserID)
+	if !ok || user.RefreshToken == "" || user.RefreshToken != presentedToken {
+		return "", ErrRefreshTokenRevoked
+	}
+	// Single use: the stored legacy token is spent once it joins a family.
+	if err := db.Model(&user_models.User{}).Where("id = ?", user.ID).
+		Update("refresh_token", "").Error; err != nil {
+		return "", err
+	}
 	newFamilyID := uuid.NewString()
 	rawToken, _, err := createRefreshTokenRow(db, claims.UserID, claims.Username, newFamilyID, c)
 	if err != nil {

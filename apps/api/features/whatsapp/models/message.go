@@ -133,8 +133,12 @@ const ReminderTemplate = "pengi_cita_recordatorio"
 // patient, or received from one (Direction). The unique (appointment_id,
 // offset_hours) index makes reminders idempotent: a reminder for the same
 // appointment and offset can only ever be queued once. Test messages, replies
-// and inbound messages have no appointment (NULLs never collide). Inbound
-// messages are deduplicated by WamID before insert (Meta retries webhooks).
+// and inbound messages have no appointment (NULLs never collide). A Meta
+// message id is stored once per tenant: the partial unique index
+// WamIDUniqueIndex on (tenant_id, wam_id), partial on a non-empty wam_id (Meta retries
+// webhooks, sometimes concurrently) is created by code migration
+// DB20261114_1, not by a struct tag: AutoMigrate runs before the code
+// migrations and would fail on the duplicates that migration removes.
 type WhatsAppMessage struct {
 	gorm.Model
 	TenantID      uint                     `json:"tenant_id" gorm:"index;not null"`
@@ -171,6 +175,9 @@ type WhatsAppMessage struct {
 }
 
 func (WhatsAppMessage) TableName() string { return "whatsapp_messages" }
+
+// WamIDUniqueIndex is the name of the unique (tenant_id, wam_id) index.
+const WamIDUniqueIndex = "idx_whatsapp_messages_tenant_wam_id"
 
 // statusRank orders the delivery statuses so a late webhook never moves a
 // message backwards (e.g. "delivered" arriving after "read").

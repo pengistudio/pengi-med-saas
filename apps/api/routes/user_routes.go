@@ -15,6 +15,9 @@ import (
 )
 
 func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
+	// AuthMiddleware (every route group) rejects tokens of deleted users.
+	auth_middleware.UseUserDB(db)
+
 	userHandler := user_handlers.NewUserHandler(db, logger.Log)
 	environmentHandler := user_handlers.NewEnvironmentHandler(db, logger.Log)
 	profileHandler := user_handlers.NewProfileHandler(db, logger.Log)

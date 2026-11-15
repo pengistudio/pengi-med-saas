@@ -60,6 +60,7 @@ func TestLoadRejectsUnparsableNumber(t *testing.T) {
 func TestLoadRequiresSignatureKeyInRelease(t *testing.T) {
 	setRequired(t)
 	t.Setenv("GIN_MODE", "release")
+	t.Setenv("AUTH_KEY", releaseAuthKey)
 	t.Setenv("SIGNATURE_ENCRYPTION_KEY", "")
 	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "SIGNATURE_ENCRYPTION_KEY") {
 		t.Fatalf("Load() error = %v, want a SIGNATURE_ENCRYPTION_KEY error", err)
@@ -68,6 +69,27 @@ func TestLoadRequiresSignatureKeyInRelease(t *testing.T) {
 	t.Setenv("SIGNATURE_ENCRYPTION_KEY", "c2VjcmV0")
 	if _, err := Load(); err != nil {
 		t.Fatalf("Load() error = %v with the key set", err)
+	}
+}
+
+const releaseAuthKey = "0123456789abcdef0123456789abcdef"
+
+func TestLoadRequiresLongAuthKeyInRelease(t *testing.T) {
+	setRequired(t)
+	t.Setenv("SIGNATURE_ENCRYPTION_KEY", "c2VjcmV0")
+	t.Setenv("AUTH_KEY", "short-dev-key")
+	if _, err := Load(); err != nil {
+		t.Fatalf("Load() error = %v, a short AUTH_KEY must stay valid outside release", err)
+	}
+
+	t.Setenv("GIN_MODE", "release")
+	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "AUTH_KEY") {
+		t.Fatalf("Load() error = %v, want an AUTH_KEY length error", err)
+	}
+
+	t.Setenv("AUTH_KEY", releaseAuthKey)
+	if _, err := Load(); err != nil {
+		t.Fatalf("Load() error = %v with a 32-character AUTH_KEY", err)
 	}
 }
 

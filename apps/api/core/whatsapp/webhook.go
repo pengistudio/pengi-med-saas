@@ -81,6 +81,10 @@ type WebhookValue struct {
 		Reason      string `json:"reason"` // PRIMARY_INACTIVITY, COMPANION_INACTIVITY, ...
 		InitiatedBy string `json:"initiated_by"`
 	} `json:"disconnection_info"`
+	// The number an account_update is about, when Meta says: its id, or its
+	// display number (digits). Without either, it concerns the whole WABA.
+	PhoneNumberID string `json:"phone_number_id"`
+	PhoneNumber   string `json:"phone_number"`
 
 	// message_template_status_update
 	Event                   string `json:"event"`

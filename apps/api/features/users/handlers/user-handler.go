@@ -30,12 +30,15 @@ import (
 type UserHandler struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	// logins caps failed sign-ins per account (the route limits per IP).
+	logins *auth.LoginLimiter
 }
 
 func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
 	return &UserHandler{
 		db:     tenantdb.System(db),
 		logger: logger,
+		logins: auth.NewDefaultLoginLimiter(),
 	}
 }
 
@@ -50,17 +53,30 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	// 1) Buscar usuario (por nombre de usuario o correo)
 	foundUser, err := findUserByLogin(h.db.Omit("password"), user.UserName)
 	if err != nil {
+		if h.logins.Blocked(user.UserName) {
+			return envelope.ErrorResponse(http.StatusTooManyRequests, "error.rate_limit_exceeded", core_errors.ErrRateLimitExceeded)
+		}
+		h.logins.Failed(user.UserName)
 		h.logger.Warn("Failed to find user", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
+	}
+
+	// Per account, not per typed identifier: username and email share a budget.
+	account := foundUser.UserName
+	if h.logins.Blocked(account) {
+		h.logger.Warn("Login blocked: too many failed attempts", zap.String("username", account))
+		return envelope.ErrorResponse(http.StatusTooManyRequests, "error.rate_limit_exceeded", core_errors.ErrRateLimitExceeded)
 	}
 
 	foundUser.Password = user.Password
 
 	// 2) Validar credenciales
 	if err := foundUser.ValidateCredentials(h.db); err != nil {
+		h.logins.Failed(account)
 		h.logger.Warn("Failed login attempt", zap.String("username", user.UserName), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
 	}
+	h.logins.Succeeded(account)
 
 	// 2.5) Verificar email
 	if !foundUser.EmailVerified {
@@ -542,7 +558,7 @@ func (h *UserHandler) VerifyEmail(c *gin.Context) envelope.Response {
 func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 	var req struct {
 		Token       string `json:"token" binding:"required"`
-		NewPassword string `json:"new_password" binding:"required,min=6"`
+		NewPassword string `json:"new_password" binding:"required,min=10"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRequest)

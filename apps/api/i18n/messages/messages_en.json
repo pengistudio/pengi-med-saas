@@ -3101,7 +3101,7 @@
     },
     {
         "key": "reset_password.new_password.placeholder",
-        "value": "At least 6 characters"
+        "value": "At least 10 characters"
     },
     {
         "key": "reset_password.confirm_password",
@@ -5528,6 +5528,14 @@
         "value": "Session has been revoked. Please log in again."
     },
     {
+        "key": "E-AUTH-015",
+        "value": "Password is too short."
+    },
+    {
+        "key": "auth.password.too_short",
+        "value": "Password must be at least 10 characters."
+    },
+    {
         "key": "auth.refresh.reused",
         "value": "Refresh token reuse detected; session revoked."
     },
@@ -5577,7 +5585,7 @@
     },
     {
         "key": "register.password.placeholder",
-        "value": "At least 6 characters"
+        "value": "At least 10 characters"
     },
     {
         "key": "register.confirm_password",
