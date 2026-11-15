@@ -123,6 +123,7 @@ var (
 	ErrAuthPasswordTooShort          AppError = NewAppError("E-AUTH-015", "Password is too short.")
 	ErrAuthWrongCurrentPassword      AppError = NewAppError("E-AUTH-016", "Current password is incorrect.")
 	ErrAuthSamePassword              AppError = NewAppError("E-AUTH-017", "New password must differ from the current one.")
+	ErrAuthAccountLocked             AppError = NewAppError("E-AUTH-018", "Account temporarily locked after too many failed attempts.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

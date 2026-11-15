@@ -15112,6 +15112,14 @@
         "value": "La nueva contraseña debe ser distinta a la actual."
     },
     {
+        "key": "E-AUTH-018",
+        "value": "Cuenta bloqueada temporalmente por demasiados intentos fallidos."
+    },
+    {
+        "key": "auth.account_locked",
+        "value": "Tu cuenta está bloqueada temporalmente por demasiados intentos fallidos. Espera unos minutos o restablece tu contraseña con \"¿Olvidaste tu contraseña?\"."
+    },
+    {
         "key": "profile.section.security",
         "value": "Seguridad"
     },

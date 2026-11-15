@@ -20,10 +20,13 @@ import (
 type ProfileHandler struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	// lockout is shared with login: wrong current passwords on email change
+	// count toward the same account lock.
+	lockout accountLockout
 }
 
 func NewProfileHandler(db *gorm.DB, logger *zap.Logger) *ProfileHandler {
-	return &ProfileHandler{db: tenantdb.System(db), logger: logger}
+	return &ProfileHandler{db: tenantdb.System(db), logger: logger, lockout: newAccountLockout()}
 }
 
 // ─── Response DTO ────────────────────────────────────────────────────────────
@@ -110,12 +113,20 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest)
 	}
 
+	// Email change is re-authenticated, see UpdateProfileDTO. The password is
+	// checked before the transaction so a failed attempt stays counted by the
+	// lockout (the transaction rolls back on rejection).
+	if payload.Email != nil {
+		if resp, ok := h.authorizeEmailChange(userID, *payload.Email, payload.CurrentPassword); !ok {
+			return resp
+		}
+	}
+
 	// Email and environment name are saved together or not at all.
 	var rejected *envelope.Response
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
-		// Email change is re-authenticated, see UpdateProfileDTO.
 		if payload.Email != nil {
-			if resp, ok := h.changeEmail(tx, userID, *payload.Email, payload.CurrentPassword); !ok {
+			if resp, ok := h.changeEmail(tx, userID, *payload.Email); !ok {
 				rejected = &resp
 				return errRejected
 			}
@@ -139,16 +150,51 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) envelope.Response {
 	return h.GetProfile(c)
 }
 
-// changeEmail stores a new email for userID. Emails are compared and stored
-// lowercased (login matches them case-insensitively): the same address in
-// another case is no change and needs no password. A real change needs the
-// current password and an address no other user has. ok is false with the
-// error response to return.
-func (h *ProfileHandler) changeEmail(db *gorm.DB, userID int64, email, currentPassword string) (envelope.Response, bool) {
+// authorizeEmailChange checks that userID may change their email to email.
+// Emails are compared lowercased (login matches them case-insensitively): the
+// same address in another case is no change and needs no password. A real
+// change needs the current password, checked under the account lockout. ok
+// is false with the error response to return.
+func (h *ProfileHandler) authorizeEmailChange(userID int64, email, currentPassword string) (envelope.Response, bool) {
 	email = strings.ToLower(strings.TrimSpace(email))
 	if email == "" {
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrInvalidRequest), false
 	}
+
+	var user user_models.User
+	if err := h.db.First(&user, userID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound), false
+	}
+	if strings.EqualFold(user.Email, email) {
+		return envelope.Response{}, true
+	}
+	// An empty password is a missing field, not a guess: not counted.
+	if currentPassword == "" {
+		return envelope.ErrorResponse(http.StatusUnprocessableEntity, "auth.change_password.wrong_current", core_errors.ErrAuthWrongCurrentPassword), false
+	}
+
+	err := h.lockout.check(h.db, h.logger, user.ID, func() bool {
+		return auth.CompareHashAndPassword(user.Password, currentPassword)
+	})
+	switch {
+	case err == nil:
+		return envelope.Response{}, true
+	case errors.Is(err, errAccountLocked):
+		h.logger.Warn("Email change refused: account locked", zap.Uint("user_id", user.ID))
+		return accountLockedResponse(), false
+	case errors.Is(err, errWrongPassword):
+		return envelope.ErrorResponse(http.StatusUnprocessableEntity, "auth.change_password.wrong_current", core_errors.ErrAuthWrongCurrentPassword), false
+	default:
+		h.logger.Error("Profile: failed to check password", zap.Uint("user_id", user.ID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal), false
+	}
+}
+
+// changeEmail stores a new email for userID, lowercased, after
+// authorizeEmailChange allowed it. The address must not belong to another
+// user. ok is false with the error response to return.
+func (h *ProfileHandler) changeEmail(db *gorm.DB, userID int64, email string) (envelope.Response, bool) {
+	email = strings.ToLower(strings.TrimSpace(email))
 
 	var user user_models.User
 	if err := db.First(&user, userID).Error; err != nil {
@@ -156,10 +202,6 @@ func (h *ProfileHandler) changeEmail(db *gorm.DB, userID int64, email, currentPa
 	}
 	if strings.EqualFold(user.Email, email) {
 		return envelope.Response{}, true
-	}
-
-	if currentPassword == "" || !auth.CompareHashAndPassword(user.Password, currentPassword) {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.change_password.wrong_current", core_errors.ErrAuthWrongCurrentPassword), false
 	}
 
 	var taken int64
