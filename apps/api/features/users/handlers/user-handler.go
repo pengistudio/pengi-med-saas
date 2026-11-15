@@ -600,6 +600,48 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 	return envelope.SuccessResponse(nil, "auth.reset_password.success")
 }
 
+// ChangePassword lets a signed-in user replace their password. It asks for
+// the current one so a stolen session can't lock the owner out, and revokes
+// every refresh session afterwards (the web app signs out and logs in again).
+func (h *UserHandler) ChangePassword(c *gin.Context) envelope.Response {
+	var req struct {
+		CurrentPassword string `json:"current_password" binding:"required"`
+		NewPassword     string `json:"new_password" binding:"required,min=10"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrAuthInvalidRequest)
+	}
+
+	userID := c.GetInt64("user_id")
+	var user user_models.User
+	if err := h.db.First(&user, userID).Error; err != nil {
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
+	}
+
+	if !auth.CompareHashAndPassword(user.Password, req.CurrentPassword) {
+		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.change_password.wrong_current", core_errors.ErrAuthWrongCurrentPassword)
+	}
+	if req.NewPassword == req.CurrentPassword {
+		return envelope.ErrorResponse(http.StatusBadRequest, "auth.change_password.same_password", core_errors.ErrAuthSamePassword)
+	}
+
+	hashed, err := auth.HashPassword(req.NewPassword)
+	if err != nil {
+		h.logger.Error("Failed to hash password", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+	if err := h.db.Model(&user).Update("password", hashed).Error; err != nil {
+		h.logger.Error("Failed to update password", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+	if err := RevokeUserSessions(h.db, user.ID); err != nil {
+		h.logger.Error("Failed to revoke sessions after password change", zap.Uint("user_id", user.ID), zap.Error(err))
+	}
+
+	h.logger.Info("Password changed", zap.Uint("user_id", user.ID))
+	return envelope.SuccessResponse(nil, "auth.change_password.success")
+}
+
 // sendPasswordResetEmail is replaced in tests.
 var sendPasswordResetEmail = func(toEmail, userName, resetURL string) error {
 	return mailer.NewMailer().SendPasswordReset(toEmail, userName, resetURL)
