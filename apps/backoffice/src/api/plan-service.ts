@@ -1,13 +1,11 @@
+import type { BaseModel } from "@pengi/shared";
 import { resource } from "@/lib/resource/http-resource";
 export interface PricingOption {
 	months: number;
 	price: number;
 }
 
-export interface Plan {
-	ID: number;
-	CreatedAt: string;
-	UpdatedAt: string;
+export interface Plan extends BaseModel {
 	name: string;
 	code: string;
 	tier: number;

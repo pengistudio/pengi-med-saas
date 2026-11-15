@@ -2,6 +2,7 @@ import { useText } from "@pengi/shared";
 import { Button } from "@pengi/ui";
 import { Share, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { isProd } from "@/lib/env";
 
 const DISMISSED_KEY = "pwa-install-dismissed";
 
@@ -34,7 +35,7 @@ export function PwaInstallBanner() {
 	const [hidden, setHidden] = useState(true);
 
 	useEffect(() => {
-		if (!import.meta.env.PROD || isStandalone() || wasDismissed()) return;
+		if (!isProd || isStandalone() || wasDismissed()) return;
 		// iOS has no install event: the only way is to explain Share → Add to Home Screen.
 		if (isIos()) {
 			setIos(true);

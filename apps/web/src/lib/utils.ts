@@ -1,10 +1,6 @@
 import type { AppText } from "@pengi/shared";
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs));
-}
+export { cn } from "@pengi/ui";
 
 export function generateWhatsAppLink(
 	phoneNumber: string,

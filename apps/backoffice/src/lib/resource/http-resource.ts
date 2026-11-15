@@ -16,8 +16,8 @@ export function resource<
 >(name: string, path = `/backoffice/${name}`): Resource<T, C, U> {
 	return {
 		name,
-		list: () => httpService.get<T[]>(path),
-		get: (id) => httpService.get<T>(`${path}/${id}`),
+		list: () => httpService.get<T[]>(path, { notifyError: true }),
+		get: (id) => httpService.get<T>(`${path}/${id}`, { notifyError: true }),
 		create: (data) => httpService.post<T>(path, data, notify),
 		update: (id, data) => httpService.put<T>(`${path}/${id}`, data, notify),
 		remove: (id) => httpService.delete<null>(`${path}/${id}`, notify),

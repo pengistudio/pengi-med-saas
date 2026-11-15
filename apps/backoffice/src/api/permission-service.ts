@@ -11,4 +11,6 @@ export interface Permission {
 }
 
 export const getPermissions = (): Promise<ServiceResponse<Permission[]>> =>
-	httpService.get<Permission[]>("/backoffice/permissions");
+	httpService.get<Permission[]>("/backoffice/permissions", {
+		notifyError: true,
+	});

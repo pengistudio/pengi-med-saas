@@ -1,9 +1,7 @@
+import type { BaseModel } from "@pengi/shared";
 import { resource } from "@/lib/resource/http-resource";
 import type { Permission } from "./permission-service";
-export interface Feature {
-	ID: number;
-	CreatedAt: string;
-	UpdatedAt: string;
+export interface Feature extends BaseModel {
 	code: string;
 	name: string;
 	permissions: Permission[];

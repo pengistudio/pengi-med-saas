@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { isProd } from "@/lib/env";
 
 import "./index.css";
 
@@ -33,7 +34,7 @@ createRoot(document.getElementById("root")!).render(
 	</StrictMode>,
 );
 
-if ("serviceWorker" in navigator && import.meta.env.PROD) {
+if ("serviceWorker" in navigator && isProd) {
 	window.addEventListener("load", () => {
 		navigator.serviceWorker.register("/sw.js").catch(() => {});
 	});

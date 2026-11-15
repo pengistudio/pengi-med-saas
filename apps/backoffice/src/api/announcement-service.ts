@@ -1,4 +1,8 @@
-import { createHttpService, type ServiceResponse } from "@pengi/shared";
+import {
+	type BaseModel,
+	createHttpService,
+	type ServiceResponse,
+} from "@pengi/shared";
 import { resource } from "@/lib/resource/http-resource";
 import { api } from ".";
 
@@ -16,10 +20,7 @@ export type AnnouncementScope = (typeof ANNOUNCEMENT_SCOPES)[number];
 export type AnnouncementLevel = (typeof ANNOUNCEMENT_LEVELS)[number];
 export type AnnouncementStatus = "scheduled" | "sent" | "cancelled" | "failed";
 
-export interface Announcement {
-	ID: number;
-	CreatedAt: string;
-	UpdatedAt: string;
+export interface Announcement extends BaseModel {
 	scope: AnnouncementScope;
 	company_id: number | null;
 	company_name: string;

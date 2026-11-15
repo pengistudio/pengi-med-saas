@@ -20,4 +20,7 @@ const schema = z.object({
 	VITE_API_URL: url("http://localhost:8000/api/v1"),
 });
 
+export const isDev = import.meta.env.DEV;
+export const isProd = import.meta.env.PROD;
+
 export const env = schema.parse(import.meta.env);

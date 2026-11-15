@@ -1,14 +1,16 @@
-import { createHttpService, type ServiceResponse } from "@pengi/shared";
+import {
+	type BaseModel,
+	createHttpService,
+	type ServiceResponse,
+} from "@pengi/shared";
 import { env } from "@/lib/env";
 import { resource } from "@/lib/resource/http-resource";
 import { api } from ".";
+import type { Role } from "./role-service";
 
 const httpService = createHttpService(api);
 
-export interface Company {
-	ID: number;
-	CreatedAt: string;
-	UpdatedAt: string;
+export interface Company extends BaseModel {
 	legal_name: string;
 	trade_name: string;
 	plan_code: string;
@@ -54,6 +56,7 @@ export const getCompanySignupToken = async (
 ): Promise<ServiceResponse<CompanySignupTokenResponse>> => {
 	return httpService.get<CompanySignupTokenResponse>(
 		`/backoffice/companies/${id}/signup-token`,
+		{ notifyError: true },
 	);
 };
 
@@ -81,11 +84,6 @@ export interface CompanyUser {
 	owned_companies: number;
 }
 
-export interface Role {
-	ID: number;
-	role: string;
-}
-
 export interface UpdateCompanyUserRequest extends Record<string, unknown> {
 	user_name?: string;
 	email?: string;
@@ -98,6 +96,7 @@ export const getCompanyUsers = async (
 ): Promise<ServiceResponse<CompanyUser[]>> => {
 	return httpService.get<CompanyUser[]>(
 		`/backoffice/companies/${companyId}/users`,
+		{ notifyError: true },
 	);
 };
 
@@ -114,7 +113,7 @@ export const updateCompanyUser = async (
 };
 
 export const getRoles = async (): Promise<ServiceResponse<Role[]>> => {
-	return httpService.get<Role[]>("/backoffice/roles");
+	return httpService.get<Role[]>("/backoffice/roles", { notifyError: true });
 };
 
 export interface PasswordResetLinkResponse {
