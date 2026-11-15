@@ -42,11 +42,11 @@ func TestUpdateProfile_EmailChangeNeedsCurrentPassword(t *testing.T) {
 		return got.Email
 	}
 
-	if code := call(map[string]string{"email": "new@example.com"}); code != 401 {
-		t.Fatalf("missing password: expected 401, got %d", code)
+	if code := call(map[string]string{"email": "new@example.com"}); code != 422 {
+		t.Fatalf("missing password: expected 422, got %d", code)
 	}
-	if code := call(map[string]string{"email": "new@example.com", "current_password": "wrong"}); code != 401 {
-		t.Fatalf("wrong password: expected 401, got %d", code)
+	if code := call(map[string]string{"email": "new@example.com", "current_password": "wrong"}); code != 422 {
+		t.Fatalf("wrong password: expected 422, got %d", code)
 	}
 	if storedEmail() != "lopez@example.com" {
 		t.Fatal("email changed without the current password")

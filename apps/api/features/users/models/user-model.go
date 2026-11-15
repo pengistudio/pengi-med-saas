@@ -23,6 +23,11 @@ type User struct {
 	// PasswordChangedAt is set on every password change or reset; access
 	// tokens issued before it are rejected by AuthMiddleware.
 	PasswordChangedAt *time.Time `json:"-"`
+	// FailedLoginAttempts counts consecutive wrong passwords (login, change
+	// password, change email); reaching the limit sets LockedUntil. See
+	// user_handlers.accountLockout.
+	FailedLoginAttempts int        `gorm:"not null;default:0" json:"-"`
+	LockedUntil         *time.Time `json:"-"`
 }
 
 type Environment struct {

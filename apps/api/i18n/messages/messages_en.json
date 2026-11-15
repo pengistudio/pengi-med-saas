@@ -15112,6 +15112,14 @@
         "value": "The new password must differ from the current one."
     },
     {
+        "key": "E-AUTH-018",
+        "value": "Account temporarily locked after too many failed attempts."
+    },
+    {
+        "key": "auth.account_locked",
+        "value": "Your account is temporarily locked after too many failed attempts. Wait a few minutes or reset your password with \"Forgot your password?\"."
+    },
+    {
         "key": "profile.section.security",
         "value": "Security"
     },

@@ -31,15 +31,22 @@ import (
 type UserHandler struct {
 	db     *gorm.DB
 	logger *zap.Logger
-	// logins caps failed sign-ins per account (the route limits per IP).
-	logins *auth.LoginLimiter
+	// lockout locks an account after repeated wrong passwords (the route
+	// limits per IP).
+	lockout accountLockout
+	// unknownLogins answers like lockout for usernames that don't exist, so
+	// a 429 doesn't by itself tell an existing account from a typo. In
+	// memory, per instance.
+	unknownLogins *auth.LoginLimiter
 }
 
 func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
+	lockout := newAccountLockout()
 	return &UserHandler{
-		db:     tenantdb.System(db),
-		logger: logger,
-		logins: auth.NewDefaultLoginLimiter(),
+		db:            tenantdb.System(db),
+		logger:        logger,
+		lockout:       lockout,
+		unknownLogins: lockout.unknownUserLimiter(),
 	}
 }
 
@@ -54,30 +61,32 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 	// 1) Buscar usuario (por nombre de usuario o correo)
 	foundUser, err := findUserByLogin(h.db.Omit("password"), user.UserName)
 	if err != nil {
-		if h.logins.Blocked(user.UserName) {
-			return envelope.ErrorResponse(http.StatusTooManyRequests, "error.rate_limit_exceeded", core_errors.ErrRateLimitExceeded)
+		if h.lockout.enabled() && h.unknownLogins.Blocked(user.UserName) {
+			return accountLockedResponse()
 		}
-		h.logins.Failed(user.UserName)
+		h.unknownLogins.Failed(user.UserName)
 		h.logger.Warn("Failed to find user", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
 	}
 
-	// Per account, not per typed identifier: username and email share a budget.
-	account := foundUser.UserName
-	if h.logins.Blocked(account) {
-		h.logger.Warn("Login blocked: too many failed attempts", zap.String("username", account))
-		return envelope.ErrorResponse(http.StatusTooManyRequests, "error.rate_limit_exceeded", core_errors.ErrRateLimitExceeded)
-	}
-
+	// 2) Validar credenciales, bajo el bloqueo por cuenta (username y correo
+	// comparten el mismo contador: vive en la fila del usuario).
 	foundUser.Password = user.Password
-
-	// 2) Validar credenciales
-	if err := foundUser.ValidateCredentials(h.db); err != nil {
-		h.logins.Failed(account)
-		h.logger.Warn("Failed login attempt", zap.String("username", user.UserName), zap.Error(err))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
+	if err := h.lockout.check(h.db, h.logger, foundUser.ID, func() bool {
+		return foundUser.ValidateCredentials(h.db) == nil
+	}); err != nil {
+		switch {
+		case errors.Is(err, errAccountLocked):
+			h.logger.Warn("Login refused: account locked", zap.Uint("user_id", foundUser.ID))
+			return accountLockedResponse()
+		case errors.Is(err, errWrongPassword):
+			h.logger.Warn("Failed login attempt", zap.Uint("user_id", foundUser.ID))
+			return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
+		default:
+			h.logger.Error("Login: failed to check credentials", zap.Uint("user_id", foundUser.ID), zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+		}
 	}
-	h.logins.Succeeded(account)
 
 	// 2.5) Verificar email
 	if !foundUser.EmailVerified {
@@ -619,8 +628,20 @@ func (h *UserHandler) ChangePassword(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
 
-	if !auth.CompareHashAndPassword(user.Password, req.CurrentPassword) {
-		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.change_password.wrong_current", core_errors.ErrAuthWrongCurrentPassword)
+	// Same lockout as login: a stolen session can't brute-force the password.
+	if err := h.lockout.check(h.db, h.logger, user.ID, func() bool {
+		return auth.CompareHashAndPassword(user.Password, req.CurrentPassword)
+	}); err != nil {
+		switch {
+		case errors.Is(err, errAccountLocked):
+			h.logger.Warn("Change password refused: account locked", zap.Uint("user_id", user.ID))
+			return accountLockedResponse()
+		case errors.Is(err, errWrongPassword):
+			return envelope.ErrorResponse(http.StatusUnprocessableEntity, "auth.change_password.wrong_current", core_errors.ErrAuthWrongCurrentPassword)
+		default:
+			h.logger.Error("Change password: failed to check password", zap.Uint("user_id", user.ID), zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+		}
 	}
 	if req.NewPassword == req.CurrentPassword {
 		return envelope.ErrorResponse(http.StatusBadRequest, "auth.change_password.same_password", core_errors.ErrAuthSamePassword)
@@ -646,11 +667,14 @@ func (h *UserHandler) ChangePassword(c *gin.Context) envelope.Response {
 // storeNewPassword saves an already hashed password and stamps
 // password_changed_at, which makes AuthMiddleware reject every access token
 // issued before now. The cached user check is dropped so this instance
-// applies it on the next request.
+// applies it on the next request. It also lifts any account lockout: a reset
+// proves control of the mailbox, a change proved the current password.
 func storeNewPassword(db *gorm.DB, userID uint, hashed string) error {
 	err := db.Model(&user_models.User{}).Where("id = ?", userID).Updates(map[string]any{
-		"password":            hashed,
-		"password_changed_at": time.Now(),
+		"password":              hashed,
+		"password_changed_at":   time.Now(),
+		"failed_login_attempts": 0,
+		"locked_until":          nil,
 	}).Error
 	if err == nil {
 		auth_middleware.ForgetUser(userID)

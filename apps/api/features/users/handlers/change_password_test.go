@@ -28,8 +28,8 @@ func TestChangePassword(t *testing.T) {
 		return handler.ChangePassword(c).Code
 	}
 
-	if code := call("wrong-password", "new-password-123"); code != 401 {
-		t.Fatalf("wrong current: expected 401, got %d", code)
+	if code := call("wrong-password", "new-password-123"); code != 422 {
+		t.Fatalf("wrong current: expected 422, got %d", code)
 	}
 	if code := call("old-password-1", "old-password-1"); code != 400 {
 		t.Fatalf("same password: expected 400, got %d", code)

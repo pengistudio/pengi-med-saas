@@ -40,6 +40,11 @@ type Config struct {
 	AuthKey        string `env:"AUTH_KEY,required,notEmpty"`
 	AuthExp        int64  `env:"AUTH_EXP,required,notEmpty"`       // access token, minutes
 	AuthRefreshExp int64  `env:"AUTH_REFRESH_EXP" envDefault:"30"` // refresh token, days
+	// Account lockout: this many consecutive wrong passwords (login, change
+	// password, change email) lock the account for AuthLockoutMinutes.
+	// 0 or less disables it.
+	AuthLockoutMaxAttempts int `env:"AUTH_LOCKOUT_MAX_ATTEMPTS" envDefault:"5"`
+	AuthLockoutMinutes     int `env:"AUTH_LOCKOUT_MINUTES" envDefault:"15"`
 
 	// Encryption keys (32 bytes, base64). core/secretbox reads them by name.
 	// SIGNATURE_ENCRYPTION_KEY is required in release; outside it a dev key is used.
