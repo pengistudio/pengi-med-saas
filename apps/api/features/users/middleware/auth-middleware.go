@@ -62,6 +62,12 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// A token outlives a deleted user by up to AUTH_EXP minutes otherwise.
+		if !users.exists(uint(userID)) {
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
+			return
+		}
+
 		// 6) Agregar información del usuario al contexto para usar en handlers
 		c.Set("user_id", int64(userID))
 		c.Set("username", username)
@@ -114,6 +120,11 @@ func ExchangeAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		if !users.exists(uint(userID)) {
+			envelope.Abort(c, envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRequest))
+			return
+		}
+
 		c.Set("user_id", int64(userID))
 		c.Set("username", username)
 		c.Set("auth_token", token)
@@ -157,7 +168,7 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 		userID, ok1 := claims["userId"].(float64)
 		username, ok2 := claims["username"].(string)
 
-		if ok1 && ok2 {
+		if ok1 && ok2 && users.exists(uint(userID)) {
 			c.Set("user_id", int64(userID))
 			c.Set("username", username)
 			c.Set("auth_token", token)

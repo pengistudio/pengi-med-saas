@@ -130,6 +130,11 @@ type Config struct {
 // IsRelease reports whether the API runs in production mode (GIN_MODE=release).
 func (c Config) IsRelease() bool { return c.GinMode == "release" }
 
+// MinReleaseAuthKeyLen is the shortest AUTH_KEY (the HS256 JWT secret) Load
+// accepts in release: 32 bytes, the HMAC-SHA256 block of entropy. Dev and
+// tests keep short keys.
+const MinReleaseAuthKeyLen = 32
+
 // devAppURL is the web app in docker-compose.dev.yaml (host port 3000).
 const devAppURL = "http://localhost:3000"
 
@@ -171,6 +176,9 @@ func Load() (Config, error) {
 	}
 	if cfg.AuthExp <= 0 && !reported["AUTH_EXP"] {
 		errs = append(errs, errors.New(`env: "AUTH_EXP" must be a positive number of minutes`))
+	}
+	if cfg.IsRelease() && cfg.AuthKey != "" && len(cfg.AuthKey) < MinReleaseAuthKeyLen {
+		errs = append(errs, fmt.Errorf(`env: "AUTH_KEY" must be at least %d characters with GIN_MODE=release`, MinReleaseAuthKeyLen))
 	}
 	if cfg.IsRelease() && strings.TrimSpace(cfg.SignatureEncryptionKey) == "" {
 		errs = append(errs, errors.New(`env: "SIGNATURE_ENCRYPTION_KEY" is required with GIN_MODE=release`))

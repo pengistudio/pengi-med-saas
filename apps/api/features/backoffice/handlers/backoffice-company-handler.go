@@ -11,6 +11,8 @@ import (
 	clinical_services "pengi-med-saas/features/clinical/services"
 	company_models "pengi-med-saas/features/companies/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
+	user_handlers "pengi-med-saas/features/users/handlers"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 	user_models "pengi-med-saas/features/users/models"
 	"strings"
 
@@ -408,8 +410,12 @@ func (h *BackofficeCompanyHandler) DeleteCompanyUser(c *gin.Context) envelope.Re
 		if err := tx.Where("user_id = ?", userID).Delete(&user_models.Environment{}).Error; err != nil {
 			return err
 		}
+		// End their sessions: no refresh token of a deleted user works again.
+		if err := user_handlers.RevokeUserSessions(tx, env.UserID); err != nil {
+			return err
+		}
 		// Delete the user
-		if err := tx.Delete(&user_models.User{}, userID).Error; err != nil {
+		if err := tx.Delete(&user_models.User{}, env.UserID).Error; err != nil {
 			return err
 		}
 		return nil
@@ -419,6 +425,8 @@ func (h *BackofficeCompanyHandler) DeleteCompanyUser(c *gin.Context) envelope.Re
 		h.logger.Error("Failed to delete company user", zap.Error(txErr))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
+	// Their access tokens stop at once on this instance (AuthMiddleware).
+	auth_middleware.ForgetUser(env.UserID)
 
 	h.logger.Info("Company user deleted", zap.String("user_id", userID), zap.String("company_id", companyID))
 	return envelope.SuccessResponse(nil, "backoffice.company.user.delete.success")

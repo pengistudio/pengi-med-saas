@@ -22,6 +22,9 @@ const formSchema = z.object({
 	password: z
 		.string()
 		.regex(/^\S+$/, { message: "form.validation.no_spaces" })
+		.refine((v) => !v || v.length >= 10, {
+			message: "auth.password.too_short",
+		})
 		.optional(),
 });
 

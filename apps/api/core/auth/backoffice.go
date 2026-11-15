@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 // Backoffice tokens are signed with the same key as the clinic app's, so they
@@ -44,9 +45,11 @@ func GenerateBackofficeToken(username string, userID int64) (string, error) {
 }
 
 // GenerateBackofficeRefreshToken issues a backoffice refresh token
-// (AUTH_REFRESH_EXP days).
+// (AUTH_REFRESH_EXP days). The jti makes every token unique, so a token
+// rotated within the same second as the previous one still differs from it.
 func GenerateBackofficeRefreshToken(username string, userID int64) (string, error) {
 	return signedWithAuthKey(jwt.MapClaims{
+		"jti":      uuid.NewString(),
 		"type":     refreshTokenType,
 		"aud":      BackofficeAudience,
 		"username": username,

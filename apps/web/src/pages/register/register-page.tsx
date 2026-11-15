@@ -40,11 +40,11 @@ const formSchema = z
 		email: z.email(),
 		password: z
 			.string()
-			.min(6)
+			.min(10)
 			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 		confirm_password: z
 			.string()
-			.min(6)
+			.min(10)
 			.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 	})
 	.refine((data) => data.password === data.confirm_password, {
