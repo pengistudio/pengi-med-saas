@@ -43,13 +43,16 @@ const label = {
 	consult: /Consulta Medica/,
 	closeDesk: /^(Cerrar caja|Close cash desk)$/,
 	counted: /Efectivo contado|Counted cash/,
-	note: /^(Nota|Note)/,
+	note: /Explica la diferencia|Explain the difference/,
+	lastClose: /Último cierre|Last close/,
+	viewDetail: /Ver detalle|View details/,
 	summary: /Cierre de caja|Cash closing/,
 	expected: /Esperado|Expected/,
 	movement: /^(Movimiento|Movement)$/,
+	movementsTab: /^(Movimientos|Movements)/,
 	movementIn: /^(Ingreso|Cash in)$/,
 	movementOut: /^(Egreso|Cash out)$/,
-	amount: /^(Monto|Amount)$/,
+	amount: /Monto|Amount/,
 	reason: /^(Motivo|Reason)/,
 	record: /^(Registrar|Record)$/,
 	void: /^(Anular|Void)$/,
@@ -69,7 +72,12 @@ async function login(page: Page, user = username, pass = password) {
 		const choice = environment
 			? page.getByRole("button", { name: new RegExp(environment) })
 			: page.locator("button[type=button]").first();
-		if (await choice.isVisible({ timeout: 3000 }).catch(() => false)) {
+		if (
+			await choice
+				.waitFor({ state: "visible", timeout: 3000 })
+				.then(() => true)
+				.catch(() => false)
+		) {
 			await choice.click();
 		}
 		await page.waitForURL((url) => !url.pathname.startsWith("/login"));
@@ -82,9 +90,18 @@ async function closeDesk(page: Page) {
 	const closeDialog = page.getByRole("dialog");
 	await closeDialog.getByLabel(label.counted).fill("0");
 	await closeDialog.getByRole("button", { name: label.closeDesk }).click();
-	const note = closeDialog.getByLabel(label.note);
-	if (await note.isVisible({ timeout: 3000 }).catch(() => false)) {
-		await note.fill("Conteo de prueba (e2e)");
+	const note = closeDialog.getByPlaceholder(label.note);
+	if (
+		await closeDialog
+			.getByRole("alert")
+			.waitFor({ state: "visible", timeout: 3000 })
+			.then(() => true)
+			.catch(() => false)
+	) {
+		await expect(async () => {
+			await note.fill("Conteo de prueba (e2e)");
+			await expect(note).toHaveValue("Conteo de prueba (e2e)");
+		}).toPass({ timeout: 5000 });
 		await closeDialog.getByRole("button", { name: label.closeDesk }).click();
 	}
 	await expect(closeDialog).toBeHidden();
@@ -96,7 +113,8 @@ async function resetDesk(page: Page) {
 	const isOpen = await page
 		.getByText(label.deskOpen)
 		.first()
-		.isVisible({ timeout: 5000 })
+		.waitFor({ state: "visible", timeout: 5000 })
+		.then(() => true)
 		.catch(() => false);
 	if (isOpen) {
 		await closeDesk(page);
@@ -158,15 +176,28 @@ test.describe("Cash desk", () => {
 		await closeDialog.getByLabel(label.counted).fill("0");
 		await closeDialog.getByRole("button", { name: label.closeDesk }).click();
 
-		// A count that does not match asks for a note, then closes.
-		const note = closeDialog.getByLabel(label.note);
-		if (await note.isVisible({ timeout: 3000 }).catch(() => false)) {
-			await note.fill("Conteo de prueba (e2e)");
+		// A count that does not match shows an alert and asks for a note (the form
+		// is rebuilt then, so wait for the alert before typing), then closes.
+		const note = closeDialog.getByPlaceholder(label.note);
+		if (
+			await closeDialog
+				.getByRole("alert")
+				.waitFor({ state: "visible", timeout: 3000 })
+				.then(() => true)
+				.catch(() => false)
+		) {
+			await expect(async () => {
+				await note.fill("Conteo de prueba (e2e)");
+				await expect(note).toHaveValue("Conteo de prueba (e2e)");
+			}).toPass({ timeout: 5000 });
 			await closeDialog.getByRole("button", { name: label.closeDesk }).click();
 		}
 		await expect(closeDialog).toBeHidden();
 
-		// Only now is the expected amount shown, in the closing summary.
+		// The desk shows the last close; the expected amount is only in its
+		// detail (the closing summary).
+		await expect(page.getByText(label.lastClose).first()).toBeVisible();
+		await page.getByRole("button", { name: label.viewDetail }).click();
 		await expect(page.getByText(label.summary).first()).toBeVisible();
 		await expect(page.getByText(label.expected).first()).toBeVisible();
 	});
@@ -196,11 +227,14 @@ test.describe("Cash desk", () => {
 		] as const) {
 			await page.getByRole("button", { name: label.movement }).click();
 			const dialog = page.getByRole("dialog");
-			await dialog.getByRole("radio", { name: type }).check({ force: true });
+			// The radio is visually hidden; the card that wraps it is what is clicked.
+			await dialog.locator("label").filter({ hasText: type }).click();
 			await dialog.getByLabel(label.amount).fill(amount);
 			await dialog.getByLabel(label.reason).fill(reason);
 			await dialog.getByRole("button", { name: label.record }).click();
 			await expect(dialog).toBeHidden();
+			// Movements are listed in their own tab, not with the payments.
+			await page.getByRole("tab", { name: label.movementsTab }).click();
 			await expect(page.getByText(reason)).toBeVisible();
 		}
 	});
