@@ -784,7 +784,7 @@ export const deleteAppointment = async (
 	});
 };
 
-/** The TV display token and its full link, built by the API from FRONTEND_URL (the same link the QR encodes). */
+/** The TV display token and its full link, built by the API from APP_URL (the same link the QR encodes). */
 export interface DisplayToken {
 	token: string;
 	display_url: string;

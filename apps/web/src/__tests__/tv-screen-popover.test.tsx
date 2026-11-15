@@ -20,7 +20,7 @@ import {
 
 const TOKEN = "Ab3_-xYz0123456789abcdefghijKLMN";
 const NEW_TOKEN = "Zz9_-xYz0123456789abcdefghijKLMN";
-// FRONTEND_URL on the API: deliberately not window.location.origin.
+// APP_URL on the API: deliberately not window.location.origin.
 const linkFor = (token: string) =>
 	`https://app.example.com/display/waiting-room?token=${token}`;
 const png = () => new Blob(["png"], { type: "image/png" });

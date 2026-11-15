@@ -67,7 +67,7 @@ export function DisplayQr() {
 export function TvScreenPopover() {
 	const { textGet } = useText();
 	// Token and link both come from the API, so the copied link and the QR
-	// always point to the same host (FRONTEND_URL).
+	// always point to the same host (APP_URL).
 	const [display, setDisplay] = React.useState<DisplayToken | null>(null);
 	const code = display?.token ?? null;
 	const link = display?.display_url ?? null;
