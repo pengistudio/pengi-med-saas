@@ -82,6 +82,7 @@ export interface CompanyUser {
 	environment_name: string;
 	max_owned_companies: number;
 	owned_companies: number;
+	locked: boolean;
 }
 
 export interface UpdateCompanyUserRequest extends Record<string, unknown> {
@@ -108,6 +109,17 @@ export const updateCompanyUser = async (
 	return httpService.put<null>(
 		`/backoffice/companies/${companyId}/users/${userId}`,
 		data,
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+export const unlockCompanyUser = async (
+	companyId: number | string,
+	userId: number | string,
+): Promise<ServiceResponse<null>> => {
+	return httpService.post<null>(
+		`/backoffice/companies/${companyId}/users/${userId}/unlock`,
+		{},
 		{ notifySuccess: true, notifyError: true },
 	);
 };

@@ -31,7 +31,14 @@ import {
 	TableHeader,
 	TableRow,
 } from "@pengi/ui";
-import { ArrowLeft, Copy, KeyRound, Pencil, Trash2 } from "lucide-react";
+import {
+	ArrowLeft,
+	Copy,
+	KeyRound,
+	LockOpen,
+	Pencil,
+	Trash2,
+} from "lucide-react";
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
@@ -45,6 +52,7 @@ import {
 	getRoles,
 	type PasswordResetLinkResponse,
 	type UpdateCompanyUserRequest,
+	unlockCompanyUser,
 	updateCompanyUser,
 } from "@/api/company-service";
 import type { Role } from "@/api/role-service";
@@ -140,6 +148,12 @@ const CompanyUsers = () => {
 			setResetLinkData(res.data);
 			setResetLinkDialogOpen(true);
 		}
+	};
+
+	const handleUnlock = async (user: CompanyUser) => {
+		if (!id) return;
+		const res = await unlockCompanyUser(id, user.user_id);
+		if (res.success) fetchData();
 	};
 
 	const handleCopyLink = (link: string) => {
@@ -262,6 +276,11 @@ const CompanyUsers = () => {
 										<TableRow key={user.environment_id}>
 											<TableCell className="font-medium">
 												{user.user_name}
+												{user.locked && (
+													<span className="ml-2 inline-flex items-center rounded-full bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
+														{textGet("backoffice.company_users.locked")}
+													</span>
+												)}
 											</TableCell>
 											<TableCell>{user.email}</TableCell>
 											<TableCell>
@@ -283,6 +302,18 @@ const CompanyUsers = () => {
 												>
 													<Pencil className="h-4 w-4" />
 												</Button>
+												{user.locked && (
+													<Button
+														variant="ghost"
+														size="icon"
+														onClick={() => handleUnlock(user)}
+														title={textGet(
+															"backoffice.company_users.unlock.button_title",
+														)}
+													>
+														<LockOpen className="h-4 w-4" />
+													</Button>
+												)}
 												<Button
 													variant="ghost"
 													size="icon"

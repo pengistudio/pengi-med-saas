@@ -3356,6 +3356,18 @@
         "value": "User updated successfully"
     },
     {
+        "key": "backoffice.company.users.unlock.success",
+        "value": "User unlocked successfully"
+    },
+    {
+        "key": "backoffice.company_users.locked",
+        "value": "Locked"
+    },
+    {
+        "key": "backoffice.company_users.unlock.button_title",
+        "value": "Unlock user"
+    },
+    {
         "key": "backoffice.roles.list.success",
         "value": "Roles retrieved successfully"
     },
