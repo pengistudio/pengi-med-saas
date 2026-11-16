@@ -15240,6 +15240,10 @@
         "value": "Two-factor authentication reset. The user must sign in again."
     },
     {
+        "key": "backoffice.company.users.passkeys_reset.success",
+        "value": "User passkeys removed."
+    },
+    {
         "key": "profile.section.security",
         "value": "Security"
     },
@@ -15310,6 +15314,86 @@
     {
         "key": "login.two_factor.back",
         "value": "Back to sign in"
+    },
+    {
+        "key": "auth.passkey.login_button",
+        "value": "Sign in with a passkey"
+    },
+    {
+        "key": "auth.passkey.browser_error",
+        "value": "The passkey could not be used on this device. Please try again."
+    },
+    {
+        "key": "profile.passkeys.title",
+        "value": "Passkeys"
+    },
+    {
+        "key": "profile.passkeys.description",
+        "value": "Sign in with your fingerprint, face or security key, without typing your password."
+    },
+    {
+        "key": "profile.passkeys.empty",
+        "value": "You have no passkeys yet."
+    },
+    {
+        "key": "profile.passkeys.created",
+        "value": "Added {date}"
+    },
+    {
+        "key": "profile.passkeys.last_used",
+        "value": "Last used {date}"
+    },
+    {
+        "key": "profile.passkeys.never_used",
+        "value": "Never used"
+    },
+    {
+        "key": "profile.passkeys.unsupported",
+        "value": "This browser does not support passkeys."
+    },
+    {
+        "key": "profile.passkeys.add",
+        "value": "Add passkey"
+    },
+    {
+        "key": "profile.passkeys.add.title",
+        "value": "Add a passkey"
+    },
+    {
+        "key": "profile.passkeys.add.description",
+        "value": "Confirm your identity, then follow your device's prompts."
+    },
+    {
+        "key": "profile.passkeys.add.submit",
+        "value": "Continue"
+    },
+    {
+        "key": "profile.passkeys.name_label",
+        "value": "Passkey name"
+    },
+    {
+        "key": "profile.passkeys.name_placeholder",
+        "value": "e.g. Clinic MacBook"
+    },
+    {
+        "key": "profile.passkeys.cancel",
+        "value": "Cancel"
+    },
+    {
+        "key": "profile.passkeys.delete",
+        "value": "Delete passkey {name}"
+    },
+    {
+        "key": "profile.passkeys.delete.title",
+        "value": "Delete this passkey?"
+    },
+    {
+        "key": "profile.passkeys.delete.description",
+        "value": "You will no longer be able to sign in with \"{name}\". You can add it again at any time."
+    },
+    {
+        "key": "profile.passkeys.delete.confirm",
+        "value": "Delete"
     },
     {
         "key": "profile.two_factor.title",
@@ -15478,5 +15562,21 @@
     {
         "key": "backoffice.company_users.two_factor_reset.confirm",
         "value": "Reset"
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.button_title",
+        "value": "Reset passkeys"
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.confirm_title",
+        "value": "Reset this user's passkeys?"
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.confirm_description",
+        "value": "All their passkeys are removed and their sessions end. They can sign in with their password and register passkeys again."
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.confirm",
+        "value": "Reset passkeys"
     }
 ]

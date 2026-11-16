@@ -15240,6 +15240,10 @@
         "value": "Verificación en dos pasos restablecida. El usuario debe iniciar sesión de nuevo."
     },
     {
+        "key": "backoffice.company.users.passkeys_reset.success",
+        "value": "Passkeys del usuario eliminadas."
+    },
+    {
         "key": "profile.section.security",
         "value": "Seguridad"
     },
@@ -15310,6 +15314,86 @@
     {
         "key": "login.two_factor.back",
         "value": "Volver al inicio de sesión"
+    },
+    {
+        "key": "auth.passkey.login_button",
+        "value": "Iniciar sesión con una passkey"
+    },
+    {
+        "key": "auth.passkey.browser_error",
+        "value": "No se pudo usar la passkey en este dispositivo. Inténtalo de nuevo."
+    },
+    {
+        "key": "profile.passkeys.title",
+        "value": "Passkeys"
+    },
+    {
+        "key": "profile.passkeys.description",
+        "value": "Inicia sesión con tu huella, rostro o llave de seguridad, sin escribir la contraseña."
+    },
+    {
+        "key": "profile.passkeys.empty",
+        "value": "Aún no tienes passkeys registradas."
+    },
+    {
+        "key": "profile.passkeys.created",
+        "value": "Agregada el {date}"
+    },
+    {
+        "key": "profile.passkeys.last_used",
+        "value": "Último uso {date}"
+    },
+    {
+        "key": "profile.passkeys.never_used",
+        "value": "Nunca usada"
+    },
+    {
+        "key": "profile.passkeys.unsupported",
+        "value": "Este navegador no admite passkeys."
+    },
+    {
+        "key": "profile.passkeys.add",
+        "value": "Agregar passkey"
+    },
+    {
+        "key": "profile.passkeys.add.title",
+        "value": "Agregar una passkey"
+    },
+    {
+        "key": "profile.passkeys.add.description",
+        "value": "Confirma tu identidad y luego sigue las indicaciones de tu dispositivo."
+    },
+    {
+        "key": "profile.passkeys.add.submit",
+        "value": "Continuar"
+    },
+    {
+        "key": "profile.passkeys.name_label",
+        "value": "Nombre de la passkey"
+    },
+    {
+        "key": "profile.passkeys.name_placeholder",
+        "value": "Ej.: MacBook de la clínica"
+    },
+    {
+        "key": "profile.passkeys.cancel",
+        "value": "Cancelar"
+    },
+    {
+        "key": "profile.passkeys.delete",
+        "value": "Eliminar passkey {name}"
+    },
+    {
+        "key": "profile.passkeys.delete.title",
+        "value": "¿Eliminar esta passkey?"
+    },
+    {
+        "key": "profile.passkeys.delete.description",
+        "value": "Ya no podrás iniciar sesión con \"{name}\". Podrás agregarla de nuevo cuando quieras."
+    },
+    {
+        "key": "profile.passkeys.delete.confirm",
+        "value": "Eliminar"
     },
     {
         "key": "profile.two_factor.title",
@@ -15478,5 +15562,21 @@
     {
         "key": "backoffice.company_users.two_factor_reset.confirm",
         "value": "Restablecer"
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.button_title",
+        "value": "Restablecer passkeys"
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.confirm_title",
+        "value": "¿Restablecer las passkeys del usuario?"
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.confirm_description",
+        "value": "Se eliminan todas sus passkeys y se cierran sus sesiones. Podrá entrar con su contraseña y registrar passkeys de nuevo."
+    },
+    {
+        "key": "backoffice.company_users.passkeys_reset.confirm",
+        "value": "Restablecer passkeys"
     }
 ]

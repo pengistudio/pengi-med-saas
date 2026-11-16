@@ -64,6 +64,7 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeCompanyRoutes.GET("/:id/users/:user_id/password-reset-link", envelope.Handle(backofficeCompanyHandler.GenerateUserPasswordResetLink))
 		backofficeCompanyRoutes.POST("/:id/users/:user_id/unlock", envelope.Handle(backofficeCompanyHandler.UnlockCompanyUser))
 		backofficeCompanyRoutes.POST("/:id/users/:user_id/2fa/reset", envelope.Handle(backofficeCompanyHandler.ResetCompanyUserTwoFactor))
+		backofficeCompanyRoutes.POST("/:id/users/:user_id/passkeys/reset", envelope.Handle(backofficeCompanyHandler.ResetCompanyUserPasskeys))
 		backofficeCompanyRoutes.DELETE("/:id/users/:user_id", envelope.Handle(backofficeCompanyHandler.DeleteCompanyUser))
 	}
 

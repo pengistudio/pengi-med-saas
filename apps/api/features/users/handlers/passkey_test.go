@@ -335,3 +335,28 @@ func TestPasskey_LimitPerUser(t *testing.T) {
 	resp, _ := call(t, h.BeginPasskeyRegistration, user.ID, map[string]string{"current_password": testPasskeyPass})
 	assertCode(t, resp, http.StatusConflict, core_errors.ErrAuthPasskeyLimit)
 }
+
+func TestResetPasskeys(t *testing.T) {
+	db, h := setupPasskeys(t)
+	user := createResetUser(t, db, "dra.lopez", "lopez@example.com", testPasskeyPass)
+	auth := registerPasskey(t, h, user.ID, "MacBook")
+
+	if resp, _ := loginWithPasskey(t, h, auth, user.ID); resp.Code != http.StatusOK {
+		t.Fatalf("passkey login before reset: %d %q", resp.Code, resp.Message)
+	}
+	db.Create(&user_models.WebAuthnChallenge{ID: "pending", Kind: "login", UserID: user.ID, Data: []byte("{}"), ExpiresAt: tfNow.Add(time.Minute)})
+
+	if err := ResetPasskeys(db, user.ID); err != nil {
+		t.Fatal(err)
+	}
+	var keys, challenges, live int64
+	db.Model(&user_models.Passkey{}).Where("user_id = ?", user.ID).Count(&keys)
+	db.Model(&user_models.WebAuthnChallenge{}).Where("user_id = ?", user.ID).Count(&challenges)
+	db.Model(&user_models.RefreshToken{}).Where("user_id = ? AND revoked_at IS NULL", user.ID).Count(&live)
+	if keys != 0 || challenges != 0 || live != 0 {
+		t.Fatalf("reset incomplete: passkeys=%d challenges=%d live sessions=%d", keys, challenges, live)
+	}
+	if resp, _ := loginWithPasskey(t, h, auth, user.ID); resp.Code == http.StatusOK {
+		t.Fatal("passkey login still works after reset")
+	}
+}

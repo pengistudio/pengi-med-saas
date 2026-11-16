@@ -15,6 +15,7 @@ import (
 	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
+	auth_middleware "pengi-med-saas/features/users/middleware"
 	user_models "pengi-med-saas/features/users/models"
 
 	"github.com/gin-gonic/gin"
@@ -423,4 +424,24 @@ func (h *UserHandler) FinishPasskeyLogin(c *gin.Context) envelope.Response {
 	}
 	h.logger.Info("User logged in successfully", zap.String("username", user.UserName), zap.Bool("passkey", true))
 	return envelope.SuccessResponse(data, "login.successful")
+}
+
+// ResetPasskeys removes every passkey of a user (lost device) together with
+// their pending ceremonies and ends all their sessions. Used by the backoffice.
+func ResetPasskeys(db *gorm.DB, userID uint) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("user_id = ?", userID).Delete(&user_models.Passkey{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("user_id = ?", userID).Delete(&user_models.WebAuthnChallenge{}).Error; err != nil {
+			return err
+		}
+		return RevokeUserSessions(tx, userID)
+	})
+	if err == nil {
+		// Again after commit, for a concurrent rotation (see EnableTwoFactor).
+		err = RevokeUserSessions(db, userID)
+	}
+	auth_middleware.ForgetUser(userID)
+	return err
 }

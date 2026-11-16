@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { LANDING_URL } from "@/lib/constants";
 import { useTokenStore } from "@/store/token-store";
 import { isTwoFactorChallenge, type LoginResponse } from "@/types/user-type";
+import { PasskeyLoginButton } from "./passkey-login-button";
 import { TwoFactorStep } from "./two-factor-step";
 
 const formSchema = z.object({
@@ -118,6 +119,7 @@ const LoginForm = () => {
 						{load && <Spinner />}
 						<Text uuid="login.login_button" />
 					</Button>
+					<PasskeyLoginButton onSuccess={finishLogin} disabled={load} />
 					<p className="text-sm text-muted-foreground text-center">
 						<Text uuid="login.no_account" />{" "}
 						<a
