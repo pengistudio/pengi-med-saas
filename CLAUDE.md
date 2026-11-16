@@ -75,8 +75,8 @@ guides above are the architecture reference it builds on.
 
 Pattern: **orchestrator-subagent** + **generator-verifier**
 ([multi-agent coordination patterns](https://claude.com/blog/multi-agent-coordination-patterns)).
-Used only when the plan has many layers; small and medium tasks are done
-inline because every spawn starts cold and re-reads context (more tokens).
+Any plan Claude proposes is executed through subagents; small ad-hoc requests
+are done inline because every spawn starts cold and re-reads context (more tokens).
 
 | Agent | Model | Use for |
 |---|---|---|
@@ -88,7 +88,7 @@ inline because every spawn starts cold and re-reads context (more tokens).
 | `runner` | Haiku, effort medium, Bash + Read, no edits, max 5 turns | Commands with long output: full test suites, e2e, CI logs (`gh run view --log-failed`), `docker compose logs`. Returns PASS or failures with `path:line`. |
 | `illustrator` | Opus, effort medium | Spot SVG illustrations in code (`packages/ui/src/components/illustration.tsx`): empty/error/flow screens. **Always** use it when an illustration is needed or changes; never hand-draw them inline. |
 
-- **Inline is the default** (user decision, 2026-10-05): do the work in the main session. Delegate only when the plan spans many layers — e.g. a feature end to end across backend + migrations + frontend + backoffice + tests, or independent subtasks big enough to run in parallel. Bug fixes, scoped edits, a handful of files, searches and checks stay inline. Exceptions, because their output is long and only the conclusion should reach the main session: web research that needs fetching pages goes to `researcher`; full test suites, e2e, CI logs and container logs go to `runner` (a single package or test file stays inline).
+- **Plans run through subagents** (user decision, 2026-11-15): any plan Claude proposes is executed by subagents, not in the main session. **Small ad-hoc requests stay inline**: a bug fix, a scoped edit, a search, a quick check. Long-output exceptions always go out, because only the conclusion should reach the main session: web research that needs fetching pages goes to `researcher`; full test suites, e2e, CI logs and container logs go to `runner` (a single package or test file stays inline).
 - Pick the cheapest agent that can do the job; escalate (`worker` → `engineer`) only when it reports a blocker.
 - Briefs are self-contained: goal, exact paths, constraints, acceptance criteria, which checks to run. Point to files instead of pasting them.
 - Independent subtasks run in parallel with disjoint file scopes; never two agents on the same file.
