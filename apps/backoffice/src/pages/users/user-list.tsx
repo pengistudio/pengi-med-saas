@@ -1,4 +1,8 @@
 import { type BackofficeUser, users } from "@/api/user-service";
+import {
+	SecondFactorBadges,
+	SecondFactorResetActions,
+} from "@/components/features/security/admin-reset-actions";
 import { type ResourceColumn, ResourceList } from "@/lib/resource";
 
 const columns: ResourceColumn<BackofficeUser>[] = [
@@ -12,6 +16,10 @@ const columns: ResourceColumn<BackofficeUser>[] = [
 		cell: (u) => u.user_name,
 		className: "text-muted-foreground",
 	},
+	{
+		header: "backoffice.users.col.second_factor",
+		cell: (u) => <SecondFactorBadges user={u} />,
+	},
 ];
 
 const UserList = () => (
@@ -19,6 +27,9 @@ const UserList = () => (
 		resource={users}
 		columns={columns}
 		itemLabel={(u) => u.user_name}
+		rowActions={(u, refetch) => (
+			<SecondFactorResetActions user={u} onChanged={refetch} />
+		)}
 	/>
 );
 

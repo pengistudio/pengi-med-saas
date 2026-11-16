@@ -10,9 +10,9 @@ function fakeGateway(opts: { cookie: boolean }) {
 	const gateway: AuthGateway = {
 		login: async (creds) => {
 			calls.login++;
-			if (creds.password !== "right") return null;
+			if (creds.password !== "right") return { kind: "failed" };
 			opts.cookie = true;
-			return `access-${++issued}`;
+			return { kind: "session", token: `access-${++issued}` };
 		},
 		refresh: async () => {
 			calls.refresh++;
@@ -132,14 +132,14 @@ describe("session", () => {
 		const session = createSession(gateway);
 		await session.restore();
 
-		expect(await session.login({ user_name: "admin", password: "wrong" })).toBe(
-			false,
-		);
+		expect(
+			await session.login({ user_name: "admin", password: "wrong" }),
+		).toEqual({ kind: "failed" });
 		expect(session.store.getState().status).toBe("anonymous");
 
-		expect(await session.login({ user_name: "admin", password: "right" })).toBe(
-			true,
-		);
+		expect(
+			(await session.login({ user_name: "admin", password: "right" })).kind,
+		).toBe("session");
 		expect(session.store.getState().status).toBe("authenticated");
 
 		await session.logout();

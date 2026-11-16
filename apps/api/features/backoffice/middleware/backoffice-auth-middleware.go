@@ -15,8 +15,9 @@ import (
 )
 
 // BackofficeAuthMiddleware lets through only backoffice access tokens whose
-// user still exists in backoffice_users. Clinic app tokens, refresh tokens and
-// tokens of deleted admins get 401.
+// user still exists in backoffice_users and has a second factor (TOTP or a
+// passkey). Clinic app tokens, refresh tokens, enrollment/mfa tokens, tokens
+// of deleted admins and of admins without a second factor get 401.
 func BackofficeAuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 	db = tenantdb.System(db)
 	return func(c *gin.Context) {
@@ -36,7 +37,8 @@ func BackofficeAuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 		}
 		var count int64
 		if err := db.Model(&backoffice_models.BackofficeUser{}).
-			Where("id = ? AND user_name = ?", claims.UserID, claims.Username).
+			Scopes(backoffice_models.WithSecondFactor).
+			Where("backoffice_users.id = ? AND backoffice_users.user_name = ?", claims.UserID, claims.Username).
 			Count(&count).Error; err != nil || count == 0 {
 			unauthorized()
 			return

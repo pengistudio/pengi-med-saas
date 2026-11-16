@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/logger"
@@ -30,7 +31,8 @@ func backofficeRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 	gin.SetMode(gin.TestMode)
 	logger.Log = zap.NewNop()
 	db := testutils.SetupTestDB(t, &user_models.User{}, &backoffice_models.BackofficeUser{},
-		&company_models.Company{}, &company_models.Plan{}, &company_models.Subscription{})
+		&backoffice_models.BackofficeRecoveryCode{}, &backoffice_models.BackofficePasskey{},
+		&backoffice_models.BackofficeWebAuthnChallenge{}, &company_models.Company{}, &company_models.Plan{}, &company_models.Subscription{})
 	router := gin.New()
 	RegisterBackofficeRoutes(router.Group(""), db)
 	RegisterCompanyRoutes(router.Group(""), db)
@@ -45,26 +47,58 @@ func createBackofficeAdmin(t *testing.T, db *gorm.DB) {
 	}
 }
 
-// backofficeLogin logs in through the real endpoint and returns the access
-// token and the Set-Cookie headers.
-func backofficeLogin(t *testing.T, router *gin.Engine) (string, []*http.Cookie) {
+func postJSON(t *testing.T, router *gin.Engine, path string, body any, out any) *httptest.ResponseRecorder {
 	t.Helper()
-	req := httptest.NewRequest(http.MethodPost, "/backoffice/auth/login",
-		strings.NewReader(`{"user_name":"admin","password":"s3cret-pass"}`))
+	raw, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(string(raw)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
-		t.Fatalf("login = %d: %s", w.Code, w.Body.String())
+		t.Fatalf("POST %s = %d: %s", path, w.Code, w.Body.String())
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), out); err != nil {
+		t.Fatal(err)
+	}
+	return w
+}
+
+// backofficeLogin signs in through the real endpoints and returns the access
+// token and the Set-Cookie headers. The admin has no second factor yet, so
+// the password step returns an enrollment token and the session comes from
+// enrolling TOTP (the forced enrollment of the first login).
+func backofficeLogin(t *testing.T, router *gin.Engine) (string, []*http.Cookie) {
+	t.Helper()
+	var login struct {
+		Data struct {
+			Token           string `json:"token"`
+			EnrollmentToken string `json:"enrollment_token"`
+		} `json:"data"`
+	}
+	postJSON(t, router, "/backoffice/auth/login", map[string]string{"user_name": "admin", "password": "s3cret-pass"}, &login)
+	if login.Data.Token != "" || login.Data.EnrollmentToken == "" {
+		t.Fatalf("password step: want only an enrollment token, got %+v", login.Data)
+	}
+	var setup struct {
+		Data struct {
+			Secret string `json:"secret"`
+		} `json:"data"`
+	}
+	postJSON(t, router, "/backoffice/auth/enroll/totp/begin", map[string]string{"enrollment_token": login.Data.EnrollmentToken}, &setup)
+	code, err := auth.TOTPCode(setup.Data.Secret, auth.TOTPStep(time.Now()))
+	if err != nil {
+		t.Fatal(err)
 	}
 	var body struct {
 		Data struct {
 			Token string `json:"token"`
 		} `json:"data"`
 	}
-	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
-		t.Fatal(err)
-	}
+	w := postJSON(t, router, "/backoffice/auth/enroll/totp/finish",
+		map[string]string{"enrollment_token": login.Data.EnrollmentToken, "code": code}, &body)
 	return body.Data.Token, w.Result().Cookies()
 }
 

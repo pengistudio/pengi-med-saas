@@ -41,8 +41,8 @@ interface ResourceListProps<T extends { ID: number }> {
 	columns: ResourceColumn<T>[];
 	/** How an item is named in the delete confirmation. */
 	itemLabel: (item: T) => string;
-	/** Extra per-row actions, shown before edit and delete. */
-	rowActions?: (item: T) => React.ReactNode;
+	/** Extra per-row actions, shown before edit and delete; `refetch` reloads the list. */
+	rowActions?: (item: T, refetch: () => void) => React.ReactNode;
 	/** Extra page actions, shown before the create button. */
 	headerActions?: React.ReactNode;
 }
@@ -61,7 +61,7 @@ export function ResourceList<T extends { ID: number }>({
 	const { textGet } = useText();
 	const navigate = useNavigate();
 	const { isPhone } = useViewport();
-	const { items, loading, remove } = useResourceList(resource);
+	const { items, loading, remove, refetch } = useResourceList(resource);
 	const [deleting, setDeleting] = React.useState<T | null>(null);
 	const [removing, setRemoving] = React.useState(false);
 	const routes = resourceRoutes(resource.name);
@@ -77,7 +77,7 @@ export function ResourceList<T extends { ID: number }>({
 
 	const actionsFor = (item: T) => (
 		<div className="flex items-center justify-end gap-2">
-			{rowActions?.(item)}
+			{rowActions?.(item, refetch)}
 			<Button
 				variant="ghost"
 				size="icon"

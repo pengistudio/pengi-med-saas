@@ -14,6 +14,7 @@ import {
 import { useNavigate, useParams } from "react-router";
 import z from "zod";
 import { users } from "@/api/user-service";
+import { UserSecondFactorCard } from "@/components/features/security/user-second-factor-card";
 import { ResourceEditPage, useResourceItem } from "@/lib/resource";
 
 const formSchema = z.object({
@@ -49,7 +50,7 @@ const EditUser = () => {
 
 	return (
 		<ResourceEditPage loading={loading}>
-			<div className="max-w-2xl mx-auto">
+			<div className="max-w-2xl mx-auto space-y-6">
 				<Form<typeof formSchema>
 					schema={formSchema}
 					onSubmit={onSubmit}
@@ -106,6 +107,7 @@ const EditUser = () => {
 						</Card>
 					)}
 				</Form>
+				{id && <UserSecondFactorCard id={id} />}
 			</div>
 		</ResourceEditPage>
 	);
