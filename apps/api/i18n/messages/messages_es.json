@@ -9252,6 +9252,34 @@
         "value": "Esta conversación ya está asociada a un paciente."
     },
     {
+        "key": "E-WA-029",
+        "value": "Meta no permitió a la aplicación crear plantillas de WhatsApp."
+    },
+    {
+        "key": "whatsapp.error.template_permission",
+        "value": "La aplicación de Meta no tiene permiso para crear plantillas en esta cuenta de WhatsApp. No se intentó nada más; revisa los permisos de la aplicación en Meta antes de volver a intentarlo."
+    },
+    {
+        "key": "E-WA-030",
+        "value": "No se pudo leer completa la lista de plantillas de la cuenta de WhatsApp."
+    },
+    {
+        "key": "whatsapp.error.template_list_incomplete",
+        "value": "Tu cuenta de WhatsApp tiene demasiadas plantillas para leerlas todas, así que no se creó ninguna para no duplicarlas. Créalas desde Meta o elimina las que no uses."
+    },
+    {
+        "key": "whatsapp.template.create_missing.success",
+        "value": "Plantillas faltantes enviadas a revisión."
+    },
+    {
+        "key": "settings.whatsapp.template.create_missing",
+        "value": "Crear plantillas faltantes"
+    },
+    {
+        "key": "settings.whatsapp.template.missing_count",
+        "value": "Faltan plantillas en tu cuenta de WhatsApp: {count}."
+    },
+    {
         "key": "whatsapp.conversation.patient.create.success",
         "value": "Paciente creado y asociado a la conversación."
     },

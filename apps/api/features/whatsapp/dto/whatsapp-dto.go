@@ -36,11 +36,14 @@ type AccountResponse struct {
 	// NoShowMessageEnabled: the reschedule message on a no-show is on.
 	NoShowMessageEnabled bool       `json:"no_show_message_enabled"`
 	ConnectedAt          *time.Time `json:"connected_at,omitempty"`
+	// MissingTemplates are the catalog templates with no known status on the
+	// WABA (absent there, or never read): settings offers to create them.
+	MissingTemplates []string `json:"missing_templates"`
 }
 
 // NotConnected is the AccountResponse of a tenant without an account.
 func NotConnected() AccountResponse {
-	return AccountResponse{Connected: false, ReminderOffsets: []int{}}
+	return AccountResponse{Connected: false, ReminderOffsets: []int{}, MissingTemplates: []string{}}
 }
 
 // NewAccountResponse maps an account.
@@ -66,6 +69,7 @@ func NewAccountResponse(a whatsapp_models.WhatsAppAccount) AccountResponse {
 		ReminderOffsets:      offsets,
 		NoShowMessageEnabled: a.NoShowMessageEnabled,
 		ConnectedAt:          a.ConnectedAt,
+		MissingTemplates:     []string{},
 	}
 }
 
