@@ -39,7 +39,9 @@ jobs:
           context: apps/api
           file: apps/api/Dockerfile.prod
           push: true
-          tags: ghcr.io/${{ env.ORG }}/pengi-api:latest
+          tags: |
+            ghcr.io/${{ env.ORG }}/pengi-api:latest
+            ghcr.io/${{ env.ORG }}/pengi-api:${{ github.event.workflow_run.head_sha }}
           cache-from: type=gha,scope=api
           cache-to: type=gha,mode=max,scope=api
 
@@ -49,7 +51,9 @@ jobs:
           context: .
           file: apps/web/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.ORG }}/pengi-web:latest
+          tags: |
+            ghcr.io/${{ env.ORG }}/pengi-web:latest
+            ghcr.io/${{ env.ORG }}/pengi-web:${{ github.event.workflow_run.head_sha }}
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL }}
           cache-from: type=gha,scope=web
@@ -61,7 +65,9 @@ jobs:
           context: .
           file: apps/backoffice/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.ORG }}/pengi-backoffice:latest
+          tags: |
+            ghcr.io/${{ env.ORG }}/pengi-backoffice:latest
+            ghcr.io/${{ env.ORG }}/pengi-backoffice:${{ github.event.workflow_run.head_sha }}
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL }}
             VITE_APP_URL=${{ secrets.VITE_WEB_APP_URL }}
@@ -74,7 +80,9 @@ jobs:
           context: .
           file: apps/portal/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.ORG }}/pengi-portal:latest
+          tags: |
+            ghcr.io/${{ env.ORG }}/pengi-portal:latest
+            ghcr.io/${{ env.ORG }}/pengi-portal:${{ github.event.workflow_run.head_sha }}
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL }}
             VITE_TURNSTILE_SITE_KEY=${{ secrets.VITE_TURNSTILE_SITE_KEY }}
@@ -87,7 +95,9 @@ jobs:
           context: apps/landing
           file: apps/landing/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.ORG }}/pengi-landing:latest
+          tags: |
+            ghcr.io/${{ env.ORG }}/pengi-landing:latest
+            ghcr.io/${{ env.ORG }}/pengi-landing:${{ github.event.workflow_run.head_sha }}
           build-args: |
             PUBLIC_APP_URL=${{ secrets.PUBLIC_APP_URL }}
             PUBLIC_API_URL=${{ secrets.VITE_API_URL }}
@@ -100,7 +110,9 @@ jobs:
           context: apps/sri-xml-signer
           file: apps/sri-xml-signer/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.ORG }}/pengi-sri-xml-signer:latest
+          tags: |
+            ghcr.io/${{ env.ORG }}/pengi-sri-xml-signer:latest
+            ghcr.io/${{ env.ORG }}/pengi-sri-xml-signer:${{ github.event.workflow_run.head_sha }}
           cache-from: type=gha,scope=sri-xml-signer
           cache-to: type=gha,mode=max,scope=sri-xml-signer
 

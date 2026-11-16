@@ -9252,6 +9252,34 @@
         "value": "This conversation is already linked to a patient."
     },
     {
+        "key": "E-WA-029",
+        "value": "Meta did not allow the app to create WhatsApp templates."
+    },
+    {
+        "key": "whatsapp.error.template_permission",
+        "value": "The Meta app does not have permission to create templates on this WhatsApp account. Nothing else was attempted; check the app's permissions in Meta before trying again."
+    },
+    {
+        "key": "E-WA-030",
+        "value": "The WhatsApp account's template list could not be read completely."
+    },
+    {
+        "key": "whatsapp.error.template_list_incomplete",
+        "value": "Your WhatsApp account has too many templates to read them all, so none was created to avoid duplicates. Create them in Meta or delete the ones you don't use."
+    },
+    {
+        "key": "whatsapp.template.create_missing.success",
+        "value": "Missing templates submitted for review."
+    },
+    {
+        "key": "settings.whatsapp.template.create_missing",
+        "value": "Create missing templates"
+    },
+    {
+        "key": "settings.whatsapp.template.missing_count",
+        "value": "Templates missing on your WhatsApp account: {count}."
+    },
+    {
         "key": "whatsapp.conversation.patient.create.success",
         "value": "Patient created and linked to the conversation."
     },

@@ -109,11 +109,71 @@ services:
     networks:
       - app
 
+  # Monitoreo (ver DEPLOY.md §11). Ninguno de los dos es público: Prometheus
+  # no publica puertos y Grafana solo escucha en 127.0.0.1 (túnel SSH).
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: pengi-prometheus
+    restart: unless-stopped
+    mem_limit: 384m
+    cpus: 0.5
+    # Solo el token, no todo .env.prod (DB, AUTH_KEY…). Vacío → target "down".
+    environment:
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+    # Escribe el token a un archivo (fuera del repo y del volumen) para
+    # `credentials_file` de prometheus.yml y arranca Prometheus. printf y no
+    # sed: el token de base64 puede traer / + =.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        umask 077
+        printf '%s' "$${METRICS_TOKEN}" > /tmp/metrics_token
+        exec /bin/prometheus \
+          --config.file=/etc/prometheus/prometheus.yml \
+          --storage.tsdb.path=/prometheus \
+          --storage.tsdb.retention.time=15d \
+          --storage.tsdb.retention.size=1GB
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - app
+
+  grafana:
+    image: grafana/grafana:12.2.0
+    container_name: pengi-grafana
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.5
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      # Solo se aplica al crear grafana.db (primer arranque); ver DEPLOY.md.
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD es obligatoria en .env.prod}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - app
+
 volumes:
   caddy_data:
   caddy_config:
   api_storage:
   rabbitmq_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   app:

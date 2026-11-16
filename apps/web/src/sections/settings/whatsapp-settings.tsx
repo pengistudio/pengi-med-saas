@@ -14,6 +14,7 @@ import {
 import React from "react";
 import { Link } from "react-router";
 import {
+	createMissingTemplates,
 	disconnectWhatsApp,
 	getWhatsAppAccount,
 	getWhatsAppConfig,
@@ -59,9 +60,9 @@ export function WhatsAppSettings() {
 	>(null);
 	const [testOpen, setTestOpen] = React.useState(false);
 	const [disconnectOpen, setDisconnectOpen] = React.useState(false);
-	const [busy, setBusy] = React.useState<"sync" | "save" | "disconnect" | null>(
-		null,
-	);
+	const [busy, setBusy] = React.useState<
+		"sync" | "create" | "save" | "disconnect" | null
+	>(null);
 	// Bumped after a sync: the template list and the usage re-read.
 	const [reloadKey, setReloadKey] = React.useState(0);
 	// Reminder settings being edited; reset whenever the account changes.
@@ -90,6 +91,15 @@ export function WhatsAppSettings() {
 	async function handleSync() {
 		setBusy("sync");
 		const res = await syncWhatsAppTemplate();
+		if (res.success && res.data) applyAccount(res.data);
+		setReloadKey((k) => k + 1);
+		setBusy(null);
+	}
+
+	// Only on an explicit click: it writes to Meta and stops at its first error.
+	async function handleCreateMissing() {
+		setBusy("create");
+		const res = await createMissingTemplates();
 		if (res.success && res.data) applyAccount(res.data);
 		setReloadKey((k) => k + 1);
 		setBusy(null);
@@ -133,6 +143,7 @@ export function WhatsAppSettings() {
 		offsets.join(",") !== savedOffsets.join(",");
 	const offsetsMissing = enabled && offsets.length === 0;
 	const templateStatus = account?.template_status ?? "";
+	const missingTemplates = account?.missing_templates?.length ?? 0;
 
 	const embeddedAvailable = !!config?.embedded_signup_available;
 	// Launches the flow the confirm dialog was opened for. Runs inside the
@@ -507,6 +518,27 @@ export function WhatsAppSettings() {
 									)}
 								</div>
 							</dl>
+						)}
+						{/* Separate from the sync (read-only): this one writes to Meta. */}
+						{missingTemplates > 0 && (
+							<div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+								<span className="text-muted-foreground">
+									{textGet("settings.whatsapp.template.missing_count", {
+										count: missingTemplates,
+									})}
+								</span>
+								<Button
+									variant="outline"
+									size="sm"
+									disabled={busy === "create" || busy === "sync"}
+									onClick={handleCreateMissing}
+								>
+									{busy === "create" && (
+										<Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+									)}
+									{textGet("settings.whatsapp.template.create_missing")}
+								</Button>
+							</div>
 						)}
 					</SettingsSection>
 				</>

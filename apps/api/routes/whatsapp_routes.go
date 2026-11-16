@@ -45,6 +45,7 @@ func registerWhatsAppTenantRoutes(group *gin.RouterGroup, db *gorm.DB, h *whatsa
 	group.POST("/connect/embedded", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.ConnectEmbedded))
 	group.POST("/connect/manual", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.ConnectManual))
 	group.POST("/template/sync", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.SyncTemplate))
+	group.POST("/template/create-missing", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.CreateMissingTemplates))
 	group.PUT("/settings", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.UpdateSettings))
 	group.POST("/test", rp(db, "MANAGE_WHATSAPP"), envelope.Handle(h.SendTest))
 	// The WhatsApp assistant (AI): settings, FAQ and the "Probar" panel.

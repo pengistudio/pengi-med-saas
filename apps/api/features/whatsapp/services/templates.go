@@ -1,6 +1,7 @@
 package whatsapp_services
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -44,8 +45,8 @@ type TemplateSpec struct {
 // inviting a reply (which opens the 24 h window for free-text replies).
 // Except continue-conversation: it names no appointment or result, so Meta
 // recategorizes it as MARKETING; declaring it so keeps every WABA consistent.
-// Templates already on a WABA are left as they are (EnsureTemplates only
-// creates missing ones).
+// Templates already on a WABA are left as they are (CreateMissingTemplates
+// only creates missing ones).
 var reminderTemplate = TemplateSpec{
 	Definition: whatsapp.TemplateDefinition{
 		Name:     whatsapp_models.ReminderTemplate,
@@ -223,45 +224,97 @@ type TemplateState struct {
 	MetaID string
 }
 
-// EnsureTemplates creates every catalog template missing on the WABA and
-// returns the status of each one it could look up or create. It keeps going
-// after a Graph error, so one failing template doesn't block the others, and
-// returns the first error.
-func EnsureTemplates(client *whatsapp.Client, token, wabaID string) ([]TemplateState, error) {
-	states := make([]TemplateState, 0, len(Catalog))
-	var firstErr error
-	for _, spec := range Catalog {
-		state, err := ensureTemplate(client, token, wabaID, spec.Definition)
-		if err != nil {
-			if firstErr == nil {
-				firstErr = err
-			}
-			continue
-		}
-		states = append(states, state)
+// ErrTemplatePermission marks a template creation Meta refused because our
+// app lacks the permission (Graph error 10). CreateMissingTemplates wraps the
+// *whatsapp.APIError with it, so errors.Is and errors.As both work.
+var ErrTemplatePermission = errors.New("whatsapp app lacks permission to create templates")
+
+// IsTemplatePermissionError reports whether err is (or wraps) Graph error 10,
+// "Application does not have permission for this action".
+func IsTemplatePermissionError(err error) bool {
+	if errors.Is(err, ErrTemplatePermission) {
+		return true
 	}
-	return states, firstErr
+	var apiErr *whatsapp.APIError
+	return errors.As(err, &apiErr) && apiErr.Code == 10
 }
 
-func ensureTemplate(client *whatsapp.Client, token, wabaID string, def whatsapp.TemplateDefinition) (TemplateState, error) {
-	templates, err := client.ListTemplates(token, wabaID, def.Name)
+// ErrTemplateListIncomplete: the WABA's template listing had more pages than
+// MaxTemplatePages (or a next page without a cursor), so a template that
+// reads as missing may exist; CreateMissingTemplates refuses to guess.
+var ErrTemplateListIncomplete = errors.New("whatsapp template listing is incomplete")
+
+// MaxTemplatePages bounds the listing pages (100 templates each) one read follows.
+const MaxTemplatePages = 10
+
+// ReadTemplateStates reads the status of every catalog template on the WABA
+// (one Graph call per 100 templates, at most MaxTemplatePages) and never
+// creates anything. It returns only the templates found (StateOf gives
+// TemplateStatusNone for the absent ones), so saving the result never blanks
+// a stored status. An incomplete listing is not an error here.
+func ReadTemplateStates(client *whatsapp.Client, token, wabaID string) ([]TemplateState, error) {
+	states, _, err := readTemplateStates(client, token, wabaID)
+	return states, err
+}
+
+// readTemplateStates is ReadTemplateStates plus whether the listing was complete.
+func readTemplateStates(client *whatsapp.Client, token, wabaID string) ([]TemplateState, bool, error) {
+	templates, complete, err := client.ListAllTemplates(token, wabaID, MaxTemplatePages)
 	if err != nil {
-		return TemplateState{}, err
+		return nil, false, err
 	}
-	for _, t := range templates {
-		if t.Name == def.Name && t.Language == def.Language {
-			return TemplateState{Name: def.Name, Status: t.Status, MetaID: t.ID}, nil
+	states := make([]TemplateState, 0, len(Catalog))
+	for _, spec := range Catalog {
+		def := spec.Definition
+		for _, t := range templates {
+			if t.Name == def.Name && t.Language == def.Language {
+				states = append(states, TemplateState{Name: def.Name, Status: t.Status, MetaID: t.ID})
+				break
+			}
 		}
 	}
-	created, err := client.CreateTemplate(token, wabaID, def)
+	return states, complete, nil
+}
+
+// CreateMissingTemplates reads the WABA's templates (ReadTemplateStates) and
+// creates only the missing catalog templates, one by one. It stops at the
+// first Graph error and returns the states gathered so far with that error,
+// so a refusing app (error 10, see IsTemplatePermissionError) costs one
+// write, not one per template. It creates nothing when the listing was
+// incomplete (ErrTemplateListIncomplete): a missing one might exist.
+func CreateMissingTemplates(client *whatsapp.Client, token, wabaID string) ([]TemplateState, error) {
+	states, complete, err := readTemplateStates(client, token, wabaID)
 	if err != nil {
-		return TemplateState{}, err
+		return nil, err
 	}
-	status := created.Status
-	if status == "" {
-		status = whatsapp_models.TemplateStatusPending
+	if !complete {
+		return states, ErrTemplateListIncomplete
 	}
-	return TemplateState{Name: def.Name, Status: status, MetaID: created.ID}, nil
+	for _, spec := range Catalog {
+		def := spec.Definition
+		if StateOf(states, def.Name) != whatsapp_models.TemplateStatusNone {
+			continue
+		}
+		created, err := client.CreateTemplate(token, wabaID, def)
+		if err != nil {
+			if IsTemplatePermissionError(err) {
+				err = fmt.Errorf("%w: %w", ErrTemplatePermission, err)
+			}
+			return states, err
+		}
+		status := created.Status
+		if status == "" {
+			status = whatsapp_models.TemplateStatusPending
+		}
+		states = append(states, TemplateState{Name: def.Name, Status: status, MetaID: created.ID})
+	}
+	return states, nil
+}
+
+// EnsureTemplates is CreateMissingTemplates, kept for its existing callers
+// (a committed code migration and the portal delivery).
+func EnsureTemplates(client *whatsapp.Client, token, wabaID string) ([]TemplateState, error) {
+	return CreateMissingTemplates(client, token, wabaID)
 }
 
 // StateOf returns the status of name in states ("" when absent).

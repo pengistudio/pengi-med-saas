@@ -38,6 +38,15 @@ func NewSQLLogger(out io.Writer) gorm_logger.Interface {
 	})
 }
 
+// ConfigurePool sizes the connection pool the API and the RabbitMQ workers
+// share (DB_MAX_OPEN_CONNS, DB_MAX_IDLE_CONNS, DB_CONN_MAX_LIFETIME). Without
+// a cap, a burst opens connections until the server refuses them.
+func ConfigurePool(sqlDB *sql.DB, cfg config.Config) {
+	sqlDB.SetMaxOpenConns(cfg.DBMaxOpenConns)
+	sqlDB.SetMaxIdleConns(cfg.DBMaxIdleConns)
+	sqlDB.SetConnMaxLifetime(cfg.DBConnMaxLifetime)
+}
+
 /*
 Connect establishes a connection to the database using environment variables.
 It returns a gorm.DB instance or an error if the connection fails.
@@ -67,6 +76,11 @@ func Connect() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	ConfigurePool(sqlDB, cfg)
 
 	// Register Audit Callbacks
 	audit.RegisterCallbacks(db)

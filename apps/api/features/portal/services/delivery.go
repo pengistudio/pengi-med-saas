@@ -254,6 +254,11 @@ var portalTemplates = []string{
 // WhatsApp account that misses one of them (accounts connected before they
 // joined the catalog). Meta reviews them; until one is approved its messages
 // go by email. Best effort: failures are logged.
+//
+// On a Coexistence account it only reads the statuses and never writes to
+// Meta (creating templates there got numbers blocked): a missing template
+// stays unavailable, so those messages go by email, until the clinic creates
+// it from settings ("Crear plantillas faltantes").
 func (d *Delivery) EnsurePortalTemplate(tenantID uint) {
 	if d.client == nil {
 		return
@@ -281,9 +286,13 @@ func (d *Delivery) EnsurePortalTemplate(tenantID uint) {
 	if err != nil {
 		return
 	}
-	states, err := whatsapp_services.EnsureTemplates(d.client, token, account.WabaID)
+	run := whatsapp_services.CreateMissingTemplates
+	if account.Coexistence {
+		run = whatsapp_services.ReadTemplateStates
+	}
+	states, err := run(d.client, token, account.WabaID)
 	if err != nil {
-		d.logger.Warn("portal: failed to create the portal templates", zap.Uint("tenant_id", tenantID), zap.Error(err))
+		d.logger.Warn("portal: failed to create the portal templates", zap.Uint("tenant_id", tenantID), zap.Bool("coexistence", account.Coexistence), zap.Error(err))
 	}
 	if err := whatsapp_services.SaveTemplateStates(scoped, tenantID, states); err != nil {
 		d.logger.Error("portal: failed to save whatsapp template states", zap.Uint("tenant_id", tenantID), zap.Error(err))

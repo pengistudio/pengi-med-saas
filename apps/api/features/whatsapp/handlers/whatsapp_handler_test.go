@@ -31,6 +31,7 @@ import (
 	user_models "pengi-med-saas/features/users/models"
 	whatsapp_dto "pengi-med-saas/features/whatsapp/dto"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
+	whatsapp_services "pengi-med-saas/features/whatsapp/services"
 	"pengi-med-saas/testutils"
 )
 
@@ -43,6 +44,7 @@ type fakeGraph struct {
 	calls     []string
 	bodies    map[string]string   // last body per key
 	allBodies map[string][]string // every body per key
+	delay     time.Duration       // simulated latency of every response
 }
 
 type fakeResp struct {
@@ -93,6 +95,19 @@ func catalogListing(status string) string {
 	return `{"data":[` + strings.Join(items, ",") + `]}`
 }
 
+// count is how many requests went to key.
+func (g *fakeGraph) count(key string) int {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	n := 0
+	for _, c := range g.calls {
+		if c == key {
+			n++
+		}
+	}
+	return n
+}
+
 func (g *fakeGraph) called(key string) bool {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -113,7 +128,13 @@ func (g *fakeGraph) server(t *testing.T) *httptest.Server {
 		g.bodies[key] = string(raw)
 		g.allBodies[key] = append(g.allBodies[key], string(raw))
 		resp, ok := g.responses[key]
+		// A later page of a listing: "METHOD path?after=<cursor>".
+		if after := r.URL.Query().Get("after"); after != "" {
+			resp, ok = g.responses[key+"?after="+after]
+		}
+		delay := g.delay
 		g.mu.Unlock()
+		time.Sleep(delay)
 		if !ok {
 			resp = fakeResp{404, `{"error":{"code":100,"message":"unknown path"}}`}
 		}
@@ -257,6 +278,38 @@ func TestConnectManual_SealsTokenAndCreatesTemplate(t *testing.T) {
 	}
 }
 
+// A slow Graph must not hold the connect: it answers after templateWait with
+// no template status, and the templates are stored once they finish.
+func TestConnect_SlowTemplatesFinishInBackground(t *testing.T) {
+	prev := templateWait
+	templateWait = 30 * time.Millisecond
+	t.Cleanup(func() { templateWait = prev })
+
+	f := newFixture(t)
+	f.graph.mu.Lock()
+	f.graph.delay = 60 * time.Millisecond
+	f.graph.mu.Unlock()
+
+	resp := f.connectManual(f.own)
+	if resp.Code != http.StatusOK {
+		t.Fatalf("code = %d (%v)", resp.Code, resp.Data)
+	}
+	if got := resp.Data.(whatsapp_dto.AccountResponse).TemplateStatus; got != whatsapp_models.TemplateStatusNone {
+		t.Fatalf("template status in the response = %q, want none (still running)", got)
+	}
+
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		if f.account(f.own).TemplateStatus == "PENDING" {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("background templates never stored; status = %q", f.account(f.own).TemplateStatus)
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+}
+
 func TestConnectManual_ExistingTemplateIsNotRecreated(t *testing.T) {
 	f := newFixture(t)
 	f.graph.set("GET /v23.0/WABA-1/message_templates", 200, catalogListing("APPROVED"))
@@ -364,6 +417,16 @@ func TestConnectEmbeddedCoexistence(t *testing.T) {
 	a := f.account(f.own)
 	if !a.Coexistence || a.PinEncrypted != "" {
 		t.Fatalf("account = %+v", a)
+	}
+	// Templates are only read on a Coexistence connect: one listing, no writes.
+	if f.graph.called("POST /v23.0/WABA-1/message_templates") {
+		t.Fatalf("coexistence connect created templates: %v", f.graph.calls)
+	}
+	if n := f.graph.count("GET /v23.0/WABA-1/message_templates"); n != 1 {
+		t.Fatalf("template listings = %d, want 1", n)
+	}
+	if got := resp.Data.(whatsapp_dto.AccountResponse).MissingTemplates; len(got) != len(whatsapp_services.Catalog) {
+		t.Fatalf("missing templates = %v", got)
 	}
 }
 
