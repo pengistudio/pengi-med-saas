@@ -15578,5 +15578,53 @@
     {
         "key": "backoffice.company_users.passkeys_reset.confirm",
         "value": "Reset passkeys"
+    },
+    {
+        "key": "E-AUTH-026",
+        "value": "Your clinic requires two-step verification. Set it up in your profile."
+    },
+    {
+        "key": "E-TEN-006",
+        "value": "Set up two-step verification on your own account before requiring it for the clinic."
+    },
+    {
+        "key": "tenant.security.mfa_required",
+        "value": "Your clinic requires two-step verification to continue."
+    },
+    {
+        "key": "tenant.security.require_mfa.own_mfa_missing",
+        "value": "First turn on two-step verification or register a passkey in your profile."
+    },
+    {
+        "key": "tenant.security.update.success",
+        "value": "Security settings saved"
+    },
+    {
+        "key": "settings.security.title",
+        "value": "Security"
+    },
+    {
+        "key": "settings.security.description",
+        "value": "Access rules that apply to every user of the clinic."
+    },
+    {
+        "key": "settings.security.require_mfa",
+        "value": "Require two-step verification"
+    },
+    {
+        "key": "settings.security.require_mfa.hint",
+        "value": "Every user will need an authenticator app or a passkey to use the clinic. Anyone without one is sent to their profile to set it up before continuing."
+    },
+    {
+        "key": "settings.security.require_mfa.own_hint",
+        "value": "To turn it on, first set up two-step verification or a passkey in your profile."
+    },
+    {
+        "key": "profile.mfa_required.title",
+        "value": "Your clinic requires two-step verification"
+    },
+    {
+        "key": "profile.mfa_required.description",
+        "value": "Turn on an authenticator app or register a passkey below. Then you can keep using the clinic as usual."
     }
 ]

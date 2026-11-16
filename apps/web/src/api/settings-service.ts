@@ -82,6 +82,25 @@ export const getUISettings = async (): Promise<
 	});
 };
 
+/** The clinic's security policy (PUT /tenants/security). */
+export interface TenantSecuritySettings {
+	/** Every user must have two-step verification (TOTP or a passkey). */
+	require_mfa: boolean;
+}
+
+/**
+ * Turning the requirement on answers 409 (E-TEN-006) while the admin has no
+ * second factor of their own; the error toast explains it.
+ */
+export const updateSecuritySettings = async (
+	payload: TenantSecuritySettings,
+): Promise<ServiceResponse<TenantSecuritySettings>> =>
+	settingsService.put<TenantSecuritySettings>(
+		"/tenants/security",
+		{ ...payload },
+		{ notifySuccess: true, notifyError: true },
+	);
+
 export const updateUISettings = async (
 	payload: TenantUISettings,
 ): Promise<ServiceResponse<TenantUISettings>> => {

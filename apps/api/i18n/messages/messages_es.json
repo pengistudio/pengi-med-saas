@@ -15578,5 +15578,53 @@
     {
         "key": "backoffice.company_users.passkeys_reset.confirm",
         "value": "Restablecer passkeys"
+    },
+    {
+        "key": "E-AUTH-026",
+        "value": "Tu clínica exige la verificación en dos pasos. Configúrala en tu perfil."
+    },
+    {
+        "key": "E-TEN-006",
+        "value": "Configura la verificación en dos pasos en tu propia cuenta antes de exigirla a la clínica."
+    },
+    {
+        "key": "tenant.security.mfa_required",
+        "value": "Tu clínica exige la verificación en dos pasos para continuar."
+    },
+    {
+        "key": "tenant.security.require_mfa.own_mfa_missing",
+        "value": "Primero activa la verificación en dos pasos o registra una passkey en tu perfil."
+    },
+    {
+        "key": "tenant.security.update.success",
+        "value": "Configuración de seguridad guardada"
+    },
+    {
+        "key": "settings.security.title",
+        "value": "Seguridad"
+    },
+    {
+        "key": "settings.security.description",
+        "value": "Reglas de acceso que aplican a todos los usuarios de la clínica."
+    },
+    {
+        "key": "settings.security.require_mfa",
+        "value": "Exigir verificación en dos pasos"
+    },
+    {
+        "key": "settings.security.require_mfa.hint",
+        "value": "Cada usuario deberá tener una app de autenticación o una passkey para usar la clínica. Quien no la tenga será enviado a su perfil para configurarla antes de continuar."
+    },
+    {
+        "key": "settings.security.require_mfa.own_hint",
+        "value": "Para activarla, primero configura la verificación en dos pasos o una passkey en tu perfil."
+    },
+    {
+        "key": "profile.mfa_required.title",
+        "value": "Tu clínica exige la verificación en dos pasos"
+    },
+    {
+        "key": "profile.mfa_required.description",
+        "value": "Activa una app de autenticación o registra una passkey aquí abajo. Después podrás seguir usando la clínica con normalidad."
     }
 ]

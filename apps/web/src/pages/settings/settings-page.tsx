@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { DocumentTemplatesSettings } from "@/sections/settings/document-templates-settings";
 import { KanbanSettings } from "@/sections/settings/kanban-settings";
 import { LogoUploadForm } from "@/sections/settings/logo-upload-form";
+import { SecuritySettings } from "@/sections/settings/security-settings";
 
 /** A labelled group of rows inside a section. */
 function SettingsGroup({
@@ -278,6 +279,15 @@ const SettingsPage = () => {
 							</div>
 						)}
 					</SettingsGroup>
+				</SettingsSection>
+			)}
+
+			{canManageSettings && (
+				<SettingsSection
+					title={<Text uuid="settings.security.title" />}
+					description={<Text uuid="settings.security.description" />}
+				>
+					<SecuritySettings />
 				</SettingsSection>
 			)}
 

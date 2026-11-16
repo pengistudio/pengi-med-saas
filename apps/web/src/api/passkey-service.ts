@@ -5,6 +5,7 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationResponseJSON,
 } from "@simplewebauthn/browser";
+import { useSessionStore } from "@/store/session-store";
 import type { LoginResponse } from "@/types/user-type";
 import { apiWithTenant, noAuthApi } from ".";
 
@@ -49,12 +50,16 @@ export const finishPasskeyRegistration = async (
 	challengeId: string,
 	name: string,
 	credential: RegistrationResponseJSON,
-): Promise<ServiceResponse<Passkey>> =>
-	passkeyService.post<Passkey>(
+): Promise<ServiceResponse<Passkey>> => {
+	const res = await passkeyService.post<Passkey>(
 		"/users/me/passkeys/register/finish",
 		{ challenge_id: challengeId, name, credential },
 		{ notifySuccess: true, notifyError: true },
 	);
+	// Enrolled: a clinic requiring two-step verification lets them in now.
+	if (res.success) useSessionStore.getState().setMfaRequired(false);
+	return res;
+};
 
 export const deletePasskey = async (
 	id: number,

@@ -21,6 +21,7 @@ export type Tenant = {
 	slug: string;
 	plan_code: string;
 	enabled_features?: string; // JSON-encoded EnabledFeatures
+	require_mfa?: boolean; // the clinic requires two-step verification
 } & Base;
 
 export type Company = {

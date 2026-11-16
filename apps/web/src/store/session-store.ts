@@ -17,10 +17,21 @@ type SessionState = {
 		tenant_slug: string;
 		permissions: string[];
 		enabled_features?: string;
+		/** The clinic requires two-step verification for every user. */
+		require_mfa?: boolean;
 	};
 	/** True once the environment came from the API in this page load (not persisted). */
 	permissionsFresh: boolean;
 	setPermissionsFresh: (value: boolean) => void;
+	/**
+	 * A tenant request was refused because the clinic requires two-step
+	 * verification and this user has none (E-AUTH-026). Cleared when they
+	 * enrol. Not persisted: the next refused request raises it again.
+	 */
+	mfaRequired: boolean;
+	setMfaRequired: (value: boolean) => void;
+	/** Updates the clinic's policy in the stored environment after saving it. */
+	setRequireMFA: (value: boolean) => void;
 	subscriptionExpired: boolean;
 	setSubscriptionExpired: (value: boolean) => void;
 	subscriptionGraceDaysLeft: number;
@@ -35,6 +46,14 @@ export const useSessionStore = create<SessionState>()(
 			environment: undefined,
 			permissionsFresh: false,
 			setPermissionsFresh: (value: boolean) => set({ permissionsFresh: value }),
+			mfaRequired: false,
+			setMfaRequired: (value: boolean) => set({ mfaRequired: value }),
+			setRequireMFA: (value: boolean) =>
+				set((s) =>
+					s.environment
+						? { environment: { ...s.environment, require_mfa: value } }
+						: {},
+				),
 			subscriptionExpired: false,
 			setSubscriptionExpired: (value: boolean) =>
 				set({ subscriptionExpired: value }),
@@ -45,6 +64,7 @@ export const useSessionStore = create<SessionState>()(
 				set({
 					environment: undefined,
 					permissionsFresh: false,
+					mfaRequired: false,
 					subscriptionExpired: false,
 					subscriptionGraceDaysLeft: 0,
 				}),
@@ -65,6 +85,7 @@ export const useSessionStore = create<SessionState>()(
 						tenant_slug: env.company.tenant.slug,
 						permissions: env.role.permissions?.map((p) => p.ID) || [],
 						enabled_features: env.company.tenant.enabled_features,
+						require_mfa: env.company.tenant.require_mfa === true,
 					},
 				}),
 		}),
@@ -85,6 +106,9 @@ export const selectEnvironment = (s: SessionState) => s.environment;
 export const selectPermissionsFresh = (s: SessionState) => s.permissionsFresh;
 export const selectSubscriptionExpired = (s: SessionState) =>
 	s.subscriptionExpired;
+export const selectMfaRequired = (s: SessionState) => s.mfaRequired;
+export const selectRequireMFA = (s: SessionState) =>
+	s.environment?.require_mfa === true;
 export const selectTenantSlug = (s: SessionState) => s.environment?.tenant_slug;
 export const selectPermissions = (s: SessionState) =>
 	s.environment?.permissions ?? [];

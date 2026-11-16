@@ -8,6 +8,7 @@ import (
 	"html"
 	"net/http"
 	"pengi-med-saas/core/config"
+	"time"
 )
 
 const resendURL = "https://api.resend.com/emails"
@@ -122,6 +123,37 @@ func (m *Mailer) SendPasswordReset(toEmail, userName, resetURL string) error {
 </html>`, html.EscapeString(userName), resetURL, resetURL)
 
 	return m.send(toEmail, "Restablece tu contraseña - Gentoo", body)
+}
+
+// SecurityAlert describes a sensitive account event the owner is told about.
+// Title and Detail are the event's text; never put secrets in them.
+type SecurityAlert struct {
+	Title  string    // e.g. "Cambiaste tu contraseña"
+	Detail string    // one sentence saying what happened
+	Time   time.Time // when it happened
+	IP     string    // client address that did it, may be empty
+}
+
+// SendSecurityAlert emails the owner of an account that something sensitive
+// changed, so a compromised account gets noticed.
+func (m *Mailer) SendSecurityAlert(toEmail, userName string, a SecurityAlert) error {
+	esc := html.EscapeString
+	ip := a.IP
+	if ip == "" {
+		ip = "desconocida"
+	}
+	body := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color: #0d9488;">%s</h2>
+  <p>Hola <strong>%s</strong>, %s</p>
+  <p style="color: #666; font-size: 14px;">Fecha: %s<br />Dirección IP: %s</p>
+  <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+  <p style="color: #999; font-size: 12px;">Si no fuiste tú, cambia tu contraseña de inmediato y contacta a soporte.</p>
+</body>
+</html>`, esc(a.Title), esc(userName), esc(a.Detail), esc(a.Time.UTC().Format("02/01/2006 15:04 UTC")), esc(ip))
+
+	return m.send(toEmail, a.Title+" - Gentoo", body)
 }
 
 func (m *Mailer) SendContactMessage(toEmail, name, fromEmail, message string) error {
