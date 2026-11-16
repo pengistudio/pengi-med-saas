@@ -71,11 +71,29 @@ func (h *WhatsAppHandler) GetAccount(c *gin.Context) envelope.Response {
 // ConnectEmbedded finishes Embedded Signup: exchanges the code for the
 // business token, subscribes our app to the WABA, registers the number with
 // a random pin and makes sure the reminder template exists.
-func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) envelope.Response {
+//
+// Every attempt (also the failed ones) leaves one "whatsapp connect" Info line
+// with the ids, the coexistence flag and how long each Graph step took, to
+// diagnose onboardings Meta flags. It never logs the code nor the token.
+func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) (resp envelope.Response) {
 	var req whatsapp_dto.ConnectEmbeddedRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return envelope.ErrorResponse(http.StatusBadRequest, "whatsapp.error.invalid_request", core_errors.ErrWhatsAppInvalidRequest)
 	}
+	steps := newStepTimer()
+	resolved := req.PhoneNumberID == ""
+	defer func() {
+		h.logger.Info("whatsapp connect", append([]zap.Field{
+			zap.Uint("tenant_id", tenantdb.TenantID(c)),
+			zap.String("mode", whatsapp_models.ModeEmbedded),
+			zap.String("waba_id", req.WabaID),
+			zap.String("phone_number_id", req.PhoneNumberID),
+			zap.Bool("coexistence", req.Coexistence),
+			zap.Bool("phone_id_resolved", resolved),
+			zap.Int("status", resp.Code),
+			zap.String("result", resp.Message),
+		}, steps.fields()...)...)
+	}()
 	if h.client.AppID == "" || h.client.AppSecret == "" || config.Get().MetaESConfigID == "" {
 		return envelope.ErrorResponse(http.StatusServiceUnavailable, "whatsapp.error.embedded_unavailable", core_errors.ErrWhatsAppEmbeddedUnavailable)
 	}
@@ -91,14 +109,18 @@ func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) envelope.Response {
 		}
 	}
 
+	done := steps.start("exchange_code")
 	token, err := h.client.ExchangeCode(req.Code)
+	done()
 	if err != nil {
 		h.logger.Warn("whatsapp code exchange failed", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "whatsapp.error.invalid_credentials", core_errors.ErrWhatsAppInvalidCredentials)
 	}
 	// The Business app onboarding (Coexistence) may report only the WABA.
 	if req.PhoneNumberID == "" {
+		done := steps.start("list_phone_numbers")
 		id, resp, ok := h.resolvePhoneNumberID(token, req.WabaID)
+		done()
 		if !ok {
 			return resp
 		}
@@ -107,11 +129,16 @@ func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) envelope.Response {
 			return resp
 		}
 	}
+	done = steps.start("get_phone_number")
 	phone, err := h.client.GetPhoneNumber(token, req.PhoneNumberID)
+	done()
 	if err != nil {
 		return h.graphFailure("read phone number", err)
 	}
-	if err := h.client.SubscribeApp(token, req.WabaID); err != nil {
+	done = steps.start("subscribe_app")
+	err = h.client.SubscribeApp(token, req.WabaID)
+	done()
+	if err != nil {
 		return h.graphFailure("subscribe app", err)
 	}
 	account := whatsapp_models.WhatsAppAccount{WabaID: req.WabaID, PhoneNumberID: req.PhoneNumberID, Mode: whatsapp_models.ModeEmbedded, Coexistence: req.Coexistence}
@@ -122,14 +149,17 @@ func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) envelope.Response {
 		if err != nil {
 			return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
 		}
-		if err := h.client.RegisterPhone(token, req.PhoneNumberID, pin); err != nil {
+		done := steps.start("register_phone")
+		err = h.client.RegisterPhone(token, req.PhoneNumberID, pin)
+		done()
+		if err != nil {
 			return h.graphFailure("register phone", err)
 		}
 		if err := account.SealPin(box, pin); err != nil {
 			return h.encryptionUnavailable(err)
 		}
 	}
-	return h.saveConnection(c, box, account, token, phone)
+	return h.saveConnection(c, box, account, token, phone, steps)
 }
 
 // ConnectManual connects with a WABA id, phone number id and a (system user)
@@ -165,13 +195,16 @@ func (h *WhatsAppHandler) ConnectManual(c *gin.Context) envelope.Response {
 	}
 
 	account := whatsapp_models.WhatsAppAccount{WabaID: req.WabaID, PhoneNumberID: req.PhoneNumberID, Mode: whatsapp_models.ModeManual}
-	return h.saveConnection(c, box, account, req.AccessToken, phone)
+	return h.saveConnection(c, box, account, req.AccessToken, phone, nil)
 }
 
 // saveConnection ensures the catalog templates, seals the token and upserts
-// the tenant's account, keeping its reminder settings on a reconnect.
-func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(string) (string, error) }, conn whatsapp_models.WhatsAppAccount, token string, phone whatsapp.PhoneNumber) envelope.Response {
+// the tenant's account, keeping its reminder settings on a reconnect. steps
+// (nil-safe) times EnsureTemplates for the caller's diagnostic log.
+func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(string) (string, error) }, conn whatsapp_models.WhatsAppAccount, token string, phone whatsapp.PhoneNumber, steps *stepTimer) envelope.Response {
+	done := steps.start("ensure_templates")
 	states, err := whatsapp_services.EnsureTemplates(h.client, token, conn.WabaID)
+	done()
 	if err != nil {
 		// Not fatal: the number is connected; POST /whatsapp/template/sync retries.
 		h.logger.Warn("whatsapp templates could not be ensured", zap.Error(err))
@@ -189,6 +222,19 @@ func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(str
 	}
 	account := conn
 	if found {
+		// A new onboarding over a live connection (no disconnect in between).
+		h.logger.Info("whatsapp connect over existing account",
+			zap.Uint("tenant_id", existing.TenantID),
+			zap.String("previous_waba_id", existing.WabaID),
+			zap.String("previous_phone_number_id", existing.PhoneNumberID),
+			zap.String("previous_mode", existing.Mode),
+			zap.Bool("previous_coexistence", existing.Coexistence),
+			zap.Duration("previous_connected_for", connectedFor(existing)),
+			zap.String("waba_id", conn.WabaID),
+			zap.String("phone_number_id", conn.PhoneNumberID),
+			zap.String("mode", conn.Mode),
+			zap.Bool("coexistence", conn.Coexistence),
+		)
 		account = existing
 		account.WabaID, account.PhoneNumberID, account.Mode = conn.WabaID, conn.PhoneNumberID, conn.Mode
 		account.Coexistence = conn.Coexistence
@@ -278,8 +324,18 @@ func (h *WhatsAppHandler) UpdateSettings(c *gin.Context) envelope.Response {
 }
 
 // Disconnect deletes the tenant's account (hard delete, so the number can be
-// connected again). The message log stays.
+// connected again). The message log stays. It leaves a "whatsapp disconnect"
+// Info line (ids, mode, how long it was connected) so a quick reconnect of the
+// same number shows up in the logs; it doesn't block anything.
 func (h *WhatsAppHandler) Disconnect(c *gin.Context) envelope.Response {
+	account, found, err := h.loadAccount(c)
+	if err != nil {
+		h.logger.Error("failed to load whatsapp account", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
+	}
+	if !found {
+		return envelope.ErrorResponse(http.StatusNotFound, "whatsapp.error.not_connected", core_errors.ErrWhatsAppNotConnected)
+	}
 	res := tenantdb.For(c, h.db).Unscoped().Where("tenant_id = ?", tenantdb.TenantID(c)).Delete(&whatsapp_models.WhatsAppAccount{})
 	if res.Error != nil {
 		h.logger.Error("failed to delete whatsapp account", zap.Error(res.Error))
@@ -288,6 +344,14 @@ func (h *WhatsAppHandler) Disconnect(c *gin.Context) envelope.Response {
 	if res.RowsAffected == 0 {
 		return envelope.ErrorResponse(http.StatusNotFound, "whatsapp.error.not_connected", core_errors.ErrWhatsAppNotConnected)
 	}
+	h.logger.Info("whatsapp disconnect",
+		zap.Uint("tenant_id", account.TenantID),
+		zap.String("waba_id", account.WabaID),
+		zap.String("phone_number_id", account.PhoneNumberID),
+		zap.String("mode", account.Mode),
+		zap.Bool("coexistence", account.Coexistence),
+		zap.Duration("connected_for", connectedFor(account)),
+	)
 	// Template statuses belong to the WABA, which may differ on reconnect.
 	if err := tenantdb.For(c, h.db).Unscoped().Where("tenant_id = ?", tenantdb.TenantID(c)).Delete(&whatsapp_models.WhatsAppTemplate{}).Error; err != nil {
 		h.logger.Error("failed to delete whatsapp template statuses", zap.Error(err))
@@ -454,6 +518,37 @@ func (h *WhatsAppHandler) graphFailure(step string, err error) envelope.Response
 func (h *WhatsAppHandler) encryptionUnavailable(err error) envelope.Response {
 	h.logger.Error("whatsapp encryption unavailable", zap.Error(err))
 	return envelope.ErrorResponse(http.StatusServiceUnavailable, "whatsapp.error.encryption_unavailable", core_errors.ErrWhatsAppEncryptionUnavailable)
+}
+
+// connectedFor is how long the account has been connected (0 when unknown).
+func connectedFor(account whatsapp_models.WhatsAppAccount) time.Duration {
+	if account.ConnectedAt == nil {
+		return 0
+	}
+	return time.Since(*account.ConnectedAt)
+}
+
+// stepTimer collects how long each Graph step of a connection took, for the
+// diagnostic log. A nil *stepTimer records nothing.
+type stepTimer struct {
+	began time.Time
+	steps []zap.Field
+}
+
+func newStepTimer() *stepTimer { return &stepTimer{began: time.Now()} }
+
+// start times the step called name until the returned func is called.
+func (t *stepTimer) start(name string) func() {
+	if t == nil {
+		return func() {}
+	}
+	from := time.Now()
+	return func() { t.steps = append(t.steps, zap.Duration(name, time.Since(from))) }
+}
+
+// fields are the recorded steps plus the total so far.
+func (t *stepTimer) fields() []zap.Field {
+	return append(append([]zap.Field{}, t.steps...), zap.Duration("total", time.Since(t.began)))
 }
 
 // randomPin is a 6-digit two-step verification pin.

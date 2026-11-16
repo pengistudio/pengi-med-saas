@@ -8977,7 +8977,7 @@
     },
     {
         "key": "settings.whatsapp.disconnect.description",
-        "value": "Se dejarán de enviar los recordatorios pendientes. El historial de mensajes se conserva."
+        "value": "Se borra la conexión del número con Pengi y se dejarán de enviar los recordatorios pendientes. Los mensajes ya guardados en Pengi se conservan, pero si vuelves a conectar, Meta normalmente no reenvía el historial de chats. Si algo se ve mal, no desconectes y vuelvas a conectar para probar: repetir la conexión podría llevar a Meta a revisar la cuenta."
     },
     {
         "key": "settings.whatsapp.hint.embedded",
@@ -15146,6 +15146,22 @@
     {
         "key": "settings.whatsapp.option.app.description",
         "value": "La app que descargas en la tienda de apps. Mantienes tu número en el celular y también lo usas en Pengi: Meta te pedirá escanear un código QR con la app."
+    },
+    {
+        "key": "settings.whatsapp.confirm.app.title",
+        "value": "¿Conectar tu app WhatsApp Business?"
+    },
+    {
+        "key": "settings.whatsapp.confirm.app.description",
+        "value": "Vas a vincular tu número real con Pengi a través de la app WhatsApp Business. Hazlo una sola vez y completa todos los pasos de Meta. Meta normalmente comparte el historial de chats solo durante la primera conexión. Si algo se ve mal, no repitas la conexión ni desconectes y vuelvas a conectar: repetirla podría llevar a Meta a revisar la cuenta."
+    },
+    {
+        "key": "settings.whatsapp.confirm.api.title",
+        "value": "¿Conectar un número dedicado?"
+    },
+    {
+        "key": "settings.whatsapp.confirm.api.description",
+        "value": "El número quedará solo para Pengi y puede dejar de funcionar en la app de WhatsApp del celular. Si quieres seguir usándolo en el celular, elige la opción App WhatsApp Business. Hazlo una sola vez: si algo se ve mal, no repitas la conexión."
     },
     {
         "key": "settings.whatsapp.mode.coexistence",

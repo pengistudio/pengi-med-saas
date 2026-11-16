@@ -8977,7 +8977,7 @@
     },
     {
         "key": "settings.whatsapp.disconnect.description",
-        "value": "Pending reminders will no longer be sent. The message history is kept."
+        "value": "The number's connection to Pengi is deleted and pending reminders will no longer be sent. Messages already saved in Pengi are kept, but if you connect again, Meta normally does not re-send the chat history. If something looks wrong, don't disconnect and reconnect to try again: repeating the connection could lead Meta to review the account."
     },
     {
         "key": "settings.whatsapp.hint.embedded",
@@ -15146,6 +15146,22 @@
     {
         "key": "settings.whatsapp.option.app.description",
         "value": "The app you download from the app store. You keep your number on the phone and also use it in Pengi: Meta will ask you to scan a QR code with the app."
+    },
+    {
+        "key": "settings.whatsapp.confirm.app.title",
+        "value": "Connect your WhatsApp Business app?"
+    },
+    {
+        "key": "settings.whatsapp.confirm.app.description",
+        "value": "You are about to link your real number to Pengi through the WhatsApp Business app. Do it only once and complete every Meta step. Meta normally shares the chat history only during the first connection. If something looks wrong, don't repeat the connection or disconnect and reconnect: repeating it could lead Meta to review the account."
+    },
+    {
+        "key": "settings.whatsapp.confirm.api.title",
+        "value": "Connect a dedicated number?"
+    },
+    {
+        "key": "settings.whatsapp.confirm.api.description",
+        "value": "The number will be used only by Pengi and may stop working in the WhatsApp app on the phone. If you want to keep using it on the phone, choose the WhatsApp Business app option. Do it only once: if something looks wrong, don't repeat the connection."
     },
     {
         "key": "settings.whatsapp.mode.coexistence",

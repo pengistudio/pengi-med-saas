@@ -53,6 +53,10 @@ export function WhatsAppSettings() {
 	const [manualOpen, setManualOpen] = React.useState(false);
 	// Which connect button started the running flow (spinner goes on that one).
 	const [startedWith, setStartedWith] = React.useState<"app" | "api">("app");
+	// Connect option waiting for the "do it once" confirmation.
+	const [pendingConnect, setPendingConnect] = React.useState<
+		"app" | "api" | null
+	>(null);
 	const [testOpen, setTestOpen] = React.useState(false);
 	const [disconnectOpen, setDisconnectOpen] = React.useState(false);
 	const [busy, setBusy] = React.useState<"sync" | "save" | "disconnect" | null>(
@@ -131,59 +135,67 @@ export function WhatsAppSettings() {
 	const templateStatus = account?.template_status ?? "";
 
 	const embeddedAvailable = !!config?.embedded_signup_available;
+	// Launches the flow the confirm dialog was opened for. Runs inside the
+	// dialog's click so Meta's popup isn't blocked.
+	function confirmConnect() {
+		if (!pendingConnect) return;
+		setStartedWith(pendingConnect);
+		void embedded.start(
+			pendingConnect === "app" ? { coexistence: true } : undefined,
+		);
+		setPendingConnect(null);
+	}
+	// Option card buttons: full width and wrapping, so long labels never spill.
+	const optionButton = "h-auto min-h-8 w-full whitespace-normal py-2";
 	const connectActions = (
-		<div className="grid w-full gap-3">
+		// Container query: the cards sit side by side only when *this* box is
+		// wide, not the viewport (the settings content is narrower than it).
+		<div className="@container grid w-full min-w-0 gap-3">
 			{embeddedAvailable && (
-				<div className="grid gap-3 sm:grid-cols-2">
-					<div className="grid content-between gap-3 rounded-lg border p-4">
-						<div className="grid gap-1">
-							<p className="flex items-center gap-2 text-sm font-semibold">
-								<Smartphone className="size-4" aria-hidden="true" />
+				<div className="grid grid-cols-1 gap-3 @3xl:grid-cols-2">
+					<div className="grid min-w-0 content-between gap-3 rounded-lg border p-4">
+						<div className="grid min-w-0 gap-1">
+							<p className="flex items-center gap-2 text-sm font-semibold break-words">
+								<Smartphone className="size-4 shrink-0" aria-hidden="true" />
 								<Text uuid="settings.whatsapp.option.app.title" />
 							</p>
-							<p className="text-sm text-muted-foreground">
+							<p className="text-sm break-words text-muted-foreground">
 								<Text uuid="settings.whatsapp.option.app.description" />
 							</p>
 						</div>
 						<Button
 							size="sm"
-							className="w-fit"
+							className={optionButton}
 							disabled={embedded.running}
-							onClick={() => {
-								setStartedWith("app");
-								void embedded.start({ coexistence: true });
-							}}
+							onClick={() => setPendingConnect("app")}
 						>
 							{embedded.running && startedWith === "app" ? (
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								<Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
 							) : (
-								<MessageCircle className="mr-2 h-4 w-4" />
+								<MessageCircle className="mr-2 h-4 w-4 shrink-0" />
 							)}
 							<Text uuid="settings.whatsapp.connect_business_app" />
 						</Button>
 					</div>
-					<div className="grid content-between gap-3 rounded-lg border p-4">
-						<div className="grid gap-1">
-							<p className="flex items-center gap-2 text-sm font-semibold">
-								<Cloud className="size-4" aria-hidden="true" />
+					<div className="grid min-w-0 content-between gap-3 rounded-lg border p-4">
+						<div className="grid min-w-0 gap-1">
+							<p className="flex items-center gap-2 text-sm font-semibold break-words">
+								<Cloud className="size-4 shrink-0" aria-hidden="true" />
 								<Text uuid="settings.whatsapp.option.api.title" />
 							</p>
-							<p className="text-sm text-muted-foreground">
+							<p className="text-sm break-words text-muted-foreground">
 								<Text uuid="settings.whatsapp.option.api.description" />
 							</p>
 						</div>
 						<Button
 							size="sm"
 							variant="outline"
-							className="w-fit"
+							className={optionButton}
 							disabled={embedded.running}
-							onClick={() => {
-								setStartedWith("api");
-								void embedded.start();
-							}}
+							onClick={() => setPendingConnect("api")}
 						>
 							{embedded.running && startedWith === "api" && (
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								<Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
 							)}
 							<Text uuid="settings.whatsapp.connect" />
 						</Button>
@@ -512,6 +524,20 @@ export function WhatsAppSettings() {
 				title={<Text uuid="settings.whatsapp.disconnect.title" />}
 				description={<Text uuid="settings.whatsapp.disconnect.description" />}
 				onConfirm={handleDisconnect}
+			/>
+			<ConfirmActionDialog
+				open={pendingConnect === "app"}
+				onOpenChange={(open) => !open && setPendingConnect(null)}
+				title={<Text uuid="settings.whatsapp.confirm.app.title" />}
+				description={<Text uuid="settings.whatsapp.confirm.app.description" />}
+				onConfirm={confirmConnect}
+			/>
+			<ConfirmActionDialog
+				open={pendingConnect === "api"}
+				onOpenChange={(open) => !open && setPendingConnect(null)}
+				title={<Text uuid="settings.whatsapp.confirm.api.title" />}
+				description={<Text uuid="settings.whatsapp.confirm.api.description" />}
+				onConfirm={confirmConnect}
 			/>
 		</div>
 	);
