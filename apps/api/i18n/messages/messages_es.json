@@ -15148,6 +15148,18 @@
         "value": "Inicio de sesión en dos pasos inválido o vencido. Inicia sesión de nuevo."
     },
     {
+        "key": "E-AUTH-023",
+        "value": "No se pudo verificar la passkey."
+    },
+    {
+        "key": "E-AUTH-024",
+        "value": "Alcanzaste el límite de passkeys."
+    },
+    {
+        "key": "E-AUTH-025",
+        "value": "Passkey no encontrada."
+    },
+    {
         "key": "auth.login.two_factor_required",
         "value": "Ingresa el código de tu app de autenticación"
     },
@@ -15190,6 +15202,38 @@
     {
         "key": "auth.two_factor.recovery_codes.success",
         "value": "Nuevos códigos de recuperación generados. Los anteriores ya no sirven."
+    },
+    {
+        "key": "auth.passkey.invalid",
+        "value": "No se pudo verificar la passkey. Inténtalo de nuevo."
+    },
+    {
+        "key": "auth.passkey.limit",
+        "value": "Alcanzaste el máximo de passkeys. Elimina una para agregar otra."
+    },
+    {
+        "key": "auth.passkey.not_found",
+        "value": "Passkey no encontrada."
+    },
+    {
+        "key": "auth.passkey.list.success",
+        "value": "Passkeys obtenidas correctamente."
+    },
+    {
+        "key": "auth.passkey.register.begin.success",
+        "value": "Registro de passkey iniciado."
+    },
+    {
+        "key": "auth.passkey.register.finish.success",
+        "value": "Passkey agregada correctamente."
+    },
+    {
+        "key": "auth.passkey.delete.success",
+        "value": "Passkey eliminada correctamente."
+    },
+    {
+        "key": "auth.passkey.login.begin.success",
+        "value": "Inicio de sesión con passkey iniciado."
     },
     {
         "key": "backoffice.company.users.two_factor_reset.success",

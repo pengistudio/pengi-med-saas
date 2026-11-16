@@ -15148,6 +15148,18 @@
         "value": "Invalid or expired two-factor login. Sign in again."
     },
     {
+        "key": "E-AUTH-023",
+        "value": "Passkey verification failed."
+    },
+    {
+        "key": "E-AUTH-024",
+        "value": "Passkey limit reached."
+    },
+    {
+        "key": "E-AUTH-025",
+        "value": "Passkey not found."
+    },
+    {
         "key": "auth.login.two_factor_required",
         "value": "Enter the code from your authenticator app"
     },
@@ -15190,6 +15202,38 @@
     {
         "key": "auth.two_factor.recovery_codes.success",
         "value": "New recovery codes generated. The previous ones no longer work."
+    },
+    {
+        "key": "auth.passkey.invalid",
+        "value": "Could not verify the passkey. Try again."
+    },
+    {
+        "key": "auth.passkey.limit",
+        "value": "You reached the passkey limit. Remove one to add another."
+    },
+    {
+        "key": "auth.passkey.not_found",
+        "value": "Passkey not found."
+    },
+    {
+        "key": "auth.passkey.list.success",
+        "value": "Passkeys fetched successfully."
+    },
+    {
+        "key": "auth.passkey.register.begin.success",
+        "value": "Passkey registration started."
+    },
+    {
+        "key": "auth.passkey.register.finish.success",
+        "value": "Passkey added successfully."
+    },
+    {
+        "key": "auth.passkey.delete.success",
+        "value": "Passkey removed successfully."
+    },
+    {
+        "key": "auth.passkey.login.begin.success",
+        "value": "Passkey sign-in started."
     },
     {
         "key": "backoffice.company.users.two_factor_reset.success",
