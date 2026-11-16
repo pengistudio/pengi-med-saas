@@ -45,6 +45,13 @@ type fakeGraph struct {
 	bodies    map[string]string   // last body per key
 	allBodies map[string][]string // every body per key
 	delay     time.Duration       // simulated latency of every response
+	failWhen  []bodyFailure       // responses chosen by request body
+}
+
+// bodyFailure answers key with resp when the request body contains sub.
+type bodyFailure struct {
+	key, sub string
+	resp     fakeResp
 }
 
 type fakeResp struct {
@@ -131,6 +138,11 @@ func (g *fakeGraph) server(t *testing.T) *httptest.Server {
 		// A later page of a listing: "METHOD path?after=<cursor>".
 		if after := r.URL.Query().Get("after"); after != "" {
 			resp, ok = g.responses[key+"?after="+after]
+		}
+		for _, f := range g.failWhen {
+			if f.key == key && strings.Contains(string(raw), f.sub) {
+				resp, ok = f.resp, true
+			}
 		}
 		delay := g.delay
 		g.mu.Unlock()
@@ -425,7 +437,7 @@ func TestConnectEmbeddedCoexistence(t *testing.T) {
 	if n := f.graph.count("GET /v23.0/WABA-1/message_templates"); n != 1 {
 		t.Fatalf("template listings = %d, want 1", n)
 	}
-	if got := resp.Data.(whatsapp_dto.AccountResponse).MissingTemplates; len(got) != len(whatsapp_services.Catalog) {
+	if got := resp.Data.(whatsapp_dto.AccountResponse).MissingTemplates; len(got) != len(whatsapp_services.Catalog)-1 {
 		t.Fatalf("missing templates = %v", got)
 	}
 }

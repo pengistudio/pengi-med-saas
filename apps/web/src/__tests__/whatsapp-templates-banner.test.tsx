@@ -82,17 +82,34 @@ describe("WhatsAppTemplatesBanner", () => {
 			templates_state: "rejected",
 			templates: [
 				{ name: "pengi_cita_recordatorio", status: "APPROVED" },
-				{ name: "portal_code", status: "REJECTED", reason: "INVALID_FORMAT" },
+				{
+					name: "pengi_cita_confirmada",
+					status: "REJECTED",
+					reason: "INVALID_FORMAT",
+				},
 				{ name: "pengi_cita_no_asistio", status: "PAUSED" },
 			],
 		});
 		expect(
 			screen.getByText("*settings.whatsapp.templates_state.rejected.title*"),
 		).toBeDefined();
-		expect(screen.getByText("portal_code")).toBeDefined();
+		expect(screen.getByText("pengi_cita_confirmada")).toBeDefined();
 		expect(screen.getByText("INVALID_FORMAT")).toBeDefined();
 		expect(screen.getByText("pengi_cita_no_asistio")).toBeDefined();
 		expect(screen.queryByText("pengi_cita_recordatorio")).toBeNull();
+	});
+
+	it("rejected: ignores optional templates", () => {
+		renderBanner({
+			...base,
+			templates_state: "rejected",
+			templates: [
+				{ name: "portal_code", status: "REJECTED", optional: true },
+				{ name: "pengi_cita_no_asistio", status: "PAUSED" },
+			],
+		});
+		expect(screen.queryByText("portal_code")).toBeNull();
+		expect(screen.getByText("pengi_cita_no_asistio")).toBeDefined();
 	});
 
 	it("ready or not connected: nothing", () => {

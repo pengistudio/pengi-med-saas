@@ -347,6 +347,9 @@ func (h *WhatsAppHandler) accountResponse(c *gin.Context, account whatsapp_model
 		return resp
 	}
 	for _, spec := range whatsapp_services.Catalog {
+		if whatsapp_services.IsOptionalTemplate(spec.Definition.Name) {
+			continue
+		}
 		if rows[spec.Definition.Name].Status == whatsapp_models.TemplateStatusNone {
 			resp.MissingTemplates = append(resp.MissingTemplates, spec.Definition.Name)
 		}
@@ -354,7 +357,7 @@ func (h *WhatsAppHandler) accountResponse(c *gin.Context, account whatsapp_model
 	state, list := whatsapp_services.TemplatesReadiness(rows)
 	resp.TemplatesState = state
 	for _, t := range list {
-		resp.Templates = append(resp.Templates, whatsapp_dto.TemplateStateResponse{Name: t.Name, Status: t.Status, Reason: t.Reason})
+		resp.Templates = append(resp.Templates, whatsapp_dto.TemplateStateResponse{Name: t.Name, Status: t.Status, Reason: t.Reason, Optional: whatsapp_services.IsOptionalTemplate(t.Name)})
 	}
 	return resp
 }

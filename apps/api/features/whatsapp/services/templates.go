@@ -208,6 +208,14 @@ func PortalCodeMessage(to, code string) whatsapp.TemplateMessage {
 	}
 }
 
+// OptionalTemplates are catalog templates the product works without: the
+// portal code falls back to email, and Meta refuses AUTHENTICATION templates
+// on some accounts (Graph error 10). They never block or nag.
+var OptionalTemplates = map[string]bool{whatsapp_models.TemplatePortalCode: true}
+
+// IsOptionalTemplate reports whether name is in OptionalTemplates.
+func IsOptionalTemplate(name string) bool { return OptionalTemplates[name] }
+
 // FindTemplate returns the catalog entry named name.
 func FindTemplate(name string) (TemplateSpec, bool) {
 	for _, t := range Catalog {
@@ -293,7 +301,7 @@ func CreateMissingTemplates(client *whatsapp.Client, token, wabaID string) ([]Te
 	}
 	for _, spec := range Catalog {
 		def := spec.Definition
-		if StateOf(states, def.Name) != whatsapp_models.TemplateStatusNone {
+		if IsOptionalTemplate(def.Name) || StateOf(states, def.Name) != whatsapp_models.TemplateStatusNone {
 			continue
 		}
 		created, err := client.CreateTemplate(token, wabaID, def)
@@ -302,6 +310,23 @@ func CreateMissingTemplates(client *whatsapp.Client, token, wabaID string) ([]Te
 				err = fmt.Errorf("%w: %w", ErrTemplatePermission, err)
 			}
 			return states, err
+		}
+		status := created.Status
+		if status == "" {
+			status = whatsapp_models.TemplateStatusPending
+		}
+		states = append(states, TemplateState{Name: def.Name, Status: status, MetaID: created.ID})
+	}
+	// Optional ones only once every required template exists; a refusal is
+	// not an error (Meta rejects AUTHENTICATION templates on some accounts).
+	for _, spec := range Catalog {
+		def := spec.Definition
+		if !IsOptionalTemplate(def.Name) || StateOf(states, def.Name) != whatsapp_models.TemplateStatusNone {
+			continue
+		}
+		created, err := client.CreateTemplate(token, wabaID, def)
+		if err != nil {
+			break
 		}
 		status := created.Status
 		if status == "" {
@@ -405,6 +430,9 @@ func TemplatesReadiness(rows map[string]whatsapp_models.WhatsAppTemplate) (strin
 	for _, spec := range Catalog {
 		row := rows[spec.Definition.Name]
 		list = append(list, TemplateReadiness{Name: spec.Definition.Name, Status: row.Status, Reason: row.Reason})
+		if IsOptionalTemplate(spec.Definition.Name) {
+			continue
+		}
 		if s := templateState(row.Status); rank[s] > rank[state] {
 			state = s
 		}

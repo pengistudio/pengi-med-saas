@@ -64,6 +64,8 @@ export interface WhatsAppTemplateReadiness {
 	/** Meta's status ("" when not created yet); may be a value not listed in WhatsAppTemplateStatus. */
 	status: string;
 	reason?: string;
+	/** Optional templates (portal code) never block or nag. */
+	optional?: boolean;
 }
 
 /** Catalog template names (whatsapp_models in the API). */

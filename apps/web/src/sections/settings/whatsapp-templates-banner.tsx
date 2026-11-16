@@ -63,7 +63,7 @@ export function WhatsAppTemplatesBanner({
 
 	const missing = account.missing_templates?.length ?? 0;
 	const rejected = (account.templates ?? []).filter(
-		(t) => !OK_OR_WAITING.has(t.status),
+		(t) => !t.optional && !OK_OR_WAITING.has(t.status),
 	);
 	const warn = state !== "pending";
 
