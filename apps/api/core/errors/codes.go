@@ -124,6 +124,10 @@ var (
 	ErrAuthWrongCurrentPassword      AppError = NewAppError("E-AUTH-016", "Current password is incorrect.")
 	ErrAuthSamePassword              AppError = NewAppError("E-AUTH-017", "New password must differ from the current one.")
 	ErrAuthAccountLocked             AppError = NewAppError("E-AUTH-018", "Account temporarily locked after too many failed attempts.")
+	ErrAuthInvalidTwoFactorCode      AppError = NewAppError("E-AUTH-019", "Invalid two-factor authentication code.")
+	ErrAuthTwoFactorAlreadyEnabled   AppError = NewAppError("E-AUTH-020", "Two-factor authentication is already enabled.")
+	ErrAuthTwoFactorNotSetUp         AppError = NewAppError("E-AUTH-021", "Two-factor authentication is not set up.")
+	ErrAuthInvalidMFAToken           AppError = NewAppError("E-AUTH-022", "Invalid or expired two-factor login. Sign in again.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

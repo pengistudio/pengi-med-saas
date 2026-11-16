@@ -38,6 +38,9 @@ type UserHandler struct {
 	// a 429 doesn't by itself tell an existing account from a typo. In
 	// memory, per instance.
 	unknownLogins *auth.LoginLimiter
+	// now is the clock TOTP codes and mfa tokens are checked against
+	// (replaced in tests).
+	now func() time.Time
 }
 
 func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
@@ -47,6 +50,7 @@ func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
 		logger:        logger,
 		lockout:       lockout,
 		unknownLogins: lockout.unknownUserLimiter(),
+		now:           time.Now,
 	}
 }
 
@@ -93,29 +97,48 @@ func (h *UserHandler) Login(c *gin.Context) envelope.Response {
 		return envelope.ErrorResponse(http.StatusForbidden, "auth.login.email_not_verified", core_errors.ErrAuthEmailNotVerified)
 	}
 
-	// 3) Generar tokens
-	token, err := auth.GenerateToken(foundUser.UserName, int64(foundUser.ID))
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+	// 2.6) Con 2FA, la contraseña sola no abre sesión: ni tokens ni cookie de
+	// refresh hasta que pase el segundo factor (POST /auth/login/2fa).
+	if foundUser.TwoFactorEnabled {
+		return h.twoFactorChallenge(foundUser)
 	}
 
-	// 4) Emitir familia de refresh token (rotación) — setea la cookie
-	if err := IssueRefreshFamily(h.db, foundUser.ID, foundUser.UserName, c); err != nil {
-		h.logger.Error("Failed to issue refresh token family", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	exchangeToken, err := auth.GenerateExchangeToken(foundUser.UserName, int64(foundUser.ID))
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+	// 3) Generar tokens y familia de refresh token (rotación) — setea la cookie
+	data, errResp := h.issueSession(c, foundUser)
+	if errResp != nil {
+		return *errResp
 	}
 
 	h.logger.Info("User logged in successfully", zap.String("username", foundUser.UserName))
-	return envelope.SuccessResponse(gin.H{
+	return envelope.SuccessResponse(data, "login.successful")
+}
+
+// issueSession is what a completed sign-in returns: access token, a new
+// refresh-token family (sets the refresh_token cookie) and an exchange token.
+// The only place a clinic session starts besides refresh rotation; callers
+// must have checked the password and, for 2FA users, the second factor.
+func (h *UserHandler) issueSession(c *gin.Context, user user_models.User) (gin.H, *envelope.Response) {
+	fail := func() (gin.H, *envelope.Response) {
+		resp := envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+		return nil, &resp
+	}
+	token, err := auth.GenerateToken(user.UserName, int64(user.ID))
+	if err != nil {
+		return fail()
+	}
+	if err := IssueRefreshFamily(h.db, user.ID, user.UserName, c); err != nil {
+		h.logger.Error("Failed to issue refresh token family", zap.Error(err))
+		return fail()
+	}
+	exchangeToken, err := auth.GenerateExchangeToken(user.UserName, int64(user.ID))
+	if err != nil {
+		return fail()
+	}
+	return gin.H{
 		"token":          token,
 		"exchange_token": exchangeToken,
-		"user_id":        foundUser.ID,
-	}, "login.successful")
+		"user_id":        user.ID,
+	}, nil
 }
 
 func (h *UserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
@@ -333,9 +356,21 @@ func (h *UserHandler) JoinCompanyWithExistingAccount(c *gin.Context) envelope.Re
 		return envelope.ErrorResponse(http.StatusNotFound, "auth.signup.company.email_not_found", core_errors.ErrUserNotFound)
 	}
 
-	if !auth.CompareHashAndPassword(foundUser.Password, req.Password) {
-		h.logger.Warn("Failed join-company password check", zap.String("email", req.Email))
-		return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
+	// Same account lockout as login: this is a password check too.
+	if err := h.lockout.check(h.db, h.logger, foundUser.ID, func() bool {
+		return auth.CompareHashAndPassword(foundUser.Password, req.Password)
+	}); err != nil {
+		switch {
+		case errors.Is(err, errAccountLocked):
+			h.logger.Warn("Join company refused: account locked", zap.Uint("user_id", foundUser.ID))
+			return accountLockedResponse()
+		case errors.Is(err, errWrongPassword):
+			h.logger.Warn("Failed join-company password check", zap.Uint("user_id", foundUser.ID))
+			return envelope.ErrorResponse(http.StatusUnauthorized, "auth.invalid_credentials", core_errors.ErrAuthInvalidCredentials)
+		default:
+			h.logger.Error("Join company: failed to check password", zap.Uint("user_id", foundUser.ID), zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+		}
 	}
 
 	var existingEnv user_models.Environment
@@ -370,30 +405,22 @@ func (h *UserHandler) JoinCompanyWithExistingAccount(c *gin.Context) envelope.Re
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
 
-	token, err := auth.GenerateToken(foundUser.UserName, int64(foundUser.ID))
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	if err := IssueRefreshFamily(h.db, foundUser.ID, foundUser.UserName, c); err != nil {
-		h.logger.Error("Failed to issue refresh token family", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	exchangeToken, err := auth.GenerateExchangeToken(foundUser.UserName, int64(foundUser.ID))
-	if err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
 	h.logger.Info("Existing user joined company via signup token",
 		zap.Uint("user_id", foundUser.ID),
 		zap.Uint("company_id", companyID),
 	)
-	return envelope.SuccessResponse(gin.H{
-		"token":          token,
-		"exchange_token": exchangeToken,
-		"user_id":        foundUser.ID,
-	}, "user.company_signup.join.success")
+
+	// The membership is created either way; with 2FA the session waits for
+	// the second factor, exactly as on /auth/login.
+	if foundUser.TwoFactorEnabled {
+		return h.twoFactorChallenge(foundUser)
+	}
+
+	data, errResp := h.issueSession(c, foundUser)
+	if errResp != nil {
+		return *errResp
+	}
+	return envelope.SuccessResponse(data, "user.company_signup.join.success")
 }
 
 // Register creates a new company account atomically: Tenant + Company + Role + User + Environment + Subscription.
@@ -667,18 +694,19 @@ func (h *UserHandler) ChangePassword(c *gin.Context) envelope.Response {
 // storeNewPassword saves an already hashed password and stamps
 // password_changed_at, which makes AuthMiddleware reject every access token
 // issued before now. The cached user check is dropped so this instance
-// applies it on the next request. It also lifts any account lockout: a reset
-// proves control of the mailbox, a change proved the current password.
+// applies it on the next request. It also lifts any account lockout (a reset
+// proves control of the mailbox, a change proved the current password),
+// except for a user with two-factor authentication: neither proves the
+// second factor, so the counter of code guesses stays.
 func storeNewPassword(db *gorm.DB, userID uint, hashed string) error {
 	err := db.Model(&user_models.User{}).Where("id = ?", userID).Updates(map[string]any{
-		"password":              hashed,
-		"password_changed_at":   time.Now(),
-		"failed_login_attempts": 0,
-		"locked_until":          nil,
+		"password":            hashed,
+		"password_changed_at": time.Now(),
 	}).Error
 	if err == nil {
-		auth_middleware.ForgetUser(userID)
+		err = clearPasswordLockout(db, userID)
 	}
+	auth_middleware.ForgetUser(userID)
 	return err
 }
 

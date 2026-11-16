@@ -84,6 +84,43 @@ func TestUnlockCompanyUser_OtherCompanyUserNotFound(t *testing.T) {
 	}
 }
 
+func TestResetCompanyUserTwoFactor(t *testing.T) {
+	h, locked, other := setupCompanyUsers(t)
+	if err := h.db.AutoMigrate(&user_models.RecoveryCode{}, &user_models.RefreshToken{}); err != nil {
+		t.Fatal(err)
+	}
+	for _, u := range []*user_models.User{locked, other} {
+		h.db.Model(&user_models.User{}).Where("id = ?", u.ID).UpdateColumns(map[string]any{
+			"two_factor_enabled": true, "two_factor_secret": []byte("sealed"),
+		})
+		h.db.Create(&user_models.RecoveryCode{UserID: u.ID, CodeHash: "h"})
+		h.db.Create(&user_models.RefreshToken{UserID: u.ID, FamilyID: "f", TokenHash: strconv.Itoa(int(u.ID)), IssuedAt: time.Now(), ExpiresAt: time.Now().Add(time.Hour)})
+	}
+
+	// A user of another company: 404, untouched.
+	if resp := h.ResetCompanyUserTwoFactor(companyUserCtx("1", strconv.Itoa(int(other.ID)))); resp.Code != http.StatusNotFound {
+		t.Fatalf("other company user: %d, want 404", resp.Code)
+	}
+	var o user_models.User
+	h.db.First(&o, other.ID)
+	if !o.TwoFactorEnabled {
+		t.Fatal("2FA of another company's user was reset")
+	}
+
+	if resp := h.ResetCompanyUserTwoFactor(companyUserCtx("1", strconv.Itoa(int(locked.ID)))); resp.Code != http.StatusOK {
+		t.Fatalf("reset: %d %q", resp.Code, resp.Message)
+	}
+	var u user_models.User
+	h.db.First(&u, locked.ID)
+	var codes, live int64
+	h.db.Model(&user_models.RecoveryCode{}).Where("user_id = ?", locked.ID).Count(&codes)
+	h.db.Model(&user_models.RefreshToken{}).Where("user_id = ? AND revoked_at IS NULL", locked.ID).Count(&live)
+	if u.TwoFactorEnabled || len(u.TwoFactorSecret) != 0 || codes != 0 || live != 0 ||
+		u.PasswordChangedAt == nil || u.FailedLoginAttempts != 0 || u.LockedUntil != nil {
+		t.Fatalf("reset incomplete: %+v codes=%d live=%d", u, codes, live)
+	}
+}
+
 func TestGetCompanyUsers_LockedFlag(t *testing.T) {
 	h, _, _ := setupCompanyUsers(t)
 

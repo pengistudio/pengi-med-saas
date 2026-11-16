@@ -51,6 +51,7 @@ type Config struct {
 	SignatureEncryptionKey  string `env:"SIGNATURE_ENCRYPTION_KEY"`
 	AttachmentEncryptionKey string `env:"ATTACHMENT_ENCRYPTION_KEY"` // unset: attachments disabled
 	WhatsAppEncryptionKey   string `env:"WHATSAPP_ENCRYPTION_KEY"`   // unset: SIGNATURE_ENCRYPTION_KEY
+	TwoFactorEncryptionKey  string `env:"TWO_FACTOR_ENCRYPTION_KEY"` // users' TOTP secrets; unset: SIGNATURE_ENCRYPTION_KEY
 	AIEncryptionKey         string `env:"AI_ENCRYPTION_KEY"`         // unset: AI keys can't be saved in backoffice (env key still works)
 
 	// RabbitMQ
