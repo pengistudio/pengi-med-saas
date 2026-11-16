@@ -1,0 +1,18 @@
+# Prometheus de producción: solo scrapea la API dentro de la red de Docker.
+# El token Bearer NO está aquí: el entrypoint del servicio `prometheus`
+# (docker-compose.prod.yaml) escribe $METRICS_TOKEN en /tmp/metrics_token al
+# arrancar. Token vacío → la API responde 401 y el target sale "down".
+global:
+  scrape_interval: 30s
+  scrape_timeout: 10s
+  evaluation_interval: 30s
+
+scrape_configs:
+  - job_name: pengi-api
+    metrics_path: /metrics
+    authorization:
+      type: Bearer
+      credentials_file: /tmp/metrics_token
+    static_configs:
+      # Puerto = PORT de .env.prod (8000), el mismo que usa Caddy.
+      - targets: ["api:8000"]

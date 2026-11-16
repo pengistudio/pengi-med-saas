@@ -11,6 +11,7 @@ import (
 	"pengi-med-saas/core/envelope"
 	"pengi-med-saas/core/logger"
 	"pengi-med-saas/core/mailer"
+	"pengi-med-saas/core/metrics"
 	core_middleware "pengi-med-saas/core/middleware"
 	"pengi-med-saas/core/secretbox"
 	"pengi-med-saas/core/whatsapp"
@@ -135,6 +136,13 @@ func main() {
 	// gin.Default() minus the query string in the access log (it carries the
 	// waiting-room TV token).
 	r := gin.New()
+	// Outside gin.Recovery so a panic is logged and counted as its 500.
+	r.Use(core_middleware.RequestLogger(logger.Log, time.Duration(cfg.SlowRequestMS)*time.Millisecond))
+	sqlDB, err := DB_CONNECTION.DB()
+	if err != nil {
+		panic("Failed to get the database pool: " + err.Error())
+	}
+	metricsEndpoint := metrics.Install(r, sqlDB, cfg.MetricsToken)
 	r.Use(core_middleware.AccessLogger(nil), gin.Recovery())
 
 	// c.ClientIP() (per-IP rate limits) trusts X-Forwarded-For only from these
@@ -183,6 +191,8 @@ func main() {
 	r.Use(i18n_middleware.I18nMiddleware(messages))
 
 	r.GET("/health", envelope.Handle(health.Health))
+	// GET /metrics (Prometheus), only with METRICS_TOKEN set.
+	metricsEndpoint.Route(r)
 
 	routes.RegisterRoutes(r.Group("/api/v1"), DB_CONNECTION, messages)
 

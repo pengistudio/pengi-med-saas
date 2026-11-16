@@ -54,6 +54,12 @@ const compose = new Set(
 );
 // COMPOSE_PROFILES is read by docker compose itself.
 compose.add("COMPOSE_PROFILES");
+// Same for the prod compose (e.g. GRAFANA_ADMIN_PASSWORD, read by Grafana).
+const composeProd = new Set(
+	[...keysOf("deploy/docker-compose.prod.yaml", /\$\{([A-Z0-9_]+)/g)].filter(
+		(name) => !api.has(name),
+	),
+);
 
 for (const [label, set] of Object.entries({
 	api,
@@ -108,7 +114,10 @@ compare(
 );
 compare(
 	"deploy/.env.prod.example",
-	merged(tag(api, "apps/api core/config")),
+	merged(
+		tag(api, "apps/api core/config"),
+		tag(composeProd, "deploy/docker-compose.prod.yaml"),
+	),
 	apiLegacy,
 );
 

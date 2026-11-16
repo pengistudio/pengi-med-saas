@@ -3,6 +3,7 @@ package config
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func setRequired(t *testing.T) {
@@ -23,6 +24,30 @@ func TestLoadAcceptsCompleteEnvironment(t *testing.T) {
 	}
 	if cfg.AuthExp != 60 || cfg.DBSSLMode != "disable" || cfg.ContactRateLimit != 3 {
 		t.Fatalf("unexpected values or defaults: %+v", cfg)
+	}
+}
+
+func TestLoadDefaultsPoolAndObservability(t *testing.T) {
+	setRequired(t)
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.DBMaxOpenConns != 25 || cfg.DBMaxIdleConns != 10 || cfg.DBConnMaxLifetime != 30*time.Minute {
+		t.Errorf("pool defaults = %d/%d/%s, want 25/10/30m", cfg.DBMaxOpenConns, cfg.DBMaxIdleConns, cfg.DBConnMaxLifetime)
+	}
+	if cfg.SlowRequestMS != 1000 || cfg.MetricsToken != "" {
+		t.Errorf("observability defaults = %d/%q, want 1000/empty", cfg.SlowRequestMS, cfg.MetricsToken)
+	}
+
+	t.Setenv("DB_CONN_MAX_LIFETIME", "5m")
+	t.Setenv("DB_MAX_OPEN_CONNS", "8")
+	if cfg = Get(); cfg.DBConnMaxLifetime != 5*time.Minute || cfg.DBMaxOpenConns != 8 {
+		t.Errorf("overrides = %d/%s, want 8/5m", cfg.DBMaxOpenConns, cfg.DBConnMaxLifetime)
+	}
+	t.Setenv("DB_CONN_MAX_LIFETIME", "thirty")
+	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "DB_CONN_MAX_LIFETIME") {
+		t.Errorf("Load() error = %v, want a DB_CONN_MAX_LIFETIME error", err)
 	}
 }
 

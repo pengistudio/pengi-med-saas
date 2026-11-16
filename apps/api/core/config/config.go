@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 )
@@ -35,6 +36,18 @@ type Config struct {
 	DBSSLMode    string `env:"DB_SSL_MODE" envDefault:"disable"`
 	DBRootName   string `env:"DB_ROOT_NAME" envDefault:"postgres"`
 	TenantDBMode string `env:"TENANTDB_MODE" envDefault:"warn"`
+	// Connection pool shared by the HTTP handlers and the RabbitMQ workers.
+	// Keep DBMaxOpenConns under the server's connection limit (DO managed
+	// Postgres allows few); 0 or less means unlimited (database/sql).
+	DBMaxOpenConns    int           `env:"DB_MAX_OPEN_CONNS" envDefault:"25"`
+	DBMaxIdleConns    int           `env:"DB_MAX_IDLE_CONNS" envDefault:"10"`
+	DBConnMaxLifetime time.Duration `env:"DB_CONN_MAX_LIFETIME" envDefault:"30m"`
+
+	// Observability
+	// Requests slower than this (milliseconds) are logged at Warn.
+	SlowRequestMS int `env:"SLOW_REQUEST_MS" envDefault:"1000"`
+	// Bearer token for GET /metrics (Prometheus). Unset: the endpoint doesn't exist.
+	MetricsToken string `env:"METRICS_TOKEN"`
 
 	// Auth
 	AuthKey        string `env:"AUTH_KEY,required,notEmpty"`
