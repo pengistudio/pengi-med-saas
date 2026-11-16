@@ -69,6 +69,13 @@ When creating or extending a feature end to end, use the `create-feature` skill
 covering permissions, plan gating, migrations, i18n, frontend and tests. The
 guides above are the architecture reference it builds on.
 
+The `modern-web-guidance` skill (`.agents/skills/modern-web-guidance/`) is
+**advisory**: consult it for modern HTML/CSS/JS patterns when building new UI,
+but this repo's stack wins on conflict — shadcn/ui + `@pengi/ui` components,
+Tailwind v4, the service layer and i18n rules below. Don't replace existing
+components with native APIs just because the skill suggests it, and skip it for
+tasks that don't touch markup, styles or client JS.
+
 ---
 
 ## Subagents (`.claude/agents/`)
