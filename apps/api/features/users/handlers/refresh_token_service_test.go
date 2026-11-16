@@ -339,6 +339,10 @@ func TestRotateRefreshToken_ConcurrentReplayOnlyOneWins(t *testing.T) {
 	}
 	wg.Wait()
 
+	// The loser is treated as reuse and revokes the family, including the row
+	// the winner just inserted. Depending on timing the winner either returns
+	// that (already dead) session or notices its presented row was revoked
+	// and fails; either way no live session survives.
 	successes, reused := 0, 0
 	for _, err := range errs {
 		if err == nil {
@@ -347,10 +351,15 @@ func TestRotateRefreshToken_ConcurrentReplayOnlyOneWins(t *testing.T) {
 			reused++
 		}
 	}
-	if successes != 1 {
-		t.Errorf("expected exactly 1 successful rotation out of 2 concurrent attempts, got %d (errs=%v)", successes, errs)
+	if successes > 1 {
+		t.Errorf("expected at most 1 successful rotation out of 2 concurrent attempts, got %d (errs=%v)", successes, errs)
 	}
 	if reused != 1 {
 		t.Errorf("expected the losing concurrent attempt to be treated as reuse, got %d (errs=%v)", reused, errs)
+	}
+	var live int64
+	db.Model(&user_models.RefreshToken{}).Where("user_id = ? AND revoked_at IS NULL", testUser.ID).Count(&live)
+	if live != 0 {
+		t.Errorf("expected the reused family fully revoked, got %d live rows", live)
 	}
 }

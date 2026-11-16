@@ -123,8 +123,10 @@ func RotateRefreshToken(db *gorm.DB, presentedToken string, c *gin.Context, logg
 		return "", ErrRefreshTokenInvalid
 	}
 
-	// A deleted user's sessions end even if a family was left unrevoked.
-	if _, ok := liveUser(db, row.UserID); !ok {
+	// A deleted user's sessions end even if a family was left unrevoked, and
+	// so do sessions started before the user's sessions were invalidated
+	// (password change/reset, 2FA enabled or reset).
+	if _, ok := liveUser(db, row.UserID); !ok || sessionsInvalidatedSince(db, row.UserID, row.IssuedAt) {
 		return "", ErrRefreshTokenRevoked
 	}
 
@@ -133,22 +135,39 @@ func RotateRefreshToken(db *gorm.DB, presentedToken string, c *gin.Context, logg
 		return "", ErrRefreshTokenReused
 	}
 
-	// Conditional update: only succeeds if this row is still unused. If
-	// RowsAffected is 0, a concurrent request rotated it out from under us
-	// between the read above and here — treat identically to reuse.
+	// Conditional update: only succeeds if this row is still unused and not
+	// revoked. If RowsAffected is 0, either it was revoked since the read
+	// above (logout, password change, 2FA enabled...) or a concurrent request
+	// rotated it out from under us — the latter is treated as reuse.
 	result := db.Model(&user_models.RefreshToken{}).
-		Where("id = ? AND used_at IS NULL", row.ID).
+		Where("id = ? AND used_at IS NULL AND revoked_at IS NULL", row.ID).
 		Update("used_at", time.Now())
 	if result.Error != nil {
 		return "", result.Error
 	}
 	if result.RowsAffected == 0 {
+		if presentedRowRevoked(db, row.ID) {
+			return "", ErrRefreshTokenRevoked
+		}
 		revokeAndLogReuse(db, row, c, logger, "concurrent rotation race")
 		return "", ErrRefreshTokenReused
 	}
 
 	rawToken, newRow, err := createRefreshTokenRow(db, row.UserID, claims.Username, row.FamilyID, c)
 	if err != nil {
+		return "", err
+	}
+	// The presented row revoked while we rotated (a session invalidation's
+	// revoke ran between our checks and our insert): the new row would have
+	// escaped it. Either that revoke ran before this read (seen here) or it
+	// runs after our insert and revokes the new row itself.
+	if presentedRowRevoked(db, row.ID) {
+		if err := revokeRow(db, newRow.ID); err != nil {
+			return "", err
+		}
+		return "", ErrRefreshTokenRevoked
+	}
+	if err := recheckInvalidation(db, row.UserID, row.IssuedAt, newRow); err != nil {
 		return "", err
 	}
 	if err := db.Model(&user_models.RefreshToken{}).Where("id = ?", row.ID).
@@ -175,18 +194,31 @@ func liveUser(db *gorm.DB, userID uint) (user_models.User, bool) {
 // one stored on the user: RevokeUserSessions clears that column, and a
 // deleted user has no row.
 func rotateLegacyToken(db *gorm.DB, claims auth.RefreshTokenClaims, presentedToken string, c *gin.Context, logger *zap.Logger) (string, error) {
+	// A legacy token has no issue time: the reference is when this rotation
+	// read it (an invalidation committed after that clears the column, which
+	// a concurrent read may not have seen).
+	start := time.Now()
 	user, ok := liveUser(db, claims.UserID)
 	if !ok || user.RefreshToken == "" || user.RefreshToken != presentedToken {
 		return "", ErrRefreshTokenRevoked
 	}
 	// Single use: the stored legacy token is spent once it joins a family.
-	if err := db.Model(&user_models.User{}).Where("id = ?", user.ID).
-		Update("refresh_token", "").Error; err != nil {
-		return "", err
+	// Conditional, so a concurrent rotation or RevokeUserSessions (which
+	// clears the column) wins over this one.
+	res := db.Model(&user_models.User{}).Where("id = ? AND refresh_token = ?", user.ID, presentedToken).
+		Update("refresh_token", "")
+	if res.Error != nil {
+		return "", res.Error
+	}
+	if res.RowsAffected == 0 {
+		return "", ErrRefreshTokenRevoked
 	}
 	newFamilyID := uuid.NewString()
-	rawToken, _, err := createRefreshTokenRow(db, claims.UserID, claims.Username, newFamilyID, c)
+	rawToken, newRow, err := createRefreshTokenRow(db, claims.UserID, claims.Username, newFamilyID, c)
 	if err != nil {
+		return "", err
+	}
+	if err := recheckInvalidation(db, claims.UserID, start, newRow); err != nil {
 		return "", err
 	}
 	accessToken, err := auth.GenerateToken(claims.Username, int64(claims.UserID))
@@ -199,6 +231,51 @@ func rotateLegacyToken(db *gorm.DB, claims auth.RefreshTokenClaims, presentedTok
 			zap.Uint("user_id", claims.UserID), zap.String("family_id", newFamilyID))
 	}
 	return accessToken, nil
+}
+
+// sessionsInvalidatedSince reports whether the user's sessions were
+// invalidated (password_changed_at: password change/reset, 2FA enabled or
+// reset) after t. A failed read counts as not invalidated, like liveUser's
+// callers treat a live user.
+func sessionsInvalidatedSince(db *gorm.DB, userID uint, t time.Time) bool {
+	var rows []struct{ PasswordChangedAt *time.Time }
+	if err := db.Model(&user_models.User{}).Select("password_changed_at").
+		Where("id = ?", userID).Limit(1).Scan(&rows).Error; err != nil || len(rows) == 0 {
+		return false
+	}
+	return rows[0].PasswordChangedAt != nil && rows[0].PasswordChangedAt.After(t)
+}
+
+// recheckInvalidation closes the race between a rotation and a concurrent
+// invalidation (EnableTwoFactor, ResetTwoFactor, password change), which
+// stamp password_changed_at and then revoke every family after committing.
+// Checked after the new row is inserted: either the invalidation committed
+// before this read (seen here: the new row is revoked and the rotation
+// fails) or after it, and then its revoke, which runs after its commit,
+// finds the new row already inserted.
+func recheckInvalidation(db *gorm.DB, userID uint, issuedAt time.Time, newRow *user_models.RefreshToken) error {
+	if !sessionsInvalidatedSince(db, userID, issuedAt) {
+		return nil
+	}
+	if err := revokeRow(db, newRow.ID); err != nil {
+		return err
+	}
+	return ErrRefreshTokenRevoked
+}
+
+// presentedRowRevoked re-reads whether a refresh-token row is revoked.
+func presentedRowRevoked(db *gorm.DB, rowID uint) bool {
+	var rows []struct{ RevokedAt *time.Time }
+	if err := db.Model(&user_models.RefreshToken{}).Select("revoked_at").
+		Where("id = ?", rowID).Limit(1).Scan(&rows).Error; err != nil || len(rows) == 0 {
+		return false
+	}
+	return rows[0].RevokedAt != nil
+}
+
+func revokeRow(db *gorm.DB, rowID uint) error {
+	return db.Model(&user_models.RefreshToken{}).Where("id = ?", rowID).
+		Update("revoked_at", time.Now()).Error
 }
 
 func revokeAndLogReuse(db *gorm.DB, row user_models.RefreshToken, c *gin.Context, logger *zap.Logger, reason string) {

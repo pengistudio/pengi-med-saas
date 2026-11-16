@@ -170,7 +170,9 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 		}
 
 		claims, err := auth.ParseToken(token)
-		if err == nil && (auth.IsBackofficeToken(claims) || auth.IsPortalToken(claims)) {
+		// Only clinic access tokens, as in AuthMiddleware: not exchange, mfa,
+		// refresh, backoffice or portal tokens.
+		if err == nil && (claims["type"] != "access_token" || auth.IsBackofficeToken(claims) || auth.IsPortalToken(claims)) {
 			err = auth.ErrInvalidToken // never a staff session
 		}
 		if err != nil {

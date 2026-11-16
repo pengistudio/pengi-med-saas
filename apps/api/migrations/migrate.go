@@ -46,6 +46,7 @@ func RunMigrations(db *gorm.DB) error {
 		user_models.Environment{},
 		user_models.Role{},
 		user_models.RefreshToken{},
+		user_models.RecoveryCode{},
 		clinical_models.Patient{},
 		clinical_models.MedicalRecord{},
 		clinical_models.MedicalRecordDraft{},

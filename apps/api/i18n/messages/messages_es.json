@@ -15129,7 +15129,71 @@
     },
     {
         "key": "auth.account_locked",
-        "value": "Tu cuenta está bloqueada temporalmente por demasiados intentos fallidos. Espera unos minutos o restablece tu contraseña con \"¿Olvidaste tu contraseña?\"."
+        "value": "Tu cuenta está bloqueada temporalmente por demasiados intentos fallidos. Espera unos minutos e inténtalo de nuevo. Si el problema continúa, contacta al administrador de tu clínica o a soporte."
+    },
+    {
+        "key": "E-AUTH-019",
+        "value": "Código de verificación en dos pasos inválido."
+    },
+    {
+        "key": "E-AUTH-020",
+        "value": "La verificación en dos pasos ya está activada."
+    },
+    {
+        "key": "E-AUTH-021",
+        "value": "La verificación en dos pasos no está configurada."
+    },
+    {
+        "key": "E-AUTH-022",
+        "value": "Inicio de sesión en dos pasos inválido o vencido. Inicia sesión de nuevo."
+    },
+    {
+        "key": "auth.login.two_factor_required",
+        "value": "Ingresa el código de tu app de autenticación"
+    },
+    {
+        "key": "auth.login.two_factor_invalid_token",
+        "value": "Tu inicio de sesión venció. Ingresa de nuevo tu usuario y contraseña."
+    },
+    {
+        "key": "auth.two_factor.invalid_code",
+        "value": "El código es incorrecto o ya fue usado."
+    },
+    {
+        "key": "auth.two_factor.wrong_password",
+        "value": "La contraseña actual es incorrecta."
+    },
+    {
+        "key": "auth.two_factor.already_enabled",
+        "value": "La verificación en dos pasos ya está activada."
+    },
+    {
+        "key": "auth.two_factor.not_set_up",
+        "value": "La verificación en dos pasos no está configurada."
+    },
+    {
+        "key": "auth.two_factor.status.success",
+        "value": "Estado de la verificación en dos pasos obtenido"
+    },
+    {
+        "key": "auth.two_factor.setup.success",
+        "value": "Escanea el código con tu app de autenticación e ingresa el código que muestra"
+    },
+    {
+        "key": "auth.two_factor.enable.success",
+        "value": "Verificación en dos pasos activada. Guarda tus códigos de recuperación en un lugar seguro."
+    },
+    {
+        "key": "auth.two_factor.disable.success",
+        "value": "Verificación en dos pasos desactivada"
+    },
+    {
+        "key": "auth.two_factor.recovery_codes.success",
+        "value": "Nuevos códigos de recuperación generados. Los anteriores ya no sirven."
+    },
+    {
+        "key": "backoffice.company.users.two_factor_reset.success",
+        "value": "Verificación en dos pasos restablecida. El usuario debe iniciar sesión de nuevo."
     },
     {
         "key": "profile.section.security",

@@ -34,6 +34,15 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		userRoutes.POST("/change-password", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.ChangePassword))
 		userRoutes.GET("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.GetProfile))
 		userRoutes.PUT("/profile", auth_middleware.AuthMiddleware(), envelope.Handle(profileHandler.UpdateProfile))
+
+		// Two-factor authentication of the signed-in user. Wrong password or
+		// code answers 422 (never 401, which the web client reads as an
+		// expired session).
+		userRoutes.GET("/me/2fa", auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.GetTwoFactorStatus))
+		userRoutes.POST("/me/2fa/setup", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.SetupTwoFactor))
+		userRoutes.POST("/me/2fa/enable", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.EnableTwoFactor))
+		userRoutes.POST("/me/2fa/disable", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.DisableTwoFactor))
+		userRoutes.POST("/me/2fa/recovery-codes", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.RegenerateRecoveryCodes))
 	}
 
 	authRoutes := router.Group("/auth", authLimiter.Middleware())
@@ -44,6 +53,7 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		authRoutes.GET("/signup/company/check-email", envelope.Handle(userHandler.CheckCompanySignupEmail))
 		authRoutes.POST("/signup/company/join", envelope.Handle(userHandler.JoinCompanyWithExistingAccount))
 		authRoutes.POST("/login", envelope.Handle(userHandler.Login))
+		authRoutes.POST("/login/2fa", envelope.Handle(userHandler.LoginTwoFactor))
 		authRoutes.POST("/refresh", envelope.Handle(userHandler.RefreshAuthToken))
 		authRoutes.POST("/logout", envelope.Handle(userHandler.Logout))
 		authRoutes.POST("/forgot-password", envelope.Handle(userHandler.ForgotPassword))

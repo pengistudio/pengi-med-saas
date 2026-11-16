@@ -15129,7 +15129,71 @@
     },
     {
         "key": "auth.account_locked",
-        "value": "Your account is temporarily locked after too many failed attempts. Wait a few minutes or reset your password with \"Forgot your password?\"."
+        "value": "Your account is temporarily locked after too many failed attempts. Wait a few minutes and try again. If it keeps happening, contact your clinic's administrator or support."
+    },
+    {
+        "key": "E-AUTH-019",
+        "value": "Invalid two-factor authentication code."
+    },
+    {
+        "key": "E-AUTH-020",
+        "value": "Two-factor authentication is already enabled."
+    },
+    {
+        "key": "E-AUTH-021",
+        "value": "Two-factor authentication is not set up."
+    },
+    {
+        "key": "E-AUTH-022",
+        "value": "Invalid or expired two-factor login. Sign in again."
+    },
+    {
+        "key": "auth.login.two_factor_required",
+        "value": "Enter the code from your authenticator app"
+    },
+    {
+        "key": "auth.login.two_factor_invalid_token",
+        "value": "Your sign-in expired. Enter your username and password again."
+    },
+    {
+        "key": "auth.two_factor.invalid_code",
+        "value": "The code is incorrect or has already been used."
+    },
+    {
+        "key": "auth.two_factor.wrong_password",
+        "value": "The current password is incorrect."
+    },
+    {
+        "key": "auth.two_factor.already_enabled",
+        "value": "Two-factor authentication is already enabled."
+    },
+    {
+        "key": "auth.two_factor.not_set_up",
+        "value": "Two-factor authentication is not set up."
+    },
+    {
+        "key": "auth.two_factor.status.success",
+        "value": "Two-factor authentication status fetched"
+    },
+    {
+        "key": "auth.two_factor.setup.success",
+        "value": "Scan the code with your authenticator app and enter the code it shows"
+    },
+    {
+        "key": "auth.two_factor.enable.success",
+        "value": "Two-factor authentication enabled. Keep your recovery codes in a safe place."
+    },
+    {
+        "key": "auth.two_factor.disable.success",
+        "value": "Two-factor authentication disabled"
+    },
+    {
+        "key": "auth.two_factor.recovery_codes.success",
+        "value": "New recovery codes generated. The previous ones no longer work."
+    },
+    {
+        "key": "backoffice.company.users.two_factor_reset.success",
+        "value": "Two-factor authentication reset. The user must sign in again."
     },
     {
         "key": "profile.section.security",

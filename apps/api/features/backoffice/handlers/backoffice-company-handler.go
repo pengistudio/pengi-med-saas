@@ -384,6 +384,29 @@ func (h *BackofficeCompanyHandler) UnlockCompanyUser(c *gin.Context) envelope.Re
 	return envelope.SuccessResponse(nil, "backoffice.company.users.unlock.success")
 }
 
+// ResetCompanyUserTwoFactor turns off two-factor authentication of a user of
+// the company (lost authenticator and recovery codes): secret and recovery
+// codes deleted, lockout lifted, every session of the user ended.
+func (h *BackofficeCompanyHandler) ResetCompanyUserTwoFactor(c *gin.Context) envelope.Response {
+	companyID := c.Param("id")
+	userID := c.Param("user_id")
+
+	// The user must belong to this company.
+	var env user_models.Environment
+	if err := h.db.Where("company_id = ? AND user_id = ?", companyID, userID).First(&env).Error; err != nil {
+		h.logger.Error("User not found in company", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
+	}
+
+	if err := user_handlers.ResetTwoFactor(h.db, env.UserID); err != nil {
+		h.logger.Error("Failed to reset 2FA of company user", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+
+	h.logger.Info("Company user 2FA reset", zap.String("company_id", companyID), zap.String("user_id", userID))
+	return envelope.SuccessResponse(nil, "backoffice.company.users.two_factor_reset.success")
+}
+
 // GenerateUserPasswordResetLink generates a password-reset link for a tenant user.
 // Returns the link so the backoffice operator can copy and send it manually (or via email later).
 func (h *BackofficeCompanyHandler) GenerateUserPasswordResetLink(c *gin.Context) envelope.Response {

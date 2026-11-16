@@ -65,8 +65,20 @@ func (l accountLockout) unknownUserLimiter() *auth.LoginLimiter {
 // skips locked rows: concurrent requests can't all slip past the lock check,
 // so at most maxAttempts guesses are ever checked per lock window. The
 // attempt that reaches the limit sets locked_until and restarts the counter;
-// a correct password clears both.
+// a correct password clears both, unless the user has two-factor
+// authentication: then only a correct second factor (checkSecondFactor)
+// clears them, so knowing the password never buys fresh code guesses.
 func (l accountLockout) check(db *gorm.DB, logger *zap.Logger, userID uint, verify func() bool) error {
+	return l.attempt(db, logger, userID, verify, clearPasswordLockout)
+}
+
+// checkSecondFactor is check for a TOTP or recovery code: same counter, and a
+// correct code always clears it.
+func (l accountLockout) checkSecondFactor(db *gorm.DB, logger *zap.Logger, userID uint, verify func() bool) error {
+	return l.attempt(db, logger, userID, verify, clearLockout)
+}
+
+func (l accountLockout) attempt(db *gorm.DB, logger *zap.Logger, userID uint, verify func() bool, clear func(*gorm.DB, uint) error) error {
 	if !l.enabled() {
 		if verify() {
 			return nil
@@ -91,7 +103,7 @@ func (l accountLockout) check(db *gorm.DB, logger *zap.Logger, userID uint, veri
 	}
 
 	if verify() {
-		if err := clearLockout(db, userID); err != nil {
+		if err := clear(db, userID); err != nil {
 			logger.Error("Failed to reset failed password attempts", zap.Uint("user_id", userID), zap.Error(err))
 		}
 		return nil
@@ -107,9 +119,19 @@ func (l accountLockout) check(db *gorm.DB, logger *zap.Logger, userID uint, veri
 }
 
 // clearLockout forgets userID's failed attempts and lifts any lock. Called
-// after a correct password and on password change/reset.
+// after a correct second factor and by the backoffice 2FA reset.
 func clearLockout(db *gorm.DB, userID uint) error {
 	return db.Model(&user_models.User{}).Where("id = ?", userID).UpdateColumns(map[string]any{
+		"failed_login_attempts": 0,
+		"locked_until":          nil,
+	}).Error
+}
+
+// clearPasswordLockout is clearLockout after a password proof (correct
+// password, password change or reset): it does nothing for a user with
+// two-factor authentication, whose counter only a correct code clears.
+func clearPasswordLockout(db *gorm.DB, userID uint) error {
+	return db.Model(&user_models.User{}).Where("id = ? AND two_factor_enabled = ?", userID, false).UpdateColumns(map[string]any{
 		"failed_login_attempts": 0,
 		"locked_until":          nil,
 	}).Error

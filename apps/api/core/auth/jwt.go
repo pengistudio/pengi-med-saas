@@ -178,6 +178,11 @@ func ValidateRefreshToken(refreshToken string) (RefreshTokenClaims, error) {
 	if err != nil || !token.Valid {
 		return RefreshTokenClaims{}, errors.New("invalid refresh token")
 	}
+	// Refresh tokens (current and legacy) never carry a type: any typed token
+	// (access, exchange, mfa, reset, backoffice, portal...) is something else.
+	if _, typed := claims["type"]; typed {
+		return RefreshTokenClaims{}, errors.New("invalid refresh token")
+	}
 
 	if exp, ok := claims["exp"].(float64); ok {
 		if time.Unix(int64(exp), 0).Before(time.Now()) {

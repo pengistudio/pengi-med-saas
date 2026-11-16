@@ -20,15 +20,39 @@ type User struct {
 	EmailVerified     bool          `gorm:"not null;default:false" json:"email_verified"`
 	EmailVerifiedAt   *time.Time    `json:"email_verified_at"`
 	MaxOwnedCompanies int           `gorm:"not null;default:3" json:"max_owned_companies"`
-	// PasswordChangedAt is set on every password change or reset; access
-	// tokens issued before it are rejected by AuthMiddleware.
+	// PasswordChangedAt is set on every password change or reset, and when
+	// two-factor authentication is turned on or reset (every session must
+	// pass the new second factor); access tokens issued before it are
+	// rejected by AuthMiddleware.
 	PasswordChangedAt *time.Time `json:"-"`
-	// FailedLoginAttempts counts consecutive wrong passwords (login, change
-	// password, change email); reaching the limit sets LockedUntil. See
-	// user_handlers.accountLockout.
+	// FailedLoginAttempts counts consecutive wrong passwords and second-factor
+	// codes (login, change password, change email, 2FA); reaching the limit
+	// sets LockedUntil. See user_handlers.accountLockout.
 	FailedLoginAttempts int        `gorm:"not null;default:0" json:"-"`
 	LockedUntil         *time.Time `json:"-"`
+
+	// Two-factor authentication (TOTP), optional per user. TwoFactorSecret is
+	// the TOTP secret sealed with core/secretbox (user ID as AAD): pending
+	// while TwoFactorEnabled is false (setup started, no code confirmed yet),
+	// active once it is true. TwoFactorLastStep is the last accepted TOTP
+	// time step: codes at or before it are refused (replay).
+	TwoFactorEnabled   bool       `gorm:"not null;default:false" json:"-"`
+	TwoFactorSecret    []byte     `json:"-"`
+	TwoFactorLastStep  int64      `gorm:"not null;default:0" json:"-"`
+	TwoFactorEnabledAt *time.Time `json:"-"`
 }
+
+// RecoveryCode is a single-use second factor for when the authenticator is
+// lost. Only the SHA-256 of the code is stored; the code is shown once.
+type RecoveryCode struct {
+	ID        uint `gorm:"primarykey"`
+	CreatedAt time.Time
+	UserID    uint   `gorm:"not null;index"`
+	CodeHash  string `gorm:"size:64;not null;index"`
+	UsedAt    *time.Time
+}
+
+func (RecoveryCode) TableName() string { return "user_recovery_codes" }
 
 type Environment struct {
 	gorm.Model
