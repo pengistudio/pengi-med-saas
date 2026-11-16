@@ -409,6 +409,28 @@ func (h *BackofficeCompanyHandler) ResetCompanyUserTwoFactor(c *gin.Context) env
 	return envelope.SuccessResponse(nil, "backoffice.company.users.two_factor_reset.success")
 }
 
+// ResetCompanyUserPasskeys removes every passkey of a user of the company
+// (lost device) and ends all their sessions.
+func (h *BackofficeCompanyHandler) ResetCompanyUserPasskeys(c *gin.Context) envelope.Response {
+	companyID := c.Param("id")
+	userID := c.Param("user_id")
+
+	// The user must belong to this company.
+	var env user_models.Environment
+	if err := h.db.Where("company_id = ? AND user_id = ?", companyID, userID).First(&env).Error; err != nil {
+		h.logger.Error("User not found in company", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
+	}
+
+	if err := user_handlers.ResetPasskeys(h.db, env.UserID); err != nil {
+		h.logger.Error("Failed to reset passkeys of company user", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+
+	h.logger.Info("Company user passkeys reset", zap.String("company_id", companyID), zap.String("user_id", userID))
+	return envelope.SuccessResponse(nil, "backoffice.company.users.passkeys_reset.success")
+}
+
 // GenerateUserPasswordResetLink generates a password-reset link for a tenant user.
 // Returns the link so the backoffice operator can copy and send it manually (or via email later).
 func (h *BackofficeCompanyHandler) GenerateUserPasswordResetLink(c *gin.Context) envelope.Response {

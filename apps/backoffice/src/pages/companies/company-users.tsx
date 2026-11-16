@@ -34,6 +34,7 @@ import {
 import {
 	ArrowLeft,
 	Copy,
+	Fingerprint,
 	KeyRound,
 	LockOpen,
 	Pencil,
@@ -52,6 +53,7 @@ import {
 	getPasswordResetLink,
 	getRoles,
 	type PasswordResetLinkResponse,
+	resetCompanyUserPasskeys,
 	resetCompanyUserTwoFactor,
 	type UpdateCompanyUserRequest,
 	unlockCompanyUser,
@@ -103,6 +105,11 @@ const CompanyUsers = () => {
 	const [resetTwoFactorUser, setResetTwoFactorUser] =
 		React.useState<CompanyUser | null>(null);
 	const [resettingTwoFactor, setResettingTwoFactor] = React.useState(false);
+
+	// Reset passkeys confirmation state
+	const [resetPasskeysUser, setResetPasskeysUser] =
+		React.useState<CompanyUser | null>(null);
+	const [resettingPasskeys, setResettingPasskeys] = React.useState(false);
 
 	// Loads without flagging loading; callers set it first.
 	const loadData = React.useCallback(() => {
@@ -170,6 +177,17 @@ const CompanyUsers = () => {
 		setResettingTwoFactor(false);
 		if (res.success) {
 			setResetTwoFactorUser(null);
+			fetchData();
+		}
+	};
+
+	const handleResetPasskeys = async () => {
+		if (!id || !resetPasskeysUser) return;
+		setResettingPasskeys(true);
+		const res = await resetCompanyUserPasskeys(id, resetPasskeysUser.user_id);
+		setResettingPasskeys(false);
+		if (res.success) {
+			setResetPasskeysUser(null);
 			fetchData();
 		}
 	};
@@ -351,6 +369,16 @@ const CompanyUsers = () => {
 														<ShieldOff className="h-4 w-4" />
 													</Button>
 												)}
+												<Button
+													variant="ghost"
+													size="icon"
+													onClick={() => setResetPasskeysUser(user)}
+													title={textGet(
+														"backoffice.company_users.passkeys_reset.button_title",
+													)}
+												>
+													<Fingerprint className="h-4 w-4" />
+												</Button>
 												<Button
 													variant="ghost"
 													size="icon"
@@ -540,6 +568,44 @@ const CompanyUsers = () => {
 						>
 							{resettingTwoFactor && <Spinner />}
 							{textGet("backoffice.company_users.two_factor_reset.confirm")}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			{/* Reset passkeys Confirmation */}
+			<AlertDialog
+				open={resetPasskeysUser !== null}
+				onOpenChange={(open) => {
+					if (!open && !resettingPasskeys) setResetPasskeysUser(null);
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{textGet("backoffice.company_users.passkeys_reset.confirm_title")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{textGet(
+								"backoffice.company_users.passkeys_reset.confirm_description",
+							)}{" "}
+							(<strong>{resetPasskeysUser?.user_name}</strong>)
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={resettingPasskeys}>
+							{textGet("backoffice.company_users.cancel")}
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={(e) => {
+								e.preventDefault();
+								handleResetPasskeys();
+							}}
+							disabled={resettingPasskeys}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							{resettingPasskeys && <Spinner />}
+							{textGet("backoffice.company_users.passkeys_reset.confirm")}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

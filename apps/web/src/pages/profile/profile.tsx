@@ -39,6 +39,7 @@ import { specialtyLabel } from "@/components/features/doctors/doctor-utils";
 import { MyDoctorProfileCard } from "@/components/features/doctors/my-doctor-profile-card";
 import { ChangePasswordCard } from "@/components/features/profile/change-password-card";
 import { ElectronicSignatureCard } from "@/components/features/profile/electronic-signature-card";
+import { PasskeysCard } from "@/components/features/profile/passkeys-card";
 import { TwoFactorCard } from "@/components/features/profile/two-factor-card";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
@@ -294,6 +295,7 @@ const Profile = () => {
 			<div className="space-y-6">
 				<ChangePasswordCard />
 				<TwoFactorCard />
+				<PasskeysCard />
 			</div>
 		),
 	};

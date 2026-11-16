@@ -121,6 +121,36 @@ func TestResetCompanyUserTwoFactor(t *testing.T) {
 	}
 }
 
+func TestResetCompanyUserPasskeys(t *testing.T) {
+	h, locked, other := setupCompanyUsers(t)
+	if err := h.db.AutoMigrate(&user_models.Passkey{}, &user_models.WebAuthnChallenge{}, &user_models.RefreshToken{}); err != nil {
+		t.Fatal(err)
+	}
+	for _, u := range []*user_models.User{locked, other} {
+		h.db.Create(&user_models.Passkey{UserID: u.ID, CredentialID: []byte{byte(u.ID)}, Credential: []byte("{}"), Name: "k"})
+		h.db.Create(&user_models.RefreshToken{UserID: u.ID, FamilyID: "f", TokenHash: strconv.Itoa(int(u.ID)), IssuedAt: time.Now(), ExpiresAt: time.Now().Add(time.Hour)})
+	}
+
+	if resp := h.ResetCompanyUserPasskeys(companyUserCtx("1", strconv.Itoa(int(other.ID)))); resp.Code != http.StatusNotFound {
+		t.Fatalf("other company user: %d, want 404", resp.Code)
+	}
+	var n int64
+	h.db.Model(&user_models.Passkey{}).Where("user_id = ?", other.ID).Count(&n)
+	if n != 1 {
+		t.Fatal("passkeys of another company's user were removed")
+	}
+
+	if resp := h.ResetCompanyUserPasskeys(companyUserCtx("1", strconv.Itoa(int(locked.ID)))); resp.Code != http.StatusOK {
+		t.Fatalf("reset: %d %q", resp.Code, resp.Message)
+	}
+	var keys, live int64
+	h.db.Model(&user_models.Passkey{}).Where("user_id = ?", locked.ID).Count(&keys)
+	h.db.Model(&user_models.RefreshToken{}).Where("user_id = ? AND revoked_at IS NULL", locked.ID).Count(&live)
+	if keys != 0 || live != 0 {
+		t.Fatalf("reset incomplete: passkeys=%d live=%d", keys, live)
+	}
+}
+
 func TestGetCompanyUsers_LockedFlag(t *testing.T) {
 	h, _, _ := setupCompanyUsers(t)
 

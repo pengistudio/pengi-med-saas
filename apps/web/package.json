@@ -21,6 +21,7 @@
 		"@hookform/resolvers": "catalog:",
 		"@pengi/shared": "workspace:*",
 		"@pengi/ui": "workspace:*",
+		"@simplewebauthn/browser": "^14.0.0",
 		"@tailwindcss/node": "catalog:",
 		"@tailwindcss/vite": "catalog:",
 		"@tanstack/react-table": "catalog:",

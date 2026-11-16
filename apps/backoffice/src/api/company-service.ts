@@ -137,6 +137,18 @@ export const resetCompanyUserTwoFactor = async (
 	);
 };
 
+/** Removes the user's passkeys and signs them out everywhere. */
+export const resetCompanyUserPasskeys = async (
+	companyId: number | string,
+	userId: number | string,
+): Promise<ServiceResponse<null>> => {
+	return httpService.post<null>(
+		`/backoffice/companies/${companyId}/users/${userId}/passkeys/reset`,
+		{},
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
 export const getRoles = async (): Promise<ServiceResponse<Role[]>> => {
 	return httpService.get<Role[]>("/backoffice/roles", { notifyError: true });
 };
