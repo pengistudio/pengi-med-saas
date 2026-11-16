@@ -65,7 +65,7 @@ func (h *WhatsAppHandler) GetAccount(c *gin.Context) envelope.Response {
 	if !found {
 		return envelope.SuccessResponse(whatsapp_dto.NotConnected(), "whatsapp.account.get.success")
 	}
-	return envelope.SuccessResponse(whatsapp_dto.NewAccountResponse(account), "whatsapp.account.get.success")
+	return envelope.SuccessResponse(h.accountResponse(c, account), "whatsapp.account.get.success")
 }
 
 // ConnectEmbedded finishes Embedded Signup: exchanges the code for the
@@ -198,16 +198,91 @@ func (h *WhatsAppHandler) ConnectManual(c *gin.Context) envelope.Response {
 	return h.saveConnection(c, box, account, req.AccessToken, phone, nil)
 }
 
-// saveConnection ensures the catalog templates, seals the token and upserts
-// the tenant's account, keeping its reminder settings on a reconnect. steps
-// (nil-safe) times EnsureTemplates for the caller's diagnostic log.
+// templateWait is how long a connect waits for the catalog templates before
+// answering (a var so tests can shorten it). Each template costs Graph round
+// trips and a slow WABA made the connect take 43 s, leaving the UI spinning.
+var templateWait = 5 * time.Second
+
+// templatesFunc reads (or reads and creates) the catalog templates of a WABA:
+// whatsapp_services.ReadTemplateStates or CreateMissingTemplates.
+type templatesFunc func(client *whatsapp.Client, token, wabaID string) ([]whatsapp_services.TemplateState, error)
+
+// connectTemplates is what a connect does with the catalog templates. A
+// Coexistence number only gets its statuses read: in production Meta blocked
+// such numbers right after Pengi tried to create templates on them (Graph
+// error 10). Creating them is then an explicit action
+// (POST /whatsapp/template/create-missing).
+func connectTemplates(conn whatsapp_models.WhatsAppAccount) templatesFunc {
+	if conn.Coexistence {
+		return whatsapp_services.ReadTemplateStates
+	}
+	return whatsapp_services.CreateMissingTemplates
+}
+
+// ensureTemplatesWithin runs run and waits up to wait for it.
+// finished=false means it is still running: a goroutine then stores the
+// template statuses once it ends, and the reminder's on the account once
+// saved is closed (the caller closes it after upserting the account, so the
+// update neither misses the row nor is overwritten by the upsert).
+func (h *WhatsAppHandler) ensureTemplatesWithin(run templatesFunc, tenantID uint, token, wabaID string, wait time.Duration, saved <-chan struct{}) (states []whatsapp_services.TemplateState, finished bool, err error) {
+	type result struct {
+		states []whatsapp_services.TemplateState
+		err    error
+	}
+	ch := make(chan result, 1)
+	go func() {
+		s, e := run(h.client, token, wabaID)
+		ch <- result{s, e}
+	}()
+	select {
+	case r := <-ch:
+		return r.states, true, r.err
+	case <-time.After(wait):
+		go func() {
+			r := <-ch
+			if r.err != nil {
+				h.logger.Warn("whatsapp templates could not be ensured", zap.Uint("tenant_id", tenantID), zap.Error(r.err))
+			}
+			db := tenantdb.ForTenant(h.db, tenantID)
+			if e := whatsapp_services.SaveTemplateStates(db, tenantID, r.states); e != nil {
+				h.logger.Error("failed to save whatsapp template statuses", zap.Error(e))
+				return
+			}
+			status := whatsapp_services.StateOf(r.states, whatsapp_models.ReminderTemplate)
+			if status == whatsapp_models.TemplateStatusNone {
+				return
+			}
+			<-saved
+			if e := db.Model(&whatsapp_models.WhatsAppAccount{}).Where("tenant_id = ?", tenantID).
+				Updates(map[string]any{"template_status": status, "template_reason": ""}).Error; e != nil {
+				h.logger.Error("failed to save whatsapp template status", zap.Error(e))
+			}
+		}()
+		return nil, false, nil
+	}
+}
+
+// saveConnection reads (Coexistence) or ensures the catalog templates, seals
+// the token and upserts the tenant's account, keeping its reminder settings on
+// a reconnect. steps (nil-safe) times the template step ("ensure_templates")
+// for the caller's diagnostic log.
 func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(string) (string, error) }, conn whatsapp_models.WhatsAppAccount, token string, phone whatsapp.PhoneNumber, steps *stepTimer) envelope.Response {
+	tenantID := tenantdb.TenantID(c)
+	// Closed on return (after the account upsert, or on an early error):
+	// a background template run then updates the account's reminder status.
+	saved := make(chan struct{})
+	defer close(saved)
 	done := steps.start("ensure_templates")
-	states, err := whatsapp_services.EnsureTemplates(h.client, token, conn.WabaID)
+	states, finished, err := h.ensureTemplatesWithin(connectTemplates(conn), tenantID, token, conn.WabaID, templateWait, saved)
 	done()
-	if err != nil {
-		// Not fatal: the number is connected; POST /whatsapp/template/sync retries.
-		h.logger.Warn("whatsapp templates could not be ensured", zap.Error(err))
+	if !finished {
+		// Meta is slow: answer now; the states are stored when it finishes.
+		h.logger.Warn("whatsapp templates still running, finishing in background", zap.Duration("waited", templateWait))
+	} else if err != nil {
+		// Not fatal: the number is connected; settings can sync or create
+		// the missing templates later.
+		h.logger.Warn("whatsapp templates could not be ensured", zap.Bool("coexistence", conn.Coexistence),
+			zap.Bool("permission_denied", whatsapp_services.IsTemplatePermissionError(err)), zap.Error(err))
 	}
 	templateStatus := whatsapp_services.StateOf(states, whatsapp_models.ReminderTemplate)
 	sealed, err := box.Seal(token)
@@ -258,39 +333,92 @@ func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(str
 	if err := whatsapp_services.SaveTemplateStates(tenantdb.For(c, h.db), account.TenantID, states); err != nil {
 		h.logger.Error("failed to save whatsapp template statuses", zap.Error(err))
 	}
-	return envelope.SuccessResponse(whatsapp_dto.NewAccountResponse(account), "whatsapp.account.connect.success")
+	return envelope.SuccessResponse(h.accountResponse(c, account), "whatsapp.account.connect.success")
 }
 
-// SyncTemplate re-reads (or creates) every catalog template and stores their
-// statuses; the reminder's is also mirrored on the account. A Graph error is
-// only returned when no template could be read.
+// accountResponse maps account and lists the catalog templates the tenant
+// has no status for (absent on the WABA, or never read).
+func (h *WhatsAppHandler) accountResponse(c *gin.Context, account whatsapp_models.WhatsAppAccount) whatsapp_dto.AccountResponse {
+	resp := whatsapp_dto.NewAccountResponse(account)
+	rows, err := whatsapp_services.TemplateRows(tenantdb.For(c, h.db))
+	if err != nil {
+		h.logger.Error("failed to load whatsapp templates", zap.Error(err))
+		return resp
+	}
+	for _, spec := range whatsapp_services.Catalog {
+		if rows[spec.Definition.Name].Status == whatsapp_models.TemplateStatusNone {
+			resp.MissingTemplates = append(resp.MissingTemplates, spec.Definition.Name)
+		}
+	}
+	return resp
+}
+
+// SyncTemplate re-reads the status of every catalog template (one Graph
+// call, never creates any) and stores them; the reminder's is also mirrored
+// on the account. Creating the missing ones is CreateMissingTemplates.
 func (h *WhatsAppHandler) SyncTemplate(c *gin.Context) envelope.Response {
 	account, token, resp, ok := h.connected(c)
 	if !ok {
 		return resp
 	}
-	states, err := whatsapp_services.EnsureTemplates(h.client, token, account.WabaID)
+	states, err := whatsapp_services.ReadTemplateStates(h.client, token, account.WabaID)
 	if err != nil {
-		if len(states) == 0 {
-			return h.graphFailure("ensure templates", err)
-		}
-		h.logger.Warn("some whatsapp templates could not be ensured", zap.Error(err))
+		return h.graphFailure("read templates", err)
 	}
+	if resp, ok := h.storeTemplateStates(c, &account, states); !ok {
+		return resp
+	}
+	return envelope.SuccessResponse(h.accountResponse(c, account), "whatsapp.template.sync.success")
+}
+
+// CreateMissingTemplates creates the catalog templates missing on the WABA,
+// one by one, stopping at the first Graph error (whatsapp_services
+// .CreateMissingTemplates). Whatever was read or created is stored even when
+// it fails. A permission refusal (Graph error 10) gets its own error so the
+// user knows nothing else was attempted.
+func (h *WhatsAppHandler) CreateMissingTemplates(c *gin.Context) envelope.Response {
+	account, token, resp, ok := h.connected(c)
+	if !ok {
+		return resp
+	}
+	states, createErr := whatsapp_services.CreateMissingTemplates(h.client, token, account.WabaID)
+	if len(states) > 0 {
+		if resp, ok := h.storeTemplateStates(c, &account, states); !ok {
+			return resp
+		}
+	}
+	if createErr != nil {
+		if whatsapp_services.IsTemplatePermissionError(createErr) {
+			h.logger.Warn("whatsapp app lacks permission to create templates", zap.Uint("tenant_id", account.TenantID), zap.Error(createErr))
+			return envelope.ErrorResponse(http.StatusUnprocessableEntity, "whatsapp.error.template_permission", core_errors.ErrWhatsAppTemplatePermission)
+		}
+		if errors.Is(createErr, whatsapp_services.ErrTemplateListIncomplete) {
+			h.logger.Warn("whatsapp template listing incomplete, nothing created", zap.Uint("tenant_id", account.TenantID))
+			return envelope.ErrorResponse(http.StatusUnprocessableEntity, "whatsapp.error.template_list_incomplete", core_errors.ErrWhatsAppTemplateListIncomplete)
+		}
+		return h.graphFailure("create missing templates", createErr)
+	}
+	return envelope.SuccessResponse(h.accountResponse(c, account), "whatsapp.template.create_missing.success")
+}
+
+// storeTemplateStates saves states and mirrors the reminder's status on
+// account (kept as it was when the reminder is not among them).
+func (h *WhatsAppHandler) storeTemplateStates(c *gin.Context, account *whatsapp_models.WhatsAppAccount, states []whatsapp_services.TemplateState) (envelope.Response, bool) {
 	db := tenantdb.For(c, h.db)
 	if err := whatsapp_services.SaveTemplateStates(db, account.TenantID, states); err != nil {
 		h.logger.Error("failed to save whatsapp template statuses", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal), false
 	}
 	status := whatsapp_services.StateOf(states, whatsapp_models.ReminderTemplate)
 	if status == whatsapp_models.TemplateStatusNone {
-		status = account.TemplateStatus // the reminder failed this time: keep what we knew
+		status = account.TemplateStatus // not read this time: keep what we knew
 	}
-	if err := db.Model(&account).Updates(map[string]any{"template_status": status, "template_reason": ""}).Error; err != nil {
+	if err := db.Model(account).Updates(map[string]any{"template_status": status, "template_reason": ""}).Error; err != nil {
 		h.logger.Error("failed to save whatsapp template status", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
+		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal), false
 	}
 	account.TemplateStatus, account.TemplateReason = status, ""
-	return envelope.SuccessResponse(whatsapp_dto.NewAccountResponse(account), "whatsapp.template.sync.success")
+	return envelope.Response{}, true
 }
 
 // UpdateSettings switches reminders on/off, sets their offsets and switches
@@ -320,7 +448,7 @@ func (h *WhatsAppHandler) UpdateSettings(c *gin.Context) envelope.Response {
 		h.logger.Error("failed to save whatsapp settings", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "whatsapp.error.internal", core_errors.ErrWhatsAppInternal)
 	}
-	return envelope.SuccessResponse(whatsapp_dto.NewAccountResponse(account), "whatsapp.settings.update.success")
+	return envelope.SuccessResponse(h.accountResponse(c, account), "whatsapp.settings.update.success")
 }
 
 // Disconnect deletes the tenant's account (hard delete, so the number can be

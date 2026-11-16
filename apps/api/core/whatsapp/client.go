@@ -424,6 +424,37 @@ func (c *Client) ListTemplates(token, wabaID, name string) ([]Template, error) {
 	return out.Data, nil
 }
 
+// ListAllTemplates lists every template of the WABA, following the listing's
+// paging cursors for at most maxPages pages. complete=false means the
+// listing was cut short (more pages than maxPages, or a next page without a
+// cursor): a template not in templates may still exist on the WABA.
+func (c *Client) ListAllTemplates(token, wabaID string, maxPages int) (templates []Template, complete bool, err error) {
+	q := url.Values{"fields": {"id,name,status,language,category"}, "limit": {"100"}}
+	for page := 0; page < maxPages; page++ {
+		var out struct {
+			Data   []Template `json:"data"`
+			Paging struct {
+				Next    string `json:"next"`
+				Cursors struct {
+					After string `json:"after"`
+				} `json:"cursors"`
+			} `json:"paging"`
+		}
+		if err := c.do(http.MethodGet, wabaID+"/message_templates", token, q, nil, &out); err != nil {
+			return templates, false, err
+		}
+		templates = append(templates, out.Data...)
+		if out.Paging.Next == "" {
+			return templates, true, nil
+		}
+		if out.Paging.Cursors.After == "" {
+			return templates, false, nil
+		}
+		q.Set("after", out.Paging.Cursors.After)
+	}
+	return templates, false, nil
+}
+
 // ExchangeCode trades an Embedded Signup code for the business's access token.
 func (c *Client) ExchangeCode(code string) (string, error) {
 	if c.AppID == "" || c.AppSecret == "" {

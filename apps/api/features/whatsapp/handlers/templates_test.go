@@ -194,6 +194,156 @@ func TestTemplates_SyncAndWebhookUpdatePerTemplate(t *testing.T) {
 	}
 }
 
+const (
+	listTemplatesKey   = "GET /v23.0/WABA-1/message_templates"
+	createTemplatesKey = "POST /v23.0/WABA-1/message_templates"
+	// What Meta answered in production right before blocking the number.
+	permissionDenied = `{"error":{"code":10,"type":"OAuthException","message":"Application does not have permission for this action"}}`
+)
+
+// A Graph permission error on the first template stops the run: one write,
+// not one per catalog template, on connect and on "create missing".
+func TestCreateMissingTemplates_StopsAtFirstPermissionError(t *testing.T) {
+	f := newFixture(t)
+	f.graph.set(createTemplatesKey, 400, permissionDenied)
+	if resp := f.connectManual(f.own); resp.Code != http.StatusOK {
+		t.Fatalf("connect: %d (%v)", resp.Code, resp.Data)
+	}
+	if posts, gets := f.graph.count(createTemplatesKey), f.graph.count(listTemplatesKey); posts != 1 || gets != 1 {
+		t.Fatalf("connect: %d creations, %d listings; want 1 and 1", posts, gets)
+	}
+
+	resp, _ := f.call(f.h.CreateMissingTemplates, f.own, http.MethodPost, nil, "")
+	if resp.Code != http.StatusUnprocessableEntity || resp.Message != "whatsapp.error.template_permission" {
+		t.Fatalf("create missing: code = %d message = %q", resp.Code, resp.Message)
+	}
+	if posts, gets := f.graph.count(createTemplatesKey), f.graph.count(listTemplatesKey); posts != 2 || gets != 2 {
+		t.Fatalf("after create missing: %d creations, %d listings; want 2 and 2", posts, gets)
+	}
+
+	// The sync only reads, so it doesn't touch the refusing endpoint.
+	if resp, _ := f.call(f.h.SyncTemplate, f.own, http.MethodPost, nil, ""); resp.Code != http.StatusOK {
+		t.Fatalf("sync: %d", resp.Code)
+	}
+	if posts := f.graph.count(createTemplatesKey); posts != 2 {
+		t.Fatalf("sync created templates: %d creations", posts)
+	}
+}
+
+// listingOf is a message_templates listing with only names, approved.
+func listingOf(names ...string) string {
+	items := make([]string, 0, len(names))
+	for i, n := range names {
+		items = append(items, fmt.Sprintf(`{"id":"T%d","name":%q,"status":"APPROVED","language":"es"}`, i, n))
+	}
+	return `{"data":[` + strings.Join(items, ",") + `]}`
+}
+
+// withNextPage adds a paging block pointing at cursor to a listing.
+func withNextPage(listing, cursor string) string {
+	return strings.TrimSuffix(listing, "}") + fmt.Sprintf(`,"paging":{"cursors":{"after":%q},"next":"https://graph.example/next?after=%s"}}`, cursor, cursor)
+}
+
+// A catalog template on the listing's second page is found: nothing is
+// created again.
+func TestCreateMissingTemplates_FollowsListingPages(t *testing.T) {
+	f := newFixture(t)
+	var firstPage []string
+	for _, spec := range whatsapp_services.Catalog {
+		if spec.Definition.Name != whatsapp_models.ReminderTemplate {
+			firstPage = append(firstPage, spec.Definition.Name)
+		}
+	}
+	f.graph.set(listTemplatesKey, 200, withNextPage(listingOf(firstPage...), "P2"))
+	f.graph.set(listTemplatesKey+"?after=P2", 200, listingOf(whatsapp_models.ReminderTemplate))
+
+	resp := f.connectManual(f.own)
+	if resp.Code != http.StatusOK {
+		t.Fatalf("connect: %d (%v)", resp.Code, resp.Data)
+	}
+	if got := resp.Data.(whatsapp_dto.AccountResponse); got.TemplateStatus != "APPROVED" || len(got.MissingTemplates) != 0 {
+		t.Fatalf("connect response = %+v", got)
+	}
+	if resp, _ := f.call(f.h.CreateMissingTemplates, f.own, http.MethodPost, nil, ""); resp.Code != http.StatusOK {
+		t.Fatalf("create missing: %d (%v)", resp.Code, resp.Data)
+	}
+	if f.graph.called(createTemplatesKey) {
+		t.Fatalf("a template on page 2 was created again: %v", f.graph.calls)
+	}
+	if n := f.graph.count(listTemplatesKey); n != 4 {
+		t.Fatalf("listing calls = %d, want 4 (2 pages x 2 reads)", n)
+	}
+}
+
+// A listing longer than MaxTemplatePages pages is incomplete: nothing is
+// created, on connect nor on "create missing", and the user is told why.
+func TestCreateMissingTemplates_RefusesOnIncompleteListing(t *testing.T) {
+	f := newFixture(t)
+	endless := withNextPage(`{"data":[]}`, "A")
+	f.graph.set(listTemplatesKey, 200, endless)
+	f.graph.set(listTemplatesKey+"?after=A", 200, endless)
+
+	if resp := f.connectManual(f.own); resp.Code != http.StatusOK {
+		t.Fatalf("connect: %d (%v)", resp.Code, resp.Data)
+	}
+	if n := f.graph.count(listTemplatesKey); n != whatsapp_services.MaxTemplatePages {
+		t.Fatalf("listing calls = %d, want %d", n, whatsapp_services.MaxTemplatePages)
+	}
+	resp, _ := f.call(f.h.CreateMissingTemplates, f.own, http.MethodPost, nil, "")
+	if resp.Code != http.StatusUnprocessableEntity || resp.Message != "whatsapp.error.template_list_incomplete" {
+		t.Fatalf("create missing: code = %d message = %q", resp.Code, resp.Message)
+	}
+	if f.graph.called(createTemplatesKey) {
+		t.Fatalf("templates created from an incomplete listing: %v", f.graph.calls)
+	}
+}
+
+// "Create missing" creates only the templates absent on the WABA; the sync
+// never creates any.
+func TestCreateMissingTemplates_CreatesOnlyAbsent(t *testing.T) {
+	f := newFixture(t)
+	t.Setenv("META_ES_CONFIG_ID", "cfg")
+	f.graph.set(listTemplatesKey, 200, listingOf(whatsapp_models.ReminderTemplate))
+	body := map[string]any{"code": "the-code", "waba_id": "WABA-1", "phone_number_id": "PHONE-1", "coexistence": true}
+	resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, "")
+	if resp.Code != http.StatusOK {
+		t.Fatalf("connect: %d (%v)", resp.Code, resp.Data)
+	}
+	account := resp.Data.(whatsapp_dto.AccountResponse)
+	if account.TemplateStatus != "APPROVED" || len(account.MissingTemplates) != len(whatsapp_services.Catalog)-1 {
+		t.Fatalf("connect response = %+v", account)
+	}
+
+	if resp, _ := f.call(f.h.SyncTemplate, f.own, http.MethodPost, nil, ""); resp.Code != http.StatusOK {
+		t.Fatalf("sync: %d", resp.Code)
+	}
+	if f.graph.called(createTemplatesKey) {
+		t.Fatalf("connect or sync created templates: %v", f.graph.calls)
+	}
+
+	resp, _ = f.call(f.h.CreateMissingTemplates, f.own, http.MethodPost, nil, "")
+	if resp.Code != http.StatusOK || resp.Message != "whatsapp.template.create_missing.success" {
+		t.Fatalf("create missing: code = %d message = %q", resp.Code, resp.Message)
+	}
+	if n := f.graph.count(createTemplatesKey); n != len(whatsapp_services.Catalog)-1 {
+		t.Fatalf("templates created = %d, want %d", n, len(whatsapp_services.Catalog)-1)
+	}
+	if f.graph.bodyWith(createTemplatesKey, fmt.Sprintf(`"name":%q`, whatsapp_models.ReminderTemplate)) != "" {
+		t.Fatal("the existing reminder was created again")
+	}
+	if got := resp.Data.(whatsapp_dto.AccountResponse); len(got.MissingTemplates) != 0 || got.TemplateStatus != "APPROVED" {
+		t.Fatalf("create missing response = %+v", got)
+	}
+	if rows := f.templateRows(f.own); len(rows) != len(whatsapp_services.Catalog) || rows[whatsapp_models.TemplateFollowUp].Status != "PENDING" {
+		t.Fatalf("rows = %+v", rows)
+	}
+
+	// Another tenant without an account gets nothing created.
+	if resp, _ := f.call(f.h.CreateMissingTemplates, f.other, http.MethodPost, nil, ""); resp.Code != http.StatusNotFound {
+		t.Fatalf("not connected: code = %d", resp.Code)
+	}
+}
+
 func TestStartConversation_Rules(t *testing.T) {
 	f := newFixture(t)
 	f.connectedAccount(f.own, "PHONE-1")

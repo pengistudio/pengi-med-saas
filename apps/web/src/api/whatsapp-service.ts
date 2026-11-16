@@ -42,6 +42,8 @@ export interface WhatsAppAccount {
 	/** Send the reschedule template when an appointment is marked no-show. */
 	no_show_message_enabled?: boolean;
 	connected_at?: string;
+	/** Catalog templates with no known status on the WABA (offered to create). */
+	missing_templates?: string[];
 }
 
 export type ConnectManualPayload = {
@@ -350,6 +352,16 @@ export const syncWhatsAppTemplate = async (): Promise<
 > =>
 	whatsappService.post<WhatsAppAccount>(
 		"/whatsapp/template/sync",
+		{},
+		{ notifySuccess: true, notifyError: true },
+	);
+
+/** Creates the catalog templates missing on the WABA; stops at Meta's first error. */
+export const createMissingTemplates = async (): Promise<
+	ServiceResponse<WhatsAppAccount>
+> =>
+	whatsappService.post<WhatsAppAccount>(
+		"/whatsapp/template/create-missing",
 		{},
 		{ notifySuccess: true, notifyError: true },
 	);
