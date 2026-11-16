@@ -50,3 +50,17 @@ export type LoginResponse = {
 	user_id: number;
 	exchange_token: string;
 };
+
+/** A correct password of a user with 2FA: no session yet, a code is needed. */
+export type TwoFactorChallenge = {
+	two_factor_required: true;
+	mfa_token: string;
+};
+
+/** What /auth/login (and /auth/signup/company/join) answers on success. */
+export type LoginResult = LoginResponse | TwoFactorChallenge;
+
+export const isTwoFactorChallenge = (
+	data: LoginResult,
+): data is TwoFactorChallenge =>
+	(data as TwoFactorChallenge).two_factor_required === true;

@@ -1,16 +1,37 @@
 import { createHttpService, type ServiceResponse } from "@pengi/shared";
-import type { LoginRequest, LoginResponse } from "@/types/user-type";
+import type {
+	LoginRequest,
+	LoginResponse,
+	LoginResult,
+} from "@/types/user-type";
 import { apiWithTenant, noAuthApi } from ".";
 
 const loginService = createHttpService(noAuthApi);
 
+/** A session, or a 2FA challenge (see isTwoFactorChallenge). */
 export const userLogin = async (
 	data: LoginRequest,
-): Promise<ServiceResponse<LoginResponse>> => {
-	return loginService.post<LoginResponse>("/auth/login", data, {
+): Promise<ServiceResponse<LoginResult>> => {
+	return loginService.post<LoginResult>("/auth/login", data, {
 		notifySuccess: true,
 		notifyError: true,
 	});
+};
+
+/**
+ * Second step of a 2FA login: the mfa token from userLogin plus a TOTP or
+ * recovery code. Answers the same session as a plain login and sets the
+ * refresh cookie (hence the credentials).
+ */
+export const userLoginTwoFactor = async (
+	mfaToken: string,
+	code: string,
+): Promise<ServiceResponse<LoginResponse>> => {
+	return loginService.post<LoginResponse>(
+		"/auth/login/2fa",
+		{ mfa_token: mfaToken, code },
+		{ withCredentials: true, notifySuccess: true, notifyError: true },
+	);
 };
 
 export const logoutRequest = async (): Promise<ServiceResponse<null>> => {
@@ -147,11 +168,8 @@ export interface JoinExistingCompanyRequest extends Record<string, unknown> {
 	password: string;
 }
 
-export interface JoinExistingCompanyResponse {
-	token: string;
-	exchange_token: string;
-	user_id: number;
-}
+/** A session, or a 2FA challenge when the account has 2FA. */
+export type JoinExistingCompanyResponse = LoginResult;
 
 export const joinCompanyWithExistingAccount = async (
 	data: JoinExistingCompanyRequest,

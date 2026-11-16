@@ -83,6 +83,7 @@ export interface CompanyUser {
 	max_owned_companies: number;
 	owned_companies: number;
 	locked: boolean;
+	two_factor_enabled: boolean;
 }
 
 export interface UpdateCompanyUserRequest extends Record<string, unknown> {
@@ -119,6 +120,18 @@ export const unlockCompanyUser = async (
 ): Promise<ServiceResponse<null>> => {
 	return httpService.post<null>(
 		`/backoffice/companies/${companyId}/users/${userId}/unlock`,
+		{},
+		{ notifySuccess: true, notifyError: true },
+	);
+};
+
+/** Turns off the user's 2FA and signs them out everywhere. */
+export const resetCompanyUserTwoFactor = async (
+	companyId: number | string,
+	userId: number | string,
+): Promise<ServiceResponse<null>> => {
+	return httpService.post<null>(
+		`/backoffice/companies/${companyId}/users/${userId}/2fa/reset`,
 		{},
 		{ notifySuccess: true, notifyError: true },
 	);

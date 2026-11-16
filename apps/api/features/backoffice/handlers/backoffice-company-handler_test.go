@@ -147,3 +147,34 @@ func TestGetCompanyUsers_LockedFlag(t *testing.T) {
 		t.Errorf("locked flags = %v, want locked=true expired=false", got)
 	}
 }
+
+func TestGetCompanyUsers_TwoFactorFlag(t *testing.T) {
+	h, locked, _ := setupCompanyUsers(t)
+	if err := h.db.Model(&user_models.User{}).Where("id = ?", locked.ID).
+		UpdateColumn("two_factor_enabled", true).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	resp := h.GetCompanyUsers(companyUserCtx("1", ""))
+	if resp.Code != http.StatusOK {
+		t.Fatalf("GetCompanyUsers = %d %q", resp.Code, resp.Message)
+	}
+	raw, err := json.Marshal(resp.Data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rows []struct {
+		UserName         string `json:"user_name"`
+		TwoFactorEnabled bool   `json:"two_factor_enabled"`
+	}
+	if err := json.Unmarshal(raw, &rows); err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]bool{}
+	for _, r := range rows {
+		got[r.UserName] = r.TwoFactorEnabled
+	}
+	if len(got) != 2 || !got["locked"] || got["expired"] {
+		t.Errorf("two_factor_enabled flags = %v, want locked=true expired=false", got)
+	}
+}

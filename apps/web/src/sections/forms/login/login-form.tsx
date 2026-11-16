@@ -14,6 +14,8 @@ import { userLogin } from "@/api/auth-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { LANDING_URL } from "@/lib/constants";
 import { useTokenStore } from "@/store/token-store";
+import { isTwoFactorChallenge, type LoginResponse } from "@/types/user-type";
+import { TwoFactorStep } from "./two-factor-step";
 
 const formSchema = z.object({
 	password: z
@@ -35,6 +37,18 @@ const LoginForm = () => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const intent = searchParams.get("intent");
+	// Only in memory: a reload or "back" returns to the password step.
+	const [mfaToken, setMfaToken] = React.useState<string>();
+
+	if (mfaToken) {
+		return (
+			<TwoFactorStep
+				mfaToken={mfaToken}
+				onSuccess={finishLogin}
+				onBack={() => setMfaToken(undefined)}
+			/>
+		);
+	}
 
 	return (
 		<Form<typeof formSchema>
@@ -126,22 +140,29 @@ const LoginForm = () => {
 		setLoad(true);
 		setEmailNotVerified(false);
 		const response = await userLogin(values);
+		setLoad(false);
 		if (!response.success) {
-			setLoad(false);
 			if (response.data?.error_code === "E-AUTH-011") {
 				setEmailNotVerified(true);
 			}
 			return;
 		}
-		setToken(response.data.token);
-		setLoad(false);
+		if (isTwoFactorChallenge(response.data)) {
+			setMfaToken(response.data.mfa_token);
+			return;
+		}
+		finishLogin(response.data);
+	}
+
+	/** Same for a plain login and one that passed the second factor. */
+	function finishLogin(session: LoginResponse) {
+		setMfaToken(undefined);
+		setToken(session.token);
 		if (intent === "new_company") {
 			navigate("/companies/new");
 			return;
 		}
-		navigate(
-			`/login/environments?exchange_token=${response.data.exchange_token}`,
-		);
+		navigate(`/login/environments?exchange_token=${session.exchange_token}`);
 	}
 };
 

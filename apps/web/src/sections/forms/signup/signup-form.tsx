@@ -21,7 +21,9 @@ import {
 	companySignup,
 	joinCompanyWithExistingAccount,
 } from "@/api/auth-service";
+import { TwoFactorStep } from "@/sections/forms/login/two-factor-step";
 import { useTokenStore } from "@/store/token-store";
+import { isTwoFactorChallenge, type LoginResponse } from "@/types/user-type";
 
 const emailStepSchema = z.object({
 	email: z.email(),
@@ -74,6 +76,21 @@ const SignupForm = () => {
 
 	const [step, setStep] = React.useState<Step>("email");
 	const [knownEmail, setKnownEmail] = React.useState("");
+	// Joining with an account that has 2FA: the membership exists, the session
+	// waits for the code. Only in memory, like on the login page.
+	const [mfaToken, setMfaToken] = React.useState<string>();
+
+	if (mfaToken) {
+		return (
+			<div className="max-w-md w-full min-w-xs">
+				<TwoFactorStep
+					mfaToken={mfaToken}
+					onSuccess={finishJoin}
+					onBack={() => navigate("/login")}
+				/>
+			</div>
+		);
+	}
 
 	if (!token) {
 		return (
@@ -136,12 +153,17 @@ const SignupForm = () => {
 			password: values.password,
 		});
 		setLoad(false);
-		if (response.success && response.data) {
-			setToken(response.data.token);
-			navigate(
-				`/login/environments?exchange_token=${response.data.exchange_token}`,
-			);
+		if (!response.success || !response.data) return;
+		if (isTwoFactorChallenge(response.data)) {
+			setMfaToken(response.data.mfa_token);
+			return;
 		}
+		finishJoin(response.data);
+	}
+
+	function finishJoin(session: LoginResponse) {
+		setToken(session.token);
+		navigate(`/login/environments?exchange_token=${session.exchange_token}`);
 	}
 
 	if (step === "email") {

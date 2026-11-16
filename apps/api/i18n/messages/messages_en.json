@@ -15226,5 +15226,213 @@
     {
         "key": "profile.email_change.hint",
         "value": "To change your email, confirm your current password."
+    },
+    {
+        "key": "login.two_factor.title",
+        "value": "Two-step verification"
+    },
+    {
+        "key": "login.two_factor.description",
+        "value": "Enter the 6-digit code from your authenticator app."
+    },
+    {
+        "key": "login.two_factor.recovery_description",
+        "value": "Enter one of the recovery codes you saved when you turned on two-step verification. Each code works once."
+    },
+    {
+        "key": "login.two_factor.code_label",
+        "value": "Verification code"
+    },
+    {
+        "key": "login.two_factor.recovery_label",
+        "value": "Recovery code"
+    },
+    {
+        "key": "login.two_factor.recovery_placeholder",
+        "value": "XXXX-XXXX-XXXX-XXXX"
+    },
+    {
+        "key": "login.two_factor.submit",
+        "value": "Verify"
+    },
+    {
+        "key": "login.two_factor.use_recovery",
+        "value": "Use a recovery code"
+    },
+    {
+        "key": "login.two_factor.use_app",
+        "value": "Use the authenticator app"
+    },
+    {
+        "key": "login.two_factor.back",
+        "value": "Back to sign in"
+    },
+    {
+        "key": "profile.two_factor.title",
+        "value": "Two-step verification"
+    },
+    {
+        "key": "profile.two_factor.description",
+        "value": "Besides your password, ask for a code from an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password...) when you sign in."
+    },
+    {
+        "key": "profile.two_factor.status.enabled",
+        "value": "On"
+    },
+    {
+        "key": "profile.two_factor.status.disabled",
+        "value": "Off"
+    },
+    {
+        "key": "profile.two_factor.recovery_remaining.one",
+        "value": "You have {count} unused recovery code."
+    },
+    {
+        "key": "profile.two_factor.recovery_remaining.other",
+        "value": "You have {count} unused recovery codes."
+    },
+    {
+        "key": "profile.two_factor.recovery_low",
+        "value": "You are running out of recovery codes. Generate a new set and keep it in a safe place."
+    },
+    {
+        "key": "profile.two_factor.enable",
+        "value": "Turn on"
+    },
+    {
+        "key": "profile.two_factor.disable",
+        "value": "Turn off"
+    },
+    {
+        "key": "profile.two_factor.regenerate",
+        "value": "New recovery codes"
+    },
+    {
+        "key": "profile.two_factor.cancel",
+        "value": "Cancel"
+    },
+    {
+        "key": "profile.two_factor.continue",
+        "value": "Continue"
+    },
+    {
+        "key": "profile.two_factor.verify",
+        "value": "Verify and turn on"
+    },
+    {
+        "key": "profile.two_factor.code_label",
+        "value": "Code from the app"
+    },
+    {
+        "key": "profile.two_factor.enable.title",
+        "value": "Turn on two-step verification"
+    },
+    {
+        "key": "profile.two_factor.enable.password_description",
+        "value": "Confirm your current password to start."
+    },
+    {
+        "key": "profile.two_factor.enable.scan_description",
+        "value": "Scan the QR code with your authenticator app, or type the key by hand. Then enter the 6-digit code the app shows. Your other sessions will be signed out."
+    },
+    {
+        "key": "profile.two_factor.enable.qr_title",
+        "value": "QR code for your authenticator app"
+    },
+    {
+        "key": "profile.two_factor.enable.secret_label",
+        "value": "Key for manual entry"
+    },
+    {
+        "key": "profile.two_factor.enable.copy_secret",
+        "value": "Copy key"
+    },
+    {
+        "key": "profile.two_factor.codes.title",
+        "value": "Your recovery codes"
+    },
+    {
+        "key": "profile.two_factor.codes.description",
+        "value": "If you lose your phone, each of these codes lets you sign in once. Save them somewhere safe: they won't be shown again."
+    },
+    {
+        "key": "profile.two_factor.codes.copy",
+        "value": "Copy"
+    },
+    {
+        "key": "profile.two_factor.codes.copied",
+        "value": "Copied"
+    },
+    {
+        "key": "profile.two_factor.codes.download",
+        "value": "Download"
+    },
+    {
+        "key": "profile.two_factor.codes.confirm",
+        "value": "I saved my recovery codes"
+    },
+    {
+        "key": "profile.two_factor.codes.done",
+        "value": "Done"
+    },
+    {
+        "key": "profile.two_factor.codes.file_title",
+        "value": "Recovery codes. Each one works once."
+    },
+    {
+        "key": "profile.two_factor.codes.file_name",
+        "value": "recovery-codes"
+    },
+    {
+        "key": "profile.two_factor.disable.title",
+        "value": "Turn off two-step verification"
+    },
+    {
+        "key": "profile.two_factor.disable.description",
+        "value": "Your account will be protected by your password only. Confirm with your password and a code."
+    },
+    {
+        "key": "profile.two_factor.disable.submit",
+        "value": "Turn off"
+    },
+    {
+        "key": "profile.two_factor.regenerate.title",
+        "value": "New recovery codes"
+    },
+    {
+        "key": "profile.two_factor.regenerate.description",
+        "value": "Your current recovery codes will stop working. Confirm with your password and a code."
+    },
+    {
+        "key": "profile.two_factor.regenerate.submit",
+        "value": "Generate"
+    },
+    {
+        "key": "profile.two_factor.proof.code_label",
+        "value": "Verification code"
+    },
+    {
+        "key": "profile.two_factor.proof.code_description",
+        "value": "The 6-digit code from your app, or a recovery code."
+    },
+    {
+        "key": "backoffice.company_users.two_factor.badge",
+        "value": "2FA"
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.button_title",
+        "value": "Reset two-step verification"
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.confirm_title",
+        "value": "Reset two-step verification?"
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.confirm_description",
+        "value": "Two-step verification will be turned off and its recovery codes deleted. The user will be signed out everywhere and will sign in with their password only."
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.confirm",
+        "value": "Reset"
     }
 ]

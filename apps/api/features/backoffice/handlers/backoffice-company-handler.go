@@ -271,6 +271,7 @@ func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Resp
 		MaxOwnedCompanies int    `json:"max_owned_companies"`
 		OwnedCompanies    int64  `json:"owned_companies"`
 		Locked            bool   `json:"locked"`
+		TwoFactorEnabled  bool   `json:"two_factor_enabled"`
 	}
 
 	now := time.Now()
@@ -290,6 +291,7 @@ func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Resp
 			MaxOwnedCompanies: u.MaxOwnedCompanies,
 			OwnedCompanies:    ownedCompanies,
 			Locked:            u.LockedUntil != nil && u.LockedUntil.After(now),
+			TwoFactorEnabled:  u.TwoFactorEnabled,
 		})
 	}
 
