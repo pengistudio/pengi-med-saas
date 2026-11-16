@@ -92,7 +92,7 @@ func TestSecurityAlert_TwoFactor(t *testing.T) {
 	db, h := setupTwoFactor(t)
 	rec := recordAlerts(h)
 	user := createResetUser(t, db, "dra.lopez", "lopez@example.com", "password123")
-	if err := IssueRefreshFamily(db, user.ID, user.UserName, postJSON(t, nil)); err != nil {
+	if err := IssueRefreshFamily(db, user.ID, user.UserName, tfNow, postJSON(t, nil)); err != nil {
 		t.Fatal(err)
 	}
 

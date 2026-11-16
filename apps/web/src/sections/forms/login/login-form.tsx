@@ -13,6 +13,7 @@ import z from "zod";
 import { userLogin } from "@/api/auth-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { LANDING_URL } from "@/lib/constants";
+import { markPasskeyOfferPending } from "@/lib/passkey-offer-storage";
 import { useTokenStore } from "@/store/token-store";
 import { isTwoFactorChallenge, type LoginResponse } from "@/types/user-type";
 import { PasskeyLoginButton } from "./passkey-login-button";
@@ -45,7 +46,7 @@ const LoginForm = () => {
 		return (
 			<TwoFactorStep
 				mfaToken={mfaToken}
-				onSuccess={finishLogin}
+				onSuccess={(session) => finishLogin(session)}
 				onBack={() => setMfaToken(undefined)}
 			/>
 		);
@@ -119,7 +120,10 @@ const LoginForm = () => {
 						{load && <Spinner />}
 						<Text uuid="login.login_button" />
 					</Button>
-					<PasskeyLoginButton onSuccess={finishLogin} disabled={load} />
+					<PasskeyLoginButton
+						onSuccess={(session) => finishLogin(session, false)}
+						disabled={load}
+					/>
 					<p className="text-sm text-muted-foreground text-center">
 						<Text uuid="login.no_account" />{" "}
 						<a
@@ -156,9 +160,13 @@ const LoginForm = () => {
 		finishLogin(response.data);
 	}
 
-	/** Same for a plain login and one that passed the second factor. */
-	function finishLogin(session: LoginResponse) {
+	/**
+	 * Same for a plain login and one that passed the second factor (both are
+	 * password logins and get the passkey offer on the first screen).
+	 */
+	function finishLogin(session: LoginResponse, withPassword = true) {
 		setMfaToken(undefined);
+		if (withPassword) markPasskeyOfferPending(session.user_id);
 		setToken(session.token);
 		if (intent === "new_company") {
 			navigate("/companies/new");

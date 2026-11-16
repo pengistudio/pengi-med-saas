@@ -5,6 +5,7 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationResponseJSON,
 } from "@simplewebauthn/browser";
+import { toast } from "sonner";
 import { useSessionStore } from "@/store/session-store";
 import type { LoginResponse } from "@/types/user-type";
 import { apiWithTenant, noAuthApi } from ".";
@@ -32,19 +33,41 @@ export interface PasskeyLoginBegin {
 	options: PublicKeyCredentialRequestOptionsJSON;
 }
 
-export const getPasskeys = async (): Promise<ServiceResponse<Passkey[]>> =>
-	passkeyService.get<Passkey[]>("/users/me/passkeys", { notifyError: true });
+/** `notifyError: false` for background checks that must not toast. */
+export const getPasskeys = async (
+	notifyError = true,
+): Promise<ServiceResponse<Passkey[]>> =>
+	passkeyService.get<Passkey[]>("/users/me/passkeys", { notifyError });
 
-/** `code` (TOTP or recovery code) is required when the user has 2FA on. */
+/** The session is not fresh: registering needs the current password again. */
+export const PASSKEY_REAUTH_REQUIRED = "E-AUTH-027";
+
+/**
+ * Without `currentPassword` the API accepts a session that signed in with a
+ * password or passkey less than 5 minutes ago; otherwise it answers
+ * E-AUTH-027 (silently here: the caller asks for the password and retries).
+ * `code` (TOTP or recovery code) is required with a password when 2FA is on.
+ */
 export const beginPasskeyRegistration = async (
-	currentPassword: string,
+	currentPassword?: string,
 	code?: string,
-): Promise<ServiceResponse<PasskeyRegistrationBegin>> =>
-	passkeyService.post<PasskeyRegistrationBegin>(
+): Promise<ServiceResponse<PasskeyRegistrationBegin>> => {
+	const res = await passkeyService.post<PasskeyRegistrationBegin>(
 		"/users/me/passkeys/register/begin",
-		{ current_password: currentPassword, ...(code ? { code } : {}) },
-		{ notifyError: true },
+		currentPassword
+			? { current_password: currentPassword, ...(code ? { code } : {}) }
+			: {},
+		{ notifyError: Boolean(currentPassword) },
 	);
+	if (
+		!res.success &&
+		!currentPassword &&
+		res.data?.error_code !== PASSKEY_REAUTH_REQUIRED
+	) {
+		toast.error(res.message);
+	}
+	return res;
+};
 
 export const finishPasskeyRegistration = async (
 	challengeId: string,

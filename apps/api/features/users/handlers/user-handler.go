@@ -127,11 +127,14 @@ func (h *UserHandler) issueSession(c *gin.Context, user user_models.User) (gin.H
 		resp := envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 		return nil, &resp
 	}
-	token, err := auth.GenerateToken(user.UserName, int64(user.ID))
+	// The session's login time (auth_time): what makes it fresh for a while
+	// (see sessionIsFresh). Refresh rotation copies it, never renews it.
+	authTime := h.now()
+	token, err := auth.GenerateSessionToken(user.UserName, int64(user.ID), authTime)
 	if err != nil {
 		return fail()
 	}
-	if err := IssueRefreshFamily(h.db, user.ID, user.UserName, c); err != nil {
+	if err := IssueRefreshFamily(h.db, user.ID, user.UserName, authTime, c); err != nil {
 		h.logger.Error("Failed to issue refresh token family", zap.Error(err))
 		return fail()
 	}

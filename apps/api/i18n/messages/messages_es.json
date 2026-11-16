@@ -15584,6 +15584,14 @@
         "value": "Tu clínica exige la verificación en dos pasos. Configúrala en tu perfil."
     },
     {
+        "key": "E-AUTH-027",
+        "value": "Confirma tu contraseña para agregar una passkey."
+    },
+    {
+        "key": "auth.passkey.reauth_required",
+        "value": "Confirma tu contraseña para agregar una passkey."
+    },
+    {
         "key": "E-TEN-006",
         "value": "Configura la verificación en dos pasos en tu propia cuenta antes de exigirla a la clínica."
     },
@@ -15626,5 +15634,33 @@
     {
         "key": "profile.mfa_required.description",
         "value": "Activa una app de autenticación o registra una passkey aquí abajo. Después podrás seguir usando la clínica con normalidad."
+    },
+    {
+        "key": "auth.passkey_offer.title",
+        "value": "Inicia sesión más rápido con una passkey"
+    },
+    {
+        "key": "auth.passkey_offer.description",
+        "value": "Usa tu huella, tu rostro o el bloqueo de este dispositivo en lugar de la contraseña. Es más rápido y más seguro."
+    },
+    {
+        "key": "auth.passkey_offer.reauth_description",
+        "value": "Por seguridad, confirma tu contraseña para crear la passkey."
+    },
+    {
+        "key": "auth.passkey_offer.create",
+        "value": "Crear passkey"
+    },
+    {
+        "key": "auth.passkey_offer.not_now",
+        "value": "Ahora no"
+    },
+    {
+        "key": "auth.passkey_offer.dont_ask",
+        "value": "No volver a preguntar"
+    },
+    {
+        "key": "auth.passkey_offer.default_name",
+        "value": "Este dispositivo"
     }
 ]

@@ -33,9 +33,10 @@ func hashJTI(jti string) string {
 }
 
 // createRefreshTokenRow mints a new refresh JWT + DB row within familyID and
-// returns the raw token for the caller to set as a cookie.
-func createRefreshTokenRow(db *gorm.DB, userID uint, username, familyID string, c *gin.Context) (string, *user_models.RefreshToken, error) {
-	rawToken, jti, err := auth.GenerateRefreshToken(username, int64(userID), familyID)
+// returns the raw token for the caller to set as a cookie. authTime is the
+// session's login time (zero: unknown), carried in the JWT.
+func createRefreshTokenRow(db *gorm.DB, userID uint, username, familyID string, authTime time.Time, c *gin.Context) (string, *user_models.RefreshToken, error) {
+	rawToken, jti, err := auth.GenerateSessionRefreshToken(username, int64(userID), familyID, authTime)
 	if err != nil {
 		return "", nil, err
 	}
@@ -56,10 +57,10 @@ func createRefreshTokenRow(db *gorm.DB, userID uint, username, familyID string, 
 }
 
 // IssueRefreshFamily starts a brand new rotation chain for userID at login
-// and sets the refresh_token cookie.
-func IssueRefreshFamily(db *gorm.DB, userID uint, username string, c *gin.Context) error {
+// (authTime: when the user signed in) and sets the refresh_token cookie.
+func IssueRefreshFamily(db *gorm.DB, userID uint, username string, authTime time.Time, c *gin.Context) error {
 	familyID := uuid.NewString()
-	rawToken, _, err := createRefreshTokenRow(db, userID, username, familyID, c)
+	rawToken, _, err := createRefreshTokenRow(db, userID, username, familyID, authTime, c)
 	if err != nil {
 		return err
 	}
@@ -153,7 +154,9 @@ func RotateRefreshToken(db *gorm.DB, presentedToken string, c *gin.Context, logg
 		return "", ErrRefreshTokenReused
 	}
 
-	rawToken, newRow, err := createRefreshTokenRow(db, row.UserID, claims.Username, row.FamilyID, c)
+	// The login time travels unchanged: rotating never makes a session look
+	// recently signed in.
+	rawToken, newRow, err := createRefreshTokenRow(db, row.UserID, claims.Username, row.FamilyID, claims.AuthTime, c)
 	if err != nil {
 		return "", err
 	}
@@ -175,7 +178,7 @@ func RotateRefreshToken(db *gorm.DB, presentedToken string, c *gin.Context, logg
 		logger.Warn("failed to record refresh token replacement chain", zap.Error(err))
 	}
 
-	accessToken, err = auth.GenerateToken(claims.Username, int64(row.UserID))
+	accessToken, err = auth.GenerateSessionToken(claims.Username, int64(row.UserID), claims.AuthTime)
 	if err != nil {
 		return "", err
 	}
@@ -214,7 +217,9 @@ func rotateLegacyToken(db *gorm.DB, claims auth.RefreshTokenClaims, presentedTok
 		return "", ErrRefreshTokenRevoked
 	}
 	newFamilyID := uuid.NewString()
-	rawToken, newRow, err := createRefreshTokenRow(db, claims.UserID, claims.Username, newFamilyID, c)
+	// No login time: the upgrade is not a sign-in, so it never yields a
+	// fresh session.
+	rawToken, newRow, err := createRefreshTokenRow(db, claims.UserID, claims.Username, newFamilyID, time.Time{}, c)
 	if err != nil {
 		return "", err
 	}

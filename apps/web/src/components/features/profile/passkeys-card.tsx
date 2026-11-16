@@ -24,23 +24,18 @@ import {
 	FormInput,
 	FormPasswordInput,
 	Spinner,
-	useToast,
 } from "@pengi/ui";
-import {
-	browserSupportsWebAuthn,
-	startRegistration,
-} from "@simplewebauthn/browser";
+import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { KeyRound, Trash } from "lucide-react";
 import React from "react";
 import z from "zod";
 import {
-	beginPasskeyRegistration,
 	deletePasskey,
-	finishPasskeyRegistration,
 	getPasskeys,
 	type Passkey,
 } from "@/api/passkey-service";
 import { getTwoFactorStatus } from "@/api/two-factor-service";
+import { usePasskeyRegistration } from "@/hooks/use-passkey-registration";
 
 // Field names (= input ids) differ from the other cards on the profile page:
 // the dialog labels must point at their inputs.
@@ -198,7 +193,7 @@ function AddDialog({
 	onAdded: () => void;
 }) {
 	const { textGet } = useText();
-	const { errorToast } = useToast();
+	const register = usePasskeyRegistration();
 	const [needsCode, setNeedsCode] = React.useState<boolean>();
 	const [loading, setLoading] = React.useState(false);
 
@@ -217,28 +212,12 @@ function AddDialog({
 	async function onSubmit(values: z.infer<ReturnType<typeof buildSchema>>) {
 		setLoading(true);
 		try {
-			const begin = await beginPasskeyRegistration(
-				values.passkey_password,
-				needsCode ? values.passkey_code : undefined,
-			);
-			if (!begin.success) return;
-			let credential: Awaited<ReturnType<typeof startRegistration>>;
-			try {
-				credential = await startRegistration({
-					optionsJSON: begin.data.options,
-				});
-			} catch (err) {
-				if (!(err instanceof Error && err.name === "NotAllowedError")) {
-					errorToast(null, textGet("auth.passkey.browser_error"));
-				}
-				return;
-			}
-			const res = await finishPasskeyRegistration(
-				begin.data.challenge_id,
-				values.passkey_name,
-				credential,
-			);
-			if (res.success) onAdded();
+			const result = await register({
+				name: values.passkey_name,
+				password: values.passkey_password,
+				code: needsCode ? values.passkey_code : undefined,
+			});
+			if (result === "done") onAdded();
 		} finally {
 			setLoading(false);
 		}

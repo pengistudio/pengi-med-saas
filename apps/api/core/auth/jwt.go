@@ -53,21 +53,53 @@ func accessTokenMinutes() (int64, error) {
 	return exp, nil
 }
 
+// GenerateToken issues an access token without an auth_time: it never
+// counts as a fresh session (see GenerateSessionToken).
 func GenerateToken(username string, userId int64) (string, error) {
+	return GenerateSessionToken(username, userId, time.Time{})
+}
+
+// GenerateSessionToken issues an access token for a session that signed in
+// at authTime (zero: unknown, no auth_time claim). authTime is the login,
+// never the issue time: refresh rotation copies it from the refresh token,
+// so a long-lived session can't make itself look recently signed in.
+func GenerateSessionToken(username string, userId int64, authTime time.Time) (string, error) {
 	exp, err := accessTokenMinutes()
 	if err != nil {
 		return "", err
 	}
 	now := time.Now()
-	return signedWithAuthKey(jwt.MapClaims{
+	claims := jwt.MapClaims{
 		"type":     "access_token",
 		"username": username,
 		"userId":   userId,
 		// iat lets AuthMiddleware reject tokens issued before a password change.
 		"iat": now.Unix(),
 		"exp": now.Add(time.Duration(exp) * time.Minute).Unix(),
-	})
+	}
+	setAuthTime(claims, authTime)
+	return signedWithAuthKey(claims)
+}
 
+// authTimeClaim is when the session's user signed in (unix seconds), as in
+// OpenID Connect.
+const authTimeClaim = "auth_time"
+
+func setAuthTime(claims jwt.MapClaims, authTime time.Time) {
+	if !authTime.IsZero() {
+		claims[authTimeClaim] = authTime.Unix()
+	}
+}
+
+// AuthTime returns when the session that holds these claims signed in.
+// ok is false for tokens without the claim (issued before it existed, or
+// by a path that can't vouch for a login).
+func AuthTime(claims jwt.MapClaims) (time.Time, bool) {
+	v, ok := claims[authTimeClaim].(float64)
+	if !ok || v <= 0 {
+		return time.Time{}, false
+	}
+	return time.Unix(int64(v), 0), true
 }
 
 func GenerateExchangeToken(username string, userId int64) (string, error) {
@@ -148,6 +180,13 @@ func ClearRefreshTokenCookie(c *gin.Context) {
 // issued token, used to look up its DB row). Expiry is the sliding window
 // from AUTH_REFRESH_EXP, reset on every successful rotation.
 func GenerateRefreshToken(username string, userId int64, familyID string) (string, string, error) {
+	return GenerateSessionRefreshToken(username, userId, familyID, time.Time{})
+}
+
+// GenerateSessionRefreshToken is GenerateRefreshToken carrying the login
+// time of the session (auth_time, omitted when zero), which every rotation
+// copies unchanged into the next refresh token and access token.
+func GenerateSessionRefreshToken(username string, userId int64, familyID string, authTime time.Time) (string, string, error) {
 	jti := uuid.NewString()
 	claims := jwt.MapClaims{
 		"username": username,
@@ -156,18 +195,21 @@ func GenerateRefreshToken(username string, userId int64, familyID string) (strin
 		"jti":      jti,
 		"exp":      time.Now().Add(time.Duration(refreshTokenMaxAgeSeconds()) * time.Second).Unix(),
 	}
+	setAuthTime(claims, authTime)
 	signed, err := signedWithAuthKey(claims)
 	return signed, jti, err
 }
 
 // RefreshTokenClaims is what ValidateRefreshToken extracts from a presented
 // refresh-token JWT. FamilyID/JTI are empty for legacy (pre-rotation)
-// tokens issued before this claim existed.
+// tokens issued before this claim existed; AuthTime is zero for tokens
+// issued before auth_time existed.
 type RefreshTokenClaims struct {
 	UserID   uint
 	Username string
 	FamilyID string
 	JTI      string
+	AuthTime time.Time
 }
 
 func ValidateRefreshToken(refreshToken string) (RefreshTokenClaims, error) {
@@ -205,12 +247,14 @@ func ValidateRefreshToken(refreshToken string) (RefreshTokenClaims, error) {
 	// existed; caller treats that as "upgrade to a new family".
 	familyID, _ := claims["familyId"].(string)
 	jti, _ := claims["jti"].(string)
+	authTime, _ := AuthTime(claims)
 
 	return RefreshTokenClaims{
 		UserID:   uint(userId),
 		Username: username,
 		FamilyID: familyID,
 		JTI:      jti,
+		AuthTime: authTime,
 	}, nil
 }
 
