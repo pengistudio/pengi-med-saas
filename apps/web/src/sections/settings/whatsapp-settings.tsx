@@ -18,8 +18,11 @@ import {
 	disconnectWhatsApp,
 	getWhatsAppAccount,
 	getWhatsAppConfig,
+	isTemplateApproved,
 	MAX_REMINDER_OFFSETS,
+	NO_SHOW_TEMPLATE,
 	REMINDER_OFFSET_CHOICES,
+	REMINDER_TEMPLATE,
 	syncWhatsAppTemplate,
 	toggleReminderOffset,
 	updateWhatsAppSettings,
@@ -35,6 +38,7 @@ import { useEmbeddedSignup } from "@/hooks/use-embedded-signup";
 import usePermission from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/constants";
 import { WhatsAppBotSettings } from "./whatsapp-bot-settings";
+import { WhatsAppTemplatesBanner } from "./whatsapp-templates-banner";
 import {
 	StatusPill,
 	WhatsAppTemplateList,
@@ -143,7 +147,10 @@ export function WhatsAppSettings() {
 		offsets.join(",") !== savedOffsets.join(",");
 	const offsetsMissing = enabled && offsets.length === 0;
 	const templateStatus = account?.template_status ?? "";
-	const missingTemplates = account?.missing_templates?.length ?? 0;
+	// Each control depends on its own template: nothing is sent with a
+	// template until Meta approves it (the API refuses it too).
+	const reminderApproved = isTemplateApproved(account, REMINDER_TEMPLATE);
+	const noShowApproved = isTemplateApproved(account, NO_SHOW_TEMPLATE);
 
 	const embeddedAvailable = !!config?.embedded_signup_available;
 	// Launches the flow the confirm dialog was opened for. Runs inside the
@@ -341,6 +348,15 @@ export function WhatsAppSettings() {
 					</div>
 				)}
 
+				{connected && account && (
+					<WhatsAppTemplatesBanner
+						account={account}
+						busy={busy === "sync" || busy === "create" ? busy : null}
+						onCreate={handleCreateMissing}
+						onSync={handleSync}
+					/>
+				)}
+
 				{connected && (
 					<div className="grid gap-4 border-t pt-5">
 						<WhatsAppUsageBar reloadKey={reloadKey} />
@@ -373,15 +389,22 @@ export function WhatsAppSettings() {
 								>
 									<Text uuid="settings.whatsapp.reminders" />
 								</label>
+								{/* Never locked on: an active switch can always be turned off. */}
 								<Switch
 									id="whatsapp-reminders"
 									checked={enabled}
+									disabled={!reminderApproved && !enabled}
 									onCheckedChange={(checked) => setEnabled(checked)}
 								/>
 							</div>
 							<p className="text-xs text-muted-foreground">
 								<Text uuid="settings.whatsapp.reminders.opt_in_hint" />
 							</p>
+							{!reminderApproved && (
+								<p className="text-xs text-amber-700 dark:text-amber-400">
+									<Text uuid="settings.whatsapp.templates_state.control_hint" />
+								</p>
+							)}
 						</div>
 						<div className="grid gap-2">
 							<p className="text-xs text-muted-foreground">
@@ -435,18 +458,24 @@ export function WhatsAppSettings() {
 								<Switch
 									id="whatsapp-no-show-message"
 									checked={noShowMessage}
+									disabled={!noShowApproved && !noShowMessage}
 									onCheckedChange={(checked) => setNoShowMessage(checked)}
 								/>
 							</div>
 							<p className="text-xs text-muted-foreground">
 								<Text uuid="settings.whatsapp.no_show_message.hint" />
 							</p>
+							{!noShowApproved && (
+								<p className="text-xs text-amber-700 dark:text-amber-400">
+									<Text uuid="settings.whatsapp.templates_state.control_hint" />
+								</p>
+							)}
 						</div>
 						<div className="flex flex-wrap justify-end gap-2 border-t pt-5">
 							<Button
 								variant="outline"
 								size="sm"
-								disabled={templateStatus !== "APPROVED" || tokenInvalid}
+								disabled={!reminderApproved || tokenInvalid}
 								onClick={() => setTestOpen(true)}
 							>
 								<Send className="mr-2 h-4 w-4" />
@@ -518,27 +547,6 @@ export function WhatsAppSettings() {
 									)}
 								</div>
 							</dl>
-						)}
-						{/* Separate from the sync (read-only): this one writes to Meta. */}
-						{missingTemplates > 0 && (
-							<div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-								<span className="text-muted-foreground">
-									{textGet("settings.whatsapp.template.missing_count", {
-										count: missingTemplates,
-									})}
-								</span>
-								<Button
-									variant="outline"
-									size="sm"
-									disabled={busy === "create" || busy === "sync"}
-									onClick={handleCreateMissing}
-								>
-									{busy === "create" && (
-										<Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-									)}
-									{textGet("settings.whatsapp.template.create_missing")}
-								</Button>
-							</div>
 						)}
 					</SettingsSection>
 				</>

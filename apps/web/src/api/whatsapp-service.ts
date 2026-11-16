@@ -44,6 +44,42 @@ export interface WhatsAppAccount {
 	connected_at?: string;
 	/** Catalog templates with no known status on the WABA (offered to create). */
 	missing_templates?: string[];
+	/** All catalog templates summed up ("" when not connected). Nothing is sent with a template until Meta approves it. */
+	templates_state?: WhatsAppTemplatesState;
+	/** Each catalog template's status and Meta's reason. */
+	templates?: WhatsAppTemplateReadiness[];
+}
+
+/** Worst state among the catalog templates: missing, then rejected, then pending. */
+export type WhatsAppTemplatesState =
+	| "missing"
+	| "rejected"
+	| "pending"
+	| "ready"
+	| "";
+
+/** One catalog template's review status on the clinic's WABA. */
+export interface WhatsAppTemplateReadiness {
+	name: string;
+	/** Meta's status ("" when not created yet); may be a value not listed in WhatsAppTemplateStatus. */
+	status: string;
+	reason?: string;
+}
+
+/** Catalog template names (whatsapp_models in the API). */
+export const REMINDER_TEMPLATE = "pengi_cita_recordatorio";
+export const NO_SHOW_TEMPLATE = "pengi_cita_no_asistio";
+
+/** Whether template name is APPROVED on the account (from its templates list). */
+export function isTemplateApproved(
+	account: WhatsAppAccount | null | undefined,
+	name: string,
+): boolean {
+	return (
+		account?.templates?.some(
+			(t) => t.name === name && t.status === "APPROVED",
+		) ?? false
+	);
 }
 
 export type ConnectManualPayload = {

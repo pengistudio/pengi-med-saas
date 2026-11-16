@@ -446,6 +446,7 @@ func TestStartConversation_MonthlyLimit(t *testing.T) {
 	}
 	// The test send is capped too.
 	f.db.Model(&whatsapp_models.WhatsAppAccount{}).Where("tenant_id = ?", f.own).Update("template_status", "APPROVED")
+	f.approveTemplates(f.own, whatsapp_models.ReminderTemplate)
 	if resp, _ := f.call(f.h.SendTest, f.own, http.MethodPost, map[string]string{"phone": "0991234567"}, ""); resp.Code != http.StatusForbidden || errCode(resp) != "E-WA-023" {
 		t.Fatalf("test over the cap: %d %s", resp.Code, errCode(resp))
 	}

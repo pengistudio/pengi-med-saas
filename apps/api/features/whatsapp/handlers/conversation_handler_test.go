@@ -453,6 +453,7 @@ func TestConversation_DetailAndLinkPatient(t *testing.T) {
 func TestSendTest_RecordedInThreadAndLogShowsOnlySent(t *testing.T) {
 	f := newFixture(t)
 	f.connectedAccount(f.own, "PHONE-1")
+	f.approveTemplates(f.own, whatsapp_models.ReminderTemplate)
 	resp, _ := f.call(f.h.SendTest, f.own, http.MethodPost, map[string]string{"phone": "0991234567"}, "")
 	if resp.Code != http.StatusOK {
 		t.Fatalf("send test: %d", resp.Code)

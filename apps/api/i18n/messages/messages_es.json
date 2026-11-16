@@ -9036,12 +9036,16 @@
         "value": "Sin crear"
     },
     {
+        "key": "settings.whatsapp.template.status.unknown",
+        "value": "Estado desconocido"
+    },
+    {
         "key": "settings.whatsapp.template.sync",
         "value": "Actualizar estado"
     },
     {
         "key": "settings.whatsapp.template.not_approved_hint",
-        "value": "Los recordatorios se envían solo cuando Meta aprueba la plantilla; la revisión suele tardar unos minutos."
+        "value": "Los recordatorios se envían solo cuando Meta aprueba la plantilla; la revisión suele tardar minutos y hasta 24-48 horas."
     },
     {
         "key": "settings.whatsapp.reminders",
@@ -9278,6 +9282,38 @@
     {
         "key": "settings.whatsapp.template.missing_count",
         "value": "Faltan plantillas en tu cuenta de WhatsApp: {count}."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.missing.title",
+        "value": "Crea tus plantillas de WhatsApp"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.missing.description",
+        "value": "Los recordatorios y demás mensajes automáticos usan plantillas que Meta debe aprobar. Créalas para enviarlas a revisión: no se envía ningún mensaje con plantillas hasta que Meta las apruebe. El chat con pacientes funciona igual."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.pending.title",
+        "value": "Meta está revisando tus plantillas"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.pending.description",
+        "value": "Meta está revisando tus plantillas. Suele tardar minutos y hasta 24-48 horas. Mientras tanto no se envían recordatorios ni mensajes automáticos; el chat con pacientes funciona igual."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.rejected.title",
+        "value": "Meta rechazó o pausó alguna plantilla"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.rejected.description",
+        "value": "Esas plantillas no se envían. Revisa el motivo en WhatsApp Manager y, cuando lo resuelvas, actualiza el estado."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.refresh",
+        "value": "Actualizar estado"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.control_hint",
+        "value": "Disponible cuando Meta apruebe la plantilla de este mensaje."
     },
     {
         "key": "whatsapp.conversation.patient.create.success",

@@ -39,11 +39,24 @@ type AccountResponse struct {
 	// MissingTemplates are the catalog templates with no known status on the
 	// WABA (absent there, or never read): settings offers to create them.
 	MissingTemplates []string `json:"missing_templates"`
+	// TemplatesState sums up the catalog templates: "missing", "rejected",
+	// "pending" or "ready" (whatsapp_services.TemplatesState*); "" when not
+	// connected. Templates are only sent once approved.
+	TemplatesState string `json:"templates_state"`
+	// Templates is each catalog template's status and Meta's reason.
+	Templates []TemplateStateResponse `json:"templates"`
+}
+
+// TemplateStateResponse is one catalog template's review status.
+type TemplateStateResponse struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	Reason string `json:"reason,omitempty"`
 }
 
 // NotConnected is the AccountResponse of a tenant without an account.
 func NotConnected() AccountResponse {
-	return AccountResponse{Connected: false, ReminderOffsets: []int{}, MissingTemplates: []string{}}
+	return AccountResponse{Connected: false, ReminderOffsets: []int{}, MissingTemplates: []string{}, Templates: []TemplateStateResponse{}}
 }
 
 // NewAccountResponse maps an account.
@@ -70,6 +83,7 @@ func NewAccountResponse(a whatsapp_models.WhatsAppAccount) AccountResponse {
 		NoShowMessageEnabled: a.NoShowMessageEnabled,
 		ConnectedAt:          a.ConnectedAt,
 		MissingTemplates:     []string{},
+		Templates:            []TemplateStateResponse{},
 	}
 }
 

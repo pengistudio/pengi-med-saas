@@ -2,6 +2,7 @@ package whatsapp_workers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"pengi-med-saas/core/tenantdb"
 	"pengi-med-saas/core/whatsapp"
 	clinical_models "pengi-med-saas/features/clinical/models"
 	company_models "pengi-med-saas/features/companies/models"
@@ -62,6 +64,7 @@ func newSchedFixture(t *testing.T, offsets []int) *schedFixture {
 	}
 	db := testutils.SetupTestDB(t, &tenant_models.Tenant{}, &clinical_models.Patient{}, &clinical_models.Appointment{},
 		&whatsapp_models.WhatsAppAccount{}, &whatsapp_models.WhatsAppMessage{}, &whatsapp_models.WhatsAppConversation{},
+		&whatsapp_models.WhatsAppTemplate{},
 		&company_models.Company{}, &company_models.Feature{}, &company_models.Plan{}, &company_models.Subscription{},
 		&notifications_models.Notification{}, &permission_models.Permission{}, &user_models.Role{}, &user_models.Environment{})
 	f := &schedFixture{t: t, db: db, loc: loc, pub: &fakePublisher{},
@@ -88,7 +91,18 @@ func (f *schedFixture) newTenant(tag string, offsets []int, templateStatus strin
 	if err := f.db.Create(&account).Error; err != nil {
 		f.t.Fatal(err)
 	}
+	// The reminder's own row, which the sender checks before sending.
+	if templateStatus != whatsapp_models.TemplateStatusNone {
+		f.setReminderTemplate(tenant.ID, templateStatus)
+	}
 	return tenant.ID
+}
+
+func (f *schedFixture) setReminderTemplate(tenantID uint, status string) {
+	f.t.Helper()
+	if err := whatsapp_services.SetTemplateStatus(tenantdb.ForTenant(f.db, tenantID), tenantID, whatsapp_models.ReminderTemplate, status, ""); err != nil {
+		f.t.Fatal(err)
+	}
 }
 
 // appointment creates an appointment starting `in` from now (clinic time).
@@ -501,5 +515,69 @@ func TestSender_SkipsWhenMonthlyLimitReached(t *testing.T) {
 	}
 	if len(g.requests) != 1 {
 		t.Fatalf("requests = %d, want 1", len(g.requests))
+	}
+}
+
+// A reminder queued while its template was approved is not sent once Meta
+// paused it: skipped before any Graph call, even with the account's mirror
+// still saying approved.
+func TestSender_SkipsWhenTemplateNoLongerApproved(t *testing.T) {
+	f := newSchedFixture(t, []int{24})
+	g := &graphStub{status: 200, body: `{"messages":[{"id":"wamid.OK"}]}`}
+	id := f.queued(f.appointment(f.tenant, 5*time.Hour, "scheduled", "0991234567"))
+	f.setReminderTemplate(f.tenant, "PAUSED")
+
+	if err := f.sender(g).Send(id); err != nil {
+		t.Fatal(err)
+	}
+	m := f.message(id)
+	if m.Status != whatsapp_models.MessageStatusSkipped || m.ErrorCode != whatsapp_models.ErrorCodeTemplateNotApproved {
+		t.Fatalf("message = %+v", m)
+	}
+	if len(g.requests) != 0 {
+		t.Fatalf("requests = %v, want none", g.requests)
+	}
+}
+
+// DeliverTemplate is the backstop every template send goes through: a
+// template not approved on the tenant's WABA never reaches Meta.
+func TestSender_DeliverTemplateRefusesUnapproved(t *testing.T) {
+	f := newSchedFixture(t, []int{24})
+	g := &graphStub{status: 200, body: `{"messages":[{"id":"wamid.OK"}]}`}
+	db := tenantdb.ForTenant(f.db, f.tenant)
+	var account whatsapp_models.WhatsAppAccount
+	db.Limit(1).Find(&account)
+	send := func(name string) (whatsapp_models.WhatsAppMessage, error) {
+		msg := whatsapp_models.WhatsAppMessage{TenantID: f.tenant, Kind: whatsapp_models.KindTemplate, ToPhone: "593991234567",
+			Template: name, Status: whatsapp_models.MessageStatusSending}
+		if err := db.Create(&msg).Error; err != nil {
+			t.Fatal(err)
+		}
+		err := f.sender(g).DeliverTemplate(db, &msg, account, "token-A", whatsapp.TemplateMessage{To: msg.ToPhone, Name: name, Language: "es"})
+		return f.message(msg.ID), err
+	}
+
+	m, err := send(whatsapp_models.TemplateFollowUp) // no row: never created
+	if !errors.Is(err, whatsapp_services.ErrTemplateNotApproved) || whatsapp_services.IsRetryable(err) {
+		t.Fatalf("err = %v, want ErrTemplateNotApproved", err)
+	}
+	if m.Status != whatsapp_models.MessageStatusFailed || m.ErrorCode != whatsapp_models.ErrorCodeTemplateNotApproved {
+		t.Fatalf("message = %+v", m)
+	}
+	if err := whatsapp_services.SetTemplateStatus(db, f.tenant, whatsapp_models.TemplateFollowUp, whatsapp_models.TemplateStatusPending, ""); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := send(whatsapp_models.TemplateFollowUp); !errors.Is(err, whatsapp_services.ErrTemplateNotApproved) {
+		t.Fatalf("pending: err = %v", err)
+	}
+	if len(g.requests) != 0 {
+		t.Fatalf("requests = %v, want none", g.requests)
+	}
+
+	if err := whatsapp_services.SetTemplateStatus(db, f.tenant, whatsapp_models.TemplateFollowUp, whatsapp_models.TemplateStatusApproved, ""); err != nil {
+		t.Fatal(err)
+	}
+	if m, err := send(whatsapp_models.TemplateFollowUp); err != nil || m.Status != whatsapp_models.MessageStatusSent || len(g.requests) != 1 {
+		t.Fatalf("approved: err=%v message=%+v requests=%d", err, m, len(g.requests))
 	}
 }

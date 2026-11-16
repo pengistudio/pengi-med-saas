@@ -9036,12 +9036,16 @@
         "value": "Not created"
     },
     {
+        "key": "settings.whatsapp.template.status.unknown",
+        "value": "Unknown status"
+    },
+    {
         "key": "settings.whatsapp.template.sync",
         "value": "Refresh status"
     },
     {
         "key": "settings.whatsapp.template.not_approved_hint",
-        "value": "Reminders are sent only once Meta approves the template; the review usually takes a few minutes."
+        "value": "Reminders are sent only once Meta approves the template; the review usually takes minutes and up to 24-48 hours."
     },
     {
         "key": "settings.whatsapp.reminders",
@@ -9278,6 +9282,38 @@
     {
         "key": "settings.whatsapp.template.missing_count",
         "value": "Templates missing on your WhatsApp account: {count}."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.missing.title",
+        "value": "Create your WhatsApp templates"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.missing.description",
+        "value": "Reminders and other automatic messages use templates that Meta must approve. Create them to send them for review: no template message is sent until Meta approves them. Chatting with patients works as usual."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.pending.title",
+        "value": "Meta is reviewing your templates"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.pending.description",
+        "value": "Meta is reviewing your templates. It usually takes minutes and up to 24-48 hours. Meanwhile no reminders or automatic messages are sent; chatting with patients works as usual."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.rejected.title",
+        "value": "Meta rejected or paused a template"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.rejected.description",
+        "value": "Those templates are not sent. Check the reason in WhatsApp Manager and refresh the status once it is fixed."
+    },
+    {
+        "key": "settings.whatsapp.templates_state.refresh",
+        "value": "Refresh status"
+    },
+    {
+        "key": "settings.whatsapp.templates_state.control_hint",
+        "value": "Available once Meta approves this message's template."
     },
     {
         "key": "whatsapp.conversation.patient.create.success",

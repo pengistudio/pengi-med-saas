@@ -336,8 +336,9 @@ func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(str
 	return envelope.SuccessResponse(h.accountResponse(c, account), "whatsapp.account.connect.success")
 }
 
-// accountResponse maps account and lists the catalog templates the tenant
-// has no status for (absent on the WABA, or never read).
+// accountResponse maps account, lists the catalog templates the tenant has
+// no status for (absent on the WABA, or never read) and sums up their
+// readiness (templates_state).
 func (h *WhatsAppHandler) accountResponse(c *gin.Context, account whatsapp_models.WhatsAppAccount) whatsapp_dto.AccountResponse {
 	resp := whatsapp_dto.NewAccountResponse(account)
 	rows, err := whatsapp_services.TemplateRows(tenantdb.For(c, h.db))
@@ -349,6 +350,11 @@ func (h *WhatsAppHandler) accountResponse(c *gin.Context, account whatsapp_model
 		if rows[spec.Definition.Name].Status == whatsapp_models.TemplateStatusNone {
 			resp.MissingTemplates = append(resp.MissingTemplates, spec.Definition.Name)
 		}
+	}
+	state, list := whatsapp_services.TemplatesReadiness(rows)
+	resp.TemplatesState = state
+	for _, t := range list {
+		resp.Templates = append(resp.Templates, whatsapp_dto.TemplateStateResponse{Name: t.Name, Status: t.Status, Reason: t.Reason})
 	}
 	return resp
 }
@@ -501,8 +507,9 @@ func (h *WhatsAppHandler) SendTest(c *gin.Context) envelope.Response {
 	if !ok {
 		return resp
 	}
-	if account.TemplateStatus != whatsapp_models.TemplateStatusApproved {
-		return envelope.ErrorResponse(http.StatusConflict, "whatsapp.error.template_not_approved", core_errors.ErrWhatsAppTemplateNotApproved)
+	// The reminder's own row, not the account's mirror of it.
+	if !whatsapp_services.TemplateApproved(h.db, tenantdb.TenantID(c), whatsapp_models.ReminderTemplate) {
+		return templateNotApprovedResponse()
 	}
 	allowed, _, err := whatsapp_services.CanSendTemplate(h.db, tenantdb.TenantID(c), time.Now())
 	if err != nil {
@@ -533,9 +540,16 @@ func (h *WhatsAppHandler) SendTest(c *gin.Context) envelope.Response {
 		Start:       time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 10, 0, 0, 0, loc),
 	}
 	if err := h.sender.Deliver(db, &msg, account, token, data); err != nil {
+		if errors.Is(err, whatsapp_services.ErrTemplateNotApproved) {
+			return templateNotApprovedResponse()
+		}
 		return envelope.ErrorResponse(http.StatusBadGateway, "whatsapp.error.send_failed", core_errors.ErrWhatsAppSendFailed)
 	}
 	return envelope.SuccessResponse(whatsapp_dto.NewMessageResponse(msg), "whatsapp.test.send.success")
+}
+
+func templateNotApprovedResponse() envelope.Response {
+	return envelope.ErrorResponse(http.StatusConflict, "whatsapp.error.template_not_approved", core_errors.ErrWhatsAppTemplateNotApproved)
 }
 
 // ListMessages is the paginated log of sent messages (reminders, tests and

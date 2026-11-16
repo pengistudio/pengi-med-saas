@@ -148,6 +148,11 @@ func (s *Sender) Send(id uint) error {
 		return s.finish(db, &msg, whatsapp_models.MessageStatusFailed, code, detail)
 	}
 	msg.ToPhone = to
+	// Checked again here: the scheduler queued it on the account's mirror,
+	// and the template may have been paused or rejected since.
+	if !TemplateApproved(db, msg.TenantID, whatsapp_models.ReminderTemplate) {
+		return s.finish(db, &msg, whatsapp_models.MessageStatusSkipped, whatsapp_models.ErrorCodeTemplateNotApproved, "template not approved")
+	}
 	if ok, _, err := canSendTemplate(s.db, msg.TenantID, s.now(), s.loc); err != nil {
 		// Fail open: a counting error must not stop reminders.
 		s.logger.Error("failed to check whatsapp monthly limit", zap.Uint("message_id", msg.ID), zap.Error(err))
@@ -170,8 +175,28 @@ func (s *Sender) Deliver(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, acco
 
 // DeliverTemplate sends msg (a catalog template already recorded in its
 // conversation, as sending, with its rendered Body) as tpl. It returns a
-// Graph error when Meta rejected it; the message is then failed.
+// Graph error when Meta rejected it, or ErrTemplateNotApproved when tpl is
+// not approved on the tenant's WABA (nothing sent); the message is then failed.
 func (s *Sender) DeliverTemplate(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, account whatsapp_models.WhatsAppAccount, token string, tpl whatsapp.TemplateMessage) error {
+	return s.sendTemplate(db, msg, account, token, tpl)
+}
+
+// sendTemplate is the only call that sends a template to Meta. It refuses a
+// template that is not APPROVED on the tenant's WABA (fail closed): msg ends
+// skipped (queued kinds) or failed with template_not_approved and the error
+// is ErrTemplateNotApproved, not retryable. Callers check approval first to
+// answer with their own error; this is the backstop.
+func (s *Sender) sendTemplate(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, account whatsapp_models.WhatsAppAccount, token string, tpl whatsapp.TemplateMessage) error {
+	if !TemplateApproved(db, msg.TenantID, tpl.Name) {
+		status := whatsapp_models.MessageStatusFailed
+		if queuedKind(msg.Kind) {
+			status = whatsapp_models.MessageStatusSkipped
+		}
+		if err := s.finish(db, msg, status, whatsapp_models.ErrorCodeTemplateNotApproved, "template not approved"); err != nil {
+			return err
+		}
+		return ErrTemplateNotApproved
+	}
 	return s.deliver(db, msg, account, func() (string, error) {
 		return s.client.SendTemplate(token, account.PhoneNumberID, tpl)
 	})
@@ -191,10 +216,7 @@ func (s *Sender) DeliverText(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, 
 func (s *Sender) deliverTemplate(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, account whatsapp_models.WhatsAppAccount, token string, data ReminderData) error {
 	msg.Body = RenderReminderBody(data)
 	s.thread(db, msg)
-	tpl := ReminderMessage(msg.ToPhone, msg.ID, data)
-	return s.deliver(db, msg, account, func() (string, error) {
-		return s.client.SendTemplate(token, account.PhoneNumberID, tpl)
-	})
+	return s.sendTemplate(db, msg, account, token, ReminderMessage(msg.ToPhone, msg.ID, data))
 }
 
 // thread attaches msg to the conversation with its phone, creating it, unless
