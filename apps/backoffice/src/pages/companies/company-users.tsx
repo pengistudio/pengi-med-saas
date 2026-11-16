@@ -37,6 +37,7 @@ import {
 	KeyRound,
 	LockOpen,
 	Pencil,
+	ShieldOff,
 	Trash2,
 } from "lucide-react";
 import React from "react";
@@ -51,6 +52,7 @@ import {
 	getPasswordResetLink,
 	getRoles,
 	type PasswordResetLinkResponse,
+	resetCompanyUserTwoFactor,
 	type UpdateCompanyUserRequest,
 	unlockCompanyUser,
 	updateCompanyUser,
@@ -96,6 +98,11 @@ const CompanyUsers = () => {
 	const [resetLinkData, setResetLinkData] =
 		React.useState<PasswordResetLinkResponse | null>(null);
 	const [generatingLink, setGeneratingLink] = React.useState(false);
+
+	// Reset 2FA confirmation state
+	const [resetTwoFactorUser, setResetTwoFactorUser] =
+		React.useState<CompanyUser | null>(null);
+	const [resettingTwoFactor, setResettingTwoFactor] = React.useState(false);
 
 	// Loads without flagging loading; callers set it first.
 	const loadData = React.useCallback(() => {
@@ -154,6 +161,17 @@ const CompanyUsers = () => {
 		if (!id) return;
 		const res = await unlockCompanyUser(id, user.user_id);
 		if (res.success) fetchData();
+	};
+
+	const handleResetTwoFactor = async () => {
+		if (!id || !resetTwoFactorUser) return;
+		setResettingTwoFactor(true);
+		const res = await resetCompanyUserTwoFactor(id, resetTwoFactorUser.user_id);
+		setResettingTwoFactor(false);
+		if (res.success) {
+			setResetTwoFactorUser(null);
+			fetchData();
+		}
 	};
 
 	const handleCopyLink = (link: string) => {
@@ -276,6 +294,13 @@ const CompanyUsers = () => {
 										<TableRow key={user.environment_id}>
 											<TableCell className="font-medium">
 												{user.user_name}
+												{user.two_factor_enabled && (
+													<span className="ml-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+														{textGet(
+															"backoffice.company_users.two_factor.badge",
+														)}
+													</span>
+												)}
 												{user.locked && (
 													<span className="ml-2 inline-flex items-center rounded-full bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
 														{textGet("backoffice.company_users.locked")}
@@ -312,6 +337,18 @@ const CompanyUsers = () => {
 														)}
 													>
 														<LockOpen className="h-4 w-4" />
+													</Button>
+												)}
+												{user.two_factor_enabled && (
+													<Button
+														variant="ghost"
+														size="icon"
+														onClick={() => setResetTwoFactorUser(user)}
+														title={textGet(
+															"backoffice.company_users.two_factor_reset.button_title",
+														)}
+													>
+														<ShieldOff className="h-4 w-4" />
 													</Button>
 												)}
 												<Button
@@ -467,6 +504,46 @@ const CompanyUsers = () => {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			{/* Reset 2FA Confirmation */}
+			<AlertDialog
+				open={resetTwoFactorUser !== null}
+				onOpenChange={(open) => {
+					if (!open && !resettingTwoFactor) setResetTwoFactorUser(null);
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{textGet(
+								"backoffice.company_users.two_factor_reset.confirm_title",
+							)}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{textGet(
+								"backoffice.company_users.two_factor_reset.confirm_description",
+							)}{" "}
+							(<strong>{resetTwoFactorUser?.user_name}</strong>)
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={resettingTwoFactor}>
+							{textGet("backoffice.company_users.cancel")}
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={(e) => {
+								e.preventDefault();
+								handleResetTwoFactor();
+							}}
+							disabled={resettingTwoFactor}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							{resettingTwoFactor && <Spinner />}
+							{textGet("backoffice.company_users.two_factor_reset.confirm")}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			{/* Delete User Confirmation */}
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

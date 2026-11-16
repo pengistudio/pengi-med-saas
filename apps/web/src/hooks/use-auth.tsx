@@ -4,6 +4,7 @@ import { logoutRequest, userLogin } from "@/api/auth-service";
 import { resetSessionExpiredFlag } from "@/api/index";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
+import { isTwoFactorChallenge } from "@/types/user-type";
 
 type AuthResponse = { token: string | null; user_id: number | null };
 
@@ -24,6 +25,10 @@ const useAuth = () => {
 		const result = await userLogin({ user_name, password });
 
 		if (result.success) {
+			// A 2FA challenge isn't a session: LoginForm handles the code step.
+			if (isTwoFactorChallenge(result.data)) {
+				return { token: null, user_id: null };
+			}
 			const { token, user_id } = result.data;
 			useTokenStore.getState().setToken(token);
 			return { token, user_id };

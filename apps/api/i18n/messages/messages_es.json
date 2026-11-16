@@ -15226,5 +15226,213 @@
     {
         "key": "profile.email_change.hint",
         "value": "Para cambiar tu correo, confirma tu contraseña actual."
+    },
+    {
+        "key": "login.two_factor.title",
+        "value": "Verificación en dos pasos"
+    },
+    {
+        "key": "login.two_factor.description",
+        "value": "Ingresa el código de 6 dígitos de tu app de autenticación."
+    },
+    {
+        "key": "login.two_factor.recovery_description",
+        "value": "Ingresa uno de los códigos de recuperación que guardaste al activar la verificación en dos pasos. Cada código sirve una sola vez."
+    },
+    {
+        "key": "login.two_factor.code_label",
+        "value": "Código de verificación"
+    },
+    {
+        "key": "login.two_factor.recovery_label",
+        "value": "Código de recuperación"
+    },
+    {
+        "key": "login.two_factor.recovery_placeholder",
+        "value": "XXXX-XXXX-XXXX-XXXX"
+    },
+    {
+        "key": "login.two_factor.submit",
+        "value": "Verificar"
+    },
+    {
+        "key": "login.two_factor.use_recovery",
+        "value": "Usar un código de recuperación"
+    },
+    {
+        "key": "login.two_factor.use_app",
+        "value": "Usar la app de autenticación"
+    },
+    {
+        "key": "login.two_factor.back",
+        "value": "Volver al inicio de sesión"
+    },
+    {
+        "key": "profile.two_factor.title",
+        "value": "Verificación en dos pasos"
+    },
+    {
+        "key": "profile.two_factor.description",
+        "value": "Además de tu contraseña, pide un código de una app de autenticación (Google Authenticator, Microsoft Authenticator, 1Password...) al iniciar sesión."
+    },
+    {
+        "key": "profile.two_factor.status.enabled",
+        "value": "Activada"
+    },
+    {
+        "key": "profile.two_factor.status.disabled",
+        "value": "Desactivada"
+    },
+    {
+        "key": "profile.two_factor.recovery_remaining.one",
+        "value": "Te queda {count} código de recuperación sin usar."
+    },
+    {
+        "key": "profile.two_factor.recovery_remaining.other",
+        "value": "Te quedan {count} códigos de recuperación sin usar."
+    },
+    {
+        "key": "profile.two_factor.recovery_low",
+        "value": "Te quedan pocos códigos de recuperación. Genera unos nuevos y guárdalos en un lugar seguro."
+    },
+    {
+        "key": "profile.two_factor.enable",
+        "value": "Activar"
+    },
+    {
+        "key": "profile.two_factor.disable",
+        "value": "Desactivar"
+    },
+    {
+        "key": "profile.two_factor.regenerate",
+        "value": "Nuevos códigos de recuperación"
+    },
+    {
+        "key": "profile.two_factor.cancel",
+        "value": "Cancelar"
+    },
+    {
+        "key": "profile.two_factor.continue",
+        "value": "Continuar"
+    },
+    {
+        "key": "profile.two_factor.verify",
+        "value": "Verificar y activar"
+    },
+    {
+        "key": "profile.two_factor.code_label",
+        "value": "Código de la app"
+    },
+    {
+        "key": "profile.two_factor.enable.title",
+        "value": "Activar la verificación en dos pasos"
+    },
+    {
+        "key": "profile.two_factor.enable.password_description",
+        "value": "Confirma tu contraseña actual para empezar."
+    },
+    {
+        "key": "profile.two_factor.enable.scan_description",
+        "value": "Escanea el código QR con tu app de autenticación o escribe la clave a mano. Luego ingresa el código de 6 dígitos que muestra la app. Se cerrarán tus otras sesiones."
+    },
+    {
+        "key": "profile.two_factor.enable.qr_title",
+        "value": "Código QR para tu app de autenticación"
+    },
+    {
+        "key": "profile.two_factor.enable.secret_label",
+        "value": "Clave para ingreso manual"
+    },
+    {
+        "key": "profile.two_factor.enable.copy_secret",
+        "value": "Copiar clave"
+    },
+    {
+        "key": "profile.two_factor.codes.title",
+        "value": "Tus códigos de recuperación"
+    },
+    {
+        "key": "profile.two_factor.codes.description",
+        "value": "Si pierdes tu teléfono, cada uno de estos códigos te permite iniciar sesión una vez. Guárdalos en un lugar seguro: no se volverán a mostrar."
+    },
+    {
+        "key": "profile.two_factor.codes.copy",
+        "value": "Copiar"
+    },
+    {
+        "key": "profile.two_factor.codes.copied",
+        "value": "Copiados"
+    },
+    {
+        "key": "profile.two_factor.codes.download",
+        "value": "Descargar"
+    },
+    {
+        "key": "profile.two_factor.codes.confirm",
+        "value": "Guardé mis códigos de recuperación"
+    },
+    {
+        "key": "profile.two_factor.codes.done",
+        "value": "Listo"
+    },
+    {
+        "key": "profile.two_factor.codes.file_title",
+        "value": "Códigos de recuperación. Cada uno sirve una sola vez."
+    },
+    {
+        "key": "profile.two_factor.codes.file_name",
+        "value": "codigos-de-recuperacion"
+    },
+    {
+        "key": "profile.two_factor.disable.title",
+        "value": "Desactivar la verificación en dos pasos"
+    },
+    {
+        "key": "profile.two_factor.disable.description",
+        "value": "Tu cuenta quedará protegida solo por tu contraseña. Confirma con tu contraseña y un código."
+    },
+    {
+        "key": "profile.two_factor.disable.submit",
+        "value": "Desactivar"
+    },
+    {
+        "key": "profile.two_factor.regenerate.title",
+        "value": "Nuevos códigos de recuperación"
+    },
+    {
+        "key": "profile.two_factor.regenerate.description",
+        "value": "Tus códigos de recuperación actuales dejarán de funcionar. Confirma con tu contraseña y un código."
+    },
+    {
+        "key": "profile.two_factor.regenerate.submit",
+        "value": "Generar"
+    },
+    {
+        "key": "profile.two_factor.proof.code_label",
+        "value": "Código de verificación"
+    },
+    {
+        "key": "profile.two_factor.proof.code_description",
+        "value": "El código de 6 dígitos de tu app, o un código de recuperación."
+    },
+    {
+        "key": "backoffice.company_users.two_factor.badge",
+        "value": "2FA"
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.button_title",
+        "value": "Restablecer verificación en dos pasos"
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.confirm_title",
+        "value": "¿Restablecer la verificación en dos pasos?"
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.confirm_description",
+        "value": "Se desactivará la verificación en dos pasos y se borrarán sus códigos de recuperación. El usuario saldrá de todas sus sesiones e iniciará sesión solo con su contraseña."
+    },
+    {
+        "key": "backoffice.company_users.two_factor_reset.confirm",
+        "value": "Restablecer"
     }
 ]
