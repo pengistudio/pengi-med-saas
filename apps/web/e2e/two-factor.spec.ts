@@ -21,7 +21,6 @@ const environment = process.env.E2E_ENVIRONMENT;
 // UI labels in either interface language (es / en).
 const label = {
 	username: /Usuario o correo|Username or email/,
-	password: /^(Contraseña|Password)$/,
 	currentPassword: /Contraseña actual|Current password/,
 	enable: /^(Activar|Turn on)$/,
 	disable: /^(Desactivar|Turn off)$/,
@@ -95,7 +94,10 @@ async function freshCode(
 async function submitPassword(page: Page) {
 	await page.goto("/login");
 	await page.getByLabel(label.username).fill(username ?? "");
-	await page.getByLabel(label.password).fill(password ?? "");
+	await page
+		.locator('input[type="password"]')
+		.first()
+		.fill(password ?? "");
 	await page.locator("button[type=submit]").click();
 }
 
