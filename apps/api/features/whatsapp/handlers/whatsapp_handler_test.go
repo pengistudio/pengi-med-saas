@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
 	"gorm.io/gorm"
 
 	"pengi-med-saas/core/audit"
@@ -517,6 +518,58 @@ func TestDisconnect(t *testing.T) {
 	// The number is free again, for another tenant too.
 	if resp := f.connectManual(f.other); resp.Code != http.StatusOK {
 		t.Fatalf("reconnect elsewhere: %d", resp.Code)
+	}
+}
+
+// Connect and disconnect leave one Info line each, with ids and timings but
+// never the Meta code nor the token.
+func TestConnectAndDisconnectDiagnosticLogs(t *testing.T) {
+	f := newFixture(t)
+	t.Setenv("META_ES_CONFIG_ID", "cfg")
+	core, logs := observer.New(zap.InfoLevel)
+	f.h.logger = zap.New(core)
+
+	body := map[string]any{"code": "the-code", "waba_id": "WABA-1", "phone_number_id": "PHONE-1", "coexistence": true}
+	if resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, ""); resp.Code != http.StatusOK {
+		t.Fatalf("connect: %d (%v)", resp.Code, resp.Data)
+	}
+	connect := logs.FilterMessage("whatsapp connect").All()
+	if len(connect) != 1 {
+		t.Fatalf("connect logs = %d", len(connect))
+	}
+	fields := connect[0].ContextMap()
+	if fields["tenant_id"] != uint64(f.own) || fields["coexistence"] != true || fields["phone_number_id"] != "PHONE-1" || fields["phone_id_resolved"] != false {
+		t.Fatalf("connect fields = %v", fields)
+	}
+	for _, step := range []string{"exchange_code", "get_phone_number", "subscribe_app", "ensure_templates", "total"} {
+		if _, ok := fields[step]; !ok {
+			t.Fatalf("missing step %q: %v", step, fields)
+		}
+	}
+	if _, ok := fields["register_phone"]; ok {
+		t.Fatalf("coexistence must not register: %v", fields)
+	}
+
+	if resp, _ := f.call(f.h.Disconnect, f.own, http.MethodDelete, nil, ""); resp.Code != http.StatusOK {
+		t.Fatalf("disconnect: %d", resp.Code)
+	}
+	disconnect := logs.FilterMessage("whatsapp disconnect").All()
+	if len(disconnect) != 1 {
+		t.Fatalf("disconnect logs = %d", len(disconnect))
+	}
+	fields = disconnect[0].ContextMap()
+	if fields["tenant_id"] != uint64(f.own) || fields["phone_number_id"] != "PHONE-1" || fields["coexistence"] != true {
+		t.Fatalf("disconnect fields = %v", fields)
+	}
+	if _, ok := fields["connected_for"]; !ok {
+		t.Fatalf("missing connected_for: %v", fields)
+	}
+
+	for _, entry := range logs.All() {
+		line := fmt.Sprint(entry.Message, entry.ContextMap())
+		if strings.Contains(line, "the-code") || strings.Contains(line, "embedded-token") {
+			t.Fatalf("secret logged: %s", line)
+		}
 	}
 }
 
