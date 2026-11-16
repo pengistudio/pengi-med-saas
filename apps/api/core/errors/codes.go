@@ -128,6 +128,9 @@ var (
 	ErrAuthTwoFactorAlreadyEnabled   AppError = NewAppError("E-AUTH-020", "Two-factor authentication is already enabled.")
 	ErrAuthTwoFactorNotSetUp         AppError = NewAppError("E-AUTH-021", "Two-factor authentication is not set up.")
 	ErrAuthInvalidMFAToken           AppError = NewAppError("E-AUTH-022", "Invalid or expired two-factor login. Sign in again.")
+	ErrAuthPasskeyInvalid            AppError = NewAppError("E-AUTH-023", "Passkey verification failed.")
+	ErrAuthPasskeyLimit              AppError = NewAppError("E-AUTH-024", "Passkey limit reached.")
+	ErrAuthPasskeyNotFound           AppError = NewAppError("E-AUTH-025", "Passkey not found.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

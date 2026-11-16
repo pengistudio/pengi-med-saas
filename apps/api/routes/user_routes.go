@@ -43,6 +43,13 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		userRoutes.POST("/me/2fa/enable", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.EnableTwoFactor))
 		userRoutes.POST("/me/2fa/disable", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.DisableTwoFactor))
 		userRoutes.POST("/me/2fa/recovery-codes", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.RegenerateRecoveryCodes))
+
+		// Passkeys of the signed-in user. Adding one asks for the password (and
+		// the 2FA code), since signing in with a passkey skips 2FA.
+		userRoutes.GET("/me/passkeys", auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.ListPasskeys))
+		userRoutes.POST("/me/passkeys/register/begin", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.BeginPasskeyRegistration))
+		userRoutes.POST("/me/passkeys/register/finish", authLimiter.Middleware(), auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.FinishPasskeyRegistration))
+		userRoutes.DELETE("/me/passkeys/:id", auth_middleware.AuthMiddleware(), envelope.Handle(userHandler.DeletePasskey))
 	}
 
 	authRoutes := router.Group("/auth", authLimiter.Middleware())
@@ -54,6 +61,8 @@ func RegisterUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		authRoutes.POST("/signup/company/join", envelope.Handle(userHandler.JoinCompanyWithExistingAccount))
 		authRoutes.POST("/login", envelope.Handle(userHandler.Login))
 		authRoutes.POST("/login/2fa", envelope.Handle(userHandler.LoginTwoFactor))
+		authRoutes.POST("/passkey/begin", envelope.Handle(userHandler.BeginPasskeyLogin))
+		authRoutes.POST("/passkey/login", envelope.Handle(userHandler.FinishPasskeyLogin))
 		authRoutes.POST("/refresh", envelope.Handle(userHandler.RefreshAuthToken))
 		authRoutes.POST("/logout", envelope.Handle(userHandler.Logout))
 		authRoutes.POST("/forgot-password", envelope.Handle(userHandler.ForgotPassword))
