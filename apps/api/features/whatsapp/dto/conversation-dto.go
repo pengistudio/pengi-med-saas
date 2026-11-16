@@ -114,6 +114,15 @@ type LinkPatientRequest struct {
 	PatientID uint `json:"patient_id" binding:"required"`
 }
 
+// CreateConversationPatientRequest creates a patient from an unlinked
+// conversation: the phone is the conversation's, the rest is completed later
+// on the patient form.
+type CreateConversationPatientRequest struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Document  string `json:"document"`
+}
+
 // StartConversationRequest sends a catalog template to a patient, creating
 // the conversation with their number when there is none.
 // appointment_id is required by templates with date / time (reprogramar).

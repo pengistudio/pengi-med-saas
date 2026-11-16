@@ -79,18 +79,33 @@ func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) envelope.Response {
 	if h.client.AppID == "" || h.client.AppSecret == "" || config.Get().MetaESConfigID == "" {
 		return envelope.ErrorResponse(http.StatusServiceUnavailable, "whatsapp.error.embedded_unavailable", core_errors.ErrWhatsAppEmbeddedUnavailable)
 	}
-	if resp, taken := h.phoneTaken(c, req.PhoneNumberID); taken {
-		return resp
-	}
 	box, err := whatsapp_models.Box()
 	if err != nil {
 		return h.encryptionUnavailable(err)
+	}
+
+	// Check ownership before spending the one-time Meta code.
+	if req.PhoneNumberID != "" {
+		if resp, taken := h.phoneTaken(c, req.PhoneNumberID); taken {
+			return resp
+		}
 	}
 
 	token, err := h.client.ExchangeCode(req.Code)
 	if err != nil {
 		h.logger.Warn("whatsapp code exchange failed", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "whatsapp.error.invalid_credentials", core_errors.ErrWhatsAppInvalidCredentials)
+	}
+	// The Business app onboarding (Coexistence) may report only the WABA.
+	if req.PhoneNumberID == "" {
+		id, resp, ok := h.resolvePhoneNumberID(token, req.WabaID)
+		if !ok {
+			return resp
+		}
+		req.PhoneNumberID = id
+		if resp, taken := h.phoneTaken(c, req.PhoneNumberID); taken {
+			return resp
+		}
 	}
 	phone, err := h.client.GetPhoneNumber(token, req.PhoneNumberID)
 	if err != nil {
@@ -407,6 +422,24 @@ func (h *WhatsAppHandler) phoneTaken(c *gin.Context, phoneNumberID string) (enve
 		return envelope.ErrorResponse(http.StatusConflict, "whatsapp.error.phone_in_use", core_errors.ErrWhatsAppPhoneInUse), true
 	}
 	return envelope.Response{}, false
+}
+
+// resolvePhoneNumberID finds the number of a WABA when Embedded Signup didn't
+// report it: it must have exactly one, otherwise we can't tell which to use.
+func (h *WhatsAppHandler) resolvePhoneNumberID(token, wabaID string) (string, envelope.Response, bool) {
+	phones, err := h.client.ListPhoneNumbers(token, wabaID)
+	if err != nil {
+		return "", h.graphFailure("list phone numbers", err), false
+	}
+	switch len(phones) {
+	case 1:
+		return phones[0].ID, envelope.Response{}, true
+	case 0:
+		return "", envelope.ErrorResponse(http.StatusUnprocessableEntity, "whatsapp.error.no_phone_number", core_errors.ErrWhatsAppPhoneUnresolved), false
+	default:
+		h.logger.Warn("whatsapp waba has several phone numbers", zap.String("waba_id", wabaID), zap.Int("count", len(phones)))
+		return "", envelope.ErrorResponse(http.StatusUnprocessableEntity, "whatsapp.error.several_phone_numbers", core_errors.ErrWhatsAppPhoneUnresolved), false
+	}
 }
 
 func (h *WhatsAppHandler) graphFailure(step string, err error) envelope.Response {

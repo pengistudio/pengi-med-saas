@@ -327,6 +327,23 @@ func TestConnectEmbedded(t *testing.T) {
 	}
 }
 
+// A taken number sent with the request must not burn the one-time code.
+func TestConnectEmbeddedTakenNumberKeepsCode(t *testing.T) {
+	f := newFixture(t)
+	t.Setenv("META_ES_CONFIG_ID", "cfg")
+	if resp := f.connectManual(f.other); resp.Code != http.StatusOK {
+		t.Fatalf("other tenant connect: %d", resp.Code)
+	}
+	body := map[string]string{"code": "the-code", "waba_id": "WABA-1", "phone_number_id": "PHONE-1"}
+	resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, "")
+	if resp.Code != http.StatusConflict {
+		t.Fatalf("code = %d (%v)", resp.Code, resp.Data)
+	}
+	if f.graph.called("GET /v23.0/oauth/access_token") {
+		t.Fatalf("code was exchanged: %v", f.graph.calls)
+	}
+}
+
 // A number linked from the WhatsApp Business app (Coexistence) is already
 // registered by Meta: the API must not register it again nor store a pin.
 func TestConnectEmbeddedCoexistence(t *testing.T) {
@@ -346,6 +363,64 @@ func TestConnectEmbeddedCoexistence(t *testing.T) {
 	a := f.account(f.own)
 	if !a.Coexistence || a.PinEncrypted != "" {
 		t.Fatalf("account = %+v", a)
+	}
+}
+
+// The Business app onboarding finish event can carry only the WABA: the
+// number is looked up from the WABA's phone numbers.
+func TestConnectEmbeddedWithoutPhoneNumberID(t *testing.T) {
+	body := map[string]any{"code": "the-code", "waba_id": "WABA-1", "coexistence": true}
+
+	t.Run("one number is used", func(t *testing.T) {
+		f := newFixture(t)
+		t.Setenv("META_ES_CONFIG_ID", "cfg")
+		f.graph.set("GET /v23.0/WABA-1/phone_numbers", 200, `{"data":[{"id":"PHONE-1","display_phone_number":"+1 555-0100"}]}`)
+		resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, "")
+		if resp.Code != http.StatusOK {
+			t.Fatalf("code = %d (%v)", resp.Code, resp.Data)
+		}
+		if a := f.account(f.own); a.PhoneNumberID != "PHONE-1" || a.WabaID != "WABA-1" || !a.Coexistence {
+			t.Fatalf("account = %+v", a)
+		}
+		if f.graph.called("POST /v23.0/PHONE-1/register") {
+			t.Fatalf("coexistence number was registered: %v", f.graph.calls)
+		}
+	})
+
+	t.Run("number taken by another tenant", func(t *testing.T) {
+		f := newFixture(t)
+		t.Setenv("META_ES_CONFIG_ID", "cfg")
+		f.graph.set("GET /v23.0/WABA-1/phone_numbers", 200, `{"data":[{"id":"PHONE-1"}]}`)
+		if resp := f.connectManual(f.other); resp.Code != http.StatusOK {
+			t.Fatalf("other tenant connect: %d", resp.Code)
+		}
+		resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, "")
+		if resp.Code != http.StatusConflict {
+			t.Fatalf("code = %d (%v)", resp.Code, resp.Data)
+		}
+	})
+
+	for name, tc := range map[string]struct{ listing, message string }{
+		"zero numbers":    {`{"data":[]}`, "whatsapp.error.no_phone_number"},
+		"several numbers": {`{"data":[{"id":"PHONE-1"},{"id":"PHONE-2"}]}`, "whatsapp.error.several_phone_numbers"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			t.Setenv("META_ES_CONFIG_ID", "cfg")
+			f.graph.set("GET /v23.0/WABA-1/phone_numbers", 200, tc.listing)
+			resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, "")
+			if resp.Code != http.StatusUnprocessableEntity || resp.Message != tc.message {
+				t.Fatalf("code = %d message = %q", resp.Code, resp.Message)
+			}
+			if f.graph.called("POST /v23.0/WABA-1/subscribed_apps") {
+				t.Fatalf("app subscribed without a number: %v", f.graph.calls)
+			}
+			var count int64
+			f.db.Model(&whatsapp_models.WhatsAppAccount{}).Where("tenant_id = ?", f.own).Count(&count)
+			if count != 0 {
+				t.Fatalf("account saved: %d", count)
+			}
+		})
 	}
 }
 

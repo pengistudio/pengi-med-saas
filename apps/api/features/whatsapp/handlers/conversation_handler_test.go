@@ -472,3 +472,85 @@ func TestSendTest_RecordedInThreadAndLogShowsOnlySent(t *testing.T) {
 		t.Fatalf("sent log total = %d, want 1 (inbound excluded)", total)
 	}
 }
+
+func (f *fixture) patientCount(tenantID uint) int64 {
+	f.t.Helper()
+	var n int64
+	if err := tenantdb.ForTenant(f.db, tenantID).Model(&clinical_models.Patient{}).Count(&n).Error; err != nil {
+		f.t.Fatal(err)
+	}
+	return n
+}
+
+func TestCreateConversationPatient(t *testing.T) {
+	f := newFixture(t)
+	f.connectedAccount(f.own, "PHONE-OWN")
+	f.writes("PHONE-OWN", "593998887777", "wamid.c1", "hola, soy Carla")
+	f.writes("PHONE-OWN", "593998887777", "wamid.c2", "¿hay turno mañana?")
+	conv := f.conversations(f.own)[0]
+	if conv.PatientID != nil {
+		t.Fatal("unknown number must start unlinked")
+	}
+	create := func(id uint, body any) envelope.Response {
+		return f.callID(f.h.CreateConversationPatient, f.own, http.MethodPost, id, body, "")
+	}
+
+	// Missing (or blank) first name: 400 and nothing created.
+	for _, body := range []any{map[string]string{"last_name": "Mora"}, map[string]string{"first_name": "   "}} {
+		if resp := create(conv.ID, body); resp.Code != http.StatusBadRequest || errCode(resp) != "E-WA-002" {
+			t.Fatalf("missing name: %d %s", resp.Code, errCode(resp))
+		}
+	}
+	if n := f.patientCount(f.own); n != 0 {
+		t.Fatalf("patients after invalid requests = %d", n)
+	}
+
+	resp := create(conv.ID, map[string]string{"first_name": " Carla ", "last_name": "Mora", "document": "1712345678"})
+	if resp.Code != http.StatusOK {
+		t.Fatalf("create: %d %v", resp.Code, resp.Data)
+	}
+	d := resp.Data.(whatsapp_dto.ConversationDetailResponse)
+	if d.Patient == nil || d.PatientName != "Carla Mora" || d.Patient.WhatsAppOptIn {
+		t.Fatalf("detail = %+v", d)
+	}
+	var stored clinical_models.Patient
+	if err := tenantdb.ForTenant(f.db, f.own).First(&stored, d.Patient.ID).Error; err != nil {
+		t.Fatal(err)
+	}
+	if stored.TenantID != f.own || stored.FirstName != "Carla" || stored.Document != "1712345678" || stored.FullName == nil || *stored.FullName != "Carla Mora" {
+		t.Fatalf("stored patient = %+v", stored)
+	}
+	// The stored phone matches the conversation's number from now on.
+	if n, err := whatsapp_services.NormalizePhone(stored.Phone); err != nil || n != conv.Phone {
+		t.Fatalf("phone %q normalizes to %q (%v), want %q", stored.Phone, n, err, conv.Phone)
+	}
+	if id, err := whatsapp_services.MatchPatientByPhone(tenantdb.ForTenant(f.db, f.own), conv.Phone); err != nil || id == nil || *id != stored.ID {
+		t.Fatalf("match = %v %v", id, err)
+	}
+	if c := f.conversations(f.own)[0]; c.PatientID == nil || *c.PatientID != stored.ID {
+		t.Fatalf("conversation not linked: %+v", c)
+	}
+	for _, m := range f.thread(conv.ID) {
+		if m.PatientID == nil || *m.PatientID != stored.ID {
+			t.Fatalf("message not linked: %+v", m)
+		}
+	}
+
+	// Already linked: 409, no second patient.
+	if resp := create(conv.ID, map[string]string{"first_name": "Otra"}); resp.Code != http.StatusConflict || errCode(resp) != "E-WA-028" {
+		t.Fatalf("already linked: %d %s", resp.Code, errCode(resp))
+	}
+	if n := f.patientCount(f.own); n != 1 {
+		t.Fatalf("patients after conflict = %d", n)
+	}
+
+	// Another tenant's conversation: 404, nothing created anywhere.
+	recent := time.Now().Add(-time.Hour)
+	theirs := f.seedConversation(f.other, "593991234567", &recent, 1)
+	if resp := create(theirs.ID, map[string]string{"first_name": "Intrusa"}); resp.Code != http.StatusNotFound || errCode(resp) != "E-WA-015" {
+		t.Fatalf("other tenant: %d %s", resp.Code, errCode(resp))
+	}
+	if f.patientCount(f.own) != 1 || f.patientCount(f.other) != 0 || f.conversations(f.other)[0].PatientID != nil {
+		t.Fatal("another tenant's conversation produced a patient")
+	}
+}

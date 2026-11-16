@@ -469,3 +469,16 @@ func (c *Client) GetPhoneNumber(token, phoneNumberID string) (PhoneNumber, error
 	err := c.do(http.MethodGet, phoneNumberID, token, q, nil, &out)
 	return out, err
 }
+
+// ListPhoneNumbers lists the WABA's phone numbers (first page, which is all a
+// clinic's WABA ever has).
+func (c *Client) ListPhoneNumbers(token, wabaID string) ([]PhoneNumber, error) {
+	q := url.Values{"fields": {"id,display_phone_number,verified_name,quality_rating"}}
+	var out struct {
+		Data []PhoneNumber `json:"data"`
+	}
+	if err := c.do(http.MethodGet, wabaID+"/phone_numbers", token, q, nil, &out); err != nil {
+		return nil, err
+	}
+	return out.Data, nil
+}

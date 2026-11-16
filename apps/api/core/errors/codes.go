@@ -204,6 +204,8 @@ var (
 	ErrWhatsAppBotNotReady           AppError = NewAppError("E-WA-024", "The WhatsApp assistant can't be enabled yet.")
 	ErrWhatsAppBotInvalidFAQ         AppError = NewAppError("E-WA-025", "Invalid frequently asked questions.")
 	ErrWhatsAppBotRateLimited        AppError = NewAppError("E-WA-026", "Too many tests: wait a minute.")
+	ErrWhatsAppPhoneUnresolved       AppError = NewAppError("E-WA-027", "The WhatsApp number of the connected account could not be determined.")
+	ErrWhatsAppAlreadyLinked         AppError = NewAppError("E-WA-028", "This conversation is already linked to a patient.")
 
 	// Doctor Errors (professional profiles of the clinic's doctors)
 	ErrDoctorNotFound          AppError = NewAppError("E-DR-001", "Doctor not found.")

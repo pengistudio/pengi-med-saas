@@ -34,15 +34,14 @@ const config = {
 	embedded_signup_available: true,
 };
 
-function postFinish() {
+function postFinish(
+	event = "FINISH",
+	data: Record<string, unknown> = { waba_id: "W", phone_number_id: "P" },
+) {
 	window.dispatchEvent(
 		new MessageEvent("message", {
 			origin: "https://www.facebook.com",
-			data: {
-				type: "WA_EMBEDDED_SIGNUP",
-				event: "FINISH",
-				data: { waba_id: "W", phone_number_id: "P" },
-			},
+			data: { type: "WA_EMBEDDED_SIGNUP", event, data },
 		}),
 	);
 }
@@ -101,6 +100,30 @@ describe("useEmbeddedSignup", () => {
 		expect(mocks.connect).toHaveBeenCalledWith(
 			expect.objectContaining({ coexistence: true }),
 		);
+	});
+
+	it("connects a Business app finish that carries only the WABA", async () => {
+		loginReturns("C");
+		const account = { connected: true };
+		mocks.connect.mockResolvedValue({ success: true, data: account });
+		const onConnected = vi.fn();
+		const { result } = renderHook(() => useEmbeddedSignup(config, onConnected));
+
+		await act(() => result.current.start({ coexistence: true }));
+		await act(async () =>
+			postFinish("FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING", {
+				messaging_account_ids: ["W"],
+			}),
+		);
+
+		expect(mocks.connect).toHaveBeenCalledWith({
+			code: "C",
+			waba_id: "W",
+			coexistence: true,
+		});
+		expect(onConnected).toHaveBeenCalledWith(account);
+		act(() => vi.advanceTimersByTime(EMBEDDED_SIGNUP_TIMEOUT_MS));
+		expect(mocks.errorToast).not.toHaveBeenCalled();
 	});
 
 	it("opts out of the Business app onboarding by default", async () => {
