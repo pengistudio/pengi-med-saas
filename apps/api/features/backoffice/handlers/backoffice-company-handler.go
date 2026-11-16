@@ -15,6 +15,7 @@ import (
 	auth_middleware "pengi-med-saas/features/users/middleware"
 	user_models "pengi-med-saas/features/users/models"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -269,8 +270,10 @@ func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Resp
 		EnvironmentName   string `json:"environment_name"`
 		MaxOwnedCompanies int    `json:"max_owned_companies"`
 		OwnedCompanies    int64  `json:"owned_companies"`
+		Locked            bool   `json:"locked"`
 	}
 
+	now := time.Now()
 	result := make([]CompanyUserResponse, 0, len(environments))
 	for _, env := range environments {
 		u := userMap[env.UserID]
@@ -286,6 +289,7 @@ func (h *BackofficeCompanyHandler) GetCompanyUsers(c *gin.Context) envelope.Resp
 			EnvironmentName:   env.Name,
 			MaxOwnedCompanies: u.MaxOwnedCompanies,
 			OwnedCompanies:    ownedCompanies,
+			Locked:            u.LockedUntil != nil && u.LockedUntil.After(now),
 		})
 	}
 
@@ -352,6 +356,32 @@ func (h *BackofficeCompanyHandler) UpdateCompanyUser(c *gin.Context) envelope.Re
 
 	h.logger.Info("Company user updated", zap.String("company_id", companyID), zap.String("user_id", userID))
 	return envelope.SuccessResponse(nil, "backoffice.company.users.update.success")
+}
+
+// UnlockCompanyUser clears the failed-login counter and the lockout of a user
+// of the company, so they can sign in again before the lock expires.
+func (h *BackofficeCompanyHandler) UnlockCompanyUser(c *gin.Context) envelope.Response {
+	companyID := c.Param("id")
+	userID := c.Param("user_id")
+
+	// The user must belong to this company.
+	var env user_models.Environment
+	if err := h.db.Where("company_id = ? AND user_id = ?", companyID, userID).First(&env).Error; err != nil {
+		h.logger.Error("User not found in company", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
+	}
+
+	// A map so the zero value and NULL are written.
+	if err := h.db.Model(&user_models.User{}).Where("id = ?", env.UserID).Updates(map[string]interface{}{
+		"failed_login_attempts": 0,
+		"locked_until":          nil,
+	}).Error; err != nil {
+		h.logger.Error("Failed to unlock company user", zap.String("company_id", companyID), zap.String("user_id", userID), zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+
+	h.logger.Info("Company user unlocked", zap.String("company_id", companyID), zap.String("user_id", userID))
+	return envelope.SuccessResponse(nil, "backoffice.company.users.unlock.success")
 }
 
 // GenerateUserPasswordResetLink generates a password-reset link for a tenant user.
