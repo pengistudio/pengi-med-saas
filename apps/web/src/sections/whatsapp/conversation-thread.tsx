@@ -7,6 +7,7 @@ import {
 	Loader2,
 	UserPlus,
 	UserRound,
+	UserRoundPlus,
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router";
@@ -18,7 +19,9 @@ import {
 	type WhatsAppMessage,
 } from "@/api/whatsapp-service";
 import { BotReason } from "@/components/features/whatsapp/bot-reason";
+import usePermission from "@/hooks/use-permission";
 import { usePolling } from "@/hooks/use-polling";
+import { PERMISSIONS } from "@/lib/constants";
 import {
 	conversationTitle,
 	displayPhone,
@@ -27,6 +30,7 @@ import {
 import { replyWindow } from "@/lib/whatsapp-window";
 import { refreshWhatsAppUnread } from "@/store/whatsapp-store";
 import { Composer } from "./composer";
+import { CreatePatientDialog } from "./create-patient-dialog";
 import { LinkPatientDialog } from "./link-patient-dialog";
 import { MessageBubble } from "./message-bubble";
 import { TemplateMessageDialog } from "./template-message-dialog";
@@ -65,6 +69,11 @@ export function ConversationThread({
 	const [loaded, setLoaded] = React.useState(false);
 	const [loadingOlder, setLoadingOlder] = React.useState(false);
 	const [linkOpen, setLinkOpen] = React.useState(false);
+	const [createOpen, setCreateOpen] = React.useState(false);
+	const { checkPermission } = usePermission();
+	const canCreatePatient = checkPermission([
+		PERMISSIONS.MEDICAL_RECORD.PERMISSION_CREATE_PATIENT,
+	]);
 	const [templateOpen, setTemplateOpen] = React.useState(false);
 	const [now, setNow] = React.useState(() => new Date());
 
@@ -243,10 +252,26 @@ export function ConversationThread({
 					<Skeleton className="h-10 flex-1" />
 				)}
 				{detail && !patient && (
-					<Button variant="outline" size="sm" onClick={() => setLinkOpen(true)}>
-						<UserPlus />
-						<Text uuid="whatsapp.inbox.link.open" />
-					</Button>
+					<div className="flex flex-wrap justify-end gap-2">
+						{canCreatePatient && (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setCreateOpen(true)}
+							>
+								<UserRoundPlus />
+								<Text uuid="whatsapp.inbox.create_patient.open" />
+							</Button>
+						)}
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setLinkOpen(true)}
+						>
+							<UserPlus />
+							<Text uuid="whatsapp.inbox.link.open" />
+						</Button>
+					</div>
 				)}
 			</div>
 
@@ -355,6 +380,19 @@ export function ConversationThread({
 					conversationId={conversationId}
 					phone={displayPhone(detail.phone)}
 					onLinked={(d) => {
+						setDetail(d);
+						onChanged();
+					}}
+				/>
+			)}
+
+			{detail && canCreatePatient && (
+				<CreatePatientDialog
+					open={createOpen}
+					onOpenChange={setCreateOpen}
+					conversationId={conversationId}
+					phone={displayPhone(detail.phone)}
+					onCreated={(d) => {
 						setDetail(d);
 						onChanged();
 					}}

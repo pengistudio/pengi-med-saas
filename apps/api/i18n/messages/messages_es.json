@@ -8788,6 +8788,18 @@
         "value": "La conexión a través de Meta aún no está disponible. Usa la conexión manual."
     },
     {
+        "key": "whatsapp.error.no_phone_number",
+        "value": "La cuenta de WhatsApp Business conectada no tiene ningún número. Revisa la cuenta en Meta e intenta de nuevo."
+    },
+    {
+        "key": "whatsapp.error.several_phone_numbers",
+        "value": "La cuenta de WhatsApp Business conectada tiene varios números y no sabemos cuál usar. Usa la conexión manual con el número que quieres."
+    },
+    {
+        "key": "E-WA-027",
+        "value": "No se pudo determinar el número de WhatsApp de la cuenta conectada."
+    },
+    {
         "key": "whatsapp.error.encryption_unavailable",
         "value": "Este servidor no puede guardar credenciales de WhatsApp. Contacta a soporte."
     },
@@ -9232,6 +9244,18 @@
         "value": "Paciente no encontrado."
     },
     {
+        "key": "whatsapp.error.conversation_already_linked",
+        "value": "Esta conversación ya está asociada a un paciente."
+    },
+    {
+        "key": "E-WA-028",
+        "value": "Esta conversación ya está asociada a un paciente."
+    },
+    {
+        "key": "whatsapp.conversation.patient.create.success",
+        "value": "Paciente creado y asociado a la conversación."
+    },
+    {
         "key": "whatsapp.conversations.list.success",
         "value": "Conversaciones obtenidas."
     },
@@ -9422,6 +9446,38 @@
     {
         "key": "whatsapp.inbox.link.search",
         "value": "Buscar paciente por nombre o cédula"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.open",
+        "value": "Crear paciente"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.title",
+        "value": "Crear paciente"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.description",
+        "value": "Se crea con el número {phone} y queda asociado a esta conversación. Podrás completar sus datos después."
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.first_name",
+        "value": "Nombres"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.last_name",
+        "value": "Apellidos"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.document",
+        "value": "Cédula / documento"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.submit",
+        "value": "Crear y asociar"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.error.first_name",
+        "value": "Ingresa el nombre del paciente."
     },
     {
         "key": "whatsapp.inbox.back",

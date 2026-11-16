@@ -53,7 +53,8 @@ export type ConnectManualPayload = {
 export type ConnectEmbeddedPayload = {
 	code: string;
 	waba_id: string;
-	phone_number_id: string;
+	/** Missing when the Business app onboarding reported only the WABA. */
+	phone_number_id?: string;
 	/** The number stays active in the WhatsApp Business app (Coexistence). */
 	coexistence?: boolean;
 };
@@ -464,6 +465,23 @@ export const linkWhatsAppConversationPatient = async (
 	whatsappService.put<WhatsAppConversationDetail>(
 		`/whatsapp/conversations/${id}/patient`,
 		{ patient_id: patientId },
+		{ notifySuccess: true, notifyError: true },
+	);
+
+export type CreateConversationPatientPayload = {
+	first_name: string;
+	last_name?: string;
+	document?: string;
+};
+
+/** Creates a patient with the conversation's number and links the conversation to it. */
+export const createWhatsAppConversationPatient = async (
+	id: number,
+	payload: CreateConversationPatientPayload,
+): Promise<ServiceResponse<WhatsAppConversationDetail>> =>
+	whatsappService.post<WhatsAppConversationDetail>(
+		`/whatsapp/conversations/${id}/patient`,
+		payload,
 		{ notifySuccess: true, notifyError: true },
 	);
 

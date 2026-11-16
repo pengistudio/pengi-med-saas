@@ -70,10 +70,14 @@ export function loadFacebookSdk(
 	return loading.then(init);
 }
 
-/** The ids Embedded Signup posts back when the user finishes the flow. */
+/**
+ * The ids Embedded Signup posts back when the user finishes the flow. The
+ * Business app onboarding (Coexistence) may send only the WABA; the backend
+ * then looks up its number.
+ */
 export interface EmbeddedSignupResult {
 	waba_id: string;
-	phone_number_id: string;
+	phone_number_id?: string;
 }
 
 export type EmbeddedSignupEvent =
@@ -127,10 +131,14 @@ export function parseEmbeddedSignupMessage(
 		const waba =
 			msg.data?.waba_id ?? (Array.isArray(accounts) ? accounts[0] : accounts);
 		const phone = msg.data?.phone_number_id;
-		if (!waba || !phone) return null;
+		// The Business app onboarding may leave the number out; the backend
+		// then looks it up from the WABA.
+		if (!waba) return null;
 		return {
 			type: "finish",
-			result: { waba_id: String(waba), phone_number_id: String(phone) },
+			result: phone
+				? { waba_id: String(waba), phone_number_id: String(phone) }
+				: { waba_id: String(waba) },
 		};
 	}
 	if (msg.event === "CANCEL") return { type: "cancel" };

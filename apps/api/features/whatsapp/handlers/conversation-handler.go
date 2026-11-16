@@ -1,6 +1,7 @@
 package whatsapp_handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,6 +12,9 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
 	clinical_models "pengi-med-saas/features/clinical/models"
+	subscription_middleware "pengi-med-saas/features/companies/middleware"
+	company_models "pengi-med-saas/features/companies/models"
+	doctor_services "pengi-med-saas/features/doctors/services"
 	whatsapp_dto "pengi-med-saas/features/whatsapp/dto"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
 	whatsapp_services "pengi-med-saas/features/whatsapp/services"
@@ -248,6 +252,93 @@ func (h *WhatsAppHandler) LinkPatient(c *gin.Context) envelope.Response {
 	}
 	conv.PatientID, conv.Patient = &patient.ID, &patient
 	return h.detail(c, conv, "whatsapp.conversation.patient.success")
+}
+
+// errConversationLinked: the conversation got a patient while a patient was
+// being created for it (a double submit); the transaction rolls back.
+var errConversationLinked = errors.New("whatsapp conversation already linked")
+
+// CreateConversationPatient creates a patient from an unlinked conversation
+// (an unknown number) with the conversation's phone, and links the
+// conversation and its unlinked messages to it, in one transaction. It
+// applies the plan's max_patients limit and the médico de cabecera default of
+// the patient form. WhatsApp consent stays off: writing to the clinic is not
+// consent to reminders. 409 when the conversation already has a patient.
+func (h *WhatsAppHandler) CreateConversationPatient(c *gin.Context) envelope.Response {
+	conv, resp, ok := h.loadConversation(c)
+	if !ok {
+		return resp
+	}
+	var req whatsapp_dto.CreateConversationPatientRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return envelope.ErrorResponse(http.StatusBadRequest, "whatsapp.error.invalid_request", core_errors.ErrWhatsAppInvalidRequest)
+	}
+	firstName := strings.TrimSpace(req.FirstName)
+	lastName := strings.TrimSpace(req.LastName)
+	if firstName == "" {
+		return envelope.ErrorResponse(http.StatusBadRequest, "whatsapp.error.invalid_request", core_errors.ErrWhatsAppInvalidRequest)
+	}
+	if conv.PatientID != nil {
+		return envelope.ErrorResponse(http.StatusConflict, "whatsapp.error.conversation_already_linked", core_errors.ErrWhatsAppAlreadyLinked)
+	}
+	db := tenantdb.For(c, h.db)
+
+	// Same plan limit as the patient form (clinical CreatePatient).
+	var company company_models.Company
+	if err := db.First(&company).Error; err == nil {
+		var count int64
+		if err := db.Model(&clinical_models.Patient{}).Count(&count).Error; err != nil {
+			h.logger.Error("failed to count patients", zap.Error(err))
+			return h.internalError()
+		}
+		if subscription_middleware.ExceedsPlanLimit(h.db, company.ID, "max_patients", count) {
+			return envelope.ErrorResponse(http.StatusForbidden, "plan.limit.patients", core_errors.ErrPlanLimitPatients)
+		}
+	}
+	doctorID, err := doctor_services.Resolve(c, db, doctor_services.Choice{Policy: doctor_services.Optional})
+	if err != nil {
+		h.logger.Error("failed to resolve doctor", zap.Error(err))
+		return h.internalError()
+	}
+
+	fullName := strings.TrimSpace(firstName + " " + lastName)
+	patient := clinical_models.Patient{
+		TenantID:  tenantdb.TenantID(c),
+		FirstName: firstName,
+		LastName:  lastName,
+		FullName:  &fullName,
+		Document:  strings.TrimSpace(req.Document),
+		// International form: NormalizePhone gives conv.Phone back, so the
+		// number matches this patient (MatchPatientByPhone) from now on.
+		Phone:    "+" + conv.Phone,
+		DoctorID: doctorID,
+	}
+	err = db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Omit("Doctor", "MedicalRecords", "Appointments").Create(&patient).Error; err != nil {
+			return err
+		}
+		res := tx.Model(&whatsapp_models.WhatsAppConversation{}).
+			Where("id = ? AND patient_id IS NULL", conv.ID).
+			Update("patient_id", patient.ID)
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected != 1 {
+			return errConversationLinked
+		}
+		return tx.Model(&whatsapp_models.WhatsAppMessage{}).
+			Where("conversation_id = ? AND patient_id IS NULL", conv.ID).
+			Update("patient_id", patient.ID).Error
+	})
+	if errors.Is(err, errConversationLinked) {
+		return envelope.ErrorResponse(http.StatusConflict, "whatsapp.error.conversation_already_linked", core_errors.ErrWhatsAppAlreadyLinked)
+	}
+	if err != nil {
+		h.logger.Error("failed to create patient from whatsapp conversation", zap.Error(err))
+		return h.internalError()
+	}
+	conv.PatientID, conv.Patient = &patient.ID, &patient
+	return h.detail(c, conv, "whatsapp.conversation.patient.create.success")
 }
 
 // loadConversation loads :id in the request's tenant (404 when it is not

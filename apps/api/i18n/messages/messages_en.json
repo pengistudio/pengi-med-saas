@@ -8788,6 +8788,18 @@
         "value": "Connecting through Meta is not available yet. Use the manual connection."
     },
     {
+        "key": "whatsapp.error.no_phone_number",
+        "value": "The connected WhatsApp Business account has no phone number. Check the account in Meta and try again."
+    },
+    {
+        "key": "whatsapp.error.several_phone_numbers",
+        "value": "The connected WhatsApp Business account has several phone numbers and we can't tell which to use. Use the manual connection with the number you want."
+    },
+    {
+        "key": "E-WA-027",
+        "value": "The WhatsApp number of the connected account could not be determined."
+    },
+    {
         "key": "whatsapp.error.encryption_unavailable",
         "value": "This server cannot store WhatsApp credentials. Contact support."
     },
@@ -9232,6 +9244,18 @@
         "value": "Patient not found."
     },
     {
+        "key": "whatsapp.error.conversation_already_linked",
+        "value": "This conversation is already linked to a patient."
+    },
+    {
+        "key": "E-WA-028",
+        "value": "This conversation is already linked to a patient."
+    },
+    {
+        "key": "whatsapp.conversation.patient.create.success",
+        "value": "Patient created and linked to the conversation."
+    },
+    {
         "key": "whatsapp.conversations.list.success",
         "value": "Conversations retrieved."
     },
@@ -9422,6 +9446,38 @@
     {
         "key": "whatsapp.inbox.link.search",
         "value": "Search patient by name or ID"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.open",
+        "value": "Create patient"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.title",
+        "value": "Create patient"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.description",
+        "value": "The patient is created with the number {phone} and linked to this conversation. You can complete their details later."
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.first_name",
+        "value": "First name"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.last_name",
+        "value": "Last name"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.document",
+        "value": "ID / document"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.submit",
+        "value": "Create and link"
+    },
+    {
+        "key": "whatsapp.inbox.create_patient.error.first_name",
+        "value": "Enter the patient's first name."
     },
     {
         "key": "whatsapp.inbox.back",

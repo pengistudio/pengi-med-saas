@@ -79,6 +79,28 @@ describe("parseEmbeddedSignupMessage", () => {
 		});
 	});
 
+	it("accepts a Business app finish without a phone number id", () => {
+		for (const data of [{ waba_id: "222" }, { messaging_account_ids: "222" }]) {
+			expect(
+				parseEmbeddedSignupMessage("https://www.facebook.com", {
+					type: "WA_EMBEDDED_SIGNUP",
+					event: "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
+					data,
+				}),
+			).toEqual({ type: "finish", result: { waba_id: "222" } });
+		}
+	});
+
+	it("ignores a finish without a WABA id", () => {
+		expect(
+			parseEmbeddedSignupMessage("https://www.facebook.com", {
+				type: "WA_EMBEDDED_SIGNUP",
+				event: "FINISH",
+				data: { phone_number_id: "111" },
+			}),
+		).toBeNull();
+	});
+
 	it("reports a cancelled flow", () => {
 		expect(
 			parseEmbeddedSignupMessage("https://www.facebook.com", {

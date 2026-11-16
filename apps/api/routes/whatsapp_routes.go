@@ -67,4 +67,5 @@ func registerWhatsAppTenantRoutes(group *gin.RouterGroup, db *gorm.DB, h *whatsa
 	group.POST("/conversations/:id/template", inbox, envelope.Handle(h.SendTemplate))
 	group.POST("/conversations/:id/read", inbox, envelope.Handle(h.MarkConversationRead))
 	group.PUT("/conversations/:id/patient", inbox, envelope.Handle(h.LinkPatient))
+	group.POST("/conversations/:id/patient", inbox, rp(db, "CREATE_PATIENT"), envelope.Handle(h.CreateConversationPatient))
 }

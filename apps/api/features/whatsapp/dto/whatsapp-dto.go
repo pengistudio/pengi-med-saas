@@ -71,9 +71,11 @@ func NewAccountResponse(a whatsapp_models.WhatsAppAccount) AccountResponse {
 
 // ConnectEmbeddedRequest is what the Embedded Signup popup returns.
 type ConnectEmbeddedRequest struct {
-	Code          string `json:"code" binding:"required"`
-	WabaID        string `json:"waba_id" binding:"required"`
-	PhoneNumberID string `json:"phone_number_id" binding:"required"`
+	Code   string `json:"code" binding:"required"`
+	WabaID string `json:"waba_id" binding:"required"`
+	// PhoneNumberID may be missing: the Business app onboarding (Coexistence)
+	// finish event can carry only the WABA. The handler then looks it up.
+	PhoneNumberID string `json:"phone_number_id"`
 	// Coexistence: the number was linked from the WhatsApp Business app, so
 	// Meta already registered it (no /register, no pin).
 	Coexistence bool `json:"coexistence"`
