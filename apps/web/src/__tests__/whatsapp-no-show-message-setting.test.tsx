@@ -51,6 +51,11 @@ describe("WhatsAppSettings — no-show message", () => {
 			template_status: "APPROVED",
 			reminders_enabled: true,
 			reminder_offsets: [24],
+			templates_state: "ready",
+			templates: [
+				{ name: "pengi_cita_recordatorio", status: "APPROVED" },
+				{ name: "pengi_cita_no_asistio", status: "APPROVED" },
+			],
 		};
 		mocks.update.mockReset();
 		mocks.update.mockImplementation(async (payload) => ({
@@ -89,5 +94,30 @@ describe("WhatsAppSettings — no-show message", () => {
 		await waitFor(() =>
 			expect(toggle().getAttribute("aria-checked")).toBe("true"),
 		);
+	});
+
+	it("can't be turned on until its template is approved, but can be turned off", async () => {
+		mocks.account = {
+			...mocks.account,
+			templates_state: "pending",
+			templates: [
+				{ name: "pengi_cita_recordatorio", status: "APPROVED" },
+				{ name: "pengi_cita_no_asistio", status: "PENDING" },
+			],
+		};
+		const { unmount } = renderWithProviders(<WhatsAppSettings />);
+		await waitFor(() =>
+			expect(toggle().hasAttribute("data-disabled")).toBe(true),
+		);
+		fireEvent.click(toggle());
+		expect(toggle().getAttribute("aria-checked")).toBe("false");
+		unmount();
+
+		mocks.account = { ...mocks.account, no_show_message_enabled: true };
+		renderWithProviders(<WhatsAppSettings />);
+		await waitFor(() =>
+			expect(toggle().getAttribute("aria-checked")).toBe("true"),
+		);
+		expect(toggle().hasAttribute("data-disabled")).toBe(false);
 	});
 });

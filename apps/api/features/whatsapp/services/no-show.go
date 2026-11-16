@@ -266,10 +266,7 @@ func (s *Sender) sendNoShow(db *gorm.DB, msg *whatsapp_models.WhatsAppMessage, a
 	params := TemplateParams(NoShowTemplate, data)
 	msg.Body = RenderTemplateBody(NoShowTemplate, params)
 	s.thread(db, msg)
-	tpl := NoShowMessage(msg.ToPhone, msg.ID, params)
-	return s.deliver(db, msg, account, func() (string, error) {
-		return s.client.SendTemplate(token, account.PhoneNumberID, tpl)
-	})
+	return s.sendTemplate(db, msg, account, token, NoShowMessage(msg.ToPhone, msg.ID, params))
 }
 
 // doctorName is the appointment doctor's name ("" when none or not found,

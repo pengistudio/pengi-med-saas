@@ -526,7 +526,17 @@ func TestSendTestAndMessageLog(t *testing.T) {
 	if resp := send("0991234567"); resp.Code != http.StatusConflict {
 		t.Fatalf("template pending: %d", resp.Code)
 	}
+	// The account's mirror says approved but the reminder's own row doesn't:
+	// still refused, and nothing reaches Meta.
 	f.db.Model(&whatsapp_models.WhatsAppAccount{}).Where("tenant_id = ?", f.own).Update("template_status", "APPROVED")
+	f.db.Unscoped().Where("tenant_id = ?", f.own).Delete(&whatsapp_models.WhatsAppTemplate{})
+	if resp := send("0991234567"); resp.Code != http.StatusConflict || errCode(resp) != "E-WA-009" {
+		t.Fatalf("row not approved: %d %s", resp.Code, errCode(resp))
+	}
+	if _, sent := f.graph.bodies["POST /v23.0/PHONE-1/messages"]; sent {
+		t.Fatal("a template not approved reached Meta")
+	}
+	f.approveTemplates(f.own, whatsapp_models.ReminderTemplate)
 	if resp := send("123"); resp.Code != http.StatusBadRequest {
 		t.Fatalf("bad phone: %d", resp.Code)
 	}

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"pengi-med-saas/core/tenantdb"
 	"pengi-med-saas/core/whatsapp"
 	whatsapp_models "pengi-med-saas/features/whatsapp/models"
 
@@ -364,6 +365,65 @@ func TemplateRows(db *gorm.DB) (map[string]whatsapp_models.WhatsAppTemplate, err
 		out[r.Name] = r
 	}
 	return out, nil
+}
+
+// ErrTemplateNotApproved: the template is not APPROVED on the tenant's WABA,
+// so nothing was sent to Meta (the message row says template_not_approved).
+var ErrTemplateNotApproved = errors.New("whatsapp template not approved")
+
+// TemplateApproved reports whether name is APPROVED on the tenant's WABA (its
+// WhatsAppTemplate row). It fails closed: a read error counts as not approved.
+func TemplateApproved(db *gorm.DB, tenantID uint, name string) bool {
+	var row whatsapp_models.WhatsAppTemplate
+	err := tenantdb.ForTenant(db, tenantID).Select("status").Where("name = ?", name).Limit(1).Find(&row).Error
+	return err == nil && row.Status == whatsapp_models.TemplateStatusApproved
+}
+
+// Readiness of the catalog templates as a whole (TemplatesReadiness): what
+// settings asks the clinic to do next.
+const (
+	TemplatesStateMissing  = "missing"  // some template not created on the WABA (or never read)
+	TemplatesStateRejected = "rejected" // some template rejected, paused or disabled by Meta
+	TemplatesStatePending  = "pending"  // some template still in Meta's review
+	TemplatesStateReady    = "ready"    // every template approved
+)
+
+// TemplateReadiness is one catalog template's status and Meta's reason.
+type TemplateReadiness struct {
+	Name   string
+	Status string
+	Reason string
+}
+
+// TemplatesReadiness sums up the tenant's template rows (TemplateRows): the
+// worst state among the catalog templates (missing, then rejected, then
+// pending, then ready) and each one's status, in catalog order.
+func TemplatesReadiness(rows map[string]whatsapp_models.WhatsAppTemplate) (string, []TemplateReadiness) {
+	rank := map[string]int{TemplatesStateReady: 0, TemplatesStatePending: 1, TemplatesStateRejected: 2, TemplatesStateMissing: 3}
+	state := TemplatesStateReady
+	list := make([]TemplateReadiness, 0, len(Catalog))
+	for _, spec := range Catalog {
+		row := rows[spec.Definition.Name]
+		list = append(list, TemplateReadiness{Name: spec.Definition.Name, Status: row.Status, Reason: row.Reason})
+		if s := templateState(row.Status); rank[s] > rank[state] {
+			state = s
+		}
+	}
+	return state, list
+}
+
+// templateState maps one Meta status to a TemplatesState* value.
+func templateState(status string) string {
+	switch status {
+	case whatsapp_models.TemplateStatusNone:
+		return TemplatesStateMissing
+	case whatsapp_models.TemplateStatusApproved:
+		return TemplatesStateReady
+	case whatsapp_models.TemplateStatusPending, "IN_APPEAL":
+		return TemplatesStatePending
+	default: // REJECTED, PAUSED, DISABLED, ...
+		return TemplatesStateRejected
+	}
 }
 
 // ReminderData fills the reminder template's variables.

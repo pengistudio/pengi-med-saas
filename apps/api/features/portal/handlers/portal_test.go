@@ -930,4 +930,17 @@ func TestLogin_WhatsAppDeliveryAndFallbacks(t *testing.T) {
 			t.Fatalf("emailed code must work: %d", r.Code)
 		}
 	})
+
+	t.Run("template paused by Meta: email, nothing sent", func(t *testing.T) {
+		f.graph.mu.Lock()
+		f.graph.fail = false
+		f.graph.mu.Unlock()
+		tenantdb.System(f.db).Model(&whatsapp_models.WhatsAppTemplate{}).Where("tenant_id = ?", f.own.ID).Update("status", "PAUSED")
+		tenantdb.System(f.db).Unscoped().Where("patient_id = ?", withPhone.ID).Delete(&portal_models.PortalLoginCode{})
+		sendsBefore, before := len(f.graph.sends()), f.mail.calls
+		f.login(f.own, withPhone.Document)
+		if len(f.graph.sends()) != sendsBefore || f.mail.calls != before+1 {
+			t.Fatalf("paused template must go by email (sends %d, emails %d)", len(f.graph.sends())-sendsBefore, f.mail.calls-before)
+		}
+	})
 }

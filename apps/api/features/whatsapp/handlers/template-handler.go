@@ -1,6 +1,7 @@
 package whatsapp_handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -213,6 +214,9 @@ func (h *WhatsAppHandler) sendTemplate(c *gin.Context, conv whatsapp_models.What
 	}
 	tpl := whatsapp_services.TemplateMessageFor(send.spec, conv.Phone, send.data)
 	if err := h.sender.DeliverTemplate(db, &msg, send.account, send.token, tpl); err != nil {
+		if errors.Is(err, whatsapp_services.ErrTemplateNotApproved) {
+			return envelope.ErrorResponse(http.StatusConflict, "whatsapp.error.template_unavailable", core_errors.ErrWhatsAppTemplateUnavailable)
+		}
 		return envelope.ErrorResponse(http.StatusBadGateway, "whatsapp.error.send_failed", core_errors.ErrWhatsAppSendFailed)
 	}
 	if err := db.Preload("Patient").Where("id = ?", conv.ID).Limit(1).Find(&conv).Error; err != nil {

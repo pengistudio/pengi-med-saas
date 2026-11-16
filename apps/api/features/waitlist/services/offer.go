@@ -278,6 +278,9 @@ func (o *Offers) send(db *gorm.DB, tenantID uint, entry waitlist_models.Waitlist
 	sender := whatsapp_services.NewSender(o.db, o.logger, o.client).WithClock(o.now, o.loc)
 	if err := sender.DeliverTemplate(db, &msg, account, token, tpl); err != nil {
 		o.logger.Warn("waitlist: slot offer not sent", zap.Uint("entry_id", entry.ID), zap.Uint("message_id", msg.ID), zap.Error(err))
+		if errors.Is(err, whatsapp_services.ErrTemplateNotApproved) {
+			return 0, ErrTemplateUnavailable
+		}
 		return 0, fmt.Errorf("%w: %v", ErrSendFailed, err)
 	}
 	return msg.ID, nil

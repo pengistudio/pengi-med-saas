@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"pengi-med-saas/core/database"
+	"pengi-med-saas/core/tenantdb"
 	company_models "pengi-med-saas/features/companies/models"
 	notifications_models "pengi-med-saas/features/notifications/models"
 	permission_models "pengi-med-saas/features/permissions/models"
@@ -244,5 +245,65 @@ func TestCatalog_TemplateCategoriesAndRender(t *testing.T) {
 	// The reminder is unchanged.
 	if reminderTemplate.Definition.Body != "Hola {{1}}, te recordamos tu cita en {{2}} el {{3}} a las {{4}}. Por favor confirma tu asistencia o cancela si no podrás asistir." {
 		t.Fatal("reminder template text changed")
+	}
+}
+
+func TestTemplatesReadiness_WorstStateWins(t *testing.T) {
+	all := func(status string) map[string]whatsapp_models.WhatsAppTemplate {
+		rows := map[string]whatsapp_models.WhatsAppTemplate{}
+		for _, spec := range Catalog {
+			rows[spec.Definition.Name] = whatsapp_models.WhatsAppTemplate{Name: spec.Definition.Name, Status: status}
+		}
+		return rows
+	}
+	with := func(rows map[string]whatsapp_models.WhatsAppTemplate, name, status, reason string) map[string]whatsapp_models.WhatsAppTemplate {
+		rows[name] = whatsapp_models.WhatsAppTemplate{Name: name, Status: status, Reason: reason}
+		return rows
+	}
+	cases := []struct {
+		name string
+		rows map[string]whatsapp_models.WhatsAppTemplate
+		want string
+	}{
+		{"no rows", map[string]whatsapp_models.WhatsAppTemplate{}, TemplatesStateMissing},
+		{"all approved", all("APPROVED"), TemplatesStateReady},
+		{"one pending", with(all("APPROVED"), whatsapp_models.TemplateNoShow, "PENDING", ""), TemplatesStatePending},
+		{"one in appeal", with(all("APPROVED"), whatsapp_models.TemplateNoShow, "IN_APPEAL", ""), TemplatesStatePending},
+		{"rejected beats pending", with(all("PENDING"), whatsapp_models.TemplatePortalCode, "REJECTED", "INVALID_FORMAT"), TemplatesStateRejected},
+		{"paused counts as rejected", with(all("APPROVED"), whatsapp_models.ReminderTemplate, "PAUSED", ""), TemplatesStateRejected},
+		{"missing beats rejected", with(with(all("APPROVED"), whatsapp_models.TemplatePortalCode, "REJECTED", ""), whatsapp_models.TemplateSlotOffer, "", ""), TemplatesStateMissing},
+	}
+	for _, c := range cases {
+		state, list := TemplatesReadiness(c.rows)
+		if state != c.want || len(list) != len(Catalog) {
+			t.Fatalf("%s: state = %q (%d templates), want %q", c.name, state, len(list), c.want)
+		}
+	}
+	_, list := TemplatesReadiness(with(all("APPROVED"), whatsapp_models.TemplatePortalCode, "REJECTED", "INVALID_FORMAT"))
+	for _, tr := range list {
+		if tr.Name == whatsapp_models.TemplatePortalCode && (tr.Status != "REJECTED" || tr.Reason != "INVALID_FORMAT") {
+			t.Fatalf("portal_code = %+v", tr)
+		}
+	}
+}
+
+func TestTemplateApproved_PerTenantAndFailsClosed(t *testing.T) {
+	db := testutils.SetupTestDB(t, &whatsapp_models.WhatsAppTemplate{})
+	if err := SetTemplateStatus(tenantdb.ForTenant(db, 1), 1, whatsapp_models.TemplateNoShow, "APPROVED", ""); err != nil {
+		t.Fatal(err)
+	}
+	if err := SetTemplateStatus(tenantdb.ForTenant(db, 2), 2, whatsapp_models.TemplateNoShow, "PENDING", ""); err != nil {
+		t.Fatal(err)
+	}
+	if !TemplateApproved(db, 1, whatsapp_models.TemplateNoShow) {
+		t.Fatal("tenant 1: approved")
+	}
+	if TemplateApproved(db, 2, whatsapp_models.TemplateNoShow) || TemplateApproved(db, 3, whatsapp_models.TemplateNoShow) || TemplateApproved(db, 1, whatsapp_models.TemplateSlotOffer) {
+		t.Fatal("pending, absent or another tenant's row must not count as approved")
+	}
+	// No table at all: a read error is "not approved".
+	empty := testutils.SetupTestDB(t)
+	if TemplateApproved(empty, 1, whatsapp_models.TemplateNoShow) {
+		t.Fatal("a read error must fail closed")
 	}
 }
