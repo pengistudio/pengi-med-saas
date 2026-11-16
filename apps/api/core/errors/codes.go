@@ -133,6 +133,7 @@ var (
 	ErrAuthPasskeyLimit              AppError = NewAppError("E-AUTH-024", "Passkey limit reached.")
 	ErrAuthPasskeyNotFound           AppError = NewAppError("E-AUTH-025", "Passkey not found.")
 	ErrAuthMFARequired               AppError = NewAppError("E-AUTH-026", "Your clinic requires two-step verification. Set it up in your profile.")
+	ErrAuthPasskeyReauthRequired     AppError = NewAppError("E-AUTH-027", "Confirm your password to add a passkey.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

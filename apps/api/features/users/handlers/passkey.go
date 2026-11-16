@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/envelope"
 	core_errors "pengi-med-saas/core/errors"
@@ -31,7 +32,10 @@ import (
 // or device PIN), so it is both factors at once: signing in with one skips
 // the TOTP step. Because of that, registering one asks for the current
 // password and, with 2FA on, a second-factor code: a stolen session alone
-// can't plant a backdoor that bypasses 2FA.
+// can't plant a backdoor that bypasses 2FA. The one exception is a fresh
+// session (signed in less than freshSessionWindow ago, see sessionIsFresh):
+// that login just checked the password and the code, so the web can offer
+// to save a passkey right after it without asking again.
 //
 // The relying party is derived from APP_URL (RP ID = its host, origin = its
 // scheme + host): the web app is served from one host for every tenant. The
@@ -43,7 +47,33 @@ const (
 	passkeyChallengeTTL = 5 * time.Minute
 	maxPasskeysPerUser  = 10
 	maxPasskeyNameLen   = 100
+	// freshSessionWindow is how long after a login (password, password +
+	// 2FA, or passkey) the session may register a passkey without
+	// re-entering the password. Counted from the login itself: refreshing
+	// the access token doesn't extend it.
+	freshSessionWindow = 5 * time.Minute
 )
+
+// sessionIsFresh reports whether the request's access token belongs to a
+// session that signed in less than freshSessionWindow ago, per its
+// auth_time claim. Tokens without the claim (issued before it existed, by a
+// legacy refresh upgrade, or other token types) are never fresh.
+func (h *UserHandler) sessionIsFresh(c *gin.Context) bool {
+	token, ok := auth_middleware.GetAuthTokenFromContext(c)
+	if !ok || token == "" {
+		return false
+	}
+	claims, err := auth.ParseToken(token)
+	if err != nil || claims["type"] != "access_token" {
+		return false
+	}
+	authTime, ok := auth.AuthTime(claims)
+	if !ok {
+		return false
+	}
+	age := h.now().Sub(authTime)
+	return age >= 0 && age < freshSessionWindow
+}
 
 // newRelyingParty builds the WebAuthn relying party from APP_URL.
 func newRelyingParty() (*webauthn.WebAuthn, error) {
@@ -173,10 +203,11 @@ func (h *UserHandler) ListPasskeys(c *gin.Context) envelope.Response {
 }
 
 // BeginPasskeyRegistration: POST /users/me/passkeys/register/begin. Needs
-// the current password and, with 2FA on, a second-factor code.
+// the current password and, with 2FA on, a second-factor code; without a
+// password only a fresh session may (no code then: its login passed it).
 func (h *UserHandler) BeginPasskeyRegistration(c *gin.Context) envelope.Response {
 	var req struct {
-		CurrentPassword string `json:"current_password" binding:"required"`
+		CurrentPassword string `json:"current_password"`
 		Code            string `json:"code" binding:"max=64"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -186,10 +217,13 @@ func (h *UserHandler) BeginPasskeyRegistration(c *gin.Context) envelope.Response
 	if errResp != nil {
 		return *errResp
 	}
-	if errResp := h.checkCurrentPassword(user, req.CurrentPassword); errResp != nil {
+	if req.CurrentPassword == "" {
+		if !h.sessionIsFresh(c) {
+			return envelope.ErrorResponse(http.StatusUnprocessableEntity, "auth.passkey.reauth_required", core_errors.ErrAuthPasskeyReauthRequired)
+		}
+	} else if errResp := h.checkCurrentPassword(user, req.CurrentPassword); errResp != nil {
 		return *errResp
-	}
-	if user.TwoFactorEnabled {
+	} else if user.TwoFactorEnabled {
 		if errResp := h.checkCode(user, func() (bool, error) {
 			return acceptSecondFactor(h.db, user, req.Code, h.now())
 		}); errResp != nil {

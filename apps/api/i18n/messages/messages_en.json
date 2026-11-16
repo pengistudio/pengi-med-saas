@@ -15584,6 +15584,14 @@
         "value": "Your clinic requires two-step verification. Set it up in your profile."
     },
     {
+        "key": "E-AUTH-027",
+        "value": "Confirm your password to add a passkey."
+    },
+    {
+        "key": "auth.passkey.reauth_required",
+        "value": "Confirm your password to add a passkey."
+    },
+    {
         "key": "E-TEN-006",
         "value": "Set up two-step verification on your own account before requiring it for the clinic."
     },
@@ -15626,5 +15634,33 @@
     {
         "key": "profile.mfa_required.description",
         "value": "Turn on an authenticator app or register a passkey below. Then you can keep using the clinic as usual."
+    },
+    {
+        "key": "auth.passkey_offer.title",
+        "value": "Sign in faster with a passkey"
+    },
+    {
+        "key": "auth.passkey_offer.description",
+        "value": "Use your fingerprint, face or this device's lock instead of your password. It is faster and more secure."
+    },
+    {
+        "key": "auth.passkey_offer.reauth_description",
+        "value": "For your security, confirm your password to create the passkey."
+    },
+    {
+        "key": "auth.passkey_offer.create",
+        "value": "Create passkey"
+    },
+    {
+        "key": "auth.passkey_offer.not_now",
+        "value": "Not now"
+    },
+    {
+        "key": "auth.passkey_offer.dont_ask",
+        "value": "Don't ask again"
+    },
+    {
+        "key": "auth.passkey_offer.default_name",
+        "value": "This device"
     }
 ]

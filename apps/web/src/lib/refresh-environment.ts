@@ -1,4 +1,5 @@
 import { getMyEnvironments } from "@/api/user-service";
+import { clearLocalStorageKeepingOffer } from "@/lib/passkey-offer-storage";
 import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
@@ -8,7 +9,7 @@ let inFlight: Promise<void> | null = null;
 let lastForced = 0;
 
 function dropSession() {
-	localStorage.clear();
+	clearLocalStorageKeepingOffer();
 	sessionStorage.clear();
 	useSessionStore.getState().clean();
 	useTokenStore.getState().setToken(undefined);

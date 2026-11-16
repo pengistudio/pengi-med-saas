@@ -418,7 +418,7 @@ func TestRecoveryCode_LoginSingleUseAndConcurrent(t *testing.T) {
 func TestTwoFactor_Enrollment(t *testing.T) {
 	db, h := setupTwoFactor(t)
 	user := createResetUser(t, db, "dra.lopez", "lopez@example.com", "password123")
-	if err := IssueRefreshFamily(db, user.ID, user.UserName, postJSON(t, nil)); err != nil {
+	if err := IssueRefreshFamily(db, user.ID, user.UserName, tfNow, postJSON(t, nil)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -592,7 +592,7 @@ func TestResetTwoFactor_ClearsEverything(t *testing.T) {
 	db, h := setupTwoFactor(t)
 	user := createResetUser(t, db, "dra.lopez", "lopez@example.com", "password123")
 	enableTwoFactor(t, db, user)
-	if err := IssueRefreshFamily(db, user.ID, user.UserName, postJSON(t, nil)); err != nil {
+	if err := IssueRefreshFamily(db, user.ID, user.UserName, tfNow, postJSON(t, nil)); err != nil {
 		t.Fatal(err)
 	}
 	future := time.Now().Add(time.Hour)

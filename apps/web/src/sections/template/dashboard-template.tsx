@@ -44,6 +44,7 @@ import NotificationBell from "@/components/custom/notification-bell";
 import { PageSkeleton } from "@/components/custom/page-skeleton";
 import { DoctorReviewBanner } from "@/components/features/doctors/doctor-notices";
 import { DoctorOnboardingDialog } from "@/components/features/doctors/doctor-onboarding-dialog";
+import { PasskeyOffer } from "@/components/features/passkeys/passkey-offer";
 import { MFARequiredGuard } from "@/components/features/profile/mfa-required";
 import {
 	createNavItems,
@@ -357,6 +358,7 @@ export function DashboardLayout() {
 				<>
 					{/* Outside Suspense: redirects even while a page chunk loads. */}
 					<MFARequiredGuard />
+					<PasskeyOffer />
 					<Suspense fallback={<PageSkeleton />}>
 						<Outlet />
 						<DoctorOnboardingDialog

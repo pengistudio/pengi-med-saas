@@ -2,6 +2,7 @@ import type { ResponseError } from "@pengi/shared";
 import { useToast } from "@pengi/ui";
 import { logoutRequest, userLogin } from "@/api/auth-service";
 import { resetSessionExpiredFlag } from "@/api/index";
+import { clearLocalStorageKeepingOffer } from "@/lib/passkey-offer-storage";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
 import { isTwoFactorChallenge } from "@/types/user-type";
@@ -42,7 +43,7 @@ const useAuth = () => {
 		// must not delay clearing local state, or other in-flight/refiring
 		// requests get a window to run against an already-invalid session.
 		logoutRequest().catch(() => {});
-		localStorage.clear();
+		clearLocalStorageKeepingOffer();
 		sessionStorage.clear();
 		useTokenStore.getState().setToken(undefined);
 		useUserStore.getState().clean();

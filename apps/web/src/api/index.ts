@@ -3,6 +3,7 @@ import axios, { type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
 import { env } from "@/lib/env";
 import { MFA_REQUIRED_ERROR } from "@/lib/mfa-required";
+import { clearLocalStorageKeepingOffer } from "@/lib/passkey-offer-storage";
 import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
@@ -22,7 +23,7 @@ function handleSessionExpired() {
 	const messages = useMessageStore.getState().messages;
 	toast.error(messages["session.expired"] ?? "Sesión expirada");
 
-	localStorage.clear();
+	clearLocalStorageKeepingOffer();
 	sessionStorage.clear();
 	useTokenStore.getState().setToken(undefined);
 	useUserStore.getState().clean();
