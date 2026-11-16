@@ -20,7 +20,6 @@
 			"!**/coverage",
 			"!**/.next",
 			"!**/playwright-report",
-			"!**/.agents",
 			"!**/.claude",
 			"!**/.continue"
 		]
