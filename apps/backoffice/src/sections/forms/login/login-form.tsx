@@ -13,9 +13,17 @@ import {
 	Spinner,
 } from "@pengi/ui";
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
 import z from "zod";
-import { safeNext, useSession } from "@/lib/session";
+import {
+	initialStep,
+	type LoginEvent,
+	type LoginOutcome,
+	nextStep,
+	useSession,
+} from "@/lib/session";
+import { EnrollmentCodesStep, EnrollmentStep } from "./enrollment-step";
+import { PasskeyLoginButton } from "./passkey-login-button";
+import { TwoFactorStep } from "./two-factor-step";
 
 const formSchema = z.object({
 	password: z
@@ -28,12 +36,69 @@ const formSchema = z.object({
 		.regex(/^\S+$/, { message: "form.validation.no_spaces" }),
 });
 
+/**
+ * The sign-in: password -> second factor (code or passkey) or, for an admin
+ * with no second factor, forced enrollment. Every token lives in this state
+ * only; the session starts when the last step finishes.
+ */
 const LoginForm = () => {
+	const { establish } = useSession();
+	const [state, setState] = React.useState(initialStep);
+	const dispatch = (event: LoginEvent) =>
+		setState((current) => nextStep(current, event));
+
+	switch (state.step) {
+		case "second_factor":
+			return (
+				<TwoFactorStep
+					mfaToken={state.mfaToken}
+					totp={state.totp}
+					passkey={state.passkey}
+					onSuccess={establish}
+					onBack={() => dispatch({ type: "back" })}
+					onExpired={() => dispatch({ type: "expired" })}
+				/>
+			);
+		case "enroll":
+			return (
+				<EnrollmentStep
+					enrollmentToken={state.enrollmentToken}
+					passkeysAvailable={state.passkeysAvailable}
+					onSignedIn={establish}
+					onTotpEnrolled={(token, codes) =>
+						dispatch({ type: "totp_enrolled", token, codes })
+					}
+					onBack={() => dispatch({ type: "back" })}
+					onExpired={() => dispatch({ type: "expired" })}
+				/>
+			);
+		case "recovery_codes":
+			return (
+				<EnrollmentCodesStep
+					codes={state.codes}
+					onDone={() => establish(state.token)}
+				/>
+			);
+		default:
+			return (
+				<PasswordStep
+					onOutcome={(outcome) => dispatch({ type: "password", outcome })}
+					onPasskey={establish}
+				/>
+			);
+	}
+};
+
+const PasswordStep = ({
+	onOutcome,
+	onPasskey,
+}: {
+	onOutcome: (outcome: LoginOutcome) => void;
+	onPasskey: (token: string) => void;
+}) => {
 	const [load, setLoad] = React.useState(false);
 	const { login } = useSession();
-	const [searchParams] = useSearchParams();
 	const { textGet } = useText();
-	const navigate = useNavigate();
 
 	return (
 		<Form<typeof formSchema>
@@ -75,6 +140,7 @@ const LoginForm = () => {
 								{load && <Spinner />}
 								{textGet("backoffice.login.button")}
 							</Button>
+							<PasskeyLoginButton onSuccess={onPasskey} disabled={load} />
 						</CardFooter>
 					</Card>
 				);
@@ -84,9 +150,9 @@ const LoginForm = () => {
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoad(true);
-		const ok = await login(values);
+		const outcome = await login(values);
 		setLoad(false);
-		if (ok) navigate(safeNext(searchParams.get("next")), { replace: true });
+		onOutcome(outcome);
 	}
 };
 

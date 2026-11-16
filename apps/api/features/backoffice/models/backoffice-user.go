@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"pengi-med-saas/core/auth"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -14,6 +15,28 @@ type BackofficeUser struct {
 	UserName     string `json:"user_name"`
 	Password     string `json:"-"`
 	RefreshToken string `json:"-"`
+	// RefreshFamily is the sid of the login RefreshToken descends from: a
+	// rotated-out token of the same family presented again is reuse (the
+	// session is revoked); one of an older login is merely stale.
+	RefreshFamily string `gorm:"size:64;not null;default:''" json:"-"`
+
+	// Second factor, mandatory for admins (TOTP and/or passkeys). The secret
+	// is sealed (secretbox, AAD bound to the admin); while TwoFactorEnabled is
+	// false a stored secret is a pending setup. TwoFactorLastStep is the last
+	// accepted TOTP step (each code works once).
+	TwoFactorEnabled   bool       `gorm:"not null;default:false" json:"two_factor_enabled"`
+	TwoFactorSecret    []byte     `json:"-"`
+	TwoFactorLastStep  int64      `gorm:"not null;default:0" json:"-"`
+	TwoFactorEnabledAt *time.Time `json:"-"`
+
+	// FailedLoginAttempts counts consecutive wrong second-factor codes and
+	// current-password checks; reaching AUTH_LOCKOUT_MAX_ATTEMPTS sets
+	// LockedUntil (AUTH_LOCKOUT_MINUTES).
+	FailedLoginAttempts int        `gorm:"not null;default:0" json:"-"`
+	LockedUntil         *time.Time `json:"-"`
+
+	// PasskeyCount is filled by the user list/detail handlers.
+	PasskeyCount int64 `gorm:"-" json:"passkey_count"`
 }
 
 func (u *BackofficeUser) Save(db *gorm.DB) error {

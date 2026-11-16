@@ -36,6 +36,7 @@ const SubscriptionList = lazy(
 );
 const CreateUser = lazy(() => import("@/pages/users/create-user"));
 const EditUser = lazy(() => import("@/pages/users/edit-user"));
+const SecurityPage = lazy(() => import("@/pages/security/security-page"));
 const UserList = lazy(() => import("@/pages/users/user-list"));
 
 const router = createBrowserRouter([
@@ -72,6 +73,7 @@ const router = createBrowserRouter([
 			{ path: "/users/edit/:id", element: <EditUser /> },
 			{ path: "/announcements", element: <AnnouncementList /> },
 			{ path: "/announcements/create", element: <CreateAnnouncement /> },
+			{ path: "/security", element: <SecurityPage /> },
 			{ path: "/ai", element: <AIPage /> },
 		],
 	},

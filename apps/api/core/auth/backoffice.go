@@ -29,27 +29,39 @@ const (
 
 var ErrNotBackofficeToken = errors.New("not a backoffice token")
 
-// GenerateBackofficeToken issues a backoffice access token (AUTH_EXP minutes).
+// GenerateBackofficeToken issues a backoffice access token (AUTH_EXP minutes)
+// without an auth_time: used by refresh, which can't vouch for a fresh login.
 func GenerateBackofficeToken(username string, userID int64) (string, error) {
+	return GenerateBackofficeSessionToken(username, userID, time.Time{})
+}
+
+// GenerateBackofficeSessionToken is GenerateBackofficeToken for a login that
+// just happened at authTime (auth_time claim, omitted when zero).
+func GenerateBackofficeSessionToken(username string, userID int64, authTime time.Time) (string, error) {
 	exp, err := accessTokenMinutes()
 	if err != nil {
 		return "", err
 	}
-	return signedWithAuthKey(jwt.MapClaims{
+	claims := jwt.MapClaims{
 		"type":     accessTokenType,
 		"aud":      BackofficeAudience,
 		"username": username,
 		"userId":   userID,
 		"exp":      time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
-	})
+	}
+	setAuthTime(claims, authTime)
+	return signedWithAuthKey(claims)
 }
 
 // GenerateBackofficeRefreshToken issues a backoffice refresh token
 // (AUTH_REFRESH_EXP days). The jti makes every token unique, so a token
 // rotated within the same second as the previous one still differs from it.
-func GenerateBackofficeRefreshToken(username string, userID int64) (string, error) {
+// sid names the login the token descends from (its family): every rotation
+// keeps it, and a new login starts another one.
+func GenerateBackofficeRefreshToken(username string, userID int64, sid string) (string, error) {
 	return signedWithAuthKey(jwt.MapClaims{
 		"jti":      uuid.NewString(),
+		"sid":      sid,
 		"type":     refreshTokenType,
 		"aud":      BackofficeAudience,
 		"username": username,
@@ -76,6 +88,11 @@ func IsBackofficeToken(claims jwt.MapClaims) bool {
 type BackofficeClaims struct {
 	UserID   int64
 	Username string
+	// SID is the refresh token's family (empty on access tokens and on
+	// refresh tokens issued before families existed).
+	SID string
+	// AuthTime is when the session signed in (zero when unknown).
+	AuthTime time.Time
 }
 
 func parseBackoffice(token, wantType string) (BackofficeClaims, error) {
@@ -94,7 +111,9 @@ func parseBackoffice(token, wantType string) (BackofficeClaims, error) {
 	if !ok {
 		return BackofficeClaims{}, ErrInvalidToken
 	}
-	return BackofficeClaims{UserID: int64(userID), Username: username}, nil
+	sid, _ := claims["sid"].(string)
+	authTime, _ := AuthTime(claims)
+	return BackofficeClaims{UserID: int64(userID), Username: username, SID: sid, AuthTime: authTime}, nil
 }
 
 // ParseBackofficeAccessToken accepts only unexpired backoffice access tokens.

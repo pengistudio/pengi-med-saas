@@ -7,9 +7,20 @@ import { createStore } from "zustand/vanilla";
 
 export type Credentials = { user_name: string; password: string };
 
+/**
+ * What the password step answers: never a session by itself for an admin with
+ * the second factor policy on (the API asks for a code or an enrollment), but
+ * the gateway may still hand one over.
+ */
+export type LoginOutcome =
+	| { kind: "failed" }
+	| { kind: "session"; token: string }
+	| { kind: "two_factor"; mfaToken: string; totp: boolean; passkey: boolean }
+	| { kind: "enrollment"; enrollmentToken: string; passkeysAvailable: boolean };
+
 /** The backoffice auth API. Tokens are returned, null means "no". */
 export interface AuthGateway {
-	login(credentials: Credentials): Promise<string | null>;
+	login(credentials: Credentials): Promise<LoginOutcome>;
 	/** A new access token from the refresh cookie, or null if there is none. */
 	refresh(): Promise<string | null>;
 	logout(): Promise<void>;
@@ -58,10 +69,16 @@ export function createSession(gateway: AuthGateway) {
 			else clear(false);
 		},
 
-		async login(credentials: Credentials) {
-			const token = await gateway.login(credentials);
-			if (token) authenticate(token);
-			return token !== null;
+		/** The password step; it signs in only when the API answers a session. */
+		async login(credentials: Credentials): Promise<LoginOutcome> {
+			const outcome = await gateway.login(credentials);
+			if (outcome.kind === "session") authenticate(outcome.token);
+			return outcome;
+		},
+
+		/** Signs in with the token a finished second step answered. */
+		establish(token: string) {
+			authenticate(token);
 		},
 
 		async logout() {

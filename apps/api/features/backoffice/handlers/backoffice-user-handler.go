@@ -2,6 +2,8 @@ package backoffice_handlers
 
 import (
 	"net/http"
+	"time"
+
 	"pengi-med-saas/core/auth"
 	"pengi-med-saas/core/config"
 	"pengi-med-saas/core/envelope"
@@ -11,6 +13,7 @@ import (
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -23,6 +26,10 @@ type BackofficeUserHandler struct {
 	// rotated lets a refresh token replaced moments ago still resolve to its
 	// successor, so two tabs refreshing at once don't sign the admin out.
 	rotated *rotationGrace
+	// lockout caps wrong second-factor codes and current-password checks per
+	// admin, on the row (holds across instances and restarts).
+	lockout adminLockout
+	now     func() time.Time
 }
 
 func NewBackofficeUserHandler(db *gorm.DB, logger *zap.Logger) *BackofficeUserHandler {
@@ -31,6 +38,8 @@ func NewBackofficeUserHandler(db *gorm.DB, logger *zap.Logger) *BackofficeUserHa
 		logger:  logger,
 		logins:  auth.NewDefaultLoginLimiter(),
 		rotated: newRotationGrace(),
+		lockout: newAdminLockout(),
+		now:     time.Now,
 	}
 }
 
@@ -56,6 +65,22 @@ func (h *BackofficeUserHandler) GetUsers(c *gin.Context) envelope.Response {
 		h.logger.Error("Failed to fetch backoffice users", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
+	var counts []struct {
+		BackofficeUserID uint
+		N                int64
+	}
+	if err := h.db.Model(&backoffice_models.BackofficePasskey{}).
+		Select("backoffice_user_id, COUNT(*) AS n").Group("backoffice_user_id").Scan(&counts).Error; err != nil {
+		h.logger.Error("Failed to count backoffice passkeys", zap.Error(err))
+		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
+	}
+	byUser := map[uint]int64{}
+	for _, row := range counts {
+		byUser[row.BackofficeUserID] = row.N
+	}
+	for i := range users {
+		users[i].PasskeyCount = byUser[users[i].ID]
+	}
 
 	h.logger.Info("Backoffice users fetched successfully", zap.Int("count", len(users)))
 	return envelope.SuccessResponse(users, "backoffice.users.list.success")
@@ -68,6 +93,7 @@ func (h *BackofficeUserHandler) GetUserByID(c *gin.Context) envelope.Response {
 		h.logger.Error("Backoffice user not found", zap.String("id", id), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusNotFound, "error.not_found", core_errors.ErrUserNotFound)
 	}
+	h.db.Model(&backoffice_models.BackofficePasskey{}).Where("backoffice_user_id = ?", user.ID).Count(&user.PasskeyCount)
 	return envelope.SuccessResponse(user, "backoffice.users.found")
 }
 
@@ -106,8 +132,16 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 		updates["user_name"] = req.UserName
 	}
 	if req.Password != "" {
-		if len(req.Password) < auth.MinPasswordLength {
-			return passwordTooShort()
+		userName := user.UserName
+		if req.UserName != "" {
+			userName = req.UserName
+		}
+		name := user.Name
+		if req.Name != "" {
+			name = req.Name
+		}
+		if errResp := weakAdminPassword(req.Password, userName, name); errResp != nil {
+			return *errResp
 		}
 		hashed, err := auth.HashPassword(req.Password)
 		if err != nil {
@@ -118,6 +152,7 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 		// End existing sessions: the stored refresh token no longer matches
 		// any cookie, so every refresh issued before the change is rejected.
 		updates["refresh_token"] = ""
+		updates["refresh_family"] = ""
 	}
 
 	if len(updates) > 0 {
@@ -152,8 +187,8 @@ func (h *BackofficeUserHandler) CreateUser(c *gin.Context) envelope.Response {
 		h.logger.Error("Invalid create backoffice user request", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusBadRequest, "error.invalid_request", core_errors.ErrBackofficeInvalidRequest)
 	}
-	if len(req.Password) < auth.MinPasswordLength {
-		return passwordTooShort()
+	if errResp := weakAdminPassword(req.Password, req.UserName, req.Name); errResp != nil {
+		return *errResp
 	}
 	user := backoffice_models.BackofficeUser{Name: req.Name, UserName: req.UserName, Password: req.Password}
 	if err := user.Save(h.db); err != nil {
@@ -200,28 +235,78 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 	}
 	h.logins.Succeeded(user.UserName)
 
-	token, err := auth.GenerateBackofficeToken(foundUser.UserName, int64(foundUser.ID))
+	if foundUser.LockedUntil != nil && foundUser.LockedUntil.After(h.now()) {
+		h.logger.Warn("Backoffice login refused: account locked", zap.Uint("user_id", foundUser.ID))
+		return accountLockedResponse()
+	}
+
+	// No session from the password alone: the admin either proves a second
+	// factor (login/2fa or a passkey) or, without one, enrolls one now.
+	return h.secondFactorChallenge(foundUser)
+}
+
+// secondFactorChallenge answers a correct password: an mfa token for
+// /backoffice/auth/login/2fa when the admin has a second factor, else an
+// enrollment token for /backoffice/auth/enroll/*. Neither is a session.
+func (h *BackofficeUserHandler) secondFactorChallenge(user backoffice_models.BackofficeUser) envelope.Response {
+	var passkeys int64
+	if err := h.db.Model(&backoffice_models.BackofficePasskey{}).
+		Where("backoffice_user_id = ?", user.ID).Count(&passkeys).Error; err != nil {
+		h.logger.Error("Backoffice login: failed to count passkeys", zap.Uint("user_id", user.ID), zap.Error(err))
+		return internalResponse()
+	}
+	if user.TwoFactorEnabled || passkeys > 0 {
+		token, err := auth.GenerateBackofficeMFAToken(auth.BackofficeMFAPurposeLogin, user.ID, user.Password, h.now())
+		if err != nil {
+			h.logger.Error("Failed to generate backoffice mfa token", zap.Uint("user_id", user.ID), zap.Error(err))
+			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+		}
+		h.logger.Info("Backoffice password accepted, second factor required", zap.Uint("user_id", user.ID))
+		return envelope.SuccessResponse(gin.H{
+			"two_factor_required": true,
+			"mfa_token":           token,
+			"totp":                user.TwoFactorEnabled,
+			"passkey":             passkeys > 0,
+		}, "auth.login.two_factor_required")
+	}
+
+	token, err := auth.GenerateBackofficeMFAToken(auth.BackofficeMFAPurposeEnroll, user.ID, user.Password, h.now())
 	if err != nil {
+		h.logger.Error("Failed to generate backoffice enrollment token", zap.Uint("user_id", user.ID), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 	}
-
-	refreshToken, err := auth.GenerateBackofficeRefreshToken(foundUser.UserName, int64(foundUser.ID))
-	if err != nil {
-		h.logger.Error("Failed to generate refresh token", zap.Error(err))
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	if err := foundUser.UpdateRefreshToken(h.db, refreshToken); err != nil {
-		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
-	}
-
-	auth.SetBackofficeRefreshCookie(c, refreshToken)
-
-	h.logger.Info("Backoffice user logged in successfully", zap.String("username", foundUser.UserName))
+	h.logger.Info("Backoffice password accepted, second factor enrollment required", zap.Uint("user_id", user.ID))
 	return envelope.SuccessResponse(gin.H{
-		"token":   token,
-		"user_id": foundUser.ID,
-	}, "login.successful")
+		"enrollment_required": true,
+		"enrollment_token":    token,
+		"passkeys_available":  passkeysAvailable(),
+	}, "backoffice.auth.enrollment_required")
+}
+
+// issueSession opens a backoffice session for user: an access token with
+// auth_time = now, and a refresh token that starts a new family (stored, and
+// set as the refresh cookie). Only called after a second factor was proven.
+func (h *BackofficeUserHandler) issueSession(c *gin.Context, user backoffice_models.BackofficeUser) (gin.H, *envelope.Response) {
+	fail := func(err error) (gin.H, *envelope.Response) {
+		h.logger.Error("Failed to open backoffice session", zap.Uint("user_id", user.ID), zap.Error(err))
+		resp := envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
+		return nil, &resp
+	}
+	token, err := auth.GenerateBackofficeSessionToken(user.UserName, int64(user.ID), h.now())
+	if err != nil {
+		return fail(err)
+	}
+	sid := uuid.NewString()
+	refreshToken, err := auth.GenerateBackofficeRefreshToken(user.UserName, int64(user.ID), sid)
+	if err != nil {
+		return fail(err)
+	}
+	if err := h.db.Model(&backoffice_models.BackofficeUser{}).Where("id = ?", user.ID).
+		UpdateColumns(map[string]any{"refresh_token": refreshToken, "refresh_family": sid, "updated_at": h.now()}).Error; err != nil {
+		return fail(err)
+	}
+	auth.SetBackofficeRefreshCookie(c, refreshToken)
+	return gin.H{"token": token, "user_id": user.ID}, nil
 }
 
 // RefreshAuthToken issues a new access token for the backoffice refresh
@@ -229,6 +314,13 @@ func (h *BackofficeUserHandler) Login(c *gin.Context) envelope.Response {
 // one and still be the one stored for that admin (a newer login replaces it).
 // A token rotated out in the last few seconds resolves to its successor
 // (concurrent refreshes from two tabs); later it is rejected as stale.
+//
+// Reuse: a rotated-out token of the current login (same family, sid) presented
+// after the grace window means a copy of it is in someone else's hands, so the
+// session is revoked (stored token cleared) and the cookie removed, as the
+// clinic app revokes the family. A token of an older login is just stale.
+// An admin without a second factor (never enrolled, or reset by another
+// admin) gets no session from refresh either.
 func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Response {
 	invalid := envelope.ErrorResponse(http.StatusUnauthorized, "error.unauthorized", core_errors.ErrAuthInvalidRefreshToken)
 	refreshToken, err := c.Cookie(auth.BackofficeRefreshCookie)
@@ -243,10 +335,20 @@ func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Respon
 	if err := h.db.Where("id = ? AND user_name = ?", claims.UserID, claims.Username).First(&user).Error; err != nil {
 		return invalid
 	}
+	if ok, err := backoffice_models.HasSecondFactor(h.db, user.ID); err != nil || !ok {
+		h.logger.Warn("Backoffice refresh refused: admin has no second factor", zap.Uint("user_id", user.ID))
+		h.revokeSession(user.ID, "")
+		auth.ClearBackofficeRefreshCookie(c)
+		return invalid
+	}
 
 	var next string
 	if user.RefreshToken == refreshToken {
-		rotated, err := auth.GenerateBackofficeRefreshToken(user.UserName, int64(user.ID))
+		sid := user.RefreshFamily
+		if sid == "" {
+			sid = uuid.NewString()
+		}
+		rotated, err := auth.GenerateBackofficeRefreshToken(user.UserName, int64(user.ID), sid)
 		if err != nil {
 			h.logger.Error("Failed to generate refresh token during refresh", zap.Error(err))
 			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
@@ -255,7 +357,7 @@ func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Respon
 		// here first wins, and this one falls back to the grace lookup below.
 		res := h.db.Model(&backoffice_models.BackofficeUser{}).
 			Where("id = ? AND refresh_token = ?", user.ID, refreshToken).
-			Update("refresh_token", rotated)
+			UpdateColumns(map[string]any{"refresh_token": rotated, "refresh_family": sid})
 		if res.Error != nil {
 			h.logger.Error("Failed to rotate backoffice refresh token", zap.Error(res.Error))
 			return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
@@ -270,6 +372,13 @@ func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Respon
 		// still the current token: hand it out again.
 		successor, ok := h.rotated.successor(refreshToken)
 		if !ok || !h.isCurrentRefreshToken(user.ID, successor) {
+			if claims.SID != "" && claims.SID == user.RefreshFamily {
+				h.revokeSession(user.ID, claims.SID)
+				auth.ClearBackofficeRefreshCookie(c)
+				h.logger.Warn("Backoffice refresh token reuse detected, session revoked",
+					zap.Uint("user_id", user.ID), zap.String("ip", c.ClientIP()), zap.String("user_agent", c.Request.UserAgent()))
+				return envelope.ErrorResponse(http.StatusUnauthorized, "auth.refresh.reused", core_errors.ErrAuthRefreshTokenReused)
+			}
 			h.logger.Warn("Backoffice refresh token is not the current one", zap.String("username", user.UserName))
 			return invalid
 		}
@@ -292,6 +401,19 @@ func (h *BackofficeUserHandler) isCurrentRefreshToken(userID uint, token string)
 	return n == 1
 }
 
+// revokeSession clears admin userID's stored refresh token, so no refresh
+// cookie works any more. With sid set, only if that login is still the
+// current one (a newer login is left alone).
+func (h *BackofficeUserHandler) revokeSession(userID uint, sid string) {
+	q := h.db.Model(&backoffice_models.BackofficeUser{}).Where("id = ?", userID)
+	if sid != "" {
+		q = q.Where("refresh_family = ?", sid)
+	}
+	if err := q.UpdateColumns(map[string]any{"refresh_token": "", "refresh_family": ""}).Error; err != nil {
+		h.logger.Error("Failed to revoke backoffice session", zap.Uint("user_id", userID), zap.Error(err))
+	}
+}
+
 // Logout ends the admin's session: the stored refresh token is cleared, so the
 // refresh cookie stops working, and the cookie is removed from the browser.
 func (h *BackofficeUserHandler) Logout(c *gin.Context) envelope.Response {
@@ -299,7 +421,7 @@ func (h *BackofficeUserHandler) Logout(c *gin.Context) envelope.Response {
 		if claims, err := auth.ParseBackofficeRefreshToken(refreshToken); err == nil {
 			if err := h.db.Model(&backoffice_models.BackofficeUser{}).
 				Where("id = ? AND refresh_token = ?", claims.UserID, refreshToken).
-				Update("refresh_token", "").Error; err != nil {
+				UpdateColumns(map[string]any{"refresh_token": "", "refresh_family": ""}).Error; err != nil {
 				h.logger.Error("Failed to revoke backoffice refresh token", zap.Error(err))
 				return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 			}

@@ -40,12 +40,38 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 		backofficeUserRoutes.POST("", envelope.Handle(backofficeUserHandler.CreateUser))
 		backofficeUserRoutes.PUT("/:id", envelope.Handle(backofficeUserHandler.UpdateUser))
 		backofficeUserRoutes.DELETE("/:id", envelope.Handle(backofficeUserHandler.DeleteUser))
+		// Recovery of a locked-out admin by another admin (never oneself).
+		backofficeUserRoutes.POST("/:id/2fa/reset", envelope.Handle(backofficeUserHandler.ResetBackofficeUserTwoFactor))
+		backofficeUserRoutes.POST("/:id/passkeys/reset", envelope.Handle(backofficeUserHandler.ResetBackofficeUserPasskeys))
+	}
+
+	// The signed-in admin's own second factors.
+	backofficeMeRoutes := router.Group("/backoffice/me", backofficeAuth)
+	{
+		backofficeMeRoutes.GET("/2fa", envelope.Handle(backofficeUserHandler.GetTwoFactorStatus))
+		backofficeMeRoutes.POST("/2fa/setup", envelope.Handle(backofficeUserHandler.SetupTwoFactor))
+		backofficeMeRoutes.POST("/2fa/enable", envelope.Handle(backofficeUserHandler.EnableTwoFactor))
+		backofficeMeRoutes.POST("/2fa/disable", envelope.Handle(backofficeUserHandler.DisableTwoFactor))
+		backofficeMeRoutes.POST("/2fa/recovery-codes", envelope.Handle(backofficeUserHandler.RegenerateRecoveryCodes))
+		backofficeMeRoutes.GET("/passkeys", envelope.Handle(backofficeUserHandler.ListPasskeys))
+		backofficeMeRoutes.POST("/passkeys/register/begin", envelope.Handle(backofficeUserHandler.BeginPasskeyRegistration))
+		backofficeMeRoutes.POST("/passkeys/register/finish", envelope.Handle(backofficeUserHandler.FinishPasskeyRegistration))
+		backofficeMeRoutes.DELETE("/passkeys/:id", envelope.Handle(backofficeUserHandler.DeletePasskey))
 	}
 
 	authLimiter := core_middleware.NewRateLimiter(rate.Every(time.Minute/15), 15)
 	backofficeAuthRoutes := router.Group("/backoffice/auth", authLimiter.Middleware())
 	{
 		backofficeAuthRoutes.POST("/login", envelope.Handle(backofficeUserHandler.Login))
+		backofficeAuthRoutes.POST("/login/2fa", envelope.Handle(backofficeUserHandler.LoginTwoFactor))
+		backofficeAuthRoutes.POST("/passkey/begin", envelope.Handle(backofficeUserHandler.BeginPasskeyLogin))
+		backofficeAuthRoutes.POST("/passkey/login", envelope.Handle(backofficeUserHandler.FinishPasskeyLogin))
+		// Forced enrollment: only with the enrollment token of a login whose
+		// password step passed for an admin without a second factor.
+		backofficeAuthRoutes.POST("/enroll/totp/begin", envelope.Handle(backofficeUserHandler.EnrollTOTPBegin))
+		backofficeAuthRoutes.POST("/enroll/totp/finish", envelope.Handle(backofficeUserHandler.EnrollTOTPFinish))
+		backofficeAuthRoutes.POST("/enroll/passkey/begin", envelope.Handle(backofficeUserHandler.EnrollPasskeyBegin))
+		backofficeAuthRoutes.POST("/enroll/passkey/finish", envelope.Handle(backofficeUserHandler.EnrollPasskeyFinish))
 		backofficeAuthRoutes.POST("/refresh", envelope.Handle(backofficeUserHandler.RefreshAuthToken))
 		backofficeAuthRoutes.POST("/logout", envelope.Handle(backofficeUserHandler.Logout))
 	}

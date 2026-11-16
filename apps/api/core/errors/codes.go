@@ -94,6 +94,10 @@ var (
 	ErrBackofficePaymentNotFound      AppError = NewAppError("E-BO-009", "Payment not found.")
 	ErrBackofficeWebhookInvalidSig    AppError = NewAppError("E-BO-010", "Invalid webhook signature.")
 	ErrBackofficeRoleNotFound         AppError = NewAppError("E-BO-011", "Role not found.")
+	ErrBackofficeCannotResetSelf      AppError = NewAppError("E-BO-012", "You can't reset your own second factor. Ask another admin.")
+	ErrBackofficeLastFactor           AppError = NewAppError("E-BO-013", "Add another second factor before removing this one.")
+	ErrBackofficeAlreadyEnrolled      AppError = NewAppError("E-BO-014", "A second factor is already set up. Sign in again.")
+	ErrBackofficePasskeysUnavailable  AppError = NewAppError("E-BO-015", "Passkeys are not configured for the backoffice.")
 	ErrPlanLimitUsers                 AppError = NewAppError("E-PLAN-001", "User limit reached for this plan.")
 	ErrPlanLimitPatients              AppError = NewAppError("E-PLAN-002", "Patient limit reached for this plan.")
 	ErrPlanStorageQuota               AppError = NewAppError("E-PLAN-003", "Attachment storage quota reached for this plan.")
@@ -134,6 +138,7 @@ var (
 	ErrAuthPasskeyNotFound           AppError = NewAppError("E-AUTH-025", "Passkey not found.")
 	ErrAuthMFARequired               AppError = NewAppError("E-AUTH-026", "Your clinic requires two-step verification. Set it up in your profile.")
 	ErrAuthPasskeyReauthRequired     AppError = NewAppError("E-AUTH-027", "Confirm your password to add a passkey.")
+	ErrAuthPasswordTooWeak           AppError = NewAppError("E-AUTH-028", "Password is too common or matches the user name.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

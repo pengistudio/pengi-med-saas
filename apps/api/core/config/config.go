@@ -78,6 +78,11 @@ type Config struct {
 	// PORTAL_URL/<slug>. Also a CORS origin. In dev it defaults to the compose
 	// portal port; unset in release, the portal link is empty.
 	PortalURL string `env:"PORTAL_URL"`
+	// Public URL of the backoffice (apps/backoffice). Its host is the WebAuthn
+	// relying party of backoffice passkeys (changing it voids them). In dev it
+	// defaults to the compose backoffice port; unset in release, backoffice
+	// passkeys are unavailable (TOTP still works).
+	BackofficeURL string `env:"BACKOFFICE_URL"`
 	// Cloudflare Turnstile secret for the portal sign-in captcha (unset: no
 	// captcha, e.g. dev and tests).
 	TurnstileSecretKey string `env:"TURNSTILE_SECRET_KEY"`
@@ -143,6 +148,9 @@ const devAppURL = "http://localhost:3000"
 // devPortalURL is the patient portal in docker-compose.dev.yaml (host port 3002).
 const devPortalURL = "http://localhost:3002"
 
+// devBackofficeURL is the backoffice in docker-compose.dev.yaml (host port 3001).
+const devBackofficeURL = "http://localhost:3001"
+
 // Get returns the current configuration. Values that fail to parse are left
 // at their zero value; Load has already rejected them at startup.
 func Get() Config {
@@ -159,6 +167,10 @@ func parse() (Config, error) {
 	cfg.PortalURL = strings.TrimRight(strings.TrimSpace(cfg.PortalURL), "/")
 	if cfg.PortalURL == "" && !cfg.IsRelease() {
 		cfg.PortalURL = devPortalURL
+	}
+	cfg.BackofficeURL = strings.TrimRight(strings.TrimSpace(cfg.BackofficeURL), "/")
+	if cfg.BackofficeURL == "" && !cfg.IsRelease() {
+		cfg.BackofficeURL = devBackofficeURL
 	}
 	return cfg, err
 }

@@ -100,7 +100,7 @@ func TestCreateAndUpdateUser_RejectShortPasswords(t *testing.T) {
 	if resp.Code != 400 || resp.Message != "auth.password.too_short" {
 		t.Fatalf("CreateUser with 9 chars = %d %q, want 400 auth.password.too_short", resp.Code, resp.Message)
 	}
-	if resp, _ := callJSON(t, "POST", "/backoffice/users", `{"user_name": "ana-admin", "password": "1234567890"}`, h.CreateUser); resp.Code != 200 {
+	if resp, _ := callJSON(t, "POST", "/backoffice/users", `{"user_name": "ana-admin", "password": "s3cret-pas"}`, h.CreateUser); resp.Code != 200 {
 		t.Fatalf("CreateUser with 10 chars = %d %q", resp.Code, resp.Message)
 	}
 
@@ -119,7 +119,7 @@ func TestCreateAndUpdateUser_RejectShortPasswords(t *testing.T) {
 // migration only in release: such an account can't sign in outside local
 // development.
 func TestLogin_RefusesSeedPasswordOutsideDevelopment(t *testing.T) {
-	db := testutils.SetupTestDB(t, &backoffice_models.BackofficeUser{})
+	db, _ := setupMFA(t)
 	seeded := backoffice_models.BackofficeUser{UserName: "admin", Password: "password"}
 	if err := seeded.Save(db); err != nil {
 		t.Fatal(err)
@@ -177,19 +177,11 @@ func refreshWith(h *BackofficeUserHandler, token string) (envelope.Response, *ht
 // Refreshing rotates the refresh token; the old one works only for a moment
 // (concurrent tabs) and only while its successor is still current.
 func TestRefresh_RotatesRefreshToken(t *testing.T) {
-	db := testutils.SetupTestDB(t, &backoffice_models.BackofficeUser{})
-	admin := backoffice_models.BackofficeUser{UserName: "ana-admin", Password: "s3cret-pass"}
-	if err := admin.Save(db); err != nil {
-		t.Fatal(err)
-	}
-	h := NewBackofficeUserHandler(db, zap.NewNop())
-	resp, w := callJSON(t, "POST", "/backoffice/auth/login", `{"user_name": "ana-admin", "password": "s3cret-pass"}`, h.Login)
-	if resp.Code != 200 {
-		t.Fatalf("login = %d", resp.Code)
-	}
-	first := refreshCookie(w)
+	db, h := setupMFA(t)
+	admin := createAdmin(t, db, mfaTestAdmin)
+	first := signIn(t, h, mfaTestAdmin, enableTOTP(t, db, admin))
 
-	resp, w = refreshWith(h, first)
+	resp, w := refreshWith(h, first)
 	second := refreshCookie(w)
 	if resp.Code != 200 || second == "" || second == first {
 		t.Fatalf("refresh = %d, rotated=%v", resp.Code, second != "" && second != first)
@@ -201,17 +193,12 @@ func TestRefresh_RotatesRefreshToken(t *testing.T) {
 		t.Fatalf("concurrent refresh with the old token = %d, want 200 with the current token", resp.Code)
 	}
 
-	// Once the second is rotated too, the first is dead.
+	// Once the second is rotated too, the first is dead (and, being of the
+	// current login, counts as reuse: see TestRefresh_ReuseRevokesSession).
 	if resp, _ := refreshWith(h, second); resp.Code != 200 {
 		t.Fatalf("refresh with the second token = %d", resp.Code)
 	}
 	if resp, _ := refreshWith(h, first); resp.Code != 401 {
 		t.Fatalf("refresh with a stale token = %d, want 401", resp.Code)
-	}
-
-	// Outside the grace window the old token is rejected.
-	h.rotated = newRotationGrace()
-	if resp, _ := refreshWith(h, second); resp.Code != 401 {
-		t.Fatalf("refresh with a rotated-out token after the grace window = %d, want 401", resp.Code)
 	}
 }

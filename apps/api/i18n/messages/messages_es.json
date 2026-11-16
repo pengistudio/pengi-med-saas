@@ -15662,5 +15662,165 @@
     {
         "key": "auth.passkey_offer.default_name",
         "value": "Este dispositivo"
+    },
+    {
+        "key": "E-BO-012",
+        "value": "No puedes restablecer tu propio segundo factor. Pídeselo a otro administrador."
+    },
+    {
+        "key": "E-BO-013",
+        "value": "Agrega otro segundo factor antes de quitar este."
+    },
+    {
+        "key": "E-BO-014",
+        "value": "Ya tienes un segundo factor configurado. Inicia sesión de nuevo."
+    },
+    {
+        "key": "E-BO-015",
+        "value": "Las passkeys no están configuradas en el backoffice."
+    },
+    {
+        "key": "E-AUTH-028",
+        "value": "La contraseña es demasiado común o coincide con el nombre de usuario."
+    },
+    {
+        "key": "auth.password.too_weak",
+        "value": "La contraseña es demasiado común o coincide con el nombre de usuario. Elige otra."
+    },
+    {
+        "key": "backoffice.auth.enrollment_required",
+        "value": "Configura tu segundo factor para entrar al backoffice."
+    },
+    {
+        "key": "backoffice.auth.enroll.success",
+        "value": "Segundo factor configurado. Sesión iniciada."
+    },
+    {
+        "key": "backoffice.auth.already_enrolled",
+        "value": "Ya tienes un segundo factor configurado. Inicia sesión de nuevo."
+    },
+    {
+        "key": "backoffice.two_factor.last_factor",
+        "value": "Es tu único segundo factor. Agrega otro antes de quitarlo."
+    },
+    {
+        "key": "backoffice.users.cannot_reset_self",
+        "value": "No puedes restablecer tu propio segundo factor. Pídeselo a otro administrador."
+    },
+    {
+        "key": "backoffice.users.two_factor_reset.success",
+        "value": "Verificación en dos pasos restablecida. El administrador deberá configurarla de nuevo."
+    },
+    {
+        "key": "backoffice.users.passkeys_reset.success",
+        "value": "Passkeys eliminadas. El administrador deberá registrar un segundo factor si no le queda otro."
+    },
+    {
+        "key": "backoffice.passkey.unavailable",
+        "value": "Las passkeys no están disponibles en el backoffice. Usa una app de autenticación."
+    },
+    {
+        "key": "backoffice.passkey.reauth_required",
+        "value": "Vuelve a iniciar sesión con tu passkey para agregar otra."
+    },
+    {
+        "key": "backoffice.nav.security",
+        "value": "Seguridad"
+    },
+    {
+        "key": "backoffice.security.title",
+        "value": "Mi seguridad"
+    },
+    {
+        "key": "backoffice.security.description",
+        "value": "Protege tu acceso al backoffice con una app de autenticación y passkeys."
+    },
+    {
+        "key": "backoffice.security.two_factor.description",
+        "value": "Pide un código de una app de autenticación al iniciar sesión."
+    },
+    {
+        "key": "backoffice.security.disable_blocked",
+        "value": "Es tu único segundo factor. Agrega una passkey antes de desactivarlo."
+    },
+    {
+        "key": "backoffice.enroll.title",
+        "value": "Configura tu segundo factor"
+    },
+    {
+        "key": "backoffice.enroll.description",
+        "value": "Para entrar al backoffice necesitas un segundo factor además de tu contraseña. Elige cómo quieres confirmar tu identidad."
+    },
+    {
+        "key": "backoffice.enroll.totp.title",
+        "value": "App de autenticación"
+    },
+    {
+        "key": "backoffice.enroll.totp.description",
+        "value": "Escanea un código QR y usa los códigos de 6 dígitos de tu app."
+    },
+    {
+        "key": "backoffice.enroll.passkey.title",
+        "value": "Passkey"
+    },
+    {
+        "key": "backoffice.enroll.passkey.description",
+        "value": "Usa tu huella, rostro o llave de seguridad."
+    },
+    {
+        "key": "backoffice.users.col.second_factor",
+        "value": "Segundo factor"
+    },
+    {
+        "key": "backoffice.users.two_factor.on",
+        "value": "2FA activa"
+    },
+    {
+        "key": "backoffice.users.two_factor.off",
+        "value": "2FA inactiva"
+    },
+    {
+        "key": "backoffice.users.passkeys.count.one",
+        "value": "{count} passkey"
+    },
+    {
+        "key": "backoffice.users.passkeys.count.other",
+        "value": "{count} passkeys"
+    },
+    {
+        "key": "backoffice.users.reset_two_factor",
+        "value": "Restablecer 2FA"
+    },
+    {
+        "key": "backoffice.users.reset_two_factor.title",
+        "value": "¿Restablecer la verificación en dos pasos?"
+    },
+    {
+        "key": "backoffice.users.reset_two_factor.description",
+        "value": "Se desactivará la app de autenticación de {name}, se borrarán sus códigos de recuperación y se cerrará su sesión. Sin otro factor, deberá configurar uno nuevo al iniciar sesión."
+    },
+    {
+        "key": "backoffice.users.reset_passkeys",
+        "value": "Restablecer passkeys"
+    },
+    {
+        "key": "backoffice.users.reset_passkeys.title",
+        "value": "¿Eliminar las passkeys?"
+    },
+    {
+        "key": "backoffice.users.reset_passkeys.description",
+        "value": "Se eliminarán todas las passkeys de {name} y se cerrará su sesión. Sin otro factor, deberá configurar uno nuevo al iniciar sesión."
+    },
+    {
+        "key": "backoffice.users.reset.confirm",
+        "value": "Restablecer"
+    },
+    {
+        "key": "backoffice.users.second_factor.title",
+        "value": "Segundo factor"
+    },
+    {
+        "key": "backoffice.users.second_factor.description",
+        "value": "Si perdió su app de autenticación y sus códigos de recuperación, restablécelo para que configure uno nuevo."
     }
 ]

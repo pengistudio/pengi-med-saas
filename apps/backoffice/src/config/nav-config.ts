@@ -1,6 +1,7 @@
 import {
 	Building2,
 	CreditCard,
+	KeyRound,
 	LayoutDashboard,
 	Megaphone,
 	Puzzle,
@@ -75,5 +76,10 @@ export const createNavItems = (
 		icon: Sparkles,
 		label: textGet("backoffice.nav.ai"),
 		href: "/ai",
+	},
+	{
+		icon: KeyRound,
+		label: textGet("backoffice.nav.security"),
+		href: "/security",
 	},
 ];
