@@ -41,6 +41,9 @@ type UserHandler struct {
 	// now is the clock TOTP codes and mfa tokens are checked against
 	// (replaced in tests).
 	now func() time.Time
+	// notifySecurity emails the user about a sensitive event on their
+	// account (replaced in tests).
+	notifySecurity func(user user_models.User, event securityEvent, c *gin.Context)
 }
 
 func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
@@ -51,6 +54,8 @@ func NewUserHandler(db *gorm.DB, logger *zap.Logger) *UserHandler {
 		lockout:       lockout,
 		unknownLogins: lockout.unknownUserLimiter(),
 		now:           time.Now,
+
+		notifySecurity: newSecurityAlertSender(logger),
 	}
 }
 
@@ -633,6 +638,7 @@ func (h *UserHandler) ResetPassword(c *gin.Context) envelope.Response {
 		h.logger.Error("Failed to revoke sessions after password reset", zap.Uint("user_id", userID), zap.Error(err))
 	}
 
+	h.alertSecurity(user, eventPasswordChanged, c)
 	h.logger.Info("Password reset successfully", zap.Uint("user_id", userID))
 	return envelope.SuccessResponse(nil, "auth.reset_password.success")
 }
@@ -687,6 +693,7 @@ func (h *UserHandler) ChangePassword(c *gin.Context) envelope.Response {
 		h.logger.Error("Failed to revoke sessions after password change", zap.Uint("user_id", user.ID), zap.Error(err))
 	}
 
+	h.alertSecurity(user, eventPasswordChanged, c)
 	h.logger.Info("Password changed", zap.Uint("user_id", user.ID))
 	return envelope.SuccessResponse(nil, "auth.change_password.success")
 }

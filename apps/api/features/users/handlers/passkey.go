@@ -298,6 +298,7 @@ func (h *UserHandler) FinishPasskeyRegistration(c *gin.Context) envelope.Respons
 		h.logger.Warn("Passkeys: failed to store credential", zap.Uint("user_id", user.ID), zap.Error(err))
 		return passkeyInvalidResponse(http.StatusUnprocessableEntity)
 	}
+	h.alertSecurity(user, eventPasskeyAdded, c)
 	h.logger.Info("Passkey registered", zap.Uint("user_id", user.ID), zap.Uint("passkey_id", row.ID))
 	return envelope.SuccessResponse(row, "auth.passkey.register.finish.success")
 }
@@ -316,6 +317,10 @@ func (h *UserHandler) DeletePasskey(c *gin.Context) envelope.Response {
 	}
 	if res.RowsAffected == 0 {
 		return envelope.ErrorResponse(http.StatusNotFound, "auth.passkey.not_found", core_errors.ErrAuthPasskeyNotFound)
+	}
+	var owner user_models.User
+	if err := h.db.First(&owner, userID).Error; err == nil {
+		h.alertSecurity(owner, eventPasskeyDeleted, c)
 	}
 	h.logger.Info("Passkey deleted", zap.Uint("user_id", userID), zap.Uint64("passkey_id", id))
 	return envelope.SuccessResponse(nil, "auth.passkey.delete.success")

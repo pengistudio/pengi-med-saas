@@ -265,6 +265,10 @@ type Tenant struct {
 	EnabledFeatures          string     `gorm:"type:text;default:'{}'" json:"enabled_features"` // JSON-encoded EnabledFeatures
 	DisplayToken             string     `gorm:"type:varchar(36);uniqueIndex" json:"-"`          // Token for public TV display access
 	PortalSettings           string     `gorm:"type:text;default:'{}'" json:"-"`                // JSON-encoded PortalSettings
+	// RequireMFA makes two-step verification (TOTP or a passkey) mandatory for
+	// every user of the clinic: TenantMiddleware answers 403 E-AUTH-026 to a
+	// user without one. Set by a clinic admin (UpdateSecuritySettings).
+	RequireMFA bool `gorm:"not null;default:false" json:"require_mfa"`
 }
 
 func NewTenant(name string) *Tenant {

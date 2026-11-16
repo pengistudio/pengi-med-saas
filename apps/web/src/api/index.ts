@@ -2,6 +2,7 @@ import { useMessageStore } from "@pengi/shared";
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
 import { env } from "@/lib/env";
+import { MFA_REQUIRED_ERROR } from "@/lib/mfa-required";
 import { useSessionStore } from "@/store/session-store";
 import { useTokenStore } from "@/store/token-store";
 import { useUserStore } from "@/store/user-store";
@@ -143,6 +144,18 @@ function make401Interceptor(instance: ReturnType<typeof axios.create>) {
 				handleSessionExpired();
 			}
 
+			if (
+				status === 403 &&
+				error.response?.data?.data?.error_code === MFA_REQUIRED_ERROR
+			) {
+				// The clinic requires two-step verification: MFARequiredGuard sends
+				// the user to enrol and the profile shows one banner. The request
+				// never settles, so the service layer doesn't toast each refused
+				// call. Only this answer is held: later requests still go out, and
+				// succeed once the user has enrolled.
+				useSessionStore.getState().setMfaRequired(true);
+				return new Promise(() => {});
+			}
 			if (
 				status === 403 &&
 				error.response?.data?.data?.error_code === "E-BO-007"

@@ -48,6 +48,22 @@ func TenantMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		// The clinic requires two-step verification: a user without one is
+		// sent to enrol. Enrolment (/users/me/2fa, /users/me/passkeys) is not
+		// behind this middleware, so it stays reachable. Only clinics with
+		// the policy pay for the lookup.
+		if tenant.RequireMFA {
+			hasMFA, err := HasMFA(db, uint(userID))
+			if err != nil {
+				envelope.Abort(c, envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal))
+				return
+			}
+			if !hasMFA {
+				envelope.Abort(c, envelope.ErrorResponse(http.StatusForbidden, "tenant.security.mfa_required", core_errors.ErrAuthMFARequired))
+				return
+			}
+		}
+
 		c.Set("tenant_id", tenant.ID)
 		c.Set("company_id", membership.CompanyID)
 		c.Set("environment_id", membership.EnvironmentID)

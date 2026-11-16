@@ -488,6 +488,7 @@ func (h *UserHandler) EnableTwoFactor(c *gin.Context) envelope.Response {
 		return *errResp
 	}
 	data["recovery_codes"] = codes
+	h.alertSecurity(user, eventTwoFactorEnabled, c)
 	h.logger.Info("2FA enabled", zap.Uint("user_id", user.ID))
 	return envelope.SuccessResponse(data, "auth.two_factor.enable.success")
 }
@@ -536,6 +537,7 @@ func (h *UserHandler) DisableTwoFactor(c *gin.Context) envelope.Response {
 		h.logger.Error("2FA disable failed", zap.Uint("user_id", user.ID), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
+	h.alertSecurity(user, eventTwoFactorDisabled, c)
 	h.logger.Info("2FA disabled", zap.Uint("user_id", user.ID))
 	return envelope.SuccessResponse(nil, "auth.two_factor.disable.success")
 }
@@ -556,6 +558,7 @@ func (h *UserHandler) RegenerateRecoveryCodes(c *gin.Context) envelope.Response 
 		h.logger.Error("2FA recovery codes regeneration failed", zap.Uint("user_id", user.ID), zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 	}
+	h.alertSecurity(user, eventRecoveryCodesRegenerated, c)
 	h.logger.Info("2FA recovery codes regenerated", zap.Uint("user_id", user.ID))
 	return envelope.SuccessResponse(gin.H{"recovery_codes": codes}, "auth.two_factor.recovery_codes.success")
 }

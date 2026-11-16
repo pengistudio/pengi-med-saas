@@ -15,6 +15,7 @@ var (
 	ErrTenantInvalidLogoFile     AppError = NewAppError("E-TEN-003", "Invalid logo file. Only PNG or JPG images are allowed.")
 	ErrTenantLogoNotFound        AppError = NewAppError("E-TEN-004", "No logo has been uploaded for this tenant.")
 	ErrTenantForbidden           AppError = NewAppError("E-TEN-005", "User has no role in this tenant.")
+	ErrTenantMFARequiresOwnMFA   AppError = NewAppError("E-TEN-006", "Set up two-step verification on your own account before requiring it for the clinic.")
 
 	ErrUserNotFound            AppError = NewAppError("E-USR-001", "User not found.")
 	ErrUserEnvironmentNotFound AppError = NewAppError("E-USR-002", "Environment not found.")
@@ -131,6 +132,7 @@ var (
 	ErrAuthPasskeyInvalid            AppError = NewAppError("E-AUTH-023", "Passkey verification failed.")
 	ErrAuthPasskeyLimit              AppError = NewAppError("E-AUTH-024", "Passkey limit reached.")
 	ErrAuthPasskeyNotFound           AppError = NewAppError("E-AUTH-025", "Passkey not found.")
+	ErrAuthMFARequired               AppError = NewAppError("E-AUTH-026", "Your clinic requires two-step verification. Set it up in your profile.")
 
 	// Integration Errors
 	ErrIntegrationNotConfigured AppError = NewAppError("E-INT-004", "Integration not configured.")

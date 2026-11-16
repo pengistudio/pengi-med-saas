@@ -39,6 +39,7 @@ import { specialtyLabel } from "@/components/features/doctors/doctor-utils";
 import { MyDoctorProfileCard } from "@/components/features/doctors/my-doctor-profile-card";
 import { ChangePasswordCard } from "@/components/features/profile/change-password-card";
 import { ElectronicSignatureCard } from "@/components/features/profile/electronic-signature-card";
+import { MFARequiredBanner } from "@/components/features/profile/mfa-required";
 import { PasskeysCard } from "@/components/features/profile/passkeys-card";
 import { TwoFactorCard } from "@/components/features/profile/two-factor-card";
 import usePermission from "@/hooks/use-permission";
@@ -333,6 +334,8 @@ const Profile = () => {
 					</p>
 				</div>
 			</header>
+
+			<MFARequiredBanner />
 
 			{isDesktop ? (
 				<Tabs

@@ -1,4 +1,5 @@
 import { createHttpService, type ServiceResponse } from "@pengi/shared";
+import { useSessionStore } from "@/store/session-store";
 import type { LoginResponse } from "@/types/user-type";
 import { apiWithTenant } from ".";
 
@@ -50,12 +51,16 @@ export const setupTwoFactor = async (
  */
 export const enableTwoFactor = async (
 	code: string,
-): Promise<ServiceResponse<TwoFactorEnableResponse>> =>
-	twoFactorService.post<TwoFactorEnableResponse>(
+): Promise<ServiceResponse<TwoFactorEnableResponse>> => {
+	const res = await twoFactorService.post<TwoFactorEnableResponse>(
 		"/users/me/2fa/enable",
 		{ code },
 		{ withCredentials: true, notifySuccess: true, notifyError: true },
 	);
+	// Enrolled: a clinic requiring two-step verification lets them in now.
+	if (res.success) useSessionStore.getState().setMfaRequired(false);
+	return res;
+};
 
 /** Turns 2FA off: current password plus a TOTP or recovery code. */
 export const disableTwoFactor = async (

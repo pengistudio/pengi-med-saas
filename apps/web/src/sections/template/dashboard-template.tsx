@@ -44,6 +44,7 @@ import NotificationBell from "@/components/custom/notification-bell";
 import { PageSkeleton } from "@/components/custom/page-skeleton";
 import { DoctorReviewBanner } from "@/components/features/doctors/doctor-notices";
 import { DoctorOnboardingDialog } from "@/components/features/doctors/doctor-onboarding-dialog";
+import { MFARequiredGuard } from "@/components/features/profile/mfa-required";
 import {
 	createNavItems,
 	createQuickActions,
@@ -353,12 +354,16 @@ export function DashboardLayout() {
 				</div>
 			) : (
 				// Lazy pages load inside the shell, so the frame stays while they do.
-				<Suspense fallback={<PageSkeleton />}>
-					<Outlet />
-					<DoctorOnboardingDialog
-						enabled={enabledFeatures.clinical !== false}
-					/>
-				</Suspense>
+				<>
+					{/* Outside Suspense: redirects even while a page chunk loads. */}
+					<MFARequiredGuard />
+					<Suspense fallback={<PageSkeleton />}>
+						<Outlet />
+						<DoctorOnboardingDialog
+							enabled={enabledFeatures.clinical !== false}
+						/>
+					</Suspense>
+				</>
 			)}
 		</AppShell>
 	);
