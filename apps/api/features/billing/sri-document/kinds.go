@@ -2,6 +2,7 @@ package sri_document
 
 import (
 	"fmt"
+	"strings"
 
 	billing_models "pengi-med-saas/features/billing/models"
 	sri_services "pengi-med-saas/features/billing/sri/services"
@@ -28,6 +29,10 @@ var Invoice = Kind{
 	Model:          &billing_models.Invoice{},
 	MessageIDField: "invoice_id",
 	BuildXML: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error) {
+		address, err := requireAddress(tenant)
+		if err != nil {
+			return "", err
+		}
 		var invoice billing_models.Invoice
 		if err := db.Unscoped().Preload("Patient").First(&invoice, id).Error; err != nil {
 			return "", err
@@ -44,7 +49,7 @@ var Invoice = Kind{
 			return "", err
 		}
 		sriInvoice, err := sri_services.GenerateInvoice(invoice, products, tenant,
-			invoice.EstablishmentCode, invoice.EmissionPointCode, establishmentAddress(tenant), sriEnv, accessKey)
+			invoice.EstablishmentCode, invoice.EmissionPointCode, address, sriEnv, accessKey)
 		if err != nil {
 			return "", err
 		}
@@ -79,6 +84,10 @@ var CreditNote = Kind{
 	Model:          &billing_models.CreditNote{},
 	MessageIDField: "credit_note_id",
 	BuildXML: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error) {
+		address, err := requireAddress(tenant)
+		if err != nil {
+			return "", err
+		}
 		var creditNote billing_models.CreditNote
 		if err := db.Unscoped().Preload("Invoice").Preload("Invoice.Patient").First(&creditNote, id).Error; err != nil {
 			return "", err
@@ -95,7 +104,7 @@ var CreditNote = Kind{
 			return "", err
 		}
 		sriCreditNote, err := sri_services.GenerateCreditNote(creditNote, products, tenant,
-			creditNote.EstablishmentCode, creditNote.EmissionPointCode, establishmentAddress(tenant), sriEnv, accessKey)
+			creditNote.EstablishmentCode, creditNote.EmissionPointCode, address, sriEnv, accessKey)
 		if err != nil {
 			return "", err
 		}
@@ -126,6 +135,10 @@ var DebitNote = Kind{
 	Model:          &billing_models.DebitNote{},
 	MessageIDField: "debit_note_id",
 	BuildXML: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error) {
+		address, err := requireAddress(tenant)
+		if err != nil {
+			return "", err
+		}
 		var debitNote billing_models.DebitNote
 		if err := db.Unscoped().Preload("Invoice").Preload("Invoice.Patient").First(&debitNote, id).Error; err != nil {
 			return "", err
@@ -134,7 +147,7 @@ var DebitNote = Kind{
 			return "", err
 		}
 		sriDebitNote, err := sri_services.GenerateDebitNote(debitNote, tenant,
-			debitNote.EstablishmentCode, debitNote.EmissionPointCode, establishmentAddress(tenant), sriEnv, accessKey)
+			debitNote.EstablishmentCode, debitNote.EmissionPointCode, address, sriEnv, accessKey)
 		if err != nil {
 			return "", err
 		}
@@ -183,13 +196,21 @@ func pricedProducts(db *gorm.DB, items []pricedItem) ([]billing_models.CatalogIt
 	return products, nil
 }
 
-// establishmentAddress falls back to a placeholder: Pengi has no per-establishment
-// address yet, and the SRI requires one.
+// establishmentAddress is the tenant's dirección matriz as stored, trimmed. Pengi
+// has no per-establishment address yet. It may be empty: only the RIDE of an
+// already authorized document uses it as is; XML goes through requireAddress.
 func establishmentAddress(tenant tenant_models.Tenant) string {
-	if tenant.Address == "" {
-		return "Dirección no provista"
+	return strings.TrimSpace(tenant.Address)
+}
+
+// requireAddress is the address an XML must carry: the SRI requires the issuer's
+// dirección matriz, so a blank one is an error instead of invented text.
+func requireAddress(tenant tenant_models.Tenant) (string, error) {
+	address := establishmentAddress(tenant)
+	if address == "" {
+		return "", ErrMissingAddress
 	}
-	return tenant.Address
+	return address, nil
 }
 
 // RideFileName is the tenant file holding an authorized document's RIDE PDF,

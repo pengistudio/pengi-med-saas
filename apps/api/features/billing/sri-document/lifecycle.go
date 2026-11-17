@@ -151,6 +151,9 @@ func (l *Lifecycle) attempt(kind Kind, doc document) (err error) {
 		return fail(err, ErrorCodeInternal)
 	}
 	xml, err := kind.BuildXML(l.db, doc.ID, tenant, accessKey, l.sriEnv)
+	if errors.Is(err, ErrMissingAddress) {
+		return fail(fmt.Errorf("build XML: %w", err), ErrorCodeMissingAddress)
+	}
 	if err != nil {
 		return fail(fmt.Errorf("build XML: %w", err), ErrorCodeInternal)
 	}

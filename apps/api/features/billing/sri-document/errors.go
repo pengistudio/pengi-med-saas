@@ -34,6 +34,7 @@ const (
 	// server, so the sealed password cannot be opened. Same key the upload
 	// handlers answer with.
 	ErrorCodeSignatureUnavailable = "signature.error.unavailable"
+	ErrorCodeMissingAddress       = "billing.sri.error.missing_address"
 	ErrorCodeInternal             = "billing.sri_document.error.internal"
 )
 
@@ -52,4 +53,7 @@ var (
 	// ErrSignatureExpired: the tenant's P12 certificate has expired, so the
 	// document cannot be signed until a valid one is uploaded.
 	ErrSignatureExpired = errors.New("sri signature certificate expired")
+	// ErrMissingAddress: the tenant has no dirección matriz, which the SRI
+	// requires in every comprobante.
+	ErrMissingAddress = errors.New("tenant has no address")
 )

@@ -90,6 +90,7 @@ func newFixture(t *testing.T) *fixture {
 		Slug:         fmt.Sprintf("sri-%d", now),
 		DisplayToken: fmt.Sprintf("tok-sri-%d", now),
 		TaxID:        "1790011223001",
+		Address:      "Av. Siempre Viva 123",
 		SriP12Path:   "certs/tenant.p12",
 		SriPassword:  "secret",
 	}

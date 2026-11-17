@@ -3952,6 +3952,18 @@
         "value": "No hay firma electrónica configurada"
     },
     {
+        "key": "billing.sri.address.missing.title",
+        "value": "La empresa no tiene dirección"
+    },
+    {
+        "key": "billing.sri.address.missing.desc",
+        "value": "El SRI exige la dirección matriz del emisor en cada comprobante. Mientras no la agregues, no podrás enviar facturas ni notas."
+    },
+    {
+        "key": "billing.sri.address.missing.action",
+        "value": "Agregar la dirección"
+    },
+    {
         "key": "billing.sri.status.unconfigured_desc",
         "value": "Por favor, suba su archivo .p12 para poder facturar."
     },
@@ -6774,6 +6786,14 @@
     {
         "key": "E-BILL-015",
         "value": "El XML autorizado de este comprobante no está disponible"
+    },
+    {
+        "key": "billing.sri.error.missing_address",
+        "value": "La empresa no tiene dirección matriz, que el SRI exige. Agrégala en la configuración de la empresa para emitir comprobantes."
+    },
+    {
+        "key": "E-BILL-016",
+        "value": "La empresa no tiene dirección matriz, que el SRI exige. Agrégala en la configuración de la empresa para emitir comprobantes."
     },
     {
         "key": "signature.title",
