@@ -4,15 +4,21 @@ import {
 	type DebitNote,
 	downloadDebitNoteRide,
 	downloadDebitNoteXml,
+	sendDebitNoteEmail,
 } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { SriDocumentDownloads } from "@/components/custom/billing/sri-document-downloads";
+import {
+	SriDocumentEmailAction,
+	SriDocumentEmailStatus,
+} from "@/components/custom/billing/sri-document-email";
 import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 import { selectColumn } from "@/components/custom/table/select-column";
 
 export function getDebitNoteColumns(
 	onRetry: (id: number) => void | Promise<void>,
+	onEmailed?: () => void,
 ): DataTableColumnDef<DebitNote>[] {
 	return [
 		selectColumn<DebitNote>(),
@@ -96,6 +102,13 @@ export function getDebitNoteColumns(
 			},
 		},
 		{
+			id: "email",
+			meta: { title: "billing.document.email.column" },
+			header: () => <Text uuid="billing.document.email.column" />,
+			cell: ({ row }) => <SriDocumentEmailStatus doc={row.original} />,
+			enableSorting: false,
+		},
+		{
 			accessorKey: "createdAt",
 			meta: { title: "billing.invoice.column.date" },
 			header: ({ column }) => (
@@ -115,6 +128,12 @@ export function getDebitNoteColumns(
 				const note = row.original;
 				return (
 					<div className="flex justify-end gap-1">
+						<SriDocumentEmailAction
+							doc={note}
+							buyerEmail={note.invoice?.patient?.email}
+							send={(email) => sendDebitNoteEmail(note.ID, email)}
+							onSent={onEmailed}
+						/>
 						<SriDocumentDownloads
 							status={note.status}
 							fileBase={`nota_debito_${note.establishment_code}-${note.emission_point_code}-${note.sequential}`}

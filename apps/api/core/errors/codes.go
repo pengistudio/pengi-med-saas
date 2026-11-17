@@ -119,6 +119,11 @@ var (
 	ErrBillingDocumentNotAuthorized AppError = NewAppError("E-BILL-014", "The document must be authorized by the SRI before its RIDE or XML can be downloaded.")
 	ErrBillingDocumentXMLMissing    AppError = NewAppError("E-BILL-015", "The authorized XML of this document is not available.")
 	ErrBillingMissingAddress        AppError = NewAppError("E-BILL-016", "The company has no address. Add its address to issue documents.")
+	ErrBillingEmailNoRecipient      AppError = NewAppError("E-BILL-017", "The buyer has no email address. Enter one to send the document.")
+	ErrBillingEmailInvalid          AppError = NewAppError("E-BILL-018", "The email address is not valid.")
+	ErrBillingEmailSendFailed       AppError = NewAppError("E-BILL-019", "The document email could not be sent.")
+	ErrBillingEmailTooSoon          AppError = NewAppError("E-BILL-020", "The document was just emailed. Wait a minute before sending it again.")
+	ErrBillingEmailAttachments      AppError = NewAppError("E-BILL-021", "The RIDE or the authorized XML of the document is not available to email.")
 
 	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")

@@ -186,8 +186,17 @@ const InvoiceListPage = () => {
 								: undefined,
 						}
 					: undefined,
+				() => fetchInvoices(page, search, statusFilter, true),
 			),
-		[handleRetry, cashEnabled, canCharge],
+		[
+			handleRetry,
+			cashEnabled,
+			canCharge,
+			fetchInvoices,
+			page,
+			search,
+			statusFilter,
+		],
 	);
 
 	return (

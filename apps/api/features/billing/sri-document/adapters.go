@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"pengi-med-saas/core/brokers/rabbitmq"
+	"pengi-med-saas/core/mailer"
 	"pengi-med-saas/core/pdfrender"
 	"pengi-med-saas/core/tenantfiles"
 	sri_services "pengi-med-saas/features/billing/sri/services"
@@ -14,7 +15,8 @@ import (
 )
 
 // NewDefault wires the lifecycle to its production adapters: the sri-xml-signer
-// service, tenant files on local disk, Gotenberg and RabbitMQ.
+// service, tenant files on local disk, Gotenberg, RabbitMQ and Resend (buyer
+// emails, texts in the catalog's default language).
 func NewDefault(db *gorm.DB, logger *zap.Logger) *Lifecycle {
 	files := tenantfiles.Disk(tenantfiles.DefaultRoot)
 	docs := Documents{
@@ -22,7 +24,8 @@ func NewDefault(db *gorm.DB, logger *zap.Logger) *Lifecycle {
 		Renderer: pdfrender.New(files, pdfrender.Gotenberg(),
 			billing_templates.InvoiceRide, billing_templates.CreditNoteRide, billing_templates.DebitNoteRide),
 	}
-	return New(db, logger, NewHTTPGateway(), RabbitPublisher{}, docs, sri_services.ResolveSriEnv())
+	return New(db, logger, NewHTTPGateway(), RabbitPublisher{}, docs, sri_services.ResolveSriEnv()).
+		WithMailer(mailer.NewMailer(), nil)
 }
 
 // RabbitPublisher publishes on the process-wide RabbitMQ publish channel.

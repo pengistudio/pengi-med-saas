@@ -75,6 +75,24 @@ var Invoice = Kind{
 		}
 		return docs.Files.Write(tenant.ID, RideName(*invoice.AccessKey), pdf)
 	},
+	EmailTitle: "billing.document.email.title.invoice",
+	Email: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) (EmailContent, error) {
+		var invoice billing_models.Invoice
+		if err := db.Unscoped().Preload("Patient").Preload("Items").First(&invoice, id).Error; err != nil {
+			return EmailContent{}, fmt.Errorf("load invoice %d: %w", id, err)
+		}
+		if invoice.AccessKey == nil {
+			return EmailContent{}, fmt.Errorf("invoice %d has no access key", invoice.ID)
+		}
+		return EmailContent{
+			BuyerEmail: patientEmail(invoice.Patient),
+			Number:     documentNumber(invoice.EstablishmentCode, invoice.EmissionPointCode, invoice.Sequential),
+			Total:      invoice.Total,
+			IssueDate:  invoice.IssueDate,
+			AccessKey:  *invoice.AccessKey,
+			Ride:       func() ([]byte, error) { return InvoiceRide(docs, invoice, tenant) },
+		}, nil
+	},
 }
 
 var CreditNote = Kind{
@@ -126,6 +144,30 @@ var CreditNote = Kind{
 		}
 		return docs.Files.Write(tenant.ID, rideFile(creditNotesFolder, *creditNote.AccessKey), pdf)
 	},
+	EmailTitle: "billing.document.email.title.credit_note",
+	// The buyer is the credited invoice's patient.
+	Email: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) (EmailContent, error) {
+		creditNote, err := loadCreditNote(db.Unscoped(), id)
+		if err != nil {
+			return EmailContent{}, err
+		}
+		if creditNote.AccessKey == nil {
+			return EmailContent{}, fmt.Errorf("credit note %d has no access key", creditNote.ID)
+		}
+		key := *creditNote.AccessKey
+		return EmailContent{
+			BuyerEmail: patientEmail(creditNote.Invoice.Patient),
+			Number:     documentNumber(creditNote.EstablishmentCode, creditNote.EmissionPointCode, creditNote.Sequential),
+			Total:      creditNote.Total,
+			IssueDate:  creditNote.IssueDate,
+			AccessKey:  key,
+			Ride: func() ([]byte, error) {
+				return cachedRide(docs, tenant.ID, rideFile(creditNotesFolder, key), func() ([]byte, error) {
+					return renderCreditNoteRide(db, docs, creditNote, tenant, sri_services.ResolveSriEnv())
+				})
+			},
+		}, nil
+	},
 }
 
 var DebitNote = Kind{
@@ -168,6 +210,30 @@ var DebitNote = Kind{
 			return fmt.Errorf("render RIDE: %w", err)
 		}
 		return docs.Files.Write(tenant.ID, rideFile(debitNotesFolder, *debitNote.AccessKey), pdf)
+	},
+	EmailTitle: "billing.document.email.title.debit_note",
+	// The buyer is the charged invoice's patient.
+	Email: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) (EmailContent, error) {
+		debitNote, err := loadDebitNote(db.Unscoped(), id)
+		if err != nil {
+			return EmailContent{}, err
+		}
+		if debitNote.AccessKey == nil {
+			return EmailContent{}, fmt.Errorf("debit note %d has no access key", debitNote.ID)
+		}
+		key := *debitNote.AccessKey
+		return EmailContent{
+			BuyerEmail: patientEmail(debitNote.Invoice.Patient),
+			Number:     documentNumber(debitNote.EstablishmentCode, debitNote.EmissionPointCode, debitNote.Sequential),
+			Total:      debitNote.Total,
+			IssueDate:  debitNote.IssueDate,
+			AccessKey:  key,
+			Ride: func() ([]byte, error) {
+				return cachedRide(docs, tenant.ID, rideFile(debitNotesFolder, key), func() ([]byte, error) {
+					return sri_services.GenerateDebitNoteRide(docs.Renderer, debitNote, tenant, establishmentAddress(tenant), sri_services.ResolveSriEnv())
+				})
+			},
+		}, nil
 	},
 }
 
