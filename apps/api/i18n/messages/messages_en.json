@@ -3816,6 +3816,26 @@
         "value": "Download RIDE"
     },
     {
+        "key": "billing.document.error.not_authorized",
+        "value": "The document must be authorized by the SRI before its RIDE or XML can be downloaded"
+    },
+    {
+        "key": "billing.document.error.xml_unavailable",
+        "value": "The authorized XML of this document is not available"
+    },
+    {
+        "key": "billing.credit_note.error.not_found",
+        "value": "Credit note not found"
+    },
+    {
+        "key": "billing.debit_note.error.not_found",
+        "value": "Debit note not found"
+    },
+    {
+        "key": "billing.document.xml.download",
+        "value": "Download XML"
+    },
+    {
         "key": "billing.debit_note.create.success",
         "value": "Debit note created successfully"
     },
@@ -6748,6 +6768,14 @@
         "value": "The SRI electronic signature has expired. Upload a valid one to issue documents."
     },
     {
+        "key": "E-BILL-014",
+        "value": "The document must be authorized by the SRI before its RIDE or XML can be downloaded"
+    },
+    {
+        "key": "E-BILL-015",
+        "value": "The authorized XML of this document is not available"
+    },
+    {
         "key": "signature.title",
         "value": "Electronic signature"
     },
@@ -7322,6 +7350,14 @@
     {
         "key": "document_templates.doc.invoice_ride",
         "value": "Invoice (RIDE)"
+    },
+    {
+        "key": "document_templates.doc.credit_note_ride",
+        "value": "Credit note (RIDE)"
+    },
+    {
+        "key": "document_templates.doc.debit_note_ride",
+        "value": "Debit note (RIDE)"
     },
     {
         "key": "document_templates.paper.a4_portrait",

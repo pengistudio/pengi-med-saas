@@ -10,13 +10,21 @@ import (
 	"gorm.io/gorm"
 )
 
+// Tenant storage folders of each kind's signed XML and RIDE. Constants so the
+// kinds' own callbacks can name their files without an initialization cycle.
+const (
+	invoicesFolder    = "invoices"
+	creditNotesFolder = "credit-notes"
+	debitNotesFolder  = "debit-notes"
+)
+
 // Kinds lists every comprobante electrónico the lifecycle processes.
 var Kinds = []Kind{Invoice, CreditNote, DebitNote}
 
 var Invoice = Kind{
 	Name:           "invoice",
 	Queue:          "invoice_tasks",
-	Folder:         "invoices",
+	Folder:         invoicesFolder,
 	Model:          &billing_models.Invoice{},
 	MessageIDField: "invoice_id",
 	BuildXML: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error) {
@@ -67,7 +75,7 @@ var Invoice = Kind{
 var CreditNote = Kind{
 	Name:           "credit_note",
 	Queue:          "credit_note_tasks",
-	Folder:         "credit-notes",
+	Folder:         creditNotesFolder,
 	Model:          &billing_models.CreditNote{},
 	MessageIDField: "credit_note_id",
 	BuildXML: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error) {
@@ -93,12 +101,28 @@ var CreditNote = Kind{
 		}
 		return sri_services.GenerateCreditNoteXml(*sriCreditNote)
 	},
+	// Same semantics as the invoice: a failed render never fails the
+	// authorized note; CreditNoteRide renders it again on download.
+	OnAuthorized: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant, sriEnv string) error {
+		creditNote, err := loadCreditNote(db.Unscoped(), id)
+		if err != nil {
+			return err
+		}
+		if creditNote.AccessKey == nil {
+			return fmt.Errorf("credit note %d has no access key", creditNote.ID)
+		}
+		pdf, err := renderCreditNoteRide(db, docs, creditNote, tenant, sriEnv)
+		if err != nil {
+			return fmt.Errorf("render RIDE: %w", err)
+		}
+		return docs.Files.Write(tenant.ID, rideFile(creditNotesFolder, *creditNote.AccessKey), pdf)
+	},
 }
 
 var DebitNote = Kind{
 	Name:           "debit_note",
 	Queue:          "debit_note_tasks",
-	Folder:         "debit-notes",
+	Folder:         debitNotesFolder,
 	Model:          &billing_models.DebitNote{},
 	MessageIDField: "debit_note_id",
 	BuildXML: func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error) {
@@ -115,6 +139,22 @@ var DebitNote = Kind{
 			return "", err
 		}
 		return sri_services.GenerateDebitNoteXml(*sriDebitNote)
+	},
+	// Same semantics as the invoice: a failed render never fails the
+	// authorized note; DebitNoteRide renders it again on download.
+	OnAuthorized: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant, sriEnv string) error {
+		debitNote, err := loadDebitNote(db.Unscoped(), id)
+		if err != nil {
+			return err
+		}
+		if debitNote.AccessKey == nil {
+			return fmt.Errorf("debit note %d has no access key", debitNote.ID)
+		}
+		pdf, err := sri_services.GenerateDebitNoteRide(docs.Renderer, debitNote, tenant, establishmentAddress(tenant), sriEnv)
+		if err != nil {
+			return fmt.Errorf("render RIDE: %w", err)
+		}
+		return docs.Files.Write(tenant.ID, rideFile(debitNotesFolder, *debitNote.AccessKey), pdf)
 	},
 }
 
@@ -152,32 +192,120 @@ func establishmentAddress(tenant tenant_models.Tenant) string {
 	return tenant.Address
 }
 
-// RideName is the tenant file holding an authorized invoice's RIDE PDF.
-func RideName(accessKey string) string {
-	return "invoices/" + accessKey + ".pdf"
+// RideFileName is the tenant file holding an authorized document's RIDE PDF,
+// next to its signed XML.
+func RideFileName(kind Kind, accessKey string) string {
+	return rideFile(kind.Folder, accessKey)
 }
 
-// InvoiceXMLName is the tenant file holding an invoice's signed XML: the
+func rideFile(folder, accessKey string) string {
+	return folder + "/" + accessKey + ".pdf"
+}
+
+// SignedXMLName is the tenant file holding a document's signed XML: the
 // comprobante the SRI authorized (it is removed when the SRI rejects it).
+func SignedXMLName(kind Kind, accessKey string) string {
+	return signedXMLName(kind, accessKey)
+}
+
+// RideName is the tenant file holding an authorized invoice's RIDE PDF.
+func RideName(accessKey string) string {
+	return rideFile(invoicesFolder, accessKey)
+}
+
+// InvoiceXMLName is the tenant file holding an invoice's signed XML.
 func InvoiceXMLName(accessKey string) string {
 	return signedXMLName(Invoice, accessKey)
 }
 
+// cachedRide returns the stored RIDE, rendering and caching it when it is
+// missing (e.g. documents authorized before RIDEs were stored).
+func cachedRide(docs Documents, tenantID uint, name string, render func() ([]byte, error)) ([]byte, error) {
+	if pdf, err := docs.Files.Read(tenantID, name); err == nil {
+		return pdf, nil
+	}
+	pdf, err := render()
+	if err != nil {
+		return nil, fmt.Errorf("render RIDE: %w", err)
+	}
+	_ = docs.Files.Write(tenantID, name, pdf) // a cache: the next download renders again if this fails
+	return pdf, nil
+}
+
 // InvoiceRide returns an authorized invoice's stored RIDE, rendering and
-// caching it when it is missing (e.g. invoices authorized before RIDEs were
-// stored). invoice must be loaded with its Patient and Items.
+// caching it when it is missing. invoice must be loaded with its Patient and Items.
 func InvoiceRide(docs Documents, invoice billing_models.Invoice, tenant tenant_models.Tenant) ([]byte, error) {
 	if invoice.AccessKey == nil {
 		return nil, fmt.Errorf("invoice %d has no access key", invoice.ID)
 	}
-	name := RideName(*invoice.AccessKey)
-	if pdf, err := docs.Files.Read(tenant.ID, name); err == nil {
-		return pdf, nil
-	}
-	pdf, err := sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, establishmentAddress(tenant), sri_services.ResolveSriEnv())
+	return cachedRide(docs, tenant.ID, RideName(*invoice.AccessKey), func() ([]byte, error) {
+		return sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, establishmentAddress(tenant), sri_services.ResolveSriEnv())
+	})
+}
+
+// CreditNoteRide returns an authorized credit note's stored RIDE, rendering and
+// caching it when it is missing. db loads the note's lines and invoice; pass a
+// tenant-bound handle from a request.
+func CreditNoteRide(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) ([]byte, error) {
+	creditNote, err := loadCreditNote(db, id)
 	if err != nil {
-		return nil, fmt.Errorf("render RIDE: %w", err)
+		return nil, err
 	}
-	_ = docs.Files.Write(tenant.ID, name, pdf) // a cache: the next download renders again if this fails
-	return pdf, nil
+	if creditNote.AccessKey == nil {
+		return nil, fmt.Errorf("credit note %d has no access key", creditNote.ID)
+	}
+	return cachedRide(docs, tenant.ID, RideFileName(CreditNote, *creditNote.AccessKey), func() ([]byte, error) {
+		return renderCreditNoteRide(db, docs, creditNote, tenant, sri_services.ResolveSriEnv())
+	})
+}
+
+// DebitNoteRide returns an authorized debit note's stored RIDE, rendering and
+// caching it when it is missing. db loads the note's motives and invoice; pass
+// a tenant-bound handle from a request.
+func DebitNoteRide(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) ([]byte, error) {
+	debitNote, err := loadDebitNote(db, id)
+	if err != nil {
+		return nil, err
+	}
+	if debitNote.AccessKey == nil {
+		return nil, fmt.Errorf("debit note %d has no access key", debitNote.ID)
+	}
+	return cachedRide(docs, tenant.ID, RideFileName(DebitNote, *debitNote.AccessKey), func() ([]byte, error) {
+		return sri_services.GenerateDebitNoteRide(docs.Renderer, debitNote, tenant, establishmentAddress(tenant), sri_services.ResolveSriEnv())
+	})
+}
+
+func loadCreditNote(db *gorm.DB, id uint) (billing_models.CreditNote, error) {
+	var creditNote billing_models.CreditNote
+	if err := db.Preload("Invoice").Preload("Invoice.Patient").Preload("Items").First(&creditNote, id).Error; err != nil {
+		return creditNote, fmt.Errorf("load credit note %d: %w", id, err)
+	}
+	return creditNote, nil
+}
+
+func loadDebitNote(db *gorm.DB, id uint) (billing_models.DebitNote, error) {
+	var debitNote billing_models.DebitNote
+	if err := db.Preload("Invoice").Preload("Invoice.Patient").Preload("Motives").First(&debitNote, id).Error; err != nil {
+		return debitNote, fmt.Errorf("load debit note %d: %w", id, err)
+	}
+	return debitNote, nil
+}
+
+// renderCreditNoteRide renders the RIDE with each line's catalog code.
+func renderCreditNoteRide(db *gorm.DB, docs Documents, creditNote billing_models.CreditNote, tenant tenant_models.Tenant, sriEnv string) ([]byte, error) {
+	var ids []uint
+	for _, item := range creditNote.Items {
+		ids = append(ids, item.ProductID)
+	}
+	codes := map[uint]string{}
+	if len(ids) > 0 {
+		var products []billing_models.CatalogItem
+		if err := db.Unscoped().Where("id IN ?", ids).Find(&products).Error; err != nil {
+			return nil, fmt.Errorf("load catalog codes: %w", err)
+		}
+		for _, p := range products {
+			codes[p.ID] = p.SKU
+		}
+	}
+	return sri_services.GenerateCreditNoteRide(docs.Renderer, creditNote, codes, tenant, establishmentAddress(tenant), sriEnv)
 }

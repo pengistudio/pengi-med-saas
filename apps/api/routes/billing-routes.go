@@ -40,14 +40,19 @@ func RegisterBillingRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	billingGroup.POST("/invoices/:id/sri/process", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(invoiceHandler.SRIInvoiceProcessing))
 	billingGroup.POST("/invoices/sri/process-batch", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(invoiceHandler.MultipleSRIInvoiceProcessing))
 	billingGroup.GET("/invoices/:id/ride", rp(db, "READ_BILLING"), invoiceHandler.DownloadInvoiceRide)
+	billingGroup.GET("/invoices/:id/xml", rp(db, "READ_BILLING"), invoiceHandler.DownloadInvoiceXML)
 
 	// Credit Notes
 	billingGroup.POST("/credit-notes", rp(db, "CREATE_BILLING"), envelope.Handle(creditNoteHandler.CreateCreditNote))
 	billingGroup.GET("/credit-notes", rp(db, "READ_BILLING"), envelope.Handle(creditNoteHandler.GetAllCreditNotes))
 	billingGroup.POST("/credit-notes/:id/sri/process", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(creditNoteHandler.SRICreditNoteProcessing))
+	billingGroup.GET("/credit-notes/:id/ride", rp(db, "READ_BILLING"), creditNoteHandler.DownloadCreditNoteRide)
+	billingGroup.GET("/credit-notes/:id/xml", rp(db, "READ_BILLING"), creditNoteHandler.DownloadCreditNoteXML)
 
 	// Debit Notes
 	billingGroup.POST("/debit-notes", rp(db, "CREATE_BILLING"), envelope.Handle(debitNoteHandler.CreateDebitNote))
 	billingGroup.GET("/debit-notes", rp(db, "READ_BILLING"), envelope.Handle(debitNoteHandler.GetAllDebitNotes))
 	billingGroup.POST("/debit-notes/:id/sri/process", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(debitNoteHandler.SRIDebitNoteProcessing))
+	billingGroup.GET("/debit-notes/:id/ride", rp(db, "READ_BILLING"), debitNoteHandler.DownloadDebitNoteRide)
+	billingGroup.GET("/debit-notes/:id/xml", rp(db, "READ_BILLING"), debitNoteHandler.DownloadDebitNoteXML)
 }

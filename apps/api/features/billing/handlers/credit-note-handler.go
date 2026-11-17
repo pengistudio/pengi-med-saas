@@ -173,3 +173,17 @@ func (h *CreditNoteHandler) GetAllCreditNotes(c *gin.Context) envelope.Response 
 func (h *CreditNoteHandler) SRICreditNoteProcessing(c *gin.Context) envelope.Response {
 	return enqueueSriDocument(c, h.db, h.logger, h.sriDocuments, sri_document.CreditNote)
 }
+
+func creditNoteNotFound() envelope.Response {
+	return envelope.ErrorResponse(http.StatusNotFound, "billing.credit_note.error.not_found", core_errors.ErrBillingCreditNoteNotFound)
+}
+
+// DownloadCreditNoteRide serves an authorized credit note's RIDE PDF.
+func (h *CreditNoteHandler) DownloadCreditNoteRide(c *gin.Context) {
+	serveNoteRide(c, h.db, h.logger, h.sriDocuments, sri_document.CreditNote, creditNoteNotFound(), "nota_credito", sri_document.CreditNoteRide)
+}
+
+// DownloadCreditNoteXML serves an authorized credit note's signed XML.
+func (h *CreditNoteHandler) DownloadCreditNoteXML(c *gin.Context) {
+	serveSignedXML(c, h.db, h.logger, h.sriDocuments, sri_document.CreditNote, creditNoteNotFound())
+}

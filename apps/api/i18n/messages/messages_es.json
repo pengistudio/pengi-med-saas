@@ -3816,6 +3816,26 @@
         "value": "Descargar RIDE"
     },
     {
+        "key": "billing.document.error.not_authorized",
+        "value": "El comprobante debe estar autorizado por el SRI para descargar su RIDE o XML"
+    },
+    {
+        "key": "billing.document.error.xml_unavailable",
+        "value": "El XML autorizado de este comprobante no está disponible"
+    },
+    {
+        "key": "billing.credit_note.error.not_found",
+        "value": "Nota de crédito no encontrada"
+    },
+    {
+        "key": "billing.debit_note.error.not_found",
+        "value": "Nota de débito no encontrada"
+    },
+    {
+        "key": "billing.document.xml.download",
+        "value": "Descargar XML"
+    },
+    {
         "key": "billing.debit_note.create.success",
         "value": "Nota de débito creada exitosamente"
     },
@@ -6748,6 +6768,14 @@
         "value": "La firma electrónica del SRI está vencida. Sube una firma vigente para emitir comprobantes."
     },
     {
+        "key": "E-BILL-014",
+        "value": "El comprobante debe estar autorizado por el SRI para descargar su RIDE o XML"
+    },
+    {
+        "key": "E-BILL-015",
+        "value": "El XML autorizado de este comprobante no está disponible"
+    },
+    {
         "key": "signature.title",
         "value": "Firma electrónica"
     },
@@ -7322,6 +7350,14 @@
     {
         "key": "document_templates.doc.invoice_ride",
         "value": "Factura (RIDE)"
+    },
+    {
+        "key": "document_templates.doc.credit_note_ride",
+        "value": "Nota de crédito (RIDE)"
+    },
+    {
+        "key": "document_templates.doc.debit_note_ride",
+        "value": "Nota de débito (RIDE)"
     },
     {
         "key": "document_templates.paper.a4_portrait",

@@ -16,7 +16,7 @@ import (
 // Run against a real Gotenberg: GOTENBERG_URL=http://localhost:8001 go test -tags smoke ./core/pdfrender/
 func TestSmoke_RealGotenbergRendersEveryDefaultTemplate(t *testing.T) {
 	r := pdfrender.New(tenantfiles.Memory(), pdfrender.Gotenberg())
-	for _, doc := range []pdfrender.Document{clinical_templates.Prescription, clinical_templates.Report, clinical_templates.Certificate, billing_templates.InvoiceRide} {
+	for _, doc := range []pdfrender.Document{clinical_templates.Prescription, clinical_templates.Report, clinical_templates.Certificate, billing_templates.InvoiceRide, billing_templates.CreditNoteRide, billing_templates.DebitNoteRide} {
 		name := doc.File
 		pdf, err := r.Preview(1, doc, nil)
 		if err != nil {
