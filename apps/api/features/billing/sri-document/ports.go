@@ -50,4 +50,25 @@ type Authorization struct {
 	AuthorizedAt time.Time
 	// Message is the SRI's reason; set only when NotAuthorized.
 	Message string
+
+	// The rest is set only when Authorized: what the SRI's <autorizacion>
+	// carries, to rebuild the authorized XML (see buildAuthorizedXML).
+	//
+	// Number is the numeroAutorizacion (equal to the access key in the offline
+	// scheme). RawAuthorizedAt is fechaAutorizacion as the SRI wrote it.
+	// Environment is the ambiente text ("PRUEBAS" / "PRODUCCIÓN"). The
+	// comprobante itself is not taken from the answer: the authorized XML wraps
+	// our stored signed XML, which is byte-exact.
+	Number          string
+	RawAuthorizedAt string
+	Environment     string
+	Messages        []AuthorizationMessage
+}
+
+// AuthorizationMessage is one <mensaje> of the SRI's authorization answer.
+type AuthorizationMessage struct {
+	Identifier     string
+	Message        string
+	AdditionalInfo string
+	Type           string
 }

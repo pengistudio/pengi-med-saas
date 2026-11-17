@@ -183,7 +183,7 @@ func (h *CreditNoteHandler) DownloadCreditNoteRide(c *gin.Context) {
 	serveNoteRide(c, h.db, h.logger, h.sriDocuments, sri_document.CreditNote, creditNoteNotFound(), "nota_credito", sri_document.CreditNoteRide)
 }
 
-// DownloadCreditNoteXML serves an authorized credit note's signed XML.
+// DownloadCreditNoteXML serves the SRI's authorized XML of an authorized credit note.
 func (h *CreditNoteHandler) DownloadCreditNoteXML(c *gin.Context) {
-	serveSignedXML(c, h.db, h.logger, h.sriDocuments, sri_document.CreditNote, creditNoteNotFound())
+	serveAuthorizedXML(c, h.db, h.logger, h.sriDocuments, sri_document.CreditNote, creditNoteNotFound())
 }

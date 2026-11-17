@@ -1,6 +1,7 @@
 package tenantfiles_test
 
 import (
+	"bytes"
 	"errors"
 	"io/fs"
 	"os"
@@ -96,5 +97,46 @@ func TestDisk_KeepsTheExistingLayout(t *testing.T) {
 	}
 	if got := tenantfiles.Disk(tenantfiles.DefaultRoot).Path(7, "logo.png"); got != filepath.Join("storage", "tenants", "7", "logo.png") {
 		t.Fatalf("default Path = %q, want storage/tenants/7/logo.png", got)
+	}
+}
+
+// A reader racing a rewrite sees the old or the new content, never a partial
+// file, and no temp files are left behind.
+func TestDiskStore_WriteIsAtomicAndLeavesNoTempFiles(t *testing.T) {
+	root := t.TempDir()
+	s := tenantfiles.Disk(root)
+	oldData := bytes.Repeat([]byte("a"), 256<<10)
+	newData := bytes.Repeat([]byte("b"), 256<<10)
+	if err := s.Write(1, "x/doc.xml", oldData); err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for i := 0; i < 200; i++ {
+			if err := s.Write(1, "x/doc.xml", newData); err != nil {
+				t.Errorf("write: %v", err)
+				return
+			}
+		}
+	}()
+	for i := 0; i < 2000; i++ {
+		got, err := s.Read(1, "x/doc.xml")
+		if err != nil {
+			t.Fatalf("read: %v", err)
+		}
+		if !bytes.Equal(got, oldData) && !bytes.Equal(got, newData) {
+			t.Fatalf("read a partial file of %d bytes", len(got))
+		}
+	}
+	<-done
+
+	entries, err := os.ReadDir(filepath.Join(root, "1", "x"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("expected only doc.xml, found %d entries", len(entries))
 	}
 }

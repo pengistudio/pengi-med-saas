@@ -37,7 +37,40 @@ type SriAuthorizationResponse struct {
 	ClaveAcceso        string `json:"claveAcceso"`
 	EstadoAutorizacion string `json:"estadoAutorizacion"`
 	Ambiente           string `json:"ambiente"`
-	FechaAutorizacion  string `json:"fechaAutorizacion"`
+	// FechaAutorizacion is re-serialized by the signer's SOAP client (an
+	// xs:dateTime becomes a JS Date, so it may arrive as UTC "…Z"). The SRI's
+	// original text is inside ComprobanteCrudo.
+	FechaAutorizacion string `json:"fechaAutorizacion"`
+	// NumeroAutorizacion: the library names this field rucEmisor, but it holds
+	// autorizacion.numeroAutorizacion.
+	NumeroAutorizacion LenientString `json:"rucEmisor"`
+	// Comprobante is the SRI's comprobante string when it arrives as escaped
+	// text; when the SRI wraps it in CDATA with an XML declaration, the signer's
+	// SOAP client parses it into an object and this is empty. Unused: the
+	// authorized XML wraps our stored signed XML instead.
+	Comprobante LenientString `json:"comprobante"`
+	// ComprobanteCrudo is the whole <autorizacion> element re-serialized by
+	// xmldom, with the comprobante parsed into child nodes (not byte-exact).
+	ComprobanteCrudo LenientString `json:"comprobanteCrudo"`
+	// Mensajes is null or an array of {identificador, mensaje,
+	// informacionAdicional, tipo}; kept raw so an unexpected shape never fails
+	// the decoding of an authorization.
+	Mensajes json.RawMessage `json:"mensajes"`
+}
+
+// LenientString decodes a JSON string and leaves anything else (object, number,
+// null) empty instead of failing, so an unexpected shape in an optional field
+// never fails the decoding of a whole SRI authorization.
+type LenientString string
+
+func (s *LenientString) UnmarshalJSON(data []byte) error {
+	var v string
+	if json.Unmarshal(data, &v) == nil {
+		*s = LenientString(v)
+	} else {
+		*s = ""
+	}
+	return nil
 }
 
 func NewSriSignerClient() *SriSignerClient {

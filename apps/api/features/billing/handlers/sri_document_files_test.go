@@ -24,6 +24,27 @@ import (
 
 type pdfConverter struct{ calls int }
 
+// sriGateway answers authorization queries for the download backfill; the
+// download never signs or sends anything.
+type sriGateway struct {
+	auth  sri_document.Authorization
+	err   error
+	calls int
+}
+
+func (g *sriGateway) Sign([]byte, string, string) (string, error) {
+	panic("downloads never sign")
+}
+
+func (g *sriGateway) SubmitForReception(string, string) error {
+	panic("downloads never send to the SRI")
+}
+
+func (g *sriGateway) QueryAuthorization(string, string) (sri_document.Authorization, error) {
+	g.calls++
+	return g.auth, g.err
+}
+
 func (p *pdfConverter) GeneratePDFFromHTMLWithOptions(html string, _ utils.PDFOptions) ([]byte, error) {
 	p.calls++
 	return []byte("%PDF-" + fmt.Sprint(len(html))), nil
@@ -35,6 +56,7 @@ type filesFixture struct {
 	db      *gorm.DB
 	files   *tenantfiles.MemoryStore
 	conv    *pdfConverter
+	gateway *sriGateway
 	sri     *sri_document.Lifecycle
 	tenants [2]uint
 	invoice [2]uint
@@ -51,8 +73,8 @@ func newFilesFixture(t *testing.T) *filesFixture {
 		&billing_models.CreditNote{}, &billing_models.CreditNoteItem{},
 		&billing_models.DebitNote{}, &billing_models.DebitNoteMotive{},
 	)
-	f := &filesFixture{db: db, files: tenantfiles.Memory(), conv: &pdfConverter{}, key: map[string]string{}}
-	f.sri = sri_document.New(db, zap.NewNop(), nil, nil,
+	f := &filesFixture{db: db, files: tenantfiles.Memory(), conv: &pdfConverter{}, gateway: &sriGateway{err: sri_document.ErrUnreachable}, key: map[string]string{}}
+	f.sri = sri_document.New(db, zap.NewNop(), f.gateway, nil,
 		sri_document.Documents{Files: f.files, Renderer: pdfrender.New(f.files, f.conv)}, "1")
 
 	stamp := time.Now().UnixNano() % 1000000
@@ -98,6 +120,7 @@ func newFilesFixture(t *testing.T) *filesFixture {
 		}{{sri_document.Invoice, invKey}, {sri_document.CreditNote, cnKey}, {sri_document.DebitNote, dnKey}} {
 			f.key[fmt.Sprint(doc.kind.Name, i)] = doc.key
 			_ = f.files.Write(tenant.ID, sri_document.SignedXMLName(doc.kind, doc.key), []byte("<comprobante>"+doc.key+"</comprobante>"))
+			_ = f.files.Write(tenant.ID, sri_document.AuthorizedXMLName(doc.kind, doc.key), []byte("<autorizacion>"+doc.key+"</autorizacion>"))
 		}
 	}
 	return f
@@ -123,7 +146,7 @@ func (f *filesFixture) call(tenant int, id uint, handler func(*gin.Context)) *ht
 	return w
 }
 
-func TestDownloadSignedXML_AuthorizedDocuments(t *testing.T) {
+func TestDownloadAuthorizedXML_AuthorizedDocuments(t *testing.T) {
 	f := newFilesFixture(t)
 	cases := []struct {
 		kind    sri_document.Kind
@@ -147,8 +170,8 @@ func TestDownloadSignedXML_AuthorizedDocuments(t *testing.T) {
 			if cd := w.Header().Get("Content-Disposition"); cd != "attachment; filename="+key+".xml" {
 				t.Errorf("Content-Disposition = %q", cd)
 			}
-			if w.Body.String() != "<comprobante>"+key+"</comprobante>" {
-				t.Errorf("body = %q, want the stored signed XML", w.Body.String())
+			if w.Body.String() != "<autorizacion>"+key+"</autorizacion>" {
+				t.Errorf("body = %q, want the stored authorized XML", w.Body.String())
 			}
 
 			// Another tenant's id is not found, never served.
@@ -184,12 +207,81 @@ func TestDownloadSriFiles_RequireAuthorization(t *testing.T) {
 	}
 }
 
-func TestDownloadSignedXML_MissingFile(t *testing.T) {
+// A document authorized before its authorized XML was stored has none: the
+// download asks the SRI again, stores it and serves it from then on.
+func TestDownloadAuthorizedXML_BackfillsFromTheSri(t *testing.T) {
 	f := newFilesFixture(t)
-	_ = f.files.Remove(f.tenants[0], sri_document.SignedXMLName(sri_document.CreditNote, f.key["credit_note0"]))
+	key := f.key["credit_note0"]
+	name := sri_document.AuthorizedXMLName(sri_document.CreditNote, key)
+	_ = f.files.Remove(f.tenants[0], name)
+	comprobante := "<comprobante>" + key + "</comprobante>" // the fixture's stored signed XML
+	f.gateway.auth = sri_document.Authorization{Status: sri_document.Authorized, Number: key,
+		RawAuthorizedAt: "2026-09-16T10:00:00-05:00", Environment: "PRUEBAS"}
+	f.gateway.err = nil
+
+	handler := NewCreditNoteHandler(f.db, zap.NewNop(), f.sri).DownloadCreditNoteXML
+	w := f.call(0, f.credit[0], handler)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200: %s", w.Code, w.Body.String())
+	}
+	if cd := w.Header().Get("Content-Disposition"); cd != "attachment; filename="+key+".xml" {
+		t.Errorf("Content-Disposition = %q", cd)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "<estado>AUTORIZADO</estado>") || !strings.Contains(body, "<![CDATA["+comprobante+"]]>") {
+		t.Errorf("body = %s, want the authorized envelope", body)
+	}
+	stored, err := f.files.Read(f.tenants[0], name)
+	if err != nil || string(stored) != body {
+		t.Errorf("backfilled XML not stored: %v", err)
+	}
+	if w := f.call(0, f.credit[0], handler); w.Code != http.StatusOK || f.gateway.calls != 1 {
+		t.Errorf("second download: status %d, SRI queries %d, want the stored file", w.Code, f.gateway.calls)
+	}
+}
+
+// Without the signed XML there is no comprobante to wrap: the download fails
+// translated and nothing is stored under the authorized name.
+func TestDownloadAuthorizedXML_SignedXMLMissing(t *testing.T) {
+	f := newFilesFixture(t)
+	key := f.key["credit_note0"]
+	name := sri_document.AuthorizedXMLName(sri_document.CreditNote, key)
+	_ = f.files.Remove(f.tenants[0], name)
+	_ = f.files.Remove(f.tenants[0], sri_document.SignedXMLName(sri_document.CreditNote, key))
+	f.gateway.auth, f.gateway.err = sri_document.Authorization{Status: sri_document.Authorized}, nil
 	w := f.call(0, f.credit[0], NewCreditNoteHandler(f.db, zap.NewNop(), f.sri).DownloadCreditNoteXML)
 	if w.Code != http.StatusNotFound || !strings.Contains(w.Body.String(), "E-BILL-015") {
 		t.Errorf("status = %d body = %s, want 404 E-BILL-015", w.Code, w.Body.String())
+	}
+	if f.files.Exists(f.tenants[0], name) {
+		t.Error("stored an authorized XML without a comprobante")
+	}
+}
+
+// Without a stored authorized XML and no AUTORIZADO answer from the SRI, the
+// download fails translated; the signed-only XML is never served instead.
+func TestDownloadAuthorizedXML_SriWithoutAnswer(t *testing.T) {
+	cases := map[string]struct {
+		auth   sri_document.Authorization
+		err    error
+		status int
+	}{
+		"unreachable": {err: sri_document.ErrUnreachable, status: http.StatusServiceUnavailable},
+		"pending":     {auth: sri_document.Authorization{Status: sri_document.AuthorizationPending}, status: http.StatusNotFound},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			f := newFilesFixture(t)
+			_ = f.files.Remove(f.tenants[0], sri_document.AuthorizedXMLName(sri_document.CreditNote, f.key["credit_note0"]))
+			f.gateway.auth, f.gateway.err = tc.auth, tc.err
+			w := f.call(0, f.credit[0], NewCreditNoteHandler(f.db, zap.NewNop(), f.sri).DownloadCreditNoteXML)
+			if w.Code != tc.status || !strings.Contains(w.Body.String(), "E-BILL-015") {
+				t.Errorf("status = %d body = %s, want %d E-BILL-015", w.Code, w.Body.String(), tc.status)
+			}
+			if strings.Contains(w.Body.String(), "<comprobante>") {
+				t.Errorf("served the signed XML: %s", w.Body.String())
+			}
+		})
 	}
 }
 

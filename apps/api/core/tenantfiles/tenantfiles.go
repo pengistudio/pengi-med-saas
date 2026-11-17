@@ -64,7 +64,30 @@ func (d *DiskStore) Write(tenantID uint, name string, data []byte) error {
 	if err := os.MkdirAll(filepath.Dir(p), os.ModePerm); err != nil {
 		return err
 	}
-	return os.WriteFile(p, data, 0644)
+	// Write to a temp file and rename it over the target, so a concurrent
+	// Read sees the old content or the new one, never a truncated file.
+	tmp, err := os.CreateTemp(filepath.Dir(p), ".write-*")
+	if err != nil {
+		return err
+	}
+	if _, err := tmp.Write(data); err != nil {
+		tmp.Close()
+		os.Remove(tmp.Name())
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		os.Remove(tmp.Name())
+		return err
+	}
+	if err := os.Chmod(tmp.Name(), 0644); err != nil {
+		os.Remove(tmp.Name())
+		return err
+	}
+	if err := os.Rename(tmp.Name(), p); err != nil {
+		os.Remove(tmp.Name())
+		return err
+	}
+	return nil
 }
 
 func (d *DiskStore) Read(tenantID uint, name string) ([]byte, error) {

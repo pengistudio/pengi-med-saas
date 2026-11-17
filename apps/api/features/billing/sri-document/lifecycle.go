@@ -228,6 +228,11 @@ func (l *Lifecycle) authorize(kind Kind, doc document, tenant tenant_models.Tena
 			log.Error("failed to persist SRI authorization", zap.Error(err))
 			return
 		}
+		// Like OnAuthorized, never fails the authorized document: a missing
+		// file is rebuilt on download (AuthorizedXML).
+		if err := l.storeAuthorizedXML(kind, doc.TenantID, accessKey, auth); err != nil {
+			log.Error("failed to store authorized XML", zap.Error(err))
+		}
 		if kind.OnAuthorized != nil {
 			if err := kind.OnAuthorized(l.db, l.docs, doc.ID, tenant, l.sriEnv); err != nil {
 				log.Error("post-authorization step failed", zap.Error(err))
