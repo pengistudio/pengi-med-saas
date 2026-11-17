@@ -1,7 +1,12 @@
 import type { DataTableColumnDef } from "@pengi/ui";
 import { DataTableColumnHeader, Text } from "@pengi/ui";
-import type { CreditNote } from "@/api/billing-service";
+import {
+	type CreditNote,
+	downloadCreditNoteRide,
+	downloadCreditNoteXml,
+} from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
+import { SriDocumentDownloads } from "@/components/custom/billing/sri-document-downloads";
 import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 import { selectColumn } from "@/components/custom/table/select-column";
@@ -117,6 +122,26 @@ export function getCreditNoteColumns(
 			cell: ({ row }) => (
 				<RelativeDate date={row.original.CreatedAt as string} />
 			),
+		},
+		{
+			id: "actions",
+			header: () => null,
+			cell: ({ row }) => {
+				const note = row.original;
+				return (
+					<div className="flex justify-end gap-1">
+						<SriDocumentDownloads
+							status={note.status}
+							fileBase={`nota_credito_${note.establishment_code}-${note.emission_point_code}-${note.sequential}`}
+							accessKey={note.access_key}
+							downloadRide={() => downloadCreditNoteRide(note.ID)}
+							downloadXml={() => downloadCreditNoteXml(note.ID)}
+						/>
+					</div>
+				);
+			},
+			enableSorting: false,
+			enableHiding: false,
 		},
 	];
 }

@@ -238,6 +238,35 @@ export const downloadInvoiceRide = async (
 	});
 };
 
+/** Route segment of each comprobante electrónico under /billing. */
+export type SriDocumentPath = "invoices" | "credit-notes" | "debit-notes";
+
+/** RIDE PDF or signed XML of an authorized comprobante. */
+const downloadSriDocumentFile = async (
+	path: SriDocumentPath,
+	id: number,
+	file: "ride" | "xml",
+): Promise<ServiceResponse<Blob>> =>
+	billingService.get<Blob>(`/billing/${path}/${id}/${file}`, {
+		responseType: "blob",
+		notifyError: true,
+	});
+
+export const downloadInvoiceXml = (id: number) =>
+	downloadSriDocumentFile("invoices", id, "xml");
+
+export const downloadCreditNoteRide = (id: number) =>
+	downloadSriDocumentFile("credit-notes", id, "ride");
+
+export const downloadCreditNoteXml = (id: number) =>
+	downloadSriDocumentFile("credit-notes", id, "xml");
+
+export const downloadDebitNoteRide = (id: number) =>
+	downloadSriDocumentFile("debit-notes", id, "ride");
+
+export const downloadDebitNoteXml = (id: number) =>
+	downloadSriDocumentFile("debit-notes", id, "xml");
+
 export type CreditNoteListParams = {
 	page?: number;
 	limit?: number;

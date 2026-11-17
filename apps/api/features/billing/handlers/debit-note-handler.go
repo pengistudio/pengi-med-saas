@@ -140,3 +140,17 @@ func (h *DebitNoteHandler) GetAllDebitNotes(c *gin.Context) envelope.Response {
 func (h *DebitNoteHandler) SRIDebitNoteProcessing(c *gin.Context) envelope.Response {
 	return enqueueSriDocument(c, h.db, h.logger, h.sriDocuments, sri_document.DebitNote)
 }
+
+func debitNoteNotFound() envelope.Response {
+	return envelope.ErrorResponse(http.StatusNotFound, "billing.debit_note.error.not_found", core_errors.ErrBillingDebitNoteNotFound)
+}
+
+// DownloadDebitNoteRide serves an authorized debit note's RIDE PDF.
+func (h *DebitNoteHandler) DownloadDebitNoteRide(c *gin.Context) {
+	serveNoteRide(c, h.db, h.logger, h.sriDocuments, sri_document.DebitNote, debitNoteNotFound(), "nota_debito", sri_document.DebitNoteRide)
+}
+
+// DownloadDebitNoteXML serves an authorized debit note's signed XML.
+func (h *DebitNoteHandler) DownloadDebitNoteXML(c *gin.Context) {
+	serveSignedXML(c, h.db, h.logger, h.sriDocuments, sri_document.DebitNote, debitNoteNotFound())
+}

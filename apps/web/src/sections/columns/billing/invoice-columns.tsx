@@ -2,8 +2,13 @@ import { useText } from "@pengi/shared";
 import type { DataTableColumnDef } from "@pengi/ui";
 import { Button, DataTableColumnHeader, Text } from "@pengi/ui";
 import { Download, Wallet } from "lucide-react";
-import { downloadInvoiceRide, type Invoice } from "@/api/billing-service";
+import {
+	downloadInvoiceRide,
+	downloadInvoiceXml,
+	type Invoice,
+} from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
+import { SriDocumentDownloads } from "@/components/custom/billing/sri-document-downloads";
 import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 import { selectColumn } from "@/components/custom/table/select-column";
@@ -211,6 +216,12 @@ export function getInvoiceColumns(
 						<ChargeButton invoice={row.original} onCharge={onCharge} />
 					)}
 					<DownloadRideButton invoice={row.original} />
+					<SriDocumentDownloads
+						status={row.original.status}
+						fileBase={`factura_${row.original.establishment_code}-${row.original.emission_point_code}-${row.original.sequential}`}
+						accessKey={row.original.access_key}
+						downloadXml={() => downloadInvoiceXml(row.original.ID)}
+					/>
 				</div>
 			),
 			enableSorting: false,

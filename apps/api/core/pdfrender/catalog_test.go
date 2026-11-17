@@ -19,6 +19,8 @@ var catalog = []pdfrender.Document{
 	clinical_templates.Report,
 	clinical_templates.Certificate,
 	billing_templates.InvoiceRide,
+	billing_templates.CreditNoteRide,
+	billing_templates.DebitNoteRide,
 	cash_templates.SessionReport,
 }
 
