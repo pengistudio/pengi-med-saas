@@ -28,6 +28,7 @@ type fakeGateway struct {
 	signCalls      int
 	receptionCalls int
 	authCalls      int
+	authEnvs       []string
 	signedInputs   []string
 }
 
@@ -47,6 +48,7 @@ func (g *fakeGateway) SubmitForReception(signedXML string, sriEnv string) error 
 
 func (g *fakeGateway) QueryAuthorization(accessKey string, sriEnv string) (Authorization, error) {
 	g.authCalls++
+	g.authEnvs = append(g.authEnvs, sriEnv)
 	return g.auth, g.authErr
 }
 

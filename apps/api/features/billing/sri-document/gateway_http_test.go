@@ -166,6 +166,90 @@ func TestHTTPGateway_QueryAuthorization(t *testing.T) {
 	}
 }
 
+// The signer's AUTORIZADO answer as osodreamer-sri-xml-signer builds it: the
+// SOAP client turned fechaAutorizacion into a UTC Date, rucEmisor holds the
+// numeroAutorizacion, comprobanteCrudo is the xmldom-serialized <autorizacion>.
+func TestHTTPGateway_QueryAuthorizationKeepsWhatTheAuthorizedXMLNeeds(t *testing.T) {
+	comprobante := `<?xml version="1.0" encoding="UTF-8"?><factura id="comprobante"><a>x &amp; y</a></factura>`
+	g := signerStub(t, map[string]stubResponse{
+		"/authorization/test": {200, map[string]any{"data": map[string]any{
+			"claveAcceso": "key", "estadoAutorizacion": "AUTORIZADO", "status": "AUTORIZADO",
+			"fechaAutorizacion": "2026-09-01T15:00:00.000Z", "ambiente": "PRUEBAS",
+			"rucEmisor":   "key-number",
+			"comprobante": comprobante,
+			"comprobanteCrudo": `<autorizacion><estado>AUTORIZADO</estado><numeroAutorizacion>key-number</numeroAutorizacion>` +
+				`<fechaAutorizacion class="fechaAutorizacion">2026-09-01T10:00:00-05:00</fechaAutorizacion><ambiente>PRUEBAS</ambiente>` +
+				`<comprobante><factura id="comprobante"><a>x &amp; y</a></factura></comprobante><mensajes/></autorizacion>`,
+			"mensajes": []map[string]any{{"identificador": 60, "mensaje": "AMBIENTE DE PRUEBAS", "tipo": "INFORMATIVO"}},
+		}}},
+	})
+	auth, err := g.QueryAuthorization("key", "1")
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if auth.Status != Authorized || auth.Number != "key-number" || auth.Environment != "PRUEBAS" {
+		t.Fatalf("auth = %+v", auth)
+	}
+	if auth.RawAuthorizedAt != "2026-09-01T10:00:00-05:00" {
+		t.Errorf("raw fecha = %q, want the SRI's text from comprobanteCrudo", auth.RawAuthorizedAt)
+	}
+	if len(auth.Messages) != 1 || auth.Messages[0].Identifier != "60" || auth.Messages[0].Type != "INFORMATIVO" {
+		t.Errorf("messages = %+v", auth.Messages)
+	}
+}
+
+func TestHTTPGateway_QueryAuthorizationWithoutCrudoUsesJSONFields(t *testing.T) {
+	g := signerStub(t, map[string]stubResponse{
+		"/authorization/test": {200, map[string]any{"data": map[string]any{
+			"estadoAutorizacion": "AUTORIZADO", "fechaAutorizacion": "2026-09-01T15:00:00.000Z",
+			"ambiente": "PRUEBAS", "comprobante": "<factura/>", "comprobanteCrudo": "not xml <", "mensajes": nil}}},
+	})
+	auth, err := g.QueryAuthorization("key", "1")
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if auth.RawAuthorizedAt != "2026-09-01T15:00:00.000Z" || auth.Environment != "PRUEBAS" || auth.Messages != nil {
+		t.Errorf("auth = %+v", auth)
+	}
+}
+
+// When the SRI wraps the comprobante in CDATA with an XML declaration, the
+// signer's SOAP client parses it into an object: the authorization must still
+// decode as Authorized, just without a comprobante to build the XML from.
+func TestHTTPGateway_QueryAuthorizationWithParsedComprobanteStillAuthorizes(t *testing.T) {
+	g := signerStub(t, map[string]stubResponse{
+		"/authorization/test": {200, map[string]any{"data": map[string]any{
+			"estadoAutorizacion": "AUTORIZADO", "fechaAutorizacion": "2026-09-01T10:00:00.000-05:00",
+			"comprobante": map[string]any{"factura": map[string]any{"attributes": map[string]any{"id": "comprobante"}}},
+			"rucEmisor":   12345, "comprobanteCrudo": nil}}},
+	})
+	auth, err := g.QueryAuthorization("key", "1")
+	if err != nil {
+		t.Fatalf("err = %v, an unexpected field shape must not fail the authorization", err)
+	}
+	if auth.Status != Authorized || auth.Number != "" {
+		t.Fatalf("auth = %+v", auth)
+	}
+}
+
+func TestParseFechaAutorizacion(t *testing.T) {
+	want := time.Date(2026, 9, 1, 15, 0, 0, 0, time.UTC)
+	for _, raw := range []string{
+		"2026-09-01T10:00:00-05:00",     // SRI offset form
+		"2026-09-01T10:00:00.000-05:00", // with millis
+		"2026-09-01T15:00:00Z",          // node-soap Date, no millis
+		"2026-09-01T15:00:00.000Z",      // node-soap Date as JSON
+	} {
+		if got := parseFechaAutorizacion(raw); !got.Equal(want) {
+			t.Errorf("parseFechaAutorizacion(%q) = %v, want %v", raw, got, want)
+		}
+	}
+	before := time.Now()
+	if got := parseFechaAutorizacion("garbage"); got.Before(before) || got.After(time.Now()) {
+		t.Errorf("garbage = %v, want now", got)
+	}
+}
+
 func TestHTTPGateway_QueryAuthorizationParsesFechaAutorizacion(t *testing.T) {
 	g := signerStub(t, map[string]stubResponse{
 		"/authorization/test": {200, map[string]any{"data": map[string]any{

@@ -150,7 +150,7 @@ func (h *DebitNoteHandler) DownloadDebitNoteRide(c *gin.Context) {
 	serveNoteRide(c, h.db, h.logger, h.sriDocuments, sri_document.DebitNote, debitNoteNotFound(), "nota_debito", sri_document.DebitNoteRide)
 }
 
-// DownloadDebitNoteXML serves an authorized debit note's signed XML.
+// DownloadDebitNoteXML serves the SRI's authorized XML of an authorized debit note.
 func (h *DebitNoteHandler) DownloadDebitNoteXML(c *gin.Context) {
-	serveSignedXML(c, h.db, h.logger, h.sriDocuments, sri_document.DebitNote, debitNoteNotFound())
+	serveAuthorizedXML(c, h.db, h.logger, h.sriDocuments, sri_document.DebitNote, debitNoteNotFound())
 }

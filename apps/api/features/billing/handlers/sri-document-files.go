@@ -1,6 +1,7 @@
 package billing_handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -48,17 +49,23 @@ func authorizedSriDocument(c *gin.Context, db *gorm.DB, kind sri_document.Kind, 
 	return doc, true
 }
 
-// serveSignedXML answers the signed XML the SRI authorized, as stored by the
-// lifecycle, named after its access key.
-func serveSignedXML(c *gin.Context, db *gorm.DB, logger *zap.Logger, sriDocuments *sri_document.Lifecycle, kind sri_document.Kind, notFound envelope.Response) {
+// serveAuthorizedXML answers the SRI's authorized XML (<autorizacion> wrapping
+// the signed comprobante), named after its access key. The lifecycle rebuilds
+// it from the SRI when it was not stored; the signed-only XML is never served
+// in its place.
+func serveAuthorizedXML(c *gin.Context, db *gorm.DB, logger *zap.Logger, sriDocuments *sri_document.Lifecycle, kind sri_document.Kind, notFound envelope.Response) {
 	doc, ok := authorizedSriDocument(c, db, kind, notFound)
 	if !ok {
 		return
 	}
-	xml, err := sriDocuments.Documents().Files.Read(tenantdb.TenantID(c), sri_document.SignedXMLName(kind, *doc.AccessKey))
+	xml, err := sriDocuments.AuthorizedXML(kind, tenantdb.TenantID(c), *doc.AccessKey)
 	if err != nil {
-		logger.Error("Failed to read signed XML", zap.String("kind", kind.Name), zap.Uint("id", doc.ID), zap.Error(err))
-		envelope.Write(c, envelope.ErrorResponse(http.StatusNotFound, "billing.document.error.xml_unavailable", core_errors.ErrBillingDocumentXMLMissing))
+		logger.Error("Failed to get authorized XML", zap.String("kind", kind.Name), zap.Uint("id", doc.ID), zap.Error(err))
+		status := http.StatusNotFound
+		if errors.Is(err, sri_document.ErrUnreachable) {
+			status = http.StatusServiceUnavailable
+		}
+		envelope.Write(c, envelope.ErrorResponse(status, "billing.document.error.xml_unavailable", core_errors.ErrBillingDocumentXMLMissing))
 		return
 	}
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", *doc.AccessKey))

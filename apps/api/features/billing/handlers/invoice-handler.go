@@ -314,8 +314,8 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 	c.Data(http.StatusOK, "application/pdf", pdfBytes)
 }
 
-// DownloadInvoiceXML serves an authorized invoice's signed XML.
+// DownloadInvoiceXML serves the SRI's authorized XML of an authorized invoice.
 func (h *InvoiceHandler) DownloadInvoiceXML(c *gin.Context) {
-	serveSignedXML(c, h.db, h.logger, h.sriDocuments, sri_document.Invoice,
+	serveAuthorizedXML(c, h.db, h.logger, h.sriDocuments, sri_document.Invoice,
 		envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.not_found", core_errors.ErrBillingInvoiceNotFound))
 }

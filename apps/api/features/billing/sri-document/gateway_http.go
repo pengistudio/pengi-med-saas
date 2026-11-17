@@ -1,6 +1,8 @@
 package sri_document
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"net/url"
@@ -56,7 +58,7 @@ func (g *HTTPGateway) SubmitForReception(signedXML string, sriEnv string) error 
 func (g *HTTPGateway) QueryAuthorization(accessKey string, sriEnv string) (Authorization, error) {
 	resp, err := g.client.AuthorizeXMLWithSRI(accessKey, signerEnv(sriEnv))
 	if err == nil {
-		return Authorization{Status: Authorized, AuthorizedAt: parseFechaAutorizacion(resp.FechaAutorizacion)}, nil
+		return authorizedFrom(resp), nil
 	}
 	msg := err.Error()
 	upper := strings.ToUpper(msg)
@@ -71,6 +73,64 @@ func (g *HTTPGateway) QueryAuthorization(accessKey string, sriEnv string) (Autho
 	default:
 		return Authorization{}, fmt.Errorf("%w: %w", ErrUnreachable, err)
 	}
+}
+
+// authorizedFrom maps the signer's AUTORIZADO answer. The scalar texts come from
+// the raw <autorizacion> (comprobanteCrudo) when it parses, since the signer's
+// SOAP client re-serializes fechaAutorizacion. The comprobante is not used (see
+// buildAuthorizedXML).
+func authorizedFrom(resp *utils.SriAuthorizationResponse) Authorization {
+	auth := Authorization{
+		Status:          Authorized,
+		AuthorizedAt:    parseFechaAutorizacion(resp.FechaAutorizacion),
+		Number:          string(resp.NumeroAutorizacion),
+		RawAuthorizedAt: resp.FechaAutorizacion,
+		Environment:     resp.Ambiente,
+		Messages:        parseMensajes(resp.Mensajes),
+	}
+	crudo := string(resp.ComprobanteCrudo)
+	var raw struct {
+		NumeroAutorizacion string `xml:"numeroAutorizacion"`
+		FechaAutorizacion  string `xml:"fechaAutorizacion"`
+		Ambiente           string `xml:"ambiente"`
+	}
+	if crudo != "" && xml.Unmarshal([]byte(crudo), &raw) == nil {
+		if v := strings.TrimSpace(raw.NumeroAutorizacion); v != "" {
+			auth.Number = v
+		}
+		if v := strings.TrimSpace(raw.FechaAutorizacion); v != "" {
+			auth.RawAuthorizedAt = v
+		}
+		if v := strings.TrimSpace(raw.Ambiente); v != "" {
+			auth.Environment = v
+		}
+	}
+	return auth
+}
+
+// parseMensajes reads the signer's mensajes (null or an array of objects);
+// anything else yields none. Values are stringified whatever their JSON type.
+func parseMensajes(raw json.RawMessage) []AuthorizationMessage {
+	var items []map[string]any
+	if len(raw) == 0 || json.Unmarshal(raw, &items) != nil {
+		return nil
+	}
+	text := func(m map[string]any, key string) string {
+		if v, ok := m[key]; ok && v != nil {
+			return fmt.Sprint(v)
+		}
+		return ""
+	}
+	var out []AuthorizationMessage
+	for _, m := range items {
+		out = append(out, AuthorizationMessage{
+			Identifier:     text(m, "identificador"),
+			Message:        text(m, "mensaje"),
+			AdditionalInfo: text(m, "informacionAdicional"),
+			Type:           text(m, "tipo"),
+		})
+	}
+	return out
 }
 
 // isTransport reports whether the signer service itself could not be reached.
@@ -94,9 +154,14 @@ func signerEnv(sriEnv string) string {
 	return "test"
 }
 
+// parseFechaAutorizacion reads the SRI's fechaAutorizacion: its own offset form
+// first, then RFC 3339 (the signer's SOAP client turns it into a JS Date, so it
+// arrives as UTC "…Z", with or without milliseconds). Unparseable means now.
 func parseFechaAutorizacion(raw string) time.Time {
-	if t, err := time.Parse("2006-01-02T15:04:05.999-07:00", raw); err == nil {
-		return t
+	for _, layout := range []string{"2006-01-02T15:04:05.999-07:00", time.RFC3339Nano} {
+		if t, err := time.Parse(layout, raw); err == nil {
+			return t
+		}
 	}
 	return time.Now()
 }
