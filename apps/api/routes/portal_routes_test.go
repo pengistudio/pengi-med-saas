@@ -31,7 +31,7 @@ func TestPortalRoutes_PatientEndpointsNeedAPortalToken(t *testing.T) {
 		portal_handlers.NewFirstAppointmentHandler(db, zap.NewNop(), delivery))
 
 	staff, _ := auth.GenerateToken("admin", 1)
-	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
+	backoffice, _ := auth.GenerateBackofficeToken("root", 1, 0)
 	guest, _ := auth.GeneratePortalGuestToken(1, "email", "ana@example.com")
 	paths := []string{"/portal/me", "/portal/appointments", "/portal/results", "/portal/results/files/1", "/portal/documents",
 		"/portal/documents/prescription/1/file", "/portal/invoices", "/portal/invoices/1/ride", "/portal/invoices/1/xml",
@@ -70,7 +70,7 @@ func TestPortalRoutes_NewPatientRequestNeedsAGuestToken(t *testing.T) {
 		portal_handlers.NewFirstAppointmentHandler(db, zap.NewNop(), delivery))
 
 	staff, _ := auth.GenerateToken("admin", 1)
-	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
+	backoffice, _ := auth.GenerateBackofficeToken("root", 1, 0)
 	access, _ := auth.GeneratePortalAccessToken(1, 1)
 	for _, token := range []string{"", staff, backoffice, access} {
 		req := httptest.NewRequest(http.MethodPost, "/portal/new-patient/requests", nil)

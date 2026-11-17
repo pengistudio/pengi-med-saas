@@ -219,7 +219,7 @@ func TestEnrollmentToken_CannotCallBackofficeEndpoints(t *testing.T) {
 	if code := get(enroll); code != http.StatusUnauthorized {
 		t.Errorf("enrollment token on a backoffice endpoint = %d, want 401", code)
 	}
-	access, _ := auth.GenerateBackofficeToken(admin.UserName, int64(admin.ID))
+	access, _ := auth.GenerateBackofficeToken(admin.UserName, int64(admin.ID), 0)
 	if code := get(access); code != http.StatusUnauthorized {
 		t.Errorf("access token of an admin without a second factor = %d, want 401", code)
 	}

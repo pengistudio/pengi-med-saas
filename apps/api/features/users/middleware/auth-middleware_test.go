@@ -58,7 +58,7 @@ func TestAuthMiddleware_RejectsPortalAndBackofficeTokens(t *testing.T) {
 	}
 	portalAccess, _ := auth.GeneratePortalAccessToken(1, 2)
 	portalRefresh, _, _ := auth.GeneratePortalRefreshToken(1, 2, "family")
-	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
+	backoffice, _ := auth.GenerateBackofficeToken("root", 1, 0)
 	for name, token := range map[string]string{"portal access": portalAccess, "portal refresh": portalRefresh, "backoffice": backoffice} {
 		if code, _ := serveStaff(t, AuthMiddleware(), token); code != http.StatusUnauthorized {
 			t.Fatalf("%s token on a staff route: %d", name, code)

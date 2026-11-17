@@ -19,6 +19,10 @@ type BackofficeUser struct {
 	// rotated-out token of the same family presented again is reuse (the
 	// session is revoked); one of an older login is merely stale.
 	RefreshFamily string `gorm:"size:64;not null;default:''" json:"-"`
+	// TokenVersion is carried by every access token (claim "ver") and checked
+	// on each request: bumping it (BumpTokenVersion) ends the access tokens
+	// already issued, which would otherwise live until they expire.
+	TokenVersion int64 `gorm:"not null;default:0" json:"-"`
 
 	// Second factor, mandatory for admins (TOTP and/or passkeys). The secret
 	// is sealed (secretbox, AAD bound to the admin); while TwoFactorEnabled is
@@ -38,6 +42,12 @@ type BackofficeUser struct {
 	// PasskeyCount is filled by the user list/detail handlers.
 	PasskeyCount int64 `gorm:"-" json:"passkey_count"`
 }
+
+// BumpTokenVersion is the token_version value of an update that ends the
+// admin's sessions (password change, logout, factor reset, refresh reuse).
+// It goes with clearing refresh_token: that stops new access tokens, this
+// stops the ones already issued.
+var BumpTokenVersion = gorm.Expr("token_version + 1")
 
 func (u *BackofficeUser) Save(db *gorm.DB) error {
 	hashPassword, err := auth.HashPassword(u.Password)
