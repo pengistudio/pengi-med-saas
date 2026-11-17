@@ -7,6 +7,11 @@ import Building2 from '@lucide/astro/icons/building-complex';
 import ReceiptText from '@lucide/astro/icons/receipt-text';
 import MessageCircle from '@lucide/astro/icons/message-circle';
 import Zap from '@lucide/astro/icons/zap';
+import FlaskConical from '@lucide/astro/icons/flask-conical';
+import CalendarCheck from '@lucide/astro/icons/calendar-check';
+import Sparkles from '@lucide/astro/icons/sparkles';
+import Wallet from '@lucide/astro/icons/wallet';
+import ChartColumn from '@lucide/astro/icons/chart-column';
 
 const features = [
     {
@@ -21,7 +26,7 @@ const features = [
     {
         icon: CalendarDays,
         title: "Agenda de Citas",
-        description: "Calendario con visualización diaria y semanal. Gestiona estados y reprogramaciones en segundos.",
+        description: "Calendario diario y semanal con tipos de cita, horarios y bloqueos por médico. Se sincroniza con Google Calendar y la lista de espera llena los cupos que se liberan.",
         span: "col-span-1",
         accent: "oklch(62% 0.14 280)",
         accentBg: "oklch(85% 0.08 280 / 30%)",
@@ -29,15 +34,56 @@ const features = [
     {
         icon: ScrollText,
         title: "Expedientes Clínicos",
-        description: "Expedientes digitales con diagnósticos ICD-11, evoluciones y adjuntos.",
+        description: "Consultas con signos vitales, diagnósticos CIE-10 o CIE-11, evoluciones y adjuntos, todo en el historial del paciente.",
         span: "col-span-1",
         accent: "oklch(65% 0.12 160)",
         accentBg: "oklch(88% 0.07 160 / 30%)",
     },
     {
         icon: ClipboardList,
-        title: "Recetas Médicas",
-        description: "Genera recetas en PDF con tu membrete. Sube tu template y descárgalas desde cualquier dispositivo.",
+        title: "Recetas, Certificados e Informes",
+        description: "Documentos en PDF con tu membrete y tu propia plantilla. Fírmalos con tu firma electrónica y un código QR de verificación.",
+        span: "col-span-1",
+        accent: "oklch(70% 0.12 55)",
+        accentBg: "oklch(90% 0.08 55 / 30%)",
+    },
+    {
+        icon: FlaskConical,
+        title: "Órdenes de Exámenes",
+        description: "Pide exámenes desde la consulta con tu propio catálogo y registra los resultados en el expediente del paciente.",
+        span: "col-span-1",
+        accent: "oklch(60% 0.12 230)",
+        accentBg: "oklch(87% 0.07 230 / 30%)",
+    },
+    {
+        icon: CalendarCheck,
+        title: "Reservas en Línea y Portal del Paciente",
+        description: "Tus pacientes piden su cita desde un enlace o desde su portal, sin llamar. Tú revisas y apruebas las solicitudes desde la agenda, y si no hay cupo se anotan en la lista de espera.",
+        span: "col-span-2",
+        accent: "oklch(59.929% 0.0998 185.282)",
+        accentBg: "oklch(88% 0.08 185 / 35%)",
+    },
+    {
+        icon: Sparkles,
+        title: "Asistente con IA",
+        description: "Resume el historial del paciente, y ordena tus notas rápidas de la consulta en formato SOAP con diagnósticos sugeridos. Tú revisas todo antes de guardar.",
+        span: "col-span-1",
+        accent: "oklch(62% 0.14 280)",
+        accentBg: "oklch(85% 0.08 280 / 30%)",
+        badge: "Nuevo",
+    },
+    {
+        icon: Wallet,
+        title: "Caja",
+        description: "Abre y cierra caja, registra cobros, ingresos y egresos, y cuadra el día con su reporte de cierre.",
+        span: "col-span-1",
+        accent: "oklch(65% 0.12 160)",
+        accentBg: "oklch(88% 0.07 160 / 30%)",
+    },
+    {
+        icon: ChartColumn,
+        title: "Reportes",
+        description: "Ingresos, cuentas por cobrar, citas y actividad clínica de tu consulta, listos para exportar.",
         span: "col-span-1",
         accent: "oklch(70% 0.12 55)",
         accentBg: "oklch(90% 0.08 55 / 30%)",
@@ -45,10 +91,10 @@ const features = [
     {
         icon: Building2,
         title: "Multi-Consultorio y Roles",
-        description: "Gestiona múltiples consultorios con usuarios, roles y permisos diferenciados desde una sola cuenta.",
+        description: "Varios consultorios, usuarios, roles y permisos desde una sola cuenta, con tablero de tareas para el equipo y registro de auditoría.",
         span: "col-span-1",
-        accent: "oklch(62% 0.14 280)",
-        accentBg: "oklch(85% 0.08 280 / 30%)",
+        accent: "oklch(60% 0.12 230)",
+        accentBg: "oklch(87% 0.07 230 / 30%)",
     },
 ];
 ---
@@ -87,6 +133,13 @@ const features = [
                         </div>
                     )}
 
+                    {feature.badge && (
+                        <div class="absolute top-4 right-4 z-20 px-2.5 py-1 rounded-full text-xs font-bold text-primary-foreground"
+                            style="background: linear-gradient(135deg, oklch(62% 0.14 280), oklch(59.929% 0.0998 185.282));">
+                            {feature.badge}
+                        </div>
+                    )}
+
                     <div class="relative z-10">
                         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
                             style={`background: ${feature.accentBg}; border: 1px solid ${feature.accent}30;`}>
@@ -108,7 +161,7 @@ const features = [
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="font-display font-semibold text-sm text-text">Recordatorios por WhatsApp</span>
-                    <span class="text-sm text-text-muted">— Conecta el WhatsApp Business de tu clínica y tus pacientes reciben confirmaciones, recordatorios antes de la cita y avisos de reprogramación o cancelación. Cuando el paciente confirma o cancela desde el mensaje, la cita se actualiza sola en tu agenda.</span>
+                    <span class="text-sm text-text-muted">— Conecta el WhatsApp Business de tu clínica y tus pacientes reciben confirmaciones y recordatorios antes de la cita. Cuando el paciente confirma o cancela desde el mensaje, la cita se actualiza sola en tu agenda.</span>
                 </div>
             </div>
         </div>
