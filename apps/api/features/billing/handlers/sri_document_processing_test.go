@@ -40,6 +40,7 @@ func expiredSignatureSetup(t *testing.T, statuses ...string) (*InvoiceHandler, *
 		Slug:              fmt.Sprintf("sri-exp-%d", now),
 		DisplayToken:      fmt.Sprintf("tok-sri-exp-%d", now),
 		SriP12Path:        "signature.p12",
+		Address:           "Av. Siempre Viva 123",
 		SriPassword:       "secret",
 		SriCertExpiration: &expired,
 	}
@@ -94,5 +95,51 @@ func TestMultipleSRIInvoiceProcessing_ExpiredSignatureOnlyQueuesReceivedInvoices
 	assertSignatureExpired(t, h.MultipleSRIInvoiceProcessing(c))
 	if publisher.published != 1 {
 		t.Fatalf("published = %d, want only the received invoice queued", publisher.published)
+	}
+}
+
+func TestSRIInvoiceProcessing_MissingAddressIsRefused(t *testing.T) {
+	h, publisher, tenantID, ids := expiredSignatureSetup(t, billing_models.InvoiceStatusDraft)
+	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).
+		Updates(map[string]any{"address": "  ", "sri_cert_expiration": nil}).Error; err != nil {
+		t.Fatalf("update tenant: %v", err)
+	}
+
+	c, _ := testutils.NewGinContext(tenantID, 1)
+	c.Request = httptest.NewRequest(http.MethodPost, "/", nil)
+	c.Params = gin.Params{{Key: "id", Value: fmt.Sprint(ids[0])}}
+
+	resp := h.SRIInvoiceProcessing(c)
+	assertMissingAddress(t, resp)
+	if publisher.published != 0 {
+		t.Fatalf("an invoice was queued without an address")
+	}
+}
+
+func TestMultipleSRIInvoiceProcessing_MissingAddressIsRefused(t *testing.T) {
+	h, publisher, tenantID, ids := expiredSignatureSetup(t, billing_models.InvoiceStatusDraft)
+	if err := h.db.Model(&tenant_models.Tenant{}).Where("id = ?", tenantID).
+		Updates(map[string]any{"address": "", "sri_cert_expiration": nil}).Error; err != nil {
+		t.Fatalf("update tenant: %v", err)
+	}
+
+	body, _ := json.Marshal(map[string]any{"id_list": ids})
+	c, _ := testutils.NewGinContext(tenantID, 1)
+	c.Request = httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(body))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	assertMissingAddress(t, h.MultipleSRIInvoiceProcessing(c))
+	if publisher.published != 0 {
+		t.Fatalf("published = %d, want nothing queued", publisher.published)
+	}
+}
+
+func assertMissingAddress(t *testing.T, resp envelope.Response) {
+	t.Helper()
+	if resp.Code != http.StatusBadRequest || resp.Message != "billing.sri.error.missing_address" {
+		t.Fatalf("code=%d message=%q, want 400 billing.sri.error.missing_address", resp.Code, resp.Message)
+	}
+	if appErr, _ := resp.Data.(core_errors.AppError); appErr.ErrorCode != core_errors.ErrBillingMissingAddress.ErrorCode {
+		t.Fatalf("data = %#v, want %s", resp.Data, core_errors.ErrBillingMissingAddress.ErrorCode)
 	}
 }

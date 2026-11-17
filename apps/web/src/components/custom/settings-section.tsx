@@ -2,16 +2,22 @@ import type React from "react";
 
 /** A settings area: what it is on the left, its controls on the right. */
 export function SettingsSection({
+	id,
 	title,
 	description,
 	children,
 }: {
+	/** Anchor target, so a link elsewhere on the page can jump here. */
+	id?: string;
 	title: React.ReactNode;
 	description?: React.ReactNode;
 	children: React.ReactNode;
 }) {
 	return (
-		<section className="grid gap-4 border-t pt-8 md:grid-cols-[15rem_1fr] md:gap-10">
+		<section
+			id={id}
+			className="grid gap-4 border-t pt-8 md:grid-cols-[15rem_1fr] md:gap-10"
+		>
 			<div>
 				<h2 className="text-base font-semibold">{title}</h2>
 				{description && (

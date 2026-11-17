@@ -3952,6 +3952,18 @@
         "value": "No electronic signature configured"
     },
     {
+        "key": "billing.sri.address.missing.title",
+        "value": "The company has no address"
+    },
+    {
+        "key": "billing.sri.address.missing.desc",
+        "value": "The SRI requires the issuer's address (dirección matriz) in every document. Until you add it, invoices and notes cannot be sent."
+    },
+    {
+        "key": "billing.sri.address.missing.action",
+        "value": "Add the address"
+    },
+    {
         "key": "billing.sri.status.unconfigured_desc",
         "value": "Please upload your .p12 file to issue invoices."
     },
@@ -6774,6 +6786,14 @@
     {
         "key": "E-BILL-015",
         "value": "The authorized XML of this document is not available"
+    },
+    {
+        "key": "billing.sri.error.missing_address",
+        "value": "The company has no address (dirección matriz), which the SRI requires. Add it in Company settings to issue documents."
+    },
+    {
+        "key": "E-BILL-016",
+        "value": "The company has no address (dirección matriz), which the SRI requires. Add it in Company settings to issue documents."
     },
     {
         "key": "signature.title",

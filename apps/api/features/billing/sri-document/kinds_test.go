@@ -21,7 +21,7 @@ func TestInvoiceKind_BuildsXmlWithTheGivenAccessKeyAndFrozenPrices(t *testing.T)
 		&billing_models.Invoice{}, &billing_models.InvoiceItem{}, &billing_models.CatalogItem{})
 
 	now := time.Now().UnixNano()
-	tenant := tenant_models.Tenant{Name: "T", Slug: fmt.Sprintf("k-%d", now), DisplayToken: fmt.Sprintf("tok-k-%d", now), TaxID: "1790011223001"}
+	tenant := tenant_models.Tenant{Name: "T", Slug: fmt.Sprintf("k-%d", now), DisplayToken: fmt.Sprintf("tok-k-%d", now), TaxID: "1790011223001", Address: "Av. Siempre Viva 123"}
 	db.Create(&tenant)
 	product := billing_models.CatalogItem{TenantID: tenant.ID, Name: "Consulta", SKU: "CONS-01", UnitPrice: 99, Tax: 0.15}
 	db.Create(&product)
@@ -60,7 +60,7 @@ func TestNoteKinds_OnAuthorizedStoreTheRide(t *testing.T) {
 
 	now := time.Now()
 	stamp := now.UnixNano()
-	tenant := tenant_models.Tenant{Name: "T", Slug: fmt.Sprintf("ride-%d", stamp), DisplayToken: fmt.Sprintf("tok-ride-%d", stamp), TaxID: "1790011223001"}
+	tenant := tenant_models.Tenant{Name: "T", Slug: fmt.Sprintf("ride-%d", stamp), DisplayToken: fmt.Sprintf("tok-ride-%d", stamp), TaxID: "1790011223001", Address: "Av. Siempre Viva 123"}
 	db.Create(&tenant)
 	product := billing_models.CatalogItem{TenantID: tenant.ID, Name: "Consulta", SKU: "CONS-77", UnitPrice: 50}
 	db.Create(&product)

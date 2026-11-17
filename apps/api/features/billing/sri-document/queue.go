@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	billing_models "pengi-med-saas/features/billing/models"
@@ -17,7 +18,8 @@ import (
 // is resent with the same access key once its cause was corrected (ficha técnica
 // SRI offline §5.10, §5.12); a received one keeps its status and
 // only has its authorization queried again. A document that would be signed is
-// refused with ErrSignatureExpired while the tenant's certificate is expired.
+// refused with ErrSignatureExpired while the tenant's certificate is expired,
+// and with ErrMissingAddress while the tenant has no address.
 func (l *Lifecycle) Enqueue(tenantDB *gorm.DB, kind Kind, id uint64) error {
 	doc, err := l.load(tenantDB.Session(&gorm.Session{}), kind, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -42,6 +44,9 @@ func (l *Lifecycle) Enqueue(tenantDB *gorm.DB, kind Kind, id uint64) error {
 		}
 		if signatureExpired(tenant, time.Now()) {
 			return ErrSignatureExpired
+		}
+		if strings.TrimSpace(tenant.Address) == "" {
+			return ErrMissingAddress
 		}
 	}
 

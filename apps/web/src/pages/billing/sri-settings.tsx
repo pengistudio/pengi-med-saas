@@ -74,6 +74,30 @@ function SignatureStatus({ status }: { status: SriStatus | null }) {
 	);
 }
 
+/** The SRI requires the issuer's address in every document: none can be sent without it. */
+function MissingAddressWarning() {
+	const { textGet } = useText();
+	return (
+		<div
+			role="alert"
+			className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3"
+		>
+			<AlertTriangle className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+			<div>
+				<p className="text-sm font-medium">
+					{textGet("billing.sri.address.missing.title")}
+				</p>
+				<p className="text-sm text-muted-foreground">
+					{textGet("billing.sri.address.missing.desc")}{" "}
+					<a href="#sri-company-info" className="font-medium underline">
+						{textGet("billing.sri.address.missing.action")}
+					</a>
+				</p>
+			</div>
+		</div>
+	);
+}
+
 const SriSettingsPage = () => {
 	const [status, setStatus] = useState<SriStatus | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -110,6 +134,7 @@ const SriSettingsPage = () => {
 				) : (
 					<SignatureStatus status={status} />
 				)}
+				{status && !status.address?.trim() && <MissingAddressWarning />}
 			</div>
 
 			<SettingsSection
@@ -130,6 +155,7 @@ const SriSettingsPage = () => {
 
 			{status && (
 				<SettingsSection
+					id="sri-company-info"
 					title={<Text uuid="billing.sri.company_info.title" />}
 					description={<Text uuid="billing.sri.company_info.description" />}
 				>

@@ -118,6 +118,7 @@ var (
 	ErrBillingSignatureExpired      AppError = NewAppError("E-BILL-013", "The SRI electronic signature has expired. Upload a valid one to issue documents.")
 	ErrBillingDocumentNotAuthorized AppError = NewAppError("E-BILL-014", "The document must be authorized by the SRI before its RIDE or XML can be downloaded.")
 	ErrBillingDocumentXMLMissing    AppError = NewAppError("E-BILL-015", "The authorized XML of this document is not available.")
+	ErrBillingMissingAddress        AppError = NewAppError("E-BILL-016", "The company has no address. Add its address to issue documents.")
 
 	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")

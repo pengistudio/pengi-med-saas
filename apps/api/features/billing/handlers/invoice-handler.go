@@ -232,19 +232,24 @@ func (h *InvoiceHandler) MultipleSRIInvoiceProcessing(c *gin.Context) envelope.R
 	}
 
 	tenantDB := tenantdb.For(c, h.db)
-	signatureExpired := false
+	signatureExpired, missingAddress := false, false
 	for _, id := range idList.IDList {
 		err := h.sriDocuments.Enqueue(tenantDB, sri_document.Invoice, uint64(id))
 		switch {
 		case err == nil, errors.Is(err, sri_document.ErrNotFound), errors.Is(err, sri_document.ErrAlreadyAuthorized):
 		case errors.Is(err, sri_document.ErrSignatureExpired):
 			signatureExpired = true
+		case errors.Is(err, sri_document.ErrMissingAddress):
+			missingAddress = true
 		default:
 			h.logger.Error("Failed to enqueue invoice for SRI processing", zap.Uint("invoice_id", uint(id)), zap.Error(err))
 		}
 	}
 	if signatureExpired {
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.error.signature_expired", core_errors.ErrBillingSignatureExpired)
+	}
+	if missingAddress {
+		return envelope.ErrorResponse(http.StatusBadRequest, "billing.sri.error.missing_address", core_errors.ErrBillingMissingAddress)
 	}
 
 	return envelope.SuccessResponse(nil, "billing.invoices.processing.queued")
@@ -291,11 +296,7 @@ func (h *InvoiceHandler) DownloadInvoiceRide(c *gin.Context) {
 			envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
 			return
 		}
-		address := tenant.Address
-		if address == "" {
-			address = "Dirección no provista"
-		}
-		pdfBytes, errFile = sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, address, sri_services.ResolveSriEnv())
+		pdfBytes, errFile = sri_services.GenerateInvoiceRide(docs.Renderer, invoice, tenant, strings.TrimSpace(tenant.Address), sri_services.ResolveSriEnv())
 		if errFile != nil {
 			h.logger.Error("Failed to generate RIDE on demand", zap.Uint64("invoice_id", invoiceID), zap.Error(errFile))
 			envelope.Write(c, envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoice.error.ride_generate_failed", core_errors.ErrBillingInvoiceRideGenerate))
