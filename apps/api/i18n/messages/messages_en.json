@@ -9800,6 +9800,10 @@
         "value": "Automatic"
     },
     {
+        "key": "whatsapp.inbox.settings",
+        "value": "WhatsApp settings"
+    },
+    {
         "key": "whatsapp.inbox.sound.mute",
         "value": "Mute the new message sound"
     },

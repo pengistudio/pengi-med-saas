@@ -25,6 +25,7 @@ import { ConversationList } from "@/sections/whatsapp/conversation-list";
 import { ConversationThread } from "@/sections/whatsapp/conversation-thread";
 import { SentMessages } from "@/sections/whatsapp/sent-messages";
 import { TemplateMessageDialog } from "@/sections/whatsapp/template-message-dialog";
+import { WhatsAppSettingsLink } from "@/sections/whatsapp/whatsapp-settings-link";
 
 type InboxTab = "conversations" | "sent";
 
@@ -72,6 +73,7 @@ export default function WhatsAppPage() {
 				description={<Text uuid="whatsapp.inbox.description" />}
 				actions={
 					<>
+						<WhatsAppSettingsLink />
 						<Button
 							variant="outline"
 							size="icon"
