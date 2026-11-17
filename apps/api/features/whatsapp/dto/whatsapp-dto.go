@@ -52,6 +52,8 @@ type TemplateStateResponse struct {
 	Name   string `json:"name"`
 	Status string `json:"status"`
 	Reason string `json:"reason,omitempty"`
+	// Optional templates never block sending nor count in templates_state.
+	Optional bool `json:"optional,omitempty"`
 }
 
 // NotConnected is the AccountResponse of a tenant without an account.

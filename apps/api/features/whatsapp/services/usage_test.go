@@ -269,9 +269,12 @@ func TestTemplatesReadiness_WorstStateWins(t *testing.T) {
 		{"all approved", all("APPROVED"), TemplatesStateReady},
 		{"one pending", with(all("APPROVED"), whatsapp_models.TemplateNoShow, "PENDING", ""), TemplatesStatePending},
 		{"one in appeal", with(all("APPROVED"), whatsapp_models.TemplateNoShow, "IN_APPEAL", ""), TemplatesStatePending},
-		{"rejected beats pending", with(all("PENDING"), whatsapp_models.TemplatePortalCode, "REJECTED", "INVALID_FORMAT"), TemplatesStateRejected},
+		{"rejected beats pending", with(all("PENDING"), whatsapp_models.TemplateNoShow, "REJECTED", "INVALID_FORMAT"), TemplatesStateRejected},
+		{"optional rejected is ignored", with(all("APPROVED"), whatsapp_models.TemplatePortalCode, "REJECTED", "INVALID_FORMAT"), TemplatesStateReady},
+		{"optional missing is ignored", with(all("APPROVED"), whatsapp_models.TemplatePortalCode, "", ""), TemplatesStateReady},
+		{"optional pending is ignored", with(all("APPROVED"), whatsapp_models.TemplatePortalCode, "PENDING", ""), TemplatesStateReady},
 		{"paused counts as rejected", with(all("APPROVED"), whatsapp_models.ReminderTemplate, "PAUSED", ""), TemplatesStateRejected},
-		{"missing beats rejected", with(with(all("APPROVED"), whatsapp_models.TemplatePortalCode, "REJECTED", ""), whatsapp_models.TemplateSlotOffer, "", ""), TemplatesStateMissing},
+		{"missing beats rejected", with(with(all("APPROVED"), whatsapp_models.TemplateNoShow, "REJECTED", ""), whatsapp_models.TemplateSlotOffer, "", ""), TemplatesStateMissing},
 	}
 	for _, c := range cases {
 		state, list := TemplatesReadiness(c.rows)

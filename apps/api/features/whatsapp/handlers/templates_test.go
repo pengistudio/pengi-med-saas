@@ -310,7 +310,7 @@ func TestCreateMissingTemplates_CreatesOnlyAbsent(t *testing.T) {
 		t.Fatalf("connect: %d (%v)", resp.Code, resp.Data)
 	}
 	account := resp.Data.(whatsapp_dto.AccountResponse)
-	if account.TemplateStatus != "APPROVED" || len(account.MissingTemplates) != len(whatsapp_services.Catalog)-1 {
+	if account.TemplateStatus != "APPROVED" || len(account.MissingTemplates) != len(whatsapp_services.Catalog)-2 {
 		t.Fatalf("connect response = %+v", account)
 	}
 
@@ -684,5 +684,55 @@ func TestConsentByWhatsApp_NotAsked(t *testing.T) {
 	g.writes("PHONE-1", "593993334444", nextWamID(), "hola")
 	if sys := systemMessages(g.thread(g.conversations(g.own)[0].ID)); len(sys) != 0 {
 		t.Fatal("must not ask when reminders are off")
+	}
+}
+
+// portal_code is optional: Meta refusing it (Graph error 10) is not an error,
+// the required templates are still created and settings stay ready.
+func TestCreateMissingTemplates_OptionalFailureIsNotFatal(t *testing.T) {
+	f := newFixture(t)
+	f.graph.failWhen = append(f.graph.failWhen, bodyFailure{
+		key: createTemplatesKey, sub: fmt.Sprintf(`"name":%q`, whatsapp_models.TemplatePortalCode),
+		resp: fakeResp{400, permissionDenied},
+	})
+	f.graph.set(listTemplatesKey, 200, `{"data":[]}`)
+	f.connectEmbeddedCoexistence(t)
+	resp, _ := f.call(f.h.CreateMissingTemplates, f.own, http.MethodPost, nil, "")
+	if resp.Code != http.StatusOK {
+		t.Fatalf("create missing: code = %d message = %q", resp.Code, resp.Message)
+	}
+	got := resp.Data.(whatsapp_dto.AccountResponse)
+	if len(got.MissingTemplates) != 0 {
+		t.Fatalf("missing = %v, want none", got.MissingTemplates)
+	}
+	if n := f.graph.count(createTemplatesKey); n != len(whatsapp_services.Catalog) {
+		t.Fatalf("creations = %d, want %d (all, optional last)", n, len(whatsapp_services.Catalog))
+	}
+	if rows := f.templateRows(f.own); len(rows) != len(whatsapp_services.Catalog)-1 {
+		t.Fatalf("rows = %d, want the required ones only", len(rows))
+	}
+}
+
+// The optional template is never attempted when a required one failed.
+func TestCreateMissingTemplates_OptionalSkippedWhenRequiredFails(t *testing.T) {
+	f := newFixture(t)
+	f.graph.set(createTemplatesKey, 400, permissionDenied)
+	f.connectEmbeddedCoexistence(t)
+	resp, _ := f.call(f.h.CreateMissingTemplates, f.own, http.MethodPost, nil, "")
+	if resp.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("code = %d", resp.Code)
+	}
+	if f.graph.bodyWith(createTemplatesKey, whatsapp_models.TemplatePortalCode) != "" {
+		t.Fatal("optional template attempted after a required failure")
+	}
+}
+
+// connectEmbeddedCoexistence connects f.own without creating templates.
+func (f *fixture) connectEmbeddedCoexistence(t *testing.T) {
+	t.Helper()
+	t.Setenv("META_ES_CONFIG_ID", "cfg")
+	body := map[string]any{"code": "the-code", "waba_id": "WABA-1", "phone_number_id": "PHONE-1", "coexistence": true}
+	if resp, _ := f.call(f.h.ConnectEmbedded, f.own, http.MethodPost, body, ""); resp.Code != http.StatusOK {
+		t.Fatalf("connect: %d (%v)", resp.Code, resp.Data)
 	}
 }
