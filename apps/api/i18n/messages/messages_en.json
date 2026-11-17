@@ -15962,5 +15962,53 @@
     {
         "key": "backoffice.users.second_factor.description",
         "value": "If they lost their authenticator app and recovery codes, reset it so they can set up a new one."
+    },
+    {
+        "key": "backoffice.audit.list.success",
+        "value": "Audit log fetched successfully."
+    },
+    {
+        "key": "backoffice.nav.audit",
+        "value": "Audit log"
+    },
+    {
+        "key": "backoffice.audit.title",
+        "value": "Audit log"
+    },
+    {
+        "key": "backoffice.audit.list.title",
+        "value": "Backoffice changes"
+    },
+    {
+        "key": "backoffice.audit.list.description",
+        "value": "Sign-ins, sign-outs and every change made by an administrator, with its result. Request contents are not stored."
+    },
+    {
+        "key": "backoffice.audit.empty",
+        "value": "No entries yet."
+    },
+    {
+        "key": "backoffice.audit.col.date",
+        "value": "Date"
+    },
+    {
+        "key": "backoffice.audit.col.admin",
+        "value": "Administrator"
+    },
+    {
+        "key": "backoffice.audit.col.action",
+        "value": "Action"
+    },
+    {
+        "key": "backoffice.audit.col.status",
+        "value": "Result"
+    },
+    {
+        "key": "backoffice.audit.col.ip",
+        "value": "IP"
+    },
+    {
+        "key": "backoffice.audit.load_more",
+        "value": "Load more"
     }
 ]

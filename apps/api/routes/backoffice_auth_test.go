@@ -32,7 +32,7 @@ func backofficeRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 	logger.Log = zap.NewNop()
 	db := testutils.SetupTestDB(t, &user_models.User{}, &backoffice_models.BackofficeUser{},
 		&backoffice_models.BackofficeRecoveryCode{}, &backoffice_models.BackofficePasskey{},
-		&backoffice_models.BackofficeWebAuthnChallenge{}, &company_models.Company{}, &company_models.Plan{}, &company_models.Subscription{})
+		&backoffice_models.BackofficeWebAuthnChallenge{}, &backoffice_models.BackofficeAuditLog{}, &company_models.Company{}, &company_models.Plan{}, &company_models.Subscription{})
 	router := gin.New()
 	RegisterBackofficeRoutes(router.Group(""), db)
 	RegisterCompanyRoutes(router.Group(""), db)
@@ -270,6 +270,10 @@ func TestBackofficeAuth_PasswordChangeRevokesRefresh(t *testing.T) {
 	if w := call(router, http.MethodPost, "/backoffice/auth/refresh", "", cookies...); w.Code == http.StatusOK {
 		t.Fatal("refresh with the cookie issued before the password change = 200, want rejection")
 	}
+	// The access token issued before the change must not live until it expires.
+	if w := call(router, http.MethodGet, "/backoffice/users", token); w.Code != http.StatusUnauthorized {
+		t.Fatalf("access token issued before the password change = %d, want 401", w.Code)
+	}
 }
 
 // Logging out ends the session server-side: the refresh cookie issued at login
@@ -277,7 +281,7 @@ func TestBackofficeAuth_PasswordChangeRevokesRefresh(t *testing.T) {
 func TestBackofficeAuth_LogoutRevokesRefresh(t *testing.T) {
 	router, db := backofficeRouter(t)
 	createBackofficeAdmin(t, db)
-	_, cookies := backofficeLogin(t, router)
+	token, cookies := backofficeLogin(t, router)
 
 	w := call(router, http.MethodPost, "/backoffice/auth/logout", "", cookies...)
 	if w.Code != http.StatusOK {
@@ -295,6 +299,36 @@ func TestBackofficeAuth_LogoutRevokesRefresh(t *testing.T) {
 
 	if w := call(router, http.MethodPost, "/backoffice/auth/refresh", "", cookies...); w.Code == http.StatusOK {
 		t.Fatal("refresh with the cookie from before logout = 200, want rejection")
+	}
+	if w := call(router, http.MethodGet, "/backoffice/users", token); w.Code != http.StatusUnauthorized {
+		t.Fatalf("access token from before logout = %d, want 401", w.Code)
+	}
+}
+
+// An access token works only while the admin is on the version it was issued
+// with: tokens of an earlier version are rejected, and tokens issued before
+// versions existed (no claim) count as version 0.
+func TestBackofficeAuth_AccessTokenFollowsTokenVersion(t *testing.T) {
+	router, db := backofficeRouter(t)
+	createBackofficeAdmin(t, db)
+	if token, _ := backofficeLogin(t, router); call(router, http.MethodGet, "/backoffice/users", token).Code != http.StatusOK {
+		t.Fatal("the token of a fresh login must open the backoffice")
+	}
+	var admin backoffice_models.BackofficeUser
+	if err := db.Where("user_name = ?", "admin").First(&admin).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Model(&admin).UpdateColumn("token_version", 3).Error; err != nil {
+		t.Fatal(err)
+	}
+	for version, want := range map[int64]int{0: http.StatusUnauthorized, 2: http.StatusUnauthorized, 3: http.StatusOK} {
+		token, err := auth.GenerateBackofficeToken(admin.UserName, int64(admin.ID), version)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if w := call(router, http.MethodGet, "/backoffice/users", token); w.Code != want {
+			t.Fatalf("token of version %d with the admin on version 3 = %d, want %d", version, w.Code, want)
+		}
 	}
 }
 

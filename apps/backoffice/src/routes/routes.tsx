@@ -10,6 +10,7 @@ const AnnouncementList = lazy(
 const CreateAnnouncement = lazy(
 	() => import("@/pages/announcements/create-announcement"),
 );
+const AuditLogList = lazy(() => import("@/pages/audit/audit-log-list"));
 const CompanyList = lazy(() => import("@/pages/companies/company-list"));
 const CompanyUsers = lazy(() => import("@/pages/companies/company-users"));
 const CreateCompany = lazy(() => import("@/pages/companies/create-company"));
@@ -74,6 +75,7 @@ const router = createBrowserRouter([
 			{ path: "/announcements", element: <AnnouncementList /> },
 			{ path: "/announcements/create", element: <CreateAnnouncement /> },
 			{ path: "/security", element: <SecurityPage /> },
+			{ path: "/audit", element: <AuditLogList /> },
 			{ path: "/ai", element: <AIPage /> },
 		],
 	},

@@ -31,13 +31,15 @@ var ErrNotBackofficeToken = errors.New("not a backoffice token")
 
 // GenerateBackofficeToken issues a backoffice access token (AUTH_EXP minutes)
 // without an auth_time: used by refresh, which can't vouch for a fresh login.
-func GenerateBackofficeToken(username string, userID int64) (string, error) {
-	return GenerateBackofficeSessionToken(username, userID, time.Time{})
+// version is the admin's current token version (BackofficeUser.TokenVersion):
+// the token stops working as soon as the stored version moves past it.
+func GenerateBackofficeToken(username string, userID, version int64) (string, error) {
+	return GenerateBackofficeSessionToken(username, userID, version, time.Time{})
 }
 
 // GenerateBackofficeSessionToken is GenerateBackofficeToken for a login that
 // just happened at authTime (auth_time claim, omitted when zero).
-func GenerateBackofficeSessionToken(username string, userID int64, authTime time.Time) (string, error) {
+func GenerateBackofficeSessionToken(username string, userID, version int64, authTime time.Time) (string, error) {
 	exp, err := accessTokenMinutes()
 	if err != nil {
 		return "", err
@@ -47,6 +49,7 @@ func GenerateBackofficeSessionToken(username string, userID int64, authTime time
 		"aud":      BackofficeAudience,
 		"username": username,
 		"userId":   userID,
+		"ver":      version,
 		"exp":      time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
 	}
 	setAuthTime(claims, authTime)
@@ -93,6 +96,10 @@ type BackofficeClaims struct {
 	SID string
 	// AuthTime is when the session signed in (zero when unknown).
 	AuthTime time.Time
+	// TokenVersion is the admin's token version when an access token was
+	// issued (0 on tokens issued before versions existed and on refresh
+	// tokens, which are revoked through the stored refresh token instead).
+	TokenVersion int64
 }
 
 func parseBackoffice(token, wantType string) (BackofficeClaims, error) {
@@ -113,7 +120,8 @@ func parseBackoffice(token, wantType string) (BackofficeClaims, error) {
 	}
 	sid, _ := claims["sid"].(string)
 	authTime, _ := AuthTime(claims)
-	return BackofficeClaims{UserID: int64(userID), Username: username, SID: sid, AuthTime: authTime}, nil
+	version, _ := claims["ver"].(float64)
+	return BackofficeClaims{UserID: int64(userID), Username: username, SID: sid, AuthTime: authTime, TokenVersion: int64(version)}, nil
 }
 
 // ParseBackofficeAccessToken accepts only unexpired backoffice access tokens.

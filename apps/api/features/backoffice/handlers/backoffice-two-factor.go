@@ -626,6 +626,7 @@ func (h *BackofficeUserHandler) ResetBackofficeUserTwoFactor(c *gin.Context) env
 			"locked_until":          nil,
 			"refresh_token":         "",
 			"refresh_family":        "",
+			"token_version":         backoffice_models.BumpTokenVersion,
 		}).Error; err != nil {
 			return err
 		}
@@ -658,6 +659,7 @@ func (h *BackofficeUserHandler) ResetBackofficeUserPasskeys(c *gin.Context) enve
 			"locked_until":          nil,
 			"refresh_token":         "",
 			"refresh_family":        "",
+			"token_version":         backoffice_models.BumpTokenVersion,
 		}).Error
 	}); err != nil {
 		h.logger.Error("Backoffice passkeys reset failed", zap.Uint("user_id", user.ID), zap.Error(err))

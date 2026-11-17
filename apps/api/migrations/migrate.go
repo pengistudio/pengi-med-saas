@@ -76,6 +76,7 @@ func RunMigrations(db *gorm.DB) error {
 		backoffice_models.BackofficeRecoveryCode{},
 		backoffice_models.BackofficePasskey{},
 		backoffice_models.BackofficeWebAuthnChallenge{},
+		backoffice_models.BackofficeAuditLog{},
 		billing_models.Invoice{},
 		billing_models.InvoiceItem{},
 		billing_models.InvoiceCounter{},

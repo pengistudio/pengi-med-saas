@@ -46,7 +46,7 @@ func TestBackofficeMFAToken_OnlyParsesAsItself(t *testing.T) {
 	}
 
 	clinic, _ := GenerateMFAToken(7, "hash", now)
-	access, _ := GenerateBackofficeToken("root", 7)
+	access, _ := GenerateBackofficeToken("root", 7, 0)
 	for name, token := range map[string]string{"clinic mfa": clinic, "backoffice access": access} {
 		for _, purpose := range []string{BackofficeMFAPurposeLogin, BackofficeMFAPurposeEnroll} {
 			if _, err := ParseBackofficeMFAToken(token, purpose, now); err == nil {

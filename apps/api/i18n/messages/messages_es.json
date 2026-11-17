@@ -15962,5 +15962,53 @@
     {
         "key": "backoffice.users.second_factor.description",
         "value": "Si perdió su app de autenticación y sus códigos de recuperación, restablécelo para que configure uno nuevo."
+    },
+    {
+        "key": "backoffice.audit.list.success",
+        "value": "Registro de auditoría obtenido correctamente."
+    },
+    {
+        "key": "backoffice.nav.audit",
+        "value": "Auditoría"
+    },
+    {
+        "key": "backoffice.audit.title",
+        "value": "Auditoría"
+    },
+    {
+        "key": "backoffice.audit.list.title",
+        "value": "Cambios en el backoffice"
+    },
+    {
+        "key": "backoffice.audit.list.description",
+        "value": "Inicios y cierres de sesión y cada cambio hecho por un administrador, con su resultado. No se guarda el contenido de la solicitud."
+    },
+    {
+        "key": "backoffice.audit.empty",
+        "value": "Aún no hay registros."
+    },
+    {
+        "key": "backoffice.audit.col.date",
+        "value": "Fecha"
+    },
+    {
+        "key": "backoffice.audit.col.admin",
+        "value": "Administrador"
+    },
+    {
+        "key": "backoffice.audit.col.action",
+        "value": "Acción"
+    },
+    {
+        "key": "backoffice.audit.col.status",
+        "value": "Resultado"
+    },
+    {
+        "key": "backoffice.audit.col.ip",
+        "value": "IP"
+    },
+    {
+        "key": "backoffice.audit.load_more",
+        "value": "Cargar más"
     }
 ]

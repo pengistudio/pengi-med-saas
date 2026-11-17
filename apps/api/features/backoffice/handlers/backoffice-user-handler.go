@@ -10,6 +10,7 @@ import (
 	core_errors "pengi-med-saas/core/errors"
 	"pengi-med-saas/core/tenantdb"
 	backoffice_dto "pengi-med-saas/features/backoffice/dto"
+	backoffice_middleware "pengi-med-saas/features/backoffice/middleware"
 	backoffice_models "pengi-med-saas/features/backoffice/models"
 
 	"github.com/gin-gonic/gin"
@@ -153,6 +154,8 @@ func (h *BackofficeUserHandler) UpdateUser(c *gin.Context) envelope.Response {
 		// any cookie, so every refresh issued before the change is rejected.
 		updates["refresh_token"] = ""
 		updates["refresh_family"] = ""
+		// And the access tokens already issued stop working right away.
+		updates["token_version"] = backoffice_models.BumpTokenVersion
 	}
 
 	if len(updates) > 0 {
@@ -292,7 +295,14 @@ func (h *BackofficeUserHandler) issueSession(c *gin.Context, user backoffice_mod
 		resp := envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
 		return nil, &resp
 	}
-	token, err := auth.GenerateBackofficeSessionToken(user.UserName, int64(user.ID), h.now())
+	// Read here, not taken from user: the caller may have loaded the admin
+	// before the version last moved.
+	var version int64
+	if err := h.db.Model(&backoffice_models.BackofficeUser{}).Where("id = ?", user.ID).
+		Pluck("token_version", &version).Error; err != nil {
+		return fail(err)
+	}
+	token, err := auth.GenerateBackofficeSessionToken(user.UserName, int64(user.ID), version, h.now())
 	if err != nil {
 		return fail(err)
 	}
@@ -306,6 +316,7 @@ func (h *BackofficeUserHandler) issueSession(c *gin.Context, user backoffice_mod
 		return fail(err)
 	}
 	auth.SetBackofficeRefreshCookie(c, refreshToken)
+	backoffice_middleware.SetAuditActor(c, user.ID, user.UserName)
 	return gin.H{"token": token, "user_id": user.ID}, nil
 }
 
@@ -385,7 +396,7 @@ func (h *BackofficeUserHandler) RefreshAuthToken(c *gin.Context) envelope.Respon
 		next = successor
 	}
 
-	token, err := auth.GenerateBackofficeToken(user.UserName, int64(user.ID))
+	token, err := auth.GenerateBackofficeToken(user.UserName, int64(user.ID), user.TokenVersion)
 	if err != nil {
 		h.logger.Error("Failed to generate token during refresh", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrAuthTokenGenerateError)
@@ -402,29 +413,32 @@ func (h *BackofficeUserHandler) isCurrentRefreshToken(userID uint, token string)
 }
 
 // revokeSession clears admin userID's stored refresh token, so no refresh
-// cookie works any more. With sid set, only if that login is still the
-// current one (a newer login is left alone).
+// cookie works any more, and ends the access tokens already issued. With sid
+// set, only if that login is still the current one (a newer login is left
+// alone).
 func (h *BackofficeUserHandler) revokeSession(userID uint, sid string) {
 	q := h.db.Model(&backoffice_models.BackofficeUser{}).Where("id = ?", userID)
 	if sid != "" {
 		q = q.Where("refresh_family = ?", sid)
 	}
-	if err := q.UpdateColumns(map[string]any{"refresh_token": "", "refresh_family": ""}).Error; err != nil {
+	if err := q.UpdateColumns(map[string]any{"refresh_token": "", "refresh_family": "", "token_version": backoffice_models.BumpTokenVersion}).Error; err != nil {
 		h.logger.Error("Failed to revoke backoffice session", zap.Uint("user_id", userID), zap.Error(err))
 	}
 }
 
 // Logout ends the admin's session: the stored refresh token is cleared, so the
-// refresh cookie stops working, and the cookie is removed from the browser.
+// refresh cookie stops working, the access token stops working (token version
+// bumped) and the cookie is removed from the browser.
 func (h *BackofficeUserHandler) Logout(c *gin.Context) envelope.Response {
 	if refreshToken, err := c.Cookie(auth.BackofficeRefreshCookie); err == nil && refreshToken != "" {
 		if claims, err := auth.ParseBackofficeRefreshToken(refreshToken); err == nil {
 			if err := h.db.Model(&backoffice_models.BackofficeUser{}).
 				Where("id = ? AND refresh_token = ?", claims.UserID, refreshToken).
-				UpdateColumns(map[string]any{"refresh_token": "", "refresh_family": ""}).Error; err != nil {
+				UpdateColumns(map[string]any{"refresh_token": "", "refresh_family": "", "token_version": backoffice_models.BumpTokenVersion}).Error; err != nil {
 				h.logger.Error("Failed to revoke backoffice refresh token", zap.Error(err))
 				return envelope.ErrorResponse(http.StatusInternalServerError, "error.internal", core_errors.ErrInternal)
 			}
+			backoffice_middleware.SetAuditActor(c, uint(claims.UserID), claims.Username)
 		}
 	}
 	auth.ClearBackofficeRefreshCookie(c)

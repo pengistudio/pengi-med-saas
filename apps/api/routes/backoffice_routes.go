@@ -16,6 +16,9 @@ import (
 )
 
 func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
+	// Audit trail: every route below goes through it, so it has to stay the
+	// group all of them hang from.
+	router = router.Group("", backoffice_middleware.BackofficeAuditMiddleware(db, logger.Log))
 	backofficeAuth := backoffice_middleware.BackofficeAuthMiddleware(db)
 	backofficeUserHandler := backoffice_handlers.NewBackofficeUserHandler(db, logger.Log)
 	backofficeCompanyHandler := backoffice_handlers.NewBackofficeCompanyHandler(db, logger.Log)
@@ -26,11 +29,13 @@ func RegisterBackofficeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	backofficeDashboardHandler := backoffice_handlers.NewBackofficeDashboardHandler(db, logger.Log)
 	backofficeRoleHandler := backoffice_handlers.NewBackofficeRoleHandler(db, logger.Log)
 	backofficeAnnouncementHandler := backoffice_handlers.NewBackofficeAnnouncementHandler(db, logger.Log)
+	backofficeAuditHandler := backoffice_handlers.NewBackofficeAuditHandler(db, logger.Log)
 
 	backofficeRoutes := router.Group("/backoffice")
 	{
 		backofficeRoutes.GET("/permissions", backofficeAuth, envelope.Handle(backofficePermissionHandler.GetPermissions))
 		backofficeRoutes.GET("/dashboard", backofficeAuth, envelope.Handle(backofficeDashboardHandler.GetDashboardStats))
+		backofficeRoutes.GET("/audit-logs", backofficeAuth, envelope.Handle(backofficeAuditHandler.GetAuditLogs))
 	}
 
 	backofficeUserRoutes := router.Group("/backoffice/users", backofficeAuth)

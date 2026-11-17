@@ -434,7 +434,7 @@ func TestLogin_PerPatientCodeLimit(t *testing.T) {
 func TestPortalRoutes_RejectNonPortalTokens(t *testing.T) {
 	f := newFixture(t)
 	staff, _ := auth.GenerateToken("admin", 1)
-	backoffice, _ := auth.GenerateBackofficeToken("root", 1)
+	backoffice, _ := auth.GenerateBackofficeToken("root", 1, 0)
 	refresh, _, _ := auth.GeneratePortalRefreshToken(f.own.ID, f.ownPat.ID, "family")
 	for name, token := range map[string]string{"none": "", "staff": staff, "backoffice": backoffice, "portal refresh": refresh, "garbage": "x.y.z"} {
 		if r := f.do(http.MethodGet, "/portal/me", token, nil); r.Code != http.StatusUnauthorized || errorCode(r) != "E-PORTAL-003" {

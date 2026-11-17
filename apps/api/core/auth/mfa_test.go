@@ -83,7 +83,7 @@ func TestParseMFAToken_RejectsOtherTokensAndExpiry(t *testing.T) {
 	access, _ := GenerateToken("ana", 7)
 	exchange, _ := GenerateExchangeToken("ana", 7)
 	refresh, _, _ := GenerateRefreshToken("ana", 7, "fam")
-	backoffice, _ := GenerateBackofficeToken("root", 7)
+	backoffice, _ := GenerateBackofficeToken("root", 7, 0)
 	for name, token := range map[string]string{"access": access, "exchange": exchange, "refresh": refresh, "backoffice": backoffice} {
 		if _, err := ParseMFAToken(token, time.Now()); err == nil {
 			t.Errorf("%s token accepted as mfa token", name)

@@ -5,6 +5,7 @@ import {
 	LayoutDashboard,
 	Megaphone,
 	Puzzle,
+	ScrollText,
 	ShieldCheck,
 	Sparkles,
 	Users,
@@ -81,5 +82,10 @@ export const createNavItems = (
 		icon: KeyRound,
 		label: textGet("backoffice.nav.security"),
 		href: "/security",
+	},
+	{
+		icon: ScrollText,
+		label: textGet("backoffice.nav.audit"),
+		href: "/audit",
 	},
 ];
