@@ -21,6 +21,15 @@ export interface CatalogItem extends BaseModel {
 	ice_tax_percentage_code: string;
 }
 
+export interface Customer extends BaseModel {
+	tenant_id: number;
+	identification: string;
+	name: string;
+	address: string;
+	email: string;
+	phone: string;
+}
+
 export interface InvoiceItem {
 	product_id: number;
 	description: string;
@@ -37,6 +46,16 @@ export interface Invoice extends BaseModel {
 	tenant_id: number;
 	patient_id: number | null;
 	patient?: Patient | null;
+	/** Third-party buyer (insurer, company...); omitted when the patient is billed. */
+	customer_id?: number | null;
+	customer?: Customer | null;
+	/** Buyer snapshot written at each signing attempt; empty before the first one. */
+	buyer_identification?: string;
+	buyer_identification_type?: string;
+	buyer_name?: string;
+	buyer_address?: string;
+	buyer_email?: string;
+	buyer_phone?: string;
 	establishment_code: string;
 	emission_point_code: string;
 	sequential: string;
@@ -149,6 +168,7 @@ export type CreateDebitNotePayload = {
 
 export type CreateInvoicePayload = {
 	patient_id?: number | null;
+	customer_id?: number | null;
 	payment_method: string;
 	term: number;
 	time_unit: string;
@@ -452,6 +472,72 @@ export const deleteCatalogItem = async (
 	id: number,
 ): Promise<ServiceResponse<null>> => {
 	return billingService.delete<null>(`/billing/catalog-items/${id}`, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export type CreateCustomerPayload = {
+	identification: string;
+	name: string;
+	address?: string;
+	email?: string;
+	phone?: string;
+};
+
+export type UpdateCustomerPayload = Partial<CreateCustomerPayload>;
+
+export type CustomerListParams = {
+	page?: number;
+	limit?: number;
+	search?: string;
+};
+
+export const getCustomers = async (
+	params: CustomerListParams = {},
+): Promise<ServiceResponse<PaginatedResponse<Customer>>> => {
+	const qs = new URLSearchParams();
+	if (params.page) qs.set("page", String(params.page));
+	if (params.limit) qs.set("limit", String(params.limit));
+	if (params.search) qs.set("search", params.search);
+	const query = qs.toString() ? `?${qs.toString()}` : "";
+	return billingService.get<PaginatedResponse<Customer>>(
+		`/billing/customers${query}`,
+		{ notifyError: true },
+	);
+};
+
+export const getCustomerById = async (
+	id: number,
+): Promise<ServiceResponse<Customer>> => {
+	return billingService.get<Customer>(`/billing/customers/${id}`, {
+		notifyError: true,
+	});
+};
+
+export const createCustomer = async (
+	payload: CreateCustomerPayload,
+): Promise<ServiceResponse<Customer>> => {
+	return billingService.post<Customer>("/billing/customers", payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const updateCustomer = async (
+	id: number,
+	payload: UpdateCustomerPayload,
+): Promise<ServiceResponse<Customer>> => {
+	return billingService.put<Customer>(`/billing/customers/${id}`, payload, {
+		notifySuccess: true,
+		notifyError: true,
+	});
+};
+
+export const deleteCustomer = async (
+	id: number,
+): Promise<ServiceResponse<null>> => {
+	return billingService.delete<null>(`/billing/customers/${id}`, {
 		notifySuccess: true,
 		notifyError: true,
 	});

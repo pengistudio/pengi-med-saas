@@ -47,6 +47,10 @@ func sampleInvoiceRide() InvoiceRideData {
 		BarcodeBase64:        sampleBarcode(sampleAccessKey),
 		BuyerName:            "Juan Carlos Pérez Mora",
 		BuyerIdentification:  "1712345678",
+		AdditionalInfo: []RideAdditionalField{
+			{Name: "Email", Value: "juan.perez@example.com"},
+			{Name: "Teléfono", Value: "0991234567"},
+		},
 		Items: []InvoiceRideItem{
 			{Description: "Consulta médica general", Quantity: "1.00", UnitPrice: "40.00", Discount: "0.00", Total: "40.00"},
 			{Description: "Electrocardiograma", Quantity: "1.00", UnitPrice: "25.00", Discount: "5.00", Total: "20.00"},

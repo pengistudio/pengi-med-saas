@@ -17,6 +17,9 @@ import {
 	Form,
 	FormInput,
 	FormSelect,
+	Label,
+	RadioGroup,
+	RadioGroupItem,
 	Text,
 } from "@pengi/ui";
 import { Loader2, Plus, Trash } from "lucide-react";
@@ -26,6 +29,7 @@ import { useNavigate } from "react-router";
 import * as z from "zod";
 import {
 	type CatalogItem,
+	type Customer,
 	createInvoice,
 	getAllCatalogItems,
 } from "@/api/billing-service";
@@ -34,10 +38,13 @@ import {
 	type Patient,
 } from "@/api/clinical-service";
 import {
+	CustomerCombobox,
+	NewCustomerDialog,
+} from "@/components/features/billing/customer-picker";
+import {
 	type ChargeTarget,
 	PaymentDialog,
 } from "@/components/features/cash/payment-dialog";
-import { Switch } from "@/components/ui/switch";
 import { useEnabledFeatures } from "@/hooks/use-enabled-features";
 import usePermission from "@/hooks/use-permission";
 import {
@@ -62,15 +69,25 @@ const invoiceItemSchema = z.object({
 	ice_tax: z.number().min(0, "validation.min_0"),
 });
 
-const formSchema = z.object({
-	patient_id: z.string().optional(),
-	payment_method: z.string().min(1, "validation.required"),
-	term: z.coerce.number().min(0, "validation.min_0"),
-	time_unit: z.string().min(1, "validation.required"),
-	establishment_code: z.string().min(1, "validation.required"),
-	emission_point_code: z.string().min(1, "validation.required"),
-	items: z.array(invoiceItemSchema).min(1, "validation.min_1_item"),
-});
+const BILL_TO = ["patient", "customer", "final"] as const;
+type BillTo = (typeof BILL_TO)[number];
+
+const formSchema = z
+	.object({
+		bill_to: z.enum(BILL_TO),
+		patient_id: z.string().optional(),
+		customer_id: z.string().optional(),
+		payment_method: z.string().min(1, "validation.required"),
+		term: z.coerce.number().min(0, "validation.min_0"),
+		time_unit: z.string().min(1, "validation.required"),
+		establishment_code: z.string().min(1, "validation.required"),
+		emission_point_code: z.string().min(1, "validation.required"),
+		items: z.array(invoiceItemSchema).min(1, "validation.min_1_item"),
+	})
+	.refine((v) => v.bill_to !== "customer" || !!v.customer_id, {
+		path: ["customer_id"],
+		message: "billing.invoice.bill_to.customer.required",
+	});
 
 const PATIENT_SEARCH_DEBOUNCE_MS = 300;
 const PATIENT_RESULTS_LIMIT = 10;
@@ -177,9 +194,16 @@ export function InvoiceForm() {
 		// Pricing, tax rate and totals are always computed server-side from the
 		// tenant's own catalog — never trust client-supplied numbers for a document
 		// with legal/fiscal effect. Only product_id, quantity and discount travel.
+		// customer_id travels only for "Otro cliente"; patient_id stays whatever
+		// was chosen (empty for Consumidor Final: the switch clears it).
+		const { bill_to: billTo, ...rest } = values;
 		const payload = {
-			...values,
+			...rest,
 			patient_id: values.patient_id ? parseInt(values.patient_id, 10) : null,
+			customer_id:
+				billTo === "customer" && values.customer_id
+					? parseInt(values.customer_id, 10)
+					: null,
 			items: values.items.map((item) => ({
 				product_id: parseInt(item.product_id, 10),
 				quantity: item.quantity,
@@ -218,7 +242,9 @@ export function InvoiceForm() {
 				schema={formSchema}
 				onSubmit={onSubmit}
 				defaultValues={{
+					bill_to: "patient",
 					patient_id: "",
+					customer_id: "",
 					items: [
 						{
 							product_id: undefined,
@@ -262,8 +288,13 @@ function InvoiceFormInner({
 	});
 	const { textGet, formatMoney } = useText();
 	const navigate = useNavigate();
-	const [isFinalCustomer, setIsFinalCustomer] = useState(false);
 	const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+	const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+		null,
+	);
+	const [newCustomerOpen, setNewCustomerOpen] = useState(false);
+	const billTo: BillTo = form.watch("bill_to") ?? "patient";
+	const isFinalCustomer = billTo === "final";
 	const [itemInputValues, setItemInputValues] = useState<string[]>([]);
 
 	const itemsWatch: z.infer<typeof invoiceItemSchema>[] = form.watch("items");
@@ -293,13 +324,48 @@ function InvoiceFormInner({
 		}
 	}, [showPaymentTerm, form]);
 
-	const handleFinalCustomerChange = (isChecked: boolean) => {
-		setIsFinalCustomer(isChecked);
-		if (isChecked) {
+	const handleBillToChange = (next: BillTo) => {
+		form.setValue("bill_to", next);
+		if (next === "final") {
 			setSelectedPatient(null);
 			form.setValue("patient_id", "");
 		}
+		if (next !== "customer") {
+			form.clearErrors("customer_id");
+		}
 	};
+
+	const handleCustomerChange = (c: Customer | null) => {
+		setSelectedCustomer(c);
+		form.setValue("customer_id", c ? c.ID.toString() : "", {
+			shouldValidate: form.formState.isSubmitted,
+		});
+	};
+
+	// Who the SRI document will name as buyer, mirroring the backend rule:
+	// customer if chosen, else the patient (when it has a document), else
+	// Consumidor Final.
+	function renderBuyerHelper() {
+		if (billTo === "customer") {
+			return selectedCustomer
+				? textGet("billing.invoice.bill_to.helper.buyer", {
+						name: selectedCustomer.name,
+						identification: selectedCustomer.identification,
+					})
+				: textGet("billing.invoice.bill_to.helper.pick_customer");
+		}
+		if (billTo === "patient" && selectedPatient) {
+			return selectedPatient.document
+				? textGet("billing.invoice.bill_to.helper.buyer", {
+						name:
+							selectedPatient.full_name ||
+							`${selectedPatient.first_name} ${selectedPatient.last_name}`,
+						identification: selectedPatient.document,
+					})
+				: textGet("billing.invoice.bill_to.helper.patient_no_document");
+		}
+		return textGet("billing.invoice.bill_to.helper.final");
+	}
 
 	function renderPaymentMethod() {
 		return Object.entries(PAYMENT_LABELS).map(([value, label]) => ({
@@ -360,20 +426,28 @@ function InvoiceFormInner({
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<div className="flex flex-row items-center gap-2">
-						<Switch
-							checked={isFinalCustomer}
-							onCheckedChange={handleFinalCustomerChange}
-						/>
-						<div>
-							<span className="block font-medium">
-								<Text uuid="billing.invoice.final_consumer" />
-							</span>
-							<span className="text-muted-foreground block text-sm">
-								<Text uuid="billing.invoice.final_consumer.desc" />
-							</span>
-						</div>
-					</div>
+					<Field>
+						<FieldLabel>{textGet("billing.invoice.bill_to")}</FieldLabel>
+						<RadioGroup
+							value={billTo}
+							onValueChange={(v) => handleBillToChange(v as BillTo)}
+							className="grid-cols-1 gap-3 sm:grid-cols-3"
+						>
+							{BILL_TO.map((option) => (
+								<Label
+									key={option}
+									htmlFor={`bill-to-${option}`}
+									className="flex cursor-pointer items-center gap-2 font-normal"
+								>
+									<RadioGroupItem id={`bill-to-${option}`} value={option} />
+									{textGet(`billing.invoice.bill_to.${option}`)}
+								</Label>
+							))}
+						</RadioGroup>
+						<span className="text-muted-foreground block text-sm">
+							{renderBuyerHelper()}
+						</span>
+					</Field>
 
 					<div className="flex flex-row gap-2 items-end w-full">
 						<Field className="flex-1">
@@ -397,6 +471,34 @@ function InvoiceFormInner({
 							<Text uuid="billing.invoice.new_patient" />
 						</Button>
 					</div>
+
+					{billTo === "customer" && (
+						<div className="flex flex-row gap-2 items-end w-full">
+							<Field className="flex-1">
+								<FieldLabel>{textGet("billing.invoice.customer")}</FieldLabel>
+								<CustomerCombobox
+									value={selectedCustomer}
+									onChange={handleCustomerChange}
+									disabled={false}
+									placeholder={textGet("billing.invoice.customer.placeholder")}
+								/>
+								{form.formState.errors.customer_id?.message && (
+									<span className="text-destructive text-sm">
+										{textGet(String(form.formState.errors.customer_id.message))}
+									</span>
+								)}
+							</Field>
+							<Button type="button" onClick={() => setNewCustomerOpen(true)}>
+								<Plus className="mr-2 h-4 w-4" />
+								<Text uuid="billing.invoice.new_customer" />
+							</Button>
+						</div>
+					)}
+					<NewCustomerDialog
+						open={newCustomerOpen}
+						onOpenChange={setNewCustomerOpen}
+						onCreated={handleCustomerChange}
+					/>
 
 					<div
 						className={cn(

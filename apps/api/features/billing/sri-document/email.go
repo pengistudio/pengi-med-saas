@@ -11,7 +11,6 @@ import (
 	"pengi-med-saas/core/mailer"
 	"pengi-med-saas/core/tenantdb"
 	billing_models "pengi-med-saas/features/billing/models"
-	clinical_models "pengi-med-saas/features/clinical/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 	"pengi-med-saas/i18n/catalog"
 	i18n_messages "pengi-med-saas/i18n/messages"
@@ -37,7 +36,7 @@ type Translator func(key string) string
 
 // EmailContent is what a kind's email carries.
 type EmailContent struct {
-	BuyerEmail string // the buyer patient's email, trimmed; "" for Consumidor Final
+	BuyerEmail string // the invoice buyer's email (sri_services.InvoiceBuyer), trimmed; "" for Consumidor Final
 	Number     string // 001-001-000000123
 	Total      float64
 	IssueDate  time.Time
@@ -268,14 +267,6 @@ func (l *Lifecycle) composeEmail(kind Kind, tenant tenant_models.Tenant, content
 func validEmail(s string) bool {
 	addr, err := mail.ParseAddress(s)
 	return err == nil && addr.Address == s && strings.Contains(s, ".")
-}
-
-// patientEmail is the buyer's email, trimmed; "" for Consumidor Final.
-func patientEmail(p *clinical_models.Patient) string {
-	if p == nil {
-		return ""
-	}
-	return strings.TrimSpace(p.Email)
 }
 
 // documentNumber is the printed number of a comprobante: 001-001-000000123.

@@ -124,6 +124,10 @@ var (
 	ErrBillingEmailSendFailed       AppError = NewAppError("E-BILL-019", "The document email could not be sent.")
 	ErrBillingEmailTooSoon          AppError = NewAppError("E-BILL-020", "The document was just emailed. Wait a minute before sending it again.")
 	ErrBillingEmailAttachments      AppError = NewAppError("E-BILL-021", "The RIDE or the authorized XML of the document is not available to email.")
+	ErrBillingCustomerNotFound      AppError = NewAppError("E-BILL-022", "Customer not found.")
+	ErrBillingCustomerDuplicate     AppError = NewAppError("E-BILL-023", "A customer with this identification already exists.")
+	ErrBillingCustomerInvalidID     AppError = NewAppError("E-BILL-024", "The customer's identification is not a valid cédula, RUC or passport.")
+	ErrBillingCustomerInvalid       AppError = NewAppError("E-BILL-025", "Invalid customer data.")
 
 	ErrAuthInvalidSignupToken        AppError = NewAppError("E-AUTH-007", "Invalid or expired signup token.")
 	ErrAuthInvalidPasswordResetToken AppError = NewAppError("E-AUTH-008", "Invalid or expired password reset token.")

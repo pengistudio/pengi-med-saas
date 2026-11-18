@@ -12,7 +12,6 @@ import (
 	"pengi-med-saas/core/pdfrender"
 	billing_models "pengi-med-saas/features/billing/models"
 	billing_templates "pengi-med-saas/features/billing/templates"
-	clinical_models "pengi-med-saas/features/clinical/models"
 	tenant "pengi-med-saas/features/tenants/models"
 )
 
@@ -85,8 +84,8 @@ func buildNoteRideHeader(doc noteRideDocument, tenantObj tenant.Tenant, establis
 		accountingObliged = "SI"
 	}
 
-	WarnOnDanglingPatientRef(doc.kind+"_ride", doc.id, doc.invoice.PatientID, doc.invoice.Patient)
-	buyerIdentification, _, buyerName := ResolveBuyerInfo(doc.invoice.Patient)
+	// Same buyer as the modified invoice.
+	buyer := invoiceBuyer(doc.kind+"_ride", doc.id, doc.invoice)
 
 	return billing_templates.NoteRideHeader{
 		TradeName:            tenantObj.TradeName,
@@ -107,30 +106,14 @@ func buildNoteRideHeader(doc noteRideDocument, tenantObj tenant.Tenant, establis
 		Environment:          rideEnvironment(sriEnv),
 		EmissionType:         "NORMAL",
 		BarcodeBase64:        barcode,
-		BuyerName:            buyerName,
-		BuyerIdentification:  buyerIdentification,
+		BuyerName:            buyer.Name,
+		BuyerIdentification:  buyer.Identification,
 		IssueDate:            doc.issueDate.Format("02/01/2006"),
 		ModifiedDocType:      "FACTURA",
 		ModifiedDocNumber:    fmt.Sprintf("%s-%s-%s", doc.invoice.EstablishmentCode, doc.invoice.EmissionPointCode, doc.invoice.Sequential),
 		ModifiedDocIssueDate: doc.invoice.IssueDate.Format("02/01/2006"),
-		AdditionalInfo:       buyerAdditionalInfo(doc.invoice.Patient),
+		AdditionalInfo:       rideAdditionalInfo(doc.invoice, buyer),
 	}, nil
-}
-
-// buyerAdditionalInfo is the buyer's contact data for Información Adicional.
-// Patients have no address on file, so only email and phone can show.
-func buyerAdditionalInfo(patient *clinical_models.Patient) []billing_templates.RideAdditionalField {
-	if patient == nil {
-		return nil
-	}
-	var fields []billing_templates.RideAdditionalField
-	if patient.Email != "" {
-		fields = append(fields, billing_templates.RideAdditionalField{Name: "Email", Value: patient.Email})
-	}
-	if patient.Phone != "" {
-		fields = append(fields, billing_templates.RideAdditionalField{Name: "Teléfono", Value: patient.Phone})
-	}
-	return fields
 }
 
 // taxSummary accumulates the tax rows of the totals box, one per tax and rate.

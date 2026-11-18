@@ -1,0 +1,175 @@
+import { useText } from "@pengi/shared";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+	Button,
+	Text,
+} from "@pengi/ui";
+import { Plus, Trash } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router";
+import {
+	type Customer,
+	deleteCustomer,
+	getCustomers,
+} from "@/api/billing-service";
+import { PageHeader } from "@/components/custom/page-header";
+import { DataTable } from "@/components/custom/table/data-table";
+import usePermission from "@/hooks/use-permission";
+import { PERMISSIONS, ZERO } from "@/lib/constants";
+import { getCustomerColumns } from "@/sections/columns/billing/customer-columns";
+import { useRowStore } from "@/store/row-store";
+
+const PAGE_LIMIT = 20;
+
+const CustomerList = () => {
+	const { checkPermission } = usePermission();
+	const navigate = useNavigate();
+	const [loading, setLoading] = React.useState(true);
+	const { rows } = useRowStore();
+	const { textGet } = useText();
+	const [customerList, setCustomerList] = React.useState<Customer[]>([]);
+	const [page, setPage] = React.useState(1);
+	const [totalPages, setTotalPages] = React.useState(1);
+	const [search, setSearch] = React.useState("");
+	const [searchInput, setSearchInput] = React.useState("");
+
+	// Requests the page without flagging loading; callers set it first.
+	// (.then instead of await: the React Compiler lint treats every setState in
+	// an async function as synchronous.)
+	const loadCustomers = React.useCallback(
+		(p: number, s: string) =>
+			getCustomers({
+				page: p,
+				limit: PAGE_LIMIT,
+				search: s,
+			}).then((res) => {
+				if (res.success && res.data) {
+					setCustomerList(res.data.items);
+					setTotalPages(res.data.total_pages);
+				}
+				setLoading(false);
+			}),
+		[],
+	);
+
+	// Show the spinner as soon as the query changes (adjust state during render).
+	const [prevQuery, setPrevQuery] = React.useState({ page, search });
+	if (prevQuery.page !== page || prevQuery.search !== search) {
+		setPrevQuery({ page, search });
+		setLoading(true);
+	}
+
+	React.useEffect(() => {
+		loadCustomers(page, search);
+	}, [page, search, loadCustomers]);
+
+	// Debounce search
+	React.useEffect(() => {
+		const timer = setTimeout(() => {
+			setPage(1);
+			setSearch(searchInput);
+		}, 400);
+		return () => clearTimeout(timer);
+	}, [searchInput]);
+
+	const reloadCustomers = async () => {
+		setLoading(true);
+		loadCustomers(page, search);
+	};
+
+	const handleEdit = (id: number) => {
+		navigate(`/billing/customers/edit/${id}`);
+	};
+
+	const handleDeleteRow = async (id: number) => {
+		const res = await deleteCustomer(id);
+		if (res.success) {
+			reloadCustomers();
+		}
+	};
+
+	const handleDelete = async () => {
+		// As this list didn't have bulk delete implemented in API, we delete rows individually
+		for (const id of rows) {
+			await deleteCustomer(Number(id));
+		}
+		reloadCustomers();
+	};
+
+	return (
+		<main className="grid grid-cols-1 items-start gap-4">
+			<PageHeader
+				title={textGet("dashboard.billing.customers")}
+				description={textGet("billing.customer.page.description")}
+				actions={
+					checkPermission([PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]) && (
+						<Button onClick={() => navigate("/billing/customers/create")}>
+							<Plus className="mr-2 h-4 w-4" />
+							<Text uuid="billing.customer.create.button" />
+						</Button>
+					)
+				}
+			/>
+			<div>
+				<DataTable
+					bulkActions={
+						<AlertDialog>
+							{checkPermission([
+								PERMISSIONS.BILLING.PERMISSION_DELETE_BILLING,
+							]) && (
+								<AlertDialogTrigger
+									render={
+										<Button variant="outline" disabled={rows.length === ZERO}>
+											<Trash className="mr-2 h-4 w-4" />
+											<Text uuid="table.button.delete.all.selected" />
+										</Button>
+									}
+								/>
+							)}
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										<Text uuid="dialog.title.absolutely.sure" />
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										<Text uuid="billing.customer.delete.description" />
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>
+										<Text uuid="form.cancel" />
+									</AlertDialogCancel>
+									<AlertDialogAction onClick={handleDelete}>
+										<Text uuid="form.continue" />
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					}
+					searchPlaceholder={textGet("billing.customer.search.placeholder")}
+					searchValue={searchInput}
+					onSearchChange={setSearchInput}
+					columns={getCustomerColumns({
+						onEdit: handleEdit,
+						onDelete: handleDeleteRow,
+					})}
+					data={customerList}
+					loading={loading}
+					pageCount={totalPages}
+					page={page}
+					onPageChange={setPage}
+				/>
+			</div>
+		</main>
+	);
+};
+
+export default CustomerList;

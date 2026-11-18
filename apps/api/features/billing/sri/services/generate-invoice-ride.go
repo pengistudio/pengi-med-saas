@@ -69,8 +69,7 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		})
 	}
 
-	WarnOnDanglingPatientRef("invoice_ride", invoice.ID, invoice.PatientID, invoice.Patient)
-	buyerIdentification, _, buyerName := ResolveBuyerInfo(invoice.Patient)
+	buyer := invoiceBuyer("invoice_ride", invoice.ID, invoice)
 
 	specialContributor := ""
 	if tenantObj.SpecialContributorNumber != nil {
@@ -100,8 +99,9 @@ func buildInvoiceRideData(invoice billing_models.Invoice, tenantObj tenant.Tenan
 		IssueDate:            invoice.IssueDate.Format("02/01/2006"),
 		Sequential:           invoice.Sequential,
 		BarcodeBase64:        bcBase64,
-		BuyerName:            buyerName,
-		BuyerIdentification:  buyerIdentification,
+		BuyerName:            buyer.Name,
+		BuyerIdentification:  buyer.Identification,
+		AdditionalInfo:       rideAdditionalInfo(invoice, buyer),
 		Items:                items,
 		Subtotal:             fmt.Sprintf("%.2f", invoice.Subtotal),
 		Discount:             fmt.Sprintf("%.2f", invoice.Discount),

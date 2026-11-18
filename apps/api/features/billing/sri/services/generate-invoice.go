@@ -257,15 +257,14 @@ func reorderInvoiceInfo(invoice Invoice, tenantObj tenant.Tenant, establishmentA
 		totalWithTaxes = append(totalWithTaxes, *taxInfo)
 	}
 
-	WarnOnDanglingPatientRef("invoice", invoice.ID, invoice.PatientID, invoice.Patient)
-	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(invoice.Patient)
+	buyer := invoiceBuyer("invoice", invoice.ID, invoice)
 
 	return invoiceSRI.InvoiceInfo{
 		IssueDate:               invoice.IssueDate.Format("02/01/2006"),
-		BuyerIdentification:     buyerIdentification,
-		BuyerAddress:            "S/N", // As Pengi's Patient model does not have an address yet
-		BuyerIdentificationType: buyerIdentificationType,
-		BuyerSocialReason:       buyerSocialReason,
+		BuyerIdentification:     buyer.Identification,
+		BuyerAddress:            buyerAddress(buyer),
+		BuyerIdentificationType: buyer.IdentificationType,
+		BuyerSocialReason:       buyer.Name,
 		EstablishmentAddress:    establishmentAddress,
 		SpecialContributor:      tenantObj.SpecialContributorNumber,
 		AccountingObliged:       accountingObliged,
@@ -307,6 +306,8 @@ func GenerateInvoice(invoice Invoice, services []CatalogItem, tenantObj tenant.T
 		TaxInfo:     infoTributariaData,
 		InvoiceInfo: invoiceInfo,
 		Details:     invoiceDetails,
+		// infoAdicional goes last in the XSD; encoding/xml follows field order.
+		AdditionalInfo: xmlAdditionalInfo(invoice, InvoiceBuyer(invoice)),
 	}
 
 	return invoiceSRIObj, nil

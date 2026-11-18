@@ -40,6 +40,9 @@ var Invoice = Kind{
 		if err := db.Unscoped().Where("invoice_id = ?", id).Find(&invoice.Items).Error; err != nil {
 			return "", err
 		}
+		if err := refreshBuyerSnapshot(db, &invoice); err != nil {
+			return "", err
+		}
 		var priced []pricedItem
 		for _, item := range invoice.Items {
 			priced = append(priced, pricedItem{item.ProductID, item.UnitPrice, item.TaxRate, item.IceTax})
@@ -85,7 +88,7 @@ var Invoice = Kind{
 			return EmailContent{}, fmt.Errorf("invoice %d has no access key", invoice.ID)
 		}
 		return EmailContent{
-			BuyerEmail: patientEmail(invoice.Patient),
+			BuyerEmail: sri_services.InvoiceBuyer(invoice).Email,
 			Number:     documentNumber(invoice.EstablishmentCode, invoice.EmissionPointCode, invoice.Sequential),
 			Total:      invoice.Total,
 			IssueDate:  invoice.IssueDate,
@@ -145,7 +148,7 @@ var CreditNote = Kind{
 		return docs.Files.Write(tenant.ID, rideFile(creditNotesFolder, *creditNote.AccessKey), pdf)
 	},
 	EmailTitle: "billing.document.email.title.credit_note",
-	// The buyer is the credited invoice's patient.
+	// The buyer is the credited invoice's.
 	Email: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) (EmailContent, error) {
 		creditNote, err := loadCreditNote(db.Unscoped(), id)
 		if err != nil {
@@ -156,7 +159,7 @@ var CreditNote = Kind{
 		}
 		key := *creditNote.AccessKey
 		return EmailContent{
-			BuyerEmail: patientEmail(creditNote.Invoice.Patient),
+			BuyerEmail: sri_services.InvoiceBuyer(creditNote.Invoice).Email,
 			Number:     documentNumber(creditNote.EstablishmentCode, creditNote.EmissionPointCode, creditNote.Sequential),
 			Total:      creditNote.Total,
 			IssueDate:  creditNote.IssueDate,
@@ -212,7 +215,7 @@ var DebitNote = Kind{
 		return docs.Files.Write(tenant.ID, rideFile(debitNotesFolder, *debitNote.AccessKey), pdf)
 	},
 	EmailTitle: "billing.document.email.title.debit_note",
-	// The buyer is the charged invoice's patient.
+	// The buyer is the charged invoice's.
 	Email: func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) (EmailContent, error) {
 		debitNote, err := loadDebitNote(db.Unscoped(), id)
 		if err != nil {
@@ -223,7 +226,7 @@ var DebitNote = Kind{
 		}
 		key := *debitNote.AccessKey
 		return EmailContent{
-			BuyerEmail: patientEmail(debitNote.Invoice.Patient),
+			BuyerEmail: sri_services.InvoiceBuyer(debitNote.Invoice).Email,
 			Number:     documentNumber(debitNote.EstablishmentCode, debitNote.EmissionPointCode, debitNote.Sequential),
 			Total:      debitNote.Total,
 			IssueDate:  debitNote.IssueDate,
@@ -235,6 +238,32 @@ var DebitNote = Kind{
 			},
 		}, nil
 	},
+}
+
+// refreshBuyerSnapshot records the invoice's current buyer (customer, else
+// patient, else Consumidor Final) on it, right before it is signed. BuildXML
+// only runs on a claimed invoice the SRI has not received, so the snapshot is
+// frozen as of the last attempt and never rewritten once received
+// (validated/authorized). A customer that no longer resolves fails the build
+// instead of silently declaring another buyer.
+func refreshBuyerSnapshot(db *gorm.DB, invoice *billing_models.Invoice) error {
+	var customer *billing_models.Customer
+	if invoice.CustomerID != nil {
+		var c billing_models.Customer
+		if err := db.Unscoped().Where("tenant_id = ?", invoice.TenantID).First(&c, *invoice.CustomerID).Error; err != nil {
+			return fmt.Errorf("load customer %d of invoice %d: %w", *invoice.CustomerID, invoice.ID, err)
+		}
+		customer = &c
+	} else {
+		sri_services.WarnOnDanglingPatientRef("invoice", invoice.ID, invoice.PatientID, invoice.Patient)
+	}
+	invoice.Customer = customer
+	invoice.BuyerSnapshot = sri_services.ResolveLiveBuyer(customer, invoice.Patient).Snapshot()
+	if err := db.Unscoped().Model(&billing_models.Invoice{}).Where("id = ?", invoice.ID).
+		Updates(invoice.BuyerSnapshot.Columns()).Error; err != nil {
+		return fmt.Errorf("store buyer of invoice %d: %w", invoice.ID, err)
+	}
+	return nil
 }
 
 // pricedItem is the price and taxes frozen on a document line when it was issued.

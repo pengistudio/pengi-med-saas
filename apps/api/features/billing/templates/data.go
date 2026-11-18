@@ -27,6 +27,10 @@ type InvoiceRideData struct {
 	BuyerName           string
 	BuyerIdentification string
 
+	// Información adicional: buyer contact data and, when the buyer is a third
+	// party, the patient. Empty when there is none.
+	AdditionalInfo []RideAdditionalField
+
 	// Detalle
 	Items []InvoiceRideItem
 

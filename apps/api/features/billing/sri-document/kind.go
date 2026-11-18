@@ -23,6 +23,8 @@ type Kind struct {
 	// MessageIDField is the JSON field carrying the document ID in a task.
 	MessageIDField string
 	// BuildXML renders the unsigned comprobante XML with the given access key.
+	// Runs only on a claimed attempt, before signing; the invoice kind also
+	// rewrites the invoice's buyer snapshot here (refreshBuyerSnapshot).
 	BuildXML func(db *gorm.DB, id uint, tenant tenant_models.Tenant, accessKey string, sriEnv string) (string, error)
 	// OnAuthorized runs side effects (e.g. rendering the RIDE) once the SRI has
 	// authorized the document. Optional; its errors never fail the authorized

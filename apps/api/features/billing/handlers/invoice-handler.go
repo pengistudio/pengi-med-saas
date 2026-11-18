@@ -17,6 +17,7 @@ import (
 	sri_document "pengi-med-saas/features/billing/sri-document"
 	sri_services "pengi-med-saas/features/billing/sri/services"
 	cash_services "pengi-med-saas/features/cash/services"
+	clinical_models "pengi-med-saas/features/clinical/models"
 	tenant_models "pengi-med-saas/features/tenants/models"
 
 	"github.com/gin-gonic/gin"
@@ -60,6 +61,29 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 	}
 
 	invoice.PatientID = dto.PatientID
+	invoice.CustomerID = dto.CustomerID
+
+	// The buyer: the customer when given, else the patient, else Consumidor
+	// Final. Recorded now for display; rewritten right before each send.
+	if dto.CustomerID != nil {
+		var customer billing_models.Customer
+		if err := db.First(&customer, *dto.CustomerID).Error; err != nil {
+			return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.customer_not_found", core_errors.ErrBillingCustomerNotFound)
+		}
+		invoice.Customer = &customer
+	}
+	var patient *clinical_models.Patient
+	if dto.PatientID != nil {
+		// Another tenant's patient does not exist here (the lifecycle loads it
+		// with a system handle, so it must never be stored).
+		var p clinical_models.Patient
+		if err := db.First(&p, *dto.PatientID).Error; err != nil {
+			return envelope.ErrorResponse(http.StatusNotFound, "billing.invoice.error.patient_not_found", core_errors.ErrBillingInvalidRequest)
+		}
+		patient = &p
+	}
+	buyer := sri_services.ResolveLiveBuyer(invoice.Customer, patient)
+	invoice.BuyerSnapshot = buyer.Snapshot()
 
 	// Compute totals based on CatalogItem (products)
 	var items []billing_models.InvoiceItem
@@ -122,7 +146,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 	invoice.TaxTotal = taxAcc
 	invoice.Total = totalAcc
 
-	if invoice.PatientID == nil && math.Round(invoice.Total*100)/100 > billing_models.FinalConsumerMaxTotal {
+	if buyer.IsFinalConsumer() && math.Round(invoice.Total*100)/100 > billing_models.FinalConsumerMaxTotal {
 		return envelope.ErrorResponse(http.StatusBadRequest, "billing.invoice.error.final_consumer_limit", core_errors.ErrBillingInvalidRequest)
 	}
 
@@ -137,7 +161,8 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) envelope.Response {
 			return seqErr
 		}
 
-		return tx.Create(invoice).Error
+		// Customer is only loaded for the response: never write it back.
+		return tx.Omit("Customer").Create(invoice).Error
 	})
 
 	if err != nil {
@@ -184,7 +209,8 @@ func (h *InvoiceHandler) GetAllInvoices(c *gin.Context) envelope.Response {
 	}
 
 	var invoices []billing_models.Invoice
-	if err := baseQuery.Preload("Patient").Order("created_at DESC").Limit(limit).Offset(offset).Find(&invoices).Error; err != nil {
+	// Customer includes deleted ones: the invoice still names them.
+	if err := baseQuery.Preload("Patient").Preload("Customer", func(tx *gorm.DB) *gorm.DB { return tx.Unscoped() }).Order("created_at DESC").Limit(limit).Offset(offset).Find(&invoices).Error; err != nil {
 		h.logger.Error("Failed to fetch invoices", zap.Error(err))
 		return envelope.ErrorResponse(http.StatusInternalServerError, "billing.invoices.error.fetch_failed", core_errors.ErrInternal)
 	}
