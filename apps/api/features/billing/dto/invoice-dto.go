@@ -7,7 +7,8 @@ type CreateInvoiceItem struct {
 }
 
 type CreateInvoiceDTO struct {
-	PatientID         *uint               `json:"patient_id,omitempty"`
+	PatientID         *uint               `json:"patient_id,omitempty"`  // who was treated
+	CustomerID        *uint               `json:"customer_id,omitempty"` // third-party buyer; nil: the patient, or Consumidor Final
 	PaymentMethod     string              `json:"payment_method" binding:"required"`
 	Term              uint                `json:"term" binding:"gte=0"`
 	TimeUnit          string              `json:"time_unit" binding:"required"`

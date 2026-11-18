@@ -7,6 +7,11 @@ import { isDev } from "@/lib/env";
 import ErrorPage from "@/pages/error/error-page";
 import { DashboardLayout } from "@/sections/template/dashboard-template";
 
+const CustomerList = lazy(() => import("@/pages/billing/customer-list"));
+const CreateCustomerPage = lazy(
+	() => import("@/pages/billing/create-customer"),
+);
+const EditCustomerPage = lazy(() => import("@/pages/billing/edit-customer"));
 const CatalogItemList = lazy(() => import("@/pages/billing/catalog-item-list"));
 const CreateCatalogItemPage = lazy(
 	() => import("@/pages/billing/create-catalog-item"),
@@ -424,6 +429,36 @@ const billingRoutes: RouteObject = {
 					permissions={[PERMISSIONS.BILLING.PERMISSION_UPDATE_BILLING]}
 				>
 					<EditCatalogItemPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "customers",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_READ_BILLING]}
+				>
+					<CustomerList />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "customers/create",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_CREATE_BILLING]}
+				>
+					<CreateCustomerPage />
+				</CheckPermission>
+			),
+		},
+		{
+			path: "customers/edit/:id",
+			element: (
+				<CheckPermission
+					permissions={[PERMISSIONS.BILLING.PERMISSION_UPDATE_BILLING]}
+				>
+					<EditCustomerPage />
 				</CheckPermission>
 			),
 		},

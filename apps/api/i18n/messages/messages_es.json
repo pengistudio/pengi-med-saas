@@ -6928,6 +6928,66 @@
         "value": "El RIDE o el XML autorizado del comprobante no están disponibles para enviarlo."
     },
     {
+        "key": "E-BILL-022",
+        "value": "Cliente no encontrado."
+    },
+    {
+        "key": "E-BILL-023",
+        "value": "Ya existe un cliente con esta identificación."
+    },
+    {
+        "key": "E-BILL-024",
+        "value": "La identificación del cliente no es una cédula, RUC o pasaporte válido."
+    },
+    {
+        "key": "E-BILL-025",
+        "value": "Datos del cliente no válidos."
+    },
+    {
+        "key": "billing.customers.fetch.success",
+        "value": "Clientes obtenidos exitosamente"
+    },
+    {
+        "key": "billing.customer.fetch.success",
+        "value": "Cliente obtenido exitosamente"
+    },
+    {
+        "key": "billing.customer.create.success",
+        "value": "Cliente creado exitosamente"
+    },
+    {
+        "key": "billing.customer.update.success",
+        "value": "Cliente actualizado exitosamente"
+    },
+    {
+        "key": "billing.customer.delete.success",
+        "value": "Cliente eliminado exitosamente"
+    },
+    {
+        "key": "billing.customer.error.not_found",
+        "value": "Cliente no encontrado"
+    },
+    {
+        "key": "billing.customer.error.duplicate_identification",
+        "value": "Ya existe un cliente con esta identificación"
+    },
+    {
+        "key": "billing.customer.error.invalid_identification",
+        "value": "La identificación no es una cédula, RUC o pasaporte válido. No se puede usar la de Consumidor Final."
+    },
+    {
+        "key": "billing.customer.error.invalid_payload",
+        "value": "Revisa los datos del cliente: el nombre y la identificación son obligatorios"
+    },
+    {
+        "key": "billing.invoice.error.customer_not_found",
+        "value": "El cliente de la factura no existe"
+    },
+    {
+        "key": "billing.invoice.error.patient_not_found",
+        "value": "El paciente de la factura no existe"
+    },
+    {
         "key": "signature.title",
         "value": "Firma electrónica"
     },
@@ -16198,5 +16258,157 @@
     {
         "key": "backoffice.audit.load_more",
         "value": "Cargar más"
+    },
+    {
+        "key": "dashboard.billing.customers",
+        "value": "Clientes"
+    },
+    {
+        "key": "billing.customer.page.description",
+        "value": "Compradores a los que facturas aparte del paciente: aseguradoras, empresas o familiares."
+    },
+    {
+        "key": "billing.customer.create.button",
+        "value": "Crear cliente"
+    },
+    {
+        "key": "billing.customer.search.placeholder",
+        "value": "Buscar por nombre o identificación"
+    },
+    {
+        "key": "billing.customer.delete.description",
+        "value": "Los clientes seleccionados se eliminarán. Las facturas ya emitidas conservan sus datos."
+    },
+    {
+        "key": "billing.customer.column.identification",
+        "value": "Identificación"
+    },
+    {
+        "key": "billing.customer.column.name",
+        "value": "Nombre"
+    },
+    {
+        "key": "billing.customer.column.email",
+        "value": "Correo"
+    },
+    {
+        "key": "billing.customer.column.phone",
+        "value": "Teléfono"
+    },
+    {
+        "key": "billing.customer.column.date",
+        "value": "Fecha de creación"
+    },
+    {
+        "key": "billing.customer.list.action.edit",
+        "value": "Editar"
+    },
+    {
+        "key": "billing.customer.list.action.delete",
+        "value": "Eliminar"
+    },
+    {
+        "key": "billing.customer.form.create.title",
+        "value": "Crear cliente"
+    },
+    {
+        "key": "billing.customer.form.create.description",
+        "value": "Registra los datos del comprador para facturarle."
+    },
+    {
+        "key": "billing.customer.form.edit.title",
+        "value": "Editar cliente"
+    },
+    {
+        "key": "billing.customer.form.edit.description",
+        "value": "Modifica los datos y guarda los cambios."
+    },
+    {
+        "key": "billing.customer.form.identification",
+        "value": "Identificación (cédula, RUC o pasaporte)"
+    },
+    {
+        "key": "billing.customer.form.name",
+        "value": "Nombre o razón social"
+    },
+    {
+        "key": "billing.customer.form.address",
+        "value": "Dirección"
+    },
+    {
+        "key": "billing.customer.form.email",
+        "value": "Correo electrónico"
+    },
+    {
+        "key": "billing.customer.form.phone",
+        "value": "Teléfono"
+    },
+    {
+        "key": "billing.customer.form.submit.create",
+        "value": "Guardar cliente"
+    },
+    {
+        "key": "billing.customer.form.submit.edit",
+        "value": "Actualizar cliente"
+    },
+    {
+        "key": "billing.customer.form.error.required",
+        "value": "Este campo es obligatorio."
+    },
+    {
+        "key": "billing.customer.form.error.email",
+        "value": "Ingresa un correo electrónico válido."
+    },
+    {
+        "key": "billing.invoice.bill_to",
+        "value": "Facturar a"
+    },
+    {
+        "key": "billing.invoice.bill_to.patient",
+        "value": "Paciente"
+    },
+    {
+        "key": "billing.invoice.bill_to.customer",
+        "value": "Otro cliente"
+    },
+    {
+        "key": "billing.invoice.bill_to.final",
+        "value": "Consumidor final"
+    },
+    {
+        "key": "billing.invoice.bill_to.customer.required",
+        "value": "Selecciona un cliente o crea uno nuevo."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.buyer",
+        "value": "Se facturará a {name} ({identification})."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.pick_customer",
+        "value": "Selecciona el cliente al que se facturará."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.patient_no_document",
+        "value": "El paciente no tiene documento: se facturará a Consumidor Final (máximo 50 USD)."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.final",
+        "value": "Se facturará a Consumidor Final (máximo 50 USD). Selecciona un paciente o cliente para identificar al comprador."
+    },
+    {
+        "key": "billing.invoice.customer",
+        "value": "Cliente"
+    },
+    {
+        "key": "billing.invoice.customer.placeholder",
+        "value": "Buscar cliente por nombre o identificación"
+    },
+    {
+        "key": "billing.invoice.new_customer",
+        "value": "Nuevo cliente"
+    },
+    {
+        "key": "billing.invoice.new_customer.desc",
+        "value": "Se guardará en tu lista de clientes y quedará seleccionado en esta factura."
     }
 ]

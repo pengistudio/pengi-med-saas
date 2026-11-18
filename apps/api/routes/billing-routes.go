@@ -17,6 +17,7 @@ func RegisterBillingRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	sriDocuments := sri_document.NewDefault(db, logger.Log)
 	invoiceHandler := billing_handlers.NewInvoiceHandler(db, logger.Log, sriDocuments)
 	catalogItemHandler := billing_handlers.NewCatalogItemHandler(db, logger.Log)
+	customerHandler := billing_handlers.NewCustomerHandler(db, logger.Log)
 	creditNoteHandler := billing_handlers.NewCreditNoteHandler(db, logger.Log, sriDocuments)
 	debitNoteHandler := billing_handlers.NewDebitNoteHandler(db, logger.Log, sriDocuments)
 
@@ -35,6 +36,13 @@ func RegisterBillingRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	billingGroup.GET("/catalog-items/:id", rp(db, "READ_BILLING"), envelope.Handle(catalogItemHandler.GetCatalogItemByID))
 	billingGroup.PUT("/catalog-items/:id", rp(db, "UPDATE_BILLING"), envelope.Handle(catalogItemHandler.UpdateCatalogItem))
 	billingGroup.DELETE("/catalog-items/:id", rp(db, "DELETE_BILLING"), envelope.Handle(catalogItemHandler.DeleteCatalogItem))
+
+	// Customers (third-party buyers)
+	billingGroup.POST("/customers", rp(db, "CREATE_BILLING"), envelope.Handle(customerHandler.CreateCustomer))
+	billingGroup.GET("/customers", rp(db, "READ_BILLING"), envelope.Handle(customerHandler.GetAllCustomers))
+	billingGroup.GET("/customers/:id", rp(db, "READ_BILLING"), envelope.Handle(customerHandler.GetCustomerByID))
+	billingGroup.PUT("/customers/:id", rp(db, "UPDATE_BILLING"), envelope.Handle(customerHandler.UpdateCustomer))
+	billingGroup.DELETE("/customers/:id", rp(db, "DELETE_BILLING"), envelope.Handle(customerHandler.DeleteCustomer))
 
 	// RabbitMQ Jobs
 	billingGroup.POST("/invoices/:id/sri/process", rp(db, "MANAGE_SRI_SETTINGS"), envelope.Handle(invoiceHandler.SRIInvoiceProcessing))

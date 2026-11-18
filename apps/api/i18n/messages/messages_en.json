@@ -6928,6 +6928,66 @@
         "value": "The RIDE or the authorized XML of the document is not available to send it."
     },
     {
+        "key": "E-BILL-022",
+        "value": "Customer not found."
+    },
+    {
+        "key": "E-BILL-023",
+        "value": "A customer with this identification already exists."
+    },
+    {
+        "key": "E-BILL-024",
+        "value": "The customer's identification is not a valid cédula, RUC or passport."
+    },
+    {
+        "key": "E-BILL-025",
+        "value": "Invalid customer data."
+    },
+    {
+        "key": "billing.customers.fetch.success",
+        "value": "Customers fetched successfully"
+    },
+    {
+        "key": "billing.customer.fetch.success",
+        "value": "Customer fetched successfully"
+    },
+    {
+        "key": "billing.customer.create.success",
+        "value": "Customer created successfully"
+    },
+    {
+        "key": "billing.customer.update.success",
+        "value": "Customer updated successfully"
+    },
+    {
+        "key": "billing.customer.delete.success",
+        "value": "Customer deleted successfully"
+    },
+    {
+        "key": "billing.customer.error.not_found",
+        "value": "Customer not found"
+    },
+    {
+        "key": "billing.customer.error.duplicate_identification",
+        "value": "A customer with this identification already exists"
+    },
+    {
+        "key": "billing.customer.error.invalid_identification",
+        "value": "The identification is not a valid cédula, RUC or passport. The Consumidor Final one cannot be used."
+    },
+    {
+        "key": "billing.customer.error.invalid_payload",
+        "value": "Check the customer's data: name and identification are required"
+    },
+    {
+        "key": "billing.invoice.error.customer_not_found",
+        "value": "The invoice's customer does not exist"
+    },
+    {
+        "key": "billing.invoice.error.patient_not_found",
+        "value": "The invoice's patient does not exist"
+    },
+    {
         "key": "signature.title",
         "value": "Electronic signature"
     },
@@ -16198,5 +16258,157 @@
     {
         "key": "backoffice.audit.load_more",
         "value": "Load more"
+    },
+    {
+        "key": "dashboard.billing.customers",
+        "value": "Customers"
+    },
+    {
+        "key": "billing.customer.page.description",
+        "value": "Buyers you invoice besides the patient: insurers, companies or relatives."
+    },
+    {
+        "key": "billing.customer.create.button",
+        "value": "Create customer"
+    },
+    {
+        "key": "billing.customer.search.placeholder",
+        "value": "Search by name or identification"
+    },
+    {
+        "key": "billing.customer.delete.description",
+        "value": "The selected customers will be deleted. Invoices already issued keep their data."
+    },
+    {
+        "key": "billing.customer.column.identification",
+        "value": "Identification"
+    },
+    {
+        "key": "billing.customer.column.name",
+        "value": "Name"
+    },
+    {
+        "key": "billing.customer.column.email",
+        "value": "Email"
+    },
+    {
+        "key": "billing.customer.column.phone",
+        "value": "Phone"
+    },
+    {
+        "key": "billing.customer.column.date",
+        "value": "Created"
+    },
+    {
+        "key": "billing.customer.list.action.edit",
+        "value": "Edit"
+    },
+    {
+        "key": "billing.customer.list.action.delete",
+        "value": "Delete"
+    },
+    {
+        "key": "billing.customer.form.create.title",
+        "value": "Create customer"
+    },
+    {
+        "key": "billing.customer.form.create.description",
+        "value": "Enter the buyer's details to invoice them."
+    },
+    {
+        "key": "billing.customer.form.edit.title",
+        "value": "Edit customer"
+    },
+    {
+        "key": "billing.customer.form.edit.description",
+        "value": "Update the details and save the changes."
+    },
+    {
+        "key": "billing.customer.form.identification",
+        "value": "Identification (cédula, RUC or passport)"
+    },
+    {
+        "key": "billing.customer.form.name",
+        "value": "Name or business name"
+    },
+    {
+        "key": "billing.customer.form.address",
+        "value": "Address"
+    },
+    {
+        "key": "billing.customer.form.email",
+        "value": "Email"
+    },
+    {
+        "key": "billing.customer.form.phone",
+        "value": "Phone"
+    },
+    {
+        "key": "billing.customer.form.submit.create",
+        "value": "Save customer"
+    },
+    {
+        "key": "billing.customer.form.submit.edit",
+        "value": "Update customer"
+    },
+    {
+        "key": "billing.customer.form.error.required",
+        "value": "This field is required."
+    },
+    {
+        "key": "billing.customer.form.error.email",
+        "value": "Enter a valid email address."
+    },
+    {
+        "key": "billing.invoice.bill_to",
+        "value": "Bill to"
+    },
+    {
+        "key": "billing.invoice.bill_to.patient",
+        "value": "Patient"
+    },
+    {
+        "key": "billing.invoice.bill_to.customer",
+        "value": "Other customer"
+    },
+    {
+        "key": "billing.invoice.bill_to.final",
+        "value": "Final consumer"
+    },
+    {
+        "key": "billing.invoice.bill_to.customer.required",
+        "value": "Select a customer or create a new one."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.buyer",
+        "value": "The invoice will be issued to {name} ({identification})."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.pick_customer",
+        "value": "Select the customer to be invoiced."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.patient_no_document",
+        "value": "The patient has no document: the invoice will be issued to Final Consumer (50 USD maximum)."
+    },
+    {
+        "key": "billing.invoice.bill_to.helper.final",
+        "value": "The invoice will be issued to Final Consumer (50 USD maximum). Select a patient or customer to identify the buyer."
+    },
+    {
+        "key": "billing.invoice.customer",
+        "value": "Customer"
+    },
+    {
+        "key": "billing.invoice.customer.placeholder",
+        "value": "Search customer by name or identification"
+    },
+    {
+        "key": "billing.invoice.new_customer",
+        "value": "New customer"
+    },
+    {
+        "key": "billing.invoice.new_customer.desc",
+        "value": "It will be saved to your customers and selected on this invoice."
     }
 ]

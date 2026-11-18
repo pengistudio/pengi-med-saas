@@ -122,10 +122,25 @@
             text-align: right;
         }
 
+        .bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .additional {
+            flex: 1;
+        }
+
+        .additional table {
+            margin-top: 0;
+        }
+
         .totals {
             width: 60mm;
             margin-left: auto;
-            margin-top: 10px;
         }
 
         .totals div {
@@ -206,13 +221,29 @@
             </tbody>
         </table>
 
-        <div class="totals">
-            <div><span>Subtotal</span><span>{{.Subtotal}}</span></div>
-            <div><span>Descuento</span><span>-{{.Discount}}</span></div>
-            {{range .TaxSummary}}
-            <div><span>{{.Label}}</span><span>{{.Value}}</span></div>
-            {{end}}
-            <div class="grand-total"><span>Total</span><span>{{.Total}}</span></div>
+        <div class="bottom">
+            <div class="additional">
+                {{if .AdditionalInfo}}
+                <table>
+                    <thead>
+                        <tr><th colspan="2">Información Adicional</th></tr>
+                    </thead>
+                    <tbody>
+                        {{range .AdditionalInfo}}
+                        <tr><td>{{.Name}}</td><td>{{.Value}}</td></tr>
+                        {{end}}
+                    </tbody>
+                </table>
+                {{end}}
+            </div>
+            <div class="totals">
+                <div><span>Subtotal</span><span>{{.Subtotal}}</span></div>
+                <div><span>Descuento</span><span>-{{.Discount}}</span></div>
+                {{range .TaxSummary}}
+                <div><span>{{.Label}}</span><span>{{.Value}}</span></div>
+                {{end}}
+                <div class="grand-total"><span>Total</span><span>{{.Total}}</span></div>
+            </div>
         </div>
 
         <div class="footer">

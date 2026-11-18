@@ -73,6 +73,21 @@ function ChargeButton({
  * (adds the collection status); `cash.onCharge` (the Cobrar action) only when
  * the user may charge too.
  */
+const invoicePatientName = (invoice: Invoice) =>
+	invoice.patient
+		? `${invoice.patient.first_name} ${invoice.patient.last_name}`.trim()
+		: "";
+
+/** The real buyer: signed snapshot, else the chosen customer, else the patient. */
+const invoiceBuyerName = (invoice: Invoice) =>
+	invoice.buyer_name || invoice.customer?.name || invoicePatientName(invoice);
+
+const invoiceBuyerIdentification = (invoice: Invoice) =>
+	invoice.buyer_identification ||
+	invoice.customer?.identification ||
+	invoice.patient?.document ||
+	"";
+
 export function getInvoiceColumns(
 	onRetry: (id: number) => void | Promise<void>,
 	cash?: { onCharge?: (invoice: Invoice) => void },
@@ -123,14 +138,10 @@ export function getInvoiceColumns(
 				/>
 			),
 			cell: ({ row }) => {
-				const patient = row.original.patient;
+				const identification = invoiceBuyerIdentification(row.original);
 				return (
 					<span>
-						{patient ? (
-							patient.document
-						) : (
-							<Text uuid="billing.invoice.final_consumer" />
-						)}
+						{identification || <Text uuid="billing.invoice.final_consumer" />}
 					</span>
 				);
 			},
@@ -145,16 +156,22 @@ export function getInvoiceColumns(
 				/>
 			),
 			cell: ({ row }) => {
-				const patient = row.original.patient;
-				if (!patient)
+				const buyerName = invoiceBuyerName(row.original);
+				const patientName = invoicePatientName(row.original);
+				if (!buyerName)
 					return (
 						<span className="text-muted-foreground">
 							<Text uuid="billing.invoice.final_consumer" />
 						</span>
 					);
 				return (
-					<span>
-						{patient.first_name} {patient.last_name}
+					<span className="flex flex-col">
+						<span>{buyerName}</span>
+						{patientName && patientName !== buyerName && (
+							<span className="text-muted-foreground text-xs">
+								{patientName}
+							</span>
+						)}
 					</span>
 				);
 			},
@@ -231,7 +248,11 @@ export function getInvoiceColumns(
 					<DownloadRideButton invoice={row.original} />
 					<SriDocumentEmailAction
 						doc={row.original}
-						buyerEmail={row.original.patient?.email}
+						buyerEmail={
+							row.original.buyer_email ||
+							row.original.customer?.email ||
+							row.original.patient?.email
+						}
 						send={(email) => sendInvoiceEmail(row.original.ID, email)}
 						onSent={onEmailed}
 					/>

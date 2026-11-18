@@ -82,8 +82,8 @@ func reorderDebitNoteInfo(debitNote billing_models.DebitNote, tenantObj tenant.T
 		taxes = append(taxes, *tax)
 	}
 
-	WarnOnDanglingPatientRef("debit_note", debitNote.ID, debitNote.Invoice.PatientID, debitNote.Invoice.Patient)
-	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(debitNote.Invoice.Patient)
+	// Same buyer as the charged invoice.
+	buyer := invoiceBuyer("debit_note", debitNote.ID, debitNote.Invoice)
 
 	modifiedDocNumber := fmt.Sprintf("%s-%s-%s", debitNote.Invoice.EstablishmentCode, debitNote.Invoice.EmissionPointCode, debitNote.Invoice.Sequential)
 	currency := "DOLAR"
@@ -93,9 +93,9 @@ func reorderDebitNoteInfo(debitNote billing_models.DebitNote, tenantObj tenant.T
 		EstablishmentAddress:    establishmentAddress,
 		SpecialContributor:      tenantObj.SpecialContributorNumber,
 		AccountingObliged:       accountingObliged,
-		BuyerIdentificationType: buyerIdentificationType,
-		BuyerSocialReason:       buyerSocialReason,
-		BuyerIdentification:     buyerIdentification,
+		BuyerIdentificationType: buyer.IdentificationType,
+		BuyerSocialReason:       buyer.Name,
+		BuyerIdentification:     buyer.Identification,
 		ModifiedDocCode:         "01", // Factura
 		ModifiedDocNumber:       modifiedDocNumber,
 		ModifiedDocIssueDate:    debitNote.Invoice.IssueDate.Format("02/01/2006"),
@@ -124,13 +124,14 @@ func GenerateDebitNote(debitNote billing_models.DebitNote, tenantObj tenant.Tena
 	motives := reorderDebitMotives(debitNote)
 
 	debitNoteSRIObj := &invoiceSRI.DebitNoteSRI{
-		ID:            "comprobante",
-		Version:       "1.0.0",
-		XmlnsDS:       "http://www.w3.org/2000/09/xmldsig#",
-		XmlnsXSI:      "http://www.w3.org/2001/XMLSchema-instance",
-		TaxInfo:       taxInfo,
-		DebitNoteInfo: debitNoteInfo,
-		Motives:       motives,
+		ID:             "comprobante",
+		Version:        "1.0.0",
+		XmlnsDS:        "http://www.w3.org/2000/09/xmldsig#",
+		XmlnsXSI:       "http://www.w3.org/2001/XMLSchema-instance",
+		TaxInfo:        taxInfo,
+		DebitNoteInfo:  debitNoteInfo,
+		Motives:        motives,
+		AdditionalInfo: xmlAdditionalInfo(debitNote.Invoice, InvoiceBuyer(debitNote.Invoice)),
 	}
 
 	return debitNoteSRIObj, nil

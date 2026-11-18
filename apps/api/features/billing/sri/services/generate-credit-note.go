@@ -141,8 +141,8 @@ func reorderCreditNoteInfo(creditNote billing_models.CreditNote, tenantObj tenan
 		totalWithTaxes = append(totalWithTaxes, *taxInfo)
 	}
 
-	WarnOnDanglingPatientRef("credit_note", creditNote.ID, creditNote.Invoice.PatientID, creditNote.Invoice.Patient)
-	buyerIdentification, buyerIdentificationType, buyerSocialReason := ResolveBuyerInfo(creditNote.Invoice.Patient)
+	// Same buyer as the credited invoice.
+	buyer := invoiceBuyer("credit_note", creditNote.ID, creditNote.Invoice)
 
 	modifiedDocNumber := fmt.Sprintf("%s-%s-%s", creditNote.Invoice.EstablishmentCode, creditNote.Invoice.EmissionPointCode, creditNote.Invoice.Sequential)
 
@@ -152,9 +152,9 @@ func reorderCreditNoteInfo(creditNote billing_models.CreditNote, tenantObj tenan
 		EstablishmentAddress:    establishmentAddress,
 		SpecialContributor:      tenantObj.SpecialContributorNumber,
 		AccountingObliged:       accountingObliged,
-		BuyerIdentificationType: buyerIdentificationType,
-		BuyerSocialReason:       buyerSocialReason,
-		BuyerIdentification:     buyerIdentification,
+		BuyerIdentificationType: buyer.IdentificationType,
+		BuyerSocialReason:       buyer.Name,
+		BuyerIdentification:     buyer.Identification,
 		ModifiedDocCode:         "01", // Factura
 		ModifiedDocNumber:       modifiedDocNumber,
 		ModifiedDocIssueDate:    creditNote.Invoice.IssueDate.Format("02/01/2006"),
@@ -194,6 +194,7 @@ func GenerateCreditNote(creditNote billing_models.CreditNote, services []Catalog
 		TaxInfo:        taxInfo,
 		CreditNoteInfo: creditNoteInfo,
 		Details:        details,
+		AdditionalInfo: xmlAdditionalInfo(creditNote.Invoice, InvoiceBuyer(creditNote.Invoice)),
 	}
 
 	return creditNoteSRIObj, nil
