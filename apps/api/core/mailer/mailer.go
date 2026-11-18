@@ -13,6 +13,10 @@ import (
 
 const resendURL = "https://api.resend.com/emails"
 
+// httpClient bounds every send: some run inside background consumers (the SRI
+// lifecycle) that must not hang on a slow provider.
+var httpClient = &http.Client{Timeout: 30 * time.Second}
+
 type Mailer struct {
 	apiKey   string
 	from     string
@@ -70,7 +74,7 @@ func (m *Mailer) sendWithAttachments(to, subject, html string, attachments []res
 	req.Header.Set("Authorization", "Bearer "+m.apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -252,4 +256,47 @@ func (m *Mailer) SendPortalNotice(toEmail string, e PortalNoticeEmail) error {
 </html>`, esc(e.Heading), body.String(), esc(e.Footer))
 
 	return m.send(toEmail, e.Subject, page)
+}
+
+// Attachment is a file attached to an email.
+type Attachment struct {
+	Filename string
+	Content  []byte
+}
+
+// SriDocumentEmail is the already-translated text of the email that delivers
+// an authorized comprobante electrónico (RIDE + authorized XML) to its buyer.
+type SriDocumentEmail struct {
+	Subject     string
+	Heading     string
+	Lines       []string // paragraphs
+	Footer      string   // small print
+	Attachments []Attachment
+}
+
+// SendSriDocument emails an authorized comprobante to its buyer. Every text is
+// HTML-escaped: they carry the issuer's and buyer's names.
+func (m *Mailer) SendSriDocument(toEmail string, e SriDocumentEmail) error {
+	esc := html.EscapeString
+	var body bytes.Buffer
+	for _, line := range e.Lines {
+		if line == "" {
+			continue
+		}
+		fmt.Fprintf(&body, "  <p>%s</p>\n", esc(line))
+	}
+	page := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color: #0d9488;">%s</h2>
+%s  <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+  <p style="color: #999; font-size: 12px;">%s</p>
+</body>
+</html>`, esc(e.Heading), body.String(), esc(e.Footer))
+
+	attachments := make([]resendAttachment, 0, len(e.Attachments))
+	for _, a := range e.Attachments {
+		attachments = append(attachments, resendAttachment{Filename: a.Filename, Content: base64.StdEncoding.EncodeToString(a.Content)})
+	}
+	return m.sendWithAttachments(toEmail, e.Subject, page, attachments)
 }

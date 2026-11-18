@@ -6,9 +6,14 @@ import {
 	downloadInvoiceRide,
 	downloadInvoiceXml,
 	type Invoice,
+	sendInvoiceEmail,
 } from "@/api/billing-service";
 import { InvoiceStatusBadge } from "@/components/custom/billing/invoice-status-badge";
 import { SriDocumentDownloads } from "@/components/custom/billing/sri-document-downloads";
+import {
+	SriDocumentEmailAction,
+	SriDocumentEmailStatus,
+} from "@/components/custom/billing/sri-document-email";
 import { Money } from "@/components/custom/formatted";
 import { RelativeDate } from "@/components/custom/relative-date";
 import { selectColumn } from "@/components/custom/table/select-column";
@@ -71,6 +76,7 @@ function ChargeButton({
 export function getInvoiceColumns(
 	onRetry: (id: number) => void | Promise<void>,
 	cash?: { onCharge?: (invoice: Invoice) => void },
+	onEmailed?: () => void,
 ): DataTableColumnDef<Invoice>[] {
 	const onCharge = cash?.onCharge;
 	const paymentStatusColumn: DataTableColumnDef<Invoice> = {
@@ -208,6 +214,13 @@ export function getInvoiceColumns(
 			),
 		},
 		{
+			id: "email",
+			meta: { title: "billing.document.email.column" },
+			header: () => <Text uuid="billing.document.email.column" />,
+			cell: ({ row }) => <SriDocumentEmailStatus doc={row.original} />,
+			enableSorting: false,
+		},
+		{
 			id: "actions",
 			header: () => null,
 			cell: ({ row }) => (
@@ -216,6 +229,12 @@ export function getInvoiceColumns(
 						<ChargeButton invoice={row.original} onCharge={onCharge} />
 					)}
 					<DownloadRideButton invoice={row.original} />
+					<SriDocumentEmailAction
+						doc={row.original}
+						buyerEmail={row.original.patient?.email}
+						send={(email) => sendInvoiceEmail(row.original.ID, email)}
+						onSent={onEmailed}
+					/>
 					<SriDocumentDownloads
 						status={row.original.status}
 						fileBase={`factura_${row.original.establishment_code}-${row.original.emission_point_code}-${row.original.sequential}`}

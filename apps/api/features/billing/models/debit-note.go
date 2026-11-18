@@ -32,6 +32,7 @@ type DebitNote struct {
 	Motives           []DebitNoteMotive `gorm:"foreignKey:DebitNoteID" json:"motives"`
 	EstablishmentCode string            `json:"establishment_code"`
 	EmissionPointCode string            `json:"emission_point_code"`
+	EmailDelivery
 }
 
 type DebitNoteMotive struct {

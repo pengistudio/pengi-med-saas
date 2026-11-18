@@ -33,6 +33,7 @@ type CreditNote struct {
 	Items             []CreditNoteItem `gorm:"foreignKey:CreditNoteID" json:"items"`
 	EstablishmentCode string           `json:"establishment_code"`
 	EmissionPointCode string           `json:"emission_point_code"`
+	EmailDelivery
 }
 
 type CreditNoteItem struct {

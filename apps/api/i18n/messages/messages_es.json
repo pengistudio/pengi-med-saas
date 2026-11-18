@@ -3824,6 +3824,66 @@
         "value": "El XML autorizado de este comprobante no está disponible"
     },
     {
+        "key": "billing.document.email.success",
+        "value": "Comprobante enviado por correo"
+    },
+    {
+        "key": "billing.document.email.error.no_recipient",
+        "value": "El comprador no tiene correo electrónico. Ingresa uno para enviar el comprobante"
+    },
+    {
+        "key": "billing.document.email.error.invalid_recipient",
+        "value": "El correo electrónico del destinatario no es válido"
+    },
+    {
+        "key": "billing.document.email.error.too_soon",
+        "value": "El comprobante se acaba de enviar. Espera un minuto antes de reenviarlo"
+    },
+    {
+        "key": "billing.document.email.error.send_failed",
+        "value": "No se pudo enviar el comprobante por correo"
+    },
+    {
+        "key": "billing.document.email.error.attachments",
+        "value": "El RIDE o el XML autorizado del comprobante no están disponibles para enviarlo"
+    },
+    {
+        "key": "billing.document.email.title.invoice",
+        "value": "Factura"
+    },
+    {
+        "key": "billing.document.email.title.credit_note",
+        "value": "Nota de crédito"
+    },
+    {
+        "key": "billing.document.email.title.debit_note",
+        "value": "Nota de débito"
+    },
+    {
+        "key": "billing.document.email.subject",
+        "value": "{document} {number} — {issuer}"
+    },
+    {
+        "key": "billing.document.email.heading",
+        "value": "{document} {number}"
+    },
+    {
+        "key": "billing.document.email.intro",
+        "value": "{issuer} te envía tu comprobante electrónico autorizado por el SRI."
+    },
+    {
+        "key": "billing.document.email.summary",
+        "value": "Comprobante N.º {number}, emitido el {date}, por un total de {total}."
+    },
+    {
+        "key": "billing.document.email.attachments",
+        "value": "Adjuntamos el RIDE (PDF) y el XML autorizado. El XML es el comprobante con validez tributaria: consérvalo."
+    },
+    {
+        "key": "billing.document.email.footer",
+        "value": "Puedes verificar este comprobante en el portal del SRI con la clave de acceso {access_key}."
+    },
+    {
         "key": "billing.credit_note.error.not_found",
         "value": "Nota de crédito no encontrada"
     },
@@ -3834,6 +3894,58 @@
     {
         "key": "billing.document.xml.download",
         "value": "Descargar XML"
+    },
+    {
+        "key": "billing.document.email.column",
+        "value": "Correo"
+    },
+    {
+        "key": "billing.document.email.send",
+        "value": "Enviar por correo"
+    },
+    {
+        "key": "billing.document.email.resend",
+        "value": "Reenviar por correo"
+    },
+    {
+        "key": "billing.document.email.dialog.title",
+        "value": "Enviar comprobante por correo"
+    },
+    {
+        "key": "billing.document.email.dialog.description",
+        "value": "Se enviará el comprobante autorizado (RIDE y XML) a este correo."
+    },
+    {
+        "key": "billing.document.email.field.label",
+        "value": "Correo del destinatario"
+    },
+    {
+        "key": "billing.document.email.field.placeholder",
+        "value": "cliente@correo.com"
+    },
+    {
+        "key": "billing.document.email.field.error",
+        "value": "Ingresa un correo válido"
+    },
+    {
+        "key": "billing.document.email.submit",
+        "value": "Enviar"
+    },
+    {
+        "key": "billing.document.email.status.sent",
+        "value": "Enviado"
+    },
+    {
+        "key": "billing.document.email.status.failed",
+        "value": "Falló el envío"
+    },
+    {
+        "key": "billing.document.email.status.not_sent",
+        "value": "No enviado"
+    },
+    {
+        "key": "billing.document.email.status.sent_to",
+        "value": "Enviado a {email} el {date}"
     },
     {
         "key": "billing.debit_note.create.success",
@@ -6794,6 +6906,26 @@
     {
         "key": "E-BILL-016",
         "value": "La empresa no tiene dirección matriz, que el SRI exige. Agrégala en la configuración de la empresa para emitir comprobantes."
+    },
+    {
+        "key": "E-BILL-017",
+        "value": "El comprador no tiene correo electrónico. Ingresa uno para enviar el comprobante."
+    },
+    {
+        "key": "E-BILL-018",
+        "value": "El correo electrónico no es válido."
+    },
+    {
+        "key": "E-BILL-019",
+        "value": "No se pudo enviar el comprobante por correo. Inténtalo de nuevo más tarde."
+    },
+    {
+        "key": "E-BILL-020",
+        "value": "El comprobante se acaba de enviar. Espera un minuto antes de reenviarlo."
+    },
+    {
+        "key": "E-BILL-021",
+        "value": "El RIDE o el XML autorizado del comprobante no están disponibles para enviarlo."
     },
     {
         "key": "signature.title",

@@ -104,8 +104,11 @@ const DebitNoteListPage = () => {
 	);
 
 	const columns = useMemo(
-		() => getDebitNoteColumns(handleRetry),
-		[handleRetry],
+		() =>
+			getDebitNoteColumns(handleRetry, () =>
+				fetchDebitNotes(page, search, statusFilter),
+			),
+		[handleRetry, fetchDebitNotes, page, search, statusFilter],
 	);
 
 	return (

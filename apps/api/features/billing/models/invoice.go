@@ -41,6 +41,7 @@ type Invoice struct {
 	CompanyID         uint                     `json:"company_id"` // Optional if you need it, or can be replaced by Tenant logic
 	EstablishmentCode string                   `json:"establishment_code"`
 	EmissionPointCode string                   `json:"emission_point_code"`
+	EmailDelivery
 
 	// Collection status, computed from the cash payments (cash_services.
 	// ApplyPaymentStatus), not stored. Null for invoices issued before the

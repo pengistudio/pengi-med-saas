@@ -42,6 +42,11 @@ type Lifecycle struct {
 	docs      Documents
 	publisher Publisher
 	sriEnv    string // SRI ambiente code: "1" pruebas, "2" producción
+
+	// Emailing authorized documents to their buyer (email.go); nil mailer:
+	// nothing is emailed automatically and SendEmail fails.
+	mailer    Mailer
+	translate Translator
 }
 
 func New(db *gorm.DB, logger *zap.Logger, gateway Gateway, publisher Publisher, docs Documents, sriEnv string) *Lifecycle {
@@ -241,6 +246,9 @@ func (l *Lifecycle) authorize(kind Kind, doc document, tenant tenant_models.Tena
 				log.Error("post-authorization step failed", zap.Error(err))
 			}
 		}
+		// After OnAuthorized so the RIDE is stored. Never fails or reverts the
+		// authorization; a failure is recorded in email_error for a manual resend.
+		l.emailOnAuthorized(kind, doc.ID, tenant)
 	}
 }
 

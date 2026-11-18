@@ -104,8 +104,11 @@ const CreditNoteListPage = () => {
 	);
 
 	const columns = useMemo(
-		() => getCreditNoteColumns(handleRetry),
-		[handleRetry],
+		() =>
+			getCreditNoteColumns(handleRetry, () =>
+				fetchCreditNotes(page, search, statusFilter),
+			),
+		[handleRetry, fetchCreditNotes, page, search, statusFilter],
 	);
 
 	return (

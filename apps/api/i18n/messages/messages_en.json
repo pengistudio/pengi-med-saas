@@ -3824,6 +3824,66 @@
         "value": "The authorized XML of this document is not available"
     },
     {
+        "key": "billing.document.email.success",
+        "value": "Document sent by email"
+    },
+    {
+        "key": "billing.document.email.error.no_recipient",
+        "value": "The buyer has no email address. Enter one to send the document"
+    },
+    {
+        "key": "billing.document.email.error.invalid_recipient",
+        "value": "The recipient's email address is not valid"
+    },
+    {
+        "key": "billing.document.email.error.too_soon",
+        "value": "The document was just sent. Wait a minute before sending it again"
+    },
+    {
+        "key": "billing.document.email.error.send_failed",
+        "value": "The document could not be sent by email"
+    },
+    {
+        "key": "billing.document.email.error.attachments",
+        "value": "The RIDE or the authorized XML of the document is not available to send it"
+    },
+    {
+        "key": "billing.document.email.title.invoice",
+        "value": "Invoice"
+    },
+    {
+        "key": "billing.document.email.title.credit_note",
+        "value": "Credit note"
+    },
+    {
+        "key": "billing.document.email.title.debit_note",
+        "value": "Debit note"
+    },
+    {
+        "key": "billing.document.email.subject",
+        "value": "{document} {number} — {issuer}"
+    },
+    {
+        "key": "billing.document.email.heading",
+        "value": "{document} {number}"
+    },
+    {
+        "key": "billing.document.email.intro",
+        "value": "{issuer} sends you your electronic document authorized by the SRI."
+    },
+    {
+        "key": "billing.document.email.summary",
+        "value": "Document No. {number}, issued on {date}, for a total of {total}."
+    },
+    {
+        "key": "billing.document.email.attachments",
+        "value": "Attached are the RIDE (PDF) and the authorized XML. The XML is the document with tax validity: keep it."
+    },
+    {
+        "key": "billing.document.email.footer",
+        "value": "You can verify this document on the SRI portal with the access key {access_key}."
+    },
+    {
         "key": "billing.credit_note.error.not_found",
         "value": "Credit note not found"
     },
@@ -3834,6 +3894,58 @@
     {
         "key": "billing.document.xml.download",
         "value": "Download XML"
+    },
+    {
+        "key": "billing.document.email.column",
+        "value": "Email"
+    },
+    {
+        "key": "billing.document.email.send",
+        "value": "Send by email"
+    },
+    {
+        "key": "billing.document.email.resend",
+        "value": "Resend by email"
+    },
+    {
+        "key": "billing.document.email.dialog.title",
+        "value": "Send document by email"
+    },
+    {
+        "key": "billing.document.email.dialog.description",
+        "value": "The authorized document (RIDE and XML) will be sent to this address."
+    },
+    {
+        "key": "billing.document.email.field.label",
+        "value": "Recipient email"
+    },
+    {
+        "key": "billing.document.email.field.placeholder",
+        "value": "customer@email.com"
+    },
+    {
+        "key": "billing.document.email.field.error",
+        "value": "Enter a valid email"
+    },
+    {
+        "key": "billing.document.email.submit",
+        "value": "Send"
+    },
+    {
+        "key": "billing.document.email.status.sent",
+        "value": "Sent"
+    },
+    {
+        "key": "billing.document.email.status.failed",
+        "value": "Delivery failed"
+    },
+    {
+        "key": "billing.document.email.status.not_sent",
+        "value": "Not sent"
+    },
+    {
+        "key": "billing.document.email.status.sent_to",
+        "value": "Sent to {email} on {date}"
     },
     {
         "key": "billing.debit_note.create.success",
@@ -6794,6 +6906,26 @@
     {
         "key": "E-BILL-016",
         "value": "The company has no address (dirección matriz), which the SRI requires. Add it in Company settings to issue documents."
+    },
+    {
+        "key": "E-BILL-017",
+        "value": "The buyer has no email address. Enter one to send the document."
+    },
+    {
+        "key": "E-BILL-018",
+        "value": "The email address is not valid."
+    },
+    {
+        "key": "E-BILL-019",
+        "value": "The document could not be sent by email. Try again later."
+    },
+    {
+        "key": "E-BILL-020",
+        "value": "The document was just sent. Wait a minute before sending it again."
+    },
+    {
+        "key": "E-BILL-021",
+        "value": "The RIDE or the authorized XML of the document is not available to send it."
     },
     {
         "key": "signature.title",

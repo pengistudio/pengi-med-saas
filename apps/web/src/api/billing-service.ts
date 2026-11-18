@@ -56,6 +56,11 @@ export interface Invoice extends BaseModel {
 	/** Collected through the cash desk; null for invoices before the first cash session. */
 	paid_amount?: number | null;
 	payment_status?: "unpaid" | "partial" | "paid" | null;
+	/** Email delivery of the authorized comprobante (null until sent / on success). */
+	emailed_at?: string | null;
+	emailed_to?: string | null;
+	/** i18n key of the last delivery failure. */
+	email_error?: string | null;
 }
 
 export interface CreditNoteItem {
@@ -84,6 +89,11 @@ export interface CreditNote extends BaseModel {
 	tax_total: number;
 	total: number;
 	items: CreditNoteItem[];
+	/** Email delivery of the authorized comprobante (null until sent / on success). */
+	emailed_at?: string | null;
+	emailed_to?: string | null;
+	/** i18n key of the last delivery failure. */
+	email_error?: string | null;
 }
 
 export type CreateCreditNotePayload = {
@@ -119,6 +129,11 @@ export interface DebitNote extends BaseModel {
 	tax_total: number;
 	total: number;
 	motives: DebitNoteMotive[];
+	/** Email delivery of the authorized comprobante (null until sent / on success). */
+	emailed_at?: string | null;
+	emailed_to?: string | null;
+	/** i18n key of the last delivery failure. */
+	email_error?: string | null;
 }
 
 export type CreateDebitNotePayload = {
@@ -266,6 +281,33 @@ export const downloadDebitNoteRide = (id: number) =>
 
 export const downloadDebitNoteXml = (id: number) =>
 	downloadSriDocumentFile("debit-notes", id, "xml");
+
+export interface SriDocumentEmailResult {
+	emailed_at: string | null;
+	emailed_to: string | null;
+	email_error: string | null;
+}
+
+/** Emails the authorized comprobante to `email` (the backend validates it). */
+const sendSriDocumentEmail = (
+	path: SriDocumentPath,
+	id: number,
+	email: string,
+): Promise<ServiceResponse<SriDocumentEmailResult>> =>
+	billingService.post<SriDocumentEmailResult>(
+		`/billing/${path}/${id}/email`,
+		{ email },
+		{ notifySuccess: true, notifyError: true },
+	);
+
+export const sendInvoiceEmail = (id: number, email: string) =>
+	sendSriDocumentEmail("invoices", id, email);
+
+export const sendCreditNoteEmail = (id: number, email: string) =>
+	sendSriDocumentEmail("credit-notes", id, email);
+
+export const sendDebitNoteEmail = (id: number, email: string) =>
+	sendSriDocumentEmail("debit-notes", id, email);
 
 export type CreditNoteListParams = {
 	page?: number;

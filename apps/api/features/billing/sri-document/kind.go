@@ -12,7 +12,9 @@ import (
 //
 // Model's table must have the shared lifecycle columns: tenant_id, status,
 // access_key, authorized_at, error_code, error_message, document_code,
-// emission_type, sequential, issue_date, establishment_code, emission_point_code.
+// emission_type, sequential, issue_date, establishment_code, emission_point_code;
+// a kind with Email also needs emailed_at, emailed_to and email_error
+// (billing_models.EmailDelivery).
 type Kind struct {
 	Name   string // for logs, e.g. "invoice"
 	Queue  string // RabbitMQ queue its tasks go through
@@ -26,4 +28,11 @@ type Kind struct {
 	// authorized the document. Optional; its errors never fail the authorized
 	// document.
 	OnAuthorized func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant, sriEnv string) error
+	// EmailTitle is the i18n key of the document's name in the buyer's email
+	// (e.g. "Factura").
+	EmailTitle string
+	// Email loads what the email delivering an authorized document to its
+	// buyer carries (see Lifecycle.SendEmail). Optional: a kind without it is
+	// never emailed. db is bound to the document's tenant.
+	Email func(db *gorm.DB, docs Documents, id uint, tenant tenant_models.Tenant) (EmailContent, error)
 }
