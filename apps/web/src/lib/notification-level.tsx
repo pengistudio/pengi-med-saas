@@ -1,8 +1,16 @@
 import {
+	Bell,
+	CalendarClock,
+	CalendarPlus,
 	CheckCircle2,
+	ClipboardList,
+	FileText,
+	type LucideIcon,
+	Megaphone,
 	MessageCircle,
 	OctagonAlert,
 	TriangleAlert,
+	UserPlus,
 } from "lucide-react";
 import type { NavigateFunction } from "react-router";
 import type {
@@ -72,4 +80,53 @@ export function openNotificationLink(url: string, navigate: NavigateFunction) {
 	} else {
 		navigate(url);
 	}
+}
+
+const typeIcons: { prefix: string; icon: LucideIcon }[] = [
+	{ prefix: "portal.booking.new_patient", icon: UserPlus },
+	{ prefix: "portal.booking", icon: CalendarPlus },
+	{ prefix: "whatsapp.", icon: MessageCircle },
+	{ prefix: "waitlist.", icon: CalendarClock },
+	{ prefix: "clinical.draft", icon: FileText },
+	{ prefix: "clinical.exam_order", icon: ClipboardList },
+	{ prefix: "announcement", icon: Megaphone },
+];
+
+const levelTints = {
+	success: "bg-emerald-500/10 text-emerald-600",
+	warning: "bg-amber-500/10 text-amber-600",
+	critical: "bg-destructive/10 text-destructive",
+} as const;
+
+/**
+ * Round icon for the notifications page: one per notification type, tinted by
+ * the level when the backoffice or a usage alert flagged it.
+ */
+export function NotificationAvatar({
+	notification,
+	className,
+}: {
+	notification: Pick<Notification, "type" | "level">;
+	className?: string;
+}) {
+	const type = notification.type ?? "";
+	const Icon = typeIcons.find((t) => type.startsWith(t.prefix))?.icon ?? Bell;
+	const level = notification.level;
+	const tint =
+		level && level !== "info"
+			? levelTints[level]
+			: type.startsWith("whatsapp.")
+				? levelTints.success
+				: "bg-primary/10 text-primary";
+	return (
+		<span
+			className={cn(
+				"flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+				tint,
+				className,
+			)}
+		>
+			<Icon className="h-4 w-4" />
+		</span>
+	);
 }

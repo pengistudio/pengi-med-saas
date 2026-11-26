@@ -6276,6 +6276,22 @@
         "value": "Delete read"
     },
     {
+        "key": "notification.page.group.today",
+        "value": "Today"
+    },
+    {
+        "key": "notification.page.group.yesterday",
+        "value": "Yesterday"
+    },
+    {
+        "key": "notification.page.group.week",
+        "value": "This week"
+    },
+    {
+        "key": "notification.page.group.older",
+        "value": "Earlier"
+    },
+    {
         "key": "error_page.title",
         "value": "Something went wrong"
     },
