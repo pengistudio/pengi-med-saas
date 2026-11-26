@@ -485,6 +485,32 @@ func (c *Client) RegisterPhone(token, phoneNumberID, pin string) error {
 		map[string]string{"messaging_product": "whatsapp", "pin": pin}, nil)
 }
 
+// What RequestAppDataSync asks for, in the order Meta wants them.
+const (
+	SyncContacts = "smb_app_state_sync" // the WhatsApp Business app's contacts
+	SyncHistory  = "history"            // its chats, if the clinic agreed to share them
+)
+
+// RequestAppDataSync asks Meta to send a Coexistence number's WhatsApp
+// Business app data (syncType) as webhooks, and returns the request id Meta
+// wants to see in a support case. It must be called for both types within 24 h
+// of the onboarding, or the clinic has to be offboarded; each can be requested
+// only once per onboarding, so it must never be retried.
+func (c *Client) RequestAppDataSync(token, phoneNumberID, syncType string) (string, error) {
+	var out struct {
+		RequestID string `json:"request_id"`
+	}
+	err := c.do(http.MethodPost, phoneNumberID+"/smb_app_data", token, nil,
+		map[string]string{"messaging_product": "whatsapp", "sync_type": syncType}, &out)
+	if err != nil {
+		return "", redact(err, token) // the caller stores the error
+	}
+	if out.RequestID == "" {
+		return "", errors.New("whatsapp: app data sync answered without a request id")
+	}
+	return out.RequestID, nil
+}
+
 // PhoneNumber is a business phone number as answered by the Graph API.
 type PhoneNumber struct {
 	ID                 string `json:"id"`

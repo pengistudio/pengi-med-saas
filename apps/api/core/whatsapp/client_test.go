@@ -186,3 +186,50 @@ func TestOptOutRequested(t *testing.T) {
 		t.Error("message without text should not opt out")
 	}
 }
+
+func TestRequestAppDataSync(t *testing.T) {
+	var gotPath, gotAuth string
+	var got map[string]any
+	status, answer := http.StatusOK, `{"messaging_product":"whatsapp","request_id":"REQ-9"}`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath, gotAuth = r.Method+" "+r.URL.Path, r.Header.Get("Authorization")
+		got = nil
+		raw, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(raw, &got)
+		w.WriteHeader(status)
+		_, _ = w.Write([]byte(answer))
+	}))
+	defer srv.Close()
+	c := whatsapp.New(srv.URL, "v23.0", "", "")
+
+	for _, syncType := range []string{"smb_app_state_sync", "history"} {
+		id, err := c.RequestAppDataSync("tok", "PHONE1", syncType)
+		if err != nil || id != "REQ-9" {
+			t.Fatalf("id = %q, err = %v", id, err)
+		}
+		if gotPath != "POST /v23.0/PHONE1/smb_app_data" || gotAuth != "Bearer tok" {
+			t.Fatalf("request = %s, auth = %s", gotPath, gotAuth)
+		}
+		if len(got) != 2 || got["messaging_product"] != "whatsapp" || got["sync_type"] != syncType {
+			t.Fatalf("body = %v", got)
+		}
+	}
+	if whatsapp.SyncContacts != "smb_app_state_sync" || whatsapp.SyncHistory != "history" {
+		t.Fatal("sync types differ from Meta's")
+	}
+
+	answer = `{"messaging_product":"whatsapp"}`
+	if _, err := c.RequestAppDataSync("tok", "PHONE1", whatsapp.SyncHistory); err == nil {
+		t.Fatal("an answer without request id must be an error")
+	}
+
+	status, answer = http.StatusBadRequest, `{"error":{"code":100,"message":"bad token secret-token"}}`
+	_, err := c.RequestAppDataSync("secret-token", "PHONE1", whatsapp.SyncHistory)
+	var apiErr *whatsapp.APIError
+	if !errors.As(err, &apiErr) || apiErr.Code != 100 {
+		t.Fatalf("err = %v", err)
+	}
+	if strings.Contains(err.Error(), "secret-token") {
+		t.Fatalf("token leaked: %v", err)
+	}
+}

@@ -1,6 +1,7 @@
 # Bloqueos de WhatsApp al conectar: hechos y plan de pruebas
 
-Estado al 2026-11-16. La causa de los bloqueos **no está confirmada**. Este
+Estado al 2026-11-24. La causa de los bloqueos **sigue sin confirmarse** (ver la
+actualización del 2026-11-24, al final de las hipótesis). Este
 documento separa lo observado de las hipótesis y define pruebas que cambian
 una sola variable cada vez.
 
@@ -36,17 +37,79 @@ banner de WhatsApp Manager cita la Commerce Policy. Revisión solicitada el
 - **H3 Política de comercio / sector salud**: la Commerce Policy restringe
   productos médicos, medicamentos y telemedicina.
 - **H4 Algo que hace Gentoo al conectar** (suscripción, importación de
-  historial, llamadas de plantillas). Sin evidencia.
+  historial, llamadas de plantillas). Sin evidencia. La importación de historial
+  ya no es sospechosa: nunca se pidió (ver la actualización).
+- **H5 Restricciones de Meta a Tech Providers** alrededor de coexistence /
+  Embedded Signup, ajenas a Gentoo (añadida el 2026-11-24).
+
+## Actualización 2026-11-24
+
+1. **La causa sigue sin confirmarse.** Nada de esta sección la prueba, y los
+   cambios del punto 7 no pretenden arreglar los bloqueos.
+2. **H5.** En un hilo de la comunidad de Meta
+   (<https://developers.facebook.com/community/threads/891379180714484/>) varios
+   Tech Providers, entre ellos de LATAM y Brasil, cuentan restricciones alrededor
+   de coexistence / Embedded Signup desde ~17 jul 2026. Algunas apelaciones se
+   aceptaron y la cuenta volvió a restringirse. Seguían llegando reportes el 19 y
+   el 22 de noviembre. Son testimonios: Meta no ha dado una causa raíz.
+3. **Antigüedad del número (parte de H1).** Meta tiene códigos de elegibilidad en
+   Embedded Signup: 3441045 ("More activity on the WhatsApp Business App is
+   needed to help determine eligibility") y 3441077 ("This number isn't eligible
+   yet. Keep using it in the WhatsApp Business app and try again later"), en
+   <https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/errors>.
+   360dialog (un proveedor, no Meta) pide 7 días de uso como mínimo y recomienda
+   30. Nuestro número no fue rechazado en el alta, así que no es concluyente.
+4. **H3 pierde peso.** La entrada de la violación HEALTHCARE de Meta dice
+   "Manufacturers and healthcare services who do not engage in direct sale are
+   allowed".
+5. **H4: la importación de historial queda descartada.** Gentoo nunca llamó a
+   `smb_app_data`, el paso que la pide, así que nunca se envió historial.
+6. **Revisión automática tras el alta.** Según el changelog de Meta de abril de
+   2022, la revisión de cumplimiento se dispara sola, en segundo plano, después
+   del alta. Encaja con bloqueos a los pocos minutos, pero no dice el motivo.
+7. **Huecos de Gentoo, corregidos en la rama
+   `fix/whatsapp-enforcement-events`:**
+   - **A. Los avisos de Meta se perdían.** El webhook ignoraba casi todos los
+     `account_update` (incluidos `ACCOUNT_VIOLATION`, `DISABLED_UPDATE` y
+     `ACCOUNT_RESTRICTION`) y los logs del contenedor se borran en cada deploy.
+     Ahora todo `account_update`, `account_review_update` y `account_alerts`
+     queda en la tabla `whatsapp_account_events`, aunque la WABA no esté
+     conectada todavía.
+   - **B. Faltaba un paso obligatorio de coexistence.** Meta exige pedir los
+     contactos y el historial (`smb_app_data`) en las 24 h siguientes al alta; si
+     no, hay que dar de baja a la clínica y repetir el alta. Ahora se piden al
+     conectar, una sola vez y sin reintentos.
+   - Campos `account_review_update` y `account_alerts` del webhook activados
+     en el App Dashboard de Meta el 2026-11-25 (comprobado por API: la app
+     recibe los 8 campos y la URL de callback es la de producción).
+8. **Prueba 0, estado.** El 2026-11-24 la API de Meta muestra la cuenta de
+   mensajería "Approved" y el número registrado; el portafolio sigue sin
+   verificar. Eso **no prueba** que se levantara el bloqueo: hay que mirarlo en
+   Business Support Home.
+9. **Prueba A, dos avisos.**
+   - Error 3441128 de Meta: una cuenta de WhatsApp Business que está en el
+     portafolio dueño de la app no se puede conectar por Embedded Signup. Pengi
+     Studio es ese portafolio, así que la prueba A tal como estaba escrita
+     necesita **otro portafolio verificado**.
+   - El cambio B añade una variable a las pruebas futuras: las llamadas a
+     `smb_app_data`. Los incidentes 1 a 3 ocurrieron sin ellas, de modo que un
+     resultado distinto puede deberse a eso y no solo a lo que la prueba aísla.
 
 ## Reglas para toda prueba
 
 - Solo números de repuesto. Nunca el número real de una clínica.
 - Un solo intento de conexión por número. Sin desconectar ni reconectar.
 - Producción con #134, #135 y #136 desplegados (nada crea plantillas solo).
+- Antes de empezar: la rama `fix/whatsapp-enforcement-events` desplegada y los
+  campos `account_review_update` y `account_alerts` suscritos en el App Dashboard.
+  Sin eso se vuelve a perder el motivo que dé Meta.
+- Solo números con 7 días o más de uso real en WhatsApp Business (ideal: 30). En
+  la prueba B, que usa un número sin app, no aplica.
 - No pulsar "Crear plantillas faltantes" ni enviar mensajes hasta el paso
   indicado. Esperar 24 h entre pasos.
 - Registrar en cada paso: hora, estado del número (WhatsApp Manager), estado
-  del portafolio (Business Support Home) y logs de la API (`warn`/`error`).
+  del portafolio (Business Support Home), logs de la API (`warn`/`error`) y las
+  filas nuevas de `whatsapp_account_events`.
 
 ## Pruebas
 
@@ -54,11 +117,15 @@ banner de WhatsApp Manager cita la Commerce Policy. Revisión solicitada el
 - Restaurado → falso positivo automático; añadir método de pago y completar
   datos del negocio antes de cualquier otra prueba con ese portafolio.
 - Rechazado → anotar el motivo si lo dan; no reutilizar "Walter".
+- 2026-11-24: la API dice "Approved", pero falta confirmarlo en Business Support
+  Home (punto 8 de la actualización).
 
 ### Prueba A — Sin portafolio nuevo (aísla H1)
-- Cuenta de Facebook antigua del dueño, portafolio **Pengi Studio**
-  (verificado), 2FA activada, método de pago puesto.
-- Número de repuesto con WhatsApp Business usado de verdad más de 7 días.
+- Cuenta de Facebook antigua del dueño, 2FA activada, método de pago puesto y un
+  portafolio **verificado que no sea Pengi Studio**: es el dueño de la app y Meta
+  no deja conectarlo por Embedded Signup (error 3441128).
+- Número de repuesto con WhatsApp Business usado de verdad más de 7 días
+  (ideal: 30).
 - Conectar por coexistence. No hacer nada más durante 24 h.
 - Sobrevive → H1 gana peso. Cae → seguir con la prueba B.
 

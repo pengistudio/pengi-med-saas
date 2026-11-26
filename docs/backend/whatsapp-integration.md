@@ -140,7 +140,12 @@ customers through WhatsApp"*, en el menú izquierdo con el ícono del lápiz.
 - [ ] Callback URL: `https://<NGROK_DOMAIN>/api/v1/webhooks/whatsapp`.
 - [ ] Verify token: el mismo valor que `WHATSAPP_WEBHOOK_VERIFY_TOKEN`.
 - [ ] Pulsa **Verify and save**. Debe quedar en verde.
-- [ ] Suscribe los campos `messages` y `message_template_status_update`.
+- [ ] Suscribe los campos:
+  - `messages` y `message_template_status_update`;
+  - `account_update`, `account_review_update` y `account_alerts`: avisos de Meta
+    sobre la cuenta (violaciones, bloqueos, revisiones; sección 5);
+  - `history`, `smb_message_echoes` y `smb_app_state_sync`: coexistence. Los
+    contactos (`smb_app_state_sync`) se reciben y se ignoran a propósito.
 
 > Con el dominio estático esto se configura una sola vez. Cuando el stack está
 > apagado, Meta reintenta los eventos durante un tiempo y luego los descarta.
@@ -271,7 +276,7 @@ confirmar antes los códigos exactos en la documentación de Meta.
 | Qué | Dónde |
 |---|---|
 | Cliente Graph API, firma del webhook | `core/whatsapp/client.go`, `core/whatsapp/webhook.go` |
-| Modelos (`WhatsAppAccount`, `WhatsAppMessage`, `WhatsAppConversation`, `WhatsAppTemplate`) | `features/whatsapp/models/` |
+| Modelos (`WhatsAppAccount`, `WhatsAppMessage`, `WhatsAppConversation`, `WhatsAppTemplate`, `WhatsAppAccountEvent`) | `features/whatsapp/models/` |
 | Teléfono a E.164, catálogo de plantillas, agenda, consumer de la cola | `features/whatsapp/services/` (`phone.go`, `templates.go`, `schedule.go`, `sender.go`) |
 | Conversaciones, uso mensual, consentimiento, avisos | `services/conversations.go`, `usage.go`, `consent.go`, `notifications.go` |
 | Scheduler (cada 1 min, recupera mensajes trabados) | `features/whatsapp/workers/reminder-scheduler.go` |
@@ -307,7 +312,47 @@ Marcado en lote: `POST /api/v1/clinical/patients/whatsapp-opt-in`
 
 El webhook es público:
 - `GET /api/v1/webhooks/whatsapp` hace el handshake.
-- `POST /api/v1/webhooks/whatsapp` recibe los eventos.
+- `POST /api/v1/webhooks/whatsapp` recibe los eventos (hasta 4 MB; Meta envía
+  como máximo 3 MB).
+
+**Sincronización de coexistence (`smb_app_data`)**
+
+Tras conectar un número por coexistence, y ya guardada la cuenta, se pide a Meta
+`POST /<phone_number_id>/smb_app_data` dos veces: `smb_app_state_sync` (contactos)
+y luego `history` (historial). Meta lo exige en las 24 h siguientes al alta; si
+no, la clínica tiene que darse de baja y repetirla.
+- Cada tipo se puede pedir **una sola vez** por alta: no hay reintentos. Si uno
+  falla, la conexión queda hecha igual.
+- El resultado queda en `whatsapp_accounts`: `contacts_sync_request_id`,
+  `history_sync_request_id` (Meta los pide en un caso de soporte),
+  `app_data_sync_error` y `app_data_sync_at`. Se reinician en cada conexión.
+
+```sql
+SELECT tenant_id, waba_id, contacts_sync_request_id, history_sync_request_id,
+       app_data_sync_error, app_data_sync_at
+FROM whatsapp_accounts WHERE coexistence;
+```
+
+**Avisos de Meta sobre la cuenta**
+
+Todo `account_update`, `account_review_update` y `account_alerts` queda en la
+tabla `whatsapp_account_events` y en el log (`whatsapp webhook: account event`;
+`warn` si es una sanción). No hay endpoint ni pantalla. La tabla no tiene
+`tenant_id` a propósito: un bloqueo puede llegar antes de que exista la cuenta.
+Guardarlos no cambia el estado de ninguna cuenta.
+
+```sql
+-- Últimos avisos, con la clínica si la WABA está conectada
+SELECT e.created_at, e.occurred_at, e.waba_id, a.tenant_id, e.field, e.event,
+       e.detail, e.payload
+FROM whatsapp_account_events e
+LEFT JOIN whatsapp_accounts a ON a.waba_id = e.waba_id AND a.deleted_at IS NULL
+ORDER BY e.id DESC LIMIT 50;
+
+-- Un dato del aviso completo
+SELECT payload::jsonb -> 'violation_info'
+FROM whatsapp_account_events WHERE event = 'ACCOUNT_VIOLATION';
+```
 
 **Mensajes**
 - **Tipos (`kind`):**
