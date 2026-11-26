@@ -6,6 +6,12 @@ on:
     branches: [main]
     types: [completed]
 
+# Un deploy a la vez. El evento va en el grupo para que una corrida que se va a
+# saltar (PR) no reemplace un deploy pendiente
+concurrency:
+  group: deploy-${{ github.event.workflow_run.event }}
+  cancel-in-progress: false
+
 env:
   REGISTRY: ghcr.io
   ORG: pengistudio
@@ -14,7 +20,9 @@ jobs:
   build-and-push:
     name: Build & push images
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Solo push a main: `branches` filtra por la rama origen, así que un PR desde
+    # la rama `main` de un fork también dispararía este workflow
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
     permissions:
       contents: read
       packages: write
@@ -22,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v4
@@ -134,8 +144,10 @@ jobs:
 
             cd ~/pengi-med-saas/deploy
 
-            # Bajar los cambios del repo (Caddyfile, compose, etc.)
-            git -C ~/pengi-med-saas pull
+            # Bajar los cambios del repo (Caddyfile, compose, etc.) solo hasta el
+            # commit que pasó CI, no la punta de main
+            git -C ~/pengi-med-saas fetch origin main
+            git -C ~/pengi-med-saas merge --ff-only ${{ github.event.workflow_run.head_sha }}
 
             # Traer nuevas imágenes y reiniciar servicios
             docker compose --env-file .env.prod -f docker-compose.prod.yaml pull
