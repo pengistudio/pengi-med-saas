@@ -70,7 +70,9 @@ func (h *WhatsAppHandler) GetAccount(c *gin.Context) envelope.Response {
 
 // ConnectEmbedded finishes Embedded Signup: exchanges the code for the
 // business token, subscribes our app to the WABA, registers the number with
-// a random pin and makes sure the reminder template exists.
+// a random pin and makes sure the reminder template exists. A Coexistence
+// number is not registered; once saved, its app data sync is requested
+// (app-data-sync.go).
 //
 // Every attempt (also the failed ones) leaves one "whatsapp connect" Info line
 // with the ids, the coexistence flag and how long each Graph step took, to
@@ -159,7 +161,14 @@ func (h *WhatsAppHandler) ConnectEmbedded(c *gin.Context) (resp envelope.Respons
 			return h.encryptionUnavailable(err)
 		}
 	}
-	return h.saveConnection(c, box, account, token, phone, steps)
+	resp = h.saveConnection(c, box, account, token, phone, steps)
+	if req.Coexistence && resp.Code == http.StatusOK {
+		// After the save: the history webhooks it triggers need the account.
+		done := steps.start("app_data_sync")
+		h.requestAppDataSync(tenantdb.TenantID(c), token, req.PhoneNumberID, appDataSyncWait)
+		done()
+	}
+	return resp
 }
 
 // ConnectManual connects with a WABA id, phone number id and a (system user)
@@ -325,6 +334,8 @@ func (h *WhatsAppHandler) saveConnection(c *gin.Context, box interface{ Seal(str
 	account.Status = whatsapp_models.AccountStatusConnected
 	account.TemplateStatus, account.TemplateReason = templateStatus, ""
 	account.ConnectedAt = &now
+	account.ContactsSyncRequestID, account.HistorySyncRequestID = "", ""
+	account.AppDataSyncError, account.AppDataSyncAt = "", nil
 
 	if err := tenantdb.For(c, h.db).Save(&account).Error; err != nil {
 		h.logger.Error("failed to save whatsapp account", zap.Error(err))

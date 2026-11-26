@@ -126,7 +126,7 @@ func TestWebhook_EchoNotBilledAndBotQuiet(t *testing.T) {
 	}
 }
 
-// Events we don't act on change nothing; a reconnect or a removal never
+// Events we don't act on are stored but change nothing; a reconnect or a removal never
 // touches rejected credentials.
 func TestWebhook_AccountUpdateGuards(t *testing.T) {
 	f := newFixture(t)
@@ -137,6 +137,13 @@ func TestWebhook_AccountUpdateGuards(t *testing.T) {
 		if s := f.account(f.own).Status; s != whatsapp_models.AccountStatusConnected {
 			t.Fatalf("event %q changed status to %s", ev, s)
 		}
+		evs := f.accountEvents("WABA-OWN")
+		if last := len(evs) - 1; last < 0 || evs[last].Event != ev || evs[last].Field != "account_update" {
+			t.Fatalf("event %q not stored: %+v", ev, evs)
+		}
+	}
+	if evs := f.accountEvents("WABA-OWN"); len(evs) != 3 {
+		t.Fatalf("stored events = %d, want 3", len(evs))
 	}
 
 	f.db.Model(&whatsapp_models.WhatsAppAccount{}).Where("tenant_id = ?", f.own).Update("status", whatsapp_models.AccountStatusTokenInvalid)
@@ -144,6 +151,9 @@ func TestWebhook_AccountUpdateGuards(t *testing.T) {
 	f.signed(accountUpdateEvent("WABA-OWN", "ACCOUNT_RECONNECTED", "", ""))
 	if s := f.account(f.own).Status; s != whatsapp_models.AccountStatusTokenInvalid {
 		t.Fatalf("removal + reconnect revived a rejected token: %s", s)
+	}
+	if evs := f.accountEvents("WABA-OWN"); len(evs) != 5 || evs[3].Detail != "reason=PRIMARY_INACTIVITY initiated_by=SYSTEM" {
+		t.Fatalf("stored events = %+v", evs)
 	}
 }
 

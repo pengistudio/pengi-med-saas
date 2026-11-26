@@ -4,7 +4,10 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // SignatureHeader carries the HMAC of a webhook body.
@@ -49,13 +52,53 @@ type WebhookPayload struct {
 // WebhookEntry groups the changes of one WABA (ID is the WABA id).
 type WebhookEntry struct {
 	ID      string          `json:"id"`
+	Time    WebhookTime     `json:"time"` // when Meta triggered it; only some fields have it
 	Changes []WebhookChange `json:"changes"`
+}
+
+// WebhookTime is a unix time in seconds. Meta documents it both as a number
+// and as a string; anything else reads as the zero time, never as an error
+// (that would drop the whole payload).
+type WebhookTime struct{ time.Time }
+
+// maxUnixTime rejects times no database takes (year 2242).
+const maxUnixTime = 1 << 33
+
+func (t *WebhookTime) UnmarshalJSON(b []byte) error {
+	t.Time = time.Time{}
+	if n, err := strconv.ParseInt(strings.Trim(string(b), `"`), 10, 64); err == nil && n > 0 && n < maxUnixTime {
+		t.Time = time.Unix(n, 0).UTC()
+	}
+	return nil
 }
 
 // WebhookChange is one change; Field says which part of Value is filled.
 type WebhookChange struct {
 	Field string       `json:"field"` // "messages", "message_template_status_update", ...
 	Value WebhookValue `json:"value"`
+	// Raw is value exactly as Meta sent it.
+	Raw json.RawMessage `json:"-"`
+	// DecodeErr is set when value has an unexpected shape: Value is then
+	// incomplete and must not be acted on (AccountNotice still works).
+	DecodeErr error `json:"-"`
+}
+
+// UnmarshalJSON keeps the raw value and never fails, so that one change of an
+// unexpected shape doesn't drop the others of the payload (patient messages).
+func (c *WebhookChange) UnmarshalJSON(b []byte) error {
+	var parts struct {
+		Field string          `json:"field"`
+		Value json.RawMessage `json:"value"`
+	}
+	*c = WebhookChange{}
+	if c.DecodeErr = json.Unmarshal(b, &parts); c.DecodeErr != nil {
+		return nil
+	}
+	c.Field, c.Raw = parts.Field, parts.Value
+	if len(c.Raw) > 0 {
+		c.DecodeErr = json.Unmarshal(c.Raw, &c.Value)
+	}
+	return nil
 }
 
 // WebhookValue merges the shapes of the fields we subscribe to.

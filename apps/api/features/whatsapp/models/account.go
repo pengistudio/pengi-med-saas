@@ -88,6 +88,15 @@ type WhatsAppAccount struct {
 	// an appointment is marked no_show. Off by default.
 	NoShowMessageEnabled bool       `json:"no_show_message_enabled" gorm:"not null;default:false"`
 	ConnectedAt          *time.Time `json:"connected_at"`
+
+	// Outcome of the WhatsApp Business app data sync requested after a
+	// Coexistence connect (whatsapp.Client.RequestAppDataSync), kept for Meta
+	// support cases; empty for other connections. AppDataSyncAt is when it was
+	// requested. Reset on every new connect.
+	ContactsSyncRequestID string     `json:"-"`
+	HistorySyncRequestID  string     `json:"-"`
+	AppDataSyncError      string     `json:"-" gorm:"type:text"`
+	AppDataSyncAt         *time.Time `json:"-"`
 }
 
 func (WhatsAppAccount) TableName() string { return "whatsapp_accounts" }

@@ -65,6 +65,7 @@ func newFakeGraph() *fakeGraph {
 		"POST /v23.0/WABA-1/subscribed_apps":   {200, `{"success":true}`},
 		"GET /v23.0/WABA-1/message_templates":  {200, `{"data":[]}`},
 		"POST /v23.0/WABA-1/message_templates": {200, `{"id":"TPL-1","status":"PENDING","category":"UTILITY"}`},
+		"POST /v23.0/PHONE-1/smb_app_data":     {200, `{"messaging_product":"whatsapp","request_id":"REQ-1"}`},
 		"POST /v23.0/PHONE-1/register":         {200, `{"success":true}`},
 		"POST /v23.0/PHONE-1/messages":         {200, `{"messages":[{"id":"wamid.TEST"}]}`},
 		"GET /v23.0/oauth/access_token":        {200, `{"access_token":"embedded-token"}`},
@@ -186,7 +187,7 @@ func newFixture(t *testing.T) *fixture {
 		&permission_models.Permission{}, &user_models.Role{}, &company_models.Feature{}, &company_models.Plan{},
 		&company_models.Subscription{}, &whatsapp_models.WhatsAppTemplate{},
 		// The WhatsApp assistant (bot-reply.go) and what it reads.
-		&whatsapp_models.WhatsAppBotSettings{}, &whatsapp_models.WhatsAppBotEvent{}, &ai_models.AIUsageLog{},
+		&whatsapp_models.WhatsAppBotSettings{}, &whatsapp_models.WhatsAppBotEvent{}, &whatsapp_models.WhatsAppAccountEvent{}, &ai_models.AIUsageLog{},
 		&settings_models.SystemSetting{}, &doctor_models.Doctor{}, &agenda_models.DoctorSchedule{},
 		&agenda_models.ScheduleBlock{}, &audit.AuditLog{})
 	// Production gets it from code migration DB20261114_1, not AutoMigrate.

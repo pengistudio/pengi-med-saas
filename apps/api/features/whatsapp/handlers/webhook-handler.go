@@ -25,8 +25,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// maxWebhookBody caps what the public webhook reads.
-const maxWebhookBody = 1 << 20
+// maxWebhookBody caps what the public webhook reads. Meta's payloads can be up
+// to 3 MB (history chunks are the large ones).
+const maxWebhookBody = 4 << 20
 
 // Notification types created when a patient answers a reminder.
 const (
@@ -120,13 +121,27 @@ func (h *WebhookHandler) Process(payload whatsapp.WebhookPayload) {
 	for _, entry := range payload.Entry {
 		for _, change := range entry.Changes {
 			switch change.Field {
+			case whatsapp.FieldAccountUpdate, whatsapp.FieldAccountReviewUpdate, whatsapp.FieldAccountAlerts:
+				// First, and whatever its shape: it is the only trace of why
+				// Meta acted on an account.
+				h.recordAccountEvent(entry, change)
+			}
+			if change.DecodeErr != nil {
+				h.logger.Warn("whatsapp webhook: undecodable change", zap.String("field", change.Field), zap.Error(change.DecodeErr))
+				continue
+			}
+			switch change.Field {
 			case "messages":
 				h.processMessages(change.Value)
 			case "smb_message_echoes":
 				h.processEchoes(change.Value)
 			case "history":
 				h.processHistory(change.Value)
-			case "account_update":
+			case "smb_app_state_sync":
+				// Ignored on purpose: the contacts of the clinic's phone (asked
+				// for because Meta requires it, see app-data-sync.go) are
+				// personal data we have no use for.
+			case whatsapp.FieldAccountUpdate:
 				h.processAccountUpdate(entry.ID, change.Value)
 			case "message_template_status_update":
 				h.processTemplateStatus(entry.ID, change.Value)
