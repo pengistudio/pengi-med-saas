@@ -6276,6 +6276,22 @@
         "value": "Borrar leídas"
     },
     {
+        "key": "notification.page.group.today",
+        "value": "Hoy"
+    },
+    {
+        "key": "notification.page.group.yesterday",
+        "value": "Ayer"
+    },
+    {
+        "key": "notification.page.group.week",
+        "value": "Esta semana"
+    },
+    {
+        "key": "notification.page.group.older",
+        "value": "Anteriores"
+    },
+    {
         "key": "error_page.title",
         "value": "Algo salió mal"
     },
